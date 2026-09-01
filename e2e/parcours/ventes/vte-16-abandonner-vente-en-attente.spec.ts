@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test';
 import {
   ajouterAuPanier,
+  assurerCaisseOuverte,
   assurerPanierVide,
   chercherProduit,
   mettreEnAttente,
@@ -13,12 +14,15 @@ import { scenario } from '../../src/scenario';
  * ventes en attente. Il n'y en a pas — et c'est la première chose qu'un utilisateur y
  * cherche. Le chemin réel passe par la reprise, puis l'annulation depuis l'écran de vente.
  * Un manuel qui promettrait la suppression directe enverrait chercher un bouton absent.
+ *
+ * Le détour est volontaire : il oblige à voir ce qu'on jette.
  */
 scenario('VTE-16', async ({ etape, page }) => {
   const produit = 'PARACETAMOL 1G';
   const lignes = page.locator('tbody tr').filter({ visible: true });
 
   // Mise en place hors étapes : une vente en attente à abandonner (VTE-14).
+  await assurerCaisseOuverte(page);
   await assurerPanierVide(page);
   await page.goto('/sales-home');
   await chercherProduit(page, produit);
@@ -32,7 +36,9 @@ scenario('VTE-16', async ({ etape, page }) => {
   await etape(1, async () => {
     await ouvrirVentesEnAttente(page);
     await expect(liste).toBeVisible();
-    await expect(liste.locator('tbody tr').first()).toBeVisible();
+    // Le point du scénario : la seule action offerte est « Reprendre la vente ». Rien pour
+    // supprimer — l'image le montre mieux qu'une phrase.
+    await expect(liste.getByRole('button', { name: 'Reprendre la vente' }).first()).toBeVisible();
   });
 
   await etape(2, async () => {

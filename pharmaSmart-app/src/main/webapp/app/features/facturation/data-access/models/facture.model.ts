@@ -125,6 +125,24 @@ export interface IFacturationKpi {
   countEnRetard: number;
 }
 
+/**
+ * Filtres des indicateurs de facturation, tels que `GET /api/edition-factures/kpi` les accepte.
+ *
+ * <p>Volontairement DISTINCT de {@link IInvoiceSearchParams} : l'endpoint ne borne que sur une
+ * période, UN organisme ou UN groupe, là où la recherche accepte des listes et un statut. Les
+ * confondre reviendrait à promettre un filtrage que le serveur n'applique pas.
+ *
+ * <p>Sans `fromDate`/`toDate`, le serveur retombe sur le mois calendaire en cours — ce qui ne
+ * correspond pas à la période affichée par la liste. Les envoyer n'est donc pas facultatif.
+ */
+export interface IFactureKpiParams {
+  fromDate?: string | null;
+  toDate?: string | null;
+  organismeId?: number;
+  groupeId?: number;
+  typeFacture?: 'INDIVIDUAL' | 'GROUPED' | 'ALL';
+}
+
 // Récapitulatif mensuel
 export interface IRecapitulatifMensuelRow {
   numFacture?: string;

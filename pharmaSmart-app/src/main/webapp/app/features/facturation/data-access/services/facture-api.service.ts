@@ -11,6 +11,7 @@ import {
   IFactureEditionResponse,
   IFactureId,
   IFacturationKpi,
+  IFactureKpiParams,
   IInvoiceSearchParams,
   ITiersPayantDossierFacture,
 } from '../models';
@@ -87,7 +88,7 @@ export class FactureApiService {
     });
   }
 
-  getKpi(params: { fromDate?: string; toDate?: string; organismeId?: number }): Observable<HttpResponse<IFacturationKpi>> {
+  getKpi(params: IFactureKpiParams): Observable<HttpResponse<IFacturationKpi>> {
     return this.http.get<IFacturationKpi>(
       `${this.resourceUrl}/kpi`,
       { params: createRequestOptions(params), observe: 'response' },

@@ -17,7 +17,6 @@ import { scenario } from '../../src/scenario';
  */
 scenario('FAC-30', async ({ etape, page }) => {
   const lignes = page.locator('tbody tr').filter({ visible: true });
-  const contenu = page.locator('#main-content');
 
   await etape(1, async () => {
     await page.goto('/facturation');
@@ -33,10 +32,16 @@ scenario('FAC-30', async ({ etape, page }) => {
     await page.locator('.ng-option').first().click();
     await champTp.press('Escape');
     await rechercher(page);
-    await expect(lignes.first()).toBeVisible();
-
-    const certifiable = lignes.filter({ has: page.locator('button:has(.pi-shield)') }).first();
-    await certifiable.locator('button:has(.pi-shield)').first().click();
+    // Attendre la ligne issue de la recherche serveur, et non une ancienne ligne encore
+    // présente pendant le rafraîchissement du tableau.
+    const certifier = lignes
+      .filter({ hasText: /ASSURANCES SANTE DE COTE D'IVOIRE/ })
+      .filter({ has: page.locator('button:has(.pi-shield)') })
+      .first()
+      .locator('button:has(.pi-shield)')
+      .first();
+    await expect(certifier).toBeVisible();
+    await certifier.click();
     await page.locator('.modal-content:visible').getByRole('button', { name: 'Oui' }).click();
 
     // Le refus nomme ce qui manque, sans quoi on chercherait longtemps. Il arrive par une

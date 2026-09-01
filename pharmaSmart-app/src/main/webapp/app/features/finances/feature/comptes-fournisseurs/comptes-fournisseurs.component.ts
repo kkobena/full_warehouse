@@ -53,7 +53,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
 import { currencySymbol } from 'app/shared/utils/format-utils';
 @Component({
   selector: "app-comptes-fournisseurs",
-  imports: [DeviseDirective, 
+  imports: [DeviseDirective,
     HintComponent,
     CommonModule,
     FormsModule,
@@ -196,7 +196,14 @@ export class ComptesFournisseursComponent implements OnInit {
     const to = this.toDate() ? (NGB_DATE_TO_ISO(this.toDate()!) ?? undefined) : undefined;
     this.api.getComptes(from, to).subscribe({
       next: res => {
-        this.comptes.set(res.body ?? []);
+        const comptes = res.body ?? [];
+        this.comptes.set(comptes);
+        const selected = this.selectedFournisseur();
+        if (selected) {
+          this.selectedFournisseur.set(
+            comptes.find(compte => compte.fournisseurId === selected.fournisseurId) ?? null
+          );
+        }
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)

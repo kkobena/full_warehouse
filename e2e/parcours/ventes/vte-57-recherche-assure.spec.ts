@@ -7,7 +7,11 @@ import { scenario } from '../../src/scenario';
  * conditionne les suivants : ce qu'elle rapporte — les organismes, leurs taux, leurs champs
  * de bon — n'est plus à ressaisir ensuite.
  *
- * Deux comportements à connaître, que le manuel doit distinguer :
+ * Le champ n'interroge RIEN au fil de la frappe : il attend la touche ENTRÉE (`keydown.enter`
+ * dans `insurance-data-bar.component.html`). C'est là que l'utilisateur croit l'écran figé, et
+ * c'est pourquoi l'étape 2 fait le geste explicitement.
+ *
+ * Deux comportements à connaître ensuite, que le manuel doit distinguer :
  *  * un résultat UNIQUE est retenu directement, sans liste ni clic ;
  *  * plusieurs résultats ouvrent la liste de choix, où le MATRICULE départage des homonymes.
  *
@@ -33,6 +37,7 @@ scenario('VTE-57', async ({ etape, page }) => {
     // choisir.
     const recherche = page.getByPlaceholder('Rechercher un client assuré');
     await recherche.fill('TRAORE');
+    // La saisie seule ne cherche rien : c'est Entrée qui déclenche l'interrogation.
     await recherche.press('Enter');
     await expect(modale).toContainText('CLIENTS ASSURÉS');
     // La liste montre le matricule ET les organismes de chacun : de quoi vérifier la

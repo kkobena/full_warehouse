@@ -6,6 +6,7 @@ import {
   chercherProduit,
   mettreEnAttente,
   ouvrirVentesEnAttente,
+  payerEnEspeces,
 } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
@@ -13,6 +14,9 @@ import { scenario } from '../../src/scenario';
  * L'autre moitié de VTE-14 : ce qui a été mis de côté doit revenir intact. Le point que
  * l'image doit établir, c'est que les lignes sont TOUTES là — une reprise partielle serait
  * pire que pas de mise en attente du tout.
+ *
+ * Le parcours gare lui-même la vente qu'il reprend, plutôt que de compter sur celle d'un
+ * autre : deux parcours ne doivent pas se tenir par la main.
  *
  * Parcours ÉCRIVANT dans la base : il finalise la vente reprise.
  */
@@ -51,7 +55,7 @@ scenario('VTE-15', async ({ etape, page }) => {
   });
 
   await etape(3, async () => {
-    await page.locator('#CASH').fill('5000');
+    await payerEnEspeces(page, '5000');
     await page.getByRole('button', { name: 'Finaliser' }).click();
     await expect(page.locator('#main-content')).toContainText(/Panier vide|Ajoutez des produits/i);
   });

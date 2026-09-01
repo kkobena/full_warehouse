@@ -47,9 +47,8 @@ WITH fenetre AS (
     -- chargement. Elle sert à la journée en cours uniquement : générer une
     -- journée pleine à 09 h du matin daterait des ventes dans le futur, ce que
     -- 99_verification.sql refuse — et qui n'aurait aucun sens à l'écran.
-    -- Plancher à 8 % pour qu'un chargement matinal produise tout de même
-    -- quelques ventes du jour : une démo qui ouvre sur une caisse vide manque
-    -- son effet.
+    -- Le volume est ensuite borné à 12 ventes pour le jour courant : même tôt le
+    -- matin, la démo doit couvrir comptant, tiers payant, conseil et ordonnance.
     SELECT GREATEST(0.08, LEAST(1.0,
              EXTRACT(EPOCH FROM (LOCALTIME - TIME '08:00:00')) / (12 * 3600.0)
            ))::numeric AS part
@@ -70,8 +69,9 @@ jours AS (
 ),
 compte AS (
     SELECT j.jour, j.j, j.dow,
-           -- Journée en cours : volume proportionnel au temps écoulé.
-           GREATEST(1, (
+           -- Journée en cours : volume proportionnel au temps écoulé, avec un
+           -- échantillon métier minimal suffisamment large pour tous les écrans.
+           GREATEST(CASE WHEN j.j = 0 THEN 12 ELSE 1 END, (
                CASE j.dow WHEN 6 THEN 35 + (j.j % 11)      -- samedi
                           WHEN 0 THEN  8 + (j.j %  5)      -- dimanche de garde
                           ELSE       20 + (j.j % 11) END
@@ -206,15 +206,17 @@ ORDER BY sales_id, produit_id, quantity;
 
 DROP TABLE tmp_ligne_brute;
 
--- Écrêtage au plafond de stock, dans l'ordre chronologique : une fois le
--- gisement d'un produit épuisé, les ventes suivantes ne le portent plus.
+-- Écrêtage au plafond de stock. Les ventes du jour passent d'abord afin que
+-- l'historique ne consomme pas les cas métier nécessaires aux écrans courants ;
+-- le reste conserve son ordre chronologique.
 DELETE FROM tmp_ligne t
 USING (
     SELECT c.sales_id, c.produit_id
       FROM (
           SELECT sales_id, produit_id,
                  sum(quantity) OVER (PARTITION BY produit_id
-                                     ORDER BY sale_date, sales_id
+                                     ORDER BY CASE WHEN sale_date = CURRENT_DATE THEN 0 ELSE 1 END,
+                                              sale_date, sales_id
                                      ROWS UNBOUNDED PRECEDING) AS cumul
             FROM tmp_ligne
       ) c

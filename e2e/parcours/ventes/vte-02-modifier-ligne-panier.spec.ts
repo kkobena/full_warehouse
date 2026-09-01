@@ -5,9 +5,11 @@ import { scenario } from '../../src/scenario';
 /**
  * Corriger une quantité au comptoir doit coûter un geste, pas une reprise de la vente. Les
  * cellules de quantité du panier sont éditables AU CLIC : rien ne l'annonce à l'écran, ce qui
- * en fait exactement le genre de détail qu'un manuel doit montrer.
+ * en fait exactement le genre de détail qu'un manuel doit montrer. Et la correction n'est
+ * prise en compte qu'à la touche ENTRÉE — sans elle, la valeur reste dans un champ, pas dans
+ * la vente. La troisième étape montre l'autre correction possible : retirer la ligne.
  *
- * Parcours ÉCRIVANT dans la base : il annule la vente en cours après la dernière capture.
+ * Parcours ÉCRIVANT dans la base : la vente en cours disparaît avec sa dernière ligne.
  */
 scenario('VTE-02', async ({ etape, page }) => {
   const produit = 'PARACETAMOL 1G';
@@ -43,9 +45,18 @@ scenario('VTE-02', async ({ etape, page }) => {
     await expect(ligne).toContainText('5 425');
   });
 
-  // ── Remise en état, hors étapes. ──────────────────────────────────────────────────────
-  await page.getByRole('button', { name: 'Annuler' }).click();
-  const confirmation = page.locator('.modal-content');
-  await expect(confirmation).toBeVisible();
-  await confirmation.getByRole('button', { name: 'Oui' }).click();
+  await etape(3, async () => {
+    // L'autre moitié de la fiche : retirer la ligne. Le bouton est porté par la ligne
+    // elle-même, et la confirmation est systématique — c'est elle qui distingue le geste
+    // d'une fausse manœuvre. La demande d'autorisation superviseur, qui s'intercalerait
+    // ici pour un compte dépourvu du privilège, fait l'objet de VTE-46 : le compte joué
+    // ici le détient, la ligne part donc sans un mot de plus.
+    await ligne.getByRole('button', { name: 'Supprimer' }).click();
+    const confirmation = page.locator('.modal-content');
+    await expect(confirmation).toContainText(/Voulez-vous supprimer/i);
+    await confirmation.getByRole('button', { name: 'Oui' }).click();
+    // La suppression de la dernière ligne rend l'écran au client suivant : le parcours
+    // n'a donc rien à nettoyer derrière lui.
+    await expect(page.locator('#main-content')).toContainText(/Aucun produit dans la vente|Panier vide|Ajoutez des produits/i);
+  });
 });

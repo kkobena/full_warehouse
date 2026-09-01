@@ -7,6 +7,7 @@ import com.kobe.warehouse.service.dto.nav.NavAssignDTO;
 import com.kobe.warehouse.service.dto.nav.NavNodeDTO;
 import com.kobe.warehouse.service.dto.nav.NavReorderDTO;
 import com.kobe.warehouse.service.nav.NavItemService;
+import com.kobe.warehouse.service.nav.NavPathResolver;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,12 +38,32 @@ public class NavItemResource {
     private static final Logger log = LoggerFactory.getLogger(NavItemResource.class);
 
     private final NavItemService navItemService;
+    private final NavPathResolver navPathResolver;
     private final UserService userService;
 
 
-    public NavItemResource(NavItemService navItemService, UserService userService) {
+    public NavItemResource(NavItemService navItemService, NavPathResolver navPathResolver,
+                           UserService userService) {
         this.navItemService = navItemService;
+        this.navPathResolver = navPathResolver;
         this.userService = userService;
+    }
+
+    /**
+     * GET /api/nav/paths : chemin d'accès complet de chaque entrée de menu, indexé par code
+     * (« ventes.devis » → « Barre de navigation ▸ Gestion Courante ▸ Ventes ▸ Proformas »).
+     *
+     * <p>Sert au guide des fonctionnalités, qui référence les entrées par leur code : les
+     * libellés étant renommables et les entrées déplaçables, un chemin recopié dans le guide
+     * deviendrait faux en silence.
+     *
+     * <p>Non filtré par rôle, à dessein : le manuel décrit l'arborescence de l'application,
+     * pas le sous-ensemble visible par celui qui le lit.
+     */
+    @GetMapping("/nav/paths")
+    public ResponseEntity<Map<String, String>> getNavPaths() {
+        log.debug("REST request to get nav item paths");
+        return ResponseEntity.ok(navPathResolver.resolveAll());
     }
 
     /**

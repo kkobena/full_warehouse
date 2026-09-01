@@ -23,6 +23,16 @@ scenario('VTE-05', async ({ etape, page }) => {
   await expect(lignes.first()).toContainText(produit);
 
   await etape(1, async () => {
+    // Le passage au règlement se fait au clavier : Entrée sur la recherche produit VIDE
+    // déplace le curseur au premier mode de paiement. C'est le geste du comptoir — la souris
+    // ne sert qu'à ceux qui préfèrent cliquer directement dans le champ.
+    const recherche = page.locator('#produitbox');
+    await recherche.click();
+    await recherche.press('Enter');
+    await expect(page.locator('#CASH')).toBeVisible();
+  });
+
+  await etape(2, async () => {
     // Le montant remis en espèces, saisi dans le mode de règlement correspondant. Deux modes
     // au maximum peuvent être combinés — un seul suffit ici.
     await page.locator('#CASH').fill('2000');
@@ -31,7 +41,9 @@ scenario('VTE-05', async ({ etape, page }) => {
     await expect(page.locator('#main-content')).toContainText(/915/);
   });
 
-  await etape(2, async () => {
+  await etape(3, async () => {
+    // Trois gestes équivalents valident l'encaissement : Entrée depuis le champ du montant,
+    // F9, ou ce bouton. On illustre le bouton, seul geste visible sur une image.
     await page.getByRole('button', { name: 'Finaliser' }).click();
     // La vente enregistrée, l'écran revient au panier vide, prêt pour le client suivant :
     // c'est le seul retour visible d'un encaissement réussi au comptoir.

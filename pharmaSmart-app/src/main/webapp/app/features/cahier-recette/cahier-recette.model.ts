@@ -35,6 +35,8 @@ export interface CaptureEcran {
   fichier: string;
   /** Reprise du texte de l'étape : la légende ne peut donc pas contredire le parcours joué. */
   legende: string;
+  /** Empreinte SHA-256 générée, utilisée pour mutualiser uniquement les images identiques. */
+  empreinte?: string;
 }
 
 export interface ScenarioRecette {
@@ -47,7 +49,7 @@ export interface ScenarioRecette {
   fonctionnement: string;
   prerequis?: string;
   etapes: string[];
-  resultatAttendu: string;
+  resultatAttendu?: string;
   /** Masque ce scénario de l'affichage sans le supprimer du document. Défaut : false. */
   hidden?: boolean;
   /** Captures d'écran, injectées à la génération. Absent tant qu'aucune campagne n'a tourné. */
@@ -57,6 +59,34 @@ export interface ScenarioRecette {
 export interface FonctionnaliteRecette {
   nom: string;
   description?: string;
+  /**
+   * Point d'entrée hors menu, écrit tel quel : « Écran de vente ▸ bouton « Voir les ventes en
+   * attente » ». Pour tout ce qui est atteignable par la barre de navigation, préférer
+   * `accesCode` — un libellé recopié ici ne suit pas les renommages.
+   */
+  acces?: string;
+
+  /**
+   * Code `nav_item` de l'entrée de menu, ex. « ventes.devis ». Le chemin complet
+   * (« Barre de navigation ▸ Gestion Courante ▸ Ventes ▸ Proformas ») est reconstruit à
+   * l'affichage depuis la base, via GET /api/nav/paths.
+   *
+   * C'est le code, et lui seul, qui est stable : les libellés se renomment depuis l'écran
+   * d'administration et les entrées se déplacent. Un chemin recopié en dur devenait faux sans
+   * que rien ne le signale — le lecteur cherchait alors un menu qui n'existait plus.
+   *
+   * ⚠ « Nouvelle Vente » et « Nouvelle Prévente » ne sont plus affichées (V1.9.5 les a
+   * désactivées, V1.9.7 les a converties en actions masquées) : l'écran de vente s'ouvre par
+   * le bouton « Nouvelle vente » des onglets de `ventes`.
+   */
+  accesCode?: string;
+
+  /**
+   * Suite du chemin à l'intérieur de l'écran, une fois le menu atteint : « bouton « Nouvelle
+   * vente » ▸ onglet « Assurance » ». Ces éléments ne sont pas des entrées de menu, ils
+   * restent donc littéraux.
+   */
+  accesSuffixe?: string;
   scenarios: ScenarioRecette[];
   /** Masque cette fonctionnalité (et tous ses scénarios) de l'affichage. Défaut : false. */
   hidden?: boolean;
@@ -82,19 +112,11 @@ export interface FonctionnaliteRecette {
   roadmap?: boolean;
 }
 
-/** Résultat métier mis en avant avant le détail fonctionnel d'un module. */
-export interface BeneficeMetier {
-  titre: string;
-  description: string;
-}
-
 export interface ModuleRecette {
   id: string;
   nom: string;
   icone: string;
   description: string;
-  /** Synthèse destinée au décideur ; les scénarios restent la preuve fonctionnelle détaillée. */
-  beneficesMetier?: BeneficeMetier[];
   fonctionnalites: FonctionnaliteRecette[];
 }
 
@@ -105,23 +127,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-shopping-cart',
     description:
       "Un point de vente rapide, sécurisé et connecté au stock : PharmaSmart fluidifie l'encaissement, prend en charge les ventes comptant, assurance et à crédit, protège les opérations sensibles et offre une traçabilité complète jusqu'aux retours, avoirs et clôtures de caisse.",
-    beneficesMetier: [
-      {
-        titre: 'Fluidité au comptoir',
-        description: 'Réduire les ressaisies grâce à la recherche, au scan, aux calculs automatiques et aux différents parcours d’encaissement.'
-      },
-      {
-        titre: 'Service patient plus clair',
-        description: 'Calculer la part à payer, prendre en compte les bénéficiaires et fournir des justificatifs détaillés.'
-      },
-      {
-        titre: 'Caisse mieux contrôlée',
-        description: 'Encadrer les opérations sensibles par des droits, des autorisations et une traçabilité de leurs auteurs.'
-      },
-    ],
     fonctionnalites: [
       {
         nom: 'Vente au comptoir — construction du panier',
+        accesCode: 'ventes',
+        accesSuffixe: 'bouton « Nouvelle vente »',
         description:
           'Un parcours conçu pour réduire le temps d’attente au comptoir : recherche ou scan, tarification automatique, contrôle du stock, prise en charge tiers payant et encaissement dans un même écran.',
         scenarios: [
@@ -129,37 +139,70 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             id: 'VTE-01',
             titre: 'Rechercher et ajouter un produit à la vente en cours',
             besoin: 'Retrouver un produit rapidement (nom, code-barres) et l’ajouter à la vente sans ressaisie.',
-            fonctionnement: 'La recherche interroge le référentiel produit par désignation ou code-barres/scanner. Le prix "net" (après remise éventuelle) est calculé et figé sur la ligne dès l’ajout.',
-            prerequis: 'Produit en stock disponible (stock non réservé avant validation).',
-            etapes: ['Rechercher le produit par nom ou scanner son code-barres', 'Choisir la quantité', 'Ajouter à la vente en cours'],
-            resultatAttendu: 'La ligne apparaît dans le panier avec son prix net et sa quantité.',
+            fonctionnement:
+              'La recherche interroge le référentiel produit par désignation ou code-barres/scanner, et propose une liste déroulante : on retient un produit en cliquant la suggestion, ou en la choisissant aux flèches puis en appuyant sur Entrée. Le produit retenu s’affiche avec son prix, et le curseur passe alors tout seul au champ « Quantité », déjà rempli à 1. La quantité se valide par la touche Entrée ou par le bouton « Ajouter au panier » — c’est ce geste, et lui seul, qui crée la ligne. Le prix net (après remise éventuelle) est calculé et figé sur la ligne dès l’ajout. Deux touches font gagner du temps : F2 ramène le curseur à la recherche produit, F3 au champ quantité.',
+            prerequis:
+              'Aucun. Un stock insuffisant n’interdit pas la vente : PharmaSmart propose alors, selon le cas, un transfert depuis la réserve, un déconditionnement, ou un forçage réservé aux utilisateurs habilités (voir les fiches correspondantes).',
+            etapes: [
+              'Rechercher le produit par nom ou scanner son code-barres',
+              'Retenir la suggestion voulue (clic, ou flèches puis Entrée) : le prix s’affiche et le curseur passe à la quantité',
+              'Saisir la quantité par-dessus la valeur proposée',
+              'Valider par Entrée ou par le bouton « Ajouter au panier »',
+            ],
+            resultatAttendu: 'La ligne apparaît dans le panier avec son prix net, sa quantité et son total, et le curseur revient à la recherche produit pour l’article suivant.',
           },
           {
             id: 'VTE-02',
             titre: 'Modifier la quantité ou supprimer une ligne du panier',
             besoin: 'Corriger une erreur de saisie avant l’encaissement (mauvaise quantité, produit ajouté par erreur).',
-            fonctionnement: 'Tant que la vente n’est pas validée, chaque ligne du panier reste modifiable ou supprimable individuellement.',
-            etapes: ['Sélectionner la ligne dans le panier', 'Modifier la quantité ou la supprimer'],
-            resultatAttendu: 'Le panier et le total reflètent la correction, sans impact sur le stock avant validation.',
+            fonctionnement:
+              'Tant que la vente n’est pas validée, chaque ligne du panier reste modifiable ou supprimable individuellement. La cellule « Quantité » est éditable AU CLIC — rien ne l’annonce à l’écran : un clic dessus la transforme en champ de saisie. La nouvelle quantité se valide par la touche Entrée ; c’est ce geste, et lui seul, qui recalcule le total de la ligne et le net à encaisser. Quitter la cellule sans appuyer sur Entrée laisse la ligne inchangée — la valeur affichée dans un champ non validé ne veut rien dire. La quantité est refusée si elle dépasse le stock disponible, sauf forçage par un utilisateur habilité. La suppression, elle, passe par le bouton « Supprimer » de la ligne, suivi d’une confirmation ; si le caissier connecté n’a pas le privilège « Suppression de produit », une demande d’autorisation superviseur s’intercale et rien n’est supprimé tant qu’elle n’est pas accordée.',
+            etapes: [
+              'Cliquer la cellule « Quantité » de la ligne à corriger : elle bascule en champ de saisie',
+              'Saisir la nouvelle quantité et la valider par la touche Entrée — le total de la ligne et le net à encaisser se recalculent',
+              'Pour retirer l’article, cliquer le bouton « Supprimer » de sa ligne, puis confirmer',
+            ],
+            resultatAttendu:
+              'Le panier et le total reflètent la correction — quantité validée par Entrée, ou ligne retirée après confirmation — sans impact sur le stock avant validation de la vente.',
           },
           {
             id: 'VTE-03',
             titre: 'Vente avec remise sur grille produit',
             besoin: 'Appliquer la politique commerciale de l’officine sans calcul manuel, source d’erreur.',
             fonctionnement:
-              'La remise est choisie par le caissier sur la vente en cours, puis chaque ligne reçoit SON taux : le produit porte un code remise, et la grille associe à ce code deux taux — l’un pour les ventes hors ordonnance, l’autre pour les ordonnancées. Deux produits d’une même vente peuvent donc être remisés différemment. Le prix net de la ligne est recalculé à partir du prix catalogue et du taux applicable.',
+              'La remise est choisie par le caissier sur la vente en cours : le bouton « Remise », en haut du panier, ouvre la liste des grilles disponibles avec leur taux (les touches F8 ou Alt+R l’ouvrent sans la souris). Le produit porte un code remise, et la grille associe à ce code deux taux — l’un pour les ventes hors ordonnance, l’autre pour les ordonnancées. Deux produits d’une même vente peuvent donc être remisés différemment. Le prix net de la ligne est recalculé à partir du prix catalogue et du taux applicable. Une fois posée, la remise s’affiche en pastille « Remise : … » au-dessus du panier, avec un crayon pour la remplacer et une croix pour la retirer.',
             prerequis: 'Une grille de remise est configurée et les produits portent un code remise.',
             etapes: ['Ajouter au panier un produit portant un code remise', 'Appliquer la grille de remise à la vente', 'Contrôler le montant remisé avant d’encaisser'],
             resultatAttendu: 'Le montant remisé est déduit du total, affiché distinctement, et le net à encaisser en tient compte.',
           },
           {
+            id: 'VTE-62',
+            titre: 'Retirer la remise appliquée à la vente en cours',
+            besoin: 'Revenir sur une remise accordée par erreur, ou à laquelle le client n’a finalement pas droit, sans défaire le panier ni recommencer la vente.',
+            fonctionnement:
+              'Tant que la vente n’est pas encaissée, la remise reste réversible. La pastille « Remise : … », au-dessus du panier, porte deux boutons : le crayon remplace la grille par une autre, la croix retire la remise. Le retrait demande confirmation — « Voulez-vous vraiment supprimer la remise appliquée ? » — puis chaque ligne reprend son prix catalogue et le net à encaisser remonte d’autant. Le geste existe aussi au clavier : Alt+Maj+R. Si le caissier connecté n’a pas le privilège de remise, une demande d’autorisation superviseur s’intercale (voir la fiche correspondante).',
+            prerequis: 'Une remise est appliquée à la vente en cours, qui n’est pas encore encaissée.',
+            etapes: [
+              'Repérer la pastille « Remise » au-dessus du panier',
+              'Cliquer la croix « Supprimer la remise » (ou Alt+Maj+R)',
+              'Confirmer la suppression',
+            ],
+            resultatAttendu: 'La pastille de remise disparaît, les lignes retrouvent leur prix catalogue et le montant à encaisser est recalculé sans remise.',
+          },
+          {
             id: 'VTE-04',
             titre: 'Vente avec prise en charge assurance / tiers payant',
-            besoin: 'Vendre à un patient assuré en ne lui facturant que sa part (ticket modérateur), le solde étant à récupérer auprès du tiers payant.',
+            besoin: 'Vendre à un patient assuré en ne lui facturant que sa part, le solde étant à récupérer auprès du tiers payant.',
             fonctionnement:
-              'La vente porte une nature différente de "comptant" dès qu’un tiers payant est impliqué. Le rapport entre le montant dû par le patient et le montant total de la vente constitue le taux de part patient, réutilisé tel quel en cas de retour ultérieur pour répartir le remboursement.',
+              'Recherchez l’assuré dans l’onglet Assurance puis appuyez sur Entrée. Selon le résultat, l’assuré est soit sélectionné automatiquement,si plusieurs résultats existent, choisissez le bon assuré dans la liste. Si aucun assuré n’est trouvé, l’application propose de créer le client. Une fois l’assuré sélectionné, son matricule ainsi que le taux de prise en charge de son organisme s’affichent dans le bandeau',
             prerequis: 'Client affilié à un tiers payant, produits éligibles à la prise en charge.',
-            etapes: ['Sélectionner le client assuré', 'Renseigner les informations d’assurance sur la vente', 'Valider le calcul part assurance / part patient', 'Encaisser la part patient'],
+            etapes: [
+              'Ouvrir l’onglet « Assurance » et saisir le nom ou le matricule dans le champ « Rechercher un client assuré »',
+              'Valider la recherche par la touche Entrée : un seul assuré trouvé est retenu automatiquement ; s’ils sont plusieurs, désigner le bon au matricule dans la fenêtre « CLIENTS ASSURÉS » (double-clic sur sa ligne)',
+              'Saisir le numéro de bon de l’organisme et valider par Entrée : le curseur revient à la recherche produit',
+              'Ajouter les produits : la part assurance et la part patient s’affichent à côté du total',
+              'Encaisser la seule part patient',
+            ],
             resultatAttendu: 'Le ticket distingue la part prise en charge et la part patient ; la créance tiers payant est constituée pour la facturation.',
           },
           {
@@ -184,17 +227,22 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             id: 'VTE-05',
             titre: 'Sélectionner le mode de paiement et encaisser',
             besoin: 'Clôturer la vente avec le moyen de paiement réellement utilisé par le client, y compris lorsqu’il partage son règlement entre deux moyens.',
-            fonctionnement: 'La vente peut être réglée avec un seul mode parmi ceux configurés (espèces, carte bancaire, chèque, virement ou mobile money : Orange Money, Wave, Moov Money, MTN Mobile Money), ou combiner au maximum deux modes différents. Lors d’un paiement mixte, le reste à payer est recalculé et proposé sur le second mode. La validation fige la vente : montant, lignes et règlements ne sont plus modifiables ensuite ; seuls une annulation ou un retour peuvent la corriger a posteriori. Le stock n’est décrémenté qu’à cet instant ; s’il est devenu insuffisant entre-temps, l’encaissement est rejeté.',
+            fonctionnement:
+              'Le panier terminé, on passe au règlement sans la souris : lorsque le curseur est dans le champ de recherche, appuyer sur Entrée amène le curseur au premier mode de règlement (la touche F7 fait la même chose à tout moment). La vente peut être réglée avec un seul mode parmi ceux configurés (espèces, carte bancaire, chèque, virement ou mobile money : Orange Money, Wave, Moov Money, MTN Mobile Money), ou combiner au maximum deux modes différents. Lors d’un paiement mixte, le reste à payer est recalculé et proposé sur le second mode. L’encaissement se valide de trois façons équivalentes : Entrée depuis le champ du montant, clic sur le bouton « Finaliser », ou touche F9. La validation fige la vente : montant, lignes et règlements ne sont plus modifiables ensuite ; seuls une annulation ou un retour peuvent la corriger a posteriori. Le stock n’est décrémenté qu’à cet instant ; s’il est devenu insuffisant entre-temps, l’encaissement est rejeté.',
             prerequis: 'Caisse ouverte.',
-            etapes: ['Choisir un ou deux modes de paiement au maximum', 'Valider l’encaissement'],
-            resultatAttendu: 'La vente est enregistrée, le stock décrémenté, un ticket de caisse est imprimable.',
+            etapes: [
+              'Quitter la recherche produit pour le règlement : Entrée sur un champ de recherche vide, ou touche F7',
+              'Saisir le montant reçu sur le mode de règlement utilisé (deux modes au maximum)',
+              'Valider par Entrée, par le bouton « Finaliser » ou par la touche F9',
+            ],
+            resultatAttendu: 'La vente est enregistrée, le stock décrémenté, le panier se vide pour le client suivant et un ticket de caisse est imprimable.',
           },
           {
             id: 'VTE-60',
             titre: 'Laisser le solde d’une vente comptant en différé',
             besoin: 'Servir un client qui ne peut pas — ou ne veut pas — tout régler au comptoir, sans lui refuser ses médicaments ni perdre la trace de ce qu’il doit.',
             fonctionnement:
-              'Le différé ne se choisit pas : il se propose. Dès que le montant versé est inférieur au dû — y compris zéro —, la validation ouvre une fenêtre qui rappelle le montant dû, le montant versé et le reste à payer, et demande si ce reste part en différé. Accepter impose de désigner le client qui portera la créance, qu’on choisit dans la liste ou que l’on crée sur place, puis de motiver le différé : le commentaire est obligatoire. La vente est alors enregistrée, le stock décrémenté, et le reste vient grossir le compte différé du client, où il sera réglé plus tard.',
+              'Le différé ne se choisit pas : il se propose. Dès que le montant versé est inférieur au dû — y compris zéro —, la validation ouvre une fenêtre qui rappelle le montant dû, le montant versé et le reste à payer, et demande si ce reste part en différé. Accepter ouvre la fenêtre « SÉLECTION CLIENT — Vente différée » : le curseur est déjà dans le champ de recherche, la liste se met à jour dès le deuxième caractère saisi — il n’y a pas de touche à presser ni de bouton « Rechercher » —, et l’on désigne le client en cliquant sa ligne (ou le bouton vert en bout de ligne). Un bouton « Nouveau client » permet de le créer sur place s’il est inconnu. Reste à motiver le différé : le commentaire est obligatoire. La vente est alors enregistrée, le stock décrémenté, et le reste vient grossir le compte différé du client, où il sera réglé plus tard.',
             prerequis: 'Caisse ouverte.',
             etapes: [
               'Constituer la vente et saisir un règlement inférieur au montant dû',
@@ -326,6 +374,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Sécurité et autorisations de caisse',
+        accesCode: 'ventes',
+        accesSuffixe: 'bouton « Nouvelle vente » (contrôles déclenchés depuis l’écran de vente)',
         description: 'Des contrôles ciblés protègent les opérations les plus exposées à la fraude, sans ralentir les utilisateurs habilités. Ils s’appliquent aux ventes comptant, assurance et carnet.',
         scenarios: [
           {
@@ -350,14 +400,22 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Vente assurance — assuré et ayant droit',
+        accesCode: 'ventes',
+        accesSuffixe: 'bouton « Nouvelle vente » ▸ onglet « Assurance »',
         description: 'Le dossier de prise en charge reste fidèle au bénéficiaire réel tout en conservant le lien avec l’assuré principal et ses organismes payeurs.',
         scenarios: [
           {
             id: 'VTE-57',
             titre: 'Rechercher rapidement un client assuré et charger ses tiers payants',
             besoin: 'Identifier le bon assuré au comptoir et récupérer ses couvertures sans ressaisir ses organismes ni leurs taux.',
-            fonctionnement: 'La recherche interroge les clients assurés selon le type de vente. Un résultat unique est sélectionné directement ; plusieurs résultats ouvrent une liste de choix. Les tiers payants rattachés au client sont chargés dans la vente, avec leur taux et un champ de référence de bon pour chacun.',
-            etapes: ['Choisir la vente assurance', 'Rechercher l’assuré par son identité ou son matricule', 'Le sélectionner si plusieurs résultats sont proposés', 'Renseigner les références de bons des organismes'],
+            fonctionnement:
+              'Dans l’onglet Assurance, saisissez le nom ou le matricule du client assuré puis appuyez sur Entrée pour lancer la recherche. Si un seul assuré est trouvé, il est sélectionné automatiquement. Si plusieurs résultats existent, choisissez le bon assuré dans la fenêtre « CLIENTS ASSURÉS », de préférence à l’aide du matricule. Si aucun résultat n’est trouvé, l’application propose de créer le client. La touche F4 ou Alt+C permet de revenir rapidement à ce champ. Les tiers payants liés au client sont ensuite chargés automatiquement dans la vente avec leurs taux et leurs références de bon.',
+            etapes: [
+              'Choisir la vente assurance',
+              'Saisir l’identité ou le matricule de l’assuré dans le champ de recherche',
+              'Valider par la touche Entrée : un seul résultat est retenu automatiquement, sinon désigner le bon assuré au matricule dans la liste proposée',
+              'Renseigner les références de bons des organismes',
+            ],
             resultatAttendu: 'L’assuré et ses tiers payants sont rattachés à la vente sans ressaisie de leurs informations de couverture.',
           },
           {
@@ -373,6 +431,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Raccourcis clavier de l’écran de vente',
+        accesCode: 'ventes',
+        accesSuffixe: 'bouton « Nouvelle vente », puis touche F1 pour la liste des raccourcis',
         description: 'Les actions courantes restent accessibles au clavier pour servir plus de clients avec moins de manipulations.',
         scenarios: [
           {
@@ -391,6 +451,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Pré-ventes',
+        accesCode: 'ventes.presales',
+        accesSuffixe: 'bouton « Nouvelle pré-vente »',
         scenarios: [
           {
             id: 'VTE-07',
@@ -421,6 +483,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Devis / Proformas',
+        accesCode: 'ventes.devis',
         scenarios: [
           {
             id: 'VTE-10',
@@ -459,23 +522,32 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Ventes en cours',
-        description: 'Onglet "Ventes en cours" dans "Gestion courante"',
+        // Deux portes d'entrée : l'une n'est pas un menu et reste donc littérale.
+        acces: 'Écran de vente ▸ bouton « Voir les ventes en attente »',
+        accesCode: 'ventes.en-cours',
+        description: 'Une vente mise de côté ne bloque ni le comptoir, ni la caisse : elle attend son client pendant que les suivants sont servis.',
         scenarios: [
           {
             id: 'VTE-14',
             titre: 'Mettre une vente en attente',
             besoin: 'Gérer une interruption au comptoir (client qui va chercher un moyen de paiement) sans perdre le panier ni bloquer la caisse pour les clients suivants.',
-            fonctionnement: 'La mise en attente fige le panier courant dans l’onglet "Ventes en cours" et libère l’écran de caisse pour une nouvelle vente.',
-            etapes: ['Démarrer une vente', 'La mettre en attente'],
-            resultatAttendu: 'La vente apparaît dans l’onglet "Ventes en cours" avec toutes ses lignes.',
+            fonctionnement:
+              'Le bouton « En attente », à côté de « Finaliser », gare la vente en cours et rend l’écran disponible pour le client suivant. Les touches F10 et Alt+S font la même chose sans la souris. La vente doit porter au moins une ligne : sur un panier vide, un message le rappelle et rien n’est garé. Rien n’est décompté du stock ni encaissé — une vente en attente n’a encore rien engagé. Le bouton « Voir les ventes en attente », en haut de l’écran de vente, affiche alors un compteur : c’est le nombre de ventes garées par le caissier connecté.',
+            etapes: ['Constituer une vente avec au moins un produit', 'Cliquer sur « En attente » (ou touche F10)'],
+            resultatAttendu: 'Le panier se vide, l’écran est prêt pour le client suivant, et la vente garée est comptée sur le bouton « Voir les ventes en attente ».',
           },
           {
             id: 'VTE-15',
             titre: 'Reprendre une vente en attente',
             besoin: 'Finaliser une vente mise en pause plus tôt, sans perte de données.',
-            fonctionnement: 'La reprise recharge exactement les lignes de la vente en attente et permet de finaliser l’encaissement.',
+            fonctionnement:
+              'Le bouton « Voir les ventes en attente » ouvre la liste des ventes garées : date, vendeur, montant et nombre de lignes. La liste s’ouvre filtrée sur le caissier connecté — c’est ce qui explique l’écart avec le compteur quand on encaisse pour un autre — et le filtre par vendeur reste modifiable au-dessus. « Reprendre la vente » recharge exactement les lignes dans l’écran de vente, qui reprend là où il s’était arrêté : la vente peut alors être complétée, encaissée ou annulée comme n’importe quelle autre.',
             prerequis: 'Une vente en attente existe.',
-            etapes: ['Ouvrir l’onglet "Ventes en cours"', 'Sélectionner la vente à reprendre', 'Finaliser l’encaissement'],
+            etapes: [
+              'Ouvrir la liste par le bouton « Voir les ventes en attente »',
+              'Repérer la vente du client et cliquer « Reprendre la vente »',
+              'Vérifier que le panier est rechargé à l’identique, puis encaisser',
+            ],
             resultatAttendu: 'La vente est finalisée avec exactement les lignes qu’elle portait à sa mise en attente.',
           },
           {
@@ -483,14 +555,15 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Abandonner une vente en attente',
             besoin: 'Se débarrasser d’une vente mise de côté que le client ne viendra pas honorer.',
             fonctionnement:
-              'La liste des ventes en attente ne propose PAS de suppression directe : on reprend la vente, puis on l’annule depuis l’écran de vente. Elle n’a jamais touché ni le stock ni la caisse, son abandon ne laisse donc rien à rattraper.',
-            etapes: ['Ouvrir la liste des ventes en attente', 'Reprendre la vente à abandonner', 'L’annuler depuis l’écran de vente'],
+              'La liste des ventes en attente ne propose PAS de suppression directe : on reprend la vente, puis on l’annule depuis l’écran de vente par le bouton « Annuler », qui demande confirmation. Elle n’a jamais touché ni le stock ni la caisse, son abandon ne laisse donc rien à rattraper. L’annulation étant un geste soumis à privilège, un caissier non habilité se verra demander une autorisation superviseur.',
+            etapes: ['Ouvrir la liste des ventes en attente', 'Reprendre la vente à abandonner', 'L’annuler depuis l’écran de vente et confirmer'],
             resultatAttendu: 'La vente disparaît de la liste des ventes en attente et le compteur de la barre supérieure diminue d’autant.',
           },
         ],
       },
       {
         nom: 'Journal des ventes',
+        accesCode: 'ventes.journal',
         description: 'Onglet "Journal des ventes" dans "Gestion courante"',
         scenarios: [
           {
@@ -513,6 +586,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Annulation de vente',
+        accesCode: 'ventes.annulations',
         description: 'Onglet "Annulations" dans "Gestion courante"',
         scenarios: [
           {
@@ -529,6 +603,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Retours client',
+        accesCode: 'ventes.retours-client',
         description: 'Onglet "Retours client" dans "Gestion courante".',
         scenarios: [
           {
@@ -604,6 +679,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Avoirs clients',
+        accesCode: 'ventes.avoirs',
         description: 'Onglet "Avoirs clients" dans "Gestion courante"',
         scenarios: [
           {
@@ -619,7 +695,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Clôturer un avoir en servant le client',
             besoin: 'Permettre à un client de consommer un avoir sur un achat futur, plutôt que de lui rembourser en espèces.',
             fonctionnement:
-              "L'avoir ne s'impute pas sur un ticket : il se CLÔTURE, depuis l'onglet « Avoirs clients », au moment où le client repart avec ce qu'on lui devait. L'écran vérifie d'abord que le produit attendu est bien en stock — clôturer sans pouvoir servir n'aurait pas de sens — puis enregistre le montant utilisé : l'avoir passe à « soldé » s'il est consommé en totalité, ou conserve son reste s'il ne l'est qu'en partie.",
+              "L'avoir ne s'impute pas sur un ticket : il se CLÔTURE, depuis l'onglet « Avoirs clients », au moment où le client repart avec ce qu'on lui devait. L'écran vérifie d'abord que le produit attendu est bien en stock — puis enregistre le montant utilisé : l'avoir passe à « soldé » s'il est consommé en totalité, ou conserve son reste s'il ne l'est qu'en partie.",
             prerequis: 'Un avoir client ouvert existe, non expiré.',
             etapes: [
               "Retrouver l'avoir ouvert du client",
@@ -646,24 +722,28 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Ventes dépôt',
+        accesCode: 'ventes.vente-depot',
         description: 'Onglet "Ventes dépôt" dans "Gestion courante"',
         scenarios: [
           {
             id: 'VTE-29',
-            titre: 'Enregistrer une vente en dépôt',
-            besoin: 'Vendre depuis un point de stockage secondaire (dépôt) distinct de l’officine principale, en gardant les stocks de chaque entité séparés.',
-            fonctionnement: 'La vente est rattachée explicitement au dépôt sélectionné ; la décrémentation de stock s’applique au stock de ce dépôt et non à celui de l’officine principale.',
+            titre: 'Transférer du stock vers un dépôt',
+            besoin: 'Permettre à l’officine de transférer du stock vers un dépôt , avec enregistrement de l’opération et mise à jour correcte des stocks.',
+            fonctionnement: 'L’opération est rattachée au dépôt destinataire. Les quantités transférées sont déduites du stock de l’officine source et tracées comme une sortie de stock à destination de ce dépôt.',
             etapes: ['Ouvrir l’onglet "Ventes dépôt"', 'Constituer la vente pour le dépôt concerné', 'Valider'],
-            resultatAttendu: 'La vente est rattachée au bon dépôt et le stock du dépôt est correctement décrémenté.',
+            resultatAttendu: 'Le transfert est enregistré sur le bon dépôt destinataire et le stock de l’officine source est décrémenté correctement.'
           },
         ],
       },
       {
-        nom: 'Vente à crédit / compte différé',
+        nom: 'Vente à crédit',
+        accesCode: 'ventes',
+        accesSuffixe:
+          'bouton « Nouvelle vente » ▸ onglet « Carnet »',
         scenarios: [
           {
             id: 'VTE-30',
-            titre: 'Vendre au carnet (compte différé)',
+            titre: 'Vendre au carnet',
             besoin: 'Servir un client de confiance — souvent le personnel d’une entreprise partenaire — sans qu’il règle la totalité au comptoir.',
             fonctionnement:
               'La vente carnet se conduit comme une vente assurance : le client est rattaché à un carnet, qui joue le rôle d’organisme. Le carnet couvre en général la TOTALITÉ de l’achat — l’employeur ou la société partenaire règle tout, le porteur rembourse ensuite : « À ENCAISSER » tombe alors à zéro et la caisse n’est pas sollicitée. Le stock, lui, est décrémenté normalement.',
@@ -693,6 +773,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Tableau de bord des ventes',
+        accesCode: 'ventes.kpi',
         scenarios: [
           {
             id: 'VTE-31',
@@ -715,6 +796,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Gestion de caisse — ouverture',
+        accesCode: 'mvt-caisse.gestion-caisse',
         scenarios: [
           {
             id: 'VTE-33',
@@ -764,6 +846,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Gestion de caisse — mouvements et clôture',
+        accesCode: 'mvt-caisse',
         scenarios: [
           {
             id: 'VTE-36',
@@ -819,23 +902,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-receipt',
     description:
       'Un cycle tiers payant maîtrisé de bout en bout : PharmaSmart transforme les dossiers de vente en factures, accélère le recouvrement, détecte les retards et sécurise les règlements, avoirs, rapprochements et obligations FNE.',
-    beneficesMetier: [
-      {
-        titre: 'Créances identifiables',
-        description: 'Suivre chaque montant depuis la vente assurée jusqu’au règlement de l’organisme payeur.'
-      },
-      {
-        titre: 'Recouvrement mieux organisé',
-        description: 'Repérer les factures en attente, leur ancienneté et les écarts lors du rapprochement.'
-      },
-      {
-        titre: 'Facturation fiabilisée',
-        description: 'Regrouper les dossiers, appliquer les règles du tiers payant et conserver les avoirs et règlements associés.'
-      },
-    ],
     fonctionnalites: [
       {
         nom: 'Édition de facturation — génération unitaire',
+        accesCode: 'facturation.edition',
         scenarios: [
           {
             id: 'FAC-01',
@@ -868,6 +938,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Édition de facturation — génération groupée',
+        accesCode: 'facturation.edition',
         description: 'Registre de services : par groupe, par sélection de bons/BL, par type de tiers payant, tout générer.',
         scenarios: [
           {
@@ -912,6 +983,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Liste et détail des factures',
+        accesCode: 'facturation.factures',
         description: 'Un portefeuille filtrable et exportable pour retrouver une facture, isoler les impayés et préparer les actions de recouvrement.',
         scenarios: [
           {
@@ -951,6 +1023,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Pilotage du portefeuille de factures',
+        accesCode: 'facturation.factures',
+        accesSuffixe: 'bandeau d’indicateurs en tête de liste',
         description: 'Indicateurs de recouvrement et traitement groupé des factures encore impayées.',
         scenarios: [
           {
@@ -976,6 +1050,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Règlements de facture',
+        accesCode: 'facturation.factures',
+        accesSuffixe: 'facture sélectionnée ▸ enregistrement du règlement',
         scenarios: [
           {
             id: 'FAC-11',
@@ -1015,6 +1091,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Récapitulatif mensuel de facturation',
+        accesCode: 'facturation.recapitulatif',
         scenarios: [
           {
             id: 'FAC-13',
@@ -1036,6 +1113,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Rapprochement des règlements',
+        accesCode: 'facturation.rapprochement',
         description: 'Un poste de contrôle et d’encaissement qui chiffre les écarts, hiérarchise les retards et permet de régulariser sans quitter le rapprochement.',
         scenarios: [
           {
@@ -1114,6 +1192,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Avoirs de facturation',
+        accesCode: 'facturation.avoirs',
         scenarios: [
           {
             id: 'FAC-19',
@@ -1163,6 +1242,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Planification / automatisation de la facturation',
+        accesCode: 'facturation.automatisation',
         scenarios: [
           {
             id: 'FAC-24',
@@ -1206,6 +1286,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Certification fiscale électronique (FNE)',
+        accesCode: 'facturation.factures',
+        accesSuffixe: 'facture sélectionnée ▸ certification FNE',
         description: 'Certification DGI (Facture Normalisée Électronique).',
         scenarios: [
           {
@@ -1305,6 +1387,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Gestion des tiers payants et groupes',
+        accesCode: 'tiers-payant.tiers-payant',
         scenarios: [
           {
             id: 'FAC-36',
@@ -1347,6 +1430,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Remises de fin d’année (RFA) fournisseurs',
+        accesCode: 'facturation.remises-rfa',
         description: 'Onglet "Remises et avoirs" du menu Facturation — consultation des RFA et avoirs fournisseurs associés.',
         scenarios: [
           {
@@ -1375,23 +1459,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-truck',
     description:
       'Une chaîne d’approvisionnement maîtrisée de bout en bout : PharmaSmart transforme les besoins réels du stock en commandes, automatise les échanges fournisseur, fiabilise chaque réception, détecte les écarts et sécurise les retours, avoirs et règlements.',
-    beneficesMetier: [
-      {
-        titre: 'Commandes mieux dimensionnées',
-        description: 'S’appuyer sur la consommation, la rotation, la saisonnalité, le stock et les contraintes fournisseurs.'
-      },
-      {
-        titre: 'Réceptions plus fiables',
-        description: 'Contrôler les produits, quantités, prix, lots et péremptions avant d’intégrer le stock.'
-      },
-      {
-        titre: 'Relation fournisseur maîtrisée',
-        description: 'Détecter les écarts, préparer les retours et rapprocher commandes, réceptions, factures et avoirs.'
-      },
-    ],
     fonctionnalites: [
       {
         nom: 'Commande fournisseur — création & édition',
+        accesCode: 'commande.suggestions',
         description: 'De la commande urgente à l’import d’un fichier complet, l’équipe gagne du temps tout en conservant la maîtrise des quantités, prix, fournisseurs et reliquats.',
         scenarios: [
           {
@@ -1522,6 +1593,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Suggestions de réapprovisionnement',
+        accesCode: 'commande.suggestions',
         description: 'Les ventes et seuils de stock deviennent des propositions de commande actionnables, ajustables et validables avant tout engagement fournisseur.',
         scenarios: [
           {
@@ -1640,6 +1712,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Réapprovisionnement automatique (Semois)',
+        accesCode: 'commande.dashboard',
         description:
           'Pilotage prédictif du stock : PharmaSmart classe automatiquement les produits par criticité, transforme les ventes en VMM pondérée, tient compte des délais, de la saisonnalité, de la rotation, des commandes en cours et de la péremption, puis génère automatiquement des propositions de commande par fournisseur selon la planification configurée.',
         scenarios: [
@@ -1720,6 +1793,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Commande & suivi via PharmaML',
+        accesCode: 'commande.suggestions',
+        accesSuffixe: 'commande sélectionnée ▸ envoi PharmaML',
         description: 'Échanges PharmaML avec le grossiste-répartiteur.',
         scenarios: [
           {
@@ -1802,6 +1877,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Réception — saisie et finalisation',
+        accesCode: 'commande.suggestions',
+        accesSuffixe: 'commande sélectionnée ▸ bon de réception',
         description: 'Une réception assistée qui rapproche commande et livraison, signale les anomalies, sécurise les lots et la péremption, puis met à jour stock et valorisation en une seule finalisation contrôlée.',
         scenarios: [
           {
@@ -1953,6 +2030,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Rapprochement facture fournisseur / bon de livraison',
+        accesCode: 'commande.suggestions',
+        accesSuffixe: 'bon reçu ▸ rapprochement facture',
         description: 'Le contrôle facture–réception met immédiatement en évidence les écarts avant règlement, pour protéger la marge et faciliter les contestations fournisseur.',
         scenarios: [
           {
@@ -1977,6 +2056,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Bon d’entrée diverse',
+        accesCode: 'commande.bed',
         scenarios: [
           {
             id: 'ACH-48',
@@ -1990,6 +2070,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Retour fournisseur',
+        accesCode: 'commande.retour-fournisseur',
         description: 'Les retours partiels ou complets restent reliés aux réceptions d’origine et produisent les avoirs nécessaires au suivi financier du fournisseur.',
         scenarios: [
           {
@@ -2109,6 +2190,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Comptes fournisseurs & règlements',
+        accesCode: 'facturation.comptes-fournisseurs',
         scenarios: [
           {
             id: 'ACH-60',
@@ -2164,6 +2246,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Réassort et répartition du stock rayon / réserve',
+        accesCode: 'commande.repartition-stock',
         description: 'Redistribution interne guidée ou automatique entre rayon et réserve, avec conservation des lots en FEFO et traçabilité complète des mouvements.',
         scenarios: [
           {
@@ -2209,23 +2292,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-database',
     description:
       'Un catalogue vivant au service de la marge et de la disponibilité : chaque produit réunit tarifs, fournisseurs, emplacements, lots, ventes, achats et mouvements pour décider plus vite et agir sans quitter sa fiche.',
-    beneficesMetier: [
-      {
-        titre: 'Information produit centralisée',
-        description: 'Retrouver dans une même fiche les données commerciales, fiscales, logistiques et historiques.'
-      },
-      {
-        titre: 'Disponibilité mieux comprise',
-        description: 'Visualiser le stock par emplacement, les lots, les mouvements et les fournisseurs du produit.'
-      },
-      {
-        titre: 'Décisions plus rapides',
-        description: 'Consulter les ventes, achats, prix et indicateurs utiles sans multiplier les recherches.'
-      },
-    ],
     fonctionnalites: [
       {
         nom: 'Fiche produit — création, édition, suppression',
+        accesCode: 'catalogue',
+        accesSuffixe: 'bouton de création, ou ligne du produit pour l’éditer',
         description: 'Formulaire à onglets : infos générales, prix/TVA, stock, fournisseurs...',
         scenarios: [
           {
@@ -2337,6 +2408,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Panneau détail produit — stock et ventes',
+        accesCode: 'catalogue',
+        accesSuffixe: 'produit sélectionné ▸ panneau de détail',
         description: 'Onglets mouvements, indicateurs, ventes mensuelles, lots/péremption, génériques.',
         scenarios: [
           {
@@ -2445,6 +2518,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Rayons et emplacements du produit',
+        accesCode: 'catalogue',
+        accesSuffixe: 'fiche produit ▸ onglet « Rayons »',
         description: 'Onglet "Rayons" de la fiche produit — affectation produit → rayon, potentiellement sur plusieurs stockages.',
         scenarios: [
           {
@@ -2476,6 +2551,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Stock rayon / réserve du produit',
+        accesCode: 'catalogue',
+        accesSuffixe: 'fiche produit ▸ onglet « Stock »',
         description: 'Onglet "Stock" de la fiche produit — séparation entre le stock rayon et le stock de réserve.',
         scenarios: [
           {
@@ -2506,6 +2583,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Fournisseurs du produit',
+        accesCode: 'catalogue',
+        accesSuffixe: 'fiche produit ▸ onglet « Fournisseurs »',
         description: 'Onglet "Fournisseurs" de la fiche produit.',
         scenarios: [
           {
@@ -2529,6 +2608,9 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Prix de référence par tiers payant',
+        accesCode: 'catalogue',
+        accesSuffixe: 'fiche produit ▸ prix de référence par tiers payant',
+        acces: 'Fiche d’un tiers payant ▸ ses prix de référence',
         description: 'Tarification négociée, accessible depuis la fiche produit ou depuis un tiers payant.',
         scenarios: [
           {
@@ -2551,6 +2633,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Déconditionnement produit (configuration)',
+        accesCode: 'catalogue',
+        accesSuffixe: 'fiche produit ▸ déconditionnement',
         description: 'Configuration et historique, distinct du geste de déconditionnement lui-même.',
         scenarios: [
           {
@@ -2579,6 +2663,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
         // l'article ne sait pas faire. Masqué plutôt que supprimé, pour garder trace de ce
         // qui a existé et éviter qu'un prochain passage ne « répare » ce qui est un choix.
         nom: 'Commande rapide depuis la fiche produit',
+        accesCode: 'catalogue',
         hidden: true,
         scenarios: [
           {
@@ -2593,6 +2678,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Classification ABC des produits',
+        accesCode: 'catalogue',
+        accesSuffixe: 'produit sélectionné ▸ classification',
         description: 'Classement de criticité/rotation, utilisé par le réapprovisionnement.',
         scenarios: [
           {
@@ -2638,23 +2725,11 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     nom: 'Référentiel',
     icone: 'pi pi-sitemap',
     description: 'Données de référence transversales : familles, formes, gammes, laboratoires, TVA, tableaux (suppléments de prix), remises catalogue, rayons, officines et fournisseurs.',
-    beneficesMetier: [
-      {
-        titre: 'Données cohérentes',
-        description: 'Partager les mêmes classifications, taxes, fournisseurs et règles commerciales dans tous les modules.'
-      },
-      {
-        titre: 'Organisation fidèle à l’officine',
-        description: 'Représenter les rayons, emplacements, officines et dépôts utilisés au quotidien.'
-      },
-      {
-        titre: 'Moins de ressaisies',
-        description: 'Réutiliser les référentiels dans les produits, ventes, achats, stocks et rapports.'
-      },
-    ],
     fonctionnalites: [
       {
         nom: 'Référentiels produit simples (familles, formes, gammes, laboratoires, DCI)',
+        accesCode: 'referentiel',
+        accesSuffixe: 'l’une des entrées « Famille Produit », « Forme Produit », « Gamme Produit », « Laboratoire » ou « DCI »',
         scenarios: [
           {
             id: 'RFD-01',
@@ -2694,6 +2769,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Taux de TVA',
+        accesCode: 'tva',
         scenarios: [
           {
             id: 'RFD-05',
@@ -2715,6 +2791,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Tableaux',
+        accesCode: 'tableaux',
         scenarios: [
           {
             id: 'RFD-07',
@@ -2739,6 +2816,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Remises catalogue',
+        accesCode: 'remises',
         scenarios: [
           {
             id: 'RFD-09',
@@ -2760,6 +2838,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Rayons',
+        accesCode: 'rayon',
         scenarios: [
           {
             id: 'RFD-11',
@@ -2813,6 +2892,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Officines & dépôts',
+        accesCode: 'depot.liste-depots',
         scenarios: [
           {
             id: 'RFD-17',
@@ -2826,6 +2906,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Fournisseurs — fiche partenaire',
+        accesCode: 'fournisseurs',
         scenarios: [
           {
             id: 'RFD-18',
@@ -2869,23 +2950,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-box',
     description:
       'Une maîtrise physique et financière du stock : PharmaSmart trace chaque correction, accélère les inventaires, sécurise les lots et les péremptions, organise les destructions et rééquilibre les quantités entre rayon, réserve, officines et dépôts.',
-    beneficesMetier: [
-      {
-        titre: 'Stock localisable et traçable',
-        description: 'Savoir ce qui est disponible, dans quel stockage et, lorsque nécessaire, dans quel lot.'
-      },
-      {
-        titre: 'Pertes mieux anticipées',
-        description: 'Repérer les péremptions, organiser les retraits, retours et destructions avant qu’ils ne soient oubliés.'
-      },
-      {
-        titre: 'Inventaires mieux ciblés',
-        description: 'Compter toute l’officine ou limiter le travail à un rayon, une famille, un emplacement ou une catégorie à risque.'
-      },
-    ],
     fonctionnalites: [
       {
         nom: 'Ajustement de stock',
+        accesCode: 'ajustements',
         scenarios: [
           {
             id: 'STK-01',
@@ -2916,6 +2984,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Inventaire — création et saisie',
+        accesCode: 'inventaire.en-cours',
         description: 'Onglet "En cours".',
         scenarios: [
           {
@@ -2995,6 +3064,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Inventaire tournant (planning)',
+        accesCode: 'inventaire.tournant',
         description: 'Onglet "Tournant".',
         scenarios: [
           {
@@ -3049,6 +3119,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Clôture d’inventaire et analyse des écarts',
+        accesCode: 'inventaire.clotures',
         description: 'Qualification des écarts par cause.',
         scenarios: [
           {
@@ -3125,6 +3196,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Gestion des péremptions — consultation et filtres',
+        accesCode: 'peremptions.lot-perimes',
         description: 'Liste des lots périmés ou proches de péremption.',
         scenarios: [
           {
@@ -3173,6 +3245,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Gestion des péremptions — retrait et retour fournisseur',
+        accesCode: 'peremptions.lot-perimes',
         scenarios: [
           {
             id: 'STK-36',
@@ -3214,6 +3287,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Gestion des péremptions — déclaration manuelle',
+        accesCode: 'peremptions.lot-perimes',
+        accesSuffixe: 'déclaration manuelle de produits périmés',
         description: 'Pour les produits périmés constatés physiquement, hors suivi de lot informatique.',
         scenarios: [
           {
@@ -3246,6 +3321,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Lots à détruire',
+        accesCode: 'peremptions.lot-a-detruire',
         description: 'Suivi et exécution de la destruction physique des produits périmés retirés du stock.',
         scenarios: [
           {
@@ -3286,6 +3362,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Déconditionnement',
+        accesCode: 'catalogue',
+        accesSuffixe: 'produit déconditionnable ▸ action « Déconditionner »',
         scenarios: [
           {
             id: 'STK-20',
@@ -3308,6 +3386,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Répartition de stock entre officines/dépôts',
+        accesCode: 'depot.stock-depot',
         scenarios: [
           {
             id: 'STK-22',
@@ -3341,23 +3420,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-users',
     description:
       'Une relation client suivie sans perdre de vue la trésorerie : PharmaSmart centralise les achats, avoirs et ventes à crédit, mesure l’encours, facilite les encaissements et conserve une preuve claire de chaque règlement.',
-    beneficesMetier: [
-      {
-        titre: 'Relation client suivie',
-        description: 'Retrouver les achats, avoirs, crédits et règlements associés à chaque client.'
-      },
-      {
-        titre: 'Encours sous surveillance',
-        description: 'Visualiser ce qui reste dû avant d’accorder un nouveau différé ou d’enregistrer un règlement.'
-      },
-      {
-        titre: 'Règlements justifiables',
-        description: 'Conserver l’historique et les références nécessaires pour expliquer chaque mouvement du compte.'
-      },
-    ],
     fonctionnalites: [
       {
         nom: 'Fiche client — création, édition, suppression',
+        accesCode: 'customer',
         scenarios: [
           {
             id: 'CLI-01',
@@ -3417,6 +3483,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Panneau détail client — historique et avoirs',
+        accesCode: 'customer',
+        accesSuffixe: 'client sélectionné ▸ panneau de détail',
         description: "customer-detail : onglet historique d'achats + onglet avoirs.",
         scenarios: [
           {
@@ -3455,6 +3523,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Comptes différés — consultation',
+        accesCode: 'differes.differes',
         description: 'Onglet "Différés".',
         scenarios: [
           {
@@ -3493,6 +3562,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Comptes différés — règlements',
+        accesCode: 'differes.historique',
         description: 'Onglet "Historique des règlements différés".',
         scenarios: [
           {
@@ -3572,23 +3642,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-wallet',
     description:
       'Une lecture financière directement exploitable : PharmaSmart rapproche chiffre d’affaires, créances, dettes, TVA, caisse et achats, puis produit les états et exports nécessaires au pilotage de l’officine et aux échanges avec l’expert-comptable.',
-    beneficesMetier: [
-      {
-        titre: 'Vision financière consolidée',
-        description: 'Rapprocher ventes, achats, créances, dettes, TVA et caisse dans une lecture commune.'
-      },
-      {
-        titre: 'Échanges comptables facilités',
-        description: 'Produire les synthèses et exports nécessaires au contrôle et au travail avec l’expert-comptable.'
-      },
-      {
-        titre: 'Origine des montants retrouvable',
-        description: 'Relier les indicateurs financiers aux opérations qui les ont générés.'
-      },
-    ],
     fonctionnalites: [
       {
         nom: 'Tableau de bord financier',
+        accesCode: 'comptabilite',
         scenarios: [
           {
             id: 'CPT-01',
@@ -3612,6 +3669,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Déclaration TVA',
+        accesCode: 'comptabilite.taxe-report',
         scenarios: [
           {
             id: 'CPT-02',
@@ -3634,6 +3692,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Export comptable',
+        accesCode: 'comptabilite',
         description: 'Un dossier à la carte pour l’expert-comptable, généré sans retraitement manuel des données de gestion.',
         scenarios: [
           {
@@ -3658,6 +3717,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Balance des mouvements de caisse',
+        accesCode: 'comptabilite.balance',
         scenarios: [
           {
             id: 'CPT-05',
@@ -3671,6 +3731,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Tableau du pharmacien',
+        accesCode: 'comptabilite.tableau-pharmacien',
         description: 'Indicateur réglementaire officinal.',
         scenarios: [
           {
@@ -3701,6 +3762,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Récapitulatif de caisse consolidé',
+        accesCode: 'comptabilite.recapitulatif-caisse',
         description: 'Consolidation multi-caisses.',
         scenarios: [
           {
@@ -3724,6 +3786,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Rapport d’activité consolidé',
+        accesCode: 'comptabilite.raport-activite',
         description: 'Chiffre d’affaires, recettes, achats, mouvements de caisse, tiers payant.',
         scenarios: [
           {
@@ -3776,23 +3839,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-chart-bar',
     description:
       'Une véritable tour de contrôle de l’officine : PharmaSmart transforme ventes, stocks, clients, fournisseurs et créances en indicateurs visuels, comparaisons et analyses actionnables pour protéger la marge, réduire l’immobilisation et anticiper les décisions.',
-    beneficesMetier: [
-      {
-        titre: 'Décisions fondées sur l’activité réelle',
-        description: 'Lire ensemble chiffre d’affaires, marge, stock, créances, clients et fournisseurs.'
-      },
-      {
-        titre: 'Évolutions immédiatement visibles',
-        description: 'Comparer les périodes et repérer les familles, produits ou partenaires qui progressent ou reculent.'
-      },
-      {
-        titre: 'Indicateurs transformés en actions',
-        description: 'Identifier les ruptures, surstocks, faibles rotations, retards de paiement et autres priorités.'
-      },
-    ],
     fonctionnalites: [
       {
         nom: 'Rapports ventes & clients',
+        accesCode: 'rapport-ventes',
         scenarios: [
           {
             id: 'RPT-01',
@@ -3931,6 +3981,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Rapports stock',
+        accesCode: 'rapport-stock',
         description: 'De l’alerte opérationnelle à la valeur immobilisée, les rapports stock permettent de détecter, comprendre puis traiter les risques de rupture, surstock, faible rotation et perte de marge.',
         scenarios: [
           {
@@ -4005,6 +4056,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Rapports finances & créances',
+        accesCode: 'rapport-finance',
         scenarios: [
           {
             id: 'RPT-22',
@@ -4125,6 +4177,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Rapports partenaires',
+        accesCode: 'rapport-partners',
         scenarios: [
           {
             id: 'RPT-32',
@@ -4164,6 +4217,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Export des rapports',
+        accesCode: 'rapports',
+        accesSuffixe: 'rapport affiché ▸ bouton d’export',
         scenarios: [
           {
             id: 'RPT-34',
@@ -4178,6 +4233,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Accès aux rapports selon le profil',
+        accesCode: 'nav-manager',
         description: 'Les données stratégiques restent réservées aux collaborateurs qui en ont réellement besoin.',
         scenarios: [
           {
@@ -4193,6 +4249,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Rapports automatiques par email',
+        acces: 'Pas encore livré : aucune entrée de menu ne l’expose (fonctionnalité de la feuille de route).',
         roadmap: true,
         scenarios: [
           {
@@ -4219,23 +4276,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-mobile',
     description:
       "PharmaSmart accompagne chaque métier sur le support le plus efficace : l'application Web centralise toute la gestion depuis un navigateur, tandis que le client Desktop transforme les postes Windows de vente, commande, réception ou stock en espaces de travail dédiés, stables et connectés aux périphériques locaux. Les applications Android spécialisées prolongent enfin la vente et le pilotage en mobilité — autour des mêmes données serveur.",
-    beneficesMetier: [
-      {
-        titre: 'Un mode adapté à chaque contexte',
-        description: 'Travailler depuis un navigateur, un poste Desktop dédié ou une application mobile spécialisée.'
-      },
-      {
-        titre: 'Informations cohérentes',
-        description: 'Partager les mêmes données serveur entre le comptoir, le bureau et les usages mobiles.'
-      },
-      {
-        titre: 'Postes de travail mieux intégrés',
-        description: 'Exploiter sur les postes concernés les imprimantes, scanners et afficheurs clients locaux.'
-      },
-    ],
     fonctionnalites: [
       {
         nom: 'Une plateforme, plusieurs modes d’utilisation',
+        acces: 'Hors menu : navigateur web, application Desktop Windows ou applications Android, au choix du poste.',
         description:
           'Un socle fonctionnel central, accessible sans sacrifier les usages spécialisés du comptoir, de l’officine ou du pharmacien en déplacement.',
         scenarios: [
@@ -4273,6 +4317,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Application Desktop — poste Windows intégré',
+        acces: 'Application « PharmaSmart Desktop », installée sur le poste Windows (hors navigateur).',
         description:
           "Le mode recommandé pour les postes sollicités toute la journée : un espace de travail PharmaSmart identifiable et sans distraction, toute la richesse fonctionnelle du Web et l'accès direct aux imprimantes, scanners et afficheurs du poste.",
         scenarios: [
@@ -4349,6 +4394,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'PharmaSmart Sales Android — vente mobile',
+        acces: 'Application Android « PharmaSmart Sales », installée sur le terminal de vente.',
         description:
           'Un point de vente Android relié au backend central, adapté aux terminaux tactiles et aux appareils Sunmi avec imprimante intégrée.',
         scenarios: [
@@ -4422,6 +4468,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'PharmaSmart Mobile Reports — pilotage Android',
+        acces: 'Application Android « PharmaSmart Mobile Reports », sur le téléphone ou la tablette du pharmacien.',
         description:
           "Les indicateurs essentiels, alertes et analyses de l'officine restent consultables par le pharmacien depuis un téléphone ou une tablette Android.",
         scenarios: [
@@ -4475,6 +4522,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Notifications mobiles de pilotage',
+        acces: 'Pas encore livré : le circuit de notifications reste à raccorder (feuille de route).',
         description:
           'Le client Android contient le circuit de notifications Firebase, mais son enregistrement auprès du backend doit être raccordé avant commercialisation.',
         roadmap: true,
@@ -4492,6 +4540,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'PharmaSmart Inventory Android — comptage mobile',
+        acces: 'Pas encore livré : application Android de comptage, en attente d’alignement des API (feuille de route).',
         description:
           "Le client Android de comptage, scan et synchronisation est développé ; l'alignement de ses routes avec les API d'inventaire actuelles reste nécessaire avant un déploiement opérationnel de bout en bout.",
         roadmap: true,
@@ -4525,32 +4574,18 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     nom: 'Tableaux de bord d’accueil',
     icone: 'pi pi-home',
     description: "Écran affiché à la connexion : résolution du tableau de bord selon le profil, puis son contenu (Pharmacien, Caissier, Achats).",
-    beneficesMetier: [
-      {
-        titre: 'Priorités visibles dès la connexion',
-        description: 'Présenter immédiatement les informations utiles au rôle de l’utilisateur.'
-      },
-      {
-        titre: 'Moins de navigation',
-        description: 'Accéder directement aux indicateurs et actions les plus fréquents pour son activité.'
-      },
-      {
-        titre: 'Pilotage adapté au métier',
-        description: 'Différencier les besoins du pharmacien, de la caisse et des achats sans multiplier les outils.'
-      },
-    ],
     fonctionnalites: [
       {
         nom: 'Résolution et configuration du tableau de bord d’accueil',
+        acces: 'Écran d’accueil, affiché juste après la connexion — la configuration se fait par rôle ou par utilisateur.',
         scenarios: [
           {
             id: 'HOME-01',
             titre: 'Résoudre le tableau de bord affiché à la connexion',
             besoin: 'Afficher automatiquement, dès la connexion, le tableau de bord adapté au métier de l’utilisateur (pharmacien titulaire, caissier, responsable achats) sans qu’il ait à naviguer pour le trouver.',
             fonctionnement:
-              'La résolution suit un ordre de priorité strict : (1) un layout personnel marqué par défaut pour cet utilisateur, sinon (2) le layout marqué par défaut pour l’un de ses rôles, sinon (3) aucun layout — le tableau de bord générique de secours est affiché. Le résultat est mis en cache côté frontend pour la durée de la session (pas de rappel serveur à chaque navigation).',
+              'Le tableau de bord affiché est celui configuré pour son rôle, sinon un tableau de bord générique de bienvenue.',
             etapes: ['Se connecter avec un utilisateur donné', 'Observer le tableau de bord affiché automatiquement'],
-            resultatAttendu: 'Le tableau de bord affiché correspond au layout personnel de l’utilisateur s’il existe, sinon à celui de son rôle, sinon au tableau de bord générique.',
           },
           {
             id: 'HOME-02',
@@ -4607,6 +4642,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Tableau de bord Pharmacien (vue globale)',
+        acces: 'Écran d’accueil, pour un utilisateur dont le tableau de bord résolu est celui du pharmacien.',
         description: 'Tableau de bord du profil Pharmacien.',
         scenarios: [
           {
@@ -4663,6 +4699,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Badges d’alerte dans les menus',
+        acces: 'Barre de navigation : pastilles portées par les entrées de menu, visibles depuis n’importe quel écran.',
         description: 'Les urgences opérationnelles restent visibles pendant toute la navigation, sans imposer un passage préalable par le tableau de bord.',
         scenarios: [
           {
@@ -4705,6 +4742,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Tableau de bord Caissier',
+        acces: 'Écran d’accueil, pour un utilisateur dont le tableau de bord résolu est celui du caissier.',
         description: 'Tableau de bord du profil Caissier.',
         scenarios: [
           {
@@ -4759,6 +4797,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Tableau de bord Achats & Approvisionnement',
+        accesCode: 'commande.dashboard',
+        acces: 'Écran d’accueil, pour un utilisateur dont le tableau de bord résolu est celui des achats.',
         description: 'Accessible aussi comme écran ordinaire du module Achats.',
         scenarios: [
           {
@@ -4802,23 +4842,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     nom: 'Administration & Sécurité',
     icone: 'pi pi-cog',
     description: 'Utilisateurs, rôles, droits d’accès, navigation et paramétrage général.',
-    beneficesMetier: [
-      {
-        titre: 'Accès adaptés aux responsabilités',
-        description: 'Limiter les écrans et actions disponibles selon le rôle de chaque collaborateur.'
-      },
-      {
-        titre: 'Opérations sensibles protégées',
-        description: 'Réserver les fonctions critiques aux profils autorisés et faciliter le contrôle interne.'
-      },
-      {
-        titre: 'Solution configurable',
-        description: 'Adapter les paramètres généraux et la navigation à l’organisation de l’officine.'
-      },
-    ],
     fonctionnalites: [
       {
         nom: 'Connexion et session',
+        acces: 'Écran de connexion, avant toute entrée dans l’application — et menu de l’utilisateur connecté pour la déconnexion.',
         description:
           'Le premier écran que voit tout utilisateur, et le seul qu’il voit avant d’être authentifié. Deux scénarios ajoutés au cahier en écrivant les parcours : la connexion n’y figurait pas, alors qu’elle conditionne tout le reste.',
         scenarios: [
@@ -4844,6 +4871,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Utilisateurs — création, édition, suppression',
+        accesCode: 'utilisateurs',
         scenarios: [
           {
             id: 'ADM-01',
@@ -4889,6 +4917,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Rôles et privilèges (ABAC)',
+        accesCode: 'nav-manager',
         description: 'Rôles et droits d’accès par action/menu.',
         scenarios: [
           {
@@ -4936,6 +4965,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Gestion des menus & navigation',
+        accesCode: 'nav-manager',
         description: 'Réorganisation des menus par rôle et personnelle.',
         scenarios: [
           {
@@ -5007,6 +5037,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Licence & abonnement',
+        accesCode: 'gestion-licence',
         description:
           "Écran « Gérer ma licence » : état de l'abonnement, modules couverts, empreinte du poste, activation par fichier et historique.",
         version: '1.8.8',
@@ -5079,6 +5110,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Paramétrage général',
+        accesCode: 'parametres',
         scenarios: [
           {
             id: 'ADM-13',
@@ -5106,26 +5138,10 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
     icone: 'pi pi-percentage',
     description:
       'Le chiffre d’affaires encaissé et le chiffre d’affaires à déclarer ne sont pas le même nombre. PharmaSmart rend l’écart EXPLICITE : ce qui sort de l’assiette est décidé par des règles nommées, journalisé ligne à ligne, et contrôlé avant transmission.',
-    beneficesMetier: [
-      {
-        titre: 'Un écart justifiable',
-        description:
-          'Chaque exclusion — rayon, tiers payant, unité gratuite — est une règle posée, et chaque ligne écartée reste consultable dans son journal.',
-      },
-      {
-        titre: 'Rien qui se décide en silence',
-        description:
-          'La ponction se simule avant de s’appliquer, s’historise, et se lit ensuite en cumul face au chiffre d’affaires réel.',
-      },
-      {
-        titre: 'Des états contrôlés avant d’être transmis',
-        description:
-          'Un contrôle de cohérence vérifie que lignes de vente, ventes et règlements racontent la même chose — trois valeurs écrites séparément, que rien n’empêche de diverger.',
-      },
-    ],
     fonctionnalites: [
       {
         nom: 'Règles d’exclusion de l’assiette',
+        accesCode: 'declaration-ca.exclusion-rayon',
         description:
           'Ce qui ne doit pas entrer dans le chiffre d’affaires à déclarer, décidé une fois et appliqué partout.',
         scenarios: [
@@ -5166,6 +5182,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Journaux de ce qui a été écarté',
+        accesCode: 'declaration-ca.journal-tp',
         description:
           'Une exclusion qu’on ne peut pas relire ligne à ligne n’est pas justifiable. Trois journaux, un par règle.',
         scenarios: [
@@ -5204,6 +5221,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'Ponction du chiffre d’affaires',
+        accesCode: 'declaration-ca.ponction',
         description:
           'Réduire le chiffre d’affaires déclaré d’un montant décidé, réparti sur les ventes au comptant — simulé d’abord, historisé ensuite.',
         scenarios: [
@@ -5260,6 +5278,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
       },
       {
         nom: 'États sur le chiffre d’affaires encaissé',
+        accesCode: 'declaration-ca.balance-reelle',
         description:
           'Les mêmes états que la comptabilité courante, mais calculés sur ce qui a réellement été encaissé.',
         scenarios: [

@@ -8,6 +8,13 @@ import { scenario } from '../../src/scenario';
  * doivent donc figurer sur la même image — le total, la part prise en charge et le reste à
  * encaisser — faute de quoi le lecteur ne comprend pas ce qu'il regarde.
  *
+ * La RECHERCHE de l'assuré tient deux étapes plutôt qu'une, et ce n'est pas du zèle : le
+ * champ n'interroge rien au fil de la frappe, il attend la touche Entrée — c'est là que le
+ * lecteur croit l'écran figé. L'étape 1 montre donc la saisie faite, recherche non lancée ;
+ * l'étape 2 le résultat. Un seul assuré trouvé serait retenu d'office, sans fenêtre ; le
+ * terme joué ici en ramène plusieurs, ce qui donne l'image de la sélection manuelle par
+ * matricule — le cas où l'utilisateur a réellement quelque chose à faire.
+ *
  * Parcours ÉCRIVANT dans la base : il enregistre une vente et constitue une créance tiers
  * payant réelle.
  */
@@ -28,15 +35,23 @@ scenario('VTE-04', async ({ etape, page }) => {
 
   await etape(1, async () => {
     await assurerPanierVide(page);
-  await page.goto('/sales-home');
+    await page.goto('/sales-home');
     await expect(page.locator('#produitbox')).toBeVisible();
     await page.getByRole('tab', { name: /Assurance/ }).click();
 
-    // La recherche d'un assuré ouvre une liste : elle montre le matricule ET le taux de
-    // chaque organisme, ce qui permet de vérifier la couverture avant de servir.
+    // Le point de la fiche : la recherche ne part PAS au fil de la frappe. Le champ attend
+    // la touche Entrée — d'où la capture prise saisie faite, recherche non lancée.
     const recherche = page.getByPlaceholder('Rechercher un client assuré');
     await recherche.fill('ASSI');
-    await recherche.press('Enter');
+    await expect(recherche).toHaveValue('ASSI');
+  });
+
+  await etape(2, async () => {
+    // Entrée lance la recherche. Un seul assuré trouvé serait retenu d'office, sans cette
+    // fenêtre ; « ASSI » en ramène plusieurs, et c'est précisément ce cas que l'image doit
+    // montrer — la liste donne le matricule ET le taux de chaque organisme, ce qui permet
+    // de vérifier la couverture avant de servir.
+    await page.getByPlaceholder('Rechercher un client assuré').press('Enter');
     await expect(modale).toContainText('CLIENTS ASSURÉS');
     // Sélection par MATRICULE : plusieurs assurés partagent le même nom, et le matricule est
     // justement ce qui les distingue au comptoir. Le double-clic vaut sélection — l'infobulle
@@ -48,7 +63,7 @@ scenario('VTE-04', async ({ etape, page }) => {
     await expect(page.locator('#main-content')).toContainText(/Taux\s*:\s*70/);
   });
 
-  await etape(2, async () => {
+  await etape(3, async () => {
     // Le numéro de bon est la pièce qui rattache la vente au dossier de l'organisme : sans
     // lui, la facturation ne saurait pas quoi joindre.
     const bon = page.getByPlaceholder('Numéro de bon');
@@ -61,7 +76,7 @@ scenario('VTE-04', async ({ etape, page }) => {
     await bon.press('Enter');
   });
 
-  await etape(3, async () => {
+  await etape(4, async () => {
     // `Entrée` sur le dernier bon donne le focus à la recherche produit : c'est la
     // continuité de frappe voulue au comptoir. Attendre ce focus évite d'écrire dans un
     // champ que l'application s'apprête à reprendre.
@@ -78,7 +93,7 @@ scenario('VTE-04', async ({ etape, page }) => {
     await expect(page.locator('#main-content')).toContainText('7 785');
   });
 
-  await etape(4, async () => {
+  await etape(5, async () => {
     // Seule la part patient s'encaisse : le reste devient une créance sur l'organisme.
     await page.locator('#CASH').fill('10000');
     await page.getByRole('button', { name: 'Finaliser' }).click();

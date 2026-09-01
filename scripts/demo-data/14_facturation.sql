@@ -209,21 +209,22 @@ END $$;
 -- certification, pour voir le garde-fou la refuser. Sans facture impayee chez
 -- lui, le bouton n'apparait sur aucune ligne et le cas reste indemontrable.
 --
--- On force la plus recente de ses factures a l'impaye. Aucun encaissement ne la
--- vise : 14b_reglements ne regle que les factures dont montant_regle est deja
--- non nul.
+-- On force les deux plus recentes de ses factures a l'impaye. Un parcours de
+-- règlement exécuté avant FAC-30 peut en consommer une ; la seconde préserve le
+-- cas de refus FNE. Aucun encaissement initial ne les vise : 14b_reglements ne
+-- regle que les factures dont montant_regle est deja non nul.
 -- ---------------------------------------------------------------------------
 UPDATE facture_tiers_payant f
    SET statut = 'NOT_PAID',
        montant_regle = 0,
        updated = now()
- WHERE (f.id, f.invoice_date) = (
+ WHERE (f.id, f.invoice_date) IN (
      SELECT ftp.id, ftp.invoice_date
        FROM facture_tiers_payant ftp
        JOIN tiers_payant tp ON tp.id = ftp.tiers_payant_id
       WHERE tp.name = 'ASACI' AND NOT ftp.facture_provisoire
       ORDER BY ftp.invoice_date DESC
-      LIMIT 1
+      LIMIT 2
  );
 
 -- Les LIGNES suivent la facture : une facture impayee dont les bons se disent
@@ -245,8 +246,8 @@ BEGIN
       FROM facture_tiers_payant f
       JOIN tiers_payant tp ON tp.id = f.tiers_payant_id
      WHERE tp.name = 'ASACI' AND f.statut = 'NOT_PAID' AND NOT f.facture_provisoire;
-    IF v_n = 0 THEN
-        RAISE EXCEPTION 'Aucune facture impayee chez l''organisme sans email : le refus de certification FNE ne se demontre pas';
+    IF v_n < 2 THEN
+        RAISE EXCEPTION 'Seulement % facture(s) impayee(s) chez l''organisme sans email : un parcours anterieur peut consommer l''unique cas FNE', v_n;
     END IF;
 END $$;
 

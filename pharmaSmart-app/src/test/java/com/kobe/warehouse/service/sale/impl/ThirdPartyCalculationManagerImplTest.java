@@ -231,7 +231,7 @@ class ThirdPartyCalculationManagerImplTest {
         ClientTiersPayant client = thirdPartySaleLine.getClientTiersPayant();
         client.setConsoMensuelle(1_500);
         TiersPayant tiersPayant = client.getTiersPayant();
-        tiersPayant.setPlafondConso(20_000L);
+        tiersPayant.setPlafondConsoClient(20_000);
         tiersPayant.setPlafondJournalierClient(5_000);
         OptionPrixProduit reference = new OptionPrixProduit();
         reference.setTiersPayant(tiersPayant);

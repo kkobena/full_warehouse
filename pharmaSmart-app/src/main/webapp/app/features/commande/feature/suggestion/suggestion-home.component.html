@@ -1,17 +1,23 @@
-<!-- BANDEAU DÉPASSEMENT BUDGET -->
-@if (facade.budget()?.enDepassement) {
-  <div class="alert alert-danger d-flex align-items-center gap-2 mx-0 mt-2 mb-0" role="alert">
-    <i class="pi pi-exclamation-circle"></i>
-    <div>
-      <strong>Dépassement du budget mensuel !</strong>
-      Montant estimé :
-      <strong>{{ facade.budget()!.montantEstime | number }} <span appDevise></span></strong>
-      · Budget mensuel :
-      <strong>{{ facade.budget()!.budgetMensuel | number }} <span appDevise></span></strong>
-      · Déjà commandé ce mois :
-      <strong>{{ facade.budget()!.montantCommande | number }} <span appDevise></span></strong>
+<!-- SUIVI DU BUDGET — masqué uniquement lorsque le budget est illimité (valeur 0). -->
+@if (facade.budget(); as budget) {
+  @if (!budget.budgetIllimite) {
+    <div
+      [class.alert-danger]="budget.enDepassement"
+      [class.alert-info]="!budget.enDepassement"
+      class="alert d-flex align-items-center gap-2 mx-0 mt-2 mb-0"
+      role="alert">
+      <i [class.pi-exclamation-circle]="budget.enDepassement" [class.pi-info-circle]="!budget.enDepassement" class="pi"></i>
+      <div>
+        <strong>{{ budget.enDepassement ? 'Dépassement du budget mensuel !' : 'Suivi du budget mensuel' }}</strong>
+        Montant estimé :
+        <strong>{{ budget.montantEstime | number }} <span appDevise></span></strong>
+        · Budget mensuel :
+        <strong>{{ budget.budgetMensuel | number }} <span appDevise></span></strong>
+        · Déjà commandé ce mois :
+        <strong>{{ budget.montantCommande | number }} <span appDevise></span></strong>
+      </div>
     </div>
-  </div>
+  }
 }
 
 <!-- MODE LISTE -->

@@ -24,10 +24,140 @@ import {
   CAPTURE_FORCEE,
   DOSSIER_CAPTURES,
   IMAGE,
+  MARQUEURS_ACTIONS,
   MARGE_CADRAGE,
   PROJET_CAPTURES,
 } from './config';
 import { resoudreScenario, type ScenarioLocalise } from './cahier-recette';
+
+const CLE_INTERACTIONS = '__pharmaSmartCaptureInteractions';
+const ID_CALQUE_ACTIONS = '__pharmaSmartActionMarkers';
+
+/**
+ * Observe les gestes réellement envoyés à la page par Playwright. Les coordonnées sont prises
+ * AVANT que le geste ne ferme un popover, déplace un élément ou ouvre une modale.
+ */
+function installerObservationActions(): void {
+  const cleInteractions = '__pharmaSmartCaptureInteractions';
+  const fenetre = window as typeof window & {
+    __pharmaSmartCaptureInteractions?: Array<{ x: number; y: number; width: number; height: number; action: string; label: string }>;
+    __pharmaSmartActionObserverInstalled?: boolean;
+  };
+  if (fenetre.__pharmaSmartActionObserverInstalled) {
+    return;
+  }
+  fenetre.__pharmaSmartActionObserverInstalled = true;
+  fenetre[cleInteractions] = [];
+
+  const libelle = (element: HTMLElement): string => {
+    const explicit = element.getAttribute('aria-label') ?? element.getAttribute('title') ?? element.getAttribute('placeholder');
+    const texte = explicit ?? element.innerText ?? element.getAttribute('value') ?? element.tagName.toLowerCase();
+    return texte.replace(/\s+/g, ' ').trim().slice(0, 60) || element.tagName.toLowerCase();
+  };
+
+  const memoriser = (event: Event, action: string): void => {
+    const cible = event.target instanceof Element ? event.target.closest('button, a, input, textarea, select, [role="button"], [role="option"], [contenteditable="true"]') : null;
+    if (!(cible instanceof HTMLElement)) {
+      return;
+    }
+    const boite = cible.getBoundingClientRect();
+    if (boite.width < 2 || boite.height < 2) {
+      return;
+    }
+    const interactions = (fenetre[cleInteractions] ??= []);
+    const precedente = interactions.at(-1);
+    const label = libelle(cible);
+    // `fill()` peut émettre plusieurs événements input : une seule annotation suffit.
+    if (precedente?.action === action && precedente.label === label && Math.abs(precedente.x - boite.x) < 2 && Math.abs(precedente.y - boite.y) < 2) {
+      return;
+    }
+    interactions.push({ x: boite.x, y: boite.y, width: boite.width, height: boite.height, action, label });
+  };
+
+  document.addEventListener('pointerdown', event => memoriser(event, 'Cliquer'), true);
+  document.addEventListener('input', event => memoriser(event, 'Saisir'), true);
+  document.addEventListener('change', event => memoriser(event, 'Sélectionner'), true);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      memoriser(event, event.key === 'Enter' ? 'Valider avec Entrée' : 'Activer');
+    }
+  }, true);
+}
+
+async function reinitialiserActions(page: Page): Promise<void> {
+  await page.evaluate((cle): void => {
+    (window as typeof window & Record<string, unknown>)[cle] = [];
+    document.getElementById('__pharmaSmartActionMarkers')?.remove();
+  }, CLE_INTERACTIONS).catch((): undefined => undefined);
+}
+
+/** Ajoute un calque temporaire, exclusivement présent pendant page.screenshot(). */
+async function afficherMarqueursActions(page: Page): Promise<void> {
+  await page.evaluate(({ cle, id }) => {
+    const interactions = (window as typeof window & Record<string, unknown>)[cle] as
+      | Array<{ x: number; y: number; width: number; height: number; action: string; label: string }>
+      | undefined;
+    if (!interactions?.length) {
+      return;
+    }
+    document.getElementById(id)?.remove();
+    const namespace = 'http://www.w3.org/2000/svg';
+    const calque = document.createElementNS(namespace, 'svg');
+    calque.id = id;
+    calque.setAttribute('width', '100%');
+    calque.setAttribute('height', '100%');
+    calque.setAttribute('aria-hidden', 'true');
+    calque.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;';
+
+    const tracer = (x1: number, y1: number, x2: number, y2: number, couleur: string, largeur: number): void => {
+      const ligne = document.createElementNS(namespace, 'line');
+      ligne.setAttribute('x1', String(x1));
+      ligne.setAttribute('y1', String(y1));
+      ligne.setAttribute('x2', String(x2));
+      ligne.setAttribute('y2', String(y2));
+      ligne.setAttribute('stroke', couleur);
+      ligne.setAttribute('stroke-width', String(largeur));
+      ligne.setAttribute('stroke-linecap', 'round');
+      calque.appendChild(ligne);
+    };
+
+    interactions.forEach(interaction => {
+      // La pointe arrive juste à l'intérieur du coin du contrôle. Par défaut la flèche vient
+      // d'en haut à gauche ; près du bord supérieur elle vient d'en bas à gauche.
+      const finX = interaction.x + Math.min(18, interaction.width / 3);
+      const finY = interaction.y + Math.min(14, interaction.height / 3);
+      const depuisLeBas = finY < 55;
+      const debutX = Math.max(8, finX - 42);
+      const debutY = depuisLeBas ? finY + 42 : finY - 42;
+      const angle = Math.atan2(finY - debutY, finX - debutX);
+      const longueurPointe = 13;
+      const ouverture = Math.PI / 7;
+      const p1x = finX - longueurPointe * Math.cos(angle - ouverture);
+      const p1y = finY - longueurPointe * Math.sin(angle - ouverture);
+      const p2x = finX - longueurPointe * Math.cos(angle + ouverture);
+      const p2y = finY - longueurPointe * Math.sin(angle + ouverture);
+
+      // Liseré blanc sous la flèche : elle reste visible sur un bouton clair comme foncé.
+      tracer(debutX, debutY, finX, finY, 'white', 7);
+      tracer(debutX, debutY, finX, finY, '#e84b0f', 3.5);
+
+      const pointe = document.createElementNS(namespace, 'polygon');
+      pointe.setAttribute('points', `${finX},${finY} ${p1x},${p1y} ${p2x},${p2y}`);
+      pointe.setAttribute('fill', '#e84b0f');
+      pointe.setAttribute('stroke', 'white');
+      pointe.setAttribute('stroke-width', '2');
+      pointe.setAttribute('stroke-linejoin', 'round');
+      calque.appendChild(pointe);
+    });
+    document.body.appendChild(calque);
+  }, { cle: CLE_INTERACTIONS, id: ID_CALQUE_ACTIONS });
+}
+
+async function masquerMarqueursActions(page: Page): Promise<void> {
+  await page.evaluate((id): void => {
+    document.getElementById(id)?.remove();
+  }, ID_CALQUE_ACTIONS).catch((): undefined => undefined);
+}
 
 /**
  * Ramène la hauteur de l'image au bas du contenu applicatif.
@@ -50,18 +180,49 @@ async function cadrer(page: Page): Promise<{ x: number; y: number; width: number
   }
 
   const boite = await page
-    .locator('#main-content')
+    .locator('#main-content, main, [role="main"]')
     .first()
     .boundingBox()
     .catch((): null => null);
-  if (!boite) {
-    return undefined;
-  }
 
-  const hauteur = Math.min(fenetre.height, Math.ceil(boite.y + boite.height) + MARGE_CADRAGE);
-  // En deçà d'une centaine de pixels d'économie, le recadrage ne vaut pas l'écart de format
-  // entre les images du manuel.
-  if (hauteur >= fenetre.height - 100) {
+  const basContenuSignificatif = await page.evaluate((hauteurFenetre): number => {
+    const selecteurs = [
+      '#main-content > *', 'main > *', '[role="main"] > *',
+      '#main-content h1', '#main-content h2', '#main-content h3', '#main-content h4',
+      '#main-content p', '#main-content li', '#main-content td', '#main-content th',
+      '#main-content button', '#main-content input', '#main-content textarea', '#main-content select',
+      '#main-content img', '#main-content svg', '#main-content canvas',
+      '#main-content [role="button"]', '#main-content [role="option"]', '#main-content [role="alert"]',
+      '.ag-root-wrapper', '.card', '.alert', '.toast',
+      '.modal-content', '.popover', 'ngb-popover-window', '.dropdown-menu.show',
+    ].join(',');
+    let bas = 0;
+    for (const element of document.querySelectorAll(selecteurs)) {
+      if (!(element instanceof HTMLElement || element instanceof SVGElement)) {
+        continue;
+      }
+      const style = getComputedStyle(element);
+      const rectangle = element.getBoundingClientRect();
+      const visible = style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) !== 0
+        && rectangle.width > 1 && rectangle.height > 1 && rectangle.bottom > 0 && rectangle.top < hauteurFenetre;
+      if (visible) {
+        bas = Math.max(bas, Math.min(hauteurFenetre, rectangle.bottom));
+      }
+    }
+    return Math.ceil(bas);
+  }, fenetre.height);
+
+  const basStructurel = boite ? Math.ceil(boite.y + boite.height) : fenetre.height;
+  // Certains écrans de travail imposent `height: 100vh` à leur layout. Dans ce cas, le bas du
+  // conteneur ne dit rien sur le contenu réel : les éléments sémantiques visibles donnent une
+  // borne plus fidèle. Sur les pages ordinaires, on conserve la boîte structurelle.
+  const basUtile = basStructurel >= fenetre.height - 1 && basContenuSignificatif > 0
+    ? basContenuSignificatif
+    : basStructurel;
+  const hauteur = Math.min(fenetre.height, Math.max(1, basUtile + MARGE_CADRAGE));
+  // Seule une image déjà ajustée au pixel près reste en pleine hauteur. Une économie même
+  // modeste devient significative lorsqu'elle est répétée dans plusieurs centaines de vues.
+  if (hauteur >= fenetre.height) {
     return undefined;
   }
   return { x: 0, y: 0, width: fenetre.width, height: hauteur };
@@ -116,6 +277,11 @@ export function scenario(id: string, corps: (ctx: ContexteScenario) => Promise<v
     let erreursTolerees: string | null = null;
     const capturer = CAPTURE_FORCEE || testInfo.project.name === PROJET_CAPTURES;
 
+    if (capturer && MARQUEURS_ACTIONS) {
+      await page.addInitScript(installerObservationActions);
+      await page.evaluate(installerObservationActions);
+    }
+
     // Garde-fou de §3.1 : un parcours sans assertion photographie sans broncher une page
     // d'erreur. Ces deux écoutes coûtent presque rien et couvrent le cas le plus courant —
     // une exception JavaScript ou une réponse 5xx pendant le parcours.
@@ -140,6 +306,9 @@ export function scenario(id: string, corps: (ctx: ContexteScenario) => Promise<v
 
     const etape = (async (numero: number, action: () => Promise<void>): Promise<void> => {
       verifierNumero(numero);
+      if (capturer && MARQUEURS_ACTIONS) {
+        await reinitialiserActions(page);
+      }
       await action();
       couvertes.set(numero, 'parcourue');
 
@@ -158,17 +327,24 @@ export function scenario(id: string, corps: (ctx: ContexteScenario) => Promise<v
       const relatif = posix.join(id, `etape-${numero}.jpg`);
       const absolu = join(DOSSIER_CAPTURES, id, `etape-${numero}.jpg`);
       mkdirSync(dirname(absolu), { recursive: true });
-      await page.screenshot({
-        path: absolu,
-        type: IMAGE.type,
-        quality: IMAGE.quality,
-        fullPage: IMAGE.pleinePage,
-        clip: await cadrer(page),
-        // `animations` fige les transitions restantes ; `caret` masque le curseur clignotant,
-        // qui apparaîtrait une image sur deux dans un champ de saisie.
-        animations: 'disabled',
-        caret: 'hide',
-      });
+      if (MARQUEURS_ACTIONS) {
+        await afficherMarqueursActions(page);
+      }
+      try {
+        await page.screenshot({
+          path: absolu,
+          type: IMAGE.type,
+          quality: IMAGE.quality,
+          fullPage: IMAGE.pleinePage,
+          clip: await cadrer(page),
+          // `animations` fige les transitions restantes ; `caret` masque le curseur clignotant,
+          // qui apparaîtrait une image sur deux dans un champ de saisie.
+          animations: 'disabled',
+          caret: 'hide',
+        });
+      } finally {
+        await masquerMarqueursActions(page);
+      }
 
       const capture: CaptureIndexee = {
         scenarioId: id,

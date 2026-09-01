@@ -9,12 +9,7 @@
         <span class="drawer-subtitle">Reprendre une vente en cours</span>
       </div>
     </div>
-    <!--
-      La liste n'est construite QUE pendant que le tiroir est ouvert : elle charge les ventes
-      garées à son initialisation, et l'instance survivait jusque-là à la fermeture. Une vente
-      mise en attente APRÈS la première ouverture n'apparaissait donc jamais — le compteur du
-      bouton affichait « 1 » au-dessus d'une liste vide, et il fallait deviner « Actualiser ».
-    -->
+
     @if (pendingSalesSidebar()) {
       <app-pending-sales-list
         (closed)="closePendingSales()"
@@ -123,11 +118,7 @@
 
       <!-- Pending sales button (masqué en mode prévente et devis) -->
       @if (!isPresaleMode() && !isDevisMode()) {
-        <!--
-          Bouton natif plutôt que <app-button> : celui-ci n'accepte pas de contenu
-          projeté, indispensable ici pour le badge inline (motif Bootstrap standard
-          "Notifications <span class='badge'>4</span>" — pas un badge en coin).
-        -->
+
         <button
           (click)="openPendingSales()"
           [disabled]="salesFacade.currentSale() !== null"

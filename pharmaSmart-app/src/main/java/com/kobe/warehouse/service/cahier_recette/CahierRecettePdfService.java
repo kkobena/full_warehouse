@@ -4,6 +4,8 @@ import com.kobe.warehouse.service.license.DemoWatermark;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Year;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -60,8 +62,16 @@ public class CahierRecettePdfService {
     }
 
     public byte[] generatePdf() {
+        return generatePdf(List.of(), List.of());
+    }
+
+    public byte[] generatePdf(Collection<String> moduleIds) {
+        return generatePdf(moduleIds, List.of());
+    }
+
+    public byte[] generatePdf(Collection<String> moduleIds, Collection<String> scenarioIds) {
         try {
-            List<ModuleRecetteDTO> modules = dataService.getModules();
+            List<ModuleRecetteDTO> modules = dataService.getModules(moduleIds, scenarioIds);
 
             String htmlPass1 = renderHtml(modules, Map.of());
             Map<String, Integer> pageNumbers = findPageNumbers(htmlPass1);
@@ -78,7 +88,20 @@ public class CahierRecettePdfService {
         Context context = new Context(Locale.FRENCH);
         context.setVariable("modules", modules);
         context.setVariable("pageNumbers", pageNumbers);
+        context.setVariable("currentYear", Year.now().getValue());
+        context.setVariable("editionTitle", resolveEditionTitle(modules));
         return templateEngine.process(TEMPLATE, context);
+    }
+
+    private String resolveEditionTitle(List<ModuleRecetteDTO> modules) {
+        if (modules.size() != 1) {
+            return "Manuel d’utilisation PharmaSmart";
+        }
+        ModuleRecetteDTO module = modules.getFirst();
+        if (module.fonctionnalites().size() == 1) {
+            return "Guide pratique — " + module.fonctionnalites().getFirst().nom();
+        }
+        return "Manuel d’utilisation — " + module.nom();
     }
 
     /**

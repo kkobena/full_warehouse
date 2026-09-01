@@ -1,28 +1,23 @@
 <!DOCTYPE html>
-<!--
-  Template du PDF "Guide des fonctionnalités" (com.kobe.warehouse.service.cahier_recette.CahierRecettePdfService).
 
-  Rendu en 2 passes par le service appelant : la 1ʳᵉ passe remplit `pageNumbers` avec une map
-  vide (les cellules de la TOC affichent "—"), sert à mesurer la pagination réelle via
-  ITextRenderer#findPagePositionsByID ; la 2ᵉ passe réinjecte les numéros de page trouvés.
-  La structure du document est identique dans les deux passes (seul le texte des numéros
-  change), donc la pagination ne bouge pas entre les deux.
-
-  Les bookmarks PDF (panneau de navigation) sont générés automatiquement par Flying Saucer
-  depuis la hiérarchie <h1>/<h2> ci-dessous — aucun code dédié n'est nécessaire pour ça.
--->
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
   <meta charset="UTF-8" />
   <title>Guide des fonctionnalités</title>
-  <style>
+  <style th:inline="text">
     @page {
       size: A4;
-      margin: 2.2cm 1.6cm;
+      margin: 1.55cm 1.4cm;
 
       /* Numérotation "N / total" en pied de chaque page — support Flying Saucer natif
          (déjà utilisé dans templates/common/portrait_table.html), pas de code Java requis. */
-      @bottom-center {
+      @bottom-left {
+        content: 'Droit d’auteur © [[${currentYear}]] Kobena. Tous droits réservés.';
+        font-size: 7.5pt;
+        color: #64748b;
+      }
+
+      @bottom-right {
         content: counter(page) ' / ' counter(pages);
         font-size: 8pt;
         color: #64748b;
@@ -31,7 +26,7 @@
 
     body {
       font-family: Helvetica, Arial, sans-serif;
-      font-size: 10pt;
+      font-size: 9pt;
       color: #1e293b;
     }
 
@@ -51,17 +46,18 @@
     }
 
     h2 {
-      font-size: 14pt;
+      font-size: 13pt;
       color: #0f172a;
-      margin: 22px 0 4px;
+      margin: 15px 0 4px;
     }
 
     h3 {
-      font-size: 11pt;
+      font-size: 10.5pt;
       color: #0f172a;
       background: #f1f5f9;
       padding: 4px 8px;
-      margin: 16px 0 6px;
+      margin: 11px 0 5px;
+      page-break-after: avoid;
     }
 
     /*
@@ -72,22 +68,28 @@
       balise de titre.
     */
     .field-label {
-      font-size: 8.5pt;
+      font-size: 8pt;
       text-transform: uppercase;
       letter-spacing: 0.03em;
       color: #64748b;
-      margin: 8px 0 2px;
+      margin: 5px 0 1px;
       font-weight: bold;
+      page-break-after: avoid;
     }
 
     p {
-      margin: 2px 0 8px;
-      line-height: 1.4;
+      margin: 1px 0 5px;
+      line-height: 1.32;
     }
 
     ol {
-      margin: 2px 0 8px 18px;
+      margin: 1px 0 5px 18px;
       padding: 0;
+    }
+
+    li {
+      margin-bottom: 2px;
+      line-height: 1.3;
     }
 
     .content-module-description {
@@ -101,48 +103,9 @@
       line-height: 1.45;
     }
 
-    .business-benefits {
-      margin: 10px 0 16px;
-      page-break-inside: avoid;
-    }
-
-    .business-benefits-title {
-      margin: 0 0 5px;
-      color: #166534;
-      font-size: 8.5pt;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-    }
-
-    table.business-benefits-list {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0 4px;
-    }
-
-    table.business-benefits-list td {
-      padding: 7px 9px;
-      border: 1px solid #bbf7d0;
-      background: #f0fdf4;
-      page-break-inside: avoid;
-    }
-
-    .business-benefit-title {
-      color: #14532d;
-      font-size: 9.5pt;
-      font-weight: bold;
-    }
-
-    .business-benefit-description {
-      margin: 2px 0 0;
-      color: #334155;
-      font-size: 9pt;
-      line-height: 1.35;
-    }
 
     .content-breadcrumb {
-      margin: 20px 0 4px;
+      margin: 14px 0 3px;
       color: #64748b;
       font-size: 8.5pt;
       font-weight: bold;
@@ -174,30 +137,73 @@
     }
 
     .scenario {
-      page-break-inside: avoid;
-      margin-bottom: 10px;
+      /* Un scénario illustré dépasse souvent une page. L'interdire de coupure obligeait
+         Flying Saucer à le repousser en bloc et laissait de larges zones blanches. Les
+         captures restent, elles, indivisibles grâce à `.capture` ci-dessous. */
+      page-break-inside: auto;
+      margin-bottom: 7px;
     }
 
     /*
-      Captures d'écran. Flying Saucer ne connaît ni flex ni grid : la mise en page reste en
+      Étapes illustrées. Flying Saucer ne connaît ni flex ni grid : la mise en page reste en
       blocs et en largeurs fixes. La largeur est exprimée en pouces parce que le document est
-      paginé, pas affiché — 5,5 in tient dans la zone imprimable d'un A4 en portrait avec les
+      paginé, pas affiché — 5,25 in tient dans la zone imprimable d'un A4 en portrait avec les
       marges du document.
+
+      Le texte de l'étape et son écran forment un bloc insécable : une consigne séparée de son
+      image sur la page suivante obligerait le lecteur à faire l'aller-retour.
     */
-    .capture {
+    .etape {
       page-break-inside: avoid;
-      margin: 8px 0;
+      margin: 0 0 7px;
     }
 
-    .capture img {
-      width: 5.5in;
+    .etape-texte {
+      margin: 0 0 3px;
+      line-height: 1.32;
+    }
+
+    .etape-numero {
+      display: inline-block;
+      min-width: 15px;
+      color: #0f172a;
+      font-weight: bold;
+    }
+
+    .etape-illustration {
+      margin: 0 0 4px 15px;
+      padding: 5px;
+      border: 1px solid #dbe4ee;
+      background: #f8fafc;
+    }
+
+    .etape-illustration img {
+      display: block;
+      width: 5.25in;
+      margin: 0 auto;
       border: 1px solid #c8ccd4;
     }
 
-    .capture-legende {
+    .content-acces {
+      margin: 2px 0 6px;
+      padding: 4px 8px;
+      border-left: 3px solid #0d6efd;
+      background: #f1f6ff;
       font-size: 8.5pt;
-      color: #55606e;
-      margin-top: 2px;
+      page-break-after: avoid;
+    }
+
+    .content-acces-label {
+      font-weight: bold;
+      color: #0f172a;
+    }
+
+    .manual-intro {
+      margin: 5px 0 12px;
+      padding: 8px 10px;
+      border-left: 4px solid #0d6efd;
+      background: #eff6ff;
+      color: #1e3a5f;
     }
 
     /* Table des matières */
@@ -237,7 +243,12 @@
 <body>
 
 <!-- Table des matières -->
-<h1>Guide des fonctionnalités</h1>
+<h1 th:text="${editionTitle}">Manuel d’utilisation PharmaSmart</h1>
+<p class="manual-intro">
+  Ce manuel indique, pour chaque fonction, où la trouver dans l’application, quels gestes
+  effectuer et comment vérifier que l’opération est terminée. Chaque étape est illustrée par
+  l’écran tel qu’il apparaît au moment où le geste est fait.
+</p>
 <table class="toc">
   <tbody>
   <th:block th:each="module : ${modules}">
@@ -261,23 +272,12 @@
 <th:block th:each="module : ${modules}">
   <h1 class="module-title" th:id="'module-' + ${module.id}" th:text="${module.nom}">Module</h1>
   <p class="content-module-description" th:if="${module.description}" th:text="${module.description}">Description du module</p>
-  <div class="business-benefits" th:if="${module.beneficesMetier != null and !module.beneficesMetier.isEmpty()}">
-    <div class="business-benefits-title">Ce que ce module apporte à l’officine</div>
-    <table class="business-benefits-list">
-      <tbody>
-      <tr th:each="benefice : ${module.beneficesMetier}">
-        <td>
-          <div class="business-benefit-title" th:text="${benefice.titre}">Bénéfice</div>
-          <p class="business-benefit-description" th:text="${benefice.description}">Description du bénéfice</p>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
 
   <th:block th:each="feature, featureStat : ${module.fonctionnalites}">
     <div class="content-header">
       <p class="content-breadcrumb">
+        <span>Dans l’application : barre latérale</span>
+        <span class="sep">›</span>
         <span th:text="${module.nom}">Module</span>
         <span class="sep">/</span>
         <span th:text="${feature.nom}">Fonctionnalité</span>
@@ -286,47 +286,44 @@
         <span th:text="${feature.nom}">Fonctionnalité</span>
         <span class="version-badge" th:if="${feature.version}" th:text="'Nouveau — v' + ${feature.version}">Nouveau</span>
       </h2>
+      <!-- Le chemin de menu réel : sans lui, le manuel décrit un écran sans dire par où l'on
+           y entre. Les libellés sont ceux de la barre de navigation. -->
+      <p class="content-acces" th:if="${feature.acces}">
+        <span class="content-acces-label">Où le trouver :</span>
+        <span th:text="${feature.acces}">Menu</span>
+      </p>
       <p class="content-description" th:if="${feature.description}" th:text="${feature.description}">Description de la fonctionnalité</p>
     </div>
 
     <div class="scenario" th:each="scenario : ${feature.scenarios}">
       <h3 th:text="${scenario.titre}">Titre du scénario</h3>
 
-      <div class="field-label">Le besoin</div>
+      <div class="field-label">Objectif</div>
       <p th:text="${scenario.besoin}">Besoin</p>
 
-      <div class="field-label">Comment ça fonctionne</div>
+      <div class="field-label">À savoir</div>
       <p th:text="${scenario.fonctionnement}">Fonctionnement</p>
 
       <th:block th:if="${scenario.prerequis}">
-        <div class="field-label">Pré-requis</div>
+        <div class="field-label">Avant de commencer</div>
         <p th:text="${scenario.prerequis}">Prérequis</p>
       </th:block>
 
-      <div class="field-label">Étapes</div>
-      <ol>
-        <li th:each="etape : ${scenario.etapes}" th:text="${etape}">Étape</li>
-      </ol>
-
-      <!--
-        Captures produites par la campagne Playwright. Le src reste relatif : c'est l'agent
-        utilisateur de CahierRecettePdfService qui le résout depuis le classpath.
-        page-break-inside évite qu'une image soit coupée entre deux pages.
-      -->
-      <th:block th:if="${scenario.captures != null and !scenario.captures.isEmpty()}">
-        <div class="captures">
-          <div class="capture" th:each="capture : ${scenario.captures}">
-            <img th:src="${capture.fichier}" th:alt="${capture.legende}" />
-            <div class="capture-legende">
-              <span th:text="${capture.ordre}">1</span>.
-              <span th:text="${capture.legende}">Légende</span>
-            </div>
-          </div>
+      <div class="field-label">Marche à suivre</div>
+      <!-- Chaque étape porte l'écran qui l'illustre : le geste et sa copie d'écran ne sont
+           jamais séparés (cf. ScenarioRecetteDTO#etapesIllustrees). -->
+      <div class="etape" th:each="etape : ${scenario.etapesIllustrees}">
+        <p class="etape-texte">
+          <span class="etape-numero" th:text="${etape.numero} + '.'">1.</span>
+          <span th:text="${etape.texte}">Étape</span>
+        </p>
+        <div class="etape-illustration" th:if="${etape.illustree}">
+          <img th:src="${etape.capture.fichier}" th:alt="${etape.texte}" />
         </div>
-      </th:block>
+      </div>
 
-      <div class="field-label">Résultat attendu</div>
-      <p th:text="${scenario.resultatAttendu}">Résultat attendu</p>
+      <div class="field-label" th:if="${scenario.resultatAttendu}">Vous avez terminé lorsque</div>
+      <p th:if="${scenario.resultatAttendu}" th:text="${scenario.resultatAttendu}">Résultat attendu</p>
     </div>
   </th:block>
 </th:block>

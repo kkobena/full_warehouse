@@ -101,6 +101,12 @@ export const CADRAGE_ESSENTIEL = (process.env.E2E_CADRAGE ?? 'essentiel') !== 'p
 export const MARGE_CADRAGE = 16;
 
 /**
+ * Repères numérotés sur les éléments manipulés pendant chaque étape du manuel.
+ * Désactiver ponctuellement avec E2E_ACTION_MARKERS=0 pour obtenir des images sans annotations.
+ */
+export const MARQUEURS_ACTIONS = process.env.E2E_ACTION_MARKERS !== '0';
+
+/**
  * Écrase l'index au lieu de le compléter. Par défaut la campagne fusionne, pour qu'une
  * exécution ciblée sur un seul scénario ne fasse pas disparaître les captures des autres.
  */

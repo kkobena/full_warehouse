@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test';
 import {
   ajouterAuPanier,
+  assurerCaisseOuverte,
   assurerPanierVide,
   chercherProduit,
   mettreEnAttente,
@@ -13,15 +14,20 @@ import { scenario } from '../../src/scenario';
  * vente est mise de côté avec ses lignes, la caisse enchaîne, et on la reprend ensuite. Le
  * compteur de la barre supérieure dit combien de ventes patientent.
  *
+ * Rien n'est engagé — ni stock, ni encaissement — et c'est précisément ce qui rend le geste
+ * sans risque.
+ *
  * Parcours ÉCRIVANT dans la base : il supprime sa vente en attente après la dernière capture.
  */
 scenario('VTE-14', async ({ etape, page }) => {
   const produit = 'PARACETAMOL 1G';
   const lignes = page.locator('tbody tr').filter({ visible: true });
 
+  await assurerCaisseOuverte(page);
+
   await etape(1, async () => {
     await assurerPanierVide(page);
-  await page.goto('/sales-home');
+    await page.goto('/sales-home');
     await chercherProduit(page, produit);
     await ajouterAuPanier(page, '3');
     await expect(lignes.first()).toContainText(produit);
@@ -32,9 +38,10 @@ scenario('VTE-14', async ({ etape, page }) => {
     // barre du haut, homonyme, ouvre au contraire la liste de celles qui patientent. D'où
     // l'ancrage sur le bouton voisin de « Finaliser ».
     await mettreEnAttente(page);
-    // L'écran revient au panier vide, prêt pour le client suivant — et le compteur de la
-    // barre supérieure s'incrémente : c'est là que la vente est partie.
+    // Deux preuves, et il faut les deux : l'écran est rendu au client suivant (panier vide),
+    // et la vente n'est pas perdue pour autant — elle est comptée sur le bouton de la barre.
     await expect(page.locator('#main-content')).toContainText(/Panier vide|Ajoutez des produits/i);
+    await expect(page.getByRole('button', { name: 'Voir les ventes en attente' })).toBeVisible();
   });
 
   // ── Remise en état : la vente est reprise puis abandonnée. Il n'existe pas de

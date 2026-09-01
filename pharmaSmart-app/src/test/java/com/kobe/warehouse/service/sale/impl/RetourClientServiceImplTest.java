@@ -175,7 +175,7 @@ class RetourClientServiceImplTest {
         when(referenceService.buildNumRetourClient()).thenReturn("RET-1");
         when(lineRepository.findById(new SaleLineId(10L, saleDate))).thenReturn(Optional.of(sold));
         when(stockRepository.findOneByProduitIdAndStockageId(100, 4)).thenReturn(stock);
-        when(retourRepository.save(any(RetourClient.class))).thenAnswer(invocation ->
+        when(retourRepository.saveAndFlush(any(RetourClient.class))).thenAnswer(invocation ->
             ((RetourClient) invocation.getArgument(0)).setId(20));
 
         RetourClientResultDTO result = service.validerRetour(
@@ -202,7 +202,7 @@ class RetourClientServiceImplTest {
         when(configurationService.getDelaiValiditeAvoir()).thenReturn(60);
         when(lineRepository.findById(new SaleLineId(10L, saleDate))).thenReturn(Optional.of(sold));
         when(stockRepository.findOneByProduitIdAndStockageId(100, 4)).thenReturn(stock);
-        when(retourRepository.save(any(RetourClient.class))).thenAnswer(invocation ->
+        when(retourRepository.saveAndFlush(any(RetourClient.class))).thenAnswer(invocation ->
             ((RetourClient) invocation.getArgument(0)).setId(21));
         when(avoirRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -226,7 +226,7 @@ class RetourClientServiceImplTest {
         useCurrentUserAndStorage();
         when(lineRepository.findById(new SaleLineId(10L, saleDate))).thenReturn(Optional.of(sold));
         when(stockRepository.findOneByProduitIdAndStockageId(100, 4)).thenReturn(stock);
-        when(retourRepository.save(any(RetourClient.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(retourRepository.saveAndFlush(any(RetourClient.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         RetourClientResultDTO result = service.validerRetour(
             request(List.of(requestLine(10L, 1, false, true, true)), false));

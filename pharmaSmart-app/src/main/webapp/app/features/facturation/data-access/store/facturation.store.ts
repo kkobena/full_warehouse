@@ -21,6 +21,16 @@ interface FacturationState {
   // KPI
   kpi: IFacturationKpi | null;
   kpiLoading: boolean;
+  /**
+   * Compteur incrémenté à chaque mutation qui rend les indicateurs faux : suppression ou mise
+   * à jour d'une facture, d'où qu'elle vienne.
+   *
+   * <p>L'écran qui porte la bannière l'observe et recharge. Un composant qui supprime une
+   * facture n'a donc pas à savoir qu'il existe une bannière ailleurs dans la page — c'est
+   * précisément ce qui manquait : les indicateurs restaient figés sur la valeur du chargement
+   * initial pendant que la liste, elle, se vidait.
+   */
+  kpiDirty: number;
 
   // Etat sauvegarde
   isSaving: boolean;
@@ -45,6 +55,7 @@ export const FacturationStore = signalStore(
     searchParams: defaultSearchParams,
     kpi: null,
     kpiLoading: false,
+    kpiDirty: 0,
     isSaving: false,
     error: null,
   }),
@@ -83,6 +94,16 @@ export const FacturationStore = signalStore(
     setKpiLoading(kpiLoading: boolean): void {
       patchState(store, { kpiLoading });
     },
+    /**
+     * Signale que les indicateurs sont périmés, sans toucher à la liste.
+     *
+     * <p>Pour les mutations dont on n'a pas la facture à jour sous la main : un règlement rend
+     * un `IResponseReglement`, pas une `IFacture`. `updateFactureInList` ne s'applique donc pas,
+     * mais les montants réglés et le reste dû ont bel et bien changé.
+     */
+    markKpiDirty(): void {
+      patchState(store, { kpiDirty: store.kpiDirty() + 1 });
+    },
     setSaving(isSaving: boolean): void {
       patchState(store, { isSaving });
     },
@@ -98,6 +119,9 @@ export const FacturationStore = signalStore(
           store.selectedFacture()?.factureItemId?.id === updated.factureItemId?.id
             ? updated
             : store.selectedFacture(),
+        // Un règlement change le montant réglé et le reste dû : la bannière ment tant
+        // qu'elle n'a pas été rechargée.
+        kpiDirty: store.kpiDirty() + 1,
       });
     },
     removeFactureFromList(factureId: number): void {
@@ -108,6 +132,7 @@ export const FacturationStore = signalStore(
             ? null
             : store.selectedFacture(),
         totalItems: store.totalItems() - 1,
+        kpiDirty: store.kpiDirty() + 1,
       });
     },
   })),

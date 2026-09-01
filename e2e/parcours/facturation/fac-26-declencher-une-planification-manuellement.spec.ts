@@ -18,25 +18,25 @@ import { scenario } from '../../src/scenario';
  * pour de bon les ventes facturables du jeu de démonstration.
  */
 scenario('FAC-26', async ({ etape, page }) => {
-  const contenu = page.locator('#main-content');
   const lignes = page.locator('tbody tr').filter({ visible: true });
   const modal = page.locator('.modal-content:visible');
+  const planificationActive = lignes
+    .filter({ hasText: 'Facturation mensuelle' })
+    .filter({ has: page.locator('button:has(.pi-play)') })
+    .first();
 
   await etape(1, async () => {
     await page.goto('/facturation');
     await ouvrirOnglet(page, /Automatisation/);
     // « Exécuter maintenant » n'existe que sur une planification active : déclencher une
-    // planification éteinte n'aurait pas de sens.
-    const active = lignes.filter({ has: page.locator('button:has(.pi-play)') }).first();
-    if ((await active.count()) === 0) {
-      await lignes.first().locator('app-switch input[role="switch"]').first().click();
-    }
-    await expect(lignes.filter({ has: page.locator('button:has(.pi-play)') }).first()).toBeVisible();
+    // planification éteinte n'aurait pas de sens. Le jeu de démonstration garantit que la
+    // mensuelle définitive est active ; attendre cette ligne évite de cliquer un interrupteur
+    // pendant que le tableau est encore en cours de chargement.
+    await expect(planificationActive).toBeVisible();
   });
 
   await etape(2, async () => {
-    const active = lignes.filter({ has: page.locator('button:has(.pi-play)') }).first();
-    await active.locator('button:has(.pi-play)').first().click();
+    await planificationActive.locator('button:has(.pi-play)').first().click();
     await expect(modal).toBeVisible();
     await expect(modal).toContainText(/Exécution manuelle/);
     await expect(modal).toContainText(/maintenant/);

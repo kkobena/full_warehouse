@@ -1,8 +1,8 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy, input} from "@angular/core";
+import { Component, computed, DestroyRef, effect, inject, OnInit, signal, untracked, ChangeDetectionStrategy, input} from "@angular/core";
 import { HintComponent } from 'app/shared/ui/hint/hint.component';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { catchError, finalize, tap } from "rxjs/operators";
-import { forkJoin, of } from "rxjs";
+import { catchError, finalize, switchMap, tap } from "rxjs/operators";
+import { forkJoin, of, Subject } from "rxjs";
 import { FormsModule } from "@angular/forms";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import {
@@ -29,7 +29,7 @@ import { GroupeTiersPayantService } from "../../../../entities/groupe-tiers-paya
 import { AbilityService } from "app/core/auth/ability.service";
 import { FacturationStore } from "../../data-access/store/facturation.store";
 import { FactureApiService } from "../../data-access/services/facture-api.service";
-import { IFacture, IInvoiceSearchParams } from "../../data-access/models";
+import { IFacture, IFactureKpiParams, IInvoiceSearchParams } from "../../data-access/models";
 import { FactureKpiBannerComponent } from "../../ui/facture-kpi-banner/facture-kpi-banner.component";
 import { FactureListComponent } from "../../ui/facture-list/facture-list.component";
 import { FactureDetailPanelComponent } from "../../ui/facture-detail-panel/facture-detail-panel.component";
@@ -95,6 +95,17 @@ export class FacturationHomeComponent implements OnInit {
   // Signal transmis à la liste pour déclencher la recherche
   protected readonly currentSearchParams = signal<IInvoiceSearchParams | null>(null);
 
+  /**
+   * Demandes de rechargement des indicateurs.
+   *
+   * <p>Passer par un sujet plutôt que d'appeler l'API directement sert à une chose : une
+   * suppression en lot de N factures signale N mutations, dont les réponses arrivent dans des
+   * tours de boucle distincts. Le `switchMap` de l'abonnement annule alors la demande encore en
+   * vol, de sorte que la bannière ne peut pas afficher le résultat d'une requête périmée arrivée
+   * en retard.
+   */
+  private readonly kpiReload$ = new Subject<void>();
+
   // Hint premier usage
   private readonly translate = inject(TranslateService);
   private readonly factureApiService = inject(FactureApiService);
@@ -112,10 +123,49 @@ export class FacturationHomeComponent implements OnInit {
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
     this.modelStartDate.set({ year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() });
+
+    this.kpiReload$
+      .pipe(
+        // Pas de `debounceTime` : l'appel doit partir immédiatement, sans quoi il devient
+        // impossible de le suivre dans l'onglet Réseau. `switchMap` suffit à tenir la rafale
+        // d'une suppression en lot — la demande précédente est annulée, la dernière gagne.
+        // Les filtres sont relus ICI, donc au moment de l'appel : la requête part avec l'état
+        // réellement affiché.
+        switchMap(() =>
+          this.factureApiService.getKpi(this.buildKpiParams()).pipe(
+            catchError((err: unknown) => {
+              // Une erreur avalée en silence laissait la bannière vide sans rien dire — donc
+              // indiscernable d'un appel qui n'aurait jamais eu lieu.
+              this.notificationService.error(
+                this.errorService.getErrorMessage(err),
+                "Indicateurs de facturation"
+              );
+              return of(null);
+            })
+          )
+        ),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(res => this.store.setKpi(res?.body ?? null));
+
+    // Les indicateurs sont faux dès qu'une facture est supprimée ou réglée, y compris depuis
+    // la liste ou le panneau de détail — qui n'ont aucune raison de connaître la bannière.
+    // Le store porte le signalement, cet effet recharge. Le premier passage est ignoré :
+    // `ngOnInit` déclenche déjà la recherche, qui charge les indicateurs.
+    let premierPassage = true;
+    effect(() => {
+      this.store.kpiDirty();
+      if (premierPassage) {
+        premierPassage = false;
+        return;
+      }
+      // `untracked` : sans lui, l'écriture de `kpiLoading` par `loadKpi` referait de cet effet
+      // sa propre dépendance, donc une boucle.
+      untracked(() => this.loadKpi());
+    });
   }
 
   ngOnInit(): void {
-    this.loadKpi();
     this.onSearch();
   }
 
@@ -126,6 +176,9 @@ export class FacturationHomeComponent implements OnInit {
 
   onSearch(): void {
     this.currentSearchParams.set(this.buildSearchParams());
+    // La bannière doit parler de la MÊME période que la liste : sans cet appel, elle restait
+    // sur les indicateurs du chargement initial pendant que les filtres, eux, bougeaient.
+    this.loadKpi();
   }
 
   onGroupToggle(): void {
@@ -208,13 +261,36 @@ export class FacturationHomeComponent implements OnInit {
 
   private loadKpi(): void {
     this.store.setKpiLoading(true);
-    this.factureApiService
-      .getKpi({})
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: res => this.store.setKpi(res.body ?? null),
-        error: () => this.store.setKpi(null)
-      });
+    this.kpiReload$.next();
+  }
+
+  /**
+   * Filtres transmis aux indicateurs.
+   *
+   * <p>L'appel se faisait auparavant sans aucun paramètre : le serveur retombait alors sur le
+   * mois calendaire en cours, alors que l'écran s'ouvre sur le mois glissant précédent. La
+   * bannière et la liste ne parlaient donc pas de la même période.
+   */
+  private buildKpiParams(): IFactureKpiParams {
+    const params: IFactureKpiParams = {
+      fromDate: NGB_DATE_TO_ISO(this.modelStartDate()),
+      toDate: NGB_DATE_TO_ISO(this.modelEndDate),
+      typeFacture: this.factureGroupees ? 'GROUPED' : 'INDIVIDUAL'
+    };
+
+    // L'endpoint ne borne que sur UN organisme ou UN groupe, là où la recherche en accepte
+    // plusieurs. On ne restreint donc que lorsque le choix est sans ambiguïté : sur une
+    // sélection multiple, la bannière couvre toute la période — ce qui reste vrai, alors
+    // qu'un filtre pris au hasard dans la liste serait faux.
+    const tiersPayants = this.selectedTiersPayants();
+    if (!this.factureGroupees && tiersPayants.length === 1) {
+      params.organismeId = tiersPayants[0].id;
+    }
+    const groupes = this.selectedGroupeTiersPayants();
+    if (this.factureGroupees && groupes.length === 1) {
+      params.groupeId = groupes[0].id;
+    }
+    return params;
   }
 
   private buildSearchParams(): IInvoiceSearchParams {

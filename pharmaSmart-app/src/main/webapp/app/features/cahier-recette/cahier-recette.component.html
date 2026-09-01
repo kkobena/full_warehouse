@@ -2,7 +2,8 @@
   <aside class="cahier-sidebar no-print">
     <div class="cahier-sidebar__header">
       <h1>Guide des fonctionnalités</h1>
-      <app-button (clicked)="downloadPdf()" [loading]="generatingPdf()" [outlined]="true"
+      <app-button (clicked)="downloadPdf()" [disabled]="generatingModuleId() !== null"
+                  [loading]="generatingPdf()" [outlined]="true"
                   [severity]="'info'"
                   icon="pi pi-file-pdf"
                   label="Télécharger" />
@@ -14,34 +15,91 @@
       placeholder="Rechercher un menu…"
       type="search"
     />
+    <p class="cahier-sidebar__hint">Cochez les menus à imprimer, ou exportez un module entier.</p>
+    <div class="selection-toolbar">
+      <app-button
+        (clicked)="downloadSelectedFeaturesPdf()"
+        [disabled]="selectedFeatureCount() === 0 || generatingPdf() || generatingModuleId() !== null"
+        [label]="'Exporter la sélection (' + selectedFeatureCount() + ')'"
+        [loading]="generatingModuleId() === 'selection'"
+        icon="pi pi-file-pdf"
+        severity="info"
+        size="small"
+      />
+      @if (selectedFeatureCount() > 0) {
+        <app-button
+          (clicked)="clearFeatureSelection()"
+          ariaLabel="Effacer la sélection de parcours"
+          icon="pi pi-times"
+          [iconOnly]="true"
+          severity="secondary"
+          size="small"
+          [text]="true"
+        />
+      }
+    </div>
     <nav class="cahier-tree">
       @for (module of filteredModules(); track module.id) {
         <div class="tree-module">
-          <button (click)="toggleModule(module.id)" class="tree-module__toggle" type="button">
-            <i [class.pi-chevron-down]="isExpanded(module.id)"
-               [class.pi-chevron-right]="!isExpanded(module.id)"
-               class="pi"></i>
-            <i [class]="module.icone" aria-hidden="true"></i>
-            <span>{{ module.nom }}</span>
-          </button>
+          <div class="tree-module__header">
+            <button (click)="toggleModule(module.id)" class="tree-module__toggle" type="button">
+              <i [class.pi-chevron-down]="isExpanded(module.id)"
+                 [class.pi-chevron-right]="!isExpanded(module.id)"
+                 class="pi"></i>
+              <i [class]="module.icone" aria-hidden="true"></i>
+              <span>{{ module.nom }}</span>
+            </button>
+            <app-button
+              (clicked)="downloadModulePdf(module)"
+              [ariaLabel]="'Exporter le module ' + module.nom + ' en PDF'"
+              [disabled]="generatingPdf() || generatingModuleId() !== null"
+              [loading]="generatingModuleId() === module.id"
+              [outlined]="true"
+              label="PDF"
+              icon="pi pi-file-pdf"
+              severity="info"
+              size="small"
+            />
+          </div>
           @if (isExpanded(module.id)) {
             <ul class="tree-submenu">
               @for (fonctionnalite of module.fonctionnalites; track fonctionnalite.nom) {
                 <li>
-                  <button
-                    (click)="selectFonctionnalite(module.id, fonctionnalite.nom)"
-                    [class.active]="isSelected(module.id, fonctionnalite.nom)"
-                    class="tree-submenu__item"
-                    type="button"
-                  >
-                    <span>{{ fonctionnalite.nom }}</span>
-                    @if (fonctionnalite.roadmap) {
-                      <app-badge [rounded]="true" label="Roadmap" severity="secondary" />
-                    } @else if (fonctionnalite.version) {
-                      <app-badge [label]="'v' + fonctionnalite.version" [rounded]="true"
-                                 severity="success" />
-                    }
-                  </button>
+                  <div class="tree-submenu__row">
+                    <input
+                      (change)="toggleFeatureSelection(module.id, fonctionnalite.nom)"
+                      [attr.aria-label]="'Ajouter à l’impression : ' + fonctionnalite.nom"
+                      [checked]="isFeatureSelected(module.id, fonctionnalite.nom)"
+                      [disabled]="fonctionnalite.roadmap === true"
+                      class="form-check-input tree-submenu__check"
+                      type="checkbox"
+                    />
+                    <button
+                      (click)="selectFonctionnalite(module.id, fonctionnalite.nom)"
+                      [class.active]="isSelected(module.id, fonctionnalite.nom)"
+                      class="tree-submenu__item"
+                      type="button"
+                    >
+                      <span>{{ fonctionnalite.nom }}</span>
+                      @if (fonctionnalite.roadmap) {
+                        <app-badge [rounded]="true" label="Roadmap" severity="secondary" />
+                      } @else if (fonctionnalite.version) {
+                        <app-badge [label]="'v' + fonctionnalite.version" [rounded]="true"
+                                   severity="success" />
+                      }
+                    </button>
+                    <app-button
+                      (clicked)="downloadFeaturePdf(module, fonctionnalite)"
+                      [ariaLabel]="'Exporter les parcours liés : ' + fonctionnalite.nom"
+                      [disabled]="generatingPdf() || generatingModuleId() !== null || fonctionnalite.roadmap === true"
+                      [loading]="generatingModuleId() === featureExportId(module.id, fonctionnalite.nom)"
+                      [outlined]="true"
+                      icon="pi pi-file-pdf"
+                      [iconOnly]="true"
+                      severity="info"
+                      size="small"
+                    />
+                  </div>
                 </li>
               }
             </ul>
@@ -58,25 +116,9 @@
       <header class="content-header">
         <p class="content-breadcrumb">
           <i [class]="selectedModule()!.icone" aria-hidden="true"></i>
-          {{ selectedModule()!.nom }} <span class="sep">/</span> {{ fonctionnalite.nom }}
+          <strong>Navigation :</strong> {{ selectedModule()!.nom }} <span class="sep">→</span> {{ fonctionnalite.nom }}
         </p>
         <p class="content-module-description">{{ selectedModule()!.description }}</p>
-        @if (selectedModule()!.beneficesMetier?.length) {
-          <section class="business-benefits" aria-labelledby="business-benefits-title">
-            <h2 id="business-benefits-title" class="business-benefits__heading">Ce que ce module apporte à l’officine</h2>
-            <div class="business-benefits__grid">
-              @for (benefice of selectedModule()!.beneficesMetier; track benefice.titre) {
-                <article class="business-benefit">
-                  <i class="pi pi-check-circle" aria-hidden="true"></i>
-                  <div>
-                    <h3>{{ benefice.titre }}</h3>
-                    <p>{{ benefice.description }}</p>
-                  </div>
-                </article>
-              }
-            </div>
-          </section>
-        }
         <h2>
           {{ fonctionnalite.nom }}
           @if (fonctionnalite.roadmap) {
@@ -86,6 +128,13 @@
                        severity="success" />
           }
         </h2>
+        @let acces = accesDe(fonctionnalite);
+        @if (acces) {
+          <p class="content-acces">
+            <i class="pi pi-directions" aria-hidden="true"></i>
+            <strong>Où le trouver :</strong> {{ acces }}
+          </p>
+        }
         @if (fonctionnalite.description) {
           <p class="content-description">{{ fonctionnalite.description }}</p>
         }
@@ -109,41 +158,31 @@
             </section>
 
             <section class="scenario-doc__section">
-              <h4>Étapes</h4>
+              <h4>Marche à suivre</h4>
               @if (scenario.prerequis) {
-                <p class="scenario-doc__prerequis"><em>Pré-requis :</em> {{ scenario.prerequis }}
+                <p class="scenario-doc__prerequis"><em>Avant de commencer :</em> {{ scenario.prerequis }}
                 </p>
               }
-              <ol>
+             
+              <ol class="scenario-doc__etapes">
                 @for (etape of scenario.etapes; track $index) {
-                  <li>{{ etape }}</li>
+                  <li>
+                    <span class="scenario-doc__etape-texte">{{ etape }}</span>
+                    @if (captureDeLEtape(scenario, $index + 1); as capture) {
+                      <img [src]="capture.fichier" [alt]="etape" class="scenario-doc__capture"
+                           loading="lazy" />
+                    }
+                  </li>
                 }
               </ol>
             </section>
-
-            @if (scenario.captures?.length) {
+            @if (scenario.resultatAttendu) {
               <section class="scenario-doc__section">
-                <h4>Illustrations</h4>
-                <div class="scenario-doc__captures">
-                  @for (capture of scenario.captures; track capture.ordre) {
-                    <figure class="scenario-doc__capture">
-                      <!--
-                        loading="lazy" : un scénario peut porter une dizaine d'images, et le
-                        guide en affiche plusieurs par écran. Sans cela, changer de menu
-                        déclencherait autant de requêtes que d'images hors champ.
-                      -->
-                      <img [src]="capture.fichier" [alt]="capture.legende" loading="lazy" />
-                      <figcaption>{{ capture.ordre }}. {{ capture.legende }}</figcaption>
-                    </figure>
-                  }
-                </div>
+                <h4>Vous avez terminé lorsque</h4>
+                <p>{{ scenario.resultatAttendu }}</p>
               </section>
             }
 
-            <section class="scenario-doc__section">
-              <h4>Résultat attendu</h4>
-              <p>{{ scenario.resultatAttendu }}</p>
-            </section>
           </article>
         }
       </div>
@@ -151,5 +190,9 @@
       <p class="content-empty">Sélectionnez un menu dans la colonne de gauche pour afficher sa
         documentation.</p>
     }
+
+    <footer class="guide-footer">
+      <p>Droit d’auteur © {{ currentYear }} Kobena. Tous droits réservés.</p>
+    </footer>
   </main>
 </div>

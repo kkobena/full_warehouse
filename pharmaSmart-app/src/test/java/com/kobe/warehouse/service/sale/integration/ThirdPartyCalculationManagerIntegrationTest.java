@@ -105,7 +105,7 @@ class ThirdPartyCalculationManagerIntegrationTest extends AbstractSaleIntegratio
         Produit produit = produitEnStock("CALC PLAFOND", 50_000, 30_000, 0, 50);
         AssuredCustomer assure = assure("SYLLA", "Nabintou", "ASS-CALC-2");
         TiersPayant organisme = tiersPayant("CNAM PLAFOND");
-        organisme.setPlafondConso(10_000L);
+        organisme.setPlafondConsoClient(10_000);
         ClientTiersPayant compte = compte(assure, organisme, 80, PrioriteTiersPayant.R0);
         compte.setConsoMensuelle(9_000L);
         em.flush();

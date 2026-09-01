@@ -82,11 +82,12 @@ FROM (
     SELECT (CURRENT_DATE - (INTERVAL '1 day' * j))::date AS jour
       -- Depuis 0 : la journée du chargement doit figurer dans l'historique des
       -- transferts, au même titre que dans celui des ventes (09_ventes.sql).
-      -- 0 % 3 = 0, elle est donc retenue par le filtre ci-dessous.
+      -- Elle est retenue explicitement par le filtre ci-dessous, même un lundi.
       FROM generate_series(0, 180) AS j
-     -- Lundi fermé, comme partout ailleurs dans le jeu.
-     WHERE extract(dow FROM (CURRENT_DATE - (INTERVAL '1 day' * j))) <> 1
-       AND j % 3 = 0
+     -- Historique tous les trois jours hors lundi ; le jour du chargement reste
+     -- obligatoire pour que l'écran des ventes dépôt ne s'ouvre jamais vide.
+     WHERE j = 0
+        OR (extract(dow FROM (CURRENT_DATE - (INTERVAL '1 day' * j))) <> 1 AND j % 3 = 0)
 ) d
 JOIN cash_register cr ON cr.begin_time::date = d.jour;
 

@@ -148,6 +148,15 @@ SELECT pg_temp.verif_compte('config', 'Les deux clés de lot existent', $q$
      WHERE name IN ('APP_GESTION_LOT', 'APP_GESTION_LOT_INVENTAIRE')
 $q$, 2);
 
+-- À zéro, le budget est illimité et son indicateur disparaît : ACH-20 ne serait
+-- alors plus démontrable malgré un chargement techniquement valide.
+SELECT pg_temp.verif_compte('config', 'Budget mensuel de commande configuré', $q$
+    SELECT 1 FROM app_configuration
+     WHERE name = 'APP_BUDGET_MENSUEL_COMMANDE'
+       AND value ~ '^[0-9]+$'
+       AND value::numeric > 0
+$q$, 1);
+
 
 -- ===========================================================================
 -- FOURNISSEURS  (§3.3)
@@ -1267,6 +1276,23 @@ SELECT pg_temp.verif_compte('ventes', 'Lignes de vente', $q$
     SELECT 1 FROM sales_line
 $q$, 5000);
 
+-- Les écrans quotidiens doivent être démontrables quelle que soit l'heure du chargement.
+SELECT pg_temp.verif_compte('ventes', 'Ventes du jour', $q$
+    SELECT 1 FROM sales WHERE sale_date = CURRENT_DATE AND dtype <> 'VenteDepot'
+$q$, 12);
+
+SELECT pg_temp.verif_compte('ventes', 'Ventes sur ordonnance du jour', $q$
+    SELECT 1 FROM sales WHERE sale_date = CURRENT_DATE AND type_prescription = 'PRESCRIPTION'
+$q$, 1);
+
+SELECT pg_temp.verif_compte('ventes', 'Ventes tiers payant du jour', $q$
+    SELECT 1 FROM sales WHERE sale_date = CURRENT_DATE AND dtype = 'ThirdPartySales'
+$q$, 1);
+
+SELECT pg_temp.verif_compte('ventes', 'Ventes dépôt du jour', $q$
+    SELECT 1 FROM sales WHERE sale_date = CURRENT_DATE AND dtype = 'VenteDepot'
+$q$, 1);
+
 SELECT pg_temp.verif_vide('ventes', 'Discriminateur d''héritage renseigné', $q$
     SELECT id FROM sales
      WHERE dtype IS NULL
@@ -1968,6 +1994,18 @@ $q$, 3);
 SELECT pg_temp.verif_compte('facturation', 'Organisme sans email (garde-fou FNE)', $q$
     SELECT 1 FROM tiers_payant WHERE email IS NULL OR email = ''
 $q$, 1);
+
+-- Un parcours de règlement peut consommer une facture avant FAC-30 : deux cas
+-- garantissent qu'il en reste une à refuser lors de la certification FNE.
+SELECT pg_temp.verif_compte('facturation', 'Factures certifiables de l''organisme sans email', $q$
+    SELECT f.id
+      FROM facture_tiers_payant f
+      JOIN tiers_payant tp ON tp.id = f.tiers_payant_id
+     WHERE tp.name = 'ASACI'
+       AND f.statut = 'NOT_PAID'
+       AND NOT f.facture_provisoire
+       AND f.fne_response IS NULL
+$q$, 2);
 
 -- ...et la majorité doit en avoir un, sinon la certification serait impossible
 -- pour tout le monde et l'écran ne montrerait plus le cas nominal.

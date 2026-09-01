@@ -10,5 +10,7 @@ package com.kobe.warehouse.service.cahier_recette;
 public record CaptureEcranDTO(
     Integer ordre,
     String fichier,
-    String legende
+    String legende,
+    /** Empreinte SHA-256 de l'image, injectée lors de la génération du JSON. */
+    String empreinte
 ) {}

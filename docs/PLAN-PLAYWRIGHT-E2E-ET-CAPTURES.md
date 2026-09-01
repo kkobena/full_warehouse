@@ -90,6 +90,32 @@ identifiant inconnu (arrêt au chargement), étape du modèle non parcourue, éc
   est un `ITextUserAgent` dont `openStream` résout depuis le classpath — correct en développement
   comme en jar.
 
+### Comment les images sont disposées dans le manuel
+
+- **Une image sous l'étape qu'elle illustre**, et non une galerie en fin de scénario. Le lecteur
+  voit l'écran au moment où le geste est décrit ; il n'a pas à rapprocher lui-même une liste de
+  consignes et une liste d'images. Côté PDF, l'étape et son écran forment un bloc insécable
+  (`.etape { page-break-inside: avoid }`) : une consigne n'est jamais séparée de son image.
+- **Toutes les étapes restent visibles**, illustrées ou non. Une étape sans capture — geste hors
+  application, écran non photographié — s'affiche comme du texte : la marche à suivre reste
+  complète et sa numérotation continue.
+- **Deux étapes consécutives ne sont fusionnées que si l'écran est rigoureusement identique.**
+  La comparaison porte sur l'empreinte SHA-256 de l'image, calculée à la génération. Certains
+  gestes ne changent rien à l'écran ; répéter l'image laisse croire au lecteur qu'il y a une
+  différence à trouver. La fusion est volontairement stricte et locale : une image qui réapparaît
+  trois étapes plus loin est de nouveau affichée, parce que le lecteur, lui, a tourné la page.
+  Sur la campagne courante, 48 images sur 1 032 sont ainsi écartées.
+- **Ni codes techniques, ni discours commercial.** Les identifiants de scénario (`VTE-01`) ne
+  servent qu'au liage et ne sont jamais rendus ; les rubriques « bénéfices métier » ont été
+  retirées du modèle, du DTO et des deux rendus. Les intitulés sont ceux d'un mode d'emploi :
+  *Objectif*, *À savoir*, *Avant de commencer*, *Marche à suivre*, *Vous avez terminé lorsque*.
+- **L'écran et le PDF montrent la même chose.** Le composant Angular lit `CAHIER_RECETTE` en
+  mémoire, où les captures n'existent pas : sans index, le guide consulté dans l'application
+  serait resté sans images. La génération écrit donc, à côté des images,
+  `content/captures/index.json` — rang de l'étape et chemin de l'image, fusion comprise — que le
+  composant charge en une requête. Son absence (aucune campagne) est un cas normal : le guide
+  reste alors purement textuel.
+
 Détail d'utilisation : [e2e/README.md](../e2e/README.md).
 
 ---

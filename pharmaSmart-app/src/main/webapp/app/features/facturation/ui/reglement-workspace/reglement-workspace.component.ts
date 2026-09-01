@@ -23,6 +23,7 @@ import {TauriPrinterService} from "../../../../shared/services/tauri-printer.ser
 import {ITEMS_PER_PAGE} from "../../../../shared/constants/pagination.constants";
 
 import {FactureApiService} from "../../data-access/services/facture-api.service";
+import {FacturationStore} from "../../data-access/store/facturation.store";
 import {ReglementApiService} from "../../data-access/services/reglement-api.service";
 import {
   IDossierFactureProjection,
@@ -47,7 +48,7 @@ export type ReglementMode = "INDIVIDUEL" | "GROUPE";
 
 @Component({
   selector: "app-reglement-workspace",
-  imports: [DeviseDirective, 
+  imports: [DeviseDirective,
     CommonModule,
     FormsModule,
     ReglementFormComponent,
@@ -108,6 +109,7 @@ export class ReglementWorkspaceComponent {
   private readonly factureApiService = inject(FactureApiService);
   private readonly reglementApiService = inject(ReglementApiService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly store = inject(FacturationStore);
 
   constructor() {
     // Sync dossiers depuis l'input parent (chargé après le tab click)
@@ -171,6 +173,10 @@ export class ReglementWorkspaceComponent {
       )
       .subscribe({
         next: res => {
+          // Le règlement change le montant réglé et le reste dû : les indicateurs de l'écran
+          // de facturation sont périmés dès cet instant. Le signaler au store évite que la
+          // bannière continue d'afficher les chiffres d'avant l'encaissement.
+          this.store.markKpiDirty();
           if (res.body) {
             this.onPrintReceipt(res.body);
           }

@@ -104,6 +104,9 @@ export interface IEditionSearchParams {
   factureProvisoire?: boolean;
 }
 
+/** Valeurs du sélecteur « Individuelles / Groupées », telles que le serveur les attend. */
+export type TypeFacture = 'INDIVIDUAL' | 'GROUPED' | 'ALL';
+
 export interface IInvoiceSearchParams {
   search?: string;
   startDate: string;
@@ -111,8 +114,9 @@ export interface IInvoiceSearchParams {
   groupIds?: number[];
   tiersPayantIds?: number[];
   statuts?: string[];
+  /** Omis = définitives ET provisoires — le « Toutes » du sélecteur. */
   factureProvisoire?: boolean;
-  factureGroupees?: boolean;
+  typeFacture?: TypeFacture;
 }
 
 export interface IFacturationKpi {
@@ -140,7 +144,9 @@ export interface IFactureKpiParams {
   toDate?: string | null;
   organismeId?: number;
   groupeId?: number;
-  typeFacture?: 'INDIVIDUAL' | 'GROUPED' | 'ALL';
+  typeFacture?: TypeFacture;
+  /** Omis = définitives ET provisoires, comme pour la recherche. */
+  factureProvisoire?: boolean;
 }
 
 // Récapitulatif mensuel

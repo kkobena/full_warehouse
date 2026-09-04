@@ -97,8 +97,8 @@ export const ECHELLE = Number(process.env.E2E_SCALE ?? 1);
  */
 export const CADRAGE_ESSENTIEL = (process.env.E2E_CADRAGE ?? 'essentiel') !== 'plein';
 
-/** Marge sous le contenu, pour ne pas raser la bordure de la carte. */
-export const MARGE_CADRAGE = 16;
+/** Marge sous le contenu, pour ne pas raser la bordure de la carte (configurable via E2E_CADRAGE_MARGE). */
+export const MARGE_CADRAGE = Number(process.env.E2E_CADRAGE_MARGE ?? 16);
 
 /**
  * Repères numérotés sur les éléments manipulés pendant chaque étape du manuel.

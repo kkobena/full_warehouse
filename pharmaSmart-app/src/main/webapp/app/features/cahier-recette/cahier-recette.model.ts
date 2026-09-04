@@ -206,13 +206,19 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             resultatAttendu: 'Le ticket distingue la part prise en charge et la part patient ; la créance tiers payant est constituée pour la facturation.',
           },
           {
-            id: 'VTE-52',
-            titre: 'Plafonner automatiquement la prise en charge d’un tiers payant',
-            besoin: 'Respecter les limites de remboursement négociées avec un tiers payant (plafond de consommation mensuelle du client, plafond journalier), plutôt que de facturer une part assurance qui serait ensuite rejetée.',
-            fonctionnement: 'Deux plafonds peuvent s’appliquer, dans l’ordre : le plafond de consommation mensuelle, qui limite la part assurance à ce qu’il reste de disponible entre la consommation déjà enregistrée ce mois-ci pour ce client et le plafond du tiers payant ; puis le plafond journalier client, qui borne le montant restant à un maximum par jour. Dès que l’un des deux plafonds réduit le montant initialement calculé, la part assurance est ramenée à ce montant plafonné, la différence bascule sur la part patient, et un message d’avertissement signale le plafonnement appliqué.',
-            prerequis: 'Le tiers payant du client a un plafond de consommation mensuelle et/ou un plafond journalier configuré, déjà atteint ou proche de l’être.',
-            etapes: ['Vendre à un client dont la consommation du mois approche ou dépasse le plafond de son tiers payant', 'Valider le calcul part assurance / part patient'],
-            resultatAttendu: 'La part assurance est automatiquement réduite au montant encore disponible sous le ou les plafonds applicables, la part patient augmente d’autant, et un avertissement affiche le plafonnement appliqué.',
+            id: 'VTE-50',
+            titre: 'Plafonner la prise en charge au droit restant du bénéficiaire',
+            besoin: 'Empêcher qu’un bénéficiaire consomme au-delà du droit que son tiers payant lui accorde, plutôt que de facturer une part qui serait ensuite rejetée.',
+            fonctionnement:
+              'Deux plafonds s’appliquent dans l’ordre. Le plafond mensuel du bénéficiaire est confronté à ce qu’il a déjà consommé dans le mois, et la prise en charge est ramenée au reliquat ; le plafond journalier borne ensuite ce qui reste. La vente n’est pas bloquée : la part qui dépasse revient au bénéficiaire, qui la règle immédiatement au comptoir, et un avertissement nomme l’organisme et le montant pris en charge.',
+            prerequis: 'Bénéficiaire dont la consommation du mois approche le plafond accordé par son tiers payant.',
+            etapes: [
+              'Sélectionner un bénéficiaire dont le droit du mois est presque épuisé',
+              'Constituer une vente qui dépasse son reliquat',
+              'Constater que la prise en charge vaut le reliquat, et non un pourcentage de la vente',
+              'Lire l’avertissement : il nomme l’organisme et le montant pris en charge',
+            ],
+            resultatAttendu: 'La prise en charge vaut exactement le droit restant du bénéficiaire, la différence passe à sa charge et se règle au comptoir, et un avertissement nommant l’organisme et le montant pris en charge l’explique au caissier.',
           },
           {
             id: 'VTE-53',
@@ -288,11 +294,12 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
           {
             id: 'VTE-41',
             titre: 'Forcer une vente malgré un stock insuffisant',
-            besoin: 'Ne pas bloquer une vente urgente quand le stock affiché est erroné ou en cours de régularisation, sans pour autant l’autoriser à n’importe qui.',
-            fonctionnement: 'Si la quantité demandée dépasse le stock disponible, une confirmation propose de forcer la vente malgré tout ; l’option n’est proposée qu’aux utilisateurs disposant du privilège de forçage, et la ligne est marquée comme forcée pour traçabilité.',
-            prerequis: 'L’utilisateur dispose du privilège de forçage de stock ; le stock du produit est insuffisant.',
+            besoin: 'Ne pas renvoyer un client parce que le rayon est vide : il paie aujourd’hui ce qu’il emportera après le prochain réapprovisionnement, et l’officine garde trace de ce qu’elle lui doit.',
+            fonctionnement:
+              'Le forçage ne fait pas sortir du stock qui n’existe pas : la quantité servie reste bornée au stock disponible, tandis que la quantité demandée est enregistrée telle quelle. L’écart entre les deux part en avoir client à la clôture : le client a payé, l’officine lui doit la marchandise et la lui remettra à la prochaine entrée en stock. Un client identifié est donc obligatoire pour encaisser, et l’option n’est proposée qu’aux utilisateurs disposant du privilège de forçage.',
+            prerequis: 'L’utilisateur dispose du privilège de forçage de stock ; le stock du produit ne couvre pas la quantité demandée, réserve comprise.',
             etapes: ['Ajouter un produit en quantité supérieure au stock disponible', 'Confirmer le forçage de la vente'],
-            resultatAttendu: 'La ligne est ajoutée malgré le stock insuffisant et reste tracée comme une vente forcée.',
+            resultatAttendu: 'La ligne est ajoutée à la quantité demandée, la quantité servie reste bornée au stock réel, et l’écart part en avoir client à la clôture — laquelle exige un client identifié.',
           },
           {
             id: 'VTE-42',
@@ -754,20 +761,6 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
               'Vérifier que le carnet prend la totalité, puis finaliser',
             ],
             resultatAttendu: 'Le montant de la vente vient augmenter le compte différé du porteur, sans aucun encaissement au comptoir.',
-          },
-          {
-            id: 'VTE-50',
-            titre: 'Plafonner une vente carnet au crédit restant du porteur',
-            besoin: 'Empêcher qu’un client carnet accumule une dette au-delà du plafond de crédit qui lui a été accordé.',
-            fonctionnement:
-              "Le carnet est un crédit accordé par l'employeur, et un crédit se plafonne. Le mécanisme est celui de l'assurance : le plafond mensuel du porteur est confronté à ce qu'il a déjà consommé, et la prise en charge est ramenée au RELIQUAT. La vente n'est pas bloquée — elle serait ingérable au comptoir — mais la part qui dépasse revient au porteur, qui la règle immédiatement. Un avertissement nomme l'organisme et le montant retenu, pour que le caissier puisse l'expliquer.",
-            prerequis: 'Client carnet dont le plafond de crédit disponible est inférieur au montant de la vente.',
-            etapes: [
-              'Sélectionner un porteur dont le crédit est presque épuisé',
-              'Constituer une vente qui dépasse son reliquat',
-              'Constater le plafonnement et le reste à payer',
-            ],
-            resultatAttendu: 'La part carnet est ramenée au crédit restant, la différence passe à la charge du porteur, et un avertissement l’explique.',
           },
         ],
       },
@@ -2001,6 +1994,21 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             resultatAttendu: 'Chaque ligne est traitée dans l’ordre sans retour au tableau complet, puis la réception est finalisée comme en mode standard.',
           },
           {
+            id: 'ACH-84',
+            titre: 'Basculer la réception en vue tableau',
+            besoin:
+              'Reprendre la main sur le bon entier — comparer les lignes entre elles, corriger un code CIP, repérer une quantité aberrante — là où la saisie ligne par ligne n’en montre qu’une à la fois.',
+            fonctionnement:
+              'L’écran de réception s’ouvre en mode séquentiel. Le sélecteur « Séquentiel / Grille », en haut à droite de la barre, bascule vers la vue tableau ; le raccourci Ctrl+G fait la même chose sans la souris, et l’application y bascule d’elle-même dès qu’on corrige un code CIP, cette cellule n’étant modifiable que là. La vue tableau ajoute au tableau des lignes un panneau de concordance — écarts de quantité, de prix, de colisage, lots manquants — que le mode séquentiel n’affiche pas ; le bouton « Récap BL » le replie. Le mode retenu est MÉMORISÉ sur le poste : les réceptions suivantes s’ouvrent dans le dernier mode utilisé, y compris après redémarrage du navigateur.',
+            etapes: [
+              'Ouvrir un bon de réception : il s’ouvre en saisie ligne par ligne',
+              'Basculer en vue tableau par le bouton « Grille » — ou par Ctrl+G',
+              'Revenir à la liste et rouvrir un bon : la vue tableau est conservée',
+            ],
+            resultatAttendu:
+              'La vue tableau affiche toutes les lignes du bon et le panneau de concordance ; le mode choisi est conservé d’une réception à la suivante, jusqu’à ce qu’on revienne au mode séquentiel.',
+          },
+          {
             id: 'ACH-74',
             titre: 'Contrôler la concordance de la réception avant finalisation',
             besoin: 'Repérer en un coup d’œil les anomalies d’un bon volumineux avant qu’elles n’entrent en stock ou ne deviennent un litige fournisseur.',
@@ -2403,6 +2411,22 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             ],
             resultatAttendu:
               'Les données des produits fusionnés (stocks, lots, tarifs, fournisseurs, rayons, ventes...) sont réaffectées ou fusionnées sur le produit cible selon les choix effectués ; le déconditionné rattaché est re-parenté ou ses ventes fusionnées selon le cas ; les produits fusionnés sont archivés (désactivés) et un ajustement manuel de stock reste signalé si un conflit d’emplacement (boîte ou déconditionné) n’a pas été résorbé.',
+          },
+          {
+            id: 'REF-63',
+            titre: 'Affecter une DCI à plusieurs produits en une seule action',
+            besoin:
+              'Rattacher à leur substance active les produits d’un catalogue repris d’un autre logiciel, qui arrive presque toujours sans DCI — sans elle, la substitution générique ne propose rien.',
+            fonctionnement:
+              'Depuis la sélection multiple du catalogue, une fenêtre demande la substance à appliquer et rappelle les produits retenus. La DCI choisie remplace celle qu’ils portaient éventuellement, et l’opération se défait en réaffectant. Une fois validée, le nombre de produits rattachés est annoncé et la sélection est réinitialisée.',
+            prerequis: 'Au moins un produit sélectionné au catalogue ; la DCI existe déjà au référentiel.',
+            etapes: [
+              'Sélectionner plusieurs produits au catalogue',
+              'Lancer « Affecter une DCI » et choisir la substance',
+              'Valider et contrôler le nombre de produits rattachés',
+            ],
+            resultatAttendu:
+              'Tous les produits sélectionnés portent la DCI choisie, le nombre de rattachements est confirmé et la sélection est réinitialisée.',
           },
         ],
       },

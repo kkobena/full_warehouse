@@ -29,10 +29,11 @@ export class FactureApiService {
     );
   }
 
+  // Un seul endpoint : c'est `typeFacture` qui aiguille côté serveur vers les factures
+  // individuelles ou groupées, là où le front choisissait l'URL.
   query(searchParams: IInvoiceSearchParams): Observable<HttpResponse<IFacture[]>> {
     const options = createRequestOptions(searchParams);
-    const url = searchParams.factureGroupees ? `${this.resourceUrl}/groupes` : this.resourceUrl;
-    return this.http.get<IFacture[]>(url, { params: options, observe: 'response' });
+    return this.http.get<IFacture[]>(this.resourceUrl, { params: options, observe: 'response' });
   }
 
   delete(factureId: IFactureId): Observable<HttpResponse<{}>> {
@@ -79,10 +80,7 @@ export class FactureApiService {
   }
 
   exportExcel(searchParams: IInvoiceSearchParams): Observable<Blob> {
-    const url = searchParams.factureGroupees
-      ? `${this.resourceUrl}/groupes/export`
-      : `${this.resourceUrl}/export`;
-    return this.http.get(url, {
+    return this.http.get(`${this.resourceUrl}/export`, {
       params: createRequestOptions(searchParams),
       responseType: 'blob',
     });

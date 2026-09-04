@@ -68,7 +68,7 @@ UPDATE client_tiers_payant ctp
 -- Les plafonds ci-dessus se calent sur la consommation générée, qui change à
 -- chaque chargement : les montants affichés à l'écran changent avec elle, et
 -- un manuel ne peut pas les citer. On fige donc un cas nommé, en chiffres
--- ronds, sur lequel s'appuient la documentation et le parcours VTE-52 :
+-- ronds, sur lequel s'appuient la documentation et le parcours VTE-50 :
 --
 --   CNAM plafonne chaque assuré à 50 000 par mois ;
 --   l'assuré CNAM01-000098 en a déjà consommé 35 000.
@@ -97,6 +97,10 @@ UPDATE client_tiers_payant
 -- Chiffres ronds, pour que le manuel puisse les citer :
 --   le carnet plafonne chaque porteur à 50 000 par mois ;
 --   le porteur CAR01-000021 en a déjà consommé 45 000, il lui reste 5 000.
+--
+-- Aucun parcours ne s'appuie sur ce cas : VTE-50 illustre le plafond sur une
+-- assurance, où le taux rend visible ce que le plafond change. Il reste ici
+-- pour la démonstration manuelle du carnet plafonné.
 --
 -- Le porteur de VTE-30 (CAR01-000045) reste à zéro de consommation : sa vente
 -- de 38 620 passe sous le plafond et n'est donc pas affectée.

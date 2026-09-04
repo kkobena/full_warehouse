@@ -236,6 +236,32 @@ public abstract class AbstractEditionFactureService implements EditionService {
         List<RepartitionTiersPayantParTva> aggregated = aggregateRepartitionsByTva(allRepartitions);
         applyTotalsAndRepartitions(factureTiersPayant, aggregated);
         this.facturationRepository.saveAndFlush(factureTiersPayant);
+        cumulerSurFactureGroupe(factureGroup, factureTiersPayant);
+    }
+
+    /**
+     * Reporte les totaux d'une facture fille sur sa facture de groupe.
+     *
+     * <p>La facture de groupe naît sans montants — {@code buildGroupeFacture} ne pose qu'une
+     * période, un numéro et un groupe — et {@link #applyTotalsAndRepartitions} ne s'applique
+     * qu'aux filles. Elle restait donc à zéro alors qu'elle est une facture à part entière :
+     * elle porte un numéro, elle se règle, et son {@code montant_regle} est bien tenu à jour.
+     * Les indicateurs, qui somment {@code montant_net} sur les factures parentes, annonçaient
+     * en conséquence un total facturé nul et un reste à recouvrer négatif.
+     *
+     * <p>Le cumul se fait ici plutôt que dans une passe finale : la fille vient d'être écrite,
+     * ses répartitions TVA sont agrégées, et la parente est déjà attachée au contexte de
+     * persistance par {@code buildAndPersistFacture}.
+     */
+    private void cumulerSurFactureGroupe(FactureTiersPayant factureGroup, FactureTiersPayant fille) {
+        if (factureGroup == null) {
+            return;
+        }
+        factureGroup.setMontantTtc(factureGroup.getMontantTtc().add(fille.getMontantTtc()));
+        factureGroup.setMontantTva(factureGroup.getMontantTva().add(fille.getMontantTva()));
+        factureGroup.setMontantNet(factureGroup.getMontantNet().add(fille.getMontantNet()));
+        factureGroup.setMontantHt(factureGroup.getMontantHt().add(fille.getMontantHt()));
+        this.facturationRepository.saveAndFlush(factureGroup);
     }
 
     private FactureTiersPayant buildAndPersistFacture(

@@ -57,7 +57,14 @@ public interface EditionDataService {
 
     InfoTiersPayant getInfoTiersPayantByFactureId(FactureItemId factureItemId);
 
-    FacturationKpiDto getKpi(LocalDate fromDate, LocalDate toDate, Integer organismeId , Integer groupeId, TypeFacture typeFacture);
+    FacturationKpiDto getKpi(
+        LocalDate fromDate,
+        LocalDate toDate,
+        Integer organismeId,
+        Integer groupeId,
+        TypeFacture typeFacture,
+        Boolean factureProvisoire
+    );
 
     byte[] exportInvoicesToExcel(InvoiceSearchParams params, boolean isGroup);
 

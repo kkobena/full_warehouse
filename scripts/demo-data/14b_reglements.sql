@@ -169,7 +169,11 @@ CROSS JOIN LATERAL (
      ORDER BY cr.begin_time
      LIMIT 1
 ) reg
-WHERE f.montant_regle > 0;
+-- Les factures de GROUPE sont écartées : leur règlement n'est pas un
+-- encaissement de plus mais un encaissement PARENT, qui chapeaute ceux de ses
+-- filles. Il est posé plus bas. Une parente se reconnaît à son organisme nul.
+WHERE f.montant_regle > 0
+  AND f.tiers_payant_id IS NOT NULL;
 
 INSERT INTO payment_transaction (
     dtype, id, transaction_date,
@@ -210,6 +214,79 @@ JOIN third_party_sale_line t
  AND t.invoice_date = p.invoice_date
 WHERE t.montant_regle > 0;
 
+-- ---------------------------------------------------------------------------
+-- 2bis. Règlement d'une facture de GROUPE
+--
+-- ReglementGroupeFactureService ne produit pas un encaissement de plus : il
+-- produit UN encaissement parent, porté par la facture de groupe et marqué
+-- « grouped », auquel se rattachent les encaissements de chaque fille par
+-- (parent_id, parent_transaction_date). Le détail bon par bon reste sur les
+-- filles ; la parente ne totalise que ses enfants.
+--
+-- Sans cette forme, l'écran « Historique des règlements » filtré sur les
+-- règlements groupés restait vide, et la facture de groupe affichait un montant
+-- réglé sans le moindre encaissement en face — le défaut même que la section 2
+-- corrige pour les factures individuelles.
+-- ---------------------------------------------------------------------------
+CREATE TEMP TABLE tmp_paiement_groupe AS
+SELECT
+    nextval('id_transaction_seq') AS id,
+    f.id   AS facture_id,
+    f.invoice_date,
+    f.montant_ttc,
+    f.montant_regle,
+    reg.id   AS cash_register_id,
+    reg.jour AS transaction_date
+FROM facture_tiers_payant f
+CROSS JOIN LATERAL (
+    -- Même règle que pour les filles : leurs encaissements tombent donc le
+    -- même jour que celui de la parente, ce qui est le cas réel — un règlement
+    -- groupé est un seul virement.
+    SELECT cr.id, cr.begin_time::date AS jour
+      FROM cash_register cr
+     WHERE cr.begin_time::date >= LEAST(f.invoice_date + 20, CURRENT_DATE)
+     ORDER BY cr.begin_time
+     LIMIT 1
+) reg
+WHERE f.tiers_payant_id IS NULL
+  AND f.groupe_tiers_payant_id IS NOT NULL
+  AND f.montant_regle > 0;
+
+INSERT INTO payment_transaction (
+    dtype, id, transaction_date,
+    expected_amount, paid_amount, reel_amount, montant_verse,
+    amount_to_be_taken_into_account,
+    credit, categorie_ca, type_transaction, payment_mode_code,
+    cash_register_id,
+    facture_tierspayant_id, facture_tierspayant_invoice_date,
+    grouped, created_at
+)
+SELECT
+    'InvoicePayment', p.id, p.transaction_date,
+    p.montant_ttc, p.montant_regle, p.montant_regle, p.montant_regle,
+    0,
+    false, 'CA', 'REGLEMENT_TIERS_PAYANT', 'VIREMENT',
+    p.cash_register_id,
+    p.facture_id, p.invoice_date,
+    true,
+    p.transaction_date + TIME '15:00:00'
+FROM tmp_paiement_groupe p;
+
+-- Les encaissements des filles, déjà posés par la section 2, désignent
+-- maintenant leur parent.
+UPDATE payment_transaction fille
+   SET parent_id               = p.id,
+       parent_transaction_date = p.transaction_date
+  FROM tmp_paiement_groupe p
+  JOIN facture_tiers_payant ff
+    ON ff.groupe_facture_tiers_payant_id = p.facture_id
+   AND ff.groupe_facture_tiers_payant_invoice_date = p.invoice_date
+ WHERE fille.dtype = 'InvoicePayment'
+   AND NOT fille.grouped
+   AND fille.facture_tierspayant_id = ff.id
+   AND fille.facture_tierspayant_invoice_date = ff.invoice_date;
+
+DROP TABLE tmp_paiement_groupe;
 DROP TABLE tmp_facture_paiement;
 DROP TABLE tmp_differe_paiement;
 DROP TABLE tmp_differe;
@@ -243,6 +320,7 @@ DO $$
 DECLARE
     v_dif int; v_dif_items int; v_inv int; v_inv_items int;
     v_solde int; v_ecart int; v_orphelins int; v_recents int;
+    v_ecart_inv int; v_groupe int; v_ecart_groupe int;
 BEGIN
     SELECT count(*) INTO v_dif FROM payment_transaction WHERE dtype = 'DifferePayment';
     SELECT count(*) INTO v_dif_items FROM differe_payment_item;
@@ -268,6 +346,34 @@ BEGIN
         HAVING sum(i.paid_amount) <> pt.paid_amount
     ) x;
 
+    -- Le règlement d'une facture doit égaler la somme de ses items, exactement
+    -- comme on l'exige du différé juste au-dessus. Ce contrôle manquait, et
+    -- c'est lui qui laissait passer l'écart d'arrondi entre le montant réglé de
+    -- la facture et celui de ses bons. Les encaissements groupés en sont exclus :
+    -- ils n'ont pas d'item, ils ont des enfants.
+    SELECT count(*) INTO v_ecart_inv FROM (
+        SELECT pt.id FROM payment_transaction pt
+          JOIN invoice_payment_item i
+            ON i.invoice_payment_id = pt.id
+           AND i.invoice_payment_transaction_date = pt.transaction_date
+         WHERE pt.dtype = 'InvoicePayment' AND NOT pt.grouped
+         GROUP BY pt.id, pt.paid_amount
+        HAVING sum(i.montant_paye) <> pt.paid_amount
+    ) x;
+
+    -- Un encaissement groupé totalise ceux de ses filles.
+    SELECT count(*) INTO v_groupe FROM payment_transaction
+     WHERE dtype = 'InvoicePayment' AND grouped;
+
+    SELECT count(*) INTO v_ecart_groupe FROM (
+        SELECT p.id FROM payment_transaction p
+          JOIN payment_transaction c
+            ON c.parent_id = p.id AND c.parent_transaction_date = p.transaction_date
+         WHERE p.dtype = 'InvoicePayment' AND p.grouped
+         GROUP BY p.id, p.paid_amount
+        HAVING sum(c.paid_amount) <> p.paid_amount
+    ) y;
+
     -- Toute facture affichant un règlement doit en avoir un.
     SELECT count(*) INTO v_orphelins FROM facture_tiers_payant f
      WHERE f.montant_regle > 0
@@ -292,9 +398,18 @@ BEGIN
     IF v_orphelins > 0 THEN
         RAISE EXCEPTION '% facture(s) reglee(s) sans encaissement', v_orphelins;
     END IF;
+    IF v_ecart_inv > 0 THEN
+        RAISE EXCEPTION '% reglement(s) de facture dont le montant contredit ses items', v_ecart_inv;
+    END IF;
+    IF v_groupe = 0 THEN
+        RAISE EXCEPTION 'Aucun reglement groupe : l''historique filtre sur les groupes reste vide';
+    END IF;
+    IF v_ecart_groupe > 0 THEN
+        RAISE EXCEPTION '% reglement(s) groupe(s) dont le montant contredit ses filles', v_ecart_groupe;
+    END IF;
 
-    RAISE NOTICE '% reglements differes (dont % sur 30 jours, % items), % reglements de factures (% items), % creance(s) restante(s).',
-                 v_dif, v_recents, v_dif_items, v_inv, v_inv_items, v_solde;
+    RAISE NOTICE '% reglements differes (dont % sur 30 jours, % items), % reglements de factures (dont % groupes, % items), % creance(s) restante(s).',
+                 v_dif, v_recents, v_dif_items, v_inv, v_groupe, v_inv_items, v_solde;
 END $$;
 
 \echo '<< 14b_reglements : termine'

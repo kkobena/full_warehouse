@@ -61,6 +61,12 @@ BEGIN
           FROM facture_tiers_payant ftp
          WHERE ftp.montant_regle > 1000
            AND ftp.tiers_payant_id IS NOT NULL
+           -- Pas sur une facture FILLE d'un groupe. AvoirServiceImpl n'impute
+           -- que sur la facture visee : le montant regle de la parente, lui, ne
+           -- bouge pas, et son total se met a contredire la somme de ses filles
+           -- -- ce que la liste « Groupees » affiche tel quel. C'est un manque
+           -- de l'application, pas un etat a fabriquer dans la demonstration.
+           AND ftp.groupe_facture_tiers_payant_id IS NULL
            -- De la marge sous le montant total : une imputation ne doit pas
            -- solder la facture ici. Une facture soldee par avoir passe a PAID
            -- alors que ses LIGNES portent encore un reste a payer — l'imputation

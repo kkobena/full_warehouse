@@ -3,13 +3,14 @@ import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProdu
 import { scenario } from '../../src/scenario';
 
 /**
- * Le stock informatique et le stock physique divergent : une réception mal saisie, un retour
- * non enregistré, et l'écran annonce zéro là où le rayon a encore des boîtes. Refuser la vente
- * serait absurde — le client a le produit en main.
+ * Le rayon est vide et le client veut le produit : plutôt que de le renvoyer, l'officine
+ * encaisse aujourd'hui et livrera après le prochain réapprovisionnement.
  *
  * L'application refuse d'abord (« Stock insuffisant »), puis PROPOSE de forcer. Le forçage
- * n'est offert qu'aux utilisateurs qui en ont le privilège, et il laisse une trace : le stock
- * passera en négatif, ce qui rendra l'écart visible à l'inventaire au lieu de le dissimuler.
+ * n'est offert qu'aux utilisateurs qui en ont le privilège, et il ne crée AUCUN stock : la
+ * quantité servie reste bornée au disponible, l'écart devient un avoir client — d'où le
+ * client obligatoire à l'encaissement. Le stock ne passe pas en négatif : rien ne sort de
+ * ce qui n'existe pas.
  *
  * Parcours en LECTURE : il décline le forçage, et le stock n'est pas touché.
  */

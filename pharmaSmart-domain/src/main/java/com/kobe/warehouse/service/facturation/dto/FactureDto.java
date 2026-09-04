@@ -89,6 +89,14 @@ public class FactureDto extends FactureDtoWrapper {
         this.delaiReglement = Objects.requireNonNullElse(delaiReglement, 30);
     }
 
+    /**
+     * Projection des factures groupées.
+     *
+     * <p>{@code numFacture} est bien le numéro de la facture elle-même : une facture de groupe
+     * est la racine, elle n'a pas de facture parente au-dessus d'elle. Ce paramètre alimentait
+     * {@code groupeNumFacture} — que rien n'affiche — et laissait {@code numFacture} nul, d'où
+     * une colonne « N° » vide dans la liste comme dans l'export Excel.
+     */
     public FactureDto(
         LocalDate invoiceDate,
         Integer montantRegle,
@@ -98,7 +106,7 @@ public class FactureDto extends FactureDtoWrapper {
         InvoiceStatut statut,
         LocalDate finPeriode,
         Boolean factureProvisoire,
-        String groupeNumFacture,
+        String numFacture,
         String tiersPayantName,
         Integer montantVente,
         Long itemsCount,
@@ -115,7 +123,7 @@ public class FactureDto extends FactureDtoWrapper {
         this.finPeriode = finPeriode;
         this.factureProvisoire = factureProvisoire;
         this.tiersPayantName = tiersPayantName;
-        this.groupeNumFacture = groupeNumFacture;
+        this.numFacture = numFacture;
         this.montantVente = montantVente;
         this.itemsCount = itemsCount;
         this.montant = montant;

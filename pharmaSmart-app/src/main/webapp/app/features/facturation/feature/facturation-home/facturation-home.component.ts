@@ -6,11 +6,12 @@ import { forkJoin, of, Subject } from "rxjs";
 import { FormsModule } from "@angular/forms";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import {
+  AppPillOption,
   ButtonComponent,
   FloatLabelComponent,
   MultiSelectComponent,
+  PillSelectorComponent,
   SelectComponent,
-  SwitchComponent,
   ToolbarComponent
 } from "../../../../shared/ui";
 import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
@@ -29,7 +30,7 @@ import { GroupeTiersPayantService } from "../../../../entities/groupe-tiers-paya
 import { AbilityService } from "app/core/auth/ability.service";
 import { FacturationStore } from "../../data-access/store/facturation.store";
 import { FactureApiService } from "../../data-access/services/facture-api.service";
-import { IFacture, IFactureKpiParams, IInvoiceSearchParams } from "../../data-access/models";
+import { IFacture, IFactureKpiParams, IInvoiceSearchParams, TypeFacture } from "../../data-access/models";
 import { FactureKpiBannerComponent } from "../../ui/facture-kpi-banner/facture-kpi-banner.component";
 import { FactureListComponent } from "../../ui/facture-list/facture-list.component";
 import { FactureDetailPanelComponent } from "../../ui/facture-detail-panel/facture-detail-panel.component";
@@ -45,8 +46,8 @@ import { BlobDownloadService } from "../../../../shared/services/blob-download.s
     FloatLabelComponent,
     MultiSelectComponent,
     PharmaDatePickerComponent,
+    PillSelectorComponent,
     SelectComponent,
-    SwitchComponent,
     ToolbarComponent,
     FactureKpiBannerComponent,
     FactureListComponent,
@@ -79,8 +80,25 @@ export class FacturationHomeComponent implements OnInit {
   // Toolbar state
   protected readonly statutOptions: CodeValue[] = INVOICES_STATUT;
   protected readonly minLength = 2;
-  protected factureGroupees = false;
-  protected factureProvisoire = false;
+  /** Individuelles ou groupées : les deux familles n'ont ni les mêmes colonnes ni les mêmes
+   * jointures côté serveur, il n'y a donc pas de « Toutes » ici. */
+  protected typeFacture: TypeFacture = 'INDIVIDUAL';
+  protected readonly typeFactureOptions: AppPillOption[] = [
+    { label: 'Individuelles', value: 'INDIVIDUAL', icon: 'pi pi-file' },
+    { label: 'Groupées', value: 'GROUPED', icon: 'pi pi-copy' }
+  ];
+
+  /** `null` = définitives ET provisoires : le paramètre n'est alors pas envoyé. */
+  protected factureProvisoire: boolean | null = false;
+  protected readonly factureProvisoireOptions: AppPillOption[] = [
+    { label: 'Définitives', value: false },
+    { label: 'Provisoires', value: true }
+  ];
+
+  /** Le type pilote aussi le filtre affiché (tiers-payant ou groupe) et les indicateurs. */
+  protected get factureGroupees(): boolean {
+    return this.typeFacture === 'GROUPED';
+  }
   protected readonly deleteAllSpinner = signal(false);
   protected readonly modelStartDate = signal<NgbDateStruct | undefined>(undefined);
   protected modelEndDate: NgbDateStruct = TODAY_NGB_DATE();
@@ -181,7 +199,7 @@ export class FacturationHomeComponent implements OnInit {
     this.loadKpi();
   }
 
-  onGroupToggle(): void {
+  onTypeFactureChange(): void {
     this.selectedTiersPayants.set([]);
     this.selectedGroupeTiersPayants.set([]);
     this.onSearch();
@@ -275,13 +293,15 @@ export class FacturationHomeComponent implements OnInit {
     const params: IFactureKpiParams = {
       fromDate: NGB_DATE_TO_ISO(this.modelStartDate()),
       toDate: NGB_DATE_TO_ISO(this.modelEndDate),
-      typeFacture: this.factureGroupees ? 'GROUPED' : 'INDIVIDUAL'
+      typeFacture: this.typeFacture
     };
 
-    // L'endpoint ne borne que sur UN organisme ou UN groupe, là où la recherche en accepte
-    // plusieurs. On ne restreint donc que lorsque le choix est sans ambiguïté : sur une
-    // sélection multiple, la bannière couvre toute la période — ce qui reste vrai, alors
-    // qu'un filtre pris au hasard dans la liste serait faux.
+
+    if (this.factureProvisoire !== null) {
+      params.factureProvisoire = this.factureProvisoire;
+    }
+
+
     const tiersPayants = this.selectedTiersPayants();
     if (!this.factureGroupees && tiersPayants.length === 1) {
       params.organismeId = tiersPayants[0].id;
@@ -298,11 +318,15 @@ export class FacturationHomeComponent implements OnInit {
       startDate: NGB_DATE_TO_ISO(this.modelStartDate()),
       endDate: NGB_DATE_TO_ISO(this.modelEndDate),
       search: this.search || undefined,
-      factureGroupees: this.factureGroupees,
-      factureProvisoire: this.factureProvisoire,
+      typeFacture: this.typeFacture,
       groupIds: this.selectedGroupeTiersPayants().map(g => g.id),
       tiersPayantIds: this.selectedTiersPayants().map(t => t.id)
     };
+    // Omettre le paramètre plutôt que d'envoyer `null` : c'est son absence qui vaut
+    // « définitives ET provisoires » côté serveur.
+    if (this.factureProvisoire !== null) {
+      params.factureProvisoire = this.factureProvisoire;
+    }
     if (this.selectedStatut) {
       params.statuts = [this.selectedStatut];
     }

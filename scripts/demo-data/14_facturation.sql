@@ -110,11 +110,14 @@ SELECT
          ELSE 'NOT_PAID' END,
     'MANUELLE',
     f.tierspayant_id,
-    -- Le groupe du tiers payant est RECOPIÉ sur la facture. Sans lui, toute la
-    -- chaîne des créances part à zéro : la synthèse par groupe, la bande
-    -- d'indicateurs de l'accueil et le vieillissement des créances regroupent
-    -- par ce champ, laissé nul jusqu'ici.
-    tp.groupe_tiers_payant_id,
+    -- NUL sur une facture individuelle : ce champ ne dit pas que l'organisme
+    -- appartient à un groupe — cela se lit sur tiers_payant — mais que la
+    -- FACTURE est une facture de groupe. Seul buildGroupeFacture le pose. Le
+    -- recopier ici, alors que les douze organismes ont tous un groupe, rendait
+    -- TOUTES les factures indiscernables de factures de groupe : bannière
+    -- « Individuelles » à zéro, liste « Groupées » comptant un tableau vide,
+    -- règlements tous classés groupés. Les vraies : étape 5.
+    NULL::int,
     u.id,
     f.invoice_date + TIME '09:00:00',
     f.invoice_date + TIME '09:00:00'
@@ -158,8 +161,143 @@ UPDATE third_party_sale_line t
    AND extract(year  FROM t.sale_date)::int = f.annee
    AND extract(month FROM t.sale_date)::int = f.mois;
 
+-- ---------------------------------------------------------------------------
+-- 4bis. Recalage du règlement de la facture sur celui de ses bons
+--
+-- Les deux montants étaient calculés séparément, chacun avec sa division
+-- entière : 40 % du total de la facture d'un côté, 40 % de CHAQUE bon de
+-- l'autre. Or la somme des arrondis inférieurs est plus petite que l'arrondi
+-- inférieur de la somme — d'un franc par bon dans le pire cas. La facture
+-- affichait donc un réglé que ses bons ne justifiaient pas, et l'encaissement
+-- de 14b, dont le montant vient de la facture et les items des bons, ne
+-- s'égalait pas à la somme de ses propres lignes.
+--
+-- Le bon fait foi : c'est lui que le suivi des créances détaille. La facture
+-- totalise, et son statut suit — un arrondi peut ramener à zéro le règlement
+-- d'une petite facture, qui n'est alors plus « partiellement réglée ».
+-- ---------------------------------------------------------------------------
+UPDATE facture_tiers_payant f
+   SET montant_regle = agg.total,
+       statut = CASE WHEN agg.total = 0                     THEN 'NOT_PAID'
+                     WHEN agg.total >= f.montant_ttc::int   THEN 'PAID'
+                     ELSE 'PARTIALLY_PAID' END
+  FROM (SELECT t.facture_tiers_payant_id AS id,
+               t.invoice_date,
+               sum(t.montant_regle)::int AS total
+          FROM third_party_sale_line t
+         WHERE t.facture_tiers_payant_id IS NOT NULL
+         GROUP BY t.facture_tiers_payant_id, t.invoice_date) agg
+ WHERE f.id = agg.id
+   AND f.invoice_date = agg.invoice_date
+   AND f.montant_regle <> agg.total;
+
 DROP TABLE tmp_facture_tva;
 DROP TABLE tmp_facture;
+
+-- ---------------------------------------------------------------------------
+-- 5. Factures de GROUPE
+--
+-- Une facture de groupe est une facture PARENTE : tiers_payant_id nul,
+-- groupe_tiers_payant_id renseigné, aucun bon en propre, et des factures filles
+-- qui la désignent par (groupe_facture_tiers_payant_id,
+-- groupe_facture_tiers_payant_invoice_date). C'est la forme que produit
+-- EditionByGroupTiersService, et la seule que la liste « Groupées » sait lire :
+-- elle joint les filles en INNER JOIN, donc une parente sans fille n'apparaît
+-- jamais à l'écran.
+--
+-- Le jeu de données n'en contenait aucune : l'onglet « Groupées », le règlement
+-- groupé et la bannière du même nom n'avaient rien à montrer.
+--
+-- On en fabrique pour un seul groupe — MUTUELLES PUBLIQUES, soit CNAM, MUGEFCI
+-- et CNPS — sur les deux dernières éditions. Les neuf autres organismes gardent
+-- des factures individuelles : l'écran doit montrer les deux natures.
+--
+-- Les montants de la parente sont la SOMME de ceux de ses filles, comme le fait
+-- AbstractEditionFactureService. Une parente laissée à zéro ferait afficher à la
+-- bannière un total facturé nul et un reste à recouvrer négatif, puisqu'elle
+-- somme montant_net sur les factures racines.
+-- ---------------------------------------------------------------------------
+CREATE TEMP TABLE tmp_facture_groupe AS
+SELECT
+    nextval('id_facture_seq') AS id,
+    g.*,
+    row_number() OVER (ORDER BY g.invoice_date) AS rang
+FROM (
+    SELECT tp.groupe_tiers_payant_id       AS groupe_id,
+           f.invoice_date,
+           min(f.debut_periode)            AS debut_periode,
+           max(f.fin_periode)              AS fin_periode,
+           sum(f.montant_ttc)              AS montant_ttc,
+           sum(f.montant_ht)               AS montant_ht,
+           sum(f.montant_tva)              AS montant_tva,
+           sum(f.montant_net)              AS montant_net,
+           sum(f.montant_regle)::int       AS montant_regle
+      FROM facture_tiers_payant f
+      JOIN tiers_payant tp          ON tp.id = f.tiers_payant_id
+      JOIN groupe_tiers_payant gtp  ON gtp.id = tp.groupe_tiers_payant_id
+     WHERE gtp.name = 'MUTUELLES PUBLIQUES'
+       AND f.groupe_facture_tiers_payant_id IS NULL
+       -- Les deux dernières éditions : les plus récentes sont celles que
+       -- l'écran montre en premier, période par défaut à un mois glissant.
+       AND f.invoice_date IN (SELECT invoice_date
+                                FROM facture_tiers_payant
+                               GROUP BY invoice_date
+                               ORDER BY invoice_date DESC
+                               LIMIT 2)
+     GROUP BY tp.groupe_tiers_payant_id, f.invoice_date
+) g;
+
+INSERT INTO facture_tiers_payant (
+    id, invoice_date, num_facture,
+    debut_periode, fin_periode, facture_provisoire,
+    montant_regle, remise_forfetaire, generation_code,
+    montant_ttc, montant_ht, montant_tva, montant_net,
+    repartitions, statut, origine_generation,
+    tiers_payant_id, groupe_tiers_payant_id, user_id, created, updated
+)
+SELECT
+    g.id, g.invoice_date,
+    -- Le compteur reprend au dernier numéro émis, comme getLastFactureNumero.
+    to_char(g.invoice_date, 'YYYY') || '_' || lpad((n.dernier + g.rang)::text, 4, '0'),
+    g.debut_periode, g.fin_periode, false,
+    g.montant_regle, 0,
+    -- Toute l'édition d'un groupe partage UN code de génération : c'est par lui
+    -- que l'impression en lot retrouve les factures d'un même passage. Les
+    -- filles sont recalées juste après.
+    9000 + g.rang,
+    g.montant_ttc, g.montant_ht, g.montant_tva, g.montant_net,
+    -- Pas de répartitions TVA sur la parente : applyTotalsAndRepartitions ne
+    -- s'applique qu'aux filles, la parente n'agrège que les totaux.
+    '[]'::jsonb,
+    CASE WHEN g.montant_regle = 0                   THEN 'NOT_PAID'
+         WHEN g.montant_regle >= g.montant_ttc::int THEN 'PAID'
+         ELSE 'PARTIALLY_PAID' END,
+    'MANUELLE',
+    -- tiers_payant_id NUL : une facture de groupe ne vise pas un organisme mais
+    -- le groupe entier. C'est ce qui la distingue d'une facture individuelle,
+    -- et pourquoi la liste individuelle la laisse de côté.
+    NULL::int, g.groupe_id,
+    u.id,
+    g.invoice_date + TIME '09:30:00',
+    g.invoice_date + TIME '09:30:00'
+FROM tmp_facture_groupe g
+CROSS JOIN LATERAL (SELECT id FROM app_user WHERE login = 'admin' LIMIT 1) u
+CROSS JOIN LATERAL (SELECT COALESCE(max(split_part(num_facture, '_', 2)::int), 0) AS dernier
+                      FROM facture_tiers_payant) n;
+
+-- Rattachement des filles. La clé étrangère porte sur les DEUX colonnes de la
+-- clé composite de la parente.
+UPDATE facture_tiers_payant fille
+   SET groupe_facture_tiers_payant_id           = g.id,
+       groupe_facture_tiers_payant_invoice_date = g.invoice_date,
+       generation_code                          = 9000 + g.rang
+  FROM tmp_facture_groupe g
+  JOIN tiers_payant tp ON tp.groupe_tiers_payant_id = g.groupe_id
+ WHERE fille.tiers_payant_id = tp.id
+   AND fille.invoice_date = g.invoice_date
+   AND fille.id <> g.id;
+
+DROP TABLE tmp_facture_groupe;
 
 -- ---------------------------------------------------------------------------
 -- Contrôles immédiats
@@ -167,6 +305,7 @@ DROP TABLE tmp_facture;
 DO $$
 DECLARE
     v_fact int; v_ecart int; v_periode int; v_regle int; v_statuts int;
+    v_groupe int; v_orphelines int; v_ecart_groupe int; v_melange int;
 BEGIN
     SELECT count(*) INTO v_fact FROM facture_tiers_payant;
 
@@ -190,13 +329,45 @@ BEGIN
     SELECT count(*) INTO v_statuts FROM facture_tiers_payant
      WHERE statut NOT IN ('PAID', 'NOT_PAID', 'PARTIALLY_PAID');
 
+    -- Factures de groupe : une parente se reconnaît à son organisme nul.
+    SELECT count(*) INTO v_groupe FROM facture_tiers_payant
+     WHERE tiers_payant_id IS NULL AND groupe_tiers_payant_id IS NOT NULL;
+
+    -- Une parente sans fille n'apparaît jamais dans la liste groupée, qui joint
+    -- les filles en INNER JOIN — mais elle serait comptée par le paginateur.
+    SELECT count(*) INTO v_orphelines FROM facture_tiers_payant p
+     WHERE p.tiers_payant_id IS NULL
+       AND NOT EXISTS (SELECT 1 FROM facture_tiers_payant f
+                        WHERE f.groupe_facture_tiers_payant_id = p.id
+                          AND f.groupe_facture_tiers_payant_invoice_date = p.invoice_date);
+
+    -- La parente totalise ses filles : c'est ce que somme la bannière.
+    SELECT count(*) INTO v_ecart_groupe FROM (
+        SELECT p.id FROM facture_tiers_payant p
+          JOIN facture_tiers_payant f
+            ON f.groupe_facture_tiers_payant_id = p.id
+           AND f.groupe_facture_tiers_payant_invoice_date = p.invoice_date
+         WHERE p.tiers_payant_id IS NULL
+         GROUP BY p.id, p.montant_net, p.montant_regle
+        HAVING p.montant_net <> sum(f.montant_net)
+            OR p.montant_regle <> sum(f.montant_regle)::int) y;
+
+    -- Une facture individuelle ne porte JAMAIS de groupe : sinon la bannière
+    -- « Individuelles » l'ignore et la liste « Groupées » la compte à tort.
+    SELECT count(*) INTO v_melange FROM facture_tiers_payant
+     WHERE tiers_payant_id IS NOT NULL AND groupe_tiers_payant_id IS NOT NULL;
+
     IF v_fact < 20 THEN RAISE EXCEPTION 'Factures : % (attendu >= 20)', v_fact; END IF;
     IF v_ecart > 0 THEN RAISE EXCEPTION '% facture(s) dont le total contredit les bons', v_ecart; END IF;
     IF v_periode > 0 THEN RAISE EXCEPTION '% bon(s) hors de la période facturée', v_periode; END IF;
     IF v_regle > 0 THEN RAISE EXCEPTION '% facture(s) au règlement incohérent', v_regle; END IF;
     IF v_statuts > 0 THEN RAISE EXCEPTION '% facture(s) au statut hors contrainte', v_statuts; END IF;
+    IF v_groupe < 2 THEN RAISE EXCEPTION 'Factures de groupe : % (attendu >= 2) — onglet « Groupées » vide', v_groupe; END IF;
+    IF v_orphelines > 0 THEN RAISE EXCEPTION '% facture(s) de groupe sans fille : comptees mais jamais affichees', v_orphelines; END IF;
+    IF v_ecart_groupe > 0 THEN RAISE EXCEPTION '% facture(s) de groupe dont le total contredit ses filles', v_ecart_groupe; END IF;
+    IF v_melange > 0 THEN RAISE EXCEPTION '% facture(s) individuelle(s) portant un groupe : indiscernables des factures de groupe', v_melange; END IF;
 
-    RAISE NOTICE '% factures tiers-payant.', v_fact;
+    RAISE NOTICE '% factures tiers-payant, dont % de groupe.', v_fact, v_groupe;
 END $$;
 
 

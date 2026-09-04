@@ -49,8 +49,21 @@ public class CahierRecettePdfService {
     private static final String TEMPLATE = "cahier-recette/main";
     private static final Pattern TOC_ID_PATTERN = Pattern.compile("^(module|feature)-.*");
 
-    /** Les actifs Angular (dont content/) atterrissent sous static/ dans le classpath. */
+    /**
+     * Les actifs Angular (dont content/) atterrissent sous static/ dans le classpath.
+     */
     private static final String CLASSPATH_PREFIX = "static/";
+
+    /**
+     * Coordonnées de l'éditeur, imprimées en pied de chaque page à côté du copyright.
+     * <p>
+     * Ce sont des VALEURS D'ATTENTE : le manuel circule chez le client, et un guide sans moyen de
+     * joindre son éditeur renvoie l'utilisateur vers son revendeur ou vers rien. Elles sont à
+     * remplacer par les coordonnées réelles — ici plutôt que dans le template, qui les noierait au
+     * milieu de la feuille de style de la page.
+     */
+    private static final String CONTACT_EMAIL = "badoukobena@gmail.com";
+    private static final String CONTACT_TELEPHONE = "+33 06 52 92 63 83";
 
     private final SpringTemplateEngine templateEngine;
     private final CahierRecetteDataService dataService;
@@ -90,6 +103,8 @@ public class CahierRecettePdfService {
         context.setVariable("pageNumbers", pageNumbers);
         context.setVariable("currentYear", Year.now().getValue());
         context.setVariable("editionTitle", resolveEditionTitle(modules));
+        context.setVariable("contactEmail", CONTACT_EMAIL);
+        context.setVariable("contactTelephone", CONTACT_TELEPHONE);
         return templateEngine.process(TEMPLATE, context);
     }
 
@@ -107,18 +122,18 @@ public class CahierRecettePdfService {
     /**
      * Renderer dont l'agent utilisateur sait résoudre les images depuis le CLASSPATH.
      * <p>
-     * {@link ITextRenderer#setDocumentFromString(String)} est appelé sans URL de base : sans
-     * cet agent, une {@code <img src="content/captures/...">} du guide ne serait résolue nulle
-     * part et le PDF sortirait avec des images manquantes — sans erreur, ce qui est le pire des
-     * cas. Passer une URL de base {@code file:} ne conviendrait pas non plus : les captures
-     * vivent dans les ressources, qui ne sont pas des fichiers une fois l'application packagée
-     * en jar.
+     * {@link ITextRenderer#setDocumentFromString(String)} est appelé sans URL de base : sans cet
+     * agent, une {@code <img src="content/captures/...">} du guide ne serait résolue nulle part et
+     * le PDF sortirait avec des images manquantes — sans erreur, ce qui est le pire des cas. Passer
+     * une URL de base {@code file:} ne conviendrait pas non plus : les captures vivent dans les
+     * ressources, qui ne sont pas des fichiers une fois l'application packagée en jar.
      * <p>
      * Les chemins du guide sont relatifs et servis par Angular depuis {@code content/} ; côté
      * backend, ils se retrouvent dans le classpath sous {@code static/}, d'où le préfixe.
      */
     private ITextRenderer newRenderer() {
-        ITextOutputDevice outputDevice = new ITextOutputDevice(ITextRenderer.DEFAULT_DOTS_PER_POINT);
+        ITextOutputDevice outputDevice = new ITextOutputDevice(
+            ITextRenderer.DEFAULT_DOTS_PER_POINT);
         ITextUserAgent userAgent = new ITextUserAgent(outputDevice,
             ITextRenderer.DEFAULT_DOTS_PER_PIXEL) {
             @Override

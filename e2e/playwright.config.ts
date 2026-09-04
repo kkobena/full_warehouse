@@ -3,8 +3,8 @@ import { BASE_URL, ECHELLE, FENETRE, FICHIER_SESSION, PROJET_CAPTURES, RACINE } 
 import { join } from 'node:path';
 
 /**
- * Configuration de la campagne de captures (phase 1) et, plus tard, de la suite de
- * non-régression (phase 2). Voir docs/PLAN-PLAYWRIGHT-E2E-ET-CAPTURES.md.
+ * Configuration de la campagne de captures et, plus tard, de la suite de
+ * non-régression. Voir docs/PLAN-PLAYWRIGHT-E2E-ET-CAPTURES.md.
  *
  * Trois projets, volontairement séparés :
  *   - « liage »           : contrôles sur le modèle du cahier de recette. Aucun navigateur,

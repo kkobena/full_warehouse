@@ -299,7 +299,11 @@ public interface FacturationRepository
             if (!CollectionUtils.isEmpty(invoiceSearchParams.tiersPayantIds())) {
                 predicates.add(root.get(FactureTiersPayant_.tiersPayant).get(TiersPayant_.id).in(invoiceSearchParams.tiersPayantIds()));
             }
-            predicates.add(cb.equal(root.get(FactureTiersPayant_.factureProvisoire), invoiceSearchParams.factureProvisoire()));
+            // null = les deux : le sélecteur de l'écran offre « Toutes » en plus de
+            // « Définitives » et « Provisoires ».
+            if (invoiceSearchParams.factureProvisoire() != null) {
+                predicates.add(cb.equal(root.get(FactureTiersPayant_.factureProvisoire), invoiceSearchParams.factureProvisoire()));
+            }
             if (!CollectionUtils.isEmpty(invoiceSearchParams.statuts())) {
                 predicates.add(root.get(FactureTiersPayant_.statut).in(invoiceSearchParams.statuts()));
             }
@@ -331,7 +335,11 @@ public interface FacturationRepository
                     root.get(FactureTiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.id).in(invoiceSearchParams.groupIds())
                 );
             }
-            predicates.add(cb.equal(root.get(FactureTiersPayant_.factureProvisoire), invoiceSearchParams.factureProvisoire()));
+            // null = les deux : le sélecteur de l'écran offre « Toutes » en plus de
+            // « Définitives » et « Provisoires ».
+            if (invoiceSearchParams.factureProvisoire() != null) {
+                predicates.add(cb.equal(root.get(FactureTiersPayant_.factureProvisoire), invoiceSearchParams.factureProvisoire()));
+            }
             if (!CollectionUtils.isEmpty(invoiceSearchParams.statuts())) {
                 predicates.add(root.get(FactureTiersPayant_.statut).in(invoiceSearchParams.statuts()));
             }

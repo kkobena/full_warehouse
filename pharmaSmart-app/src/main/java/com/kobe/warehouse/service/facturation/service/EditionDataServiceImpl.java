@@ -178,7 +178,7 @@ public class EditionDataServiceImpl implements EditionDataService {
             .orElseThrow(() -> new GenericError("Facture non trouvée"));
         facture
             .getFactureTiersPayants()
-            .forEach(fille -> facturationRepository.findOneWithDetails(fille.getId().getId(),
+            .forEach(fille -> facturationRepository.findOneWithDetails(Objects.requireNonNull(fille.getId()).getId(),
                 fille.getId().getInvoiceDate()));
         return Optional.of(buildFactureDtoWrapper(facture));
     }
@@ -287,9 +287,9 @@ public class EditionDataServiceImpl implements EditionDataService {
     @Override
     @Transactional(readOnly = true)
     public FacturationKpiDto getKpi(LocalDate fromDate, LocalDate toDate, Integer organismeId,
-        Integer groupeId, TypeFacture typeFacture) {
+        Integer groupeId, TypeFacture typeFacture, Boolean factureProvisoire) {
         FacturationKpiRow row = facturationRepository
-            .getKpiData(fromDate, toDate, organismeId, groupeId, typeFacture,
+            .getKpiData(fromDate, toDate, organismeId, groupeId, typeFacture, factureProvisoire,
                 appConfigurationService.getDelaiReglement())
             .orElse(FacturationKpiRow.empty());
         long totalRestant = row.totalFacture() - row.totalRegle();
@@ -403,7 +403,7 @@ public class EditionDataServiceImpl implements EditionDataService {
         Sales sales = thirdPartySaleLine.getSale();
         AssuredCustomer assuredCustomer = (AssuredCustomer) sales.getCustomer();
         return new DossierFactureDto()
-            .setId(thirdPartySaleLine.getId().getId())
+            .setId(Objects.requireNonNull(thirdPartySaleLine.getId()).getId())
             .setAssuranceSaleId(thirdPartySaleLine.getId())
             .setNumBon(thirdPartySaleLine.getNumBon())
             .setCreatedAt(sales.getUpdatedAt())
@@ -434,7 +434,7 @@ public class EditionDataServiceImpl implements EditionDataService {
         groupeFactureDto.setFacturesTiersPayants(factureTiersPayants);
         List<FactureDto> factures = factureTiersPayants
             .stream()
-            .sorted(Comparator.comparing(f -> f.getId().getId()))
+            .sorted(Comparator.comparing(f -> Objects.requireNonNull(f.getId()).getId()))
             .map(fact -> {
                 FactureDto factureDto = new FactureDto();
                 factureDto.setFactureItemId(fact.getId());
@@ -514,7 +514,7 @@ public class EditionDataServiceImpl implements EditionDataService {
         FactureDto factureDto = new FactureDto();
         factureDto.setFactureItemId(factureTiersPayant.getId());
         TiersPayant tiersPayant = factureTiersPayant.getTiersPayant();
-        factureDto.setFactureId(factureTiersPayant.getId().getId());
+        factureDto.setFactureId(Objects.requireNonNull(factureTiersPayant.getId()).getId());
         factureDto.setTiersPayantName(tiersPayant.getFullName());
         factureDto.setNumFacture(factureTiersPayant.getDisplayNumFacture());
         factureDto.setDebutPeriode(factureTiersPayant.getDebutPeriode());
@@ -559,7 +559,7 @@ public class EditionDataServiceImpl implements EditionDataService {
         factureItemDto.setMontantClient(Objects.requireNonNullElse(sales.getPartAssure(), 0));
         factureItemDto.setTaux(thirdPartySaleLine.getTaux());
         factureItemDto.setSaleNumber(sales.getNumberTransaction());
-        factureItemDto.setSaleId(sales.getId().getId());
+        factureItemDto.setSaleId(Objects.requireNonNull(sales.getId()).getId());
         factureItemDto.setAssuranceSaleId(thirdPartySaleLine.getId());
         factureItemDto.setComppsiteSaleId(sales.getId());
         factureItemDto.setStatut(thirdPartySaleLine.getStatut());
@@ -613,7 +613,7 @@ public class EditionDataServiceImpl implements EditionDataService {
         Banque banque = p.getBanque();
         String banqueNom = banque != null ? banque.getNom() : null;
         return new ReglementDto(
-            p.getId().getId(),
+            Objects.requireNonNull(p.getId()).getId(),
             p.getTransactionDate(),
             p.getPaidAmount(),
             p.getTransactionNumber(),

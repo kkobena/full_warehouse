@@ -34,20 +34,21 @@ scenario('ACH-03', async ({ etape, page }) => {
 
   await etape(1, async () => {
     await expect(ligne()).toBeVisible();
-    await expect(ligne().locator('[col-id="quantityRequested"]')).toContainText('5');
+    await ligne().locator('[col-id="quantityRequested"]').click();
+    await expect(ligne().locator('[col-id="quantityRequested"] input')).toHaveValue('5');
   });
 
   await etape(2, async () => {
-    // La quantité, dans sa cellule : double-clic, saisie, Entrée.
-    await ligne().locator('[col-id="quantityRequested"]').dblclick();
-    await page.keyboard.type('8');
-    await page.keyboard.press('Enter');
-    await expect(ligne().locator('[col-id="quantityRequested"]')).toContainText('8');
+    // La quantité, dans sa cellule : saisie de la nouvelle valeur.
+    await ligne().locator('[col-id="quantityRequested"] input').fill('8');
+    await expect(ligne().locator('[col-id="quantityRequested"] input')).toHaveValue('8');
   });
 
   await etape(3, async () => {
-    // Rien à valider : la valeur est enregistrée à la sortie de la cellule, et les totaux du
-    // bandeau ont déjà suivi.
+    // Rien d'autre à valider : la valeur est enregistrée à la validation de la cellule,
+    // et les totaux du bandeau suivent.
+    await page.keyboard.press('Enter');
+    await expect(ligne().locator('[col-id="quantityRequested"]')).toContainText('8');
     await expect(grille.locator('.grid-caption')).toContainText(/Achat/i);
   });
 

@@ -1954,14 +1954,46 @@ SELECT pg_temp.verif_vide('facturation', 'Statut conforme à la contrainte CHECK
         OR origine_generation NOT IN ('MANUELLE', 'AUTO')
 $q$);
 
--- Le groupe du tiers payant doit être recopié sur la facture : les synthèses de
--- créances (accueil, vieillissement, situation) regroupent par ce champ et
--- rendent zéro s'il est nul, sans le moindre message.
-SELECT pg_temp.verif_vide('facturation', 'Facture rattachée au groupe de son tiers payant', $q$
+-- groupe_tiers_payant_id sur une facture ne dit pas que l'organisme appartient
+-- à un groupe — cela se lit sur tiers_payant — mais que la FACTURE est une
+-- facture de groupe. Le contrôle exigeait l'inverse et codifiait la méprise :
+-- recopié sur toutes les factures, ce champ rendait chacune indiscernable d'une
+-- facture de groupe, vidait la bannière « Individuelles » et faisait annoncer à
+-- la liste « Groupées » un total qu'elle n'affichait pas.
+SELECT pg_temp.verif_vide('facturation', 'Facture individuelle sans marque de groupe', $q$
     SELECT f.id FROM facture_tiers_payant f
-      JOIN tiers_payant tp ON tp.id = f.tiers_payant_id
-     WHERE tp.groupe_tiers_payant_id IS NOT NULL
-       AND f.groupe_tiers_payant_id IS DISTINCT FROM tp.groupe_tiers_payant_id
+     WHERE f.tiers_payant_id IS NOT NULL
+       AND f.groupe_tiers_payant_id IS NOT NULL
+$q$);
+
+-- Une facture de groupe vise le groupe, pas un organisme.
+SELECT pg_temp.verif_vide('facturation', 'Facture de groupe correctement formée', $q$
+    SELECT f.id FROM facture_tiers_payant f
+     WHERE f.tiers_payant_id IS NULL
+       AND (f.groupe_tiers_payant_id IS NULL
+         OR NOT EXISTS (SELECT 1 FROM facture_tiers_payant fille
+                         WHERE fille.groupe_facture_tiers_payant_id = f.id
+                           AND fille.groupe_facture_tiers_payant_invoice_date = f.invoice_date))
+$q$);
+
+-- Sans facture de groupe, l'onglet « Groupées » et le règlement groupé
+-- n'ont rien à montrer.
+SELECT pg_temp.verif_compte('facturation', 'Factures de groupe émises', $q$
+    SELECT f.id FROM facture_tiers_payant f
+     WHERE f.tiers_payant_id IS NULL AND f.groupe_tiers_payant_id IS NOT NULL
+$q$, 2);
+
+-- La parente totalise ses filles : c'est ce que somme la bannière d'indicateurs
+-- en mode « Groupées », et ce que la liste affiche en « Réglé ».
+SELECT pg_temp.verif_vide('facturation', 'Facture de groupe = somme de ses filles', $q$
+    SELECT p.id FROM facture_tiers_payant p
+      JOIN facture_tiers_payant f
+        ON f.groupe_facture_tiers_payant_id = p.id
+       AND f.groupe_facture_tiers_payant_invoice_date = p.invoice_date
+     WHERE p.tiers_payant_id IS NULL
+     GROUP BY p.id, p.montant_net, p.montant_regle
+    HAVING p.montant_net <> sum(f.montant_net)
+        OR p.montant_regle <> sum(f.montant_regle)::int
 $q$);
 
 -- Le total de la facture doit égaler la somme des bons qu'elle regroupe.

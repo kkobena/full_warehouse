@@ -24,11 +24,6 @@ import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -43,6 +38,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
@@ -129,15 +130,7 @@ public class EditionFactureResource {
         );
     }
 
-    @GetMapping("/edition-factures/print-all")
-    public ResponseEntity<Void> printAllInvoices(
-        @RequestParam(name = "sort", required = false) ModeEditionSort sort,
-        @RequestParam(name = "createdate") LocalDateTime startDate,
-        @RequestParam(name = "invoicesIds", required = false) Set<Long> invoicesIds,
-        @RequestParam(name = "factureProvisoire", required = false, defaultValue = "false") Boolean factureProvisoire
-    ) {
-        return ResponseEntity.ok().build();
-    }
+
 
     @DeleteMapping("/edition-factures/delete")
     public ResponseEntity<Void> deleteInvoices(@RequestParam(name = "invoicesIds") Set<FactureItemId> invoicesIds) {
@@ -145,6 +138,18 @@ public class EditionFactureResource {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Recherche des factures tiers-payant.
+     *
+     * <p>{@code typeFacture} remplace l'ancien couple « un endpoint par type » : {@link
+     * TypeFacture#GROUPED} renvoie les factures groupées parentes, toute autre valeur les factures
+     * individuelles. {@link TypeFacture#ALL} n'a de sens que pour les indicateurs — les deux
+     * familles n'ayant ni les mêmes jointures ni les mêmes colonnes, aucune requête ne les réunit —
+     * et retombe donc ici sur les factures individuelles.
+     *
+     * <p>{@code factureProvisoire} est volontairement sans valeur par défaut : absent, il ne filtre
+     * pas, ce qui donne le « Toutes » du sélecteur de l'écran.
+     */
     @GetMapping("/edition-factures")
     public ResponseEntity<List<FactureDto>> getInvoicies(
         @RequestParam(name = "startDate", required = false) LocalDate startDate,
@@ -152,17 +157,54 @@ public class EditionFactureResource {
         @RequestParam(name = "endDate", required = false) LocalDate endDate,
         @RequestParam(name = "statuts", required = false) Set<InvoiceStatut> statuts,
         @RequestParam(name = "tiersPayantIds", required = false) Set<Integer> tiersPayantIds,
-        @RequestParam(name = "factureProvisoire", required = false, defaultValue = "false") Boolean factureProvisoire,
+        @RequestParam(name = "groupIds", required = false) Set<Integer> groupIds,
+        @RequestParam(name = "factureProvisoire", required = false) Boolean factureProvisoire,
+        @RequestParam(name = "typeFacture", required = false, defaultValue = "INDIVIDUAL") TypeFacture typeFacture,
         Pageable pageable
     ) {
-        Page<FactureDto> page = editionService.getInvoicies(
-            new InvoiceSearchParams(startDate, endDate, Set.of(), tiersPayantIds, factureProvisoire, statuts, search),
+        return searchInvoices(
+            new InvoiceSearchParams(
+                startDate,
+                endDate,
+                nullSafe(groupIds),
+                nullSafe(tiersPayantIds),
+                factureProvisoire,
+                statuts,
+                search,
+                typeFacture
+            ),
             pageable
         );
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
+    /**
+     * Indicateurs de facturation.
+     *
+     * <p>{@code factureProvisoire} obéit à la même règle que la recherche : absent, il ne filtre
+     * pas. C'est ce qui permet à la bannière de couvrir exactement le périmètre de la liste, y
+     * compris quand l'écran demande les provisoires.
+     */
+    @GetMapping("/edition-factures/kpi")
+    public ResponseEntity<FacturationKpiDto> getKpi(
+        @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
+        @RequestParam(name = "toDate", required = false) LocalDate toDate,
+        @RequestParam(name = "organismeId", required = false) Integer organismeId,
+        @RequestParam(name = "groupeId", required = false) Integer groupeId,
+        @RequestParam(name = "typeFacture", required = false, defaultValue = "INDIVIDUAL") TypeFacture typeFacture,
+        @RequestParam(name = "factureProvisoire", required = false) Boolean factureProvisoire
+    ) {
+        LocalDate effectiveFrom = fromDate != null ? fromDate : LocalDate.now().withDayOfMonth(1);
+        LocalDate effectiveTo = toDate != null ? toDate : LocalDate.now();
+        return ResponseEntity.ok(
+            editionService.getKpi(effectiveFrom, effectiveTo, organismeId, groupeId, typeFacture, factureProvisoire)
+        );
+    }
+
+    /**
+     * @deprecated conservé pour les appelants historiques ;
+     * {@code GET /edition-factures?typeFacture=GROUPED} fait la même chose.
+     */
+    @Deprecated
     @GetMapping("/edition-factures/groupes")
     public ResponseEntity<List<FactureDto>> getGroupInvoicies(
         @RequestParam(name = "startDate", required = false) LocalDate startDate,
@@ -170,15 +212,22 @@ public class EditionFactureResource {
         @RequestParam(name = "endDate", required = false) LocalDate endDate,
         @RequestParam(name = "statuts", required = false) Set<InvoiceStatut> statuts,
         @RequestParam(name = "groupIds", required = false) Set<Integer> groupIds,
-        @RequestParam(name = "factureProvisoire", required = false, defaultValue = "false") Boolean factureProvisoire,
+        @RequestParam(name = "factureProvisoire", required = false) Boolean factureProvisoire,
         Pageable pageable
     ) {
-        Page<FactureDto> page = editionService.getGroupInvoicies(
-            new InvoiceSearchParams(startDate, endDate, groupIds, Set.of(), factureProvisoire, statuts, search),
+        return searchInvoices(
+            new InvoiceSearchParams(
+                startDate,
+                endDate,
+                nullSafe(groupIds),
+                Set.of(),
+                factureProvisoire,
+                statuts,
+                search,
+                TypeFacture.GROUPED
+            ),
             pageable
         );
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/edition-factures/pdf/{id}/{invoiceDate}")
@@ -238,19 +287,6 @@ public class EditionFactureResource {
         return ResponseEntity.ok().body(editionService.findDossierFacture(new FactureItemId(id, invoiceDate), isGroup));
     }
 
-    @GetMapping("/edition-factures/kpi")
-    public ResponseEntity<FacturationKpiDto> getKpi(
-        @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(name = "toDate", required = false) LocalDate toDate,
-        @RequestParam(name = "organismeId", required = false) Integer organismeId,
-        @RequestParam(name = "groupeId", required = false) Integer groupeId,
-        @RequestParam(name = "typeFacture", required = false,defaultValue = "ALL") TypeFacture typeFacture
-
-    ) {
-        LocalDate effectiveFrom = fromDate != null ? fromDate : LocalDate.now().withDayOfMonth(1);
-        LocalDate effectiveTo = toDate != null ? toDate : LocalDate.now();
-        return ResponseEntity.ok(editionService.getKpi(effectiveFrom, effectiveTo, organismeId,groupeId, typeFacture));
-    }
 
     @GetMapping("/edition-factures/export")
     public ResponseEntity<byte[]> exportInvoicesToExcel(
@@ -258,36 +294,75 @@ public class EditionFactureResource {
         @RequestParam(name = "endDate", required = false) LocalDate endDate,
         @RequestParam(name = "statuts", required = false) Set<InvoiceStatut> statuts,
         @RequestParam(name = "tiersPayantIds", required = false) Set<Integer> tiersPayantIds,
-        @RequestParam(name = "factureProvisoire", required = false, defaultValue = "false") Boolean factureProvisoire,
-        @RequestParam(name = "search", required = false) String search
+        @RequestParam(name = "groupIds", required = false) Set<Integer> groupIds,
+        @RequestParam(name = "factureProvisoire", required = false) Boolean factureProvisoire,
+        @RequestParam(name = "search", required = false) String search,
+        @RequestParam(name = "typeFacture", required = false, defaultValue = "INDIVIDUAL") TypeFacture typeFacture
     ) {
-        InvoiceSearchParams params = new InvoiceSearchParams(
-            startDate != null ? startDate : LocalDate.now().withDayOfMonth(1),
-            endDate != null ? endDate : LocalDate.now(),
-            Set.of(), tiersPayantIds != null ? tiersPayantIds : Set.of(),
-            factureProvisoire, statuts, search
+        return exportInvoices(
+            new InvoiceSearchParams(
+                startDate != null ? startDate : LocalDate.now().withDayOfMonth(1),
+                endDate != null ? endDate : LocalDate.now(),
+                nullSafe(groupIds),
+                nullSafe(tiersPayantIds),
+                factureProvisoire,
+                statuts,
+                search,
+                typeFacture
+            )
         );
-        String fileName = "factures_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm")) + ".xlsx";
-        return Utils.exportExcel(editionService.exportInvoicesToExcel(params, false), fileName);
     }
 
+    /**
+     * @deprecated conservé pour les appelants historiques ;
+     * {@code GET /edition-factures/export?typeFacture=GROUPED} fait la même chose.
+     */
+    @Deprecated
     @GetMapping("/edition-factures/groupes/export")
     public ResponseEntity<byte[]> exportGroupInvoicesToExcel(
         @RequestParam(name = "startDate", required = false) LocalDate startDate,
         @RequestParam(name = "endDate", required = false) LocalDate endDate,
         @RequestParam(name = "statuts", required = false) Set<InvoiceStatut> statuts,
         @RequestParam(name = "groupIds", required = false) Set<Integer> groupIds,
-        @RequestParam(name = "factureProvisoire", required = false, defaultValue = "false") Boolean factureProvisoire,
+        @RequestParam(name = "factureProvisoire", required = false) Boolean factureProvisoire,
         @RequestParam(name = "search", required = false) String search
     ) {
-        InvoiceSearchParams params = new InvoiceSearchParams(
-            startDate != null ? startDate : LocalDate.now().withDayOfMonth(1),
-            endDate != null ? endDate : LocalDate.now(),
-            groupIds != null ? groupIds : Set.of(), Set.of(),
-            factureProvisoire, statuts, search
+        return exportInvoices(
+            new InvoiceSearchParams(
+                startDate != null ? startDate : LocalDate.now().withDayOfMonth(1),
+                endDate != null ? endDate : LocalDate.now(),
+                nullSafe(groupIds),
+                Set.of(),
+                factureProvisoire,
+                statuts,
+                search,
+                TypeFacture.GROUPED
+            )
         );
-        String fileName = "factures_groupes_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm")) + ".xlsx";
-        return Utils.exportExcel(editionService.exportInvoicesToExcel(params, true), fileName);
     }
 
+    private ResponseEntity<List<FactureDto>> searchInvoices(InvoiceSearchParams params, Pageable pageable) {
+        Page<FactureDto> page = isGroup(params)
+            ? editionService.getGroupInvoicies(params, pageable)
+            : editionService.getInvoicies(params, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    private ResponseEntity<byte[]> exportInvoices(InvoiceSearchParams params) {
+        boolean group = isGroup(params);
+        String fileName =
+            (group ? "factures_groupes_" : "factures_") +
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm")) +
+            ".xlsx";
+        return Utils.exportExcel(editionService.exportInvoicesToExcel(params, group), fileName);
+    }
+
+    private static boolean isGroup(InvoiceSearchParams params) {
+        return params.typeFacture() == TypeFacture.GROUPED;
+    }
+
+    private static Set<Integer> nullSafe(Set<Integer> ids) {
+        return ids != null ? ids : Set.of();
+    }
 }

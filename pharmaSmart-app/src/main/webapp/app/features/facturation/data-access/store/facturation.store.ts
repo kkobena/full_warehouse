@@ -40,7 +40,7 @@ interface FacturationState {
 const defaultSearchParams: IInvoiceSearchParams = {
   startDate: '',
   endDate: '',
-  factureGroupees: false,
+  typeFacture: 'INDIVIDUAL',
 };
 
 export const FacturationStore = signalStore(

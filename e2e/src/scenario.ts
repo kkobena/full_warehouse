@@ -185,18 +185,22 @@ async function cadrer(page: Page): Promise<{ x: number; y: number; width: number
     .boundingBox()
     .catch((): null => null);
 
-  const basContenuSignificatif = await page.evaluate((hauteurFenetre): number => {
+  const { basContenuSignificatif, elementMax } = await page.evaluate((hauteurFenetre): { basContenuSignificatif: number; elementMax: string } => {
     const selecteurs = [
-      '#main-content > *', 'main > *', '[role="main"] > *',
-      '#main-content h1', '#main-content h2', '#main-content h3', '#main-content h4',
-      '#main-content p', '#main-content li', '#main-content td', '#main-content th',
-      '#main-content button', '#main-content input', '#main-content textarea', '#main-content select',
+      '#main-content h1', '#main-content h2', '#main-content h3', '#main-content h4', '#main-content h5', '#main-content h6',
+      '#main-content p', '#main-content li', '#main-content td', '#main-content th', '#main-content tr',
+      '#main-content button', '#main-content input', '#main-content textarea', '#main-content select', '#main-content label',
+      '#main-content a', '#main-content span', '#main-content strong', '#main-content b', '#main-content small',
       '#main-content img', '#main-content svg', '#main-content canvas',
-      '#main-content [role="button"]', '#main-content [role="option"]', '#main-content [role="alert"]',
-      '.ag-root-wrapper', '.card', '.alert', '.toast',
+      '#main-content [role="button"]', '#main-content [role="option"]', '#main-content [role="alert"]', '#main-content [role="gridcell"]',
+      '#main-content [role="tab"]',
+      '#main-content .ag-row', '#main-content .ag-header',
+      '#main-content .grid-caption', '#main-content .badge', '#main-content app-badge', '#main-content app-button',
+      '#main-content .alert', '#main-content .toast',
       '.modal-content', '.popover', 'ngb-popover-window', '.dropdown-menu.show',
     ].join(',');
     let bas = 0;
+    let maxEl = '';
     for (const element of document.querySelectorAll(selecteurs)) {
       if (!(element instanceof HTMLElement || element instanceof SVGElement)) {
         continue;
@@ -205,18 +209,21 @@ async function cadrer(page: Page): Promise<{ x: number; y: number; width: number
       const rectangle = element.getBoundingClientRect();
       const visible = style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) !== 0
         && rectangle.width > 1 && rectangle.height > 1 && rectangle.bottom > 0 && rectangle.top < hauteurFenetre;
-      if (visible) {
-        bas = Math.max(bas, Math.min(hauteurFenetre, rectangle.bottom));
+      if (visible && rectangle.height < hauteurFenetre * 0.9) {
+        if (rectangle.bottom > bas) {
+          bas = Math.min(hauteurFenetre, rectangle.bottom);
+          maxEl = `${element.tagName}.${element.className} (top=${Math.round(rectangle.top)}, bottom=${Math.round(rectangle.bottom)}, h=${Math.round(rectangle.height)}, text=${(element.textContent || '').trim().slice(0, 30)})`;
+        }
       }
     }
-    return Math.ceil(bas);
+    return { basContenuSignificatif: Math.ceil(bas), elementMax: maxEl };
   }, fenetre.height);
+  console.log(`[CADRAGE] max element: ${elementMax}`);
 
   const basStructurel = boite ? Math.ceil(boite.y + boite.height) : fenetre.height;
-  // Certains écrans de travail imposent `height: 100vh` à leur layout. Dans ce cas, le bas du
-  // conteneur ne dit rien sur le contenu réel : les éléments sémantiques visibles donnent une
-  // borne plus fidèle. Sur les pages ordinaires, on conserve la boîte structurelle.
-  const basUtile = basStructurel >= fenetre.height - 1 && basContenuSignificatif > 0
+  // Les éléments sémantiques visibles donnent la borne la plus fidèle du contenu réel,
+  // évitant de capturer le fond d'écran ou l'espace vide sous les grilles.
+  const basUtile = basContenuSignificatif > 0
     ? basContenuSignificatif
     : basStructurel;
   const hauteur = Math.min(fenetre.height, Math.max(1, basUtile + MARGE_CADRAGE));

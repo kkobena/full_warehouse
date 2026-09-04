@@ -36,6 +36,10 @@ public interface FactureTiersPayantRepositoryCustom {
      * @param organismeId          tiers-payant (optionnel, pertinent pour INDIVIDUAL et ALL)
      * @param groupeId             groupe de tiers-payants (optionnel, pertinent pour GROUPED et ALL)
      * @param typeFacture          type de facture à inclure dans le calcul
+     * @param factureProvisoire    {@code null} = définitives ET provisoires, sinon on ne retient
+     *                             que les factures dont le caractère provisoire vaut la valeur
+     *                             donnée — mêmes règles que la recherche, pour que la bannière
+     *                             d'indicateurs parle du même périmètre que la liste
      * @param delaiReglementDefaut délai de règlement par défaut en jours (ex : 30)
      * @return KPI agrégés, ou {@link Optional#empty()} si aucune donnée
      */
@@ -45,6 +49,7 @@ public interface FactureTiersPayantRepositoryCustom {
         Integer organismeId,
         Integer groupeId,
         TypeFacture typeFacture,
+        Boolean factureProvisoire,
         int delaiReglementDefaut
     );
 }

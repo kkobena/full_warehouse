@@ -111,6 +111,8 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
             tiersPayantJoin.get(TiersPayant_.delaiReglement)
         );
 
+        query.orderBy(cb.desc(root.get(FactureTiersPayant_.created)));
+
         TypedQuery<FactureDto> typedQuery = em.createQuery(query);
 
 
@@ -149,7 +151,11 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
             cb.construct(
                 FactureDto.class,
                 root.get(FactureTiersPayant_.invoiceDate),
-                cb.sum(details.get(FactureTiersPayant_.montantRegle)),
+                // Le réglé de la facture parente, PAS la somme de celui des filles : la jointure
+                // en cascade parente → filles → lignes de vente ferait compter le montant réglé
+                // de chaque fille une fois par ligne. La parente porte le bon total, entretenu
+                // par le règlement groupé.
+                root.get(FactureTiersPayant_.montantRegle),
                 root.get(FactureTiersPayant_.created),
                 root.get(FactureTiersPayant_.id),
                 root.get(FactureTiersPayant_.debutPeriode),
@@ -167,6 +173,7 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
         );
         query.groupBy(
             root.get(FactureTiersPayant_.invoiceDate),
+            root.get(FactureTiersPayant_.montantRegle),
             root.get(FactureTiersPayant_.created),
             root.get(FactureTiersPayant_.id),
             root.get(FactureTiersPayant_.debutPeriode),
@@ -177,6 +184,8 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
             groupeTp.get(GroupeTiersPayant_.name),
             groupeTp.get(GroupeTiersPayant_.delaiReglement)
         );
+
+        query.orderBy(cb.desc(root.get(FactureTiersPayant_.created)));
 
         TypedQuery<FactureDto> typedQuery = em.createQuery(query);
         List<FactureDto> result;
@@ -199,8 +208,15 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<FactureTiersPayant> root = query.from(FactureTiersPayant.class);
         Predicate predicate = specification.toPredicate(root, query, cb);
+
+        Subquery<Long> subquery = query.subquery(Long.class);
+        Root<FactureTiersPayant> subRoot = subquery.from(FactureTiersPayant.class);
+        subquery.select(cb.literal(1L)).where(cb.equal(subRoot.get(FactureTiersPayant_.groupeFactureTiersPayant), root));
+        Predicate noGroupExists = cb.not(cb.exists(subquery));
         if (predicate != null) {
-            query.where(predicate);
+            query.where(cb.and(predicate, noGroupExists));
+        } else {
+            query.where(noGroupExists);
         }
         query.select(cb.count(root));
         TypedQuery<Long> typedQuery = em.createQuery(query);
@@ -227,14 +243,18 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
         Integer organismeId,
         Integer groupeId,
         TypeFacture typeFacture,
+        Boolean factureProvisoire,
         int delaiReglementDefaut
     ) {
-        StringBuilder sql = buildSqlQuery(organismeId, groupeId, typeFacture);
+        StringBuilder sql = buildSqlQuery(organismeId, groupeId, typeFacture, factureProvisoire);
 
         var query = em.createNativeQuery(sql.toString());
         query.setParameter("fromDate", fromDate);
         query.setParameter("toDate", toDate);
         query.setParameter("delaiDefaut", delaiReglementDefaut);
+        if (factureProvisoire != null) {
+            query.setParameter("factureProvisoire", factureProvisoire);
+        }
 
         switch (typeFacture) {
             case INDIVIDUAL -> {
@@ -257,7 +277,12 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
         return Optional.of(FacturationKpiRow.from(rows.getFirst()));
     }
 
-    private static @NonNull StringBuilder buildSqlQuery(Integer organismeId, Integer groupeId, TypeFacture typeFacture) {
+    private static @NonNull StringBuilder buildSqlQuery(
+        Integer organismeId,
+        Integer groupeId,
+        TypeFacture typeFacture,
+        Boolean factureProvisoire
+    ) {
 
         String selectHead =
             """
@@ -283,6 +308,7 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
                       AND f.groupe_tiers_payant_id IS NULL
                       AND f.groupe_facture_tiers_payant_id IS NULL
                     """);
+                sql.append(provisoireClause(factureProvisoire));
                 if (organismeId != null) {
                     sql.append("  AND f.tiers_payant_id = :organismeId");
                 }
@@ -296,9 +322,9 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
                     FROM facture_tiers_payant f
                     JOIN groupe_tiers_payant gtp ON gtp.id = f.groupe_tiers_payant_id
                     WHERE f.invoice_date BETWEEN :fromDate AND :toDate
-                    AND f.groupe_facture_tiers_payant_id IS NULL
-
+                      AND f.groupe_facture_tiers_payant_id IS NULL
                     """);
+                sql.append(provisoireClause(factureProvisoire));
                 if (groupeId != null) {
                     sql.append("  AND f.groupe_tiers_payant_id = :groupeId ");
                 }
@@ -315,15 +341,25 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
                     WHERE f.invoice_date BETWEEN :fromDate AND :toDate
                       AND f.groupe_facture_tiers_payant_id IS NULL
                     """);
-
+                sql.append(provisoireClause(factureProvisoire));
+                if (organismeId != null) {
+                    sql.append("  AND f.tiers_payant_id = :organismeId ");
+                }
+                if (groupeId != null) {
+                    sql.append("  AND f.groupe_tiers_payant_id = :groupeId ");
+                }
             }
         }
-        if (organismeId != null) {
-            sql.append("  AND f.tiers_payant_id = :organismeId ");
-        }
-        if (groupeId != null) {
-            sql.append("  AND f.groupe_tiers_payant_id = :groupeId ");
-        }
         return sql;
+    }
+
+    /**
+     * Filtre « définitives / provisoires / toutes ».
+     *
+     * <p>Les trois requêtes excluaient les provisoires en dur : la bannière d'indicateurs
+     * annonçait donc un autre périmètre que la liste dès que l'écran demandait les provisoires.
+     */
+    private static String provisoireClause(Boolean factureProvisoire) {
+        return factureProvisoire == null ? "" : "  AND f.facture_provisoire = :factureProvisoire\n";
     }
 }

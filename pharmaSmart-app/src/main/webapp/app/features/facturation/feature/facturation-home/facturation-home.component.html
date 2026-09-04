@@ -2,15 +2,17 @@
   <!-- Toolbar -->
   <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-receipt" title="Factures tiers payants">
     <ng-container ngProjectAs="[toolbarFilters]">
-      <div class="d-flex align-items-center gap-2">
-        <label class="input-label mb-0 small">Groupées</label>
-        <app-switch (ngModelChange)="onGroupToggle()" [(ngModel)]="factureGroupees" />
-      </div>
+      <app-pill-selector
+        (selectionChange)="onTypeFactureChange()"
+        [(ngModel)]="typeFacture"
+        [items]="typeFactureOptions"
+      />
 
-      <div class="d-flex align-items-center gap-2">
-        <label class="input-label mb-0 small">Provisoires</label>
-        <app-switch (ngModelChange)="onSearch()" [(ngModel)]="factureProvisoire" />
-      </div>
+      <app-pill-selector
+        (selectionChange)="onSearch()"
+        [(ngModel)]="factureProvisoire"
+        [items]="factureProvisoireOptions"
+      />
 
       <pharma-date-picker [ngModel]="modelStartDate()" (ngModelChange)="modelStartDate.set($event)" [maxDate]="modelEndDate" [style]="{ 'max-width': '180px' }"
                           id="fhDu" label="Du" />

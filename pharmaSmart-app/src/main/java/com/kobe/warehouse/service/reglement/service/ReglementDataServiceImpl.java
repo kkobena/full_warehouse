@@ -208,7 +208,12 @@ public class ReglementDataServiceImpl implements ReglementDataService {
         updateFactureTiersPayantStatus(factureTiersPayant, totalAmount);
         facturationRepository.save(factureTiersPayant);
         if (groupeFacture != null) {
-            factureTiersPayant.setMontantRegle(Math.max(groupeFacture.getMontantRegle() - paidAmount, 0));
+            // Décrémenter la facture de GROUPE, symétriquement à ReglementGroupeFactureService qui
+            // l'incrémente du même total au règlement. La ligne écrivait ce montant sur la facture
+            // fille : la parente gardait donc son réglé d'avant l'annulation — d'où un statut
+            // recalculé faux par l'appelant — et la fille, déjà décrémentée dans la boucle
+            // ci-dessus, se retrouvait écrasée par une valeur qui n'était pas la sienne.
+            groupeFacture.setMontantRegle(Math.max(groupeFacture.getMontantRegle() - paidAmount, 0));
         }
         return totalAmount;
     }

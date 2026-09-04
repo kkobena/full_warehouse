@@ -416,12 +416,12 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Rechercher rapidement un client assuré et charger ses tiers payants',
             besoin: 'Identifier le bon assuré au comptoir et récupérer ses couvertures sans ressaisir ses organismes ni leurs taux.',
             fonctionnement:
-              'Dans l’onglet Assurance, saisissez le nom ou le matricule du client assuré puis appuyez sur Entrée pour lancer la recherche. Si un seul assuré est trouvé, il est sélectionné automatiquement. Si plusieurs résultats existent, choisissez le bon assuré dans la fenêtre « CLIENTS ASSURÉS », de préférence à l’aide du matricule. Si aucun résultat n’est trouvé, l’application propose de créer le client. La touche F4 ou Alt+C permet de revenir rapidement à ce champ. Les tiers payants liés au client sont ensuite chargés automatiquement dans la vente avec leurs taux et leurs références de bon.',
+              'Dans l’onglet Assurance, saisissez le nom ou le matricule du client assuré puis appuyez sur Entrée pour lancer la recherche. Si un seul assuré est trouvé, il est sélectionné automatiquement. Si plusieurs résultats existent, choisissez le bon assuré dans la fenêtre « CLIENTS ASSURÉS », de préférence à l’aide du matricule. Si aucun résultat n’est trouvé, l’application propose de créer le client. La touche F4 ou Alt+C permet de revenir rapidement à ce champ. Les tiers payants liés au client sont ensuite chargés automatiquement dans la vente avec leurs taux et leurs références de bon. La saisie des bons se poursuit au clavier : dans un champ « Numéro de bon », Entrée valide la référence et passe au bon de l’organisme suivant ; sur le dernier, elle rend le focus au champ de recherche produit, d’où la vente se poursuit sans toucher la souris.',
             etapes: [
               'Choisir la vente assurance',
               'Saisir l’identité ou le matricule de l’assuré dans le champ de recherche',
               'Valider par la touche Entrée : un seul résultat est retenu automatiquement, sinon désigner le bon assuré au matricule dans la liste proposée',
-              'Renseigner les références de bons des organismes',
+              'Renseigner les références de bons des organismes, en validant chacune par Entrée : le focus passe au bon suivant, puis au champ de recherche produit',
             ],
             resultatAttendu: 'L’assuré et ses tiers payants sont rattachés à la vente sans ressaisie de leurs informations de couverture.',
           },
@@ -736,8 +736,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             id: 'VTE-29',
             titre: 'Transférer du stock vers un dépôt',
             besoin: 'Permettre à l’officine de transférer du stock vers un dépôt , avec enregistrement de l’opération et mise à jour correcte des stocks.',
-            fonctionnement: 'L’opération est rattachée au dépôt destinataire. Les quantités transférées sont déduites du stock de l’officine source et tracées comme une sortie de stock à destination de ce dépôt.',
-            etapes: ['Ouvrir l’onglet "Ventes dépôt"', 'Constituer la vente pour le dépôt concerné', 'Valider'],
+            fonctionnement: 'L’opération est rattachée au dépôt destinataire. Les quantités transférées sont déduites du stock de l’officine source et tracées comme une sortie de stock à destination de ce dépôt. La validation se fait sans lâcher le clavier : le champ de recherche produit étant VIDE, la touche Entrée y demande la finalisation du transfert et une confirmation « Voulez-vous vraiment finaliser la vente ? » s’affiche. Le champ garde ainsi le focus d’un produit au suivant, puis sert de déclencheur une fois le panier constitué.',
+            etapes: ['Ouvrir l’onglet "Ventes dépôt"', 'Constituer la vente pour le dépôt concerné', 'Le champ de recherche produit étant vide, appuyer sur Entrée pour demander la finalisation, puis confirmer'],
             resultatAttendu: 'Le transfert est enregistré sur le bon dépôt destinataire et le stock de l’officine source est décrémenté correctement.'
           },
         ],
@@ -753,12 +753,12 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Vendre au carnet',
             besoin: 'Servir un client de confiance — souvent le personnel d’une entreprise partenaire — sans qu’il règle la totalité au comptoir.',
             fonctionnement:
-              'La vente carnet se conduit comme une vente assurance : le client est rattaché à un carnet, qui joue le rôle d’organisme. Le carnet couvre en général la TOTALITÉ de l’achat — l’employeur ou la société partenaire règle tout, le porteur rembourse ensuite : « À ENCAISSER » tombe alors à zéro et la caisse n’est pas sollicitée. Le stock, lui, est décrémenté normalement.',
+              'La vente carnet se conduit comme une vente assurance : le client est rattaché à un carnet, qui joue le rôle d’organisme. Le carnet couvre en général la TOTALITÉ de l’achat — l’employeur ou la société partenaire règle tout, le porteur rembourse ensuite : « À ENCAISSER » tombe alors à zéro et la caisse n’est pas sollicitée. Le stock, lui, est décrémenté normalement. C’est ce zéro qui commande le geste de finalisation : le champ de recherche produit étant vide, la touche Entrée demande directement la finalisation, avec confirmation, sans passer par le pavé de règlement. Restait-il quelque chose à encaisser, la même touche enverrait le focus dans le champ du règlement, où Entrée validerait alors le paiement.',
             prerequis: 'Client rattaché à un carnet actif.',
             etapes: [
               'Choisir la vente carnet et sélectionner le porteur',
               'Constituer la vente',
-              'Vérifier que le carnet prend la totalité, puis finaliser',
+              'Vérifier que le carnet prend la totalité — « À ENCAISSER » à zéro —, puis, le champ de recherche produit étant vide, appuyer sur Entrée et confirmer la finalisation',
             ],
             resultatAttendu: 'Le montant de la vente vient augmenter le compte différé du porteur, sans aucun encaissement au comptoir.',
           },
@@ -1999,14 +1999,15 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             besoin:
               'Reprendre la main sur le bon entier — comparer les lignes entre elles, corriger un code CIP, repérer une quantité aberrante — là où la saisie ligne par ligne n’en montre qu’une à la fois.',
             fonctionnement:
-              'L’écran de réception s’ouvre en mode séquentiel. Le sélecteur « Séquentiel / Grille », en haut à droite de la barre, bascule vers la vue tableau ; le raccourci Ctrl+G fait la même chose sans la souris, et l’application y bascule d’elle-même dès qu’on corrige un code CIP, cette cellule n’étant modifiable que là. La vue tableau ajoute au tableau des lignes un panneau de concordance — écarts de quantité, de prix, de colisage, lots manquants — que le mode séquentiel n’affiche pas ; le bouton « Récap BL » le replie. Le mode retenu est MÉMORISÉ sur le poste : les réceptions suivantes s’ouvrent dans le dernier mode utilisé, y compris après redémarrage du navigateur.',
+              'L’écran de réception s’ouvre en mode séquentiel. Le sélecteur « Séquentiel / Grille », en haut à droite de la barre, bascule vers la vue tableau ; le raccourci Ctrl+G fait la même chose sans la souris, et l’application y bascule d’elle-même dès qu’on corrige un code CIP, cette cellule n’étant modifiable que là. La vue tableau ajoute au tableau des lignes un panneau de concordance — écarts de quantité, de prix, de colisage, lots manquants — que le mode séquentiel n’affiche pas ; le bouton « Récap BL » le replie. Le mode retenu est MÉMORISÉ sur le poste : les réceptions suivantes s’ouvrent dans le dernier mode utilisé, y compris après redémarrage du navigateur. La vue tableau est aussi la seule à donner accès à la SAISIE DES LOTS sans quitter le bon : une colonne « Lots », épinglée à droite, porte pour chaque ligne un chevron — ou la touche Espace sur la cellule — qui déplie sous elle un éditeur de lots (numéro, péremption, quantité, unités gratuites). Chaque champ de cet éditeur se valide par Entrée et s’abandonne par Échap ; dans le tableau lui-même, Entrée valide la cellule en cours et descend à la ligne suivante. Un compteur « Lots : n/N » en tête de grille dit ce qui reste à renseigner.',
             etapes: [
               'Ouvrir un bon de réception : il s’ouvre en saisie ligne par ligne',
               'Basculer en vue tableau par le bouton « Grille » — ou par Ctrl+G',
+              'Déplier les lots d’une ligne par le chevron de la colonne « Lots » — ou par la touche Espace sur la cellule —, puis ouvrir un lot en modification : chaque champ s’y valide par Entrée et s’abandonne par Échap',
               'Revenir à la liste et rouvrir un bon : la vue tableau est conservée',
             ],
             resultatAttendu:
-              'La vue tableau affiche toutes les lignes du bon et le panneau de concordance ; le mode choisi est conservé d’une réception à la suivante, jusqu’à ce qu’on revienne au mode séquentiel.',
+              'La vue tableau affiche toutes les lignes du bon, le panneau de concordance et la saisie des lots dépliable ligne par ligne ; le mode choisi est conservé d’une réception à la suivante, jusqu’à ce qu’on revienne au mode séquentiel.',
           },
           {
             id: 'ACH-74',
@@ -4610,6 +4611,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement:
               'Le tableau de bord affiché est celui configuré pour son rôle, sinon un tableau de bord générique de bienvenue.',
             etapes: ['Se connecter avec un utilisateur donné', 'Observer le tableau de bord affiché automatiquement'],
+            resultatAttendu:
+              'Le tableau de bord correspondant au rôle de l’utilisateur s’affiche dès la connexion, sans navigation de sa part — pour un pharmacien, la bande d’indicateurs de l’activité du jour.',
           },
           {
             id: 'HOME-02',

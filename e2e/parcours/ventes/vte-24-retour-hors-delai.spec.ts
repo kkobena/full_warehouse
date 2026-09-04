@@ -18,8 +18,16 @@ scenario('VTE-24', async ({ etape, page }) => {
   const lignes = page.locator('tbody tr').filter({ visible: true });
   // Deux mois en arrière : bien au-delà des trente jours, sans sortir de la période couverte
   // par le jeu de démonstration.
+  //
+  // Le recul est ajusté si la date tombe un LUNDI : l'officine est fermée ce jour-là et le
+  // jeu de démonstration n'y pose aucune vente (`09_ventes.sql`, exclusion du jour 1). Sans
+  // cet ajustement, le parcours échoue un jour de campagne sur sept — sur une journée vide,
+  // pas sur un défaut de l'application.
   const veille = new Date();
   veille.setDate(veille.getDate() - 60);
+  if (veille.getDay() === 1) {
+    veille.setDate(veille.getDate() - 1);
+  }
 
   // ── Retrouver une vente ancienne : le journal s'ouvre sur la journée, c'est le filtre de
   //    dates qui donne accès au passé. Le scénario ne décrit qu'une étape — la tentative de

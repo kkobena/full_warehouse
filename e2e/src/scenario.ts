@@ -198,6 +198,11 @@ async function cadrer(page: Page): Promise<{ x: number; y: number; width: number
       '#main-content .grid-caption', '#main-content .badge', '#main-content app-badge', '#main-content app-button',
       '#main-content .alert', '#main-content .toast',
       '.modal-content', '.popover', 'ngb-popover-window', '.dropdown-menu.show',
+      // Hors de `#main-content`, comme les modales : le conteneur de toasts est posé au
+      // niveau du document. Sans lui, un scénario dont le RÉSULTAT est un message de
+      // confirmation — « 2 produit(s) rattaché(s) » — se voit rogné juste au-dessus de ce
+      // qu'il fallait montrer, et la capture contredit sa propre légende.
+      '.toast-container', 'ngb-toast',
     ].join(',');
     let bas = 0;
     let maxEl = '';

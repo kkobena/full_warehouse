@@ -342,7 +342,8 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
     // Si vente en cours avec des lignes
     if (currentSale && currentSale.salesLines && currentSale.salesLines.length > 0) {
-
+      const total = currentSale.salesAmount || 0;
+      this.customerDisplay.updateDisplayForTotal(total);
       setTimeout(() => {
         this.paymentMode()?.focusFirstMode();
       }, 100);

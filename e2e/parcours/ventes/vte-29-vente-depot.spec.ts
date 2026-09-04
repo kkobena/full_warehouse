@@ -11,6 +11,12 @@ import { scenario } from '../../src/scenario';
  *   * il n'y a pas de pavé de règlement ;
  *   * le montant reste dû, et n'entre pas dans le chiffre d'affaires déclaré.
  *
+ * La validation ne demande pas la souris. Le champ de recherche produit garde le focus d'un
+ * article au suivant ; une fois le panier constitué, il est VIDE, et c'est cet état qui donne
+ * son second rôle à la touche Entrée : elle y demande la finalisation du transfert
+ * (`onSaveKeyDown` dans `vente-depot.component.ts`), qu'une confirmation vient encadrer. Le
+ * caissier ne quitte donc jamais le clavier entre le premier produit et l'enregistrement.
+ *
  * Parcours ÉCRIVANT dans la base : il transfère réellement du stock vers le dépôt.
  */
 scenario('VTE-29', async ({ etape, page }) => {
@@ -42,9 +48,24 @@ scenario('VTE-29', async ({ etape, page }) => {
     await expect(lignes.first()).toContainText(produit);
   });
 
+  const confirmation = page.locator('.modal-content:visible');
+
   await etape(3, async () => {
-    await page.getByRole('button', { name: /Valider|Enregistrer|Finaliser/ }).first().click();
-    // La vente validée, l'écran repart à zéro : plus de panier, prêt pour le dépôt suivant.
-    await expect(contenu).toContainText(/Recherchez un produit pour commencer|Sélectionnez un dépôt/i);
+    // `focus()` plutôt qu'un clic : cliquer le champ DÉPLIERAIT la liste du ng-select, et
+    // Entrée y vaudrait alors choix d'une suggestion au lieu de demander la finalisation.
+    const recherche = page.locator('#produitbox');
+    await recherche.focus();
+    await recherche.press('Enter');
+
+    // Ce que la touche déclenche : la question, pas l'enregistrement. Un transfert de stock
+    // ne part jamais sur une frappe seule.
+    await expect(confirmation).toContainText('Voulez-vous vraiment finaliser la vente');
   });
+
+  // ── Hors capture : on répond à la question, et le transfert est enregistré. L'image de
+  //    l'étape 3 doit montrer la CONFIRMATION, qui est ce que la touche Entrée provoque ;
+  //    répondre avant la prise donnerait un écran déjà vidé, sans rapport avec sa légende. ──
+  await confirmation.getByRole('button', { name: 'Oui' }).click();
+  // La vente validée, l'écran repart à zéro : plus de panier, prêt pour le dépôt suivant.
+  await expect(contenu).toContainText(/Recherchez un produit pour commencer|Sélectionnez un dépôt/i);
 });

@@ -145,6 +145,19 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     const change = this.paymentModeComponent()?.changeAmount() || 0;
     return change > 0 ? change : null;
   });
+  // Computed pour savoir si la vente peut être sauvegardée (spécifique ASSURANCE)
+  canSave = computed(() => {
+    const sale = this.currentSale();
+    const lines = this.salesLines();
+    const customer = this.selectedCustomer();
+    const tiersPayants = sale?.tiersPayants || [];
+    return !!sale && lines.length > 0 && !!customer && tiersPayants.length > 0 && !this.isSaving();
+  });
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
+  // Services
+  private facade = inject(SalesFacade);
+  // State depuis le store (signals computed)
+  currentSale = this.facade.currentSale;
   thirdPartyDetails = computed(() => {
     const sale = this.currentSale();
     const items = sale?.thirdPartySaleLines || [];
@@ -154,11 +167,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       amount: item.montant || 0,
     })) : null;
   });
-  private readonly confirmDialog = inject(NgbConfirmDialogService);
-  // Services
-  private facade = inject(SalesFacade);
-  // State depuis le store (signals computed)
-  currentSale = this.facade.currentSale;
   selectedCustomer = this.facade.selectedCustomer;
   selectedAyantDroit = this.facade.selectedAyantDroit;
   selectedProduct = this.facade.selectedProduct;
@@ -172,14 +180,6 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   hasCustomer = this.facade.hasCustomer;
   isAvoir = this.facade.isAvoir;
   isSaving = this.facade.isSaving;
-  // Computed pour savoir si la vente peut être sauvegardée (spécifique ASSURANCE)
-  canSave = computed(() => {
-    const sale = this.currentSale();
-    const lines = this.salesLines();
-    const customer = this.selectedCustomer();
-    const tiersPayants = sale?.tiersPayants || [];
-    return !!sale && lines.length > 0 && !!customer && tiersPayants.length > 0 && !this.isSaving();
-  });
   private customerSearchService = inject(CustomerSearchService);
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
@@ -446,6 +446,8 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
         );
 
       } else {
+        const total = currentSale.salesAmount || 0;
+        this.customerDisplay.updateDisplayForTotal(total);
         // Focus sur le champ cash du payment-mode déjà affiché
         setTimeout(() => {
           this.paymentModeComponent()?.focusFirstMode();

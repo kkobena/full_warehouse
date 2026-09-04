@@ -15,6 +15,13 @@ import { scenario } from '../../src/scenario';
  *  * un résultat UNIQUE est retenu directement, sans liste ni clic ;
  *  * plusieurs résultats ouvrent la liste de choix, où le MATRICULE départage des homonymes.
  *
+ * La même touche mène ensuite la saisie des bons jusqu'au bout : dans un champ « Numéro de
+ * bon », Entrée valide la référence et donne le focus au bon de l'organisme suivant
+ * (`onBonEnter` dans `insurance-data-bar.component.ts`) ; sur le dernier, elle le rend au
+ * champ de recherche produit, d'où la vente se poursuit. Le comptoir enchaîne donc client,
+ * bons et premier produit sans toucher la souris — ce que le manuel doit dire, faute de quoi
+ * l'utilisateur clique chaque champ et croit l'écran mal fichu.
+ *
  * Parcours en LECTURE : il n'ajoute aucun produit et abandonne la vente commencée.
  */
 scenario('VTE-57', async ({ etape, page }) => {
@@ -64,6 +71,13 @@ scenario('VTE-57', async ({ etape, page }) => {
       // `appKeyFilter` filtre les touches : une valeur posée d'un bloc n'atteint pas le champ.
       await bon.pressSequentially('BON' + base + rang, { delay: 25 });
       await expect(bon).toHaveValue('BON' + base + rang);
+
+      // Entrée valide la référence ET déplace le focus — c'est ce qui permet d'enchaîner les
+      // organismes au clavier. On vérifie où il atterrit, car c'est tout ce que la touche
+      // promet ici : le bon suivant, puis la recherche produit une fois le dernier saisi.
+      await bon.press('Enter');
+      const suivant = rang === 0 ? bons.nth(1) : page.locator('#produitbox');
+      await expect(suivant).toBeFocused();
     }
   });
 });

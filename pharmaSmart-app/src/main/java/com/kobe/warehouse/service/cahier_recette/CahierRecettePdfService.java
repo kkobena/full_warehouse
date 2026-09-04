@@ -62,8 +62,8 @@ public class CahierRecettePdfService {
      * remplacer par les coordonnées réelles — ici plutôt que dans le template, qui les noierait au
      * milieu de la feuille de style de la page.
      */
-    private static final String CONTACT_EMAIL = "badoukobena@gmail.com";
-    private static final String CONTACT_TELEPHONE = "+33 06 52 92 63 83";
+    private static final String CONTACT_EMAIL = "xxx@gmail.com";
+    private static final String CONTACT_TELEPHONE = "+33 xx xx xx xx xx";
 
     private final SpringTemplateEngine templateEngine;
     private final CahierRecetteDataService dataService;

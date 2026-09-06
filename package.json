@@ -93,7 +93,7 @@
     "dayjs": "1.11.23",
     "file-saver": "^2.0.5",
     "gridstack": "^13.0.0",
-    "ngx-spinner": "^21.1.0",
+    "ngx-spinner": "^22.0.0",
     "ngx-webstorage": "22.0.0",
     "primeicons": "^8.0.0",
     "rxjs": "7.8.2",

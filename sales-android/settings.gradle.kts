@@ -6,7 +6,7 @@ pluginManagement {
     }
     plugins {
         id("com.android.application") version "9.4.0"
-        id("com.android.library") version "9.3.1"
+        id("com.android.library") version "9.4.0"
         id("org.jetbrains.kotlin.plugin.parcelize") version "2.4.10"
         id("org.jetbrains.kotlin.plugin.compose") version "2.4.10"
     }

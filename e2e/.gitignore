@@ -1,0 +1,7 @@
+# Session ouverte par auth.setup.ts : contient un JWT valide, ne doit jamais être versionnée.
+.auth/
+
+# Images produites par la campagne. Non versionnées par défaut (§8.1 du plan) : une exécution
+# pèse plusieurs mégaoctets et polluerait l'historique. Un lot est figé dans docs/captures/
+# au moment de publier une édition du manuel.
+captures/

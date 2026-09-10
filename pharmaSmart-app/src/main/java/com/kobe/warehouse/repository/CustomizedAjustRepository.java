@@ -16,7 +16,6 @@ import com.kobe.warehouse.service.dto.AjustDTO;
 import com.kobe.warehouse.service.dto.AjustementDTO;
 import com.kobe.warehouse.service.dto.filter.AjustementFilterRecord;
 import com.kobe.warehouse.service.report.AjustementReportReportService;
-import com.kobe.warehouse.service.settings.FileResourceService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -43,7 +42,7 @@ import org.springframework.util.StringUtils;
 
 @Repository
 @Transactional(readOnly = true)
-public class CustomizedAjustRepository extends FileResourceService implements AjustService {
+public class CustomizedAjustRepository implements AjustService {
 
     private final AjustementReportReportService ajustementReportService;
 
@@ -55,20 +54,23 @@ public class CustomizedAjustRepository extends FileResourceService implements Aj
     }
 
     @Override
-    public Page<AjustDTO> loadAll(AjustementFilterRecord ajustementFilterRecord, Pageable pageable) {
+    public Page<AjustDTO> loadAll(AjustementFilterRecord ajustementFilterRecord,
+        Pageable pageable) {
         long total = findAllCount(ajustementFilterRecord);
         List<AjustDTO> list = new ArrayList<>();
         if (total > 0) {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             CriteriaQuery<Ajust> cq = cb.createQuery(Ajust.class);
             Root<Ajustement> root = cq.from(Ajustement.class);
-            cq.select(root.get(Ajustement_.ajust)).distinct(true).orderBy(cb.desc(root.get(Ajustement_.ajust).get(Ajust_.dateMtv)));
+            cq.select(root.get(Ajustement_.ajust)).distinct(true)
+                .orderBy(cb.desc(root.get(Ajustement_.ajust).get(Ajust_.dateMtv)));
             List<Predicate> predicates = ajustPredicates(ajustementFilterRecord, cb, root);
             cq.where(cb.and(predicates.toArray(new Predicate[0])));
             TypedQuery<Ajust> q = em.createQuery(cq);
             q.setFirstResult((int) pageable.getOffset());
             q.setMaxResults(pageable.getPageSize());
-            list = q.getResultList().stream().map(e -> new AjustDTO(e).setAjustements(items(e.getId()))).toList();
+            list = q.getResultList().stream()
+                .map(e -> new AjustDTO(e).setAjustements(items(e.getId()))).toList();
         }
         return new PageImpl<>(list, pageable, total);
     }
@@ -98,13 +100,15 @@ public class CustomizedAjustRepository extends FileResourceService implements Aj
         return v != null ? v : 0;
     }
 
-    private List<Predicate> ajustPredicates(AjustementFilterRecord ajustementFilterRecord, CriteriaBuilder cb, Root<Ajustement> root) {
+    private List<Predicate> ajustPredicates(AjustementFilterRecord ajustementFilterRecord,
+        CriteriaBuilder cb, Root<Ajustement> root) {
         List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.hasLength(ajustementFilterRecord.search())) {
             String search = ajustementFilterRecord.search() + "%";
             Join<Ajustement, StockProduit> produitStockJoin = root.join(Ajustement_.stockProduit);
             Join<StockProduit, Produit> produitJoin = produitStockJoin.join(StockProduit_.produit);
-            SetJoin<Produit, FournisseurProduit> fp = produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
+            SetJoin<Produit, FournisseurProduit> fp = produitJoin.joinSet(
+                Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
             predicates.add(
                 cb.or(
                     cb.like(cb.upper(fp.get(FournisseurProduit_.codeCip)), search),
@@ -115,9 +119,11 @@ public class CustomizedAjustRepository extends FileResourceService implements Aj
             );
         }
         if (Objects.nonNull(ajustementFilterRecord.userId())) {
-            predicates.add(cb.equal(root.get(Ajustement_.ajust).get(Ajust_.user).get(AppUser_.id), ajustementFilterRecord.userId()));
+            predicates.add(cb.equal(root.get(Ajustement_.ajust).get(Ajust_.user).get(AppUser_.id),
+                ajustementFilterRecord.userId()));
         }
-        predicates.add(cb.equal(root.get(Ajustement_.ajust).get(Ajust_.statut), ajustementFilterRecord.statut()));
+        predicates.add(cb.equal(root.get(Ajustement_.ajust).get(Ajust_.statut),
+            ajustementFilterRecord.statut()));
         if (Objects.nonNull(ajustementFilterRecord.type())) {
             predicates.add(cb.equal(root.get(Ajustement_.type), ajustementFilterRecord.type()));
         }
@@ -147,7 +153,8 @@ public class CustomizedAjustRepository extends FileResourceService implements Aj
         }
         return Optional.of(
             new AjustDTO(ajust).setAjustements(
-                ajust.getAjustements().stream().map(AjustementDTO::new).sorted(Comparator.comparing(AjustementDTO::getCodeCip)).toList()
+                ajust.getAjustements().stream().map(AjustementDTO::new)
+                    .sorted(Comparator.comparing(AjustementDTO::getCodeCip)).toList()
             )
         );
     }

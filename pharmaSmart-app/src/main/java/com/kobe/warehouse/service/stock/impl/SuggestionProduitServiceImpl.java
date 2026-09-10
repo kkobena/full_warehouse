@@ -27,7 +27,6 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.BudgetCommandeDTO;
 import com.kobe.warehouse.service.dto.CommanderSelectionDTO;
 import com.kobe.warehouse.service.dto.FournisseurSuggestionSummaryDTO;
-import com.kobe.warehouse.service.dto.SemoisCommanderDTO;
 import com.kobe.warehouse.service.dto.SuggestionDTO;
 import com.kobe.warehouse.service.dto.SuggestionLineDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
@@ -41,15 +40,6 @@ import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import com.kobe.warehouse.service.stock.dto.QauntiteProduitVendus;
 import jakarta.persistence.EntityManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -70,6 +60,12 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional
@@ -133,15 +129,18 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         Set<StatutSuggession> statut,
         Pageable pageable
     ) {
-        Specification<Suggestion> specification = suggestionRepository.filterByDate(appConfigurationService.findSuggestionRetention());
+        Specification<Suggestion> specification = suggestionRepository.filterByDate(
+            appConfigurationService.findSuggestionRetention());
         if (typeSuggession != null) {
             specification = specification.and(suggestionRepository.filterByType(typeSuggession));
         }
         if (!CollectionUtils.isEmpty(statut)) {
-            specification = specification.and(suggestionRepository.filterByStatut(EnumSet.copyOf(statut)));
+            specification = specification.and(
+                suggestionRepository.filterByStatut(EnumSet.copyOf(statut)));
         }
         if (!CollectionUtils.isEmpty(fournisseurIds)) {
-            specification = specification.and(suggestionRepository.filterByFournisseurIds(fournisseurIds));
+            specification = specification.and(
+                suggestionRepository.filterByFournisseurIds(fournisseurIds));
         }
 
         return suggestionRepository.getAllSuggestion(specification, pageable, search);
@@ -159,43 +158,53 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         return suggestionRepository
             .findById(id)
             .map(suggestion ->
-                new SuggestionDTO(suggestion).setSuggestionAggregator(suggestionLineRepository.getSuggestionData(suggestion.getId()))
+                new SuggestionDTO(suggestion).setSuggestionAggregator(
+                    suggestionLineRepository.getSuggestionData(suggestion.getId()))
             );
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur(Set<StatutSuggession> statut, Set<Integer> fournisseurIds, String searchTerm) {
-        return suggestionRepository.getSuggestionsParFournisseur(statut, fournisseurIds, searchTerm);
+    public List<FournisseurSuggestionSummaryDTO> getSuggestionsParFournisseur(
+        Set<StatutSuggession> statut, Set<Integer> fournisseurIds, String searchTerm) {
+        return suggestionRepository.getSuggestionsParFournisseur(statut, fournisseurIds,
+            searchTerm);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<SuggestionLineDTO> getSuggestionLinesByIdWithConsommation(Integer suggestionId, String search, String niveauUrgence, Pageable pageable) {
+    public Page<SuggestionLineDTO> getSuggestionLinesByIdWithConsommation(Integer suggestionId,
+        String search, String niveauUrgence, Pageable pageable) {
         Integer storageId = storageService.getDefaultMagasinMainStorage().getId();
-        LocalDate dateRetention = LocalDate.now().minusDays(appConfigurationService.getNombreJourRetentionCommande());
+        LocalDate dateRetention = LocalDate.now()
+            .minusDays(appConfigurationService.getNombreJourRetentionCommande());
         int nthMois = appConfigurationService.getNthMoisConsommation();
-        return suggestionLineRepository.fetchSuggestionLinesWithConsommation(suggestionId, search, niveauUrgence, storageId, dateRetention, nthMois, pageable);
+        return suggestionLineRepository.fetchSuggestionLinesWithConsommation(suggestionId, search,
+            niveauUrgence, storageId, dateRetention, nthMois, pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<SuggestionLineDTO> getAllSuggestionLines(Integer suggestionId, String search, String niveauUrgence) {
-        return getSuggestionLinesByIdWithConsommation(suggestionId, search, niveauUrgence, Pageable.unpaged()).getContent();
+    public List<SuggestionLineDTO> getAllSuggestionLines(Integer suggestionId, String search,
+        String niveauUrgence) {
+        return getSuggestionLinesByIdWithConsommation(suggestionId, search, niveauUrgence,
+            Pageable.unpaged()).getContent();
     }
 
     @Override
     public void fusionnerSuggestion(Set<Integer> ids) throws GenericError {
         List<Suggestion> suggestions = suggestionRepository.findAllById(ids);
         if (!CollectionUtils.isEmpty(suggestions)) {
-            suggestions.sort(Comparator.comparing(Suggestion::getUpdatedAt, Comparator.reverseOrder()));
+            suggestions.sort(
+                Comparator.comparing(Suggestion::getUpdatedAt, Comparator.reverseOrder()));
             Suggestion suggestion = suggestions.getFirst();
             Set<SuggestionLine> suggestionLines = suggestion.getSuggestionLines();
             Fournisseur fournisseur = suggestion.getFournisseur();
             for (int i = 1; i < suggestions.size(); i++) {
                 Suggestion suggestionToMerge = suggestions.get(i);
                 if (!Objects.equals(fournisseur, suggestionToMerge.getFournisseur())) {
-                    throw new GenericError("Vous ne pouvez pas fusionner des suggestions de fournisseurs differents");
+                    throw new GenericError(
+                        "Vous ne pouvez pas fusionner des suggestions de fournisseurs differents");
                 }
                 suggestionToMerge
                     .getSuggestionLines()
@@ -247,7 +256,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                         if (stockProduit != null) {
                             currentStock = stockProduit.getTotalStockQuantity();
                         }
-                        if ((produit.getStatus() != Status.ENABLE) || (produit.getQtySeuilMini() < currentStock)) {
+                        if ((produit.getStatus() != Status.ENABLE) || (produit.getQtySeuilMini()
+                            < currentStock)) {
                             linesToDelete.add(suggestionLine);
                         }
                     });
@@ -260,7 +270,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     @Override
     public CommandeId commander(Integer suggestionId, Integer fournisseurId) {
         Suggestion suggestion = suggestionRepository.findById(suggestionId).orElseThrow();
-        CommandeId commandeId = commandService.createCommandeFromSuggestion(suggestion, fournisseurId);
+        CommandeId commandeId = commandService.createCommandeFromSuggestion(suggestion,
+            fournisseurId);
         suggestionRepository.delete(suggestion);
         return commandeId;
     }
@@ -268,7 +279,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     @Override
     public CommandeId commanderSelection(CommanderSelectionDTO dto) {
         Suggestion suggestion = suggestionRepository.getReferenceById(dto.suggestionId());
-        CommandeId commandeId = commandService.createCommandeFromSelection(suggestion, dto.lignes(), dto.fournisseurId());
+        CommandeId commandeId = commandService.createCommandeFromSelection(suggestion, dto.lignes(),
+            dto.fournisseurId());
         // Si toutes les lignes ont été commandées, supprimer la suggestion elle-même
         long restantes = suggestion.getSuggestionLines().size() - dto.lignes().size();
         if (restantes <= 0) {
@@ -320,16 +332,19 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
 
         boolean budgetIllimite = budgetMensuel == 0L;
         long budgetRestant = budgetIllimite ? Long.MAX_VALUE : budgetMensuel - montantCommande;
-        boolean enDepassement = !budgetIllimite && (montantCommande + montantEstime) > budgetMensuel;
+        boolean enDepassement =
+            !budgetIllimite && (montantCommande + montantEstime) > budgetMensuel;
 
-        return new BudgetCommandeDTO(budgetMensuel, montantEstime, montantCommande, budgetRestant, enDepassement, budgetIllimite);
+        return new BudgetCommandeDTO(budgetMensuel, montantEstime, montantCommande, budgetRestant,
+            enDepassement, budgetIllimite);
     }
 
     @Override
     public void addSuggestionLine(Integer suggestionId, SuggestionLineDTO suggestionLine) {
         Suggestion suggestion = suggestionRepository.findById(suggestionId).orElseThrow();
         suggestionLineRepository
-            .findBySuggestionIdAndFournisseurProduitProduitId(suggestionId, suggestionLine.produitId())
+            .findBySuggestionIdAndFournisseurProduitProduitId(suggestionId,
+                suggestionLine.produitId())
             .ifPresentOrElse(
                 line -> {
                     line.setQuantity(line.getQuantity() + suggestionLine.quantity());
@@ -339,7 +354,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                 () -> {
                     Fournisseur fournisseur = suggestion.getFournisseur();
                     FournisseurProduit fournisseurProduit = fournisseurProduitRepository
-                        .findOneByProduitIdAndFournisseurId(suggestionLine.produitId(), fournisseur.getId())
+                        .findOneByProduitIdAndFournisseurId(suggestionLine.produitId(),
+                            fournisseur.getId())
                         .orElseThrow();
                     SuggestionLine line = new SuggestionLine();
                     line.setCreatedAt(LocalDateTime.now());
@@ -377,7 +393,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     @Override
     @Transactional(readOnly = true)
     public byte[] exportToCsv(Integer id) throws IOException {
-        return exportToCsvBytes(this.suggestionRepository.findById(id).orElseThrow(() -> new GenericError("Suggestion non trouvée")));
+        return exportToCsvBytes(this.suggestionRepository.findById(id)
+            .orElseThrow(() -> new GenericError("Suggestion non trouvée")));
     }
 
     @Override
@@ -386,12 +403,14 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         Suggestion suggestion = suggestionRepository.findById(id)
             .orElseThrow(() -> new GenericError("Suggestion non trouvée"));
         Integer storageId = storageService.getDefaultMagasinMainStorage().getId();
-        LocalDate dateRetention = LocalDate.now().minusDays(appConfigurationService.getNombreJourRetentionCommande());
+        LocalDate dateRetention = LocalDate.now()
+            .minusDays(appConfigurationService.getNombreJourRetentionCommande());
         int nthMois = appConfigurationService.getNthMoisConsommation();
 
         List<SuggestionLineDTO> lignes = suggestionLineRepository
             .fetchSuggestionLinesWithConsommation(
-                suggestion.getId(), null, null, storageId, dateRetention, nthMois, Pageable.unpaged()
+                suggestion.getId(), null, null, storageId, dateRetention, nthMois,
+                Pageable.unpaged()
             )
             .getContent();
 
@@ -419,28 +438,37 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     }
 
     @Override
-    public int suggestionQuantiteProduitVendus(List<QauntiteProduitVendus> produitVendus, Boolean suggerQuantitySold) {
-        if (CollectionUtils.isEmpty(produitVendus)) return 0;
+    public int suggestionQuantiteProduitVendus(List<QauntiteProduitVendus> produitVendus,
+        Boolean suggerQuantitySold) {
+        if (CollectionUtils.isEmpty(produitVendus)) {
+            return 0;
+        }
 
         // 1. Filter eligible produits
         List<QauntiteProduitVendus> eligibles = produitVendus.stream()
             .filter(p -> p.produitId() != null && etatProduitService.canSuggere(p.produitId()))
             .toList();
-        if (eligibles.isEmpty()) return 0;
+        if (eligibles.isEmpty()) {
+            return 0;
+        }
 
         // 2. Batch-load Produit entities
-        Set<Integer> produitIds = eligibles.stream().map(QauntiteProduitVendus::produitId).collect(Collectors.toSet());
+        Set<Integer> produitIds = eligibles.stream().map(QauntiteProduitVendus::produitId)
+            .collect(Collectors.toSet());
         Map<Integer, Produit> produitById = produitRepository.findAllById(produitIds).stream()
             .filter(p -> p.getFournisseurProduitPrincipal() != null)
             .collect(Collectors.toMap(Produit::getId, Function.identity()));
-        if (produitById.isEmpty()) return 0;
+        if (produitById.isEmpty()) {
+            return 0;
+        }
 
         // 3. Quantité à suggérer par produit
         Map<Integer, Integer> qtyByProduitId = eligibles.stream()
             .filter(q -> produitById.containsKey(q.produitId()))
             .collect(Collectors.toMap(
                 QauntiteProduitVendus::produitId,
-                q -> Boolean.TRUE.equals(suggerQuantitySold) ? q.quantitySold() : q.quantityReappro()
+                q -> Boolean.TRUE.equals(suggerQuantitySold) ? q.quantitySold()
+                    : q.quantityReappro()
             ));
 
         // 4. Batch-load existing AUTO lines
@@ -454,7 +482,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
 
         // 5. Group by fournisseur
         Map<Fournisseur, List<Produit>> byFournisseur = produitById.values().stream()
-            .collect(Collectors.groupingBy(p -> p.getFournisseurProduitPrincipal().getFournisseur()));
+            .collect(
+                Collectors.groupingBy(p -> p.getFournisseurProduitPrincipal().getFournisseur()));
 
         List<Suggestion> suggestionsToSave = new ArrayList<>();
         List<SuggestionLine> linesToSave = new ArrayList<>();
@@ -469,7 +498,9 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
             for (Produit produit : entry.getValue()) {
                 FournisseurProduit fp = produit.getFournisseurProduitPrincipal();
                 int qty = qtyByProduitId.getOrDefault(produit.getId(), 0);
-                if (qty <= 0) continue;
+                if (qty <= 0) {
+                    continue;
+                }
 
                 SuggestionLine existingLine = existingLineByFpId.get(fp.getId());
                 if (existingLine != null) {
@@ -484,7 +515,9 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                     newLine.setFournisseurProduit(fp);
                     newLine.setSuggestion(suggestion);
                     suggestion.getSuggestionLines().add(newLine);
-                    if (alreadyExisted) linesToSave.add(newLine);
+                    if (alreadyExisted) {
+                        linesToSave.add(newLine);
+                    }
                 }
                 count++;
             }
@@ -504,7 +537,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         return getSuggestion(fournisseur, suggestionExist, magasin, storageService.getUser());
     }
 
-    private Suggestion getSuggestion(Fournisseur fournisseur, AtomicBoolean suggestionExist, Magasin magasin, AppUser user) {
+    private Suggestion getSuggestion(Fournisseur fournisseur, AtomicBoolean suggestionExist,
+        Magasin magasin, AppUser user) {
         Suggestion suggestion;
         Optional<Suggestion> suggestionOpt = suggestionRepository.findByTypeSuggessionAndFournisseurIdAndMagasinId(
             TypeSuggession.AUTO,
@@ -518,7 +552,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
             suggestionExist.set(false);
             suggestion = new Suggestion()
                 .setSuggessionReference(
-                    LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")).concat(this.referenceService.buildSuggestionReference())
+                    LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+                        .concat(this.referenceService.buildSuggestionReference())
                 )
                 .createdAt(LocalDateTime.now());
         }
@@ -533,10 +568,11 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     }
 
     /**
-     * Résout le délai de livraison (jours) en cascade :
-     * SemoisConfiguration (surcharge par produit) → Fournisseur → GroupeFournisseur → défaut 7 j
+     * Résout le délai de livraison (jours) en cascade : SemoisConfiguration (surcharge par produit)
+     * → Fournisseur → GroupeFournisseur → défaut 7 j
      */
-    private int resolveDelaiLivraisonJours(SemoisConfiguration semoisConfig, Fournisseur fournisseur) {
+    private int resolveDelaiLivraisonJours(SemoisConfiguration semoisConfig,
+        Fournisseur fournisseur) {
         if (semoisConfig != null && semoisConfig.getDelaiLivraisonJours() != null) {
             return semoisConfig.getDelaiLivraisonJours();
         }
@@ -552,8 +588,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     }
 
     /**
-     * Calcule le stock objectif SEMOIS à la volée.
-     * Utilisé quand {@code stockObjectifCalcule} n'est pas encore disponible (cache miss).
+     * Calcule le stock objectif SEMOIS à la volée. Utilisé quand {@code stockObjectifCalcule} n'est
+     * pas encore disponible (cache miss).
      * <p>
      * Formule : VMM + (VMM × délai × coeff / 30)
      * </p>
@@ -605,7 +641,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         }
         if (vmm > 0) {
             if (isSemois) {
-                return computeSemoisStockObjectif(produit, semoisConfig, fournisseur, vmm, classeConfigs);
+                return computeSemoisStockObjectif(produit, semoisConfig, fournisseur, vmm,
+                    classeConfigs);
             }
             // P2
             int delaiJours = resolveDelaiLivraisonJours(semoisConfig, fournisseur);
@@ -631,7 +668,9 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         if (vmm > 0) {
             int stockObjectif = isSemois
                 ? computeSemoisStockObjectif(produit, semoisConfig, fournisseur, vmm, classeConfigs)
-                : (int) Math.round((couvertureMois + resolveDelaiLivraisonJours(semoisConfig, fournisseur) / 30.0) * vmm);
+                : (int) Math.round(
+                    (couvertureMois + resolveDelaiLivraisonJours(semoisConfig, fournisseur) / 30.0)
+                        * vmm);
             return Math.max(1, stockObjectif - produitTotalStockQuantity);
         }
         // CLASSIQUE : fallback sur les paramètres statiques du produit
@@ -640,8 +679,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     }
 
     /**
-     * Charge le VMM en une requête SQL par groupe de classe SEMOIS.
-     * Chaque classe a son propre {@code nbMoisHistorique} — au plus 5 requêtes SQL.
+     * Charge le VMM en une requête SQL par groupe de classe SEMOIS. Chaque classe a son propre
+     * {@code nbMoisHistorique} — au plus 5 requêtes SQL.
      */
     private Map<Integer, Integer> loadVmmForProduitsBySemoisClass(
         List<QuantitySuggestion> eligibles,
@@ -673,7 +712,9 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
      * @return Map produit_id → quantité en attente (seulement les produits avec qté > 0)
      */
     private Map<Integer, Integer> loadPendingOrderQty(Set<Integer> produitIds) {
-        if (produitIds.isEmpty()) return Map.of();
+        if (produitIds.isEmpty()) {
+            return Map.of();
+        }
         List<Object[]> rows = orderLineRepository.findPendingQtyByProduitIds(produitIds);
         return rows.stream().collect(Collectors.toMap(
             row -> ((Number) row[0]).intValue(),
@@ -683,7 +724,9 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
 
     @SuppressWarnings("unchecked")
     private Map<Integer, Integer> loadVmmForProduits(Set<Integer> produitIds, int nthMois) {
-        if (produitIds.isEmpty()) return Map.of();
+        if (produitIds.isEmpty()) {
+            return Map.of();
+        }
         String sql = """
             SELECT produit_id, ROUND(AVG(qte_vendue))::integer AS vmm
             FROM mv_monthly_top_products
@@ -703,12 +746,14 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
 
     private byte[] exportToCsvBytes(Suggestion suggestion) throws IOException {
         Integer storageId = storageService.getDefaultMagasinMainStorage().getId();
-        LocalDate dateRetention = LocalDate.now().minusDays(appConfigurationService.getNombreJourRetentionCommande());
+        LocalDate dateRetention = LocalDate.now()
+            .minusDays(appConfigurationService.getNombreJourRetentionCommande());
         int nthMois = appConfigurationService.getNthMoisConsommation();
 
         List<SuggestionLineDTO> lines = suggestionLineRepository
             .fetchSuggestionLinesWithConsommation(
-                suggestion.getId(), null, null, storageId, dateRetention, nthMois, Pageable.unpaged()
+                suggestion.getId(), null, null, storageId, dateRetention, nthMois,
+                Pageable.unpaged()
             )
             .getContent();
 
@@ -722,7 +767,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
 
         // Headers : colonnes fixes + une colonne par mois
         List<String> headerList = new ArrayList<>(Arrays.asList(
-            "Code CIP", "Code EAN", "Désignation", "Stock", "Qté suggérée", "Prix achat", "Prix vente"
+            "Code CIP", "Code EAN", "Désignation", "Stock", "Qté suggérée", "Prix achat",
+            "Prix vente"
         ));
         moisColonnes.forEach(m -> headerList.add("Conso. " + m.getLibelle()));
         String[] headers = headerList.toArray(new String[0]);

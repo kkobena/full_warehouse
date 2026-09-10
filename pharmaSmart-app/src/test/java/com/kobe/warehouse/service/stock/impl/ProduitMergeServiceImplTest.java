@@ -546,4 +546,743 @@ class ProduitMergeServiceImplTest {
         verify(produitRepository).save(sourceChild);
         assertEquals(1, result.entityCounts().get("produitDetailFusionne"));
     }
+
+    // ── 12. preview — recensement, rejets et conflits ────────────────────────
+
+    /** Le comptage des entités simples passe par une requête typée : createQuery(String, Long.class). */
+    private void stubSimpleEntityCount(long count) {
+        @SuppressWarnings("unchecked")
+        jakarta.persistence.TypedQuery<Long> typed = mock(jakarta.persistence.TypedQuery.class);
+        lenient().when(entityManager.createQuery(anyString(), org.mockito.ArgumentMatchers.eq(Long.class))).thenReturn(typed);
+        lenient().when(typed.setParameter(anyString(), any())).thenReturn(typed);
+        lenient().when(typed.getSingleResult()).thenReturn(count);
+    }
+
+    @Test
+    void should_rejectSourceInPreview_whenSourceDoesNotExist() {
+        Produit target = produit(1, "Target");
+        when(produitRepository.findById(1)).thenReturn(Optional.of(target));
+        when(produitRepository.findById(99)).thenReturn(Optional.empty());
+        stubSimpleEntityCount(0L);
+
+        ProduitMergePreviewDTO preview = service.preview(1, List.of(99));
+
+        assertTrue(preview.sourceIds().isEmpty());
+        assertEquals(List.of(99), preview.rejectedSourceIds());
+        assertEquals("Produit introuvable", preview.rejectionReasons().get("99"));
+    }
+
+    @Test
+    void should_rejectAllSourcesInPreview_whenTargetHasMoreThanOneChild() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+        when(produitRepository.findAllByParentId(1)).thenReturn(List.of(produit(11, "d1"), produit(12, "d2")));
+        stubSimpleEntityCount(0L);
+
+        ProduitMergePreviewDTO preview = service.preview(1, List.of(2));
+
+        assertTrue(preview.sourceIds().isEmpty());
+        assertEquals(List.of(2), preview.rejectedSourceIds());
+        assertTrue(preview.rejectionReasons().get("2").contains("produit cible"));
+    }
+
+    @Test
+    void should_ignoreTargetIdAndDuplicates_whenListedAsSource() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+        stubSimpleEntityCount(0L);
+
+        ProduitMergePreviewDTO preview = service.preview(1, List.of(1, 2, 2));
+
+        assertEquals(List.of(2), preview.sourceIds());
+        assertTrue(preview.rejectedSourceIds().isEmpty());
+    }
+
+    @Test
+    void should_countRelatedEntities_inPreview() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+        when(stockProduitRepository.countByProduitId(2)).thenReturn(3L);
+        when(prixReferenceRepository.countByProduitId(2)).thenReturn(2L);
+        when(fournisseurProduitRepository.countByProduitId(2)).thenReturn(1L);
+        when(rayonProduitRepository.countByProduitId(2)).thenReturn(4L);
+        when(salesLineRepository.countByProduitId(2)).thenReturn(10L);
+        when(substitutRepository.countByProduitId(2)).thenReturn(1L);
+        when(substitutRepository.countBySubstitutId(2)).thenReturn(2L);
+        stubSimpleEntityCount(5L);
+
+        ProduitMergePreviewDTO preview = service.preview(1, List.of(2));
+
+        assertEquals(3, preview.entityCounts().get("stockProduit"));
+        assertEquals(2, preview.entityCounts().get("optionPrixProduit"));
+        assertEquals(1, preview.entityCounts().get("fournisseurProduit"));
+        assertEquals(4, preview.entityCounts().get("rayonProduit"));
+        assertEquals(10, preview.entityCounts().get("salesLine"));
+        assertEquals(3, preview.entityCounts().get("substitut"));
+        assertEquals(0, preview.entityCounts().get("lot"));
+        // chacune des huit entités simples est comptée par une requête dédiée
+        assertEquals(5, preview.entityCounts().get("Rupture"));
+        assertEquals(5, preview.entityCounts().get("Decondition"));
+    }
+
+    @Test
+    void should_reportLotAndStockConflicts_inPreview() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+        stubSimpleEntityCount(0L);
+
+        Lot targetLot = new Lot();
+        targetLot.setId(200);
+        targetLot.setNumLot("L1");
+        targetLot.setQuantity(4);
+        targetLot.setExpiryDate(LocalDate.of(2027, 1, 31));
+        Lot sourceLot = new Lot();
+        sourceLot.setId(100);
+        sourceLot.setNumLot("L1");
+        sourceLot.setQuantity(6);
+        sourceLot.setExpiryDate(LocalDate.of(2027, 2, 28));
+        when(lotRepository.findByProduitId(1)).thenReturn(List.of(targetLot));
+        when(lotRepository.findByProduitId(2)).thenReturn(List.of(sourceLot));
+
+        Storage storage = new Storage();
+        storage.setId(10);
+        storage.setName("Réserve");
+        StockProduit targetStock = new StockProduit();
+        targetStock.setStorage(storage);
+        targetStock.setQtyStock(3);
+        targetStock.setQtyVirtual(1);
+        targetStock.setQtyUG(0);
+        StockProduit sourceStock = new StockProduit();
+        sourceStock.setStorage(storage);
+        sourceStock.setQtyStock(5);
+        sourceStock.setQtyVirtual(2);
+        sourceStock.setQtyUG(1);
+        when(stockProduitRepository.findAllByProduitId(1)).thenReturn(List.of(targetStock));
+        when(stockProduitRepository.findAllByProduitId(2)).thenReturn(List.of(sourceStock));
+
+        ProduitMergePreviewDTO preview = service.preview(1, List.of(2));
+
+        assertEquals(1, preview.lotConflicts().size());
+        assertEquals("L1", preview.lotConflicts().get(0).numLot());
+        assertEquals(100, preview.lotConflicts().get(0).sourceLotId());
+        assertEquals(200, preview.lotConflicts().get(0).targetLotId());
+        assertEquals(1, preview.entityCounts().get("lot"));
+
+        assertEquals(1, preview.stockConflicts().size());
+        assertEquals(10, preview.stockConflicts().get(0).storageId());
+        assertEquals(5, preview.stockConflicts().get(0).sourceQtyStock());
+        assertEquals(3, preview.stockConflicts().get(0).targetQtyStock());
+    }
+
+    @Test
+    void should_reportNoConflict_inPreview_whenNumLotAndStorageDiffer() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+        stubSimpleEntityCount(0L);
+
+        Lot targetLot = new Lot();
+        targetLot.setId(200);
+        targetLot.setNumLot("L1");
+        Lot sourceLot = new Lot();
+        sourceLot.setId(100);
+        sourceLot.setNumLot("L2");
+        when(lotRepository.findByProduitId(1)).thenReturn(List.of(targetLot));
+        when(lotRepository.findByProduitId(2)).thenReturn(List.of(sourceLot));
+
+        Storage s1 = new Storage();
+        s1.setId(10);
+        Storage s2 = new Storage();
+        s2.setId(20);
+        StockProduit targetStock = new StockProduit();
+        targetStock.setStorage(s1);
+        StockProduit sourceStock = new StockProduit();
+        sourceStock.setStorage(s2);
+        when(stockProduitRepository.findAllByProduitId(1)).thenReturn(List.of(targetStock));
+        when(stockProduitRepository.findAllByProduitId(2)).thenReturn(List.of(sourceStock));
+
+        ProduitMergePreviewDTO preview = service.preview(1, List.of(2));
+
+        assertTrue(preview.lotConflicts().isEmpty());
+        assertTrue(preview.stockConflicts().isEmpty());
+    }
+
+    @Test
+    void should_announceDetailReparentage_inPreview_whenOnlySourceHasChild() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+        when(produitRepository.findAllByParentId(1)).thenReturn(List.of());
+        when(produitRepository.findAllByParentId(2)).thenReturn(List.of(produit(21, "detail")));
+        stubSimpleEntityCount(0L);
+
+        ProduitMergePreviewDTO preview = service.preview(1, List.of(2));
+
+        assertEquals(1, preview.entityCounts().get("produitDetailReparente"));
+    }
+
+    @Test
+    void should_announceDetailFusion_inPreview_whenBothHaveChild() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+        when(produitRepository.findAllByParentId(1)).thenReturn(List.of(produit(11, "detail cible")));
+        when(produitRepository.findAllByParentId(2)).thenReturn(List.of(produit(21, "detail source")));
+        stubSimpleEntityCount(0L);
+
+        ProduitMergePreviewDTO preview = service.preview(1, List.of(2));
+
+        assertEquals(1, preview.entityCounts().get("produitDetailFusionne"));
+    }
+
+    @Test
+    void should_rejectPreview_whenTargetDoesNotExist() {
+        when(produitRepository.findById(1)).thenReturn(Optional.empty());
+
+        assertThrows(BadRequestAlertException.class, () -> service.preview(1, List.of(2)));
+    }
+
+    // ── 13. merge — gardes d'entrée ──────────────────────────────────────────
+
+    @Test
+    void should_rejectMerge_whenTargetIdIsNull() {
+        assertThrows(BadRequestAlertException.class, () -> service.merge(new ProduitMergeRequestDTO(null, List.of(2), List.of())));
+        verifyNoInteractions(produitRepository);
+    }
+
+    @Test
+    void should_rejectMerge_whenSourceIdsAreNull() {
+        assertThrows(BadRequestAlertException.class, () -> service.merge(new ProduitMergeRequestDTO(1, null, List.of())));
+    }
+
+    @Test
+    void should_rejectMerge_whenSourceIdsAreEmpty() {
+        assertThrows(BadRequestAlertException.class, () -> service.merge(new ProduitMergeRequestDTO(1, List.of(), List.of())));
+    }
+
+    @Test
+    void should_rejectMerge_whenOnlySourceIsTheTargetItself() {
+        Produit target = produit(1, "Target");
+        when(produitRepository.findById(1)).thenReturn(Optional.of(target));
+
+        assertThrows(BadRequestAlertException.class, () -> service.merge(new ProduitMergeRequestDTO(1, List.of(1), List.of())));
+    }
+
+    @Test
+    void should_rejectMerge_whenTargetDoesNotExist() {
+        when(produitRepository.findById(1)).thenReturn(Optional.empty());
+
+        assertThrows(BadRequestAlertException.class, () -> service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of())));
+    }
+
+    @Test
+    void should_rejectMerge_whenSourceDoesNotExist() {
+        when(produitRepository.findById(1)).thenReturn(Optional.of(produit(1, "Target")));
+        when(produitRepository.findById(2)).thenReturn(Optional.empty());
+
+        assertThrows(BadRequestAlertException.class, () -> service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of())));
+    }
+
+    @Test
+    void should_tolerateNullLotResolutions() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+
+        ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), null));
+
+        assertEquals(List.of(2), result.mergedSourceIds());
+    }
+
+    @Test
+    void should_mentionStockConflictsInLog_whenAdjustmentIsRequired() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+
+        Storage storage = new Storage();
+        storage.setId(10);
+        storage.setName("Réserve");
+        StockProduit sourceStock = new StockProduit();
+        sourceStock.setStorage(storage);
+        sourceStock.setQtyStock(5);
+        sourceStock.setQtyVirtual(2);
+        sourceStock.setQtyUG(1);
+        StockProduit targetStock = new StockProduit();
+        targetStock.setStorage(storage);
+        targetStock.setQtyStock(3);
+        targetStock.setQtyVirtual(1);
+        targetStock.setQtyUG(0);
+        when(stockProduitRepository.findAllByProduitId(2)).thenReturn(List.of(sourceStock));
+        when(stockProduitRepository.findStockProduitByStorageIdAndProduitId(10, 1)).thenReturn(Optional.of(targetStock));
+
+        service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        ArgumentCaptor<String> comments = ArgumentCaptor.forClass(String.class);
+        verify(logsService).create(any(), comments.capture(), anyString());
+        assertTrue(comments.getValue().contains("ajustement de stock manuel requis sur 1 emplacement(s)"));
+    }
+
+    // ── 14. Réaffectations sans collision ────────────────────────────────────
+
+    @Test
+    void should_reassignLot_whenNoNumLotCollision() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+
+        Lot sourceLot = new Lot();
+        sourceLot.setId(100);
+        sourceLot.setNumLot("L2");
+        when(lotRepository.findByProduitId(2)).thenReturn(List.of(sourceLot));
+        when(lotRepository.findByProduitId(1)).thenReturn(List.of());
+
+        ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        assertEquals(target, sourceLot.getProduit());
+        verify(lotRepository).save(sourceLot);
+        verify(asCrud(lotRepository), never()).delete(any(Lot.class));
+        assertEquals(1, result.entityCounts().get("lot"));
+    }
+
+    @Test
+    void should_reassignOptionPrix_whenNoCollision() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+
+        TiersPayant tp = new TiersPayant();
+        tp.setId(7);
+        OptionPrixProduit option = new OptionPrixProduit();
+        option.setId(50);
+        option.setTiersPayant(tp);
+        option.setType(OptionPrixType.REFERENCE);
+        when(prixReferenceRepository.findAllByProduitId(2)).thenReturn(List.of(option));
+        when(prixReferenceRepository.findAllByProduitId(1)).thenReturn(List.of());
+
+        service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        assertEquals(target, option.getProduit());
+        verify(prixReferenceRepository).save(option);
+        verify(prixReferenceRepository, never()).delete(any());
+    }
+
+    @Test
+    void should_reassignFournisseurProduit_whenNoCollision() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+
+        Fournisseur fournisseur = new Fournisseur();
+        fournisseur.setId(3);
+        FournisseurProduit fp = new FournisseurProduit();
+        fp.setId(80);
+        fp.setFournisseur(fournisseur);
+        when(fournisseurProduitRepository.findAllByProduitId(2)).thenReturn(List.of(fp));
+        when(fournisseurProduitRepository.findAllByProduitId(1)).thenReturn(List.of());
+
+        service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        assertEquals(target, fp.getProduit());
+        verify(fournisseurProduitRepository).save(fp);
+        verify(fournisseurProduitRepository, never()).delete(any());
+    }
+
+    @Test
+    void should_keepSourcePrincipal_whenCollidingFournisseurProduitIsNotThePrincipal() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+
+        Fournisseur fournisseur = new Fournisseur();
+        fournisseur.setId(3);
+        FournisseurProduit sourceFp = new FournisseurProduit();
+        sourceFp.setId(80);
+        sourceFp.setFournisseur(fournisseur);
+        FournisseurProduit targetFp = new FournisseurProduit();
+        targetFp.setId(90);
+        targetFp.setFournisseur(fournisseur);
+        FournisseurProduit autrePrincipal = new FournisseurProduit();
+        autrePrincipal.setId(81);
+        source.setFournisseurProduitPrincipal(autrePrincipal);
+
+        when(fournisseurProduitRepository.findAllByProduitId(2)).thenReturn(List.of(sourceFp));
+        when(fournisseurProduitRepository.findAllByProduitId(1)).thenReturn(List.of(targetFp));
+
+        service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        assertEquals(autrePrincipal, source.getFournisseurProduitPrincipal());
+        verify(fournisseurProduitRepository).delete(sourceFp);
+    }
+
+    @Test
+    void should_reassignSalesLine_whenNoSaleCollision() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+
+        Sales sales = mock(Sales.class);
+        when(sales.getId()).thenReturn(new SaleId(500L, LocalDate.of(2026, 4, 18)));
+        SalesLine line = new SalesLine();
+        line.setSales(sales);
+        line.setSaleDate(LocalDate.of(2026, 4, 18));
+        when(salesLineRepository.findAllByProduitId(2)).thenReturn(List.of(line));
+        when(salesLineRepository.findBySalesIdAndProduitIdAndSalesSaleDate(500L, 1, LocalDate.of(2026, 4, 18)))
+            .thenReturn(Optional.empty());
+
+        service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        assertEquals(target, line.getProduit());
+        verify(salesLineRepository).save(line);
+        verify(asCrud(salesLineRepository), never()).delete(any(SalesLine.class));
+    }
+
+    // ── 15. RayonProduit ─────────────────────────────────────────────────────
+
+    @Test
+    void should_reassignRayonProduit_whenNoRayonCollision() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+
+        com.kobe.warehouse.domain.Rayon rayon = new com.kobe.warehouse.domain.Rayon();
+        rayon.setId(4);
+        com.kobe.warehouse.domain.RayonProduit rp = new com.kobe.warehouse.domain.RayonProduit();
+        rp.setId(60).setRayon(rayon);
+        when(rayonProduitRepository.findAllByProduitId(2)).thenReturn(java.util.Set.of(rp));
+        when(rayonProduitRepository.findAllByProduitId(1)).thenReturn(java.util.Set.of());
+
+        ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        assertEquals(target, rp.getProduit());
+        verify(rayonProduitRepository).save(rp);
+        assertEquals(1, result.entityCounts().get("rayonProduit"));
+    }
+
+    @Test
+    void should_deleteRayonProduit_whenSameRayonCollision() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+
+        com.kobe.warehouse.domain.Rayon rayon = new com.kobe.warehouse.domain.Rayon();
+        rayon.setId(4);
+        com.kobe.warehouse.domain.RayonProduit sourceRp = new com.kobe.warehouse.domain.RayonProduit();
+        sourceRp.setId(60).setRayon(rayon);
+        com.kobe.warehouse.domain.RayonProduit targetRp = new com.kobe.warehouse.domain.RayonProduit();
+        targetRp.setId(61).setRayon(rayon);
+        when(rayonProduitRepository.findAllByProduitId(2)).thenReturn(java.util.Set.of(sourceRp));
+        when(rayonProduitRepository.findAllByProduitId(1)).thenReturn(java.util.Set.of(targetRp));
+
+        service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        verify(rayonProduitRepository).delete(sourceRp);
+        verify(rayonProduitRepository, never()).save(sourceRp);
+    }
+
+    // ── 16. Substituts ───────────────────────────────────────────────────────
+
+    private com.kobe.warehouse.domain.Substitut substitut(int id, Produit produit, Produit remplacant) {
+        com.kobe.warehouse.domain.Substitut s = new com.kobe.warehouse.domain.Substitut();
+        s.setId(id);
+        s.setProduit(produit);
+        s.setSubstitut(remplacant);
+        return s;
+    }
+
+    @Test
+    void should_reassignSubstitut_whenNoCollision() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        Produit autre = produit(3, "Autre");
+        stubTargetAndSource(target, source);
+
+        com.kobe.warehouse.domain.Substitut s = substitut(70, source, autre);
+        when(substitutRepository.findAllByProduitId(2)).thenReturn(List.of(s));
+        when(substitutRepository.findAllBySubstitutId(2)).thenReturn(List.of());
+        when(substitutRepository.existsByProduitAndSubstitut(target, autre)).thenReturn(false);
+
+        ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        assertEquals(target, s.getProduit());
+        verify(substitutRepository).save(s);
+        assertEquals(1, result.entityCounts().get("substitut"));
+    }
+
+    @Test
+    void should_deleteSubstitut_whenItWouldPointToTheTargetItself() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+
+        com.kobe.warehouse.domain.Substitut s = substitut(70, source, target);
+        when(substitutRepository.findAllByProduitId(2)).thenReturn(List.of(s));
+        when(substitutRepository.findAllBySubstitutId(2)).thenReturn(List.of());
+
+        service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        verify(substitutRepository).delete(s);
+        verify(substitutRepository, never()).save(s);
+    }
+
+    @Test
+    void should_deleteSubstitut_whenTargetAlreadyHasTheSamePair() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        Produit autre = produit(3, "Autre");
+        stubTargetAndSource(target, source);
+
+        com.kobe.warehouse.domain.Substitut s = substitut(70, source, autre);
+        when(substitutRepository.findAllByProduitId(2)).thenReturn(List.of(s));
+        when(substitutRepository.findAllBySubstitutId(2)).thenReturn(List.of());
+        when(substitutRepository.existsByProduitAndSubstitut(target, autre)).thenReturn(true);
+
+        service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        verify(substitutRepository).delete(s);
+    }
+
+    @Test
+    void should_reassignReverseSubstitut_whenNoCollision() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        Produit autre = produit(3, "Autre");
+        stubTargetAndSource(target, source);
+
+        com.kobe.warehouse.domain.Substitut s = substitut(71, autre, source);
+        when(substitutRepository.findAllByProduitId(2)).thenReturn(List.of());
+        when(substitutRepository.findAllBySubstitutId(2)).thenReturn(List.of(s));
+        when(substitutRepository.existsByProduitAndSubstitut(autre, target)).thenReturn(false);
+
+        ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        assertEquals(target, s.getSubstitut());
+        verify(substitutRepository).save(s);
+        assertEquals(1, result.entityCounts().get("substitut"));
+    }
+
+    @Test
+    void should_deleteReverseSubstitut_whenItWouldPointToTheTargetItself() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+
+        com.kobe.warehouse.domain.Substitut s = substitut(71, target, source);
+        when(substitutRepository.findAllByProduitId(2)).thenReturn(List.of());
+        when(substitutRepository.findAllBySubstitutId(2)).thenReturn(List.of(s));
+
+        service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        verify(substitutRepository).delete(s);
+    }
+
+    @Test
+    void should_deleteReverseSubstitut_whenTargetAlreadyHasTheSamePair() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        Produit autre = produit(3, "Autre");
+        stubTargetAndSource(target, source);
+
+        com.kobe.warehouse.domain.Substitut s = substitut(71, autre, source);
+        when(substitutRepository.findAllByProduitId(2)).thenReturn(List.of());
+        when(substitutRepository.findAllBySubstitutId(2)).thenReturn(List.of(s));
+        when(substitutRepository.existsByProduitAndSubstitut(autre, target)).thenReturn(true);
+
+        service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        verify(substitutRepository).delete(s);
+    }
+
+    // ── 17. Configuration SEMOIS ─────────────────────────────────────────────
+
+    @Test
+    void should_countNoSemoisConfiguration_whenSourceHasNone() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+        when(semoisConfigurationRepository.findByProduitId(2)).thenReturn(Optional.empty());
+
+        ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        assertEquals(0, result.entityCounts().get("semoisConfiguration"));
+        verify(semoisConfigurationRepository, never()).save(any());
+        verify(semoisConfigurationRepository, never()).delete(any());
+    }
+
+    @Test
+    void should_reassignSemoisConfiguration_whenTargetHasNone() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+        com.kobe.warehouse.domain.SemoisConfiguration cfg = new com.kobe.warehouse.domain.SemoisConfiguration();
+        cfg.setId(30);
+        when(semoisConfigurationRepository.findByProduitId(2)).thenReturn(Optional.of(cfg));
+        when(semoisConfigurationRepository.findByProduitId(1)).thenReturn(Optional.empty());
+
+        ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        assertEquals(target, cfg.getProduit());
+        verify(semoisConfigurationRepository).save(cfg);
+        assertEquals(1, result.entityCounts().get("semoisConfiguration"));
+    }
+
+    @Test
+    void should_keepTargetSemoisConfiguration_whenBothHaveOne() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+        com.kobe.warehouse.domain.SemoisConfiguration sourceCfg = new com.kobe.warehouse.domain.SemoisConfiguration();
+        sourceCfg.setId(30);
+        com.kobe.warehouse.domain.SemoisConfiguration targetCfg = new com.kobe.warehouse.domain.SemoisConfiguration();
+        targetCfg.setId(31);
+        when(semoisConfigurationRepository.findByProduitId(2)).thenReturn(Optional.of(sourceCfg));
+        when(semoisConfigurationRepository.findByProduitId(1)).thenReturn(Optional.of(targetCfg));
+
+        ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        verify(semoisConfigurationRepository).delete(sourceCfg);
+        verify(semoisConfigurationRepository, never()).save(any());
+        assertEquals(1, result.entityCounts().get("semoisConfiguration"));
+    }
+
+    // ── 18. Ventes mensuelles agrégées ───────────────────────────────────────
+
+    private com.kobe.warehouse.domain.VentesMensuellesAgregees vma(String mois, int qte, int ca, int nb) {
+        com.kobe.warehouse.domain.VentesMensuellesAgregees v = new com.kobe.warehouse.domain.VentesMensuellesAgregees();
+        v.setAnneeMois(mois);
+        v.setQuantiteVendue(qte);
+        v.setMontantCa(ca);
+        v.setNombreVentes(nb);
+        return v;
+    }
+
+    @Test
+    void should_reassignMonthlyAggregate_whenTargetHasNoRowForThatMonth() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+        com.kobe.warehouse.domain.VentesMensuellesAgregees row = vma("2026-03", 10, 1000, 5);
+        when(ventesMensuellesAgregeesRepository.findAllByProduitIdIn(List.of(2))).thenReturn(List.of(row));
+        when(ventesMensuellesAgregeesRepository.findByProduitIdAndAnneeMois(1, "2026-03")).thenReturn(Optional.empty());
+
+        ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        assertEquals(target, row.getProduit());
+        verify(ventesMensuellesAgregeesRepository).save(row);
+        assertEquals(1, result.entityCounts().get("ventesMensuellesAgregees"));
+    }
+
+    @Test
+    void should_sumMonthlyAggregates_whenTargetAlreadyHasThatMonth() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+        com.kobe.warehouse.domain.VentesMensuellesAgregees sourceRow = vma("2026-03", 10, 1000, 5);
+        sourceRow.setIsFrozen(Boolean.TRUE);
+        sourceRow.setEstRuptureFournisseur(Boolean.FALSE);
+        com.kobe.warehouse.domain.VentesMensuellesAgregees targetRow = vma("2026-03", 4, 400, 2);
+        targetRow.setIsFrozen(Boolean.FALSE);
+        targetRow.setEstRuptureFournisseur(Boolean.TRUE);
+        when(ventesMensuellesAgregeesRepository.findAllByProduitIdIn(List.of(2))).thenReturn(List.of(sourceRow));
+        when(ventesMensuellesAgregeesRepository.findByProduitIdAndAnneeMois(1, "2026-03")).thenReturn(Optional.of(targetRow));
+
+        service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        assertEquals(14, targetRow.getQuantiteVendue());
+        assertEquals(1400, targetRow.getMontantCa());
+        assertEquals(7, targetRow.getNombreVentes());
+        // les deux drapeaux sont des OU logiques : un mois figé ou en rupture d'un côté le reste
+        assertTrue(targetRow.getIsFrozen());
+        assertTrue(targetRow.getEstRuptureFournisseur());
+        verify(ventesMensuellesAgregeesRepository).save(targetRow);
+        verify(ventesMensuellesAgregeesRepository).delete(sourceRow);
+    }
+
+    @Test
+    void should_keepFlagsFalse_whenNeitherMonthlyAggregateIsFlagged() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+        com.kobe.warehouse.domain.VentesMensuellesAgregees sourceRow = vma("2026-03", 1, 100, 1);
+        sourceRow.setIsFrozen(Boolean.FALSE);
+        sourceRow.setEstRuptureFournisseur(Boolean.FALSE);
+        com.kobe.warehouse.domain.VentesMensuellesAgregees targetRow = vma("2026-03", 1, 100, 1);
+        targetRow.setIsFrozen(Boolean.FALSE);
+        targetRow.setEstRuptureFournisseur(Boolean.FALSE);
+        when(ventesMensuellesAgregeesRepository.findAllByProduitIdIn(List.of(2))).thenReturn(List.of(sourceRow));
+        when(ventesMensuellesAgregeesRepository.findByProduitIdAndAnneeMois(1, "2026-03")).thenReturn(Optional.of(targetRow));
+
+        service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        assertEquals(Boolean.FALSE, targetRow.getIsFrozen());
+        assertEquals(Boolean.FALSE, targetRow.getEstRuptureFournisseur());
+    }
+
+    // ── 19. Lignes d'inventaire ──────────────────────────────────────────────
+
+    private com.kobe.warehouse.domain.StoreInventoryLine inventoryLine(long inventoryId, Storage storage) {
+        com.kobe.warehouse.domain.StoreInventory inventory = new com.kobe.warehouse.domain.StoreInventory();
+        inventory.setId(Long.valueOf(inventoryId));
+        com.kobe.warehouse.domain.StoreInventoryLine line = new com.kobe.warehouse.domain.StoreInventoryLine();
+        line.setId(inventoryId * 10);
+        line.setStoreInventory(inventory);
+        line.setStorage(storage);
+        return line;
+    }
+
+    @Test
+    void should_reassignInventoryLine_whenNoCollision() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+
+        Storage storage = new Storage();
+        storage.setId(10);
+        com.kobe.warehouse.domain.StoreInventoryLine line = inventoryLine(5L, storage);
+        when(storeInventoryLineRepository.findAllByProduitId(2)).thenReturn(List.of(line));
+        when(storeInventoryLineRepository.existsByProduitIdAndStoreInventoryIdAndStorageId(1, 5L, 10)).thenReturn(false);
+
+        ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        assertEquals(target, line.getProduit());
+        verify(storeInventoryLineRepository).save(line);
+        assertEquals(1, result.entityCounts().get("storeInventoryLine"));
+    }
+
+    @Test
+    void should_leaveInventoryLineUntouched_whenSameInventoryAndStorageCollision() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+
+        Storage storage = new Storage();
+        storage.setId(10);
+        com.kobe.warehouse.domain.StoreInventoryLine line = inventoryLine(5L, storage);
+        when(storeInventoryLineRepository.findAllByProduitId(2)).thenReturn(List.of(line));
+        when(storeInventoryLineRepository.existsByProduitIdAndStoreInventoryIdAndStorageId(1, 5L, 10)).thenReturn(true);
+
+        ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        verify(storeInventoryLineRepository, never()).save(any());
+        assertEquals(0, result.entityCounts().get("storeInventoryLine"));
+    }
+
+    @Test
+    void should_tolerateInventoryLineWithoutStorage() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+
+        com.kobe.warehouse.domain.StoreInventoryLine line = inventoryLine(5L, null);
+        when(storeInventoryLineRepository.findAllByProduitId(2)).thenReturn(List.of(line));
+        when(storeInventoryLineRepository.existsByProduitIdAndStoreInventoryIdAndStorageId(1, 5L, null)).thenReturn(false);
+
+        service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        assertEquals(target, line.getProduit());
+    }
 }

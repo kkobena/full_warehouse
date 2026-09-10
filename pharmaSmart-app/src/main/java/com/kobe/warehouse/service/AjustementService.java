@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service;
 
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.domain.Ajust;
 import com.kobe.warehouse.domain.Ajustement;
 import com.kobe.warehouse.domain.AppUser;
@@ -19,30 +21,26 @@ import com.kobe.warehouse.service.dto.AjustementDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
-import com.kobe.warehouse.service.settings.FileResourceService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.LotStockLocationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiPredicate;
-
-import static java.util.Objects.nonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 /**
  * Service Implementation for managing {@link Ajustement}.
  */
 @Service
 @Transactional
-public class AjustementService extends FileResourceService {
+public class AjustementService {
 
     private final Logger log = LoggerFactory.getLogger(AjustementService.class);
 
@@ -60,7 +58,8 @@ public class AjustementService extends FileResourceService {
     private final BiPredicate<Ajustement, String> searchPredicate = (ajustement, s) -> {
         Produit produit = ajustement.getStockProduit().getProduit();
         FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-        return produit.getLibelle().toUpperCase().contains(s.toUpperCase()) || fournisseurProduit.getCodeCip().contains(s);
+        return produit.getLibelle().toUpperCase().contains(s.toUpperCase())
+            || fournisseurProduit.getCodeCip().contains(s);
     };
 
     public AjustementService(
@@ -103,11 +102,15 @@ public class AjustementService extends FileResourceService {
     }
 
     private void create(AjustementDTO ajustementDTO, Ajust ajust) {
-        Integer storageId = nonNull(ajustementDTO.getStorageId()) ? ajustementDTO.getStorageId() : storageService.getDefaultConnectedUserMainStorage().getId();
+        Integer storageId = nonNull(ajustementDTO.getStorageId()) ? ajustementDTO.getStorageId()
+            : storageService.getDefaultConnectedUserMainStorage().getId();
 
         Produit produit = produitRepository.getReferenceById(ajustementDTO.getProduitId());
-        StockProduit stockProduit = produit.getStockProduits().stream().filter(stockP -> Objects.equals(stockP.getStorage().getId(), storageId)).findFirst().orElseThrow(() ->
-            new GenericError("Le produit " + produit.getLibelle() + " n'a pas de stock dans le magasin selectionné"));
+        StockProduit stockProduit = produit.getStockProduits().stream()
+            .filter(stockP -> Objects.equals(stockP.getStorage().getId(), storageId)).findFirst()
+            .orElseThrow(() ->
+                new GenericError("Le produit " + produit.getLibelle()
+                    + " n'a pas de stock dans le magasin selectionné"));
         int stock = stockProduit.getTotalStockQuantity();
         Ajustement ajustement = new Ajustement();
         ajustement.setAjust(ajust);
@@ -143,7 +146,6 @@ public class AjustementService extends FileResourceService {
         if (optionalAjustement.isEmpty()) {
             create(ajustementDTO, ajust);
         } else {
-
 
             Ajustement ajustement = optionalAjustement.get();
             StockProduit stockProduit = ajustement.getStockProduit();
@@ -195,11 +197,13 @@ public class AjustementService extends FileResourceService {
                 if (nonNull(ajustement.getLot())) {
                     // Lot explicitement sélectionné par l'utilisateur
                     lotService.creditSpecificLot(ajustement.getLot(), ajustement.getQtyMvt());
-                    lotStockLocationService.credit(ajustement.getLot(), p.getStorage(), ajustement.getQtyMvt());
+                    lotStockLocationService.credit(ajustement.getLot(), p.getStorage(),
+                        ajustement.getQtyMvt());
                 } else {
                     // Heuristique "dernier reçu" (gestion_lot=false ou pas de sélection)
                     lotService.adjustLots(produit, ajustement.getQtyMvt());
-                    lotStockLocationService.creditLastLot(produit, p.getStorage(), ajustement.getQtyMvt());
+                    lotStockLocationService.creditLastLot(produit, p.getStorage(),
+                        ajustement.getQtyMvt());
                 }
             }
             FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
@@ -242,7 +246,8 @@ public class AjustementService extends FileResourceService {
     @Transactional(readOnly = true)
     public List<AjustementDTO> findAll(Integer id, String search) {
         log.debug("Request to get all Ajustements");
-        Comparator<Ajustement> ajustementComparator = (Comparator.comparing(Ajustement::getDateMtv, Comparator.reverseOrder()));
+        Comparator<Ajustement> ajustementComparator = (Comparator.comparing(Ajustement::getDateMtv,
+            Comparator.reverseOrder()));
 
         if (StringUtils.hasLength(search)) {
             return ajustementRepository

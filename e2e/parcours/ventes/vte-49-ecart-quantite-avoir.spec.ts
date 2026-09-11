@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProduit, ouvrirCelluleEditable } from '../../src/actions';
+import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProduit, ouvrirCelluleEditable, payerEnEspeces } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -38,7 +38,10 @@ scenario('VTE-49', async ({ etape, page }) => {
   });
 
   await etape(2, async () => {
-    await page.locator('#CASH').fill('130000');
+    // `payerEnEspeces` plutôt qu'un `fill` direct : le champ se reformate à chaque frappe, et
+    // un `fill` sur un champ déjà renseigné y CONCATÈNE la nouvelle valeur au lieu de la
+    // remplacer. Le helper vide, retape et vérifie que la somme est bien posée.
+    await payerEnEspeces(page, '130000');
     await page.getByRole('button', { name: 'Finaliser' }).click();
     // L'application ne bascule pas en avoir en silence : elle nomme la cause et demande
     // confirmation. C'est le seul avertissement de tout le parcours.

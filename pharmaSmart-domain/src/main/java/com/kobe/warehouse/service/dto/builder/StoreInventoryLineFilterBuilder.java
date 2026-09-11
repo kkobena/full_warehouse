@@ -271,8 +271,11 @@ public class StoreInventoryLineFilterBuilder {
             t.get("produit_libelle", String.class),
             t.get("rayon_libelle", String.class),
             t.get("storage_name", String.class),
-            t.get("prix_uni", Integer.class),
+            // L'ordre suit celui du constructeur : prix d'achat d'abord, prix de vente ensuite.
+            // Inversés, la colonne « Prix.A » du PDF affichait le prix de vente et les totaux
+            // « achat » de l'export étaient calculés au prix de vente — et réciproquement.
             t.get("prix_achat", Integer.class),
+            t.get("prix_uni", Integer.class),
             t.get("last_unit_price", Integer.class),
             t.get("rayon_id", Integer.class),
             t.get("storage_id", Integer.class),

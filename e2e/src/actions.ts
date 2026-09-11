@@ -64,8 +64,9 @@ export async function chercherDansSelect(page: Page, inputId: string, terme: str
   // d'entrée en une fois, sans dépendre du focus. Le clic qui ouvre la liste ne le donne pas
   // toujours au champ de recherche, et exiger le focus faisait échouer un parcours sur dix.
   await champ.fill(terme);
-  const option = page.locator('.ng-option', { hasText: libelle }).first();
-  const vue = await option
+  const correspondantes = page.locator('.ng-option', { hasText: libelle });
+  const vue = await correspondantes
+    .first()
     .waitFor({ state: 'visible', timeout: 4000 })
     .then(() => true)
     .catch(() => false);
@@ -74,10 +75,26 @@ export async function chercherDansSelect(page: Page, inputId: string, terme: str
     // au `keyup`). On retape alors touche par touche.
     await champ.fill('');
     await champ.pressSequentially(terme, { delay: 60 });
+    await expect(correspondantes.first()).toBeVisible();
   }
+
+  // Le libellé demandé est souvent contenu dans d'autres : « PARACETAMOL » se retrouve dans
+  // « aceclofenac+paracetamol », qui peut arriver en tête de liste. Prendre la première
+  // correspondance rattachait alors la mauvaise substance, et l'assertion finale
+  // `toContainText` le laissait passer — elle est vraie des deux. On retient donc l'option
+  // dont le libellé est EXACTEMENT celui demandé, et on ne retombe sur la correspondance
+  // partielle que s'il n'en existe aucune (cas des libellés volontairement abrégés).
+  const exacte = page.locator('.ng-option').filter({ hasText: new RegExp(`^\\s*${echapperRegex(libelle)}\\s*$`, 'i') });
+  const option = (await exacte.count()) > 0 ? exacte.first() : correspondantes.first();
+
   await expect(option).toBeVisible();
   await option.click();
   await expect(select).toContainText(libelle);
+}
+
+/** Neutralise les caractères qu'une expression régulière interpréterait (`+`, `(`, `.`…). */
+function echapperRegex(valeur: string): string {
+  return valeur.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 export async function choisirDansSelect(page: Page, inputId: string, libelle: string): Promise<void> {
@@ -613,15 +630,62 @@ export async function choisirTaillePage(page: Page, taille: string): Promise<voi
  */
 export async function payerEnEspeces(page: Page, montant: string): Promise<void> {
   const champ = page.locator('#CASH');
+  // `\\s?` et non `\s?` : dans un littéral de chaîne, `\s` se réduit à `s`, et le motif
+  // attendait « 5s?000 » — il acceptait « 5000 » et « 5s000 », mais refusait « 5 000 », la
+  // seule forme que le champ affiche une fois reformaté.
+  const attendu = new RegExp(montant.replace(/(.)(?=(\d{3})+$)/g, '$1\\s?'));
   await expect(champ).toBeVisible();
-  await champ.click();
-  // Vider par `fill('')` plutôt que par `Ctrl+A` puis `Suppr` : le champ se reformate à
-  // chaque frappe, ce qui défait la sélection — la nouvelle valeur venait alors s'ajouter à
-  // l'ancienne, et l'écran affichait des centaines de millions.
-  await champ.fill('');
-  await expect(champ).toHaveValue('');
-  await champ.pressSequentially(montant, { delay: 40 });
-  await expect(champ).toHaveValue(new RegExp(montant.replace(/(.)(?=(\d{3})+$)/g, '$1\s?')));
+
+  // Le champ se reformate à CHAQUE frappe et, sous la charge d'une campagne entière, il en
+  // PERD : « 5000 » est arrivé « 5 » une fois, « 50 » une autre. Le montant tronqué reste un
+  // montant valide — rien n'échoue franchement, la vente part simplement en différé faute de
+  // couverture, et le parcours attend un écran qui ne viendra pas. On retape donc jusqu'à ce
+  // que le champ porte bien la somme voulue, en ralentissant à chaque essai.
+  for (let essai = 0; essai < 3; essai++) {
+    await champ.click();
+    // Vider par `fill('')` plutôt que par `Ctrl+A` puis `Suppr` : le champ se reformate à
+    // chaque frappe, ce qui défait la sélection — la nouvelle valeur venait alors s'ajouter à
+    // l'ancienne, et l'écran affichait des centaines de millions.
+    await champ.fill('');
+    await expect(champ).toHaveValue('');
+    await champ.pressSequentially(montant, { delay: 40 + essai * 40 });
+    const pose = await champ
+      .inputValue()
+      .then(valeur => attendu.test(valeur))
+      .catch(() => false);
+    if (pose) {
+      return;
+    }
+  }
+  await expect(champ).toHaveValue(attendu);
+}
+
+/**
+ * Ouvre une cellule éditable d'un tableau et rend son champ de saisie.
+ *
+ * `app-editable-cell` bascule en saisie sur `(click)` et se referme sur `(focusout)`, `Entrée`
+ * ou `Échap`. Un clic dont le focus est repris aussitôt par un autre élément laisse donc la
+ * cellule sur sa valeur affichée, sans rien signaler : la saisie qui suit attend un champ qui
+ * n'existe pas, jusqu'à l'expiration du test — 90 s perdues sur ce qui ressemble à un écran
+ * bloqué. C'est ce qui faisait tomber VTE-49 au milieu d'une campagne alors qu'il passe seul.
+ *
+ * On réessaie donc le clic tant que l'éditeur ne s'ouvre pas, au lieu de tenir la première
+ * tentative pour acquise.
+ */
+export async function ouvrirCelluleEditable(ligne: Locator, rang: number): Promise<Locator> {
+  const champ = ligne.locator('input[type="number"]').first();
+  for (let essai = 0; essai < 3; essai++) {
+    await ligne.locator('app-editable-cell').nth(rang).click();
+    const ouvert = await champ
+      .waitFor({ state: 'visible', timeout: 2000 })
+      .then(() => true)
+      .catch(() => false);
+    if (ouvert) {
+      return champ;
+    }
+  }
+  await expect(champ).toBeVisible();
+  return champ;
 }
 
 /**

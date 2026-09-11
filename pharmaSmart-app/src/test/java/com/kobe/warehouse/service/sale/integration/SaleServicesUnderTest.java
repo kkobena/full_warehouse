@@ -80,6 +80,7 @@ import com.kobe.warehouse.service.stock.DataMatrixParserService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.LotStockLocationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
+import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import jakarta.persistence.EntityManager;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
@@ -165,29 +166,29 @@ final class SaleServicesUnderTest {
     final AssuredCustomerManager assuredCustomerManager;
 
     SaleServicesUnderTest(EntityManager entityManager) {
-        this.salesRepository = SalePostgresDatabase.bean(SalesRepository.class);
-        this.salesLineRepository = SalePostgresDatabase.bean(SalesLineRepository.class);
-        this.cashSaleRepository = SalePostgresDatabase.bean(CashSaleRepository.class);
-        this.venteDepotRepository = SalePostgresDatabase.bean(VenteDepotRepository.class);
-        this.thirdPartySaleRepository = SalePostgresDatabase.bean(ThirdPartySaleRepository.class);
-        this.thirdPartySaleLineRepository = SalePostgresDatabase.bean(ThirdPartySaleLineRepository.class);
-        this.stockProduitRepository = SalePostgresDatabase.bean(StockProduitRepository.class);
-        this.produitRepository = SalePostgresDatabase.bean(ProduitRepository.class);
-        this.userRepository = SalePostgresDatabase.bean(UserRepository.class);
-        this.clientTiersPayantRepository = SalePostgresDatabase.bean(ClientTiersPayantRepository.class);
-        this.tiersPayantRepository = SalePostgresDatabase.bean(TiersPayantRepository.class);
-        this.assuredCustomerRepository = SalePostgresDatabase.bean(AssuredCustomerRepository.class);
-        this.salePaymentRepository = SalePostgresDatabase.bean(SalePaymentRepository.class);
-        this.avoirClientRepository = SalePostgresDatabase.bean(AvoirClientRepository.class);
-        this.avoirClientUtilisationRepository = SalePostgresDatabase.bean(AvoirClientUtilisationRepository.class);
-        this.retourClientRepository = SalePostgresDatabase.bean(RetourClientRepository.class);
+        this.salesRepository = IntegrationPostgresDatabase.bean(SalesRepository.class);
+        this.salesLineRepository = IntegrationPostgresDatabase.bean(SalesLineRepository.class);
+        this.cashSaleRepository = IntegrationPostgresDatabase.bean(CashSaleRepository.class);
+        this.venteDepotRepository = IntegrationPostgresDatabase.bean(VenteDepotRepository.class);
+        this.thirdPartySaleRepository = IntegrationPostgresDatabase.bean(ThirdPartySaleRepository.class);
+        this.thirdPartySaleLineRepository = IntegrationPostgresDatabase.bean(ThirdPartySaleLineRepository.class);
+        this.stockProduitRepository = IntegrationPostgresDatabase.bean(StockProduitRepository.class);
+        this.produitRepository = IntegrationPostgresDatabase.bean(ProduitRepository.class);
+        this.userRepository = IntegrationPostgresDatabase.bean(UserRepository.class);
+        this.clientTiersPayantRepository = IntegrationPostgresDatabase.bean(ClientTiersPayantRepository.class);
+        this.tiersPayantRepository = IntegrationPostgresDatabase.bean(TiersPayantRepository.class);
+        this.assuredCustomerRepository = IntegrationPostgresDatabase.bean(AssuredCustomerRepository.class);
+        this.salePaymentRepository = IntegrationPostgresDatabase.bean(SalePaymentRepository.class);
+        this.avoirClientRepository = IntegrationPostgresDatabase.bean(AvoirClientRepository.class);
+        this.avoirClientUtilisationRepository = IntegrationPostgresDatabase.bean(AvoirClientUtilisationRepository.class);
+        this.retourClientRepository = IntegrationPostgresDatabase.bean(RetourClientRepository.class);
 
-        PaymentModeRepository paymentModeRepository = SalePostgresDatabase.bean(PaymentModeRepository.class);
-        PosteRepository posteRepository = SalePostgresDatabase.bean(PosteRepository.class);
-        RemiseRepository remiseRepository = SalePostgresDatabase.bean(RemiseRepository.class);
-        UninsuredCustomerRepository uninsuredCustomerRepository = SalePostgresDatabase.bean(UninsuredCustomerRepository.class);
+        PaymentModeRepository paymentModeRepository = IntegrationPostgresDatabase.bean(PaymentModeRepository.class);
+        PosteRepository posteRepository = IntegrationPostgresDatabase.bean(PosteRepository.class);
+        RemiseRepository remiseRepository = IntegrationPostgresDatabase.bean(RemiseRepository.class);
+        UninsuredCustomerRepository uninsuredCustomerRepository = IntegrationPostgresDatabase.bean(UninsuredCustomerRepository.class);
 
-        this.referenceService = new ReferenceService(SalePostgresDatabase.bean(com.kobe.warehouse.repository.ReferenceRepository.class));
+        this.referenceService = new ReferenceService(IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.ReferenceRepository.class));
         this.saleIdGeneratorService = new SaleIdGeneratorService(entityManager);
         this.saleLineIdGeneratorService = new SaleLineIdGeneratorService(entityManager);
         AssuranceItemIdGeneratorService assuranceItemIdGeneratorService = new AssuranceItemIdGeneratorService(entityManager);

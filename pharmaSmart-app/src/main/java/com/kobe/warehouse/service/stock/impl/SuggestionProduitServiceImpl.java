@@ -206,18 +206,20 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                     throw new GenericError(
                         "Vous ne pouvez pas fusionner des suggestions de fournisseurs differents");
                 }
-                suggestionToMerge
-                    .getSuggestionLines()
-                    .forEach(suggestionLine -> {
-                        if (suggestionLines.contains(suggestionLine)) {
-                            suggestionLineRepository.delete(suggestionLine);
-                        } else {
-                            suggestionLine.setSuggestion(suggestion);
-                            suggestionLine.setUpdatedAt(LocalDateTime.now());
-                            suggestionLineRepository.save(suggestionLine);
-                        }
-                    });
-
+                Set<SuggestionLine> lignesAFusionner = new HashSet<>(suggestionToMerge.getSuggestionLines());
+                lignesAFusionner.forEach(suggestionLine -> {
+                    if (suggestionLines.contains(suggestionLine)) {
+                        suggestionLineRepository.delete(suggestionLine);
+                    } else {
+                        suggestionLine.setSuggestion(suggestion);
+                        suggestionLine.setUpdatedAt(LocalDateTime.now());
+                        suggestionLineRepository.save(suggestionLine);
+                        suggestionLines.add(suggestionLine);
+                    }
+                });
+                // La collection de la suggestion absorbee doit etre videe avant sa suppression :
+                // elle cascade REMOVE, et supprimerait les lignes qu on vient de rattacher ailleurs.
+                suggestionToMerge.getSuggestionLines().clear();
                 suggestionRepository.delete(suggestionToMerge);
             }
             suggestionRepository.save(suggestion);
@@ -261,6 +263,9 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                             linesToDelete.add(suggestionLine);
                         }
                     });
+                // Retirer les lignes de la collection avant de sauvegarder la suggestion : celle-ci
+                // cascade PERSIST, et reinsererait les lignes qu on vient de supprimer.
+                suggestion.getSuggestionLines().removeAll(linesToDelete);
                 suggestionLineRepository.deleteAll(linesToDelete);
                 suggestion.setUpdatedAt(LocalDateTime.now());
                 suggestionRepository.save(suggestion);

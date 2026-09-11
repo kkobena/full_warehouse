@@ -30,6 +30,7 @@ import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.repository.SubstitutRepository;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.dto.DataMatrixInfo;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
@@ -493,8 +494,7 @@ public class ProduitServiceImpl implements ProduitService {
             magasinId = storageService.getConnectedUserMagasin().getId();
         }
         String productCode = dataMatrixParserService.parse(search)
-            .map(com.kobe.warehouse.service.dto.DataMatrixInfo::getProductCode)
-            .filter(Objects::nonNull)
+            .map(DataMatrixInfo::getProductCode)
             .orElse(search);
         String jsonResult = produitRepository.searchProduitsJson(productCode, magasinId,
             pageable.getPageSize());

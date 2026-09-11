@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProduit } from '../../src/actions';
+import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProduit, ouvrirCelluleEditable } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -28,8 +28,7 @@ scenario('VTE-49', async ({ etape, page }) => {
   await etape(1, async () => {
     // QTÉ.S est la SECONDE cellule éditable de la ligne — la première étant QTÉ.D. Les deux
     // se ressemblent, et c'est précisément ce que l'image doit lever.
-    await ligne.locator('app-editable-cell').nth(1).click();
-    const champ = ligne.locator('input[type="number"]').first();
+    const champ = await ouvrirCelluleEditable(ligne, 1);
     await champ.fill('3');
     await champ.press('Enter');
     // Cinq demandées, trois servies : l'écart est posé, et le total reste celui des cinq —

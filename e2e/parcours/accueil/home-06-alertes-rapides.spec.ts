@@ -18,15 +18,38 @@ scenario('HOME-06', async ({ etape, page }) => {
   });
 
   await etape(2, async () => {
-    await expect(pastille('Péremptions')).toContainText(/\d/);
-    await expect(pastille('Ruptures')).toContainText(/\d/);
-    await expect(pastille('Ajustements')).toContainText(/\d/);
+    const badges = page.locator('.quick-alert-badge');
+
     // Le résultat attendu du modèle, mot pour mot : aucune pastille à zéro n'encombre
-    // l'accueil. C'est vérifiable, et c'est la seule chose que la légende promet ici.
-    await expect(page.locator('.quick-alert-badge').filter({ hasText: /^0$/ })).toHaveCount(0);
+    // l'accueil.
+    await expect(badges.filter({ hasText: /^0$/ })).toHaveCount(0);
+
+    // Et son corollaire : tout compteur affiché est strictement positif. C'est la règle
+    // entière. Exiger en plus qu'une pastille NOMMÉE soit présente reviendrait à exiger que
+    // la base porte ce type d'alerte — or le modèle dit l'inverse : « chaque pastille
+    // n'apparaît que si son compteur est supérieur à zéro ». Le parcours tombait sur
+    // « Ajustements » les jours où il n'y en avait aucun, c'est-à-dire sur une bonne
+    // nouvelle.
+    for (const compteur of await badges.allInnerTexts()) {
+      expect(compteur.trim()).toMatch(/^[1-9]\d*$/);
+    }
+
+    // Ce qui se vérifie sans rien supposer des données : les pastilles présentes sont
+    // prises parmi les cinq que le modèle énumère, et aucune autre.
+    const attendus = ['Péremptions', 'Ruptures', 'À commander', 'Ajustements', 'Modif. Prix'];
+    for (const libelle of await page.locator('.quick-alert-label').allInnerTexts()) {
+      expect(attendus).toContain(libelle.trim());
+    }
   });
 
   await etape(3, async () => {
+    // Le modèle laisse le choix entre trois raccourcis ; celui des péremptions est le
+    // premier qu'il cite, et c'est lui que montre la capture. Il suppose, lui, qu'il y a
+    // des péremptions — assumé et vérifié ici plutôt que subi trois lignes plus bas.
+    await expect(
+      pastille('Péremptions'),
+      'aucune péremption dans le jeu de démonstration : le raccourci ne peut pas être illustré',
+    ).toBeVisible();
     await pastille('Péremptions').click();
     // Le raccourci n'ouvre pas une liste filtrée « maison » : il envoie sur l'écran de
     // traitement des péremptions, celui-là même que couvre STK-18.

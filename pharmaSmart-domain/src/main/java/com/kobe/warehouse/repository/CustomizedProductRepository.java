@@ -2,6 +2,8 @@ package com.kobe.warehouse.repository;
 
 import static java.util.Objects.nonNull;
 
+import com.kobe.warehouse.domain.Dci;
+import com.kobe.warehouse.domain.Dci_;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FamilleProduit_;
 import com.kobe.warehouse.domain.FormProduit;
@@ -326,12 +328,14 @@ public class CustomizedProductRepository implements CustomizedProductService {
             String search = produitCriteria.getSearch().toUpperCase() + "%";
             SetJoin<Produit, FournisseurProduit> fp = root.joinSet(Produit_.FOURNISSEUR_PRODUITS,
                 JoinType.LEFT);
+            Join<Produit, Dci> dci = root.join(Produit_.dci, JoinType.LEFT);
             predicates.add(
                 cb.or(
                     cb.like(cb.upper(fp.get(FournisseurProduit_.codeEan)), search),
                     cb.like(cb.upper(fp.get(FournisseurProduit_.codeCip)), search),
                     cb.like(cb.upper(root.get(Produit_.libelle)), search),
-                    cb.like(cb.upper(root.get(Produit_.codeEanLaboratoire)), search)
+                    cb.like(cb.upper(root.get(Produit_.codeEanLaboratoire)), search),
+                    cb.like(cb.upper(dci.get(Dci_.libelle)), search)
                 )
             );
         }
@@ -437,10 +441,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
         if (Objects.nonNull(produitCriteria.getRemisable())) {
             predicates.add(cb.notEqual(root.get(Produit_.codeRemise), CodeRemise.NONE));
         }
-        // Les produits d'UN code de remise donné : c'est ce qui permet de voir ce qu'une
-        // grille couvre réellement, plutôt que de le déduire produit par produit.
-        // La substance active : c'est par elle qu'on retrouve toute une famille de
-        // génériques, et qu'on repère ce qui n'en porte aucune.
+
         if (Objects.nonNull(produitCriteria.getDciId())) {
             predicates.add(cb.equal(root.get(Produit_.dci).get("id"), produitCriteria.getDciId()));
         }

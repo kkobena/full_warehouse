@@ -35,6 +35,7 @@ import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.domain.enumeration.TypeAssure;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
+import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import java.time.LocalDate;
@@ -78,12 +79,12 @@ abstract class AbstractSaleIntegrationTest {
 
     @BeforeAll
     static void demarrerLaBase() {
-        em = SharedEntityManagerCreator.createSharedEntityManager(SalePostgresDatabase.bean(EntityManagerFactory.class));
+        em = SharedEntityManagerCreator.createSharedEntityManager(IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
     }
 
     @BeforeEach
     void ouvrirLaTransaction() {
-        transaction = SalePostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
+        transaction = IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
         services = new SaleServicesUnderTest(em);
 
         caissier = em.find(AppUser.class, 1);
@@ -107,7 +108,7 @@ abstract class AbstractSaleIntegrationTest {
     @AfterEach
     void annulerLaTransaction() {
         if (transaction != null && !transaction.isCompleted()) {
-            SalePostgresDatabase.transactionManager().rollback(transaction);
+            IntegrationPostgresDatabase.transactionManager().rollback(transaction);
         }
     }
 

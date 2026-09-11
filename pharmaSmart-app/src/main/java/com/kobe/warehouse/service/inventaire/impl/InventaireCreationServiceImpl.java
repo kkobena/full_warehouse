@@ -60,7 +60,9 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
             """;
 
     /**
-     * RAYON : tous les produits actifs d'un rayon
+     * RAYON : tous les produits actifs d'un rayon. Pas de {@code DISTINCT} nécessaire —
+     * {@code rayon_produit} est unique par (produit, rayon), un produit n'y figure donc qu'une
+     * fois pour le rayon visé.
      */
     private static final String SQL_INSERT_RAYON =
         """
@@ -74,12 +76,15 @@ public class InventaireCreationServiceImpl implements InventaireCreationService 
             """;
 
     /**
-     * STORAGE : tous les produits actifs d'un storage (point de vente)
+     * STORAGE : tous les produits actifs d'un storage (point de vente).
+     *
+     * <p>{@code DISTINCT} : un emplacement porte plusieurs rayons, et un produit rangé dans deux
+     * d'entre eux n'en reste pas moins un seul produit à compter.
      */
     private static final String SQL_INSERT_STORAGE =
         """
             INSERT INTO store_inventory_line (produit_id, updated_at, updated, store_inventory_id, storage_id)
-            SELECT p.id, NOW(), false, :inventoryId, :storageId
+            SELECT DISTINCT p.id, NOW(), false, :inventoryId, :storageId
             FROM produit p
             JOIN rayon_produit rp ON p.id = rp.produit_id
             JOIN rayon r           ON r.id = rp.rayon_id

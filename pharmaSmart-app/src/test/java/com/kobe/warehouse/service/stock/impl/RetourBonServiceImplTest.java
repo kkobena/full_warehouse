@@ -906,7 +906,8 @@ class RetourBonServiceImplTest {
             service.delete(31);
 
             assertThat(sp.getQtyStock()).isEqualTo(24);
-            verify(retourBonItemRepository).deleteAllByRetourBonId(31);
+            // Suppression par entite et non en bulk : voir RetourBonServiceImpl.delete
+            verify(retourBonItemRepository).deleteAll(List.of(item));
             verify(retourBonRepository).deleteById(31);
         }
     }

@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -23,20 +24,22 @@ import org.springframework.stereotype.Repository;
 public interface InvoicePaymentRepository extends JpaRepository<InvoicePayment, PaymentId>, JpaSpecificationExecutor<InvoicePayment> {
     List<InvoicePayment> findInvoicePaymentByParentIdAndParentTransactionDate(long parentId, LocalDate parentTransactionDate);
 
+    /**
+     * Une facture porte soit un tiers payant, soit un groupe — jamais les deux. Les jointures
+     * doivent donc être explicitement externes : traversées avec {@code Path#get}, elles seraient
+     * internes et exigeraient les deux à la fois, si bien que la recherche ne ramènerait rien.
+     */
     default Specification<InvoicePayment> specialisationQueryString(String queryValue) {
-        return (root, _, cb) ->
-            cb.or(
+        return (root, _, cb) -> {
+            Join<InvoicePayment, FactureTiersPayant> facture = root.join(InvoicePayment_.factureTiersPayant, JoinType.LEFT);
+            return cb.or(
+                cb.like(cb.upper(facture.join(FactureTiersPayant_.tiersPayant, JoinType.LEFT).get(TiersPayant_.name)), queryValue),
                 cb.like(
-                    cb.upper(root.get(InvoicePayment_.factureTiersPayant).get(FactureTiersPayant_.tiersPayant).get(TiersPayant_.name)),
-                    queryValue
-                ),
-                cb.like(
-                    cb.upper(
-                        root.get(InvoicePayment_.factureTiersPayant).get(FactureTiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.name)
-                    ),
+                    cb.upper(facture.join(FactureTiersPayant_.groupeTiersPayant, JoinType.LEFT).get(GroupeTiersPayant_.name)),
                     queryValue
                 )
             );
+        };
     }
 
     default Specification<InvoicePayment> filterByOrganismeId(long id) {

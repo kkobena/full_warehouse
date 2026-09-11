@@ -39,8 +39,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -239,6 +239,16 @@ class AjustementServiceTest {
             service.createAjsut(commande(dto(-4), dto(-2)));
 
             verify(ajustementRepository, times(1)).save(any(Ajustement.class));
+        }
+
+        @Test
+        @DisplayName("refuse une commande sans aucune ligne")
+        void sansAucuneLigne() {
+            AjustDTO commande = commande();
+
+            assertThatThrownBy(() -> service.createAjsut(commande)).isInstanceOf(NoSuchElementException.class);
+
+            verify(ajustementRepository, never()).save(any(Ajustement.class));
         }
     }
 
@@ -529,6 +539,47 @@ class AjustementServiceTest {
         }
 
         @Test
+        @DisplayName("refuse un ajustement deja valide sans rien rejouer")
+        void ajustementDejaValide() {
+            when(ajustRepository.getReferenceById(AJUST_ID)).thenReturn(ajust(AjustementStatut.CLOSED));
+            AjustDTO commande = commande();
+
+            assertThatThrownBy(() -> service.saveAjust(commande))
+                .isInstanceOf(GenericError.class)
+                .hasMessageContaining("déjà été validé");
+
+            verify(ajustementRepository, never()).findAllByAjustId(anyInt());
+            verifyNoInteractions(lotService, lotStockLocationService, inventoryTransactionService);
+            verify(stockProduitRepository, never()).save(any(StockProduit.class));
+        }
+
+        @Test
+        @DisplayName("un ajustement sans ligne ne journalise rien")
+        void aucuneLigne() {
+            ajustAvec();
+
+            service.saveAjust(commande());
+
+            verifyNoInteractions(inventoryTransactionService);
+            verifyNoInteractions(suggestionReassortService);
+            verify(stockProduitRepository, never()).save(any(StockProduit.class));
+        }
+
+        @Test
+        @DisplayName("un mouvement nul laisse le stock en place")
+        void mouvementNul() {
+            Produit produit = produit("DOLIPRANE 1000MG", "1234567");
+            StockProduit stockProduit = stock(produit, principal, 20, 0);
+            ajustAvec(ajustement(ajust(AjustementStatut.PENDING), stockProduit, 0));
+
+            service.saveAjust(commande());
+
+            assertThat(stockProduit.getQtyStock()).isEqualTo(20);
+            verify(lotService).adjustLots(produit, 0);
+            verify(lotStockLocationService).creditLastLot(produit, principal, 0);
+        }
+
+        @Test
         @DisplayName("traite chaque ligne de l ajustement")
         void traiteChaqueLigne() {
             Produit p1 = produit("DOLIPRANE 1000MG", "1234567");
@@ -571,6 +622,23 @@ class AjustementServiceTest {
             assertThat(ajustement.getDateMtv()).isAfterOrEqualTo(avant);
             assertThat(resultat.getQtyMvt()).isEqualTo(-6);
             assertThat(resultat.getProduitId()).isEqualTo(PRODUIT_ID);
+        }
+
+        @Test
+        @DisplayName("ne touche ni au stock physique ni aux lots : tout attend la validation")
+        void neTouchePasAuStockPhysique() {
+            Produit produit = produit("DOLIPRANE 1000MG", "1234567");
+            StockProduit stockProduit = stock(produit, principal, 20, 3);
+            Ajustement ajustement = ajustement(ajust(AjustementStatut.PENDING), stockProduit, -4);
+            when(ajustementRepository.getReferenceById(70)).thenReturn(ajustement);
+            AjustementDTO dto = dto(-6);
+            dto.setId(70);
+
+            service.update(dto);
+
+            assertThat(stockProduit.getQtyStock()).isEqualTo(20);
+            verify(stockProduitRepository, never()).save(any(StockProduit.class));
+            verifyNoInteractions(lotService, lotStockLocationService, inventoryTransactionService);
         }
     }
 
@@ -627,6 +695,18 @@ class AjustementServiceTest {
                 .thenReturn(new ArrayList<>(List.of(ligne("DOLIPRANE 1000MG", "1234567", LocalDateTime.now()))));
 
             assertThat(service.findAll(AJUST_ID, "ASPIRINE")).isEmpty();
+        }
+
+        @Test
+        @DisplayName("une recherche conserve le tri du plus recent au plus ancien")
+        void rechercheTriee() {
+            Ajustement ancienne = ligne("DOLIPRANE 1000MG", "1234567", LocalDateTime.of(2026, 4, 1, 10, 0));
+            Ajustement recente = ligne("DOLIPRANE 500MG", "1234568", LocalDateTime.of(2026, 4, 18, 10, 0));
+            when(ajustementRepository.findAllByAjustId(AJUST_ID)).thenReturn(new ArrayList<>(List.of(ancienne, recente)));
+
+            assertThat(service.findAll(AJUST_ID, "DOLIPRANE"))
+                .extracting(AjustementDTO::getProduitLibelle)
+                .containsExactly("DOLIPRANE 500MG", "DOLIPRANE 1000MG");
         }
 
         @Test

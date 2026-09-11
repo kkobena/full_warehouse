@@ -86,9 +86,12 @@ public class SuggestionReassortServiceImpl implements SuggestionReassortService 
 
         Set<LigneReassort> ligneReassorts = suggestionReassort.getLigneReassorts();
         for (ReassortRecord reassortRecord : reassortRecords) {
-            Optional<LigneReassort> oldLigneReassort = isNewSuggestion ?
-                findExistingLigneReassort(ligneReassorts, reassortRecord.stockProduit().getId()) :
-                Optional.empty();
+            // Une suggestion neuve n'a aucune ligne à retrouver ; c'est sur une suggestion déjà
+            // ouverte qu'il faut chercher, sinon la seconde détection du jour sur le même stock
+            // insère un doublon et bute sur la contrainte (reassort_id, stock_produit_id).
+            Optional<LigneReassort> oldLigneReassort = isNewSuggestion
+                ? Optional.empty()
+                : findExistingLigneReassort(ligneReassorts, reassortRecord.stockProduit().getId());
             createLigneReassortEntity(isNewSuggestion, suggestionReassort, reassortRecord,
                 oldLigneReassort);
         }

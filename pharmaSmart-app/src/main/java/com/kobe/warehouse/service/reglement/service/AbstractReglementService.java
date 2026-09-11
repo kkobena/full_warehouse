@@ -145,6 +145,9 @@ public abstract class AbstractReglementService implements ReglementService {
     }
 
     protected void saveInvoicePayments(List<InvoicePayment> items) {
+        // Les paiements fils d'un règlement groupé n'empruntent pas saveInvoicePayment : sans ce
+        // marquage, ils partiraient en base avec un type_transaction nul, que la colonne refuse.
+        items.forEach(item -> item.setTypeFinancialTransaction(TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT));
         invoicePaymentRepository.saveAll(items);
     }
 

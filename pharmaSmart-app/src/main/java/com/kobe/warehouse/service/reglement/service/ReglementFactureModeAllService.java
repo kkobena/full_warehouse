@@ -84,13 +84,18 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
     public InvoicePayment doReglement(InvoicePayment groupeInvoicePayment, FactureTiersPayant factureTiersPayant) {
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, groupeInvoicePayment);
         int montantPaye = 0;
+        int montantFacture = 0;
         for (ThirdPartySaleLine thirdParty : factureTiersPayant.getFacturesDetails()) {
             int itemAmount = thirdParty.getMontant() - thirdParty.getMontantRegle();
+            montantFacture += thirdParty.getMontant();
             montantPaye += itemAmount;
             invoicePayment.getInvoicePaymentItems().add(super.buildInvoicePaymentItem(thirdParty, invoicePayment, itemAmount));
             super.updateThirdPartyLine(thirdParty, itemAmount);
         }
         super.updateFactureTiersPayant(factureTiersPayant, montantPaye);
+        // Le règlement de groupe ne transmet pas de montant facturé par fille : on le reconstitue
+        // comme le fait la requête qui l'affiche, en sommant les dossiers rattachés.
+        super.updateStatut(factureTiersPayant, montantFacture);
         super.saveFactureTiersPayant(factureTiersPayant);
         super.saveThirdPartyLines(factureTiersPayant.getFacturesDetails());
         invoicePayment.setExpectedAmount(montantPaye);

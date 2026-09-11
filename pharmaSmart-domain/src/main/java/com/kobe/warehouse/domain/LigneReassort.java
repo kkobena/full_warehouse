@@ -14,7 +14,6 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Entity
 @Table(name = "ligne_reassort", uniqueConstraints = {@UniqueConstraint(columnNames = {"reassort_id", "stock_produit_id"})})
@@ -96,13 +95,20 @@ public class LigneReassort implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        LigneReassort that = (LigneReassort) o;
-        return Objects.equals(id, that.id);
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof LigneReassort that)) {
+            return false;
+        }
+        // Deux lignes pas encore enregistrées ne sont pas la même ligne : les égaler par un id null
+        // les confondait dans le Set de la suggestion, et une détection portant sur plusieurs
+        // produits n'en gardait qu'un seul.
+        return id != null && id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return 31;
     }
 }

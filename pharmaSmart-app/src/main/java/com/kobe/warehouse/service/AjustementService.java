@@ -158,8 +158,22 @@ public class AjustementService {
         }
     }
 
+    /**
+     * Valide un ajustement : applique ses lignes au stock, aux lots et au journal, puis le clôture.
+     *
+     * <p>Un ajustement déjà clôturé est refusé. L'opération n'est pas idempotente — la rejouer
+     * réappliquerait chaque mouvement une seconde fois, et rien ne distingue ensuite le stock
+     * ainsi faussé d'un stock exact. Or un double clic sur le bouton de validation, ou la reprise
+     * d'une requête interrompue, suffisent à la rejouer : le seul rempart était l'écran.
+     */
     public void saveAjust(AjustDTO ajustDto) {
         Ajust ajust = ajustRepository.getReferenceById(ajustDto.getId());
+        if (ajust.getStatut() == AjustementStatut.CLOSED) {
+            throw new GenericError(
+                "Cet ajustement a déjà été validé : le stock a été mis à jour et les mouvements journalisés.",
+                "ajustementDejaValide"
+            );
+        }
         List<Ajustement> ajustements = ajustementRepository.findAllByAjustId(ajust.getId());
         saveItems(ajustements);
         ajust.setCommentaire(ajustDto.getCommentaire());

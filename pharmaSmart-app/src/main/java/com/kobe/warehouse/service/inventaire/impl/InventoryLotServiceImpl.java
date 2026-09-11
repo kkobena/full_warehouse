@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.inventaire.impl;
 
 import com.kobe.warehouse.domain.InventoryLot;
 import com.kobe.warehouse.domain.Lot;
+import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.repository.InventoryLotRepository;
@@ -110,17 +111,35 @@ public class InventoryLotServiceImpl implements InventoryLotService {
             // requête, le type ne promettant qu'un résultat. La ligne d'inventaire donne le
             // produit, il n'y a aucune raison de s'en priver.
             return lotRepository.findByNumLotAndProduitId(record.numLot(), line.getProduit().getId())
-                .orElseGet(() -> {
-                    Lot newLot = new Lot();
-                    newLot.setNumLot(record.numLot());
-                    newLot.setExpiryDate(record.expiryDate());
-                    newLot.setProduit(line.getProduit());
-                    newLot.setCurrentQuantity(0);
-                    newLot.setStatut(StatutLot.AVAILABLE);
-                    return lotRepository.saveAndFlush(newLot);
-                });
+                .orElseGet(() -> creerLotDecouvertAuComptage(record, line.getProduit()));
         }
         throw new IllegalArgumentException("lotId ou numLot obligatoire pour créer un inventory_lot");
+    }
+
+    /**
+     * Crée le lot qu'un opérateur trouve dans le rayon sans qu'aucune réception ne l'ait
+     * enregistré — cas courant d'un premier inventaire, ou d'un reliquat oublié.
+     *
+     * <p>Les colonnes que la table exige sont toutes renseignées : quantités à zéro, puisque rien
+     * n'a été reçu par le système et que la quantité comptée n'est reportée qu'à la clôture, et
+     * prix repris du produit faute de prix négocié. Se contenter du numéro et de la péremption
+     * faisait échouer l'insertion sur {@code quantity}, {@code created_date}, {@code prixachat} et
+     * {@code prixunit}, tous NOT NULL — la saisie d'un lot inconnu était donc impossible.
+     */
+    private Lot creerLotDecouvertAuComptage(InventoryLotRecord record, Produit produit) {
+        Lot lot = new Lot();
+        lot.setNumLot(record.numLot());
+        lot.setExpiryDate(record.expiryDate());
+        lot.setProduit(produit);
+        lot.setQuantity(0);
+        lot.setFreeQty(0);
+        lot.setCurrentQuantity(0);
+        lot.setPrixAchat(produit.getCostAmount());
+        lot.setPrixUnit(produit.getRegularUnitPrice());
+        lot.setCreatedDate(LocalDateTime.now());
+        lot.setUpdated(LocalDateTime.now());
+        lot.setStatut(StatutLot.AVAILABLE);
+        return lotRepository.saveAndFlush(lot);
     }
 
     @Override

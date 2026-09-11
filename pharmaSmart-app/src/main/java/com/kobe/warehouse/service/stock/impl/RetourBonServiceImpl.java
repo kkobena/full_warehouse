@@ -234,8 +234,12 @@ public class RetourBonServiceImpl implements RetourBonService {
             throw new GenericError("Seuls les retours en attente peuvent être supprimés");
         }
         int magasinId = userService.getUser().getMagasin().getId();
-        retourBonItemRepository.findAllByRetourBonId(id).forEach(item -> reverseRetourBonItem(item, magasinId));
-        retourBonItemRepository.deleteAllByRetourBonId(id);
+        List<RetourBonItem> items = retourBonItemRepository.findAllByRetourBonId(id);
+        items.forEach(item -> reverseRetourBonItem(item, magasinId));
+        // Suppression par entite, et non en bulk : un DELETE JPQL laisse les items charges ci-dessus
+        // dans le contexte de persistance, et ils referencent alors un RetourBon supprime — le flush
+        // echoue sur une TransientPropertyValueException.
+        retourBonItemRepository.deleteAll(items);
         retourBonRepository.deleteById(id);
     }
 
@@ -711,7 +715,10 @@ public class RetourBonServiceImpl implements RetourBonService {
             .filter(st -> st.getStorage().getStorageType() == StorageType.PRINCIPAL)
             .findFirst()
             .orElse(stockProduits.getFirst());
-        int initStock = stockProduits.stream().mapToInt(StockProduit::getTotalStockQuantity).sum();
+        // qtyStock + qtyUG plutot que totalStockQuantity : cette derniere est une @Formula, figee a
+        // la lecture. Lors d'une modification de retour, le stock vient d'etre recredite en memoire
+        // par reverseRetourBonItem et la formule renverrait encore l'ancienne valeur.
+        int initStock = stockProduits.stream().mapToInt(sp -> sp.getQtyStock() + sp.getQtyUG()).sum();
         if (itemDTO.getQtyMvt() > initStock) {
             throw new GenericError("Stock insuffisant pour le produit: " + itemDTO.getProduitCip());
         }

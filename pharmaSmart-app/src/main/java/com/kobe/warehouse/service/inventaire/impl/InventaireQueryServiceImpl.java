@@ -238,7 +238,10 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
 
     private StoreInventoryLineRecord toRecord(Tuple t, Map<Integer, Integer> stockMap) {
         Integer produitId = t.get("produitId", Integer.class);
-        Integer lotCount = t.get("lot_count", Integer.class);
+        // `lot_count` vaut un COUNT(*) quand la gestion de lot est active, donc un bigint : le
+        // réclamer en Integer levait une ClassCastException et faisait échouer toute la grille
+        // dans le seul mode où la colonne sert à quelque chose.
+        int lotCount = toInt(t.get("lot_count"));
         return new StoreInventoryLineRecord(
             produitId,
             t.get("code_cip", String.class),
@@ -253,7 +256,7 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
             t.get("prix_uni", Integer.class),
             t.get("storage_id", Integer.class),
             t.get("seuil_mini", Integer.class),
-            lotCount != null ? lotCount : 0,
+            lotCount,
             t.get("classe_pareto", String.class),
             t.get("counted_by", String.class),
             t.get("updated_at", java.time.LocalDateTime.class),

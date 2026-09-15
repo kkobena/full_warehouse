@@ -119,7 +119,7 @@
     <module>pharmaSmart-batch</module>
     <!-- Outil éditeur d'émission des licences : aucun autre module n'en dépend,
          il n'est donc jamais embarqué dans le livrable client. -->
-    <module>pharmaSmart-license-cli</module>
+   <!-- <module>pharmaSmart-license-cli</module>-->
   </modules>
   <name>PharmaSmart</name>
   <packaging>pom</packaging>

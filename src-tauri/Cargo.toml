@@ -5,10 +5,6 @@ description = "Pharma Smart"
 authors = ["Kobena"]
 edition = "2024"
 
-[lib]
-name = "pharmasmart_lib"
-crate-type = ["staticlib", "cdylib", "rlib"]
-
 [build-dependencies]
 tauri-build = { version = "2.5.6", features = [] }
 

@@ -5,6 +5,7 @@ mod printer;
 mod types;
 mod customer_display;
 mod scanner;
+mod self_update;
 
 #[cfg(feature = "bundled-backend")]
 mod backend_manager;
@@ -142,6 +143,41 @@ fn backend_url_search_dirs() -> Vec<std::path::PathBuf> {
 #[tauri::command]
 fn get_backend_url_command() -> String {
     get_backend_url()
+}
+
+// ─── Mise à jour autonome du poste client ────────────────────────────────────
+
+/// Version de l'application, telle que gravée par Tauri à la compilation.
+/// C'est elle que le poste présente au serveur pour savoir s'il est à jour.
+fn current_app_version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
+}
+
+/// Interroge le poste serveur : une version différente est-elle disponible ?
+/// N'écrit rien et ne télécharge rien.
+#[tauri::command]
+async fn check_for_client_update(
+    client: tauri::State<'_, SharedHttpClient>,
+) -> Result<self_update::UpdateStatus, String> {
+    let backend_url = get_backend_url();
+    Ok(self_update::check_for_update(&client.0, &backend_url, &current_app_version()).await)
+}
+
+/// Télécharge, vérifie la signature et remplace l'exécutable.
+/// Retourne le chemin en place ; l'application doit ensuite être relancée.
+#[tauri::command]
+async fn apply_client_update(client: tauri::State<'_, SharedHttpClient>) -> Result<String, String> {
+    let backend_url = get_backend_url();
+    let installed =
+        self_update::download_and_apply(&client.0, &backend_url, &current_app_version()).await?;
+    tracing::info!(path = %installed.display(), "Mise à jour appliquée — relance requise");
+    Ok(installed.to_string_lossy().to_string())
+}
+
+/// Relance l'application après une mise à jour appliquée.
+#[tauri::command]
+fn restart_app(app: tauri::AppHandle) {
+    app.restart();
 }
 
 #[cfg(feature = "bundled-backend")]
@@ -326,13 +362,15 @@ fn get_app_config_dto(app: tauri::AppHandle) -> AppConfigDto {
         db_username:  cfg.database.username.clone().unwrap_or_default(),
         db_password:  cfg.database.password.clone().unwrap_or_default(),
         db_schema:    cfg.database.schema.clone().unwrap_or_default(),
-        jvm_heap_min:         cfg.jvm.heap_min.clone(),
-        jvm_heap_max:         cfg.jvm.heap_max.clone(),
-        jvm_metaspace_size:   cfg.jvm.metaspace_size.clone(),
-        jvm_metaspace_max:    cfg.jvm.metaspace_max.clone(),
-        jvm_direct_memory:    cfg.jvm.direct_memory_size.clone(),
-        jvm_gc_pause:         cfg.jvm.max_gc_pause_millis.clone(),
-        jvm_additional_options: cfg.jvm.additional_options.clone(),
+        // L'IHM ne pilote que la JVM du backend applicatif (`jvm.app`) ; le bloc
+        // `jvm.batch` et `jvm.java_home` ne sont pas exposés et restent intacts.
+        jvm_heap_min:         cfg.jvm.app.heap_min.clone(),
+        jvm_heap_max:         cfg.jvm.app.heap_max.clone(),
+        jvm_metaspace_size:   cfg.jvm.app.metaspace_size.clone(),
+        jvm_metaspace_max:    cfg.jvm.app.metaspace_max.clone(),
+        jvm_direct_memory:    cfg.jvm.app.direct_memory_size.clone(),
+        jvm_gc_pause:         cfg.jvm.app.max_gc_pause_millis.clone(),
+        jvm_additional_options: cfg.jvm.app.additional_options.clone(),
         mail_username:    cfg.mail.username.clone(),
         mail_email:       cfg.mail.email.clone(),
         fne_url:          cfg.fne.url.clone(),
@@ -357,13 +395,16 @@ fn save_app_config_dto(app: tauri::AppHandle, dto: AppConfigDto) -> Result<(), S
     cfg.database.username = if dto.db_username.is_empty() { None } else { Some(dto.db_username) };
     cfg.database.password = if dto.db_password.is_empty() { None } else { Some(dto.db_password) };
     cfg.database.schema   = if dto.db_schema.is_empty()   { None } else { Some(dto.db_schema)   };
-    cfg.jvm.heap_min             = dto.jvm_heap_min;
-    cfg.jvm.heap_max             = dto.jvm_heap_max;
-    cfg.jvm.metaspace_size       = dto.jvm_metaspace_size;
-    cfg.jvm.metaspace_max        = dto.jvm_metaspace_max;
-    cfg.jvm.direct_memory_size   = dto.jvm_direct_memory;
-    cfg.jvm.max_gc_pause_millis  = dto.jvm_gc_pause;
-    cfg.jvm.additional_options   = dto.jvm_additional_options;
+    // Seul `jvm.app` est modifiable depuis l'IHM : `jvm.java_home` et `jvm.batch`
+    // sont relus depuis config.json par `load()` et réécrits tels quels, car les
+    // scripts des services Windows en dépendent.
+    cfg.jvm.app.heap_min             = dto.jvm_heap_min;
+    cfg.jvm.app.heap_max             = dto.jvm_heap_max;
+    cfg.jvm.app.metaspace_size       = dto.jvm_metaspace_size;
+    cfg.jvm.app.metaspace_max        = dto.jvm_metaspace_max;
+    cfg.jvm.app.direct_memory_size   = dto.jvm_direct_memory;
+    cfg.jvm.app.max_gc_pause_millis  = dto.jvm_gc_pause;
+    cfg.jvm.app.additional_options   = dto.jvm_additional_options;
     cfg.mail.username        = dto.mail_username;
     cfg.mail.email           = dto.mail_email;
     cfg.fne.url              = dto.fne_url;
@@ -403,6 +444,9 @@ fn main() {
             printer::print_escpos,
             check_backend_health,
             get_backend_url_command,
+            check_for_client_update,
+            apply_client_update,
+            restart_app,
             customer_display::send_to_customer_display,
             customer_display::list_serial_ports,
             customer_display::test_customer_display_connection,
@@ -413,6 +457,11 @@ fn main() {
             scanner::is_port_connected,
             scanner::check_ports_connection,
             scanner::get_system_info,
+            // Détection CDC vs HID de la douchette. Son absence de cette liste rendait
+            // `hid_detect` entièrement inatteignable : Angular invoquait la commande,
+            // recevait une erreur, et basculait silencieusement sur un repli — la
+            // détection du mode HID n'a donc jamais fonctionné en production.
+            scanner::detect_scanner_usb_mode,
             #[cfg(feature = "bundled-backend")]
             get_backend_status,
             #[cfg(feature = "bundled-backend")]

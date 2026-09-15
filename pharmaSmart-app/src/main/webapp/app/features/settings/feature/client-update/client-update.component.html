@@ -1,0 +1,74 @@
+<div class="client-update">
+  <app-card header="Mise à jour du poste" icon="pi pi-download text-primary">
+    @if (!supported) {
+      <!--
+        Hors application de bureau, aucune des commandes n'existe. On l'explique
+        plutôt que d'afficher des boutons sans effet.
+      -->
+      <p class="text-muted mb-0">
+        La mise à jour automatique n'est disponible que dans l'application de bureau PharmaSmart.
+      </p>
+    } @else {
+      <div class="client-update__versions mb-3">
+        <div>
+          <span class="text-muted">Version de ce poste</span>
+          <strong class="d-block fs-5">{{ status()?.currentVersion ?? '—' }}</strong>
+        </div>
+        @if (status()?.newVersion) {
+          <div>
+            <span class="text-muted">Version disponible sur le serveur</span>
+            <strong class="d-block fs-5 text-success">{{ status()!.newVersion }}</strong>
+          </div>
+        }
+      </div>
+
+      @switch (phase()) {
+        @case ('checking') {
+          <p class="text-muted mb-0">
+            <i class="pi pi-spin pi-spinner me-2" aria-hidden="true"></i>Interrogation du poste serveur…
+          </p>
+        }
+
+        @case ('available') {
+          <p class="mb-3">{{ status()?.message }}</p>
+          <app-button label="Installer la mise à jour" icon="pi pi-download" (clicked)="apply()" />
+        }
+
+        @case ('applying') {
+          <p class="text-muted mb-0">
+            <i class="pi pi-spin pi-spinner me-2" aria-hidden="true"></i>Téléchargement et installation en cours…
+          </p>
+          <p class="text-muted small mb-0 mt-2">Ne fermez pas l'application pendant l'opération.</p>
+        }
+
+        @case ('applied') {
+          <div class="alert alert-success mb-3" role="status">
+            <strong>Mise à jour installée.</strong>
+            Elle prendra effet au prochain démarrage : ce poste utilise encore la version précédente
+            tant qu'il n'a pas redémarré.
+          </div>
+          <app-button label="Redémarrer maintenant" icon="pi pi-refresh" (clicked)="restart()" />
+          <p class="text-muted small mb-0 mt-2">
+            Vous pouvez aussi redémarrer plus tard, en fin de journée par exemple.
+          </p>
+        }
+
+        @case ('error') {
+          <div class="alert alert-danger mb-3" role="alert">{{ errorMessage() }}</div>
+          <app-button label="Réessayer" icon="pi pi-refresh" severity="secondary" (clicked)="check()" />
+        }
+
+        @default {
+          <p class="mb-3">{{ status()?.message ?? 'Aucune vérification effectuée.' }}</p>
+          <app-button
+            label="Vérifier les mises à jour"
+            icon="pi pi-refresh"
+            severity="secondary"
+            [disabled]="busy()"
+            (clicked)="check()"
+          />
+        }
+      }
+    }
+  </app-card>
+</div>

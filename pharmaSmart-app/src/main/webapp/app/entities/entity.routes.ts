@@ -104,6 +104,13 @@ const routes: Routes = [
     loadChildren: () => import("../features/settings/feature/app-config-editor/app-config-editor.route")
   },
 
+  {
+    path: "mise-a-jour",
+    data: { pageTitle: "Mise à jour du poste" },
+    canActivate: [AuthGuard],
+    loadChildren: () => import("../features/settings/feature/client-update/client-update.route")
+  },
+
   // ── Admin — nav_items sous 'administration' ────────────────────────────────
   {
     path: "magasin",

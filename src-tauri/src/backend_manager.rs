@@ -57,26 +57,58 @@ impl BackendState {
 
 // ─── JRE / JAR discovery ─────────────────────────────────────────────────────
 
-fn find_bundled_jre(app: &AppHandle) -> Option<PathBuf> {
-    let resource_dir = app.path().resource_dir().ok()?;
-    let jre_dir = resource_dir.join("sidecar").join("jre");
-    if !jre_dir.exists() {
-        tracing::debug!("JRE embarqué absent : {:?}", jre_dir);
-        return None;
-    }
-    #[cfg(target_os = "windows")]
-    let java_exe = jre_dir.join("bin").join("java.exe");
-    #[cfg(not(target_os = "windows"))]
-    let java_exe = jre_dir.join("bin").join("java");
+/// Nom de l'exécutable Java dans `<jre>/bin`, selon la plateforme.
+#[cfg(target_os = "windows")]
+const JAVA_EXE: &str = "java.exe";
+#[cfg(not(target_os = "windows"))]
+const JAVA_EXE: &str = "java";
 
-    if java_exe.exists() {
-        Some(java_exe)
-    } else {
-        tracing::warn!(
-            "Répertoire JRE présent mais java introuvable : {:?}",
-            java_exe
-        );
-        None
+/// Retourne `<jre_root>/bin/java[.exe]` si l'exécutable existe réellement.
+fn java_exe_in(jre_root: &Path) -> Option<PathBuf> {
+    let candidate = jre_root.join("bin").join(JAVA_EXE);
+    candidate.exists().then_some(candidate)
+}
+
+/// Résout le Java à utiliser, dans le même ordre que les scripts PowerShell des
+/// services Windows (`setup-backend-service.ps1`) pour qu'un poste se comporte
+/// identiquement selon que le backend est lancé par le service ou par Tauri :
+///
+///   1. `jvm.java_home` de `config.json` — renseigné par l'installeur avec le JRE
+///      embarqué quand le paquet en contient un ;
+///   2. le JRE embarqué dans les ressources (`sidecar/jre`) ;
+///   3. sinon `None`, et l'appelant se rabat sur le Java système.
+///
+/// Chaque candidat est vérifié par la <b>présence effective de l'exécutable</b>,
+/// jamais par la seule présence du chemin en configuration : un `java_home`
+/// hérité d'une installation avec JRE embarqué pointe sur un répertoire supprimé
+/// si le paquet suivant n'en embarque pas. Sans cette vérification, on lancerait
+/// un chemin mort au lieu de se rabattre proprement.
+fn resolve_bundled_java(app: &AppHandle, config: &AppConfig) -> Option<PathBuf> {
+    let configured = config.jvm.java_home.trim();
+    if !configured.is_empty() {
+        match java_exe_in(Path::new(configured)) {
+            Some(exe) => {
+                tracing::info!("Java depuis jvm.java_home : {:?}", exe);
+                return Some(exe);
+            }
+            None => tracing::warn!(
+                "jvm.java_home renseigné mais inutilisable ({}) — repli sur le JRE embarqué \
+                 puis le Java système",
+                configured
+            ),
+        }
+    }
+
+    let jre_dir = app.path().resource_dir().ok()?.join("sidecar").join("jre");
+    match java_exe_in(&jre_dir) {
+        Some(exe) => {
+            tracing::info!("Java depuis le JRE embarqué : {:?}", exe);
+            Some(exe)
+        }
+        None => {
+            tracing::debug!("Aucun JRE embarqué exploitable dans {:?}", jre_dir);
+            None
+        }
     }
 }
 
@@ -144,14 +176,18 @@ fn build_jvm_args(config: &AppConfig, jar_path: &Path) -> Vec<String> {
     let gc_log = log_dir.join("gc.log");
     let heap_dump = log_dir.join("heapdump.hprof");
 
+    // `jvm.app` : Tauri ne lance que le backend applicatif. Le bloc `jvm.batch`
+    // n'est consommé que par setup-batch-service.ps1.
+    let jvm = &config.jvm.app;
+
     let mut args: Vec<String> = vec![
-        format!("-Xms{}", config.jvm.heap_min),
-        format!("-Xmx{}", config.jvm.heap_max),
-        format!("-XX:MetaspaceSize={}", config.jvm.metaspace_size),
-        format!("-XX:MaxMetaspaceSize={}", config.jvm.metaspace_max),
-        format!("-XX:MaxDirectMemorySize={}", config.jvm.direct_memory_size),
+        format!("-Xms{}", jvm.heap_min),
+        format!("-Xmx{}", jvm.heap_max),
+        format!("-XX:MetaspaceSize={}", jvm.metaspace_size),
+        format!("-XX:MaxMetaspaceSize={}", jvm.metaspace_max),
+        format!("-XX:MaxDirectMemorySize={}", jvm.direct_memory_size),
         "-XX:+UseG1GC".to_string(),
-        format!("-XX:MaxGCPauseMillis={}", config.jvm.max_gc_pause_millis),
+        format!("-XX:MaxGCPauseMillis={}", jvm.max_gc_pause_millis),
         "-XX:+UseStringDeduplication".to_string(),
         "-XX:+UseCompressedOops".to_string(),
         "-XX:+HeapDumpOnOutOfMemoryError".to_string(),
@@ -168,12 +204,9 @@ fn build_jvm_args(config: &AppConfig, jar_path: &Path) -> Vec<String> {
         "-Djava.net.preferIPv4Stack=true".to_string(),
     ];
 
-    args.extend(config.jvm.additional_options.iter().cloned());
-    if !config.jvm.additional_options.is_empty() {
-        tracing::debug!(
-            "Options JVM additionnelles : {:?}",
-            config.jvm.additional_options
-        );
+    args.extend(jvm.additional_options.iter().cloned());
+    if !jvm.additional_options.is_empty() {
+        tracing::debug!("Options JVM additionnelles : {:?}", jvm.additional_options);
     }
 
     args.push("-jar".to_string());
@@ -362,7 +395,7 @@ pub async fn start_backend(app: &AppHandle) -> Result<u32, String> {
 
 /// Vérifie si le backend est déjà disponible (service Windows ou instance externe).
 /// Retourne le PID fictif 0 si connecté à un backend externe (non géré par Tauri).
-async fn try_connect_existing(app: &AppHandle, port: u16) -> Option<u32> {
+async fn try_connect_existing(port: u16) -> Option<u32> {
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(3))
         .build()
@@ -387,7 +420,7 @@ async fn inner_start(app: &AppHandle) -> Result<u32, BackendError> {
     state
         .set_status(app, "checking_service", 5, "Vérification d'un backend existant…")
         .await;
-    if let Some(pid) = try_connect_existing(app, config.server.port).await {
+    if let Some(pid) = try_connect_existing(config.server.port).await {
         *state.process_id.lock().await = Some(pid);
         state
             .set_status(app, "ready", 100, "Connecté au service backend existant.")
@@ -399,7 +432,7 @@ async fn inner_start(app: &AppHandle) -> Result<u32, BackendError> {
         .set_status(app, "checking_java", 10, "Vérification de Java…")
         .await;
 
-    let java_executable = if let Some(bundled) = find_bundled_jre(app) {
+    let java_executable = if let Some(bundled) = resolve_bundled_java(app, &config) {
         state
             .set_status(app, "checking_java", 15, "Utilisation du JRE embarqué…")
             .await;
@@ -686,7 +719,7 @@ mod tests {
     #[test]
     fn test_build_jvm_args_additional_options() {
         let mut config = AppConfig::default();
-        config.jvm.additional_options = vec!["-Xss4m".to_string(), "-XX:+PrintGC".to_string()];
+        config.jvm.app.additional_options = vec!["-Xss4m".to_string(), "-XX:+PrintGC".to_string()];
         let args = build_jvm_args(&config, Path::new("app.jar"));
         assert!(args.iter().any(|a| a == "-Xss4m"));
         assert!(args.iter().any(|a| a == "-XX:+PrintGC"));

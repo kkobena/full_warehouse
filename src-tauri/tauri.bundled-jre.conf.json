@@ -23,6 +23,7 @@
     "resources": [
       "sidecar/pharmaSmart-*.jar",
       "sidecar/jre/**/*",
+      "updates/*",
       "config.default.json",
       "backend-url.txt.template",
       "service/setup-backend-service.ps1",

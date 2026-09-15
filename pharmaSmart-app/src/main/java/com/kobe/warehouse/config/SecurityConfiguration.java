@@ -82,6 +82,11 @@ public class SecurityConfiguration {
                         request -> request.getRequestURI().equals("/api/activate"),
                         request -> request.getRequestURI().equals("/api/account/reset-password/init"),
                         request -> request.getRequestURI().equals("/api/account/reset-password/finish"),
+                        // Relais de mise à jour des postes clients : l'updater interroge cet
+                        // endpoint au démarrage du poste, avant toute session, et n'a aucun jeton à
+                        // présenter. En lecture seule, sur le LAN de l'officine, et l'intégrité de
+                        // ce qui est téléchargé repose sur la signature minisign, pas sur l'accès.
+                        request -> request.getRequestURI().startsWith("/api/updates/"),
                         request -> request.getRequestURI().equals("/management/health"),
                         request -> request.getRequestURI().startsWith("/management/health/"),
                         request -> request.getRequestURI().equals("/management/info"),

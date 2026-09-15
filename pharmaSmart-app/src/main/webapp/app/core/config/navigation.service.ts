@@ -37,6 +37,7 @@ import {
   faFileInvoice,
   faFilePen,
   faLightbulb,
+  faDownload,
   faLock,
   faMoneyBill,
   faPercent,
@@ -149,6 +150,19 @@ export class NavigationService {
         label: 'Configuration avancée',
         faIcon: faSlidersH,
         click: actions.onOpenConfigEditor,
+      });
+    }
+
+    // Mise à jour du poste : pertinente uniquement dans l'application de bureau, où
+    // l'exécutable peut être remplacé. Volontairement ouverte à tous les utilisateurs
+    // et pas aux seuls administrateurs — c'est l'opérateur présent devant le poste qui
+    // choisit le moment d'installer, et lui seul sait s'il est en pleine vente.
+    if (isTauri) {
+      accountItems.unshift({
+        id: 'client-update',
+        label: 'Mise à jour du poste',
+        faIcon: faDownload,
+        routerLink: '/mise-a-jour',
       });
     }
 

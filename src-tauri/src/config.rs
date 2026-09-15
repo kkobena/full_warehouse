@@ -19,8 +19,43 @@ pub struct InstallationConfig {
     pub directory: String,
 }
 
+/// Bloc `jvm` de `config.json`.
+///
+/// <b>La forme de cette structure est un contrat partagé, pas un choix libre.</b>
+/// `installer-hooks/installer.nsh` écrit `jvm.java_home`, `jvm.app` et `jvm.batch`,
+/// et les trois scripts PowerShell des services Windows les relisent :
+/// `setup-backend-service.ps1` et `refresh-service-config.ps1` consomment
+/// `jvm.java_home` + `jvm.app.heap_*`, `setup-batch-service.ps1` consomme
+/// `jvm.java_home` + `jvm.batch.heap_*`.
+///
+/// Une version antérieure modélisait `jvm` à plat (`heap_min` directement sous
+/// `jvm`) : serde ignorait donc les clés de l'installeur à la lecture, et
+/// `save()` les <b>effaçait</b> à l'écriture. Après le premier enregistrement
+/// depuis l'application, les services perdaient le chemin du JRE embarqué et ne
+/// redémarraient plus sur un poste sans Java système.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JvmConfig {
+    /// Racine du JRE à utiliser. Renseignée par l'installeur avec le JRE
+    /// embarqué quand il y en a un, vide sinon (repli `JAVA_HOME` puis `PATH`).
+    #[serde(default)]
+    pub java_home: String,
+    /// Réglages de la JVM du backend `pharmaSmart-app`.
+    #[serde(default)]
+    pub app: JvmAppConfig,
+    /// Réglages de la JVM du pipeline nocturne `pharmaSmart-batch`.
+    /// Tauri ne lance jamais ce processus : ce bloc n'est lu que par
+    /// `setup-batch-service.ps1`. Il doit néanmoins survivre à `save()`.
+    #[serde(default)]
+    pub batch: JvmBatchConfig,
+    /// Clés du bloc `jvm` que Tauri ne modélise pas — même rôle que
+    /// [`AppConfig::extra`], un niveau plus bas.
+    #[serde(flatten)]
+    pub extra: serde_json::Map<String, serde_json::Value>,
+}
+
+/// Réglages JVM du backend applicatif (`jvm.app`).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct JvmAppConfig {
     #[serde(default = "default_heap_min")]
     pub heap_min: String,
     #[serde(default = "default_heap_max")]
@@ -35,6 +70,24 @@ pub struct JvmConfig {
     pub max_gc_pause_millis: String,
     #[serde(default = "default_additional_options")]
     pub additional_options: Vec<String>,
+    #[serde(flatten)]
+    pub extra: serde_json::Map<String, serde_json::Value>,
+}
+
+/// Réglages JVM du pipeline nocturne (`jvm.batch`).
+/// Volontairement plus pauvre que [`JvmAppConfig`] : on reproduit exactement les
+/// clés écrites par l'installeur, pour ne pas enrichir le fichier de champs que
+/// `setup-batch-service.ps1` ne lit pas.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct JvmBatchConfig {
+    #[serde(default = "default_batch_heap_min")]
+    pub heap_min: String,
+    #[serde(default = "default_batch_heap_max")]
+    pub heap_max: String,
+    #[serde(default = "default_additional_options")]
+    pub additional_options: Vec<String>,
+    #[serde(flatten)]
+    pub extra: serde_json::Map<String, serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -164,6 +217,13 @@ fn default_gc_pause_millis() -> String {
 fn default_additional_options() -> Vec<String> {
     Vec::new()
 }
+// Valeurs par défaut du pipeline nocturne — alignées sur installer.nsh.
+fn default_batch_heap_min() -> String {
+    "128m".to_string()
+}
+fn default_batch_heap_max() -> String {
+    "512m".to_string()
+}
 
 // Default values for File configuration
 fn default_report_dir() -> String {
@@ -288,6 +348,17 @@ impl Default for DatabaseConfig {
 impl Default for JvmConfig {
     fn default() -> Self {
         Self {
+            java_home: String::new(),
+            app: JvmAppConfig::default(),
+            batch: JvmBatchConfig::default(),
+            extra: serde_json::Map::new(),
+        }
+    }
+}
+
+impl Default for JvmAppConfig {
+    fn default() -> Self {
+        Self {
             heap_min: default_heap_min(),
             heap_max: default_heap_max(),
             metaspace_size: default_metaspace_size(),
@@ -295,6 +366,18 @@ impl Default for JvmConfig {
             direct_memory_size: default_direct_memory(),
             max_gc_pause_millis: default_gc_pause_millis(),
             additional_options: default_additional_options(),
+            extra: serde_json::Map::new(),
+        }
+    }
+}
+
+impl Default for JvmBatchConfig {
+    fn default() -> Self {
+        Self {
+            heap_min: default_batch_heap_min(),
+            heap_max: default_batch_heap_max(),
+            additional_options: default_additional_options(),
+            extra: serde_json::Map::new(),
         }
     }
 }
@@ -419,6 +502,134 @@ mod tests {
         // Les sections modélisées restent au bon endroit.
         assert_eq!(rewritten["server"]["port"], 9080);
         assert_eq!(rewritten["setup_complete"], true);
+    }
+
+    /// Reproduit fidèlement le bloc `jvm` écrit par `installer-hooks/installer.nsh`
+    /// (fonction `CreateConfigFile`). Toute divergence entre cette fixture et
+    /// l'installeur doit faire échouer les tests, pas passer inaperçue.
+    const JVM_TEL_QUE_ECRIT_PAR_L_INSTALLEUR: &str = r#"{
+        "server": { "port": 9080 },
+        "logging": { "directory": "C:\\logs", "file": "C:\\logs\\app.log" },
+        "installation": { "directory": "C:\\PharmaSmart" },
+        "jvm": {
+            "java_home": "C:\\Program Files\\PharmaSmart\\sidecar\\jre",
+            "app": {
+                "heap_min": "2g",
+                "heap_max": "2g",
+                "metaspace_size": "256m",
+                "metaspace_max": "384m",
+                "direct_memory_size": "384m",
+                "max_gc_pause_millis": "200",
+                "additional_options": []
+            },
+            "batch": {
+                "heap_min": "128m",
+                "heap_max": "512m",
+                "additional_options": []
+            }
+        },
+        "setup_complete": true
+    }"#;
+
+    /// Régression : les scripts PowerShell des services Windows lisent
+    /// `jvm.java_home`, `jvm.app.heap_*` et `jvm.batch.heap_*`. Ces clés doivent
+    /// survivre au cycle lecture → écriture, faute de quoi le service perd le
+    /// chemin du JRE embarqué et ne redémarre plus sur un poste sans Java système.
+    #[test]
+    fn le_bloc_jvm_de_l_installeur_survit_a_une_sauvegarde() {
+        let config: AppConfig =
+            serde_json::from_str(JVM_TEL_QUE_ECRIT_PAR_L_INSTALLEUR).expect("lecture");
+
+        // Lecture : les valeurs de l'installeur sont bien prises en compte,
+        // et non remplacées par les défauts Rust.
+        assert_eq!(
+            config.jvm.java_home,
+            "C:\\Program Files\\PharmaSmart\\sidecar\\jre"
+        );
+        assert_eq!(config.jvm.app.heap_max, "2g");
+        assert_eq!(config.jvm.batch.heap_max, "512m");
+
+        let rewritten: serde_json::Value =
+            serde_json::from_str(&serde_json::to_string(&config).expect("écriture"))
+                .expect("relecture");
+
+        assert_eq!(
+            rewritten["jvm"]["java_home"],
+            "C:\\Program Files\\PharmaSmart\\sidecar\\jre",
+            "jvm.java_home a disparu — le service perdrait le JRE embarqué"
+        );
+        assert_eq!(rewritten["jvm"]["app"]["heap_min"], "2g");
+        assert_eq!(rewritten["jvm"]["app"]["metaspace_max"], "384m");
+        assert_eq!(
+            rewritten["jvm"]["batch"]["heap_min"], "128m",
+            "jvm.batch a disparu — setup-batch-service.ps1 repartirait aux défauts"
+        );
+        assert_eq!(rewritten["jvm"]["batch"]["heap_max"], "512m");
+    }
+
+    /// L'IHM ne pilote que `jvm.app` : modifier le heap depuis l'écran de
+    /// configuration ne doit toucher ni `java_home` ni `batch`.
+    #[test]
+    fn modifier_le_heap_applicatif_ne_touche_pas_java_home_ni_batch() {
+        let mut config: AppConfig =
+            serde_json::from_str(JVM_TEL_QUE_ECRIT_PAR_L_INSTALLEUR).expect("lecture");
+
+        config.jvm.app.heap_max = "4g".to_string();
+
+        let rewritten: serde_json::Value =
+            serde_json::from_str(&serde_json::to_string(&config).expect("écriture"))
+                .expect("relecture");
+
+        assert_eq!(rewritten["jvm"]["app"]["heap_max"], "4g");
+        assert_eq!(
+            rewritten["jvm"]["java_home"],
+            "C:\\Program Files\\PharmaSmart\\sidecar\\jre"
+        );
+        assert_eq!(rewritten["jvm"]["batch"]["heap_max"], "512m");
+    }
+
+    /// Un bloc `jvm` absent ou partiel ne doit pas invalider le fichier : les
+    /// sous-blocs manquants prennent les défauts, alignés sur l'installeur.
+    #[test]
+    fn un_bloc_jvm_absent_retombe_sur_les_defauts() {
+        let source = r#"{
+            "server": { "port": 9080 },
+            "logging": { "directory": "C:\\logs", "file": "C:\\logs\\app.log" },
+            "installation": { "directory": "C:\\PharmaSmart" }
+        }"#;
+
+        let config: AppConfig = serde_json::from_str(source).expect("lecture");
+        assert_eq!(config.jvm.java_home, "");
+        assert_eq!(config.jvm.app.heap_max, "2g");
+        assert_eq!(config.jvm.batch.heap_min, "128m");
+        assert_eq!(config.jvm.batch.heap_max, "512m");
+    }
+
+    /// Clés inconnues à l'intérieur de `jvm` : même exigence que pour les
+    /// sections racine, un cran plus bas.
+    #[test]
+    fn les_cles_inconnues_dans_jvm_survivent_a_une_sauvegarde() {
+        let source = r#"{
+            "server": { "port": 9080 },
+            "logging": { "directory": "C:\\logs", "file": "C:\\logs\\app.log" },
+            "installation": { "directory": "C:\\PharmaSmart" },
+            "jvm": {
+                "java_home": "",
+                "vendor_futur": "graalvm",
+                "app": { "heap_max": "3g", "option_future": true },
+                "batch": { "heap_max": "256m" }
+            }
+        }"#;
+
+        let config: AppConfig = serde_json::from_str(source).expect("lecture");
+        let rewritten: serde_json::Value =
+            serde_json::from_str(&serde_json::to_string(&config).expect("écriture"))
+                .expect("relecture");
+
+        assert_eq!(rewritten["jvm"]["vendor_futur"], "graalvm");
+        assert_eq!(rewritten["jvm"]["app"]["option_future"], true);
+        assert_eq!(rewritten["jvm"]["app"]["heap_max"], "3g");
+        assert_eq!(rewritten["jvm"]["batch"]["heap_max"], "256m");
     }
 }
 

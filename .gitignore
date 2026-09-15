@@ -319,3 +319,9 @@ scripts/demo-data/reference/
 
 # Configuration PharmaML réelle (identifiants d'un grossiste) : hors dépôt.
 scripts/demo-data/98_pharmaml_local.sql
+
+# Artefacts de mise à jour publiés dans le relais LAN — produits par
+# scripts/prepare-client-update.js, jamais versionnés (binaires de plusieurs Mo,
+# régénérés à chaque release). Le README du répertoire, lui, est suivi.
+/src-tauri/updates/*
+!/src-tauri/updates/README.md

@@ -1,0 +1,9 @@
+.client-update {
+  max-width: 640px;
+
+  &__versions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+}

@@ -300,6 +300,55 @@ npm run tauri:build:fast
 
 For detailed Tauri setup and configuration, see [TAURI_README.md](TAURI_README.md)
 
+### Génération d'une version distribuable
+
+Trois artefacts, selon le rôle du poste.
+
+| Artefact | Commande | Destination |
+| --- | --- | --- |
+| Poste client | `npm run tauri:build` | Déposer `src-tauri/target/release/pharmasmart.exe` sur le poste, avec un `backend-url.txt` indiquant l'URL du serveur. Pas d'installation. |
+| Poste serveur **sans** JRE | `npm run tauri:build:bundled` | Postes disposant déjà d'un Java |
+| Poste serveur **avec** JRE | `npm run tauri:build:bundled-jre` | Postes sans Java — livrable autonome |
+
+Les deux artefacts serveur portent le même numéro de version : ils sont suffixés
+automatiquement `-sans-jre` / `-avec-jre` à la construction, car **les appliquer l'un pour
+l'autre casse le poste** (l'installeur sans JRE supprime le JRE existant). L'installeur
+détecte le croisement et avertit.
+
+#### Option — mise à jour automatique des postes clients
+
+Le poste serveur peut servir de relais à ses postes clients : au lieu d'aller déposer
+`pharmasmart.exe` sur chaque machine, on transmet **un seul fichier** à l'officine.
+
+```bash
+# 1. Produire l'exécutable client et le publier dans le relais
+npm run tauri:build
+npm run tauri:prepare-client-update
+
+# 2. Construire l'installeur serveur : il embarque l'exécutable client
+npm run tauri:build:bundled-jre
+```
+
+L'étape 2 produit le fichier à transmettre. Une fois installé sur le poste serveur, les
+postes clients détectent la nouvelle version, la téléchargent depuis le LAN et se
+relancent — l'exécutable précédent est conservé en `.exe.old`, ce qui permet de revenir
+en arrière en le renommant.
+
+Aucune clé ni certificat n'est nécessaire : le binaire est récupéré auprès du serveur de
+l'officine, sur son propre réseau, soit le même niveau de confiance que la copie manuelle
+qu'il remplace.
+
+#### Revenir au fonctionnement sans relais
+
+- **Ne pas jouer `tauri:prepare-client-update`** : `src-tauri/updates/` ne contient alors
+  que son README, l'installeur serveur n'embarque rien, le backend répond « pas de mise à
+  jour » et les postes restent en dépôt manuel. C'est le comportement par défaut.
+- Pour désactiver un relais déjà en place : vider le répertoire `updates` sous
+  `%PROGRAMDATA%` sur le poste serveur.
+
+Autrement dit, le relais est un **ajout optionnel par-dessus** le fonctionnement actuel,
+jamais un passage obligé.
+
 ## ⚙️ Configuration
 
 ### Spring Profiles

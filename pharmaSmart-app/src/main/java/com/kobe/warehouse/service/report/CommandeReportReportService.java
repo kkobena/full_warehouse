@@ -38,12 +38,10 @@ public class CommandeReportReportService extends CommonReportService {
         this.commande = commande;
         Magasin magasin = storageService.getUser().getMagasin();
         List<OrderLineDTO> orderLineDTOList = getItems();
-        orderLineDTOList.sort(Comparator.comparing(OrderLineDTO::getProduitLibelle));
         this.templateFile = Constant.COMMANDE_EN_COURS_TEMPLATE_FILE;
         getParameters().put(Constant.MAGASIN, magasin);
         getParameters().put(Constant.COMMANDE, this.commande);
         getParameters().put(Constant.ITEM_SIZE, orderLineDTOList.size());
-        getParameters().put(Constant.DEVISE, Constant.DEVISE_CONSTANT);
         getParameters().put(Constant.FOOTER, "\"" + super.builderFooter(magasin) + "\"");
         if (orderLineDTOList.size() > Constant.COMMANDE_PAGE_SIZE) {
             getParameters().put(Constant.COMMANDE_ITEMS, orderLineDTOList.subList(0, Constant.COMMANDE_PAGE_SIZE));
@@ -57,14 +55,30 @@ public class CommandeReportReportService extends CommonReportService {
         }
     }
 
+    /**
+     * Les lignes de la commande, triees par libelle de produit.
+     *
+     * <p>Le tri appartient a cette methode et non a {@code export} : la pagination rappelle
+     * {@code getItems()} pour decouper les pages suivantes. Trier une copie locale laissait donc la
+     * premiere page dans l'ordre alphabetique et les suivantes dans l'ordre de la base — certaines
+     * lignes paraissaient deux fois, d'autres jamais.
+     */
     @Override
     protected List<OrderLineDTO> getItems() {
-        return  new ArrayList<>(this.commande.getOrderLines());
+        List<OrderLineDTO> lignes = new ArrayList<>(this.commande.getOrderLines());
+        lignes.sort(Comparator.comparing(OrderLineDTO::getProduitLibelle));
+        return lignes;
     }
 
     @Override
     protected int getMaxiRowCount() {
         return Constant.COMMANDE_PAGE_SIZE;
+    }
+
+    /** Le gabarit de la commande lit {@code commande_items}, non la variable commune. */
+    @Override
+    protected String getItemsParameterName() {
+        return Constant.COMMANDE_ITEMS;
     }
 
     @Override

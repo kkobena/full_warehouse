@@ -120,9 +120,10 @@ class DeliveryReceiptReportReportServiceTest {
             .containsEntry(Constant.MAGASIN, magasin)
             .containsEntry(Constant.ENTITY, commande)
             .containsEntry(Constant.ITEM_SIZE, 3)
-            .containsEntry(Constant.DEVISE, Constant.DEVISE_CONSTANT)
             .containsEntry(Constant.IS_LAST_PAGE, true)
             .containsEntry(Constant.PAGE_COUNT, "1/1");
+        // La devise n'est plus posee ici : elle vient de la configuration, via le contexte commun.
+        assertThat(service.getParameters()).doesNotContainKey(Constant.DEVISE);
     }
 
     @Test

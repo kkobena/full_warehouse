@@ -11,9 +11,15 @@ scenario('REF-11', async ({ etape, page }) => {
     await page.goto('/produits');
     // Un produit à lots multiples : 06_lots.sql en pose plusieurs par produit, avec des
     // péremptions échelonnées — c'est ce qui rend l'illustration parlante.
-    await page.getByPlaceholder(/Rechercher \(CIP/).fill('PARACETAMOL');
+    //
+    // Le terme cherché désigne un NOM COMMERCIAL, non une molécule : la recherche porte aussi
+    // sur la DCI (CustomizedProductRepository.produitPredicate), si bien que « PARACETAMOL »
+    // remonte d'abord DOLIPRANE et EFFERALGAN — qui l'ont pour DCI — et que l'assertion sur la
+    // première ligne échouait. Chercher par molécule est un besoin réel de l'officine : c'est
+    // l'attente qu'il fallait corriger, pas la recherche.
+    await page.getByPlaceholder(/Rechercher \(CIP/).fill('AUGMENTIN');
     await page.keyboard.press('Enter');
-    await expect(page.locator('tbody tr').first()).toContainText(/PARACETAMOL/i);
+    await expect(page.locator('tbody tr').first()).toContainText(/AUGMENTIN/i);
     await page.locator('tbody tr').first().click();
     await expect(page.getByRole('tab', { name: 'Synthèse' })).toBeVisible();
   });

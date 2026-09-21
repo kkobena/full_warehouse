@@ -10,6 +10,7 @@ import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.PaymentTransaction_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
+import com.kobe.warehouse.domain.enumeration.CategorieTransaction;
 import com.kobe.warehouse.domain.enumeration.TransactionTypeAffichage;
 import com.kobe.warehouse.repository.DefaultTransactionRepository;
 import com.kobe.warehouse.repository.PaymentTransactionRepository;
@@ -191,25 +192,32 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
             paymentTransaction.setTransactionDate(financialTransaction.getTransactionDate());
         }
         paymentTransaction.setTypeFinancialTransaction(financialTransaction.getTypeTransaction());
-        switch (financialTransaction.getTypeTransaction()) {
-            case SORTIE_CAISSE, REGLMENT_FOURNISSEUR:
-                paymentTransaction.setCredit(true);
-                break;
-            default:
-                break;
-        }
+        // Le commentaire du caissier explique pourquoi l'argent a quitte le tiroir : la saisie le
+        // demande, l'ecran l'envoie, et il n'etait recopie ni ici ni dans toDTO.
+        paymentTransaction.setCommentaire(financialTransaction.getCommentaire());
+        // Le sens se lit sur la categorie du type, non sur une liste de types reecrite a la main :
+        // FONDS_CAISSE est une sortie de caisse que l'ancien switch oubliait, et le ticket Z
+        // l'ajoutait au tiroir au lieu de l'en retirer.
+        paymentTransaction.setCredit(
+            financialTransaction.getTypeTransaction().getCategorieTransaction() == CategorieTransaction.SORTIE_CAISSE
+        );
         return paymentTransaction;
     }
 
     private FinancialTransactionDTO toDTO(PaymentTransaction paymentTransaction) {
         FinancialTransactionDTO financialTransactionDTO = new FinancialTransactionDTO();
-        //   financialTransactionDTO.setAmount(paymentTransaction.getAmount());
+        // Le montant se lit sur paid_amount : getAmount() a disparu de l'entite lors d'un remaniement
+        // et la ligne est restee commentee, si bien que tout mouvement relu par l'ecran ou par
+        // findById affichait un montant nul.
+        financialTransactionDTO.setAmount(Objects.requireNonNullElse(paymentTransaction.getPaidAmount(), 0));
+        financialTransactionDTO.setId(paymentTransaction.getId() != null ? paymentTransaction.getId().getId() : null);
         financialTransactionDTO.setPaymentMode(paymentTransaction.getPaymentMode());
         financialTransactionDTO.setTransactionDate(paymentTransaction.getTransactionDate());
         financialTransactionDTO.setTypeFinancialTransaction(paymentTransaction.getTypeFinancialTransaction());
         // financialTransactionDTO.setOrganismeId(paymentTransaction.getObjectId());
         financialTransactionDTO.setCreatedAt(paymentTransaction.getCreatedAt());
         financialTransactionDTO.setCredit(paymentTransaction.isCredit());
+        financialTransactionDTO.setCommentaire(paymentTransaction.getCommentaire());
 
         var user = paymentTransaction.getCashRegister().getUser();
         financialTransactionDTO.setUserFullName(AppUserNames.fullName(user));
@@ -313,7 +321,11 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         mvtCaisseDTO.setType(mvtCaisseProjection.typeFinancialTransaction());
         mvtCaisseDTO.setDate(DateUtil.format(mvtCaisseProjection.createdAt()));
         mvtCaisseDTO.setReference(mvtCaisseProjection.transactionNumber());
-        mvtCaisseDTO.setUserFullName(mvtCaisseProjection.firstName().charAt(0) + "".toUpperCase() + ". " + mvtCaisseProjection.lastName());
+        // Le toUpperCase portait sur la chaine vide et non sur l'initiale : « a. KONE » au lieu de
+        // « A. KONE ».
+        mvtCaisseDTO.setUserFullName(
+            String.valueOf(mvtCaisseProjection.firstName().charAt(0)).toUpperCase() + ". " + mvtCaisseProjection.lastName()
+        );
         switch (mvtCaisseProjection.paymentType()) {
             case SalePayment -> {
                 SaleInfo saleInfo = salesRepository.findSaleInfoById(mvtCaisseProjection.saleId(), mvtCaisseProjection.saleDate());

@@ -17,7 +17,20 @@ public record MobilePerformanceDTO(
     // CA Summary
     long caTotal,
     long caPreviousPeriod,
-    double variationPercent,
+
+    // Nul quand la periode de reference est vide : une officine sans historique n'a pas progresse de
+    // cent pour cent, elle n'a simplement rien a quoi se comparer. L'ecran doit pouvoir afficher un
+    // tiret plutot qu'un chiffre qui se lit comme une performance.
+    Double variationPercent,
+
+    // Période de référence réellement comparée : elle s'arrête au même avancement que la période
+    // courante, il faut donc pouvoir le dire à l'écran.
+    LocalDate previousStartDate,
+    LocalDate previousEndDate,
+
+    // Même période l'an passé — la lecture qui échappe à la saison
+    long caSamePeriodLastYear,
+    Double variationVsLastYearPercent,
 
     // Transactions
     int transactionsCount,
@@ -90,7 +103,11 @@ public record MobilePerformanceDTO(
         private LocalDate endDate;
         private long caTotal;
         private long caPreviousPeriod;
-        private double variationPercent;
+        private Double variationPercent;
+        private LocalDate previousStartDate;
+        private LocalDate previousEndDate;
+        private long caSamePeriodLastYear;
+        private Double variationVsLastYearPercent;
         private int transactionsCount;
         private long averageBasket;
         private int customersCount;
@@ -125,8 +142,28 @@ public record MobilePerformanceDTO(
             return this;
         }
 
-        public Builder variationPercent(double variationPercent) {
+        public Builder variationPercent(Double variationPercent) {
             this.variationPercent = variationPercent;
+            return this;
+        }
+
+        public Builder previousStartDate(LocalDate previousStartDate) {
+            this.previousStartDate = previousStartDate;
+            return this;
+        }
+
+        public Builder previousEndDate(LocalDate previousEndDate) {
+            this.previousEndDate = previousEndDate;
+            return this;
+        }
+
+        public Builder caSamePeriodLastYear(long caSamePeriodLastYear) {
+            this.caSamePeriodLastYear = caSamePeriodLastYear;
+            return this;
+        }
+
+        public Builder variationVsLastYearPercent(Double variationVsLastYearPercent) {
+            this.variationVsLastYearPercent = variationVsLastYearPercent;
             return this;
         }
 
@@ -173,6 +210,7 @@ public record MobilePerformanceDTO(
         public MobilePerformanceDTO build() {
             return new MobilePerformanceDTO(
                 period, startDate, endDate, caTotal, caPreviousPeriod, variationPercent,
+                previousStartDate, previousEndDate, caSamePeriodLastYear, variationVsLastYearPercent,
                 transactionsCount, averageBasket, customersCount, marginTotal, marginPercent,
                 paymentMethods, topProducts, dataPoints, LocalDateTime.now()
             );

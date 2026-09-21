@@ -156,14 +156,20 @@ public class TicketZServiceImpl implements TicketZService {
                                 montant += d.montant();
                                 montant1 += d.montantReel();
                             }
-                            if (modePaimentCode.getPaymentGroup() == PaymentGroup.MOBILE) {
-                                montantMobileCount.incrementAndGet();
-                                montantMobileCountG.incrementAndGet();
-                                montantMobile.addAndGet(montant);
-                                montantMobile2.addAndGet(montant1);
-                                montantMobileG.addAndGet(montant);
-                                montantMobileG2.addAndGet(montant1);
-                            }
+                        }
+
+                        // Le cumul mobile se fait une fois le mode totalise, non a chaque ligne : la
+                        // requete rend une ligne par sens (reglement et credit), et ajouter le
+                        // sous-total courant a chaque passage comptait deux fois le reglement. Le
+                        // compteur denombre desormais les operateurs, ce qui est le sens du
+                        // sous-total « Total Mobile » : il n'a d'interet qu'a partir de deux.
+                        if (modePaimentCode.getPaymentGroup() == PaymentGroup.MOBILE) {
+                            montantMobileCount.incrementAndGet();
+                            montantMobileCountG.incrementAndGet();
+                            montantMobile.addAndGet(montant);
+                            montantMobile2.addAndGet(montant1);
+                            montantMobileG.addAndGet(montant);
+                            montantMobileG2.addAndGet(montant1);
                         }
 
                         if (summary.containsKey(modePaimentCode)) {

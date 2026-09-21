@@ -22,8 +22,8 @@ public final class Constant {
     public static final String DTO_DATE = "dto_date";
     public static final String ITEM_SIZE = "item_size";
     public static final String FOOTER = "footer";
+    /** Nom de la variable de gabarit ; sa valeur vient de la configuration de l'officine. */
     public static final String DEVISE = "devise";
-    public static final String DEVISE_CONSTANT = "CFA";
     public static final int COMMANDE_PAGE_SIZE = 55;
     public static final int PAGE_SIZE = 73;
     public static final String PAGE_COUNT = "page_count";

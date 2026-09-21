@@ -131,17 +131,45 @@ public class TableauPharmacienCalculator {
     /**
      * Calculate net amount considering remises
      */
-    public void calculateNetAmount(TableauPharmacienDTO dto) {
-        long montantNet = dto.getMontantTtc() + dto.getMontantRemise() - dto.getMontantRemiseUg();
+    public void calculateNetAmount(TableauPharmacienDTO dto, boolean exclureUnitesGratuites) {
+        // La remise se retranche du TTC, elle ne s'y ajoute pas : le TTC rendu par la fonction
+        // stockee est le brut (quantite x prix de vente), et le net est ce qui reste a encaisser.
+        // Le signe inverse faisait depasser la colonne « Montant Net » le chiffre d'affaires brut,
+        // de deux fois la remise accordee, et faussait d'autant les deux ratios V/A et A/V.
+        //
+        // La remise est celle de l'en-tete de vente : elle porte deja sur toutes les lignes, unites
+        // gratuites comprises. La retirer une seconde fois sous la forme de montantRemiseUg
+        // comptait la remise des UG deux fois.
+        long montantNet = dto.getMontantTtc() - dto.getMontantRemise();
+        if (exclureUnitesGratuites) {
+            montantNet -= montantUgNet(dto);
+        }
         dto.setMontantNet(montantNet);
     }
 
     /**
-     * Adjust cash amount for unit gratuite
+     * Retire du comptant ce que les unités gratuites ont rapporté, quand l'officine a choisi de les
+     * exclure de son chiffre d'affaires.
+     *
+     * <p>Les unités gratuites sont vendues au prix normal : {@code quantity_ug} est un sous-ensemble
+     * de {@code quantity_requested} (cf. {@code StockUpdateService}, qui décrémente le stock de la
+     * différence et le stock d'UG du reste). Leur valeur est donc comprise dans le TTC <em>et</em>
+     * dans l'encaissement — d'où la nécessité de la retirer des deux à la fois, ou d'aucun des deux,
+     * sous peine de rompre l'égalité entre la colonne « Montant Net » et le comptant plus le crédit.
+     *
+     * <p>Le retrait était inconditionnel : le paramètre d'officine
+     * {@code AppConfigurationService.excludeFreeUnit()} n'était lu par personne.
      */
-    public void adjustCashAmountForUnitGratuite(TableauPharmacienDTO dto) {
-        long adjustedComptant = dto.getMontantComptant() - dto.getMontantTtcUg();
-        dto.setMontantComptant(adjustedComptant);
+    public void adjustCashAmountForUnitGratuite(TableauPharmacienDTO dto, boolean exclureUnitesGratuites) {
+        if (!exclureUnitesGratuites) {
+            return;
+        }
+        dto.setMontantComptant(dto.getMontantComptant() - montantUgNet(dto));
+    }
+
+    /** Ce que les unités gratuites ont réellement rapporté : leur valeur brute, remise déduite. */
+    private long montantUgNet(TableauPharmacienDTO dto) {
+        return dto.getMontantTtcUg() - dto.getMontantRemiseUg();
     }
 
     /**

@@ -12,9 +12,9 @@ data class Dashboard(
     @SerializedName("dailyCA") val dailyCA: Long,
     /** CA moyen journalier des 30 derniers jours — référence glissante */
     @SerializedName("averageCA30j") val averageCA30j: Long,
-    @SerializedName("variationPercent") val variationPercent: Double,
+    @SerializedName("variationPercent") val variationPercent: Double? = null,
     /** Écart % entre le CA du jour et la moyenne des 30 derniers jours */
-    @SerializedName("trendVs30j") val trendVs30j: Double,
+    @SerializedName("trendVs30j") val trendVs30j: Double? = null,
     @SerializedName("transactionsCount") val transactionsCount: Int,
     @SerializedName("averageBasket") val averageBasket: Long,
     @SerializedName("customersCount") val customersCount: Int,
@@ -36,18 +36,39 @@ data class Dashboard(
 
     fun getFormattedAverageCA30j(): String = formatAmount(averageCA30j)
 
-    fun getVariationIndicator(): String = if (variationPercent >= 0) "↗" else "↘"
+    fun getVariationIndicator(): String = indicateur(variationPercent)
 
-    fun isVariationPositive(): Boolean = variationPercent >= 0
+    fun isVariationPositive(): Boolean = variationPercent != null && variationPercent >= 0
 
     /** Vrai si le CA du jour dépasse la moyenne des 30 derniers jours. */
-    fun isTrendPositive(): Boolean = trendVs30j >= 0
+    fun isTrendPositive(): Boolean = trendVs30j != null && trendVs30j >= 0
+
+    /**
+     * Vrai quand la veille est vide : il n'y a pas de variation à afficher.
+     *
+     * Un premier jour d'exploitation, ou un lendemain de jour de fermeture, n'a pas de référence.
+     * Le serveur ne rend alors aucune variation, là où il envoyait cent.
+     */
+    fun hasNoVariationBasis(): Boolean = variationPercent == null
+
+    /** Vrai quand la moyenne glissante est encore vide : la tendance ne veut rien dire. */
+    fun hasNoTrendBasis(): Boolean = trendVs30j == null
 
     /**
      * Texte d'interprétation de la tendance pour l'affichage mobile.
-     * Ex : "+12,3% vs moy. 30j" ou "-5,1% vs moy. 30j"
+     * Ex : "+12,3% vs moy. 30j", "-5,1% vs moy. 30j", ou "– vs moy. 30j" sans historique.
      */
-    fun getTrendLabel(): String = String.format("%+.1f%% vs moy. 30j", trendVs30j)
+    fun getTrendLabel(): String = String.format("%s vs moy. 30j", formatVariation(trendVs30j))
+
+    /** Le pourcentage tel qu'il doit se lire : un tiret quand il n'y a rien à comparer. */
+    fun formatVariation(variation: Double?): String =
+        if (variation == null) "–" else String.format("%+.1f%%", variation)
+
+    private fun indicateur(variation: Double?): String = when {
+        variation == null -> "–"
+        variation >= 0 -> "↗"
+        else -> "↘"
+    }
 
     companion object {
         fun formatAmount(amount: Long): String {

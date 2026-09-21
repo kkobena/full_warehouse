@@ -276,22 +276,19 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
             ) basket_sizes
             """;
 
-        BigDecimal averageBasketSize = ((Number) entityManager
-                .createNativeQuery(basketSizeSql)
-                .setParameter("startDate", startDate)
-                .setParameter("endDate", endDate)
-                .getSingleResult())
-            .doubleValue() == 0.0
+        // La moyenne d'un ensemble vide n'est pas zéro : SQL rend NULL. Sans garde, une période sans
+        // aucune vente — un jour férié, une officine qui vient d'ouvrir — faisait tomber l'écran.
+        // La requête n'est par ailleurs exécutée qu'une fois : elle l'était deux fois, une pour
+        // tester la valeur et une pour la lire.
+        Number moyenneBrute = (Number) entityManager
+            .createNativeQuery(basketSizeSql)
+            .setParameter("startDate", startDate)
+            .setParameter("endDate", endDate)
+            .getSingleResult();
+
+        BigDecimal averageBasketSize = moyenneBrute == null
             ? BigDecimal.ZERO
-            : BigDecimal.valueOf(
-                ((Number) entityManager
-                        .createNativeQuery(basketSizeSql)
-                        .setParameter("startDate", startDate)
-                        .setParameter("endDate", endDate)
-                        .getSingleResult())
-                    .doubleValue()
-            )
-                .setScale(2, RoundingMode.HALF_UP);
+            : BigDecimal.valueOf(moyenneBrute.doubleValue()).setScale(2, RoundingMode.HALF_UP);
 
         // Get top associations with default thresholds
         List<ProductAssociationDTO> topAssociations = getProductAssociations(

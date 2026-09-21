@@ -98,17 +98,19 @@ class DashboardViewModel(
     }
 
     /**
-     * Get variation percentage.
+     * Écart % à la veille, ou `null` quand la veille est vide.
+     *
+     * Le nul se propage : retomber sur zéro ferait passer « pas de référence » pour « stable ».
      */
-    fun getVariationPercent(): Double {
-        return _dashboard.value?.variationPercent ?: 0.0
+    fun getVariationPercent(): Double? {
+        return _dashboard.value?.variationPercent
     }
 
     /**
-     * Écart % entre le CA du jour et la moyenne des 30 derniers jours.
+     * Écart % entre le CA du jour et la moyenne des 30 derniers jours, ou nul sans historique.
      */
-    fun getTrendVs30j(): Double {
-        return _dashboard.value?.trendVs30j ?: 0.0
+    fun getTrendVs30j(): Double? {
+        return _dashboard.value?.trendVs30j
     }
 
     /**

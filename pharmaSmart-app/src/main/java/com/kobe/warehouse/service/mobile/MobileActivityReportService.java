@@ -174,8 +174,8 @@ public class MobileActivityReportService {
                 long montant = r.realAmount();
                 double percent = total > 0 ? (montant * 100.0 / total) : 0.0;
                 return new RecetteMobileDTO(
-                    r.libelle(),
                     r.code(),
+                    r.libelle(),
                     montant,
                     Math.round(percent * 10.0) / 10.0,
                     RecetteMobileDTO.getColorForCode(r.code())

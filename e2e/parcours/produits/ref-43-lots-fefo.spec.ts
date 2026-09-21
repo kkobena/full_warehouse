@@ -14,7 +14,9 @@ import { scenario } from '../../src/scenario';
  * Parcours en LECTURE.
  */
 scenario('REF-43', async ({ etape, page }) => {
-  const produit = 'PARACETAMOL';
+  // Un nom commercial, non une molécule : la recherche porte aussi sur la DCI, donc
+  // « PARACETAMOL » remonte d'abord DOLIPRANE et EFFERALGAN, qui l'ont pour DCI. Voir REF-11.
+  const produit = 'AUGMENTIN';
   const onglet = page.locator('app-produit-stock-tab');
 
   await etape(1, async () => {

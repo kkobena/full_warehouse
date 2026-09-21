@@ -2,6 +2,8 @@ package com.kobe.warehouse.service.financiel_transaction.dto;
 
 import static java.util.Objects.isNull;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import com.kobe.warehouse.domain.enumeration.TransactionTypeAffichage;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.service.cash_register.dto.TypeVente;
@@ -288,6 +290,15 @@ public class BalanceCaisseDTO {
         return montantDiscount;
     }
 
+    /**
+     * La fonction stockée qui alimente la balance nomme cette clé {@code discountAmount}.
+     *
+     * <p>L'alias est indispensable : Jackson est configuré pour ignorer les clés qu'il ne reconnaît
+     * pas, si bien que la remise disparaissait silencieusement de la balance de caisse — le chiffre
+     * net s'y affichait égal au brut, quelles que soient les remises accordées dans la journée. La
+     * sérialisation vers le front, elle, continue d'émettre {@code montantDiscount}.
+     */
+    @JsonAlias("discountAmount")
     public BalanceCaisseDTO setMontantDiscount(Integer montantDiscount) {
         this.montantDiscount = montantDiscount;
         return this;

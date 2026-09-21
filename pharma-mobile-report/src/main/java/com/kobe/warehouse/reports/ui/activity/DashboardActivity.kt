@@ -258,29 +258,38 @@ class DashboardActivity : BaseActivity() {
         // CA section
         binding.tvDailyCA.text = dashboard.getFormattedDailyCA()
 
-        // Variation
-        val variationPercent = dashboard.variationPercent
-        val isPositive = variationPercent >= 0
+        // Variation vs la veille. Sans veille chiffrée il n'y a pas de variation : un tiret, en
+        // gris, plutôt qu'un « +100 % » vert qui se lirait comme une progression.
         binding.tvVariationIndicator.text = dashboard.getVariationIndicator()
-        binding.tvVariation.text = String.format("%+.1f%%", variationPercent)
+        binding.tvVariation.text = dashboard.formatVariation(dashboard.variationPercent)
 
-        val variationColor = if (isPositive) R.color.success else R.color.error
+        val variationColor = when {
+            dashboard.hasNoVariationBasis() -> R.color.text_secondary
+            dashboard.isVariationPositive() -> R.color.success
+            else -> R.color.error
+        }
         binding.tvVariationIndicator.setTextColor(ContextCompat.getColor(this, variationColor))
         binding.tvVariation.setTextColor(ContextCompat.getColor(this, variationColor))
 
-        val variationBackground = if (isPositive) {
-            R.drawable.bg_variation_positive
-        } else {
-            R.drawable.bg_variation_negative
-        }
-        binding.llVariation.setBackgroundResource(variationBackground)
+        binding.llVariation.setBackgroundResource(
+            if (dashboard.hasNoVariationBasis() || dashboard.isVariationPositive()) {
+                R.drawable.bg_variation_positive
+            } else {
+                R.drawable.bg_variation_negative
+            }
+        )
 
-        // Tendance vs moyenne 30 derniers jours
-        val trendColor = if (dashboard.isTrendPositive()) R.color.success else R.color.error
+        // Tendance vs moyenne 30 derniers jours — même règle : une moyenne encore vide ne dit rien.
+        val trendColor = when {
+            dashboard.hasNoTrendBasis() -> R.color.text_secondary
+            dashboard.isTrendPositive() -> R.color.success
+            else -> R.color.error
+        }
         binding.tvTrendLabel.text = dashboard.getTrendLabel()
         binding.tvTrendLabel.setTextColor(ContextCompat.getColor(this, trendColor))
         binding.ivTrendIcon.setImageResource(
-            if (dashboard.isTrendPositive()) R.drawable.ic_trending_up else R.drawable.ic_trending_down
+            if (dashboard.hasNoTrendBasis() || dashboard.isTrendPositive()) R.drawable.ic_trending_up
+            else R.drawable.ic_trending_down
         )
         binding.ivTrendIcon.setColorFilter(ContextCompat.getColor(this, trendColor))
         binding.tvAverageCA.text = getString(R.string.dashboard_average_ca_format, dashboard.getFormattedAverageCA30j())

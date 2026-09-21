@@ -7,6 +7,7 @@ import com.kobe.warehouse.repository.MobileSalesRepository.SalesSummaryProjectio
 import com.kobe.warehouse.repository.MobileSalesRepository.TopProductProjection;
 import com.kobe.warehouse.service.dto.mobile.CustomReportMetricDTO;
 import com.kobe.warehouse.service.dto.mobile.CustomReportMetricDTO.ChartDataPointDTO;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -30,9 +31,11 @@ public class MobileCustomReportService {
     private static final int TOP_PRODUCTS_LIMIT = 10;
 
     private final MobileSalesRepository salesRepository;
+    private final AppConfigurationService appConfigurationService;
 
-    public MobileCustomReportService(MobileSalesRepository salesRepository) {
+    public MobileCustomReportService(MobileSalesRepository salesRepository, AppConfigurationService appConfigurationService) {
         this.salesRepository = salesRepository;
+        this.appConfigurationService = appConfigurationService;
     }
 
     /**
@@ -224,7 +227,7 @@ public class MobileCustomReportService {
         int count = Math.min(5, topProducts.size());
         for (int i = 0; i < count; i++) {
             ChartDataPointDTO product = topProducts.get(i);
-            details.append(String.format("%s: %s FCFA", product.label(), formatNumber(product.value())));
+            details.append(String.format("%s: %s ", product.label(), formatNumber(product.value())));
             if (i < count - 1) details.append("\n");
         }
 
@@ -335,8 +338,9 @@ public class MobileCustomReportService {
             .doubleValue();
     }
 
+    /** La devise est configurable : une officine hors zone franc ne doit pas lire « FCFA ». */
     private String formatAmount(long amount) {
-        return String.format("%,d FCFA", amount);
+        return String.format("%,d %s", amount, appConfigurationService.getDevise());
     }
 
     private String formatNumber(double number) {

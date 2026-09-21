@@ -631,7 +631,7 @@ class CommandeDataServiceImplTest {
             stubFindAll(requested, requested);
             List<PharmaMlEnvoi> envois = new ArrayList<>();
             for (int i = 0; i < 60; i++) {
-                envois.add(envoi(i + 1, requested.get(0), null));
+                envois.add(envoi(i + 1, requested.getFirst(), null));
             }
             when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING)).thenReturn(envois);
 

@@ -8,6 +8,7 @@ import com.kobe.warehouse.repository.UserDeviceRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.service.dto.mobile.DailyDigestDTO;
 import com.kobe.warehouse.service.dto.mobile.UserPerformanceDTO;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -35,17 +36,25 @@ public class MobilePushNotificationService {
     private final UserDeviceRepository userDeviceRepository;
     private final UserRepository userRepository;
     private final MobileReportService mobileReportService;
+    private final AppConfigurationService appConfigurationService;
 
     public MobilePushNotificationService(
         FirebaseMessaging firebaseMessaging,
         UserDeviceRepository userDeviceRepository,
         UserRepository userRepository,
-        MobileReportService mobileReportService
+        MobileReportService mobileReportService,
+        AppConfigurationService appConfigurationService
     ) {
         this.firebaseMessaging = firebaseMessaging;
         this.userDeviceRepository = userDeviceRepository;
         this.userRepository = userRepository;
         this.mobileReportService = mobileReportService;
+        this.appConfigurationService = appConfigurationService;
+    }
+
+    /** La devise est configurable : une officine hors zone franc ne doit pas lire « FCFA ». */
+    private String devise() {
+        return appConfigurationService.getDevise();
     }
 
     /**
@@ -114,8 +123,9 @@ public class MobilePushNotificationService {
 
         String title = "📊 Résumé quotidien";
         String body = String.format(
-            "CA: %,d FCFA (%+.1f%%) | %d ventes | %d alertes",
+            "CA: %,d %s (%+.1f%%) | %d ventes | %d alertes",
             digest.getTotalCA(),
+            devise(),
             digest.getVariation(),
             digest.getTransactionCount(),
             digest.getAlertsCount()
@@ -139,10 +149,12 @@ public class MobilePushNotificationService {
 
                 String title = "💪 Votre performance du jour";
                 String body = String.format(
-                    "CA: %,d FCFA | %d ventes | Panier moyen: %,d FCFA",
+                    "CA: %,d %s | %d ventes | Panier moyen: %,d %s",
                     perf.getTotalCA(),
+                    devise(),
                     perf.getSalesCount(),
-                    perf.getAverageBasket()
+                    perf.getAverageBasket(),
+                    devise()
                 );
 
                 sendToUser(seller.getId(), title, body, data, AndroidConfig.Priority.NORMAL);
@@ -163,8 +175,9 @@ public class MobilePushNotificationService {
 
         String title = "🎯 Objectif atteint!";
         String body = String.format(
-            "Bravo! L'objectif de CA quotidien a été dépassé (%,d FCFA)",
-            dailyCA
+            "Bravo! L'objectif de CA quotidien a été dépassé (%,d %s)",
+            dailyCA,
+            devise()
         );
 
         // Send to all users
@@ -186,8 +199,9 @@ public class MobilePushNotificationService {
 
         String title = "💰 Grosse vente!";
         String body = String.format(
-            "Vente de %,d FCFA enregistrée%s",
+            "Vente de %,d %s enregistrée%s",
             amount,
+            devise(),
             customerName != null ? " pour " + customerName : ""
         );
 
@@ -207,7 +221,7 @@ public class MobilePushNotificationService {
         data.put("discrepancy", discrepancy.toString());
 
         String title = "🔴 Écart de caisse";
-        String body = String.format("Écart détecté: %+,d FCFA", discrepancy);
+        String body = String.format("Écart détecté: %+,d %s", discrepancy, devise());
 
         // Send to managers
         sendToRole(AuthorityEnum.ROLE_ADMIN, title, body, data, AndroidConfig.Priority.HIGH);

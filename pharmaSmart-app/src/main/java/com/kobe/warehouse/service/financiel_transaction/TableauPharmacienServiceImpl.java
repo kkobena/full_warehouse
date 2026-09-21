@@ -96,6 +96,11 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         // Le mode arrive du client : un module non souscrit ne doit pas pouvoir être obtenu
         // en forgeant la requête. Le masquage des menus ne protège que l'usage courant.
         mvtParam.setMode(modeResolver.resoudre(mvtParam.getMode()));
+        // L'exclusion des unités gratuites est un choix d'officine, pas un paramètre d'écran : le
+        // client n'a pas à le transmettre, et ne pouvait d'ailleurs pas le faire — le paramètre était
+        // porté par MvtParam mais lu par personne, et le service recevait AppConfigurationService
+        // sans jamais l'interroger.
+        mvtParam.setExcludeFreeUnit(appConfigurationService.excludeFreeUnit());
         return computeTableauPharmacien(mvtParam);
     }
 
@@ -182,11 +187,13 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     private List<TableauPharmacienDTO> fetchAndProcessSalesData(MvtParam mvtParam, TableauPharmacienWrapper wrapper) {
         List<TableauPharmacienDTO> salesData = fetchSalesFromDatabase(mvtParam);
 
+        boolean exclureUnitesGratuites = mvtParam.isExcludeFreeUnit();
+
         // Process each sales entry
         salesData.forEach(dto -> {
             calculator.calculatePaymentTotals(dto);
-            calculator.calculateNetAmount(dto);
-            calculator.adjustCashAmountForUnitGratuite(dto);
+            calculator.calculateNetAmount(dto, exclureUnitesGratuites);
+            calculator.adjustCashAmountForUnitGratuite(dto, exclureUnitesGratuites);
             aggregator.aggregateSalesToWrapper(wrapper, dto);
         });
 
@@ -236,7 +243,9 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
      * Fetch purchases data
      */
     private List<AchatDTO> fetchPurchasesData(MvtParam mvtParam) {
-        List<AchatDTO> purchases = commandeDataService.fetchReportTableauPharmacienData(mvtParam);
+        // Copie avant tri : la liste appartient à l'appelé, et rien ne promet qu'elle soit modifiable.
+        // Une implémentation qui rendrait List.of() ou un .toList() faisait tomber tout le tableau.
+        List<AchatDTO> purchases = new ArrayList<>(commandeDataService.fetchReportTableauPharmacienData(mvtParam));
         purchases.sort(Comparator.comparing(AchatDTO::getOrdreAffichage));
         return purchases;
     }

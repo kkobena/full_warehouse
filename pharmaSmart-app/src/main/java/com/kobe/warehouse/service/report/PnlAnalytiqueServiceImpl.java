@@ -11,9 +11,11 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.SequencedSet;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,9 +69,9 @@ public class PnlAnalytiqueServiceImpl implements PnlAnalytiqueService {
 
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MMM yyyy", Locale.FRENCH);
 
-        // Collect ordered months and families (insertion order = SQL order)
         List<String> labels = new ArrayList<>();
-        Map<String, List<BigDecimal>> seriesMap = new LinkedHashMap<>();
+        Map<String, Map<String, BigDecimal>> tauxParMoisEtFamille = new LinkedHashMap<>();
+        SequencedSet<String> familles = new LinkedHashSet<>();
 
         for (Object[] row : rows) {
             int yr = ((Number) row[0]).intValue();
@@ -81,11 +83,13 @@ public class PnlAnalytiqueServiceImpl implements PnlAnalytiqueService {
             if (!labels.contains(monthLabel)) {
                 labels.add(monthLabel);
             }
-            seriesMap.computeIfAbsent(famille, k -> new ArrayList<>()).add(taux);
+            tauxParMoisEtFamille.computeIfAbsent(monthLabel, k -> new LinkedHashMap<>()).put(famille, taux);
+            familles.add(famille);
         }
 
-        List<PnlEvolutionSerieDTO> series = seriesMap.entrySet().stream()
-            .map(e -> new PnlEvolutionSerieDTO(e.getKey(), null, e.getValue()))
+        List<PnlEvolutionSerieDTO> series = familles
+            .stream()
+            .map(famille -> new PnlEvolutionSerieDTO(famille, null, valeursAlignees(labels, tauxParMoisEtFamille, famille)))
             .toList();
 
         return new PnlEvolutionDTO(labels, series);
@@ -99,7 +103,8 @@ public class PnlAnalytiqueServiceImpl implements PnlAnalytiqueService {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MMM yyyy", Locale.FRENCH);
 
         List<String> labels = new ArrayList<>();
-        Map<String, List<BigDecimal>> seriesMap = new LinkedHashMap<>();
+        Map<String, Map<String, BigDecimal>> tauxParMoisEtSegment = new LinkedHashMap<>();
+        SequencedSet<String> segments = new LinkedHashSet<>();
 
         for (Object[] row : rows) {
             int yr = ((Number) row[0]).intValue();
@@ -111,14 +116,27 @@ public class PnlAnalytiqueServiceImpl implements PnlAnalytiqueService {
             if (!labels.contains(monthLabel)) {
                 labels.add(monthLabel);
             }
-            seriesMap.computeIfAbsent(segment, k -> new ArrayList<>()).add(taux);
+            tauxParMoisEtSegment.computeIfAbsent(monthLabel, k -> new LinkedHashMap<>()).put(segment, taux);
+            segments.add(segment);
         }
 
-        List<PnlEvolutionSerieDTO> series = seriesMap.entrySet().stream()
-            .map(e -> new PnlEvolutionSerieDTO(null, e.getKey(), e.getValue()))
+        List<PnlEvolutionSerieDTO> series = segments
+            .stream()
+            .map(segment -> new PnlEvolutionSerieDTO(null, segment, valeursAlignees(labels, tauxParMoisEtSegment, segment)))
             .toList();
 
         return new PnlEvolutionDTO(labels, series);
+    }
+
+    /**
+     * Aligne une serie sur l'axe des mois.
+     *
+     * <p>Une famille qui n'a rien vendu un mois n'a pas de ligne ce mois-la. Empiler les valeurs
+     * dans leur ordre d'arrivee decalait alors toute la fin de sa courbe d'un cran : le taux de mars
+     * s'affichait sur fevrier, et ainsi de suite jusqu'au bout.
+     */
+    private List<BigDecimal> valeursAlignees(List<String> labels, Map<String, Map<String, BigDecimal>> parMois, String serie) {
+        return labels.stream().map(label -> parMois.getOrDefault(label, Map.of()).getOrDefault(serie, BigDecimal.ZERO)).toList();
     }
 
     private String segmentLabel(String natureVente) {

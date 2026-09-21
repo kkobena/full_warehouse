@@ -18,6 +18,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.IsoFields;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -113,8 +114,7 @@ public class DashboardCAServiceImpl implements DashboardCAService {
                 "monthly"
             );
         } else if ("weekly".equals(period)) {
-            var byWeek = dailyData.stream().collect(Collectors.groupingBy(
-                d -> d.saleDate().getYear() + "-W" + String.format("%02d", getWeekNumber(d.saleDate()))));
+            var byWeek = dailyData.stream().collect(Collectors.groupingBy(d -> weekLabel(d.saleDate())));
             List<String> labels = new ArrayList<>(byWeek.keySet());
             Collections.sort(labels);
             return new DashboardCAEvolutionDTO(
@@ -327,9 +327,15 @@ public class DashboardCAServiceImpl implements DashboardCAService {
     private static Integer  toI(Object o)  { return o != null ? ((Number) o).intValue()     : 0;  }
     private static BigDecimal toBD(Object o) { return o instanceof BigDecimal bd ? bd : BigDecimal.ZERO; }
 
-    private int getWeekNumber(LocalDate date) {
-        int dayOfYear = date.getDayOfYear();
-        int dayOfWeek = date.getDayOfWeek().getValue();
-        return (dayOfYear - dayOfWeek + 10) / 7;
+    /**
+     * Libelle de semaine ISO, annee de la semaine comprise.
+     *
+     * <p>Une semaine a cheval sur deux annees appartient a l'une ou a l'autre, jamais aux deux :
+     * le 1er janvier 2027 est un vendredi, donc dans la semaine 53 de 2026. Numeroter sur l'annee
+     * civile produisait une semaine « 2027-W00 », qui n'existe pas, et coupait en deux une semaine
+     * dont les sept jours doivent etre comptes ensemble.
+     */
+    private String weekLabel(LocalDate date) {
+        return date.get(IsoFields.WEEK_BASED_YEAR) + "-W" + String.format("%02d", date.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR));
     }
 }

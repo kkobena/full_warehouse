@@ -1,4 +1,5 @@
 import { expect } from '@playwright/test';
+import { ouvrirInventaireACompter } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -17,14 +18,11 @@ import { scenario } from '../../src/scenario';
  * Parcours en LECTURE : il ouvre l'import sans envoyer de fichier.
  */
 scenario('STK-26', async ({ etape, page }) => {
-  const lignes = page.locator('tbody tr').filter({ visible: true });
   const modale = page.locator('.modal-content');
   let codeCip: string | null = null;
 
   await etape(1, async () => {
-    await page.goto('/inventaire');
-    await expect(lignes.first()).toContainText(/en cours|créé/i);
-    await lignes.first().getByRole('button', { name: 'Ouvrir' }).click();
+    await ouvrirInventaireACompter(page);
     await expect(page.getByRole('button', { name: 'Importer CSV' })).toBeVisible();
 
     // On retient le code d'une ligne réellement inventoriée : c'est lui qu'on comptera.

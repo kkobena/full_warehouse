@@ -4,8 +4,14 @@
 
 CONTENU DU PACKAGE
 ------------------
-  PharmaSmart_x.x.x_x64-setup.exe   Application bureau (backend Java intégré)
-  pharmasmart-batch.jar              Pipeline nocturne (SEMOIS, stock, avoirs)
+  PharmaSmart_x.x.x_x64-setup-avec-jre.exe
+    ou PharmaSmart_x.x.x_x64-setup-sans-jre.exe
+                                     Poste serveur (backend intégré ; « sans-jre » :
+                                     Java doit déjà être installé sur le poste)
+  client\
+    pharmasmart.exe                  Postes clients (aucune installation)
+    backend-url.txt.template         Adresse du poste serveur
+  pharmasmart-batch.jar             Pipeline nocturne (SEMOIS, stock, avoirs)
   pharmasmart-backup.exe             Sauvegarde automatique PostgreSQL
   config.default.json                Modèle de configuration
   service\
@@ -28,7 +34,8 @@ PRÉREQUIS
   ÉTAPE 1 — INSTALLER L'APPLICATION
 ======================================================
 
-  1. Double-cliquer sur  PharmaSmart_x.x.x_x64-setup.exe
+  1. Double-cliquer sur  PharmaSmart_x.x.x_x64-setup-avec-jre.exe
+     (ou -sans-jre.exe selon le package reçu)
   2. Suivre l'assistant d'installation.
   3. Un formulaire de configuration s'affiche automatiquement :
 
@@ -44,7 +51,8 @@ PRÉREQUIS
      → Renseigner les informations de connexion PostgreSQL
        et cliquer sur "Valider".
 
-  L'application s'installe avec Java intégré.
+  L'application s'installe avec Java intégré (package « avec-jre »)
+  ou utilise le Java du poste (package « sans-jre »).
   La configuration de la base de données est terminée.
 
   ASTUCE — Passer ce formulaire est possible (bouton "Passer"),
@@ -112,6 +120,20 @@ PRÉREQUIS
 
 
 ======================================================
+  POSTES CLIENTS
+======================================================
+
+  1. Copier  client\pharmasmart.exe  sur le poste
+     (par exemple dans C:\PharmaSmart\).
+
+  2. Copier à côté  client\backend-url.txt.template ,
+     le renommer en  backend-url.txt  et y indiquer
+     l'adresse du poste serveur.
+
+  3. Lancer  pharmasmart.exe . Aucune installation n'est nécessaire.
+
+
+======================================================
   VÉRIFICATION
 ======================================================
 
@@ -144,7 +166,10 @@ PRÉREQUIS
 
         .\service\pharmasmart-setup.ps1 install -Target batch
 
-  5. Relancer l'installeur  PharmaSmart_x.x.x_x64-setup.exe
+  5. Relancer l'installeur  PharmaSmart_x.x.x_x64-setup-<avec|sans>-jre.exe
+     — TOUJOURS la même déclinaison que celle déjà installée :
+     un installeur « sans-jre » appliqué sur une installation
+     « avec-jre » supprime le Java du poste.
      pour mettre à jour l'application bureau.
 
 

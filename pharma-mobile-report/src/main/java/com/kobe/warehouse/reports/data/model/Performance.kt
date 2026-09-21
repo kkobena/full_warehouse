@@ -14,7 +14,11 @@ data class Performance(
     @SerializedName("endDate") val endDate: String,
     @SerializedName("caTotal") val caTotal: Long,
     @SerializedName("caPreviousPeriod") val caPreviousPeriod: Long,
-    @SerializedName("variationPercent") val variationPercent: Double,
+    @SerializedName("variationPercent") val variationPercent: Double? = null,
+    @SerializedName("previousStartDate") val previousStartDate: String? = null,
+    @SerializedName("previousEndDate") val previousEndDate: String? = null,
+    @SerializedName("caSamePeriodLastYear") val caSamePeriodLastYear: Long = 0,
+    @SerializedName("variationVsLastYearPercent") val variationVsLastYearPercent: Double? = null,
     @SerializedName("transactionsCount") val transactionsCount: Int,
     @SerializedName("averageBasket") val averageBasket: Long,
     @SerializedName("customersCount") val customersCount: Int,
@@ -34,17 +38,67 @@ data class Performance(
     }
 
     /**
-     * Get variation indicator.
+     * Indicateur de tête : l'écart à la même période de l'an passé.
+     *
+     * L'activité d'une officine est trop saisonnière pour qu'un mois se compare utilement au mois
+     * précédent — épidémies, saison des pluies, rentrée, congés. C'est la comparaison annuelle qui
+     * dit si le comptoir progresse.
      */
     fun getVariationIndicator(): String {
-        return if (variationPercent >= 0) "↗" else "↘"
+        return indicateur(variationVsLastYearPercent)
     }
 
     /**
-     * Check if variation is positive.
+     * Vrai si l'officine progresse par rapport à la même période de l'an passé.
+     *
+     * Faux aussi quand la comparaison n'existe pas : sans point de référence, il n'y a rien à
+     * célébrer — la couleur de la progression serait un compliment inventé.
      */
     fun isVariationPositive(): Boolean {
-        return variationPercent >= 0
+        return variationVsLastYearPercent != null && variationVsLastYearPercent >= 0
+    }
+
+    /** Vrai quand la période de référence est vide : il n'y a pas de variation à afficher. */
+    fun hasNoComparisonBasis(): Boolean {
+        return variationVsLastYearPercent == null
+    }
+
+    /**
+     * Indicateur secondaire : l'écart à la période précédente, qui mesure l'effet d'une action
+     * récente plutôt qu'une tendance de fond.
+     */
+    fun getPreviousPeriodIndicator(): String {
+        return indicateur(variationPercent)
+    }
+
+    /**
+     * Le pourcentage tel qu'il doit se lire : un tiret quand il n'y a rien à comparer.
+     *
+     * Le serveur rend maintenant une variation nulle dans ce cas, là où il envoyait cent. Une
+     * officine ouverte depuis six mois lisait « +100 % vs l'an passé » toute sa première année.
+     */
+    fun formatVariation(variation: Double?): String {
+        return if (variation == null) "–" else String.format("%+.1f%%", variation)
+    }
+
+    private fun indicateur(variation: Double?): String {
+        return when {
+            variation == null -> "–"
+            variation >= 0 -> "↗"
+            else -> "↘"
+        }
+    }
+
+    /**
+     * Libellé de la période réellement comparée.
+     *
+     * Une période en cours se compare au même avancement de la période de référence : il faut le
+     * dire, sans quoi le lecteur croit comparer deux périodes entières.
+     */
+    fun getComparisonRangeLabel(): String {
+        val debut = previousStartDate
+        val fin = previousEndDate
+        return if (debut != null && fin != null) "$debut → $fin" else ""
     }
 
     /**

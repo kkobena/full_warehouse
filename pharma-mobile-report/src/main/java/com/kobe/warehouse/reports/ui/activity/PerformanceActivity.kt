@@ -153,13 +153,25 @@ class PerformanceActivity : BaseActivity() {
         // Main metrics
         binding.tvCATotal.text = performance.getFormattedCATotal()
 
-        // Variation
-        val variationText = String.format("%+.1f%% vs période précédente", performance.variationPercent)
-        binding.tvVariation.text = variationText
-        val variationColor = if (performance.isVariationPositive()) R.color.success else R.color.error
+        // Variation : l'écart à l'an passé mène, celui à la période précédente suit.
+        // La comparaison annuelle met en regard deux périodes de même nature ; la comparaison au
+        // mois précédent est dominée par la saison et ne dit rien du comptoir à elle seule.
+        //
+        // Une variation absente s'affiche en tiret, et ni en vert ni en rouge : une officine sans
+        // historique n'a pas progressé, elle n'a rien à quoi se comparer.
+        binding.tvVariation.text = String.format(
+            "%s vs l'an passé · %s vs période précédente",
+            performance.formatVariation(performance.variationVsLastYearPercent),
+            performance.formatVariation(performance.variationPercent)
+        )
+        val variationColor = when {
+            performance.hasNoComparisonBasis() -> R.color.text_secondary
+            performance.isVariationPositive() -> R.color.success
+            else -> R.color.error
+        }
         binding.tvVariation.setTextColor(ContextCompat.getColor(this, variationColor))
         binding.llVariation.setBackgroundResource(
-            if (performance.isVariationPositive()) R.drawable.bg_variation_positive
+            if (performance.hasNoComparisonBasis() || performance.isVariationPositive()) R.drawable.bg_variation_positive
             else R.drawable.bg_variation_negative
         )
 

@@ -150,7 +150,9 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
     public Page<ReglementTiersPayants> findReglementTierspayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
         ReglementTiersPayantResult reglementTiersPayantResult = loadReglementTierspayant(fromDate, toDate, search, pageable);
         if (Objects.nonNull(reglementTiersPayantResult) && !CollectionUtils.isEmpty(reglementTiersPayantResult.content())) {
-            new PageImpl<>(reglementTiersPayantResult.content(), pageable, reglementTiersPayantResult.totalElements());
+            // La page etait construite puis abandonnee sans etre rendue : la section « Reglements
+            // tiers payant » du rapport d'activite restait vide, a l'ecran comme au PDF.
+            return new PageImpl<>(reglementTiersPayantResult.content(), pageable, reglementTiersPayantResult.totalElements());
         }
         return Page.empty();
     }

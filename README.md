@@ -315,6 +315,12 @@ automatiquement `-sans-jre` / `-avec-jre` à la construction, car **les applique
 l'autre casse le poste** (l'installeur sans JRE supprime le JRE existant). L'installeur
 détecte le croisement et avertit.
 
+#### ZIP de livraison complet
+
+Le profil Maven `full-dist` construit tout et assemble un seul ZIP : l'installeur serveur
+de la déclinaison choisie, l'exécutable client (`client\`), le batch, la sauvegarde et les
+scripts de service. Voir [Deployment — Distribution ZIP](#deployment--distribution-zip).
+
 #### Option — mise à jour automatique des postes clients
 
 Le poste serveur peut servir de relais à ses postes clients : au lieu d'aller déposer
@@ -495,19 +501,20 @@ npm outdated
 
 ### Deployment — Distribution ZIP
 
-Produit `target/pharmasmart-<version>-full.zip` contenant : installeur Tauri NSIS (bundled-jre),
-`pharmasmart-batch.jar`, `pharmasmart-backup.exe`, `config.default.json`, scripts de service.
+Produit un ZIP contenant : installeur serveur Tauri NSIS (avec ou sans JRE), exécutable
+client (`client/pharmasmart.exe`), `pharmasmart-batch.jar`, `pharmasmart-backup.exe`,
+`config.default.json`, scripts de service. L'assemblage est porté par le module
+`pharmaSmart-dist`, que le profil ajoute en fin de réacteur.
 
 ```bash
-# Windows
-mvnw.cmd clean package -P full-dist -DskipTests
+# Avec JRE embarqué → target/pharmasmart-<version>-full-avec-jre.zip
+mvnw.cmd clean package -Pfull-dist -DskipTests
 
-# Linux / macOS
-./mvnw clean package -P full-dist -DskipTests
+# Sans JRE → target/pharmasmart-<version>-full-sans-jre.zip
+mvnw.cmd clean package -Pfull-dist,sans-jre -DskipTests
 ```
 
 Prérequis : Rust/`cargo` installé, Node.js + Tauri CLI (`npm install` fait).
-Sortie : `target/pharmasmart-<version>-full.zip`
 
 ### Deployment — Service Installation (server, no Tauri)
 

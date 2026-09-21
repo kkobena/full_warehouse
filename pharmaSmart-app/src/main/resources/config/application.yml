@@ -170,6 +170,14 @@ pharma-smart:
         - ${PHARMA_PUBLISHER_PHONE:+33 0x xx xx xx xx}
         - ${PHARMA_PUBLISHER_PHONE:+225 07 xx xx xx xx}
 
+  # Relais de mise à jour des postes clients (cf. docs/PLAN-AMELIORATION-MODULE-TAURI.md §7.6).
+  # Le poste serveur publie l'installeur client de sa propre version, déposé ici par l'installeur
+  # NSIS. Laissé vide, l'emplacement est résolu par ClientUpdateService :
+  # %PROGRAMDATA%\PharmaSmart\updates. Répertoire absent ou vide = aucune mise à jour proposée,
+  # le parc reste en installation manuelle. Rien ne casse.
+  updates:
+    directory: ${PHARMA_UPDATES_DIR:}
+
   # false (défaut) : JobOrchestrationService gère tout le pipeline nocturne.
   # true  : pharmaSmart-batch gère SEMOIS/Classification/Snapshot/Vues/Avoirs
   #         et HeavyJobsOrchestrationService prend en charge Facturation/FNE/Tournant.

@@ -15,6 +15,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -77,8 +78,9 @@ public class MobilePharmacistDashboardService {
             : 0.0;
 
         // Calculate variations vs previous period
-        Double ventesVariation = calculatePreviousPeriodVariation(fromDate, toDate, true);
-        Double achatsVariation = calculatePreviousPeriodVariation(fromDate, toDate, false);
+        TableauPharmacienWrapper precedent = fetchPeriodePrecedente(fromDate, toDate);
+        Double ventesVariation = variation(precedent == null ? null : precedent.getMontantVenteNet(), wrapper.getMontantVenteNet());
+        Double achatsVariation = variation(precedent == null ? null : precedent.getMontantAchatNet(), wrapper.getMontantAchatNet());
 
         // Build top suppliers list
         List<FournisseurAchatMobileDTO> topFournisseurs = buildTopFournisseurs(
@@ -163,35 +165,36 @@ public class MobilePharmacistDashboardService {
     }
 
     /**
-     * Calculate variation compared to the same duration in the previous period.
+     * Interroge la période de même durée qui précède immédiatement celle demandée.
+     *
+     * <p>Renvoie {@code null} si elle n'a pas pu être obtenue : la variation est alors inconnue, ce
+     * qui ne doit pas priver le pharmacien du reste du tableau.
      */
-    private Double calculatePreviousPeriodVariation(LocalDate fromDate, LocalDate toDate, boolean forSales) {
+    private TableauPharmacienWrapper fetchPeriodePrecedente(LocalDate fromDate, LocalDate toDate) {
         try {
-            long currentPeriodDays = java.time.temporal.ChronoUnit.DAYS.between(fromDate, toDate) + 1;
-            LocalDate previousToDate = fromDate.minusDays(1);
-            LocalDate previousFromDate = previousToDate.minusDays(currentPeriodDays - 1);
-
-            MvtParam previousMvtParam = buildMvtParam(previousFromDate, previousToDate, "daily");
-            TableauPharmacienWrapper previousWrapper = tableauPharmacienService.getTableauPharmacien(previousMvtParam);
-
-            MvtParam currentMvtParam = buildMvtParam(fromDate, toDate, "daily");
-            TableauPharmacienWrapper currentWrapper = tableauPharmacienService.getTableauPharmacien(currentMvtParam);
-
-            long previousValue = forSales ? previousWrapper.getMontantVenteNet() : previousWrapper.getMontantAchatNet();
-            long currentValue = forSales ? currentWrapper.getMontantVenteNet() : currentWrapper.getMontantAchatNet();
-
-            if (previousValue == 0) {
-                return currentValue > 0 ? 100.0 : 0.0;
-            }
-
-            return BigDecimal.valueOf(currentValue - previousValue)
-                .multiply(BigDecimal.valueOf(100))
-                .divide(BigDecimal.valueOf(previousValue), 2, RoundingMode.HALF_UP)
-                .doubleValue();
+            long nombreDeJours = ChronoUnit.DAYS.between(fromDate, toDate) + 1;
+            LocalDate finPrecedente = fromDate.minusDays(1);
+            return tableauPharmacienService.getTableauPharmacien(
+                buildMvtParam(finPrecedente.minusDays(nombreDeJours - 1), finPrecedente, "daily")
+            );
         } catch (Exception e) {
             LOG.warn("Error calculating variation: {}", e.getMessage());
             return null;
         }
+    }
+
+    /** Variation en pourcentage entre la période précédente et la période courante. */
+    private Double variation(Long precedent, long courant) {
+        if (precedent == null) {
+            return null;
+        }
+        if (precedent == 0) {
+            return courant > 0 ? 100.0 : 0.0;
+        }
+        return BigDecimal.valueOf(courant - precedent)
+            .multiply(BigDecimal.valueOf(100))
+            .divide(BigDecimal.valueOf(precedent), 2, RoundingMode.HALF_UP)
+            .doubleValue();
     }
 
     /**

@@ -77,7 +77,6 @@ public class DeliveryReceiptReportReportService extends CommonReportService {
         getParameters().put(Constant.MAGASIN, magasin);
         getParameters().put(Constant.ENTITY, this.deliveryReceipt);
         getParameters().put(Constant.ITEM_SIZE, itemSize);
-        getParameters().put(Constant.DEVISE, Constant.DEVISE_CONSTANT);
         getParameters().put(Constant.FOOTER, "\"" + super.builderFooter(magasin) + "\"");
         if (itemSize > Constant.COMMANDE_PAGE_SIZE) {
             getParameters().put(Constant.ITEMS, receiptItems.subList(0, Constant.COMMANDE_PAGE_SIZE));

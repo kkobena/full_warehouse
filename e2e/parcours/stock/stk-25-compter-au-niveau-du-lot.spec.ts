@@ -1,4 +1,5 @@
 import { expect } from '@playwright/test';
+import { ouvrirInventaireACompter } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -14,13 +15,10 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il saisit une quantité comptée sur un lot.
  */
 scenario('STK-25', async ({ etape, page }) => {
-  const lignes = page.locator('tbody tr').filter({ visible: true });
   const grille = page.locator('app-inventory-lot-grid');
 
   await etape(1, async () => {
-    await page.goto('/inventaire');
-    await expect(lignes.first()).toContainText(/en cours|créé/i);
-    await lignes.first().getByRole('button', { name: 'Ouvrir' }).click();
+    await ouvrirInventaireACompter(page);
     await expect(grille.locator('.ag-row').first()).toBeVisible();
     // Le lot et sa péremption, en regard du produit : c'est ce qui distingue cette grille
     // d'un inventaire par produit.

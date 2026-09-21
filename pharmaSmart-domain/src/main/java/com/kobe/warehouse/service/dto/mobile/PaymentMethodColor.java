@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto.mobile;
 
+import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.domain.enumeration.PaymentGroup;
 
 /**
@@ -47,7 +48,11 @@ public enum PaymentMethodColor {
                 return pmc.color;
             }
         }
-        return DEFAULT.color;
+        // Un code de mode de règlement ne porte pas le nom de son groupe : « CH », « OM », « WAVE »
+        // ne se reconnaissent pas ci-dessus. C'est le groupe qui décide de la couleur, sans quoi
+        // chèques et mobile money se confondraient dans le gris par défaut.
+        ModePaimentCode mode = ModePaimentCode.fromName(paymentCode);
+        return mode != null ? getColorForGroup(mode.getPaymentGroup()) : DEFAULT.color;
     }
 
     /**

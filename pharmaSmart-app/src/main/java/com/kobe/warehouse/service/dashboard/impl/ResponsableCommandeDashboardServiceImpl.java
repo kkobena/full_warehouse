@@ -62,20 +62,23 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
 
     @Override
     public CommandesEnCoursDTO getCommandesEnCours() {
+        // La colonne est order_status, et ses seules valeurs admises par la contrainte CHECK sont
+        // REQUESTED, RECEIVED et CLOSED : commande passée, bon de livraison en cours de saisie,
+        // commande soldée. Les deux premières sont « en cours ».
         String queryEnAttente = """
             SELECT COUNT(*) FROM commande
-            WHERE statut = 'REQUESTED' OR statut = 'PASSED'
+            WHERE order_status = 'REQUESTED'
         """;
 
         String queryAReceptionner = """
             SELECT COUNT(*) FROM commande
-            WHERE statut = 'IN_PROGRESS'
+            WHERE order_status = 'RECEIVED'
         """;
 
         String queryMontantTotal = """
             SELECT COALESCE(SUM(c.order_amount), 0)
             FROM commande c
-            WHERE c.statut IN ('REQUESTED', 'PASSED', 'IN_PROGRESS')
+            WHERE c.order_status IN ('REQUESTED', 'RECEIVED')
         """;
 
         Integer enAttente = ((Number) entityManager.createNativeQuery(queryEnAttente).getSingleResult()).intValue();
@@ -204,7 +207,7 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
             SELECT
                 p.id as produit_id,
                 p.libelle as produit_libelle,
-                p.code_cip,
+                fp.code_cip,
                 (sp.qty_stock + sp.qty_ug) as stock_actuel,
                 COALESCE(ROUND(SUM(sl.quantity_requested) / 90.0), 0) as consommation_moyenne,
                 GREATEST(
@@ -222,7 +225,7 @@ public class ResponsableCommandeDashboardServiceImpl implements ResponsableComma
             LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id
             LEFT JOIN fournisseur f ON f.id = fp.fournisseur_id
             WHERE (sp.qty_stock + sp.qty_ug) < p.qty_seuil_mini
-            GROUP BY p.id, p.libelle, p.code_cip, sp.qty_stock, sp.qty_ug, p.qty_seuil_mini,
+            GROUP BY p.id, p.libelle, fp.code_cip, sp.qty_stock, sp.qty_ug, p.qty_seuil_mini,
                      p.regular_unit_price, f.id, f.libelle
             ORDER BY stock_actuel ASC
             LIMIT 50

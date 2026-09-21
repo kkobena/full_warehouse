@@ -36,6 +36,22 @@ Var ServiceJavaExe   ; Path to java.exe (bundled JRE or system)
 Var ServiceJarPath   ; Full path to the backend JAR
 Var ServiceBatchJarPath ; Full path to the pharmaSmart-batch JAR (nightly pipeline)
 Var ServiceScriptDir ; Directory with PowerShell service scripts
+Var ServicesWanted   ; "yes"/"no" — faut-il (ré)installer les services Windows ?
+Var IsUpdate         ; "yes"/"no" — une installation existait-elle avant celle-ci ?
+
+; Marqueur posé dans $PS_DataDir dès qu'un service backend a été installé avec
+; succès. $PS_DataDir survivant aux mises à jour (cf. NSIS_HOOK_PREUNINSTALL),
+; ce fichier est le seul moyen de savoir, APRÈS que le désinstalleur a supprimé
+; les services, qu'il y en avait avant — et donc qu'il faut les recréer.
+!define SERVICES_FLAG "services-installed.flag"
+
+; Marqueur posé dans $PS_DataDir quand le paquet installé embarque un JRE.
+; Sert à détecter le croisement de lignées : le produit serveur existe en deux
+; déclinaisons (avec et sans JRE embarqué) portant le même numéro de version, et
+; appliquer la déclinaison SANS JRE sur une installation AVEC JRE supprime le
+; JRE (NSIS_HOOK_PREUNINSTALL efface $INSTDIR\sidecar) sur un poste qui, par
+; définition, n'a pas de Java système.
+!define JRE_FLAG "jre-bundled.flag"
 
 ; Database credentials — collected from the wizard page, embedded in config.json.
 Var DBHost
@@ -445,28 +461,65 @@ Function FindServiceJava
 FunctionEnd
 
 ; ── Locate the backend sidecar JAR ──────────────────────────────────────────
+; Retient le DERNIER nom correspondant, pas le premier.
+;
+; `FindFirst` seul renvoyait le premier JAR rencontré. Si un ancien JAR survivait à
+; la mise à jour (cf. le verrouillage décrit dans NSIS_HOOK_PREUNINSTALL), le service
+; était reconfiguré sur l'ANCIENNE version — l'officine tournait sur le backend
+; précédent sans que rien ne le signale. L'énumération NTFS étant alphabétique, le
+; dernier nom est la version la plus élevée.
+;
+; Limite assumée, identique à celle du côté Rust (`find_jar_file`) et du catalogue de
+; mise à jour : la comparaison est lexicographique, donc 1.9.0 l'emporterait sur
+; 1.10.0. Le vrai garde-fou reste qu'un seul JAR doit subsister — d'où
+; l'avertissement ci-dessous s'il y en a plusieurs.
 Function FindSidecarJar
   StrCpy $ServiceJarPath ""
+  StrCpy $R4 0 ; nombre de JAR trouvés
   FindFirst $0 $1 "$INSTDIR\sidecar\pharmaSmart-app-*.jar"
-  FindClose $0
-  ${If} $1 != ""
+  ${Do}
+    ${If} $1 == ""
+      ${ExitDo}
+    ${EndIf}
+    IntOp $R4 $R4 + 1
     StrCpy $ServiceJarPath "$INSTDIR\sidecar\$1"
-    DetailPrint "JAR service : $ServiceJarPath"
-  ${Else}
+    FindNext $0 $1
+  ${Loop}
+  FindClose $0
+
+  ${If} $ServiceJarPath == ""
     DetailPrint "JAR sidecar introuvable — service non disponible."
+  ${Else}
+    ${If} $R4 > 1
+      DetailPrint "ATTENTION : $R4 JAR applicatifs presents dans sidecar — un ancien n'a pas ete supprime."
+    ${EndIf}
+    DetailPrint "JAR service : $ServiceJarPath"
   ${EndIf}
 FunctionEnd
 
 ; ── Locate the pharmaSmart-batch sidecar JAR (nightly pipeline) ─────────────
+; Même règle que FindSidecarJar : on retient le dernier nom énuméré.
 Function FindSidecarBatchJar
   StrCpy $ServiceBatchJarPath ""
+  StrCpy $R4 0
   FindFirst $0 $1 "$INSTDIR\sidecar\pharmaSmart-batch-*.jar"
-  FindClose $0
-  ${If} $1 != ""
+  ${Do}
+    ${If} $1 == ""
+      ${ExitDo}
+    ${EndIf}
+    IntOp $R4 $R4 + 1
     StrCpy $ServiceBatchJarPath "$INSTDIR\sidecar\$1"
-    DetailPrint "JAR batch : $ServiceBatchJarPath"
-  ${Else}
+    FindNext $0 $1
+  ${Loop}
+  FindClose $0
+
+  ${If} $ServiceBatchJarPath == ""
     DetailPrint "JAR sidecar batch introuvable — service pharmasmart-batch non disponible."
+  ${Else}
+    ${If} $R4 > 1
+      DetailPrint "ATTENTION : $R4 JAR batch presents dans sidecar — un ancien n'a pas ete supprime."
+    ${EndIf}
+    DetailPrint "JAR batch : $ServiceBatchJarPath"
   ${EndIf}
 FunctionEnd
 
@@ -475,8 +528,11 @@ Function InstallBackendService
   Call FindServiceJava
   Call FindSidecarJar
   ${If} $ServiceJarPath == ""
-    MessageBox MB_OK|MB_ICONEXCLAMATION \
-      "JAR introuvable — le service Windows n'a pas pu etre installe."
+    DetailPrint "JAR introuvable — le service Windows n'a pas pu etre installe."
+    ${IfNot} ${Silent}
+      MessageBox MB_OK|MB_ICONEXCLAMATION \
+        "JAR introuvable — le service Windows n'a pas pu etre installe."
+    ${EndIf}
     Return
   ${EndIf}
 
@@ -486,14 +542,21 @@ Function InstallBackendService
 
   ${If} $0 == 0
     DetailPrint "Service pharmasmart-app installe avec succes."
+    ; Marqueur de présence des services : lu par NSIS_HOOK_POSTINSTALL lors des
+    ; mises à jour suivantes pour les recréer sans reposer la question.
+    FileOpen $9 "$PS_DataDir\${SERVICES_FLAG}" w
+    FileWrite $9 "pharmasmart-app$\r$\n"
+    FileClose $9
     ExecWait 'sc start pharmasmart-app'
   ${Else}
     DetailPrint "Installation du service echouee (code $0). Detail : $PS_DataDir\logs\setup-backend-service.log"
-    MessageBox MB_OK|MB_ICONEXCLAMATION \
-      "L'installation du service Windows a echoue (code $0).$\r$\n$\r$\n\
+    ${IfNot} ${Silent}
+      MessageBox MB_OK|MB_ICONEXCLAMATION \
+        "L'installation du service Windows a echoue (code $0).$\r$\n$\r$\n\
 Detail de l'erreur : $PS_DataDir\logs\setup-backend-service.log$\r$\n$\r$\n\
 Vous pouvez relancer manuellement :$\r$\n\
 $ServiceScriptDir\setup-backend-service.ps1"
+    ${EndIf}
   ${EndIf}
 FunctionEnd
 
@@ -517,11 +580,13 @@ Function InstallBatchService
     ExecWait 'sc start pharmasmart-batch'
   ${Else}
     DetailPrint "Installation du service batch echouee (code $0). Detail : $PS_DataDir\logs\setup-batch-service.log"
-    MessageBox MB_OK|MB_ICONEXCLAMATION \
-      "L'installation du service Windows pharmasmart-batch a echoue (code $0).$\r$\n$\r$\n\
+    ${IfNot} ${Silent}
+      MessageBox MB_OK|MB_ICONEXCLAMATION \
+        "L'installation du service Windows pharmasmart-batch a echoue (code $0).$\r$\n$\r$\n\
 Detail de l'erreur : $PS_DataDir\logs\setup-batch-service.log$\r$\n$\r$\n\
 Vous pouvez relancer manuellement :$\r$\n\
 $ServiceScriptDir\setup-batch-service.ps1"
+    ${EndIf}
   ${EndIf}
 FunctionEnd
 
@@ -580,7 +645,13 @@ FunctionEnd
   Call ResolveDataDir
   StrCpy $BackupDir "$PS_DataDir\backups"
 
+  ; $IsUpdate doit être capturé ICI : en première installation, CreateConfigFile
+  ; crée config.json juste en dessous, si bien que le même test plus bas dans le
+  ; hook répondrait « mise à jour » dans les deux cas.
+  StrCpy $IsUpdate "no"
+
   ${If} ${FileExists} "$PS_DataDir\config.json"
+    StrCpy $IsUpdate "yes"
     ; ── MODE MISE À JOUR ───────────────────────────────────────────────────
     ; Une config existe déjà dans le répertoire de données (ProgramData/AppData).
     ; C'est la copie autoritative de l'utilisateur : on NE la réécrit PAS et on
@@ -603,6 +674,12 @@ FunctionEnd
     ; The script is bundled as a resource, so it is available once Tauri has
     ; extracted the payload to $INSTDIR (i.e. by the time customInstall runs).
     StrCpy $R9 "$INSTDIR\installer-hooks\configure-database.ps1"
+    ; La boîte de dialogue est interactive : en mode silencieux, on conserve les
+    ; valeurs par défaut écrites par CreateConfigFile plutôt que de bloquer.
+    ${If} ${Silent}
+      StrCpy $R9 ""
+      DetailPrint "Mode silencieux — assistant base de donnees ignore, defauts conserves."
+    ${EndIf}
     ${If} ${FileExists} "$R9"
       DetailPrint "Ouverture de la configuration base de données / serveur…"
       ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$R9" -ConfigFile "$PS_DataDir\config.json"' $0
@@ -639,27 +716,128 @@ FunctionEnd
     DetailPrint "setup-backup-tasks.ps1 introuvable — tâches planifiées non enregistrées."
   ${EndIf}
 
-  ; Optional: install backend (+ nightly batch pipeline) as Windows services.
+  ; ── Relais de mise à jour des postes clients ────────────────────────────────
+  ; L'exécutable CLIENT est embarqué comme ressource de cet installeur
+  ; serveur ; on le dépose dans $PS_DataDir\updates où le backend le publie via
+  ; /api/updates/**. Un seul fichier transféré chez le client met ainsi à jour
+  ; toute l'officine.
+  ;
+  ; Entièrement facultatif : si aucun artefact n'a été publié à la construction
+  ; (cf. scripts/prepare-client-update.js), $INSTDIR\updates ne contient que son
+  ; README, rien d'exploitable n'est déposé, le backend répond « pas de mise à
+  ; jour » et le parc reste en installation manuelle.
+  ${If} ${FileExists} "$INSTDIR\updates\*.exe"
+    CreateDirectory "$PS_DataDir\updates"
+    ; Le catalogue ne garde qu'une version : on purge avant de déposer, sinon les
+    ; installeurs des versions précédentes s'y accumuleraient indéfiniment.
+    Delete "$PS_DataDir\updates\*.exe"
+    CopyFiles /SILENT "$INSTDIR\updates\*.exe" "$PS_DataDir\updates"
+    DetailPrint "Installeur client publie pour les postes du reseau : $PS_DataDir\updates"
+  ${Else}
+    DetailPrint "Aucun installeur client embarque — postes clients en installation manuelle."
+  ${EndIf}
+
+  ; ── Détection du croisement de lignées (avec JRE ↔ sans JRE) ────────────────
+  ; Les deux déclinaisons du produit serveur portent le même numéro de version :
+  ; rien, dans le nom de fichier seul, n'empêche d'appliquer la mauvaise. On
+  ; compare donc l'état précédent (marqueur) au contenu du paquet en cours.
+  ;
+  ; Le `config.json` conservé garde un `jvm.java_home` pointant sur le JRE
+  ; supprimé, mais ce n'est pas bloquant : les trois scripts de service comme le
+  ; côté Rust vérifient la présence effective de `bin\java.exe` avant de s'en
+  ; servir et se rabattent sur JAVA_HOME puis PATH. Le rôle de cette garde est
+  ; donc d'AVERTIR, pas de réparer — sur un poste sans Java système, ce repli ne
+  ; trouvera rien et l'exploitant doit le savoir immédiatement.
+  ${If} ${FileExists} "$INSTDIR\sidecar\jre\bin\java.exe"
+    ; Paquet AVEC JRE : on (re)pose le marqueur.
+    FileOpen $9 "$PS_DataDir\${JRE_FLAG}" w
+    FileWrite $9 "bundled$\r$\n"
+    FileClose $9
+  ${Else}
+    ; Paquet SANS JRE : si l'installation précédente en avait un, c'est un
+    ; croisement de lignées.
+    ${If} ${FileExists} "$PS_DataDir\${JRE_FLAG}"
+      DetailPrint "ATTENTION : ce paquet n'embarque pas de JRE alors que l'installation precedente en utilisait un."
+      ${IfNot} ${Silent}
+        MessageBox MB_OK|MB_ICONEXCLAMATION \
+          "Ce paquet d'installation n'embarque PAS de JRE, alors que l'installation$\r$\n\
+precedente en utilisait un (qui vient d'etre supprime).$\r$\n$\r$\n\
+Si aucun Java n'est installe sur ce poste, le backend ne demarrera pas.$\r$\n$\r$\n\
+Deux solutions :$\r$\n\
+ - reinstaller avec le paquet incluant le JRE (suffixe -avec-jre) ;$\r$\n\
+ - ou installer un JRE sur le poste et renseigner jvm.java_home dans$\r$\n\
+   $PS_DataDir\config.json"
+      ${EndIf}
+      Delete "$PS_DataDir\${JRE_FLAG}"
+    ${EndIf}
+  ${EndIf}
+
+  ; ── Services Windows (backend + pipeline nocturne) ──────────────────────────
+  ; NSIS_HOOK_PREUNINSTALL supprime les deux services au début de CHAQUE mise à
+  ; jour (l'updater Tauri rejoue le désinstalleur avant de réinstaller). Leur
+  ; recréation ne peut donc pas rester conditionnée à un clic : un « Non »
+  ; réflexe — ou une mise à jour silencieuse, où la boîte ne peut recevoir aucune
+  ; réponse — laisserait l'officine sans backend ni pipeline nocturne.
+  ;
+  ; Règle de décision :
+  ;   1. Pas de JAR backend        → poste client : aucun service n'est concerné.
+  ;   2. Marqueur présent          → des services existaient : on les recrée, sans question.
+  ;   3. Mise à jour sans marqueur → installation antérieure au marqueur : on recrée
+  ;                                  également (les services sont la configuration
+  ;                                  recommandée, et c'est un cas de transition unique).
+  ;   4. Première installation     → on demande, sauf en mode silencieux où personne
+  ;                                  ne peut répondre : on installe alors par défaut.
   ${If} ${FileExists} "$INSTDIR\service\setup-backend-service.ps1"
-    MessageBox MB_YESNO|MB_ICONQUESTION \
-      "Installer le backend et le pipeline nocturne comme services Windows ?$\r$\n$\r$\n\
+    Call FindSidecarJar
+    ${If} $ServiceJarPath == ""
+      DetailPrint "Aucun JAR backend — poste client : services Windows sans objet."
+    ${Else}
+      StrCpy $ServicesWanted "no"
+
+      ${If} ${FileExists} "$PS_DataDir\${SERVICES_FLAG}"
+        StrCpy $ServicesWanted "yes"
+        DetailPrint "Services Windows presents avant la mise a jour — recreation automatique."
+      ${ElseIf} $IsUpdate == "yes"
+        StrCpy $ServicesWanted "yes"
+        DetailPrint "Mise a jour anterieure au marqueur — recreation des services Windows."
+      ${ElseIf} ${Silent}
+        StrCpy $ServicesWanted "yes"
+        DetailPrint "Installation silencieuse — services Windows installes par defaut."
+      ${Else}
+        MessageBox MB_YESNO|MB_ICONQUESTION \
+          "Installer le backend et le pipeline nocturne comme services Windows ?$\r$\n$\r$\n\
 Avantage : le serveur et le pipeline (SEMOIS, Classification ABC, Stock, Avoirs)$\r$\n\
 demarrent automatiquement au boot, sans avoir besoin d'ouvrir l'application PharmaSmart.$\r$\n$\r$\n\
 Recommande pour les postes demarrant sans session utilisateur ouverte.$\r$\n$\r$\n\
 Note : necessite WinSW dans $INSTDIR\service\WinSW.exe." \
-      IDYES do_install_service IDNO skip_install_service
-    do_install_service:
-      Call InstallBackendService
-      Call InstallBatchService
-    skip_install_service:
+          IDYES do_install_service IDNO skip_install_service
+        do_install_service:
+          StrCpy $ServicesWanted "yes"
+          Goto service_choice_done
+        skip_install_service:
+          StrCpy $ServicesWanted "no"
+        service_choice_done:
+      ${EndIf}
+
+      ${If} $ServicesWanted == "yes"
+        Call InstallBackendService
+        Call InstallBatchService
+      ${Else}
+        DetailPrint "Services Windows non installes (choix de l'utilisateur)."
+      ${EndIf}
+    ${EndIf}
   ${EndIf}
 
-  MessageBox MB_OK|MB_ICONINFORMATION \
-    "Installation terminee avec succes !$\r$\n$\r$\n\
+  ; Récapitulatif final : jamais en mode silencieux (mise à jour automatique —
+  ; aucun opérateur devant l'écran, la boîte bloquerait l'installeur).
+  ${IfNot} ${Silent}
+    MessageBox MB_OK|MB_ICONINFORMATION \
+      "Installation terminee avec succes !$\r$\n$\r$\n\
 Dossier donnees  : $PS_DataDir$\r$\n\
 Sauvegardes      : $BackupDir$\r$\n$\r$\n\
 Configuration complete (base de donnees, port, FNE, mail…) :$\r$\n\
 $PS_DataDir\config.json"
+  ${EndIf}
 !macroend
 
 ; ── Versions « uninstaller » des fonctions partagées ─────────────────────────
@@ -713,10 +891,30 @@ FunctionEnd
 !macro NSIS_HOOK_PREUNINSTALL
   Call un.ResolveDataDir
 
-  ; ── Kill the Java backend process FIRST so the sidecar directory is not
-  ;    locked when NSIS later removes the installation files.
-  ;    (Windows does not auto-kill child processes when the parent exits, so the
-  ;    JVM spawned by Tauri may still hold the JAR and JRE files open.)
+  ; ── 1. ARRÊTER LES SERVICES WINDOWS EN PREMIER ──────────────────────────────
+  ;
+  ; L'ordre de ce bloc est critique et a déjà coûté cher. Auparavant, on tuait le
+  ; java.exe, on supprimait le sidecar, PUIS on retirait les services. Or le
+  ; service pharmasmart-app est supervisé par WinSW, configuré avec
+  ; `<onfailure action="restart" delay="10 sec"/>` (cf. setup-backend-service.ps1) :
+  ; tuer son processus fils ne l'arrête pas, WinSW le RELANCE au bout de 10 s.
+  ;
+  ; Conséquence de l'ancien ordre : au moment du `RMDir /r "$INSTDIR\sidecar"`, une
+  ; JVM fraîchement relancée tenait de nouveau le JAR et les DLL de la JRE. NSIS
+  ; échouait alors à supprimer le répertoire — SANS LE SIGNALER — et l'ancien JAR
+  ; survivait à côté du nouveau. D'où des mises à jour en place qui « ne marchent
+  ; pas », et le réflexe de désinstaller avant de réinstaller.
+  ;
+  ; `un.RemoveBackendService` appelle `pharmasmart-app.exe stop` puis `uninstall` :
+  ; WinSW cesse de superviser, plus rien ne relance la JVM, et les verrous
+  ; tombent pour de bon.
+  Call un.RemoveBackendService
+  Call un.RemoveBatchService
+
+  ; ── 2. Achever les JVM résiduelles ──────────────────────────────────────────
+  ;    Reste le cas d'un backend lancé par l'application Tauri elle-même (mode
+  ;    sans service) : Windows ne tue pas les processus fils à la sortie du
+  ;    parent, la JVM peut donc encore tenir le JAR et la JRE.
   DetailPrint "Arrêt du processus backend Java en cours..."
   ${If} ${FileExists} "$INSTDIR\installer-hooks\stop-backend.ps1"
     ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\installer-hooks\stop-backend.ps1" -InstallDir "$INSTDIR"' $0
@@ -728,16 +926,21 @@ FunctionEnd
     DetailPrint "Processus backend tué (fallback)."
   ${EndIf}
 
-  ; ── Force-delete the sidecar directory (JAR + bundled JRE).
-  ;    The stop-backend.ps1 above waited for the JVM to release file locks,
-  ;    but NSIS may still skip locked files during its normal cleanup pass.
-  ;    We explicitly remove it here while we still have elevation.
+  ; ── 3. Supprimer le sidecar (JAR + JRE embarquée) ───────────────────────────
+  ;    Les services sont arrêtés et désinstallés, les JVM résiduelles tuées : les
+  ;    verrous de fichiers sont tombés et la suppression peut aboutir.
+  ;    On le fait explicitement plutôt que de compter sur la passe de nettoyage de
+  ;    NSIS, qui ignore silencieusement les fichiers verrouillés.
   RMDir /r "$INSTDIR\sidecar"
-  DetailPrint "Répertoire sidecar supprimé."
-
-  ; Stop and remove the Windows services.
-  Call un.RemoveBackendService
-  Call un.RemoveBatchService
+  ${If} ${FileExists} "$INSTDIR\sidecar\*.*"
+    ; Ne doit plus arriver depuis la correction de l'ordre ci-dessus. Si cela se
+    ; reproduit, c'est qu'un processus tient encore les fichiers : le signaler
+    ; vaut mieux que de laisser une mise à jour se poursuivre sur un sidecar
+    ; mélangeant ancienne et nouvelle version.
+    DetailPrint "ATTENTION : $INSTDIR\sidecar n'a pas pu etre entierement supprime (fichiers verrouilles)."
+  ${Else}
+    DetailPrint "Répertoire sidecar supprimé."
+  ${EndIf}
 
   ; Remove scheduled backup tasks.
   ${If} ${FileExists} "$INSTDIR\backup\remove-backup-tasks.ps1"

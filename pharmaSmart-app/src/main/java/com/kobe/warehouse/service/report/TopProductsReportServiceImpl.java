@@ -132,9 +132,13 @@ public class TopProductsReportServiceImpl implements TopProductsReportService {
                 "prix_moyen " +
                 "FROM mv_monthly_top_products " +
                 "WHERE produit_id = :produitId " +
-                "AND mois >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '" +
+                // `mois` est stocké en texte 'YYYY-MM-DD' par la vue : le comparer directement à un
+                // timestamp ne trouve aucun opérateur et fait échouer la requête. On ramène donc la
+                // borne au même format — à format fixe, l'ordre lexicographique est l'ordre
+                // chronologique.
+                "AND mois >= TO_CHAR(DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '" +
                 months +
-                " months' " +
+                " months', 'YYYY-MM-DD') " +
                 "ORDER BY mois DESC";
 
         Query query = entityManager.createNativeQuery(sql);

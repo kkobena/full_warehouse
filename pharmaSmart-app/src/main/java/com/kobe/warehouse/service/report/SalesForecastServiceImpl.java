@@ -320,6 +320,12 @@ public class SalesForecastServiceImpl implements SalesForecastService {
      *      dans la fenêtre glissante, au lieu d'une moyenne figée.
      */
     private List<SalesForecastDTO> forecastMovingAverage(Map<YearMonth, Long> historicalData, Integer monthsAhead) {
+        // Sans aucun mois observé, il n'y a ni dernier mois à prolonger ni fenêtre à moyenner :
+        // c'est le cas d'une officine qui vient d'ouvrir, et l'écran doit s'y afficher vide.
+        if (historicalData.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         List<YearMonth> months = new ArrayList<>(historicalData.keySet());
         int windowSize = Math.min(6, historicalData.size());
 
@@ -357,6 +363,11 @@ public class SalesForecastServiceImpl implements SalesForecastService {
     }
 
     private List<SalesForecastDTO> forecastSeasonal(Map<YearMonth, Long> historicalData, Integer monthsAhead) {
+        // Même garde que la moyenne mobile : sans mois observé, aucun mois à rejouer.
+        if (historicalData.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         Map<Integer, List<Long>> byMonth = new HashMap<>();
         historicalData.forEach((ym, ca) ->
             byMonth.computeIfAbsent(ym.getMonthValue(), k -> new ArrayList<>()).add(ca));

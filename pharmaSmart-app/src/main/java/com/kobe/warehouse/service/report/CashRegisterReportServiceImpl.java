@@ -42,11 +42,14 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
                 "cr.statut, " +
                 "u.first_name || ' ' || u.last_name as user_name, " +
                 "COALESCE(SUM(cri.amount), 0) as total_sales, " +
-                "COUNT(DISTINCT s.id) as number_of_transactions " +
+                // Le nombre de ventes passe par une sous-requête corrélée, et non par une jointure :
+                // jointe ici, la table des ventes démultipliait les lignes d'encaissement, et le
+                // total encaissé se trouvait multiplié par le nombre de ventes du jour — une caisse
+                // de trois ventes s'affichait avec le triple de son contenu, donc manquante d'autant.
+                "(SELECT COUNT(*) FROM sales s WHERE s.sale_date = :date AND s.user_id = cr.user_id) as number_of_transactions " +
                 "FROM cash_register cr " +
                 "INNER JOIN app_user u ON cr.user_id = u.id " +
                 "LEFT JOIN cash_register_item cri ON cr.id = cri.cash_register_id " +
-                "LEFT JOIN sales s ON s.sale_date = :date AND s.user_id = cr.user_id " +
                 "WHERE cr.begin_time >= :startOfDay AND cr.begin_time <= :endOfDay " +
                 "GROUP BY cr.id, cr.begin_time, cr.end_time, cr.init_amount, cr.final_amount, cr.statut, u.first_name, u.last_name " +
                 "ORDER BY cr.begin_time";
@@ -64,8 +67,10 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
         for (Object[] row : results) {
             Integer cashRegisterId = (Integer) row[0];
             String caisseLibelle = (String) row[1];
-            LocalDateTime openingDate = row[2] != null ? LocalDateTime.parse(row[2]+""): null;
-            LocalDateTime closingDate = row[3] != null ?  LocalDateTime.parse(row[2]+"") : null;
+            LocalDateTime openingDate = row[2] != null ? LocalDateTime.parse(row[2] + "") : null;
+            // row[3] et non row[2] : l'heure de fermeture atteste du moment du comptage, et c'est
+            // elle qu'on oppose au caissier en cas d'écart.
+            LocalDateTime closingDate = row[3] != null ? LocalDateTime.parse(row[3] + "") : null;
             long openingBalance = row[4] != null ? ((Number) row[4]).longValue() : 0L;
             Long closingBalance = row[5] != null ? ((Number) row[5]).longValue() : null;
             String statutStr = (String) row[6];
@@ -142,7 +147,7 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT ");
         sql.append("s.id, ");
-        sql.append("s.created as transaction_date, ");
+        sql.append("s.created_at as transaction_date, ");
         sql.append("CONCAT('Caisse ', cr.id) as cash_register_name, ");
         sql.append("u.first_name || ' ' || u.last_name as user_name, ");
         sql.append("'VENTE' as movement_type, ");
@@ -153,7 +158,10 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
         sql.append("FROM sales s ");
         sql.append("INNER JOIN app_user u ON s.user_id = u.id ");
         sql.append("LEFT JOIN cash_register cr ON s.sale_date = DATE(cr.begin_time) AND s.user_id = cr.user_id ");
-        sql.append("LEFT JOIN payment p ON s.id = p.sales_id ");
+        // La table s'appelle payment_transaction, et la vente s'y référence par sa clé composite
+        // (sale_id, sale_date) : « payment » et « sales_id » n'existent pas, et la requête échouait
+        // donc à chaque appel.
+        sql.append("LEFT JOIN payment_transaction p ON p.sale_id = s.id AND p.sale_date = s.sale_date ");
         sql.append("LEFT JOIN payment_mode pm ON p.payment_mode_code = pm.code ");
         sql.append("LEFT JOIN customer c ON s.customer_id = c.id ");
         sql.append("WHERE s.sale_date BETWEEN :startDate AND :endDate ");
@@ -167,7 +175,7 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
             sql.append("AND cr.id = :cashRegisterId ");
         }
 
-        sql.append("ORDER BY s.created DESC");
+        sql.append("ORDER BY s.created_at DESC");
 
         Query query = entityManager.createNativeQuery(sql.toString());
         query.setParameter("startDate", startDate);
@@ -188,7 +196,9 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
             .stream()
             .map(row -> {
                 Long id = row[0] != null ? ((Number) row[0]).longValue() : null;
-                LocalDate transactionDate = row[1] != null ? LocalDate.parse(row[1]+""): null;
+                // created_at est un horodatage : on n'en garde que la date, la chaîne complète
+                // n'étant pas parsable en LocalDate.
+                LocalDate transactionDate = row[1] instanceof LocalDateTime dateHeure ? dateHeure.toLocalDate() : null;
                 String cashRegisterName = (String) row[2];
                 String userName = (String) row[3];
                 String movementType = (String) row[4];

@@ -144,7 +144,7 @@ public class MobileForecastService {
 
         String sql = """
             SELECT
-                COUNT(DISTINCT s.sale_date) as days_with_sales,
+                COUNT(DISTINCT daily.sale_date) as days_with_sales,
                 COALESCE(AVG(daily.sales_amount), 0) as avg_daily_sales,
                 COALESCE(MIN(daily.sales_amount), 0) as min_daily_sales,
                 COALESCE(MAX(daily.sales_amount), 0) as max_daily_sales,

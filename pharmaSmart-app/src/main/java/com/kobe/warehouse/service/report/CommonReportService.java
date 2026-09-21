@@ -86,6 +86,17 @@ public abstract class CommonReportService {
 
     protected abstract String getGenerateFileName();
 
+    /**
+     * Nom de la variable de gabarit qui porte les lignes de la page courante.
+     *
+     * <p>La pagination remplace cette variable a chaque page. Un rapport dont le gabarit lit une
+     * autre variable doit le declarer ici, sinon ses pages suivantes reecrivent une variable que
+     * personne ne lit et reimpriment indefiniment la premiere tranche.
+     */
+    protected String getItemsParameterName() {
+        return Constant.ITEMS;
+    }
+
     protected Context getContextVariables() {
         Context context = getContext();
         this.getParameters().forEach(context::setVariable);
@@ -131,7 +142,7 @@ public abstract class CommonReportService {
                 List<?> list = items.subList(firstPageRowCount, toIndex);
                 boolean isLastPage = toIndex == size;
                 getParameters().put(Constant.IS_LAST_PAGE, isLastPage);
-                getParameters().put(Constant.ITEMS, list);
+                getParameters().put(getItemsParameterName(), list);
                 getParameters().put(Constant.ITEM_SIZE, size);
                 getParameters().put(Constant.PAGE_COUNT, (i + 1) + "/" + pageNumber);
                 renderer.setDocumentFromString(
@@ -337,7 +348,7 @@ public abstract class CommonReportService {
                 List<?> list = items.subList(firstPageRowCount, toIndex);
                 boolean isLastPage = toIndex == size;
                 getParameters().put(Constant.IS_LAST_PAGE, isLastPage);
-                getParameters().put(Constant.ITEMS, list);
+                getParameters().put(getItemsParameterName(), list);
                 getParameters().put(Constant.ITEM_SIZE, size);
                 getParameters().put(Constant.PAGE_COUNT, (i + 1) + "/" + pageNumber);
                 renderer.setDocumentFromString(

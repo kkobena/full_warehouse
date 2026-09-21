@@ -77,10 +77,15 @@ public class MobileAlertRepositoryImpl implements MobileAlertRepository {
         return projections;
     }
 
+    /**
+     * Compte les <b>lots</b> proches de péremption, et non les produits : c'est le lot qui périme,
+     * qui porte une date et une quantité, et c'est lui que {@link #getExpiryAlerts(int)} liste. Un
+     * produit reçu en trois fois annonçait autrefois une alerte et en affichait trois.
+     */
     @Override
     public int getExpiringProductsCount(int days) {
         String sql = """
-            SELECT COUNT(DISTINCT l.produit_id)
+            SELECT COUNT(*)
             FROM lot l
             INNER JOIN produit p ON l.produit_id = p.id
             WHERE l.expiry_date BETWEEN CURRENT_DATE AND CURRENT_DATE + :days
@@ -178,24 +183,33 @@ public class MobileAlertRepositoryImpl implements MobileAlertRepository {
         return ((Number) query.getSingleResult()).intValue();
     }
 
+    /**
+     * Liste les factures en retard de règlement.
+     *
+     * <p>Le payeur se nomme par son groupe quand il en a un, par lui-même sinon : une jointure
+     * fermée sur le groupe écartait silencieusement les tiers payants isolés — le cas courant en
+     * officine — que le compteur, lui, annonçait.
+     */
     @Override
     public List<OverdueInvoiceProjection> getOverdueInvoiceAlerts(int days) {
         String sql = """
             SELECT
                 ftp.id,
                 ftp.invoice_date,
-                gtp.name as tiers_payant_name,
-                gtp.telephone,
+                COALESCE(gtp.name, tp.full_name, tp.name) as tiers_payant_name,
+                COALESCE(gtp.telephone, tp.telephone) as telephone,
                 COALESCE(SUM(tpsl.montant), 0) as montant_facture,
                 COALESCE(ftp.montant_regle, 0) as montant_regle,
                 (CURRENT_DATE - DATE(ftp.created)) as days_overdue
             FROM facture_tiers_payant ftp
-            INNER JOIN groupe_tiers_payant gtp ON ftp.groupe_tiers_payant_id = gtp.id
+            LEFT JOIN groupe_tiers_payant gtp ON ftp.groupe_tiers_payant_id = gtp.id
+            LEFT JOIN tiers_payant tp ON ftp.tiers_payant_id = tp.id
             INNER JOIN third_party_sale_line tpsl ON tpsl.facture_tiers_payant_id = ftp.id
                 AND tpsl.invoice_date = ftp.invoice_date
             WHERE ftp.statut IN (:notPaid, :partiallyPaid)
               AND ftp.created < CURRENT_DATE - :days
-            GROUP BY ftp.id, ftp.invoice_date, gtp.name, gtp.telephone, ftp.montant_regle, ftp.created
+            GROUP BY ftp.id, ftp.invoice_date, gtp.name, gtp.telephone,
+                     tp.full_name, tp.name, tp.telephone, ftp.montant_regle, ftp.created
             HAVING COALESCE(SUM(tpsl.montant), 0) > COALESCE(ftp.montant_regle, 0)
             ORDER BY days_overdue DESC
             """;

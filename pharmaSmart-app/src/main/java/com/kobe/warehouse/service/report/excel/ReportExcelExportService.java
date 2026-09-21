@@ -62,14 +62,19 @@ public class ReportExcelExportService {
             Cell titleCell = titleRow.createCell(0);
             titleCell.setCellValue(title);
             titleCell.setCellStyle(titleStyle);
-            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, headers.length - 1));
 
             // Ligne de date d'export
             Row dateRow = sheet.createRow(rowNum++);
             Cell dateCell = dateRow.createCell(0);
             dateCell.setCellValue("Généré le: " + LocalDateTime.now().format(DATETIME_FORMATTER));
             dateCell.setCellStyle(dateStyle);
-            sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, headers.length - 1));
+
+            // La fusion n'a de sens qu'à partir de deux colonnes : POI refuse une région d'une seule
+            // cellule, et un rapport à colonne unique échouait donc à l'écriture.
+            if (headers.length > 1) {
+                sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, headers.length - 1));
+                sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, headers.length - 1));
+            }
 
             // Ligne vide
             rowNum++;

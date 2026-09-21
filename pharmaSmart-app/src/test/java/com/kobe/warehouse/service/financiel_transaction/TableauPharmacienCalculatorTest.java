@@ -164,10 +164,11 @@ class TableauPharmacienCalculatorTest {
         dto.setMontantRemise(500L);
         dto.setMontantRemiseUg(200L);
 
-        calculator.calculateNetAmount(dto);
+        calculator.calculateNetAmount(dto, false);
 
-        // 10000 + 500 - 200 = 10300
-        assertEquals(10300L, dto.getMontantNet());
+        // 10000 - 500 = 9500 : la remise de l'en-tête porte déjà sur les unités gratuites,
+        // montantRemiseUg ne doit pas la retrancher une seconde fois.
+        assertEquals(9500L, dto.getMontantNet());
     }
 
     @Test
@@ -177,23 +178,53 @@ class TableauPharmacienCalculatorTest {
         dto.setMontantRemise(0L);
         dto.setMontantRemiseUg(0L);
 
-        calculator.calculateNetAmount(dto);
+        calculator.calculateNetAmount(dto, false);
 
         assertEquals(10000L, dto.getMontantNet());
+    }
+
+    @Test
+    void testCalculateNetAmount_unitesGratuitesExclues() {
+        TableauPharmacienDTO dto = new TableauPharmacienDTO();
+        dto.setMontantTtc(10000L);
+        dto.setMontantRemise(500L);
+        dto.setMontantTtcUg(1000L);
+        dto.setMontantRemiseUg(200L);
+
+        calculator.calculateNetAmount(dto, true);
+
+        // 10000 - 500 - (1000 - 200) = 8700 : les UG rapportent leur valeur brute moins leur remise.
+        assertEquals(8700L, dto.getMontantNet());
     }
 
     // ===== Cash Adjustment Tests =====
 
     @Test
-    void testAdjustCashAmountForUnitGratuite_normal() {
+    void testAdjustCashAmountForUnitGratuite_exclusionActive() {
+        TableauPharmacienDTO dto = new TableauPharmacienDTO();
+        dto.setMontantComptant(10000L);
+        dto.setMontantTtcUg(500L);
+        dto.setMontantRemiseUg(100L);
+
+        calculator.adjustCashAmountForUnitGratuite(dto, true);
+
+        // 10000 - (500 - 100) = 9600
+        assertEquals(9600L, dto.getMontantComptant());
+    }
+
+    /**
+     * Sans le paramètre d'officine, les unités gratuites restent dans le comptant : elles ont été
+     * vendues au prix normal et encaissées comme le reste.
+     */
+    @Test
+    void testAdjustCashAmountForUnitGratuite_exclusionInactive() {
         TableauPharmacienDTO dto = new TableauPharmacienDTO();
         dto.setMontantComptant(10000L);
         dto.setMontantTtcUg(500L);
 
-        calculator.adjustCashAmountForUnitGratuite(dto);
+        calculator.adjustCashAmountForUnitGratuite(dto, false);
 
-        // 10000 - 500 = 9500
-        assertEquals(9500L, dto.getMontantComptant());
+        assertEquals(10000L, dto.getMontantComptant());
     }
 
     @Test
@@ -202,7 +233,7 @@ class TableauPharmacienCalculatorTest {
         dto.setMontantComptant(10000L);
         dto.setMontantTtcUg(0L);
 
-        calculator.adjustCashAmountForUnitGratuite(dto);
+        calculator.adjustCashAmountForUnitGratuite(dto, true);
 
         assertEquals(10000L, dto.getMontantComptant());
     }

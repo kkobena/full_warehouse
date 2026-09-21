@@ -325,3 +325,6 @@ scripts/demo-data/98_pharmaml_local.sql
 # régénérés à chaque release). Le README du répertoire, lui, est suivi.
 /src-tauri/updates/*
 !/src-tauri/updates/README.md
+
+# Module d'assemblage du ZIP de livraison (profil full-dist)
+/pharmaSmart-dist/target/

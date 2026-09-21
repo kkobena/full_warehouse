@@ -11,8 +11,10 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,14 @@ public class MobileTodoService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MobileTodoService.class);
 
+    // Cette liste est un pense-bete, pas un inventaire : chaque nature d'action y est plafonnee.
+    // Compteurs et groupes se deduisent desormais des taches elles-memes, ils appliquent donc ces
+    // plafonds sans avoir a les connaitre.
+    private static final int PLAFOND_RUPTURES = 20;
+    private static final int PLAFOND_IMPAYES = 10;
+    private static final int PLAFOND_PEREMPTIONS = 15;
+    private static final int PLAFOND_STOCK_FAIBLE = 15;
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -38,21 +48,16 @@ public class MobileTodoService {
     public MobileTodoDTO getTodoList() {
         LOG.debug("Getting mobile todo list");
 
-        List<TodoItemDTO> urgent = new ArrayList<>();
+        Map<TodoPriority, List<TodoItemDTO>> parPriorite = getAllTodoItems()
+            .stream()
+            .collect(Collectors.groupingBy(TodoItemDTO::priority));
 
-        // 1. Products in stock rupture (Urgent)
-        urgent.addAll(getStockRuptureTodos());
-
-        // 2. Overdue invoices > 90 days (Urgent)
-        urgent.addAll(getOverdueInvoiceTodos(90));
-
-        // 3. Products expiring < 90 days (Important)
-        List<TodoItemDTO> important = new ArrayList<>(getExpiringProductTodos(90));
-
-        // 4. Low stock products (Normal)
-        List<TodoItemDTO> normal = new ArrayList<>(getLowStockTodos());
-
-        return MobileTodoDTO.builder().urgent(urgent).important(important).normal(normal).build();
+        return MobileTodoDTO
+            .builder()
+            .urgent(parPriorite.getOrDefault(TodoPriority.URGENT, List.of()))
+            .important(parPriorite.getOrDefault(TodoPriority.IMPORTANT, List.of()))
+            .normal(parPriorite.getOrDefault(TodoPriority.NORMAL, List.of()))
+            .build();
     }
 
     /**
@@ -62,7 +67,27 @@ public class MobileTodoService {
      * @return Flat list of all todo items
      */
     public List<TodoItemDTO> getAllTodoItems() {
-        return getAllTodoItems(0, Integer.MAX_VALUE);
+        return collectTodoItems();
+    }
+
+    /**
+     * Rassemble les taches des quatre natures, de la plus urgente a la moins urgente.
+     *
+     * <p>La priorite portee par la tache est la seule autorite : c'est elle que l'ecran affiche en
+     * face de chaque ligne, et c'est donc elle qui doit decider du groupe et des compteurs. Un lot
+     * qui perime dans la semaine est urgent, meme s'il releve de la nature « peremptions ».
+     *
+     * <p>Le tri est stable : l'ordre interne de chaque nature — date de peremption, anciennete de
+     * l'impaye, rapport du stock au seuil — est conserve.
+     */
+    private List<TodoItemDTO> collectTodoItems() {
+        List<TodoItemDTO> taches = new ArrayList<>();
+        taches.addAll(getStockRuptureTodos());
+        taches.addAll(getOverdueInvoiceTodos(90));
+        taches.addAll(getExpiringProductTodos(90));
+        taches.addAll(getLowStockTodos());
+        taches.sort(Comparator.comparingInt(tache -> tache.priority().getOrder()));
+        return taches;
     }
 
     /**
@@ -76,13 +101,7 @@ public class MobileTodoService {
     public List<TodoItemDTO> getAllTodoItems(int page, int size) {
         LOG.debug("Getting all todo items with pagination: page={}, size={}", page, size);
 
-        List<TodoItemDTO> allItems = new ArrayList<>();
-
-        // Collect all items in priority order
-        allItems.addAll(getStockRuptureTodos());
-        allItems.addAll(getOverdueInvoiceTodos(90));
-        allItems.addAll(getExpiringProductTodos(90));
-        allItems.addAll(getLowStockTodos());
+        List<TodoItemDTO> allItems = collectTodoItems();
 
         // Apply pagination
         int fromIndex = page * size;
@@ -99,12 +118,7 @@ public class MobileTodoService {
      * @return Total number of todo items
      */
     public long getTodoItemsCount() {
-        long count = 0;
-        count += getStockRuptureCount();
-        count += getOverdueInvoicesCount(90);
-        count += getExpiringProductsCount(90);
-        count += getLowStockCount();
-        return count;
+        return collectTodoItems().size();
     }
 
     /**
@@ -113,10 +127,15 @@ public class MobileTodoService {
      * @return Map with counts for each priority
      */
     public TodoCountsDTO getTodoCounts() {
-        int urgentCount = getStockRuptureCount() + getOverdueInvoicesCount(90);
-        int importantCount = getExpiringProductsCount(90);
-        int normalCount = getLowStockCount();
-        return new TodoCountsDTO(urgentCount, importantCount, normalCount);
+        Map<TodoPriority, Long> parPriorite = getAllTodoItems()
+            .stream()
+            .collect(Collectors.groupingBy(TodoItemDTO::priority, Collectors.counting()));
+
+        return new TodoCountsDTO(
+            parPriorite.getOrDefault(TodoPriority.URGENT, 0L).intValue(),
+            parPriorite.getOrDefault(TodoPriority.IMPORTANT, 0L).intValue(),
+            parPriorite.getOrDefault(TodoPriority.NORMAL, 0L).intValue()
+        );
     }
 
     /**
@@ -126,86 +145,6 @@ public class MobileTodoService {
         public int total() {
             return urgent + important + normal;
         }
-    }
-
-    // =========================================================================
-    // COUNT METHODS
-    // =========================================================================
-
-    private int getStockRuptureCount() {
-        String sql = """
-            SELECT COUNT(*)
-            FROM (
-                SELECT p.id
-                FROM produit p
-                INNER JOIN stock_produit sp ON sp.produit_id = p.id
-                WHERE p.status = :status
-                GROUP BY p.id
-                HAVING COALESCE(SUM(sp.qty_stock), 0) + COALESCE(SUM(sp.qty_ug), 0) = 0
-            ) ruptures
-            """;
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("status", Status.ENABLE.name());
-        return ((Number) query.getSingleResult()).intValue();
-    }
-
-    private int getOverdueInvoicesCount(int days) {
-        String sql = """
-            SELECT COUNT(*)
-            FROM (
-                SELECT ftp.id
-                FROM facture_tiers_payant ftp
-                INNER JOIN third_party_sale_line tpsl ON tpsl.facture_tiers_payant_id = ftp.id
-                    AND tpsl.invoice_date = ftp.invoice_date
-                WHERE ftp.statut IN (:notPaid, :partiallyPaid)
-                  AND ftp.created < CURRENT_DATE - :days
-                GROUP BY ftp.id, ftp.invoice_date, ftp.montant_regle
-                HAVING COALESCE(SUM(tpsl.montant), 0) > COALESCE(ftp.montant_regle, 0)
-            ) overdue
-            """;
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("notPaid", InvoiceStatut.NOT_PAID.name());
-        query.setParameter("partiallyPaid", InvoiceStatut.PARTIALLY_PAID.name());
-        query.setParameter("days", days);
-        return ((Number) query.getSingleResult()).intValue();
-    }
-
-    private int getExpiringProductsCount(int days) {
-        String sql = """
-            SELECT COUNT(DISTINCT l.id)
-            FROM lot l
-            INNER JOIN produit p ON l.produit_id = p.id
-            WHERE l.expiry_date BETWEEN CURRENT_DATE AND CURRENT_DATE + :days
-              AND l.current_quantity > 0
-              AND p.status = :status
-            """;
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("days", days);
-        query.setParameter("status", Status.ENABLE.name());
-        return ((Number) query.getSingleResult()).intValue();
-    }
-
-    private int getLowStockCount() {
-        String sql = """
-            SELECT COUNT(*)
-            FROM (
-                SELECT p.id
-                FROM produit p
-                INNER JOIN stock_produit sp ON sp.produit_id = p.id
-                WHERE p.status = :status
-                  AND p.qty_seuil_mini > 0
-                GROUP BY p.id, p.qty_seuil_mini
-                HAVING COALESCE(SUM(sp.qty_stock), 0) + COALESCE(SUM(sp.qty_ug), 0) > 0
-                   AND COALESCE(SUM(sp.qty_stock), 0) + COALESCE(SUM(sp.qty_ug), 0) <= p.qty_seuil_mini
-            ) low_stock
-            """;
-
-        Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("status", Status.ENABLE.name());
-        return ((Number) query.getSingleResult()).intValue();
     }
 
     /**
@@ -228,8 +167,7 @@ public class MobileTodoService {
             GROUP BY p.id, p.libelle, fp.code_cip, f.id, f.libelle
             HAVING COALESCE(SUM(sp.qty_stock), 0) + COALESCE(SUM(sp.qty_ug), 0) = 0
             ORDER BY p.libelle
-            LIMIT 20
-            """;
+            LIMIT """ + " " + PLAFOND_RUPTURES;
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("status", Status.ENABLE.name());
@@ -270,27 +208,30 @@ public class MobileTodoService {
 
     /**
      * Get todo items for overdue invoices.
-     * Uses third_party_sale_line to calculate invoice amounts.
+     *
+     * <p>Le payeur se nomme par son groupe quand il en a un, par lui-meme sinon : une jointure
+     * fermee sur le groupe ecartait les tiers payants isoles que le compteur, lui, annoncait.
      */
     private List<TodoItemDTO> getOverdueInvoiceTodos(int days) {
         String sql = """
             SELECT
                 ftp.id,
-                gtp.name as tiers_payant_name,
-                gtp.telephone,
+                COALESCE(gtp.name, tp.full_name, tp.name) as tiers_payant_name,
+                COALESCE(gtp.telephone, tp.telephone) as telephone,
                 COALESCE(SUM(tpsl.montant), 0) - COALESCE(ftp.montant_regle, 0) as montant_restant,
                 (CURRENT_DATE - DATE(ftp.created)) as days_overdue
             FROM facture_tiers_payant ftp
-            INNER JOIN groupe_tiers_payant gtp ON ftp.groupe_tiers_payant_id = gtp.id
+            LEFT JOIN groupe_tiers_payant gtp ON ftp.groupe_tiers_payant_id = gtp.id
+            LEFT JOIN tiers_payant tp ON ftp.tiers_payant_id = tp.id
             INNER JOIN third_party_sale_line tpsl ON tpsl.facture_tiers_payant_id = ftp.id
                 AND tpsl.invoice_date = ftp.invoice_date
             WHERE ftp.statut IN (:notPaid, :partiallyPaid)
               AND ftp.created < CURRENT_DATE - :days
-            GROUP BY ftp.id, ftp.invoice_date, gtp.name, gtp.telephone, ftp.montant_regle, ftp.created
+            GROUP BY ftp.id, ftp.invoice_date, gtp.name, gtp.telephone,
+                     tp.full_name, tp.name, tp.telephone, ftp.montant_regle, ftp.created
             HAVING COALESCE(SUM(tpsl.montant), 0) > COALESCE(ftp.montant_regle, 0)
             ORDER BY days_overdue DESC
-            LIMIT 10
-            """;
+            LIMIT """ + " " + PLAFOND_IMPAYES;
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("notPaid", InvoiceStatut.NOT_PAID.name());
@@ -353,8 +294,7 @@ public class MobileTodoService {
               AND l.current_quantity > 0
               AND p.status = :status
             ORDER BY l.expiry_date
-            LIMIT 15
-            """;
+            LIMIT """ + " " + PLAFOND_PEREMPTIONS;
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("days", days);
@@ -421,8 +361,7 @@ public class MobileTodoService {
             HAVING COALESCE(SUM(sp.qty_stock), 0) + COALESCE(SUM(sp.qty_ug), 0) > 0
                AND COALESCE(SUM(sp.qty_stock), 0) + COALESCE(SUM(sp.qty_ug), 0) <= p.qty_seuil_mini
             ORDER BY (COALESCE(SUM(sp.qty_stock), 0) + COALESCE(SUM(sp.qty_ug), 0))::float / NULLIF(p.qty_seuil_mini, 0)
-            LIMIT 15
-            """;
+            LIMIT """ + " " + PLAFOND_STOCK_FAIBLE;
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("status", Status.ENABLE.name());

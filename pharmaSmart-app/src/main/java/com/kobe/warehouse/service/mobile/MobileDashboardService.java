@@ -54,13 +54,13 @@ public class MobileDashboardService {
         DailySalesSummaryProjection previousDaySummary = salesRepository.getDailySalesSummary(date.minusDays(1));
 
         // Calculate variation
-        double variationPercent = calculateVariation(dailySummary.caTotal(), previousDaySummary.caTotal());
+        Double variationPercent = calculateVariation(dailySummary.caTotal(), previousDaySummary.caTotal());
 
         // Moyenne glissante des 30 derniers jours — référence contextuelle
         long averageCA30j = salesRepository.getAverageCA(date, LOOKBACK_DAYS);
 
         // Écart % entre le CA du jour et la moyenne glissante
-        double trendVs30j = calculateVariation(dailySummary.caTotal(), averageCA30j);
+        Double trendVs30j = calculateVariation(dailySummary.caTotal(), averageCA30j);
 
         // Get alerts summary
         List<MobileAlertDTO> alerts = alertService.getAlertsSummary();
@@ -122,9 +122,17 @@ public class MobileDashboardService {
             .toList();
     }
 
-    private double calculateVariation(long current, long previous) {
+    /**
+     * Variation, en pourcentage, entre le chiffre du jour et celui de la référence.
+     *
+     * <p>Rend {@code null} quand la référence est à zéro : il n'y a alors pas de variation à
+     * calculer. Le code rendait {@code 100} dans ce cas — un premier jour d'exploitation, un
+     * lendemain de jour de fermeture, ou une moyenne glissante encore vide affichaient donc
+     * « +100 % » en vert, comme une vraie progression.
+     */
+    private Double calculateVariation(long current, long previous) {
         if (previous == 0) {
-            return current > 0 ? 100.0 : 0.0;
+            return current == 0 ? Double.valueOf(0) : null;
         }
         return Math.round(((current - previous) * 100.0) / previous * 100) / 100.0;
     }

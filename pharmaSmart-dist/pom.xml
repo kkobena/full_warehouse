@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!--
+    Assemblage du ZIP de livraison complet. Module activé uniquement par les profils
+    full-dist du POM racine : il doit passer APRÈS pharmaSmart-app et pharmaSmart-batch
+    dans le réacteur, ce que le POM racine (toujours construit en premier) ne permet pas.
+
+      mvnw.cmd clean package -Pfull-dist -DskipTests            → avec JRE
+      mvnw.cmd clean package -Pfull-dist,sans-jre -DskipTests   → sans JRE
+
+    Sortie : target/pharmasmart-<version>-full-<avec|sans>-jre.zip (répertoire racine)
+  -->
+
+  <parent>
+    <groupId>com.kobe.warehouse</groupId>
+    <artifactId>pharmaSmart</artifactId>
+    <version>${revision}</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>pharmaSmart-dist</artifactId>
+  <packaging>pom</packaging>
+  <name>PharmaSmart Distribution</name>
+
+  <properties>
+    <root.dir>${project.basedir}/..</root.dir>
+    <nsis.dir>${root.dir}/src-tauri/target/release/bundle/nsis</nsis.dir>
+  </properties>
+
+  <!-- Uniquement pour l'ordre du réacteur : les JAR sont repris par l'assemblage. -->
+  <dependencies>
+    <dependency>
+      <groupId>com.kobe.warehouse</groupId>
+      <artifactId>pharmaSmart-app</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.kobe.warehouse</groupId>
+      <artifactId>pharmaSmart-batch</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Dans une même phase, les plugins s'exécutent dans l'ordre de déclaration. -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>cargo-build-backup</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>cargo</executable>
+              <workingDirectory>${root.dir}/src-backup</workingDirectory>
+              <arguments>
+                <argument>build</argument>
+                <argument>--release</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <!-- Front Tauri déjà compilé par pharmaSmart-app (profil full-dist) -->
+            <id>tauri-build-client</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>${npm.executable}</executable>
+              <workingDirectory>${root.dir}</workingDirectory>
+              <arguments>
+                <argument>run</argument>
+                <argument>tauri:build:fast</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>tauri-build-server</id>
+            <phase>package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>${npm.executable}</executable>
+              <workingDirectory>${root.dir}</workingDirectory>
+              <arguments>
+                <argument>run</argument>
+                <argument>${dist.tauri.server}</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <!-- Entre les deux builds Tauri : le build serveur écrase pharmasmart.exe -->
+            <id>stash-client-exe</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <copy file="${root.dir}/src-tauri/target/release/pharmasmart.exe"
+                  todir="${project.build.directory}/client" overwrite="true" failonerror="true"/>
+                <!-- Un installeur d'une version antérieure serait sinon repris dans le ZIP -->
+                <delete quiet="true">
+                  <fileset dir="${nsis.dir}" includes="PharmaSmart_*-setup-${dist.jre.suffix}.exe"
+                    erroronmissingdir="false"/>
+                </delete>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.8.0</version>
+        <executions>
+          <execution>
+            <id>make-full-dist</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <appendAssemblyId>false</appendAssemblyId>
+              <descriptors>
+                <descriptor>src/assembly/full-dist.xml</descriptor>
+              </descriptors>
+              <finalName>pharmasmart-${project.version}-full-${dist.jre.suffix}</finalName>
+              <outputDirectory>${root.dir}/target</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

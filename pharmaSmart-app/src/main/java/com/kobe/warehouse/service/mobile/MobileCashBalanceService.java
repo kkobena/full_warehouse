@@ -1,6 +1,8 @@
 package com.kobe.warehouse.service.mobile;
 
+import com.kobe.warehouse.domain.enumeration.CategorieTransaction;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.service.dto.enumeration.TypeVenteDTO;
 import com.kobe.warehouse.service.dto.mobile.CashMovementDTO;
 import com.kobe.warehouse.service.dto.mobile.CategoryBalanceDTO;
@@ -18,8 +20,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Service for mobile cash balance report (Balance Caisse).
@@ -30,6 +34,12 @@ import java.util.Set;
 public class MobileCashBalanceService {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    /** Libellés d'affichage des types de transaction que le domaine classe en sortie de caisse. */
+    private static final Set<String> CLES_SORTIE = Arrays.stream(TypeFinancialTransaction.values())
+        .filter(type -> type.getCategorieTransaction() == CategorieTransaction.SORTIE_CAISSE)
+        .map(type -> type.getTransactionTypeAffichage().name())
+        .collect(Collectors.toUnmodifiableSet());
 
     private final BalanceCaisseService balanceCaisseService;
 
@@ -247,12 +257,21 @@ public class MobileCashBalanceService {
                     0L, // ID not available from Tuple
                     mvt.libelle(),
                     Math.abs(valueAsLong),
-                    valueAsLong >= 0 ? CashMovementDTO.TYPE_ENTREE : CashMovementDTO.TYPE_SORTIE,
+                    isSortie(mvt.key(), valueAsLong) ? CashMovementDTO.TYPE_SORTIE : CashMovementDTO.TYPE_ENTREE,
                     null, // Date not available from Tuple
                     null
                 );
             })
             .toList();
+    }
+
+    /**
+     * Le sens du mouvement se lit sur la clé, non sur le signe : les montants remontés sont des
+     * sommes de règlements, toujours positives, sortie de caisse comprise. Le sens est celui que
+     * le domaine attribue au type de transaction — la même autorité que le rapport d'activité.
+     */
+    private boolean isSortie(String key, long value) {
+        return CLES_SORTIE.contains(key) || value < 0;
     }
 
     private long convertToLong(Object value) {

@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.dto.mobile;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 
 /**
@@ -90,18 +91,60 @@ public enum PerformancePeriod {
     }
 
     /**
-     * Calculate previous period end date.
+     * Fin de la période de référence, <b>arrêtée au même avancement</b> que la période courante.
      *
-     * @param referenceDate Reference date
-     * @return End date of the previous period
+     * <p>Une période en cours ne se compare pas à une période entière. Un 19 septembre confronté à
+     * tout le mois d'août, c'est dix-neuf jours contre trente et un : la variation affichée est
+     * négative d'environ quarante pour cent tous les mois, quoi que fasse l'officine, et redevient
+     * juste le dernier jour du mois. On arrête donc la référence au même quantième — du 1er au 19
+     * août — ce qui est la convention du cumul à date.
+     *
+     * <p>Quand la période courante est close, ce plafond tombe de lui-même sur la fin naturelle de la
+     * période de référence : une comparaison entre deux périodes entières reste une comparaison
+     * entre deux périodes entières.
      */
     public LocalDate getPreviousEndDate(LocalDate referenceDate) {
-        LocalDate previousStartDate = getPreviousStartDate(referenceDate);
-        return switch (this) {
-            case WEEK -> previousStartDate.plusDays(6);
-            case MONTH -> previousStartDate.with(TemporalAdjusters.lastDayOfMonth());
-            case YEAR -> previousStartDate.with(TemporalAdjusters.lastDayOfYear());
+        return borneAuMemeAvancement(referenceDate, getPreviousStartDate(referenceDate));
+    }
+
+    /**
+     * Début de la même période, un an plus tôt.
+     *
+     * <p>En officine, la comparaison au mois précédent est bruitée par la saison : épidémies
+     * hivernales, paludisme des saisons humides, rentrée scolaire, congés. Un septembre se compare
+     * mal à un août pour des raisons qui ne disent rien du comptoir. La comparaison à l'an passé,
+     * elle, met en regard deux périodes de même nature.
+     */
+    public LocalDate getSamePeriodLastYearStartDate(LocalDate referenceDate) {
+        return getStartDate(referenceDate).minusYears(1);
+    }
+
+    /** Fin de la même période l'an passé, arrêtée au même avancement que la période courante. */
+    public LocalDate getSamePeriodLastYearEndDate(LocalDate referenceDate) {
+        return borneAuMemeAvancement(referenceDate, getSamePeriodLastYearStartDate(referenceDate));
+    }
+
+    /**
+     * Arrête une période de référence au même avancement que la période courante, sans jamais
+     * dépasser sa propre fin naturelle.
+     *
+     * <p>Le plafond compte pour quelque chose : un 31 mars comparé à février doit s'arrêter le 28,
+     * et non déborder sur le 2 mars.
+     */
+    private LocalDate borneAuMemeAvancement(LocalDate referenceDate, LocalDate debutReference) {
+        LocalDate finNaturelle = switch (this) {
+            case WEEK -> debutReference.plusDays(6);
+            case MONTH -> debutReference.with(TemporalAdjusters.lastDayOfMonth());
+            case YEAR -> debutReference.with(TemporalAdjusters.lastDayOfYear());
         };
+
+        LocalDate memeAvancement = switch (this) {
+            case WEEK -> debutReference.plusDays(ChronoUnit.DAYS.between(getStartDate(referenceDate), referenceDate));
+            case MONTH -> debutReference.withDayOfMonth(Math.min(referenceDate.getDayOfMonth(), debutReference.lengthOfMonth()));
+            case YEAR -> referenceDate.withYear(debutReference.getYear());
+        };
+
+        return memeAvancement.isBefore(finNaturelle) ? memeAvancement : finNaturelle;
     }
 
     /**

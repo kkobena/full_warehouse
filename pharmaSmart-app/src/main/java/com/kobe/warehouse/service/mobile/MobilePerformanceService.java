@@ -56,10 +56,13 @@ public class MobilePerformanceService {
         LocalDate endDate = performancePeriod.getEndDate(referenceDate);
         LocalDate previousStartDate = performancePeriod.getPreviousStartDate(referenceDate);
         LocalDate previousEndDate = performancePeriod.getPreviousEndDate(referenceDate);
+        LocalDate lastYearStartDate = performancePeriod.getSamePeriodLastYearStartDate(referenceDate);
+        LocalDate lastYearEndDate = performancePeriod.getSamePeriodLastYearEndDate(referenceDate);
 
         // Get current and previous period summaries from repository
         PeriodSummaryProjection currentSummary = performanceRepository.getPeriodSummary(startDate, endDate);
         PeriodSummaryProjection previousSummary = performanceRepository.getPeriodSummary(previousStartDate, previousEndDate);
+        PeriodSummaryProjection lastYearSummary = performanceRepository.getPeriodSummary(lastYearStartDate, lastYearEndDate);
 
         // Calculate derived values
         long averageBasket = currentSummary.transactionsCount() > 0
@@ -72,7 +75,8 @@ public class MobilePerformanceService {
                 .doubleValue()
             : 0;
 
-        double variationPercent = calculateVariation(currentSummary.caTotal(), previousSummary.caTotal());
+        Double variationPercent = calculateVariation(currentSummary.caTotal(), previousSummary.caTotal());
+        Double variationVsLastYearPercent = calculateVariation(currentSummary.caTotal(), lastYearSummary.caTotal());
 
         // Get payment methods breakdown from repository
         List<PaymentMethodProjection> paymentProjections = performanceRepository.getPaymentMethodsSummary(startDate, endDate);
@@ -95,6 +99,10 @@ public class MobilePerformanceService {
             .caTotal(currentSummary.caTotal())
             .caPreviousPeriod(previousSummary.caTotal())
             .variationPercent(variationPercent)
+            .previousStartDate(previousStartDate)
+            .previousEndDate(previousEndDate)
+            .caSamePeriodLastYear(lastYearSummary.caTotal())
+            .variationVsLastYearPercent(variationVsLastYearPercent)
             .transactionsCount(currentSummary.transactionsCount())
             .averageBasket(averageBasket)
             .customersCount(currentSummary.customersCount())
@@ -180,11 +188,16 @@ public class MobilePerformanceService {
     }
 
     /**
-     * Calculate variation percentage between two values.
+     * Variation, en pourcentage, entre le chiffre courant et celui de la période de référence.
+     *
+     * <p>Rend {@code null} quand la période de référence est vide : il n'y a alors pas de variation à
+     * calculer, et le pourcentage n'existe pas. Le code rendait {@code 100} dès que la référence
+     * était à zéro — une officine ouverte depuis six mois lisait donc « +100 % vs l'an passé » tout
+     * au long de sa première année, au même endroit et de la même couleur qu'une vraie croissance.
      */
-    private double calculateVariation(long current, long previous) {
+    private Double calculateVariation(long current, long previous) {
         if (previous == 0) {
-            return current > 0 ? 100.0 : 0.0;
+            return current == 0 ? Double.valueOf(0) : null;
         }
         return BigDecimal.valueOf(((current - previous) * 100.0) / previous)
             .setScale(2, RoundingMode.HALF_UP)

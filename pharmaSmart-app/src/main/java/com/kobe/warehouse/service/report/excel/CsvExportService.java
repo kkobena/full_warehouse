@@ -38,13 +38,19 @@ public class CsvExportService {
             .setDelimiter(';')
             .setHeader(headers).get();
 
+        // Le titre et la date sont écrits avant d'ouvrir le CSVPrinter, et non par printComment().
+        //
+        // Deux raisons. CSVFormat.EXCEL ne définit aucun marqueur de commentaire : printComment()
+        // s'y termine sans rien écrire, et le titre disparaissait purement et simplement du fichier.
+        // Et le CSVPrinter émet les en-têtes dès sa construction : même émis, le titre serait venu
+        // APRÈS eux, alors qu'il est attendu en tête — c'est la disposition qu'adopte l'export Excel
+        // du même rapport, et deux exports du même écran doivent se ressembler.
+        writer.write(title);
+        writer.write(System.lineSeparator());
+        writer.write("Généré le: " + LocalDateTime.now().format(DATETIME_FORMATTER));
+        writer.write(System.lineSeparator());
+
         try (CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
-            // Ligne de titre
-            csvPrinter.printComment(title);
-
-            // Ligne de date d'export
-            csvPrinter.printComment("Généré le: " + LocalDateTime.now().format(DATETIME_FORMATTER));
-
             // Données
             for (T item : data) {
                 String[] row = rowMapper.apply(item);

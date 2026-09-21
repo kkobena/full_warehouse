@@ -13,9 +13,13 @@ public record MobileDashboardDTO(
     long dailyCA,
     // CA moyen journalier des 30 derniers jours — référence glissante
     long averageCA30j,
-    double variationPercent,
+
+    // Nuls quand il n'y a rien à quoi se comparer : une officine à son premier jour n'a pas
+    // progressé de cent pour cent, elle n'a pas de veille. L'écran doit pouvoir afficher un tiret
+    // plutôt qu'un chiffre qui se lit comme une performance.
+    Double variationPercent,
     // Écart % entre le CA du jour et la moyenne des 30 derniers jours
-    double trendVs30j,
+    Double trendVs30j,
 
     // Statistiques des ventes
     int transactionsCount,

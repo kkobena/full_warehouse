@@ -13,6 +13,7 @@ import com.kobe.warehouse.service.stock.dto.QauntiteProduitVendus;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVendu;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVenduRequestParam;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVenduSummary;
+import com.kobe.warehouse.service.stock.dto.StockFilterType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import org.springframework.data.domain.Page;
@@ -82,11 +83,48 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
         this.suggestionProduitService = suggestionProduitService;
     }
 
-    private QuerySpec buildWhereClause(RecapProduitVenduRequestParam requestParam) {
+    /**
+     * Ventes agrégées par produit, avant toute jointure de référencement.
+     *
+     * <p>C'est ce qui empêche le produit cartésien : un produit référencé chez trois fournisseurs et
+     * rangé dans deux rayons apparaît six fois dans les jointures, et sommer ses lignes de vente à ce
+     * niveau multiplierait ses quantités et son chiffre d'affaires par six. On somme donc d'abord,
+     * on joint ensuite — les jointures ne servent plus qu'à afficher et à filtrer.
+     *
+     * <p>Le {@code %s} reçoit les filtres qui portent sur la vente elle-même ; ceux qui portent sur
+     * le produit s'appliquent en dehors, après l'agrégation.
+     */
+    private static final String VENTES_AGREGEES_PAR_PRODUIT =
+        " (SELECT sl.produit_id," +
+        "         SUM(sl.quantity_requested) AS quantity_sold," +
+        "         SUM(sl.quantity_avoir) AS quantity_avoir," +
+        "         SUM(sl.sales_amount) AS total_sales_amount," +
+        "         SUM(sl.cost_amount * sl.quantity_requested) AS total_purchase_amount" +
+        "  FROM sales_line sl" +
+        "  JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date" +
+        "  %s" +
+        "  GROUP BY sl.produit_id) v";
+
+    /** Le socle commun : les ventes déjà agrégées, puis le produit et ses référencements. */
+    private String buildBaseFrom(String salesWhere) {
+        return (
+            " FROM " +
+            VENTES_AGREGEES_PAR_PRODUIT.formatted(salesWhere) +
+            " JOIN produit p ON p.id = v.produit_id " +
+            " LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id " +
+            " LEFT JOIN rayon_produit rp ON rp.produit_id = p.id " +
+            " LEFT JOIN rayon r ON r.id = rp.rayon_id "
+        );
+    }
+
+    /**
+     * Filtres portant sur la vente : période, caissier, quantité de la ligne, prix pratiqué. Ils
+     * s'appliquent <b>avant</b> l'agrégation, sur {@code sales_line} et {@code sales}.
+     */
+    private QuerySpec buildSalesWhereClause(RecapProduitVenduRequestParam requestParam) {
         StringBuilder where = new StringBuilder(" WHERE COALESCE(s.canceled, false) = false AND s.statut = 'CLOSED' ");
         Map<String, Object> params = new HashMap<>();
 
-        // Date/time filtering
         LocalDate startDate = requestParam.startDate();
         LocalDate endDate = requestParam.endDate();
         LocalTime startTime = requestParam.startTime();
@@ -107,6 +145,31 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             where.append(" AND s.caissier_id = :userId");
             params.put("userId", requestParam.userId());
         }
+        if (requestParam.quantitySold() != null) {
+            if (requestParam.quantitySold() == 0) {
+                // Pour les produits invendus, on cherche les produits sans ventes
+                // Cette condition sera gérée dans la requête HAVING
+            } else {
+                where.append(" AND sl.quantity_requested = :quantitySold");
+                params.put("quantitySold", requestParam.quantitySold());
+            }
+        }
+        if (Boolean.TRUE.equals(requestParam.unitPriceLessThanPurchasePrice())) {
+            where.append(" AND  sl.net_unit_price < sl.cost_amount");
+        }
+
+        return new QuerySpec(where.toString(), params);
+    }
+
+    /**
+     * Filtres portant sur le produit : recherche, rayon, fournisseur, seuil mini, stock. Ils
+     * s'appliquent <b>après</b> l'agrégation, sur le produit et ses référencements — donc sans
+     * pouvoir démultiplier quoi que ce soit.
+     */
+    private QuerySpec buildProduitWhereClause(RecapProduitVenduRequestParam requestParam) {
+        StringBuilder where = new StringBuilder(" WHERE 1=1 ");
+        Map<String, Object> params = new HashMap<>();
+
         if (StringUtils.hasText(requestParam.searchTerm())) {
             where.append(
                 " AND (UPPER(p.libelle) LIKE :q OR UPPER(p.code_ean_labo) LIKE :q OR UPPER(fp.code_cip) LIKE :q OR UPPER(fp.code_ean) LIKE :q)"
@@ -121,32 +184,25 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             where.append(" AND fp.fournisseur_id = :fournisseurId");
             params.put("fournisseurId", requestParam.fournisseurId());
         }
-        if (requestParam.quantitySold() != null) {
-            if (requestParam.quantitySold() == 0) {
-                // Pour les produits invendus, on cherche les produits sans ventes
-                // Cette condition sera gérée dans la requête HAVING
-            } else {
-                where.append(" AND sl.quantity_requested = :quantitySold");
-                params.put("quantitySold", requestParam.quantitySold());
-            }
-        }
-        if (Boolean.TRUE.equals(requestParam.unitPriceLessThanPurchasePrice())) {
-            where.append(" AND  sl.net_unit_price < sl.cost_amount");
-        }
         if ((requestParam.seuilFilterType() != null && requestParam.seuilFilterType() != SEUIL_MINI_ATTEINT) && requestParam.seuilValue() != null) {
             switch (requestParam.seuilFilterType()) {
                 case EQUAL_TO -> where.append(" AND p.qty_seuil_mini=:seuilValue");
                 case GREATER_THAN -> where.append(" AND p.qty_seuil_mini>:seuilValue");
                 case LESS_THAN -> where.append(" AND p.qty_seuil_mini<:seuilValue");
-                case GREATER_THAN_OR_EQUAL_TO -> where.append("AND p.qty_seuil_mini>=:seuilValue");
-                case LESS_THAN_OR_EQUAL_TO -> where.append("AND p.qty_seuil_mini<=:seuilValue");
+                case GREATER_THAN_OR_EQUAL_TO -> where.append(" AND p.qty_seuil_mini>=:seuilValue");
+                case LESS_THAN_OR_EQUAL_TO -> where.append(" AND p.qty_seuil_mini<=:seuilValue");
                 default -> where.append(" AND p.qty_seuil_mini<>:seuilValue");// on ne devrait jamais passer ici
 
             }
             params.put("seuilValue", requestParam.seuilValue());
 
         }
-        if (requestParam.stockFilterType() != null && requestParam.stockValue() != null) {
+        // « Rupture de stock » ne compare à rien : l'écran ne propose pas de valeur pour ce choix,
+        // et le filtre doit donc s'appliquer sur son seul intitulé. Le traiter dans le switch
+        // ci-dessous le rendrait inopérant, la condition portant sur une valeur absente.
+        if (requestParam.stockFilterType() == StockFilterType.OUT_OF_STOCK) {
+            where.append(" AND ").append(STOCK_SUBQUERY).append(" <= 0");
+        } else if (requestParam.stockFilterType() != null && requestParam.stockValue() != null) {
             switch (requestParam.stockFilterType()) {
                 case EQUAL_TO -> where.append(" AND ").append(STOCK_SUBQUERY).append(" = :stockValue");
                 case GREATER_THAN -> where.append(" AND ").append(STOCK_SUBQUERY).append(" > :stockValue");
@@ -154,6 +210,7 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
                 case GREATER_THAN_OR_EQUAL_TO -> where.append(" AND ").append(STOCK_SUBQUERY).append(" >= :stockValue");
                 case LESS_THAN_OR_EQUAL_TO -> where.append(" AND ").append(STOCK_SUBQUERY).append(" <= :stockValue");
                 case NOT_EQUAL_TO -> where.append(" AND ").append(STOCK_SUBQUERY).append(" <> :stockValue");
+                case OUT_OF_STOCK -> { /* traité au-dessus */ }
             }
             params.put("stockValue", requestParam.stockValue());
 
@@ -162,34 +219,29 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
         return new QuerySpec(where.toString(), params);
     }
 
-    private String buildCountSql(QuerySpec spec, RecapProduitVenduRequestParam requestParam) {
+    private String buildCountSql(QuerySpec salesSpec, QuerySpec produitSpec, RecapProduitVenduRequestParam requestParam) {
         String having = buildHavingClause(requestParam);
-        String baseFrom =
-            " FROM sales_line sl " +
-            " JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date " +
-            " JOIN produit p ON p.id = sl.produit_id " +
-            " LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id " +
-            " LEFT JOIN rayon_produit rp ON rp.produit_id = p.id " +
-            " LEFT JOIN rayon r ON r.id = rp.rayon_id ";
+        String baseFrom = buildBaseFrom(salesSpec.where);
 
         if (!having.isEmpty()) {
             // Lorsqu'un HAVING avec une sous-requête corrélée (STOCK_SUBQUERY sur p.id) est présent,
             // PostgreSQL exige que p.id soit groupé. On encapsule dans une sous-requête avec GROUP BY.
             return "SELECT COUNT(*) FROM (" +
-                "SELECT p.id" + baseFrom + spec.where +
+                "SELECT p.id" + baseFrom + produitSpec.where +
                 " GROUP BY p.id, p.qty_seuil_mini" +
                 having +
                 ") sub";
         }
-        return "SELECT COUNT(DISTINCT p.id)" + baseFrom + spec.where;
+        return "SELECT COUNT(DISTINCT p.id)" + baseFrom + produitSpec.where;
     }
 
-    private long getCountTotalPages(QuerySpec spec, RecapProduitVenduRequestParam requestParam) {
+    private long getCountTotalPages(QuerySpec salesSpec, QuerySpec produitSpec, RecapProduitVenduRequestParam requestParam) {
         // Count query
-        String countSql = buildCountSql(spec, requestParam);
+        String countSql = buildCountSql(salesSpec, produitSpec, requestParam);
 
         Query countQuery = entityManager.createNativeQuery(countSql);
-        spec.params.forEach(countQuery::setParameter);
+        salesSpec.params.forEach(countQuery::setParameter);
+        produitSpec.params.forEach(countQuery::setParameter);
         return ((Number) countQuery.getSingleResult()).longValue();
     }
 
@@ -198,38 +250,37 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
     public Page<RecapProduitVendu> getRecapProduitVenduReport(RecapProduitVenduRequestParam requestParam, Pageable pageable) {
         // Build dynamic native SQL
         StringBuilder sb = new StringBuilder();
-        QuerySpec spec = buildWhereClause(requestParam);
+        QuerySpec salesSpec = buildSalesWhereClause(requestParam);
+        QuerySpec produitSpec = buildProduitWhereClause(requestParam);
 
-        // Base joins — stock agrégé via sous-requête corrélée pour éviter le produit cartésien
+        // Les agrégats viennent de `v`, déjà groupé par produit : MIN() ne fait que les reconduire
+        // ligne à ligne, puisqu'ils sont constants pour un produit donné. C'est ce qui évite que les
+        // référencements fournisseurs et les rayons ne les démultiplient.
         sb.append("SELECT p.id, p.libelle, p.code_ean_labo, ")
             .append(" COALESCE(MIN(fp.code_cip), '') AS code_cip, ")
             .append(" COALESCE(MIN(r.libelle), '') AS rayon_name, ")
-            .append(" SUM(sl.quantity_requested) AS quantity_sold, ")
-            .append(" SUM(sl.quantity_avoir) AS quantity_avoir, ")
-            .append(" SUM(sl.sales_amount) AS total_sales_amount, ")
-            .append(" SUM(sl.cost_amount * sl.quantity_requested) AS total_purchase_amount, ")
+            .append(" MIN(v.quantity_sold) AS quantity_sold, ")
+            .append(" MIN(v.quantity_avoir) AS quantity_avoir, ")
+            .append(" MIN(v.total_sales_amount) AS total_sales_amount, ")
+            .append(" MIN(v.total_purchase_amount) AS total_purchase_amount, ")
             .append(STOCK_SUBQUERY).append(" AS total_total_stock ")
-            .append(" FROM sales_line sl ")
-            .append(" JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date ")
-            .append(" JOIN produit p ON p.id = sl.produit_id ")
-            .append(" LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id ")
-            .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id ")
-            .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ");
+            .append(buildBaseFrom(salesSpec.where));
 
         String groupBy = " GROUP BY p.id, p.libelle, p.code_ean_labo";
 
-        String baseFromWhere = sb + spec.where;
+        String baseFromWhere = sb + produitSpec.where;
 
 
         // Data query with pagination and ordering by total sales desc
         String dataSql = baseFromWhere + groupBy + buildHavingClause(requestParam) + " ORDER BY total_sales_amount DESC";
         Query dataQuery = entityManager.createNativeQuery(dataSql);
-        spec.params.forEach(dataQuery::setParameter);
+        salesSpec.params.forEach(dataQuery::setParameter);
+        produitSpec.params.forEach(dataQuery::setParameter);
         long totalElements = 0;
         if (pageable.isPaged()) {
             dataQuery.setFirstResult((int) pageable.getOffset());
             dataQuery.setMaxResults(pageable.getPageSize());
-            totalElements = getCountTotalPages(spec, requestParam);
+            totalElements = getCountTotalPages(salesSpec, produitSpec, requestParam);
         }
 
         @SuppressWarnings("unchecked")
@@ -325,26 +376,21 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
 
     @Override
     public RecapProduitVenduSummary getRecapProduitVenduSummary(RecapProduitVenduRequestParam requestParam) {
-        QuerySpec spec = buildWhereClause(requestParam);
+        QuerySpec salesSpec = buildSalesWhereClause(requestParam);
+        QuerySpec produitSpec = buildProduitWhereClause(requestParam);
 
-        // On agrège d'abord par produit (GROUP BY p.id) pour éviter les doublons
-        // causés par les JOINs 1→N (fournisseur_produit, rayon_produit).
-        // Le stock est calculé via STOCK_SUBQUERY corrélée sur p.id — valide ici
-        // car p.id est dans le GROUP BY de la sous-requête interne.
+        // Même montage que la liste : les ventes sont agrégées avant les jointures de
+        // référencement, sans quoi un produit multi-fournisseurs verrait ses totaux démultipliés —
+        // et le résumé afficherait un chiffre d'affaires supérieur à la somme de ses lignes.
         String innerSql =
             "SELECT p.id," +
-            " SUM(sl.quantity_requested) AS qty_sold," +
-            " SUM(sl.quantity_avoir) AS qty_avoir," +
-            " SUM(sl.sales_amount) AS sales_amount," +
-            " SUM(sl.cost_amount * sl.quantity_requested) AS purchase_amount," +
+            " MIN(v.quantity_sold) AS qty_sold," +
+            " MIN(v.quantity_avoir) AS qty_avoir," +
+            " MIN(v.total_sales_amount) AS sales_amount," +
+            " MIN(v.total_purchase_amount) AS purchase_amount," +
             " " + STOCK_SUBQUERY + " AS stock" +
-            " FROM sales_line sl" +
-            " JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date" +
-            " JOIN produit p ON p.id = sl.produit_id" +
-            " LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id" +
-            " LEFT JOIN rayon_produit rp ON rp.produit_id = p.id" +
-            " LEFT JOIN rayon r ON r.id = rp.rayon_id" +
-            " " + spec.where +
+            buildBaseFrom(salesSpec.where) +
+            " " + produitSpec.where +
             " GROUP BY p.id";
 
         String sql =
@@ -357,7 +403,8 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             " FROM (" + innerSql + ") inner_q";
 
         Query q = entityManager.createNativeQuery(sql);
-        spec.params.forEach(q::setParameter);
+        salesSpec.params.forEach(q::setParameter);
+        produitSpec.params.forEach(q::setParameter);
         Object[] row = (Object[]) q.getSingleResult();
         Long totalProducts = row[0] != null ? ((Number) row[0]).longValue() : 0L;
         Integer qtySold = row[1] != null ? ((Number) row[1]).intValue() : 0;
@@ -481,7 +528,11 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
             }
             params.put("seuilValue", requestParam.seuilValue());
         }
-        if (requestParam.stockFilterType() != null && requestParam.stockValue() != null) {
+        // Même traitement que pour les produits vendus : « rupture de stock » n'a pas de valeur à
+        // comparer.
+        if (requestParam.stockFilterType() == StockFilterType.OUT_OF_STOCK) {
+            where.append(" AND ").append(STOCK_SUBQUERY).append(" <= 0");
+        } else if (requestParam.stockFilterType() != null && requestParam.stockValue() != null) {
             switch (requestParam.stockFilterType()) {
                 case EQUAL_TO -> where.append(" AND ").append(STOCK_SUBQUERY).append(" = :stockValue");
                 case GREATER_THAN -> where.append(" AND ").append(STOCK_SUBQUERY).append(" > :stockValue");
@@ -489,6 +540,7 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
                 case GREATER_THAN_OR_EQUAL_TO -> where.append(" AND ").append(STOCK_SUBQUERY).append(" >= :stockValue");
                 case LESS_THAN_OR_EQUAL_TO -> where.append(" AND ").append(STOCK_SUBQUERY).append(" <= :stockValue");
                 case NOT_EQUAL_TO -> where.append(" AND ").append(STOCK_SUBQUERY).append(" <> :stockValue");
+                case OUT_OF_STOCK -> { /* traité au-dessus */ }
             }
             params.put("stockValue", requestParam.stockValue());
         }
@@ -535,21 +587,20 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
 
     private List<QauntiteProduitVendus> getProduitIdQuantities(RecapProduitVenduRequestParam requestParam) {
         StringBuilder sb = new StringBuilder();
-        QuerySpec spec = buildWhereClause(requestParam);
+        QuerySpec salesSpec = buildSalesWhereClause(requestParam);
+        QuerySpec produitSpec = buildProduitWhereClause(requestParam);
 
-        sb.append("SELECT DISTINCT p.id, SUM(sl.quantity_requested) AS quantity_sold, p.qty_appro, p.qty_seuil_mini ")
-            .append(" FROM sales_line sl ")
-            .append(" JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date ")
-            .append(" JOIN produit p ON p.id = sl.produit_id ")
-            .append(" LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id ")
-            .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id ")
-            .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ");
+        // La quantité servait à proposer un réassort : démultipliée, elle faisait commander
+        // plusieurs fois ce qu'il fallait. Elle vient donc des ventes déjà agrégées.
+        sb.append("SELECT p.id, MIN(v.quantity_sold) AS quantity_sold, p.qty_appro, p.qty_seuil_mini ")
+            .append(buildBaseFrom(salesSpec.where));
 
         String groupBy = " GROUP BY p.id,p.qty_appro, p.qty_seuil_mini";
 
-        String sql = sb + spec.where + groupBy + buildHavingClause(requestParam);
+        String sql = sb + produitSpec.where + groupBy + buildHavingClause(requestParam);
         Query q = entityManager.createNativeQuery(sql);
-        spec.params.forEach(q::setParameter);
+        salesSpec.params.forEach(q::setParameter);
+        produitSpec.params.forEach(q::setParameter);
         @SuppressWarnings("unchecked")
         List<Object[]> rows = q.getResultList();
         List<QauntiteProduitVendus> produitIdQuantities = new ArrayList<>();
@@ -563,19 +614,16 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
 
     private Set<Integer> getProduitIds(RecapProduitVenduRequestParam requestParam) {
         StringBuilder sb = new StringBuilder();
-        QuerySpec spec = buildWhereClause(requestParam);
+        QuerySpec salesSpec = buildSalesWhereClause(requestParam);
+        QuerySpec produitSpec = buildProduitWhereClause(requestParam);
 
         sb.append("SELECT DISTINCT p.id ")
-            .append(" FROM sales_line sl ")
-            .append(" JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date ")
-            .append(" JOIN produit p ON p.id = sl.produit_id ")
-            .append(" LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id ")
-            .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id ")
-            .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ");
+            .append(buildBaseFrom(salesSpec.where));
 
-        String sql = sb + spec.where + buildHavingClause(requestParam);
+        String sql = sb + produitSpec.where + buildHavingClause(requestParam);
         Query q = entityManager.createNativeQuery(sql);
-        spec.params.forEach(q::setParameter);
+        salesSpec.params.forEach(q::setParameter);
+        produitSpec.params.forEach(q::setParameter);
         @SuppressWarnings("unchecked")
         List<Number> rows = q.getResultList();
         Set<Integer> produitIds = new HashSet<>();
@@ -621,19 +669,16 @@ public class RecapProduitVenduServiceImpl implements RecapProduitVenduService {
 
     private List<ProduitSeuilMini> getProduitSeuilMini(RecapProduitVenduRequestParam requestParam) {
         StringBuilder sb = new StringBuilder();
-        QuerySpec spec = buildWhereClause(requestParam);
+        QuerySpec salesSpec = buildSalesWhereClause(requestParam);
+        QuerySpec produitSpec = buildProduitWhereClause(requestParam);
 
         sb.append("SELECT DISTINCT p.id, p.qty_seuil_mini ")
-            .append(" FROM sales_line sl ")
-            .append(" JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date ")
-            .append(" JOIN produit p ON p.id = sl.produit_id ")
-            .append(" LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id ")
-            .append(" LEFT JOIN rayon_produit rp ON rp.produit_id = p.id ")
-            .append(" LEFT JOIN rayon r ON r.id = rp.rayon_id ");
+            .append(buildBaseFrom(salesSpec.where));
 
-        String sql = sb + spec.where + buildHavingClause(requestParam);
+        String sql = sb + produitSpec.where + buildHavingClause(requestParam);
         Query q = entityManager.createNativeQuery(sql);
-        spec.params.forEach(q::setParameter);
+        salesSpec.params.forEach(q::setParameter);
+        produitSpec.params.forEach(q::setParameter);
         @SuppressWarnings("unchecked")
         List<Object[]> rows = q.getResultList();
         List<ProduitSeuilMini> produitSeuilMinis = new ArrayList<>();

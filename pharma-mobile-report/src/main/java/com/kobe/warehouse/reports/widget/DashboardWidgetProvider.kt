@@ -127,29 +127,43 @@ class DashboardWidgetProvider : AppWidgetProvider() {
         val caFormatted = formatter.format(dashboard.dailyCA)
         views.setTextViewText(R.id.tv_widget_ca, "$caFormatted FCFA")
 
-        // Variation
-        val variationText = String.format("%+.1f%%", dashboard.variationPercent)
-        views.setTextViewText(R.id.tv_widget_variation, variationText)
+        // Variation. Sans veille chiffrée, un tiret en gris : le widget est lu d'un coup d'oeil,
+        // c'est le pire endroit pour un chiffre qui ressemble à une performance sans en être une.
+        views.setTextViewText(R.id.tv_widget_variation, dashboard.formatVariation(dashboard.variationPercent))
 
         // Variation color and icon
-        if (dashboard.isVariationPositive()) {
-            views.setTextColor(R.id.tv_widget_variation, context.getColor(R.color.success))
-            views.setImageViewResource(R.id.iv_widget_variation_icon, R.drawable.ic_trending_up)
-        } else {
-            views.setTextColor(R.id.tv_widget_variation, context.getColor(R.color.error))
-            views.setImageViewResource(R.id.iv_widget_variation_icon, R.drawable.ic_trending_down)
+        when {
+            dashboard.hasNoVariationBasis() -> {
+                views.setTextColor(R.id.tv_widget_variation, context.getColor(R.color.text_secondary))
+                views.setImageViewResource(R.id.iv_widget_variation_icon, R.drawable.ic_trending_up)
+            }
+            dashboard.isVariationPositive() -> {
+                views.setTextColor(R.id.tv_widget_variation, context.getColor(R.color.success))
+                views.setImageViewResource(R.id.iv_widget_variation_icon, R.drawable.ic_trending_up)
+            }
+            else -> {
+                views.setTextColor(R.id.tv_widget_variation, context.getColor(R.color.error))
+                views.setImageViewResource(R.id.iv_widget_variation_icon, R.drawable.ic_trending_down)
+            }
         }
 
         // Tendance vs moyenne 30 derniers jours
         val trendText = dashboard.getTrendLabel()
         views.setTextViewText(R.id.tv_widget_trend, trendText)
 
-        if (dashboard.isTrendPositive()) {
-            views.setTextColor(R.id.tv_widget_trend, context.getColor(R.color.success))
-            views.setImageViewResource(R.id.iv_widget_trend_icon, R.drawable.ic_trending_up)
-        } else {
-            views.setTextColor(R.id.tv_widget_trend, context.getColor(R.color.error))
-            views.setImageViewResource(R.id.iv_widget_trend_icon, R.drawable.ic_trending_down)
+        when {
+            dashboard.hasNoTrendBasis() -> {
+                views.setTextColor(R.id.tv_widget_trend, context.getColor(R.color.text_secondary))
+                views.setImageViewResource(R.id.iv_widget_trend_icon, R.drawable.ic_trending_up)
+            }
+            dashboard.isTrendPositive() -> {
+                views.setTextColor(R.id.tv_widget_trend, context.getColor(R.color.success))
+                views.setImageViewResource(R.id.iv_widget_trend_icon, R.drawable.ic_trending_up)
+            }
+            else -> {
+                views.setTextColor(R.id.tv_widget_trend, context.getColor(R.color.error))
+                views.setImageViewResource(R.id.iv_widget_trend_icon, R.drawable.ic_trending_down)
+            }
         }
 
         // Moyenne 30j en sous-titre

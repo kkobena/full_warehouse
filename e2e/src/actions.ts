@@ -168,6 +168,34 @@ export function carte(page: Page, titre: RegExp | string): Locator {
 }
 
 /**
+ * Ouvre l'inventaire de démonstration qui a effectivement des lignes à compter.
+ *
+ * Prendre « la première ligne » de la liste n'est pas sûr : l'écran trie par date de création
+ * décroissante, et un inventaire tournant créé par la rotation du planning peut porter sur un
+ * rayon SANS PRODUIT — l'officine en garde toujours quelques-uns, vides ou de travail. Il
+ * apparaît alors en tête, en statut « créé », donc satisfait l'assertion d'étape 1, mais sa
+ * grille reste vide et le comptage n'a rien à afficher.
+ *
+ * On désigne donc l'inventaire par sa description, posée par `11_inventaires.sql` : huit
+ * antibiotiques, tous multi-lots, ce qui convient au comptage par produit comme par lot.
+ */
+export const INVENTAIRE_A_COMPTER = /rayon ANTIBIOTIQUES/i;
+
+export async function ouvrirInventaireACompter(page: Page): Promise<void> {
+  await page.goto('/inventaire');
+  const ligne = page
+    .locator('tbody tr')
+    .filter({ visible: true })
+    .filter({ hasText: INVENTAIRE_A_COMPTER })
+    .first();
+  await expect(
+    ligne,
+    "L'inventaire « rayon ANTIBIOTIQUES » de 11_inventaires.sql est absent : recharger le jeu de démonstration.",
+  ).toContainText(/en cours|créé/i);
+  await ligne.getByRole('button', { name: 'Ouvrir' }).click();
+}
+
+/**
  * Garantit que la caisse de l'utilisateur est OUVERTE, en l'ouvrant si besoin.
  *
  * Les parcours doivent rester indépendants de leur ordre d'exécution, or l'écran de vente

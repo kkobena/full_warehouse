@@ -596,8 +596,8 @@
     <profile>
       <!--
         Profil full-dist : compile Angular (config tauri) avant que le JAR soit packagé.
-        Le POM racine s'occupe ensuite de tauri:build:bundled-jre:fast et de l'assemblage ZIP.
-        Usage : mvn clean package -DskipTests -P full-dist (depuis la racine du projet)
+        pharmaSmart-dist s'occupe ensuite des builds Tauri et de l'assemblage ZIP.
+        Usage : mvn clean package -DskipTests -Pfull-dist[,sans-jre] (depuis la racine du projet)
       -->
       <build>
         <plugins>

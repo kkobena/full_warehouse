@@ -47,7 +47,6 @@ public class RetourBonPdfReportService extends AbstractStatistiqueReportService 
         getParameters().put("item_size", items.size());
         getParameters().put("isLastPage", true);
         getParameters().put("page_count", "1/1");
-        getParameters().put("devise", "CFA");
         String title = retourBon.getReference() != null
             ? "BON DE RETOUR FOURNISSEUR " + retourBon.getReference()
             : "BON DE RETOUR FOURNISSEUR N° " + retourBon.getId();
@@ -81,7 +80,6 @@ public class RetourBonPdfReportService extends AbstractStatistiqueReportService 
         getParameters().put("fournisseurLibelle", fournisseurLibelle);
         getParameters().put("montantTotalGroupe", montantTotal);
         getParameters().put("dateEdition", LocalDate.now());
-        getParameters().put("devise", "CFA");
         getParameters().put("reportTitle", "BORDEREAU GROUPÉ RETOURS FOURNISSEUR — " + fournisseurLibelle);
         super.getCommonParameters();
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {

@@ -12,12 +12,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class DashboardCAPExcelCsvExportService {
 
+    /**
+     * Les colonnes, dans l'ordre exact où les deux mappages — Excel et CSV — écrivent les valeurs de
+     * {@link DailyCADTO}.
+     *
+     * <p>« Nb Avoirs » et « CA Avoirs » y figuraient sans qu'aucune valeur ne leur corresponde : le
+     * DTO ne porte pas d'avoirs. Treize en-têtes pour onze valeurs décalaient tout le tableau d'un
+     * rang à partir de la troisième colonne — le chiffre affiché sous « CA Total » était le CA net,
+     * celui sous « Panier Moyen » la marge brute, et les deux dernières colonnes restaient vides.
+     */
     private final String[] headers = {
         "Date",
         "Nb Trans.",
-        "Nb Avoirs",
         "CA Total",
-        "CA Avoirs",
         "CA Net",
         "Panier Moyen",
         "Coût Total",
@@ -110,7 +117,7 @@ public class DashboardCAPExcelCsvExportService {
     public byte[] exportTopProductsToCsv(LocalDate startDate, LocalDate endDate) throws Exception {
         List<TopProductDTO> data = dashboardCAService.getTopProducts(startDate, endDate, 50);
 
-        String title = buildReportTitle("Top Produits par CA", startDate, endDate);
+        String title = buildReportTitle("Top Produits par CA ", startDate, endDate);
 
         byte[] csvData = csvExportService.createCsvReport(title, headersTop, data,
             dto -> new String[]{

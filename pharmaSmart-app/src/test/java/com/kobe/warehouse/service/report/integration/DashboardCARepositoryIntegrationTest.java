@@ -7,6 +7,8 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.DashboardCARepository;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -94,6 +96,56 @@ class DashboardCARepositoryIntegrationTest extends AbstractReportIntegrationTest
 
             assertThat(toLong(agregat[0])).isGreaterThanOrEqualTo(20_000L);
             assertThat(toLong(agregat[1])).isGreaterThanOrEqualTo(2L);
+        }
+
+        /**
+         * Le panier d'une période est le rapport de ses totaux, jamais la moyenne de ses journées :
+         * une journée d'une vente ne pèse pas ce que pèse une journée de quatre. La tuile affiche
+         * le CA et le nombre de transactions à côté du panier ; qui divise les deux premiers doit
+         * retrouver le troisième, sinon l'écran se contredit sous les yeux du pharmacien.
+         */
+        @Test
+        @DisplayName("le panier d'une période est le CA divisé par les transactions, non la moyenne des journées")
+        void panierPondereSurLaPeriode() {
+            Produit produit = produitAnalysable("DOLIPRANE PANIER", 1_000);
+            vendu(produit, 1, avantHier());
+            vendu(produit, 40, hier());
+            vendu(produit, 40, hier());
+            vendu(produit, 40, hier());
+            rafraichirLesVues();
+
+            Object[] agregat = repository.getPeriodAggregation(avantHier(), LocalDate.now());
+
+            BigDecimal ca = BigDecimal.valueOf(toLong(agregat[0]));
+            BigDecimal transactions = BigDecimal.valueOf(toLong(agregat[1]));
+            assertThat((BigDecimal) agregat[2]).isEqualByComparingTo(ca.divide(transactions, 2, RoundingMode.HALF_UP));
+        }
+
+        /**
+         * Le contrôle précédent passerait encore si toutes les journées portaient le même nombre de
+         * ventes. Celui-ci ancre la régression : avec une journée déséquilibrée face à une autre,
+         * l'ancien {@code AVG(panier_moyen)} donnait une valeur franchement différente.
+         */
+        @Test
+        @DisplayName("une journée creuse ne pèse pas autant qu'une journée chargée")
+        void journeeCreuseNePesePasAutant() {
+            Produit produit = produitAnalysable("DOLIPRANE POIDS", 1_000);
+            vendu(produit, 1, avantHier());
+            vendu(produit, 40, hier());
+            vendu(produit, 40, hier());
+            vendu(produit, 40, hier());
+            rafraichirLesVues();
+
+            List<Object[]> journees = repository.findDailySummary(avantHier(), LocalDate.now());
+            BigDecimal moyenneDesJournees = journees
+                .stream()
+                .map(journee -> (BigDecimal) journee[4])
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .divide(BigDecimal.valueOf(journees.size()), 2, RoundingMode.HALF_UP);
+
+            Object[] agregat = repository.getPeriodAggregation(avantHier(), LocalDate.now());
+
+            assertThat((BigDecimal) agregat[2]).isNotEqualByComparingTo(moyenneDesJournees);
         }
 
         /** Une fenêtre sans vente doit rendre des zéros, non des valeurs nulles. */

@@ -182,7 +182,7 @@ pharma-smart:
   # true  : pharmaSmart-batch gère SEMOIS/Classification/Snapshot/Vues/Avoirs
   #         et HeavyJobsOrchestrationService prend en charge Facturation/FNE/Tournant.
   batch:
-    enabled: true
+    enabled: false
 
   jobs:
     # Pipeline nocturne SEMOIS (séquentiel) :

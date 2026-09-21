@@ -6,7 +6,9 @@ import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.Ticketing;
 import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
+import com.kobe.warehouse.domain.enumeration.CategorieTransaction;
 import com.kobe.warehouse.domain.enumeration.PaymentGroup;
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.service.dto.UserDTO;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -244,13 +246,23 @@ public class CashRegisterDTO {
         return this;
     }
 
+    /**
+     * Cumule les lignes du détail pour obtenir le montant théorique de la caisse.
+     *
+     * <p>Le montant d'une ligne est <strong>toujours positif</strong> : c'est son type qui dit le
+     * sens, par sa {@link CategorieTransaction}. Une sortie de caisse et un règlement fournisseur
+     * sont des dépenses — les additionner au lieu de les retrancher fait doubler l'erreur, puisque
+     * {@code gap} compare ensuite ce théorique au billetage : une sortie de 5 000 creusait un
+     * écart apparent de 10 000, et c'est cet écart que le pharmacien cherche à expliquer.
+     */
     private void buildItems(CashRegister cashRegister) {
         cashRegister
             .getCashRegisterItems()
             .forEach(cashRegisterItem -> {
                 PaymentMode paymentMode = cashRegisterItem.getPaymentMode();
                 this.cashRegisterItems.add(new CashRegisterItemDTO(cashRegisterItem));
-                long amount = Objects.requireNonNullElse(cashRegisterItem.getAmount(), 0L);
+                long amount = signe(cashRegisterItem.getTypeFinancialTransaction()) *
+                    Objects.requireNonNullElse(cashRegisterItem.getAmount(), 0L);
                 this.estimateAmount += amount;
                 PaymentGroup paymentGroup = paymentMode.getGroup();
                 if (paymentGroup == PaymentGroup.MOBILE) {
@@ -260,5 +272,10 @@ public class CashRegisterDTO {
                     this.cashAmount += amount;
                 }
             });
+    }
+
+    /** Une dépense retranche, tout le reste ajoute. Un type absent est traité comme une recette. */
+    private static long signe(TypeFinancialTransaction type) {
+        return type != null && type.getCategorieTransaction() == CategorieTransaction.SORTIE_CAISSE ? -1L : 1L;
     }
 }

@@ -21,8 +21,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.IsoFields;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.cache.annotation.CacheEvict;
@@ -76,14 +78,18 @@ public class DashboardCAServiceImpl implements DashboardCAService {
         LocalDate lastYearStart = yearStart.minusYears(1);
         LocalDate lastYearEnd = yearStart.minusDays(1);
 
-        Object[] todayRow      = dashboardCARepository.getPeriodAggregation(today, today);
-        Object[] yesterdayRow  = dashboardCARepository.getPeriodAggregation(yesterday, yesterday);
-        Object[] weekRow       = dashboardCARepository.getPeriodAggregation(weekStart, today);
-        Object[] lastWeekRow   = dashboardCARepository.getPeriodAggregation(lastWeekStart, lastWeekEnd);
-        Object[] monthRow      = dashboardCARepository.getPeriodAggregation(monthStart, today);
-        Object[] lastMonthRow  = dashboardCARepository.getPeriodAggregation(lastMonthStart, lastMonthEnd);
-        Object[] yearRow       = dashboardCARepository.getPeriodAggregation(yearStart, today);
-        Object[] lastYearRow   = dashboardCARepository.getPeriodAggregation(lastYearStart, lastYearEnd);
+        // Un lundi la semaine débute aujourd'hui, un 1er du mois le mois aussi : sans ce cache local
+        // la même agrégation partirait deux fois en base.
+        Map<List<LocalDate>, Object[]> agregats = new HashMap<>();
+
+        Object[] todayRow      = agregat(agregats, today, today);
+        Object[] yesterdayRow  = agregat(agregats, yesterday, yesterday);
+        Object[] weekRow       = agregat(agregats, weekStart, today);
+        Object[] lastWeekRow   = agregat(agregats, lastWeekStart, lastWeekEnd);
+        Object[] monthRow      = agregat(agregats, monthStart, today);
+        Object[] lastMonthRow  = agregat(agregats, lastMonthStart, lastMonthEnd);
+        Object[] yearRow       = agregat(agregats, yearStart, today);
+        Object[] lastYearRow   = agregat(agregats, lastYearStart, lastYearEnd);
 
         return new DashboardCASummaryDTO(
             toL(todayRow[0]),    toL(yesterdayRow[0]),  evo(toL(todayRow[0]),   toL(yesterdayRow[0])),
@@ -93,6 +99,13 @@ public class DashboardCAServiceImpl implements DashboardCAService {
             toI(todayRow[1]),    toI(weekRow[1]),        toI(monthRow[1]),       toI(yearRow[1]),
             toBD(todayRow[2]),   toBD(weekRow[2]),       toBD(monthRow[2]),      toBD(yearRow[2]),
             toBD(todayRow[3]),   toBD(weekRow[3]),       toBD(monthRow[3]),      toBD(yearRow[3])
+        );
+    }
+
+    private Object[] agregat(Map<List<LocalDate>, Object[]> cache, LocalDate startDate, LocalDate endDate) {
+        return cache.computeIfAbsent(
+            List.of(startDate, endDate),
+            bornes -> dashboardCARepository.getPeriodAggregation(bornes.getFirst(), bornes.getLast())
         );
     }
 

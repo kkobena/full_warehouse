@@ -169,8 +169,19 @@ public class CashRegisterServiceImpl implements CashRegisterService {
         });
     }
 
+    /**
+     * Mouvements de caisse autres que les ventes : règlements différés, règlements de factures,
+     * entrées et sorties, règlements fournisseurs.
+     *
+     * <p>Le dernier paramètre est une liste d'<strong>exclusion</strong> ({@code dtype NOT IN}).
+     * Seules les ventes en sortent, parce que {@link #buildSaleItems} les a déjà posées et qu'on
+     * les compterait deux fois. {@code PaymentFournisseur} y figurait aussi : un règlement
+     * fournisseur passé par la caisse n'atteignait donc jamais le ticket Z, et la branche
+     * {@code REGLMENT_FOURNISSEUR} du {@code switch} ci-dessous était inatteignable. Réglé en
+     * espèces, c'était une sortie de tiroir que le détail n'expliquait pas.
+     */
     private void buildTransactions(CashRegister cashRegister) {
-        List<CashRegisterTransactionSpecialisation> mvtData = this.cashRegisterRepository.findCashRegisterMvtDataById(cashRegister.getId(), Set.of(CategorieChiffreAffaire.CA.name()), Set.of(PaymentType.SalePayment.name(), PaymentType.PaymentFournisseur.name()));
+        List<CashRegisterTransactionSpecialisation> mvtData = this.cashRegisterRepository.findCashRegisterMvtDataById(cashRegister.getId(), Set.of(CategorieChiffreAffaire.CA.name()), Set.of(PaymentType.SalePayment.name()));
         mvtData.stream().collect(Collectors.groupingBy(CashRegisterTransactionSpecialisation::getTypeFinancialTransaction)).forEach((typeTransaction, data) -> {
             TypeFinancialTransaction typeFinancialTransaction = switch (typeTransaction) {
                 case CREDIT_SALE, CASH_SALE, VENTES_DEPOTS, CAUTION -> null;

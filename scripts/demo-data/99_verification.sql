@@ -1264,6 +1264,49 @@ SELECT pg_temp.verif_vide('caisses', 'Montant final = fonds + espèces encaissé
           WHERE pt.cash_register_id = cr.id AND pt.payment_mode_code = 'CASH'), 0)
 $q$);
 
+-- Le contrôle ci-dessus compare deux lectures de la même table : il ne dit rien
+-- du détail par mode de règlement, qui est pourtant ce que l'écran de caisse
+-- affiche. Cinq caisses ont ainsi montré un ticket Z inférieur à leur fond,
+-- faute des lignes de règlement différé et tiers payant (cf. 14b, §4).
+--
+-- Ce n'est PAS un invariant de l'application : à la clôture, `final_amount` reçoit
+-- le billetage compté par le caissier (TicketingServiceImpl), et sa différence avec
+-- le théorique est justement l'écart de caisse. C'est le jeu de démonstration qui
+-- aligne les deux délibérément, pour qu'une caisse en écart se remarque. Le
+-- contrôle vaut donc sur une base fraîchement chargée, pas après une campagne.
+--
+-- Le montant d'une ligne est TOUJOURS positif : c'est son type qui dit le sens
+-- (TypeFinancialTransaction.CategorieTransaction). Un règlement fournisseur, une
+-- sortie de caisse et un fonds de caisse sont des SORTIE_CAISSE ; les sommer avec
+-- les recettes ferait passer une dépense pour un encaissement.
+--
+-- Les annulations n'entrent pas dans le calcul : elles sont portées à part par
+-- `cancele_amount`, et le jeu de démonstration n'en crée aucune.
+SELECT pg_temp.verif_vide('caisses', 'Détail espèces du ticket Z = fond de tiroir', $q$
+    SELECT cr.id FROM cash_register cr
+     WHERE cr.statut <> 'OPEN'
+       AND cr.final_amount <> cr.init_amount
+           + COALESCE((SELECT sum(i.amount) FROM cash_register_item i
+                        WHERE i.cash_register_id = cr.id
+                          AND i.payment_mode_code = 'CASH'
+                          AND i.type_transaction NOT IN ('SORTIE_CAISSE', 'FONDS_CAISSE', 'REGLMENT_FOURNISSEUR')), 0)
+           - COALESCE((SELECT sum(i.amount) FROM cash_register_item i
+                        WHERE i.cash_register_id = cr.id
+                          AND i.payment_mode_code = 'CASH'
+                          AND i.type_transaction IN ('SORTIE_CAISSE', 'FONDS_CAISSE', 'REGLMENT_FOURNISSEUR')), 0)
+$q$);
+
+-- Tout encaissement doit se retrouver au détail, quel que soit son mode :
+-- un règlement par chèque absent du ticket Z ne se voit pas sur le fond de
+-- tiroir, qui ne compte que les espèces.
+SELECT pg_temp.verif_vide('caisses', 'Tout mode de règlement figure au ticket Z', $q$
+    SELECT DISTINCT pt.cash_register_id FROM payment_transaction pt
+     WHERE NOT EXISTS (
+         SELECT 1 FROM cash_register_item i
+          WHERE i.cash_register_id = pt.cash_register_id
+            AND i.payment_mode_code = pt.payment_mode_code)
+$q$);
+
 
 -- ===========================================================================
 -- VENTES  (§4.1 à §4.4)

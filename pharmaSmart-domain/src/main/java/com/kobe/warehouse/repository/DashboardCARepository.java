@@ -18,11 +18,26 @@ public class DashboardCARepository {
             " WHERE sale_date BETWEEN :startDate AND :endDate" +
             " ORDER BY sale_date DESC";
 
+    /**
+     * Agrégation d'une période à partir des journées qui la composent.
+     *
+     * <p>Le panier et le taux de marge sont <strong>recalculés</strong> sur les totaux, et non
+     * moyennés depuis les colonnes journalières : {@code AVG(panier_moyen)} donnerait à une
+     * journée de trois ventes le même poids qu'à une journée de quarante, et le panier du mois
+     * s'écartait ainsi de près de 4 % du rapport qu'il prétend exprimer.
+     *
+     * <p>L'assiette est le CA <strong>net</strong>, celui-là même que la tuile affiche : le panier
+     * qu'on y lit est donc exactement le CA affiché divisé par les transactions affichées. Les
+     * colonnes {@code panier_moyen} et {@code taux_marge_pct} de la vue restent, elles, assises
+     * sur le CA brut ; elles ne sont pas lues ici.
+     */
     private static final String PERIOD_AGGREGATION_SQL =
         "SELECT COALESCE(SUM(ca_net), 0) AS ca," +
             "  COALESCE(SUM(nb_transactions), 0) AS nb_trans," +
-            "  COALESCE(AVG(panier_moyen), 0) AS panier_moyen," +
-            "  COALESCE(AVG(taux_marge_pct), 0) AS taux_marge" +
+            "  COALESCE(ROUND(SUM(ca_net)::numeric" +
+            "    / NULLIF(SUM(nb_transactions), 0), 2), 0) AS panier_moyen," +
+            "  COALESCE(ROUND(100.0 * SUM(marge_brute)" +
+            "    / NULLIF(SUM(ca_net), 0), 2), 0) AS taux_marge" +
             " FROM mv_dashboard_ca_daily" +
             " WHERE sale_date BETWEEN :startDate AND :endDate";
 

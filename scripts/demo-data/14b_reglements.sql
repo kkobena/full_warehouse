@@ -314,13 +314,36 @@ UPDATE cash_register cr
  WHERE e.cash_register_id = cr.id;
 
 -- ---------------------------------------------------------------------------
+-- 4. Détail du ticket Z pour les règlements
+--
+-- 09_ventes.sql ne pose les lignes de `cash_register_item` que pour les ventes,
+-- puisque les règlements n'existent pas encore à ce moment-là. Sans ce second
+-- passage, le détail par mode de règlement ne totalise plus le fond de tiroir
+-- recalé juste au-dessus : l'écran de caisse affiche un ticket Z qui se
+-- contredit lui-même, et c'est la première chose que vérifie un pharmacien.
+--
+-- L'application fait bien ce travail à la clôture (CashRegisterServiceImpl,
+-- buildTransactions) ; c'est le jeu de démonstration qui l'omettait.
+--
+-- Le triplet (caisse, mode, type) porte une contrainte d'unicité : le
+-- regroupement l'épouse, et le type distingue ces lignes de celles des ventes.
+-- ---------------------------------------------------------------------------
+INSERT INTO cash_register_item (cash_register_id, payment_mode_code, amount, type_transaction)
+SELECT pt.cash_register_id, pt.payment_mode_code, sum(pt.paid_amount)::bigint, pt.type_transaction
+FROM payment_transaction pt
+WHERE pt.dtype IN ('DifferePayment', 'InvoicePayment')
+GROUP BY pt.cash_register_id, pt.payment_mode_code, pt.type_transaction
+ON CONFLICT (cash_register_id, payment_mode_code, type_transaction) DO UPDATE
+   SET amount = EXCLUDED.amount;
+
+-- ---------------------------------------------------------------------------
 -- Contrôles immédiats
 -- ---------------------------------------------------------------------------
 DO $$
 DECLARE
     v_dif int; v_dif_items int; v_inv int; v_inv_items int;
     v_solde int; v_ecart int; v_orphelins int; v_recents int;
-    v_ecart_inv int; v_groupe int; v_ecart_groupe int;
+    v_ecart_inv int; v_groupe int; v_ecart_groupe int; v_ticket_z int;
 BEGIN
     SELECT count(*) INTO v_dif FROM payment_transaction WHERE dtype = 'DifferePayment';
     SELECT count(*) INTO v_dif_items FROM differe_payment_item;
@@ -406,6 +429,28 @@ BEGIN
     END IF;
     IF v_ecart_groupe > 0 THEN
         RAISE EXCEPTION '% reglement(s) groupe(s) dont le montant contredit ses filles', v_ecart_groupe;
+    END IF;
+
+    -- Le detail especes du ticket Z doit totaliser exactement ce que le tiroir
+    -- annonce. C'est ce controle qui manquait : cinq caisses affichaient un
+    -- detail inferieur a leur fond, sans que rien ne s'en plaigne.
+    --
+    -- Le montant d'une ligne est toujours positif, son type porte le sens : un
+    -- reglement fournisseur, une sortie et un fonds de caisse SORTENT du tiroir.
+    SELECT count(*) INTO v_ticket_z FROM cash_register cr
+     WHERE cr.statut <> 'OPEN'
+       AND cr.final_amount <> cr.init_amount
+           + COALESCE((SELECT sum(i.amount) FROM cash_register_item i
+                        WHERE i.cash_register_id = cr.id
+                          AND i.payment_mode_code = 'CASH'
+                          AND i.type_transaction NOT IN ('SORTIE_CAISSE', 'FONDS_CAISSE', 'REGLMENT_FOURNISSEUR')), 0)
+           - COALESCE((SELECT sum(i.amount) FROM cash_register_item i
+                        WHERE i.cash_register_id = cr.id
+                          AND i.payment_mode_code = 'CASH'
+                          AND i.type_transaction IN ('SORTIE_CAISSE', 'FONDS_CAISSE', 'REGLMENT_FOURNISSEUR')), 0);
+
+    IF v_ticket_z > 0 THEN
+        RAISE EXCEPTION '% caisse(s) dont le detail especes ne totalise pas le fond de tiroir', v_ticket_z;
     END IF;
 
     RAISE NOTICE '% reglements differes (dont % sur 30 jours, % items), % reglements de factures (dont % groupes, % items), % creance(s) restante(s).',

@@ -6,19 +6,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashSale;
-import com.kobe.warehouse.domain.Remise;
 import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
-import com.kobe.warehouse.domain.ThirdPartySales;
-import com.kobe.warehouse.domain.VenteDepot;
-import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.OrigineVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.repository.PosteRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.service.ReferenceService;
@@ -33,9 +28,9 @@ import com.kobe.warehouse.service.errors.SaleAlreadyCloseException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
-import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
@@ -50,13 +45,20 @@ import java.util.stream.Collectors;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-@Service
-public class SaleCommonService {
+/**
+ * Socle commun aux quatre services de vente, qui en héritent.
+ *
+ * <p>Elle ne porte plus {@code @Service} : elle était à la fois bean et classe mère de quatre
+ * autres beans, donc cinq candidats pour un même type, et l'injection par type ne se résolvait que
+ * par correspondance de nom. L'arithmétique des montants, seule chose que les appelants extérieurs
+ * lui demandaient, vit désormais dans {@link SaleAmountCalculator}.
+ */
+public abstract class SaleCommonService {
 
     private final ReferenceService referenceService;
     private final StorageService storageService;
     private final UserRepository userRepository;
-    private final SaleLineServiceFactory saleLineServiceFactory;
+    private final SaleAmountCalculator saleAmountCalculator;
     private final CashRegisterService cashRegisterService;
     private final PosteRepository posteRepository;
     private final CustomerDisplayService afficheurPosService;
@@ -69,7 +71,7 @@ public class SaleCommonService {
         ReferenceService referenceService,
         StorageService storageService,
         UserRepository userRepository,
-        SaleLineServiceFactory saleLineServiceFactory,
+        SaleAmountCalculator saleAmountCalculator,
         CashRegisterService cashRegisterService,
         PosteRepository posteRepository,
         CustomerDisplayService afficheurPosService,
@@ -81,7 +83,7 @@ public class SaleCommonService {
 
         this.storageService = storageService;
         this.userRepository = userRepository;
-        this.saleLineServiceFactory = saleLineServiceFactory;
+        this.saleAmountCalculator = saleAmountCalculator;
         this.cashRegisterService = cashRegisterService;
         this.posteRepository = posteRepository;
         this.afficheurPosService = afficheurPosService;
@@ -109,87 +111,31 @@ public class SaleCommonService {
     }
 
     public void computeSaleEagerAmount(Sales c) {
-        updateAmounts(c);
+        saleAmountCalculator.computeSaleEagerAmount(c);
     }
 
     protected void updateAmounts(Sales c) {
-        int salesAmount = 0;
-        int costAmount = 0;
-        int taxableAmount = 0;
-        int htAmount = 0;
-        int discount = 0;
-
-        for (SalesLine salesLine : c.getSalesLines()) {
-            int saleItemAmount = salesLine.getQuantityRequested() * salesLine.getRegularUnitPrice();
-            int costAmountItem = salesLine.getQuantityRequested() * salesLine.getCostAmount();
-            salesAmount += saleItemAmount;
-            costAmount += costAmountItem;
-            int htAmont = computeHtAmount(saleItemAmount, salesLine.getTaxValue());
-            htAmount += htAmont;
-            int montantTva = saleItemAmount - htAmont;
-            taxableAmount += montantTva;
-            discount += Objects.requireNonNullElse(salesLine.getDiscountAmount(), 0);
-            // Le montant déclarable de la ligne n'était renseigné qu'à sa création : il dérivait
-            // ensuite silencieusement de quantity_requested × regular_unit_price à chaque
-            // changement de quantité ou de prix. Le réétablir ici — la seule méthode qui recalcule
-            // déjà tous les montants à partir des lignes — garantit par construction que la somme
-            // des lignes égale le montant de la vente.
-            salesLine.setAmountToBeTakenIntoAccount(saleItemAmount);
-        }
-
-        c.setSalesAmount(salesAmount);
-        c.setCostAmount(costAmount);
-        c.setTaxAmount(taxableAmount);
-        c.setHtAmount(htAmount);
-        c.setDiscountAmount(discount);
-        c.setNetAmount(salesAmount - discount);
-        c.setAmountToBeTakenIntoAccount(salesAmount);
+        saleAmountCalculator.updateAmounts(c);
     }
 
     public void processDiscountCash(CashSale c, int discountAmount) {
-        c.setNetAmount(c.getSalesAmount() - discountAmount);
+        saleAmountCalculator.processDiscountCash(c, discountAmount);
     }
 
     public void processDiscountCommonAmounts(Sales c) {
-        int discountAmount = 0;
-
-        for (SalesLine saleLine : c.getSalesLines()) {
-            discountAmount += saleLine.getDiscountAmount();
-        }
-        c.setDiscountAmount(discountAmount);
-        if (c instanceof CashSale cashSale) {
-            processDiscountCash(cashSale, discountAmount);
-        }
-    }
-
-    private int computeHtAmount(Integer amount, Integer taxValue) {
-        int tax = Objects.requireNonNullElse(taxValue, 0);
-        int ttc = Objects.requireNonNullElse(amount, 0);
-        if (tax == 0) {
-            return ttc;
-        }
-        double valeurTva = 1 + ((double) tax / 100);
-        return (int) Math.ceil(ttc / valeurTva);
+        saleAmountCalculator.processDiscountCommonAmounts(c);
     }
 
     public void computeSaleEagerAmountOnRemovingItem(Sales c, SalesLine saleLine) {
-        c.setSalesAmount(c.getSalesAmount() - saleLine.getSalesAmount());
+        saleAmountCalculator.computeSaleEagerAmountOnRemovingItem(c, saleLine);
     }
 
     public void computeSaleLazyAmountOnRemovingItem(Sales c, SalesLine saleLine) {
-        c.setCostAmount(
-            c.getCostAmount() - (saleLine.getQuantityRequested() * saleLine.getCostAmount()));
+        saleAmountCalculator.computeSaleLazyAmountOnRemovingItem(c, saleLine);
     }
 
     public void computeTvaAmountOnRemovingItem(Sales c, SalesLine saleLine) {
-        if (saleLine.getTaxValue().compareTo(0) == 0) {
-            c.setHtAmount(c.getHtAmount() - saleLine.getSalesAmount());
-        } else {
-            int htAmont = computeHtAmount(saleLine.getSalesAmount(), saleLine.getTaxValue());
-            int montantTva = saleLine.getSalesAmount() - htAmont;
-            c.setTaxAmount(c.getTaxAmount() - montantTva);
-            c.setHtAmount(c.getHtAmount() - htAmont);
-        }
+        saleAmountCalculator.computeTvaAmountOnRemovingItem(c, saleLine);
     }
 
     public void buildReference(Sales sales) {
@@ -233,16 +179,7 @@ public class SaleCommonService {
     }
 
     public int roundedAmount(int payrollAmount) {
-        int rest = payrollAmount % 5;
-        if (rest == 0) {
-            return payrollAmount;
-        } else {
-            if (rest >= 3) {
-                return payrollAmount + (5 - rest);
-            } else {
-                return payrollAmount - rest;
-            }
-        }
+        return saleAmountCalculator.roundedAmount(payrollAmount);
     }
 
     protected void setId(Sales c) {
@@ -372,13 +309,11 @@ public class SaleCommonService {
     }
 
     public void arrondirMontantCaisse(Sales sales) {
-        sales.setAmountToBePaid(roundedAmount(sales.getNetAmount()));
+        saleAmountCalculator.arrondirMontantCaisse(sales);
     }
 
     public void computeCashSaleAmountToPaid(CashSale c) {
-        c.setAmountToBePaid(c.getNetAmount());
-        c.setRestToPay(c.getAmountToBePaid());
-        c.setAmountToBeTakenIntoAccount(0);
+        saleAmountCalculator.computeCashSaleAmountToPaid(c);
     }
 
     public void upddateCashSaleAmounts(CashSale c) {
@@ -413,50 +348,19 @@ public class SaleCommonService {
     public void applyRemiseProduit(Sales sales, RemiseProduit remiseProduit) {
         if (remiseProduit != null) {
             sales.setRemise(remiseProduit);
-            this.computeRemiseProduit(sales);
+            saleAmountCalculator.proccessDiscount(sales);
         }
     }
 
     public void applyRemiseClient(Sales sales, RemiseClient remiseClient) {
         if (remiseClient != null) {
             sales.setRemise(remiseClient);
-            computeRemisableAmount(remiseClient, sales);
+            saleAmountCalculator.proccessDiscount(sales);
         }
-    }
-
-    private void computeRemiseProduit(Sales sales) {
-        sales
-            .getSalesLines()
-            .forEach(salesLine -> {
-                getSaleLineService(sales).processProductDiscount(salesLine);
-                this.processDiscountCommonAmounts(sales);
-            });
-    }
-
-    private void computeRemisableAmount(RemiseClient remiseClient, Sales sales) {
-        int totalAmount = sales
-            .getSalesLines()
-            .stream()
-            .filter(e -> e.getProduit().getCodeRemise() != CodeRemise.NONE)
-            .mapToInt(SalesLine::getSalesAmount)
-            .sum();
-        if (totalAmount == 0) {
-            return;
-        }
-        int discount = (int) Math.ceil(totalAmount * remiseClient.getTauxRemise());
-        sales.setDiscountAmount(discount);
-        sales.setNetAmount(sales.getSalesAmount() - discount);
     }
 
     public void proccessDiscount(Sales sales) {
-        Remise remise = sales.getRemise();
-        if (remise != null) {
-            if (remise instanceof RemiseProduit) {
-                this.computeRemiseProduit(sales);
-            } else {
-                this.computeRemisableAmount((RemiseClient) remise, sales);
-            }
-        }
+        saleAmountCalculator.proccessDiscount(sales);
     }
 
     protected void displayMonnaie(Integer monnaie) {
@@ -470,18 +374,7 @@ public class SaleCommonService {
     }
 
     private SalesLineService getSaleLineService(Sales sales) {
-        return this.saleLineServiceFactory.getService(getTypeVente(sales));
-    }
-
-    private TypeVente getTypeVente(Sales sales) {
-        if (sales instanceof CashSale) {
-            return TypeVente.CashSale;
-        } else if (sales instanceof ThirdPartySales) {
-            return TypeVente.ThirdPartySales;
-        } else if (sales instanceof VenteDepot) {
-            return TypeVente.VenteDepot;
-        }
-        return null;
+        return saleAmountCalculator.saleLineServiceFor(sales);
     }
 
     protected void copySale(Sales sales, Sales copy) {

@@ -563,6 +563,28 @@ public class SaleDataService {
     private record VentesFilter(String whereClause, Map<String, Object> params) {
     }
 
+    /**
+     * Construit un {@code IN (...)} dont chaque valeur est un paramètre nommé, et non une
+     * chaîne insérée dans le SQL.
+     *
+     * <p>La clause part dans {@code createNativeQuery} : une valeur concaténée y serait
+     * interprétée comme du SQL. Les natures de vente arrivent telles quelles de la requête HTTP
+     * ({@code @RequestParam Set<String> types}), donc d'une source que rien ne valide en amont.
+     *
+     * <p>Les placeholders sont numérotés plutôt que liés en bloc : l'expansion d'une collection
+     * sur une requête native dépend du fournisseur JPA, un paramètre par valeur n'en dépend pas.
+     */
+    private static String inClause(String colonne, String prefixe, List<String> valeurs,
+                                   Map<String, Object> params) {
+        List<String> placeholders = new ArrayList<>(valeurs.size());
+        for (int i = 0; i < valeurs.size(); i++) {
+            String nom = prefixe + i;
+            placeholders.add(":" + nom);
+            params.put(nom, valeurs.get(i));
+        }
+        return colonne + " IN (" + String.join(", ", placeholders) + ")";
+    }
+
     private VentesFilter buildVentesFilter(
         String search,
         LocalDate fromDate,
@@ -592,25 +614,20 @@ public class SaleDataService {
         List<String> conditions = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
 
-        String caIn = String.join(", ", categorieChiffreAffaires.stream()
-            .map(ca -> "'" + ca.name() + "'").toList());
-        conditions.add("s.ca IN (" + caIn + ")");
-        String statutIn = String.join(", ", statuts.stream()
-            .map(st -> "'" + st.name() + "'").toList());
-        conditions.add("s.statut IN (" + statutIn + ")");
+        conditions.add(inClause("s.ca", "ca",
+            categorieChiffreAffaires.stream().map(Enum::name).toList(), params));
+        conditions.add(inClause("s.statut", "statut",
+            statuts.stream().map(Enum::name).toList(), params));
         conditions.add("m.id = :magasinId");
         params.put("magasinId", userMagasinId);
 
         if (!CollectionUtils.isEmpty(types)) {
-            Set<String> dtypes = types.stream()
+            List<String> natureVentes = types.stream()
                 .filter(t -> !EntityConstant.TOUT.equals(t))
-                //  .map(t -> "VNO".equals(t) ? "CashSale" : "ThirdPartySales")
-                .collect(Collectors.toSet());
-            if (dtypes.size() == 1) {
-                conditions.add("s.nature_vente = '" + dtypes.iterator().next() + "'");
-            } else if (dtypes.size() > 1) {
-                conditions.add("s.nature_vente IN (" +
-                    String.join(", ", dtypes.stream().map(d -> "'" + d + "'").toList()) + ")");
+                .distinct()
+                .toList();
+            if (!natureVentes.isEmpty()) {
+                conditions.add(inClause("s.nature_vente", "natureVente", natureVentes, params));
             }
         }
 

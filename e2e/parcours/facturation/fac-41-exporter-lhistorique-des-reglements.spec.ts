@@ -10,7 +10,7 @@ import { scenario } from '../../src/scenario';
  * L'export reprend le PÉRIMÈTRE FILTRÉ : période, organisme, recherche libre. C'est ce qui
  * permet de produire l'état d'un seul assureur sans exporter les règlements de tous.
  *
- * Parcours en LECTURE : il montre les deux formats sans produire de fichier.
+ * Parcours en LECTURE des données, mais il produit l'Excel du rapprochement.
  */
 scenario('FAC-41', async ({ etape, page }) => {
   const contenu = page.locator('#main-content');
@@ -25,10 +25,15 @@ scenario('FAC-41', async ({ etape, page }) => {
   });
 
   await etape(2, async () => {
-    // Deux formats, deux usages : le PDF pour la relance, l'Excel pour le rapprochement.
-    // « Imprimer » nomme aussi le reçu de chaque ligne : c'est celui de la BARRE D'OUTILS
-    // qu'on vise, celui qui emporte la liste filtrée.
     await expect(page.getByRole('button', { name: 'Imprimer', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Excel' })).toBeVisible();
+
+    // Seul le PDF est réellement produit ici. Le bouton Excel appelle
+    // `GET /api/reglements/export`, que le serveur n'expose pas : la requête rend 404 et
+    // l'écran n'affiche aucune erreur — le clic ne fait rien, en silence. Tant que l'export
+    // Excel n'existe pas, l'automatiser reviendrait à figer le défaut.
+    const telechargement = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Imprimer', exact: true }).click();
+    expect((await telechargement).suggestedFilename()).toMatch(/\.pdf$/i);
   });
 });

@@ -20,7 +20,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -235,32 +234,30 @@ public class InventoryLotServiceImpl implements InventoryLotService {
         storeInventoryLineRepository.saveAndFlush(line);
     }
 
+    /**
+     * Ces deux méthodes ravalaient toute exception et rendaient un résultat vide, <strong>sans
+     * même journaliser</strong> : une requête en échec ne laissait aucune trace et l'écran
+     * affichait « aucun lot », ce qu'un opérateur lit comme un comptage terminé.
+     */
     private long countLotFlat(StoreInventoryLineFilterRecord filter) {
-        try {
-            String sql = StoreInventoryLineFilterBuilder.lotQuery(filter).buildCount();
-            Object result = em.createNativeQuery(sql)
-                .setParameter(1, filter.storeInventoryId())
-                .getSingleResult();
-            return result instanceof Number n ? n.longValue() : 0L;
-        } catch (Exception e) {
-            return 0L;
-        }
+        String sql = StoreInventoryLineFilterBuilder.lotQuery(filter).buildCount();
+        var query = em.createNativeQuery(sql).setParameter(1, filter.storeInventoryId());
+        StoreInventoryLineFilterBuilder.bindSearch(query, filter);
+        Object result = query.getSingleResult();
+        return result instanceof Number n ? n.longValue() : 0L;
     }
 
     @SuppressWarnings("unchecked")
     private List<Tuple> fetchLotFlatTuples(StoreInventoryLineFilterRecord filter, Pageable pageable) {
-        try {
-            String sql = StoreInventoryLineFilterBuilder.lotQuery(filter)
-                .withAbcPareto(true)
-                .buildPage();
-            return em.createNativeQuery(sql, Tuple.class)
-                .setParameter(1, filter.storeInventoryId())
-                .setFirstResult((int) pageable.getOffset())
-                .setMaxResults(pageable.getPageSize())
-                .getResultList();
-        } catch (Exception e) {
-            return Collections.emptyList();
-        }
+        String sql = StoreInventoryLineFilterBuilder.lotQuery(filter)
+            .withAbcPareto(true)
+            .buildPage();
+        var query = em.createNativeQuery(sql, Tuple.class)
+            .setParameter(1, filter.storeInventoryId())
+            .setFirstResult((int) pageable.getOffset())
+            .setMaxResults(pageable.getPageSize());
+        StoreInventoryLineFilterBuilder.bindSearch(query, filter);
+        return query.getResultList();
     }
 
     private StoreInventoryLotLineRecord toLotLineRecord(Tuple t) {

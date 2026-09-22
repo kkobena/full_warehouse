@@ -22,7 +22,6 @@ import com.kobe.warehouse.service.settings.AppConfigurationService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +30,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Triple;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -43,7 +40,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class InventaireQueryServiceImpl implements InventaireQueryService {
 
-    private final Logger log = LoggerFactory.getLogger(InventaireQueryServiceImpl.class);
 
     private final StoreInventoryRepository storeInventoryRepository;
     private final InventoryStockService inventoryStockService;
@@ -186,17 +182,19 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
             storeInventoryRepository.getReferenceById(inventoryId), produitIds);
     }
 
+    /**
+     * Ces trois méthodes ravalaient toute exception et rendaient un résultat vide. Sur un écran de
+     * comptage, « 0 ligne » ne se lit pas comme une panne : ça se lit « il n'y a rien à compter ».
+     * Le décompte et la liste échouant ensemble, l'écran restait parfaitement cohérent — et
+     * parfaitement faux, l'erreur ne vivant que dans les journaux. Une requête qui échoue doit
+     * échouer visiblement.
+     */
     private long countItems(StoreInventoryLineFilterRecord filter) {
-        try {
-            String sql = StoreInventoryLineFilterBuilder.lineQuery(filter).buildCount();
-            Object result = em.createNativeQuery(sql)
-                .setParameter(1, filter.storeInventoryId())
-                .getSingleResult();
-            return result instanceof Number n ? n.longValue() : 0L;
-        } catch (Exception e) {
-            log.error("Erreur comptage lignes inventaire id={}", filter.storeInventoryId(), e);
-            return 0L;
-        }
+        String sql = StoreInventoryLineFilterBuilder.lineQuery(filter).buildCount();
+        var query = em.createNativeQuery(sql).setParameter(1, filter.storeInventoryId());
+        StoreInventoryLineFilterBuilder.bindSearch(query, filter);
+        Object result = query.getSingleResult();
+        return result instanceof Number n ? n.longValue() : 0L;
     }
 
     @SuppressWarnings("unchecked")
@@ -206,34 +204,25 @@ public class InventaireQueryServiceImpl implements InventaireQueryService {
         boolean gestionLot,
         boolean isAbc
     ) {
-        try {
-            String sql = StoreInventoryLineFilterBuilder.lineQuery(filter)
-                .withLotCount(gestionLot)
-                .withAbcPareto(isAbc)
-                .buildPage();
-            return em.createNativeQuery(sql, Tuple.class)
-                .setParameter(1, filter.storeInventoryId())
-                .setFirstResult((int) pageable.getOffset())
-                .setMaxResults(pageable.getPageSize())
-                .getResultList();
-        } catch (Exception e) {
-            log.error("Erreur récupération lignes inventaire id={}", filter.storeInventoryId(), e);
-            return Collections.emptyList();
-        }
+        String sql = StoreInventoryLineFilterBuilder.lineQuery(filter)
+            .withLotCount(gestionLot)
+            .withAbcPareto(isAbc)
+            .buildPage();
+        var query = em.createNativeQuery(sql, Tuple.class)
+            .setParameter(1, filter.storeInventoryId())
+            .setFirstResult((int) pageable.getOffset())
+            .setMaxResults(pageable.getPageSize());
+        StoreInventoryLineFilterBuilder.bindSearch(query, filter);
+        return query.getResultList();
     }
 
     @SuppressWarnings("unchecked")
     private List<Tuple> fetchExportTuples(StoreInventoryExportRecord record) {
-        try {
-            return em.createNativeQuery(
-                    StoreInventoryLineFilterBuilder.buildExportQuery(record), Tuple.class)
-                .setParameter(1, record.filterRecord().storeInventoryId())
-                .getResultList();
-        } catch (Exception e) {
-            log.error("Erreur export inventaire id={}", record.filterRecord().storeInventoryId(),
-                e);
-            return Collections.emptyList();
-        }
+        // Un export vide a l'apparence d'un export réussi : l'erreur doit remonter.
+        return em.createNativeQuery(
+                StoreInventoryLineFilterBuilder.buildExportQuery(record), Tuple.class)
+            .setParameter(1, record.filterRecord().storeInventoryId())
+            .getResultList();
     }
 
     private StoreInventoryLineRecord toRecord(Tuple t, Map<Integer, Integer> stockMap) {

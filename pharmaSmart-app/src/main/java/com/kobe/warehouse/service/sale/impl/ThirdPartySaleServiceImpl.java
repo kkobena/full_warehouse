@@ -55,6 +55,7 @@ import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.errors.ThirdPartySalesTiersPayantException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.AssuredCustomerManager;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
@@ -112,7 +113,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     public ThirdPartySaleServiceImpl(ThirdPartySaleLineService thirdPartySaleLineService,
                                      ClientTiersPayantRepository clientTiersPayantRepository,
-                                     SaleLineServiceFactory saleLineServiceFactory, StorageService storageService,
+                                     SaleLineServiceFactory saleLineServiceFactory, SaleAmountCalculator saleAmountCalculator, StorageService storageService,
                                      ThirdPartySaleRepository thirdPartySaleRepository,
                                      AssuredCustomerRepository assuredCustomerRepository, UserRepository userRepository,
                                      PaymentService paymentService, ReferenceService referenceService,
@@ -127,7 +128,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                                      AssuredCustomerManager assuredCustomerManager,
                                       AppConfigurationService appConfigurationService,
                                       DeclarationCaService declarationCaService) {
-        super(referenceService, storageService, userRepository, saleLineServiceFactory,
+        super(referenceService, storageService, userRepository, saleAmountCalculator,
             cashRegisterService, posteRepository, afficheurPosService, idGeneratorService,
             objectMapper, appConfigurationService);
         this.thirdPartySaleLineService = thirdPartySaleLineService;

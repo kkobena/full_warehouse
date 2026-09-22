@@ -36,5 +36,18 @@ scenario('RPT-06', async ({ etape, page }) => {
     // deux tableaux ont les mêmes colonnes et souvent les mêmes produits. On vérifie donc
     // que les quantités décroissent, seule chose que la légende promet ici.
     expect(await quantite(0)).toBeGreaterThanOrEqual(await quantite(9));
+
+    // Le rang affiché doit être la position de la ligne. C'est la seule identité que ce tableau
+    // porte : « CA généré = Qté × Prix moyen » n'en est pas une, et ce n'est pas un défaut.
+    // Le prix moyen est une moyenne NON PONDÉRÉE des prix unitaires, choisie pour rapporter le
+    // prix de base pratiqué : pondérer laisserait une grosse vente négociée masquer le tarif
+    // habituel. Ne pas ajouter cette assertion en croyant corriger le défaut du panier moyen
+    // (DashboardCARepository#PERIOD_AGGREGATION_SQL) — les formules se ressemblent, pas les
+    // intentions.
+    const rang = async (position: number): Promise<number> =>
+      Number((await lignes.nth(position).locator('td').first().innerText()).replace(/\D/g, ''));
+    expect(await rang(0)).toBe(1);
+    expect(await rang(4)).toBe(5);
+    expect(await rang(9)).toBe(10);
   });
 });

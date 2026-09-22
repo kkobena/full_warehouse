@@ -47,6 +47,7 @@ import com.kobe.warehouse.service.errors.PrivilegeException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
@@ -88,7 +89,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
                            UninsuredCustomerRepository uninsuredCustomerRepository,
                            PaymentModeRepository paymentModeRepository, StorageService storageService,
                            CashSaleRepository cashSaleRepository, CashRegisterService cashRegisterService,
-                           SaleLineServiceFactory saleLineServiceFactory, PaymentService paymentService,
+                           SaleLineServiceFactory saleLineServiceFactory, SaleAmountCalculator saleAmountCalculator, PaymentService paymentService,
                            ReferenceService referenceService, PosteRepository posteRepository,
                            UtilisationCleSecuriteService utilisationCleSecuriteService,
                            RemiseRepository remiseRepository, CustomerDisplayService afficheurPosService,
@@ -97,7 +98,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
                            AppConfigurationService appConfigurationService,
                            DeclarationCaService declarationCaService,
                            PonctionService ponctionService) {
-        super(referenceService, storageService, userRepository, saleLineServiceFactory,
+        super(referenceService, storageService, userRepository, saleAmountCalculator,
             cashRegisterService, posteRepository, afficheurPosService, idGeneratorService,
             objectMapper, appConfigurationService);
         this.salesRepository = salesRepository;

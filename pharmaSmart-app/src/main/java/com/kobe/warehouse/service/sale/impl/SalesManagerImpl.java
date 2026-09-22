@@ -13,6 +13,7 @@ import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.PlafondVenteException;
 import com.kobe.warehouse.service.errors.StockException;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
@@ -38,7 +39,7 @@ public class SalesManagerImpl implements SalesManager {
     private final VenteDepotRepository venteDepotRepository;
     private final SaleService saleService;
     private final ThirdPartySaleService thirdPartySaleService;
-    private final SaleCommonService saleCommonService;
+    private final SaleAmountCalculator saleAmountCalculator;
 
     public SalesManagerImpl(
         SaleLineServiceFactory saleLineServiceFactory,
@@ -48,7 +49,7 @@ public class SalesManagerImpl implements SalesManager {
         VenteDepotRepository venteDepotRepository,
         @Lazy SaleService saleService,
         @Lazy ThirdPartySaleService thirdPartySaleService,
-        SaleCommonService saleCommonService
+        SaleAmountCalculator saleAmountCalculator
     ) {
         this.salesLineService = saleLineServiceFactory.getService(null);
         this.storageService = storageService;
@@ -57,7 +58,7 @@ public class SalesManagerImpl implements SalesManager {
         this.venteDepotRepository = venteDepotRepository;
         this.saleService = saleService;
         this.thirdPartySaleService = thirdPartySaleService;
-        this.saleCommonService = saleCommonService;
+        this.saleAmountCalculator = saleAmountCalculator;
     }
 
     @Override
@@ -191,18 +192,18 @@ public class SalesManagerImpl implements SalesManager {
     }
 
     private void upddateDepotSaleAmountsOnRemovingItem(VenteDepot venteDepot, SalesLine saleLine) {
-        saleCommonService.computeSaleEagerAmountOnRemovingItem(venteDepot, saleLine);
-        saleCommonService.proccessDiscount(venteDepot);
+        saleAmountCalculator.computeSaleEagerAmountOnRemovingItem(venteDepot, saleLine);
+        saleAmountCalculator.proccessDiscount(venteDepot);
         computeDepotAmountToPaid(venteDepot);
-        saleCommonService.computeSaleLazyAmountOnRemovingItem(venteDepot, saleLine);
-        saleCommonService.computeTvaAmountOnRemovingItem(venteDepot, saleLine);
+        saleAmountCalculator.computeSaleLazyAmountOnRemovingItem(venteDepot, saleLine);
+        saleAmountCalculator.computeTvaAmountOnRemovingItem(venteDepot, saleLine);
     }
 
     private void upddateDepotSaleAmounts(VenteDepot venteDepot) {
-        saleCommonService.computeSaleEagerAmount(venteDepot);
-        saleCommonService.proccessDiscount(venteDepot);
+        saleAmountCalculator.computeSaleEagerAmount(venteDepot);
+        saleAmountCalculator.proccessDiscount(venteDepot);
         computeDepotAmountToPaid(venteDepot);
-        saleCommonService.arrondirMontantCaisse(venteDepot);
+        saleAmountCalculator.arrondirMontantCaisse(venteDepot);
     }
 
     private void computeDepotAmountToPaid(VenteDepot venteDepot) {

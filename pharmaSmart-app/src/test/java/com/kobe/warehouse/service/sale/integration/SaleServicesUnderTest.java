@@ -42,6 +42,7 @@ import com.kobe.warehouse.service.reassort.RepartitionStockService;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
 import com.kobe.warehouse.service.report.SaleInvoiceReportService;
 import com.kobe.warehouse.service.ReceiptPrinterService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.AssuredCustomerManager;
 import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.sale.AvoirClientNotificationService;
@@ -64,7 +65,6 @@ import com.kobe.warehouse.service.sale.impl.AvoirClientServiceImpl;
 import com.kobe.warehouse.service.sale.impl.RetourClientServiceImpl;
 import com.kobe.warehouse.service.sale.impl.SimplifiedSaleServiceImpl;
 import com.kobe.warehouse.service.sale.impl.ConsommationService;
-import com.kobe.warehouse.service.sale.impl.SaleCommonService;
 import com.kobe.warehouse.service.sale.impl.SaleDepotExtensionImpl;
 import com.kobe.warehouse.service.sale.impl.SaleLineServiceFactory;
 import com.kobe.warehouse.service.sale.impl.SaleServiceImpl;
@@ -91,7 +91,7 @@ import java.util.function.Supplier;
  *
  * <p>Sont <b>réels</b> tous les objets dont le comportement dépend de la base : les repositories,
  * les générateurs d'identifiants (qui lisent des séquences Postgres), {@link ReferenceService},
- * {@link SalesLineServiceBaseImpl}, {@link StockUpdateService}, {@link SaleCommonService} et les
+ * {@link SalesLineServiceBaseImpl}, {@link StockUpdateService}, {@link SaleAmountCalculator} et les
  * cinq services sous test — c'est leur dialogue avec Postgres qu'on veut voir.
  *
  * <p>Sont <b>simulés</b> les collaborateurs qui parlent au matériel ou à un autre domaine :
@@ -228,18 +228,7 @@ final class SaleServicesUnderTest {
         this.salesLineService = salesLineServiceBase;
         SaleLineServiceFactory saleLineServiceFactory = new SaleLineServiceFactory(salesLineServiceBase);
 
-        SaleCommonService saleCommonService = new SaleCommonService(
-            referenceService,
-            storageService,
-            userRepository,
-            saleLineServiceFactory,
-            cashRegisterService,
-            posteRepository,
-            customerDisplayService,
-            saleIdGeneratorService,
-            objectMapper,
-            appConfigurationService
-        );
+        SaleAmountCalculator saleAmountCalculator = new SaleAmountCalculator(saleLineServiceFactory);
 
         // SalesManager et les deux services de vente se référencent mutuellement : la production
         // casse le cycle avec @Lazy, on le casse ici avec un mandataire qui résout au premier appel.
@@ -254,7 +243,7 @@ final class SaleServicesUnderTest {
             venteDepotRepository,
             saleServiceProxy,
             thirdPartyProxy,
-            saleCommonService
+            saleAmountCalculator
         );
 
         this.saleService = new SaleServiceImpl(
@@ -266,6 +255,7 @@ final class SaleServicesUnderTest {
             cashSaleRepository,
             cashRegisterService,
             saleLineServiceFactory,
+            saleAmountCalculator,
             paymentService,
             referenceService,
             posteRepository,
@@ -291,7 +281,7 @@ final class SaleServicesUnderTest {
             saleLineServiceFactory,
             thirdPartySaleRepository,
             prixRererenceService,
-            saleCommonService
+            saleAmountCalculator
         );
         ThirdPartyClientManagerImpl thirdPartyClientManager = new ThirdPartyClientManagerImpl(
             thirdPartySaleLineService,
@@ -312,6 +302,7 @@ final class SaleServicesUnderTest {
             thirdPartySaleLineService,
             clientTiersPayantRepository,
             saleLineServiceFactory,
+            saleAmountCalculator,
             storageService,
             thirdPartySaleRepository,
             assuredCustomerRepository,
@@ -341,6 +332,7 @@ final class SaleServicesUnderTest {
             storageService,
             userRepository,
             saleLineServiceFactory,
+            saleAmountCalculator,
             cashRegisterService,
             posteRepository,
             customerDisplayService,
@@ -360,6 +352,7 @@ final class SaleServicesUnderTest {
             storageService,
             userRepository,
             saleLineServiceFactory,
+            saleAmountCalculator,
             cashRegisterService,
             posteRepository,
             customerDisplayService,

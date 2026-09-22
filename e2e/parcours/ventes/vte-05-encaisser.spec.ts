@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProduit } from '../../src/actions';
+import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProduit, lireStockProduit } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -17,6 +17,8 @@ scenario('VTE-05', async ({ etape, page }) => {
   // Mise en place hors étapes : une caisse ouverte (VTE-33) et un panier servi (VTE-01).
   await assurerCaisseOuverte(page);
   await assurerPanierVide(page);
+  // Le stock d'avant, relevé là où le pharmacien le lit : c'est lui qui fera foi à la fin.
+  const stockAvant = await lireStockProduit(page, produit);
   await page.goto('/sales-home');
   await chercherProduit(page, produit);
   await ajouterAuPanier(page, '1');
@@ -35,10 +37,19 @@ scenario('VTE-05', async ({ etape, page }) => {
   await etape(2, async () => {
     // Le montant remis en espèces, saisi dans le mode de règlement correspondant. Deux modes
     // au maximum peuvent être combinés — un seul suffit ici.
-    await page.locator('#CASH').fill('2000');
-    // La monnaie à rendre est calculée sans qu'on la demande : 2 000 − 1 085.
+    const remis = 2000;
+    await page.locator('#CASH').fill(String(remis));
     await expect(page.locator('#main-content')).toContainText(/MONNAIE/i);
-    await expect(page.locator('#main-content')).toContainText(/915/);
+
+    // La monnaie à rendre est calculée sans qu'on la demande. On la confronte aux deux autres
+    // nombres de l'écran plutôt qu'à une valeur écrite en dur : une remise, un changement de
+    // prix ou un arrondi de caisse déplacerait le « 915 » attendu sans rien casser d'autre,
+    // et le parcours deviendrait faux sans qu'on sache pourquoi.
+    const nombre = async (selecteur: string) =>
+      Number((await page.locator(selecteur).innerText()).replace(/[^\d-]/g, ''));
+    const aEncaisser = await nombre('.amount-to-pay .amount-value');
+    await expect.poll(() => nombre('.amount-change .amount-value'), { timeout: 5000 })
+      .toBe(remis - aEncaisser);
   });
 
   await etape(3, async () => {
@@ -50,4 +61,9 @@ scenario('VTE-05', async ({ etape, page }) => {
     await expect(lignes.filter({ hasText: produit })).toHaveCount(0);
     await expect(page.locator('#main-content')).toContainText(/Panier vide|Ajoutez des produits/i);
   });
+
+  // La boucle se ferme ici, et elle seule prouve ce que la documentation de ce parcours
+  // annonce depuis toujours : « c'est l'encaissement qui décrémente le stock ». Un panier
+  // revenu à vide reste vrai même si rien n'est sorti du stock.
+  expect(await lireStockProduit(page, produit)).toBe(stockAvant - 1);
 });

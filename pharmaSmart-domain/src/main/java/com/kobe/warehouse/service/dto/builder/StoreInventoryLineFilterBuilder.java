@@ -6,6 +6,7 @@ import com.kobe.warehouse.service.dto.filter.StoreInventoryExportRecord;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryLineFilterRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryByGroupRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
+import jakarta.persistence.Query;
 import jakarta.persistence.Tuple;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -335,16 +336,52 @@ public class StoreInventoryLineFilterBuilder {
 
     // ── LineQueryBuilder ──────────────────────────────────────────────────────
 
+    /** Premier emplacement libre : {@code ?1} porte déjà l'identifiant d'inventaire. */
+    private static final int PREMIER_PARAM_RECHERCHE = 2;
+
+    /**
+     * Pose la condition de recherche sur trois colonnes, en réservant un emplacement par colonne.
+     *
+     * <p>Le terme était auparavant inséré dans la chaîne SQL, entre apostrophes. Il vient de la
+     * requête HTTP — {@code StoreInventoryLineFilterRecord} est lié depuis les paramètres de
+     * {@code /api/store-inventory-lines} — et la chaîne obtenue part dans
+     * {@code createNativeQuery} : une apostrophe dans le terme refermait le littéral et la suite
+     * était exécutée comme du SQL.
+     *
+     * <p>Trois emplacements distincts plutôt qu'un seul réutilisé : un ordinal positionnel répété
+     * dans une requête native ne se comporte pas de la même façon selon le fournisseur JPA.
+     *
+     * @see #bindSearch(Query, StoreInventoryLineFilterRecord)
+     */
     private static void appendSearch(
         StringBuilder sql, String search, String col1, String col2, String col3
     ) {
         if (!StringUtils.hasLength(search)) {
             return;
         }
-        String term = search + "%";
         sql.append(String.format(
-            " AND (%s LIKE '%s' OR %s LIKE '%s' OR %s LIKE '%s')",
-            col1, term, col2, term, col3, term));
+            " AND (%s LIKE ?%d OR %s LIKE ?%d OR %s LIKE ?%d)",
+            col1, PREMIER_PARAM_RECHERCHE,
+            col2, PREMIER_PARAM_RECHERCHE + 1,
+            col3, PREMIER_PARAM_RECHERCHE + 2));
+    }
+
+    /**
+     * Lie le terme de recherche aux emplacements qu'{@link #appendSearch} a réservés. Sans terme,
+     * la requête n'en porte aucun et rien n'est lié.
+     *
+     * <p>La liaison vit ici, et non chez l'appelant, pour que le nombre d'emplacements reste
+     * l'affaire du constructeur de requête : un appelant ne peut pas se tromper sur ce qu'il
+     * ignore.
+     */
+    public static void bindSearch(Query query, StoreInventoryLineFilterRecord filter) {
+        if (filter == null || !StringUtils.hasLength(filter.search())) {
+            return;
+        }
+        String terme = filter.search() + "%";
+        query.setParameter(PREMIER_PARAM_RECHERCHE, terme);
+        query.setParameter(PREMIER_PARAM_RECHERCHE + 1, terme);
+        query.setParameter(PREMIER_PARAM_RECHERCHE + 2, terme);
     }
 
     // ── LotQueryBuilder ───────────────────────────────────────────────────────

@@ -123,6 +123,38 @@ class InventaireQueryServiceIntegrationTest extends AbstractInventaireIntegratio
             .getTotalElements());
     }
 
+    /**
+     * Le terme de recherche vient de la requête HTTP : {@code StoreInventoryLineFilterRecord} est
+     * lié depuis les paramètres de {@code /api/store-inventory-lines}. Il était inséré entre
+     * apostrophes dans une chaîne passée à {@code createNativeQuery} : une apostrophe dans le
+     * terme refermait le littéral, et la condition toujours vraie qui suivait rendait
+     * <strong>toutes</strong> les lignes de l'inventaire. Lié comme paramètre, il ne désigne aucun
+     * produit et ne remonte rien.
+     */
+    @Test
+    @DisplayName("Un terme de recherche hostile ne détourne pas la requête")
+    void rechercheHostile() {
+        StoreInventory inventaire = inventaire(InventoryCategory.MAGASIN);
+        ligne(inventaire, produit("DOLIPRANE HOSTILE"));
+        ligne(inventaire, produit("EFFERALGAN HOSTILE"));
+        viderLeCache();
+
+        var page = page(new StoreInventoryLineFilterRecord(
+            inventaire.getId(), "' OR 1=1 OR ''='", null, null, null));
+
+        assertEquals(0, page.getTotalElements(), "le terme est une donnée, pas du SQL");
+    }
+
+    /** Une apostrophe légitime dans un libellé doit se chercher comme n'importe quel caractère. */
+    @Test
+    @DisplayName("Une apostrophe dans le terme reste une apostrophe")
+    void rechercheAvecApostrophe() {
+        StoreInventoryLineFilterRecord filtre = new StoreInventoryLineFilterRecord(
+            inventaire(InventoryCategory.MAGASIN).getId(), "L'OREAL", null, null, null);
+
+        assertEquals(0, page(filtre).getTotalElements(), "aucun produit ne porte ce libellé");
+    }
+
     @Test
     @DisplayName("Le filtre par rayon restreint la grille aux produits qui y sont rangés")
     void filtreParRayon() {

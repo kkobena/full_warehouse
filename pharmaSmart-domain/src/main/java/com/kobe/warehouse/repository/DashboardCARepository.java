@@ -55,6 +55,20 @@ public class DashboardCARepository {
             " WHERE sale_date BETWEEN :startDate AND :endDate" +
             " ORDER BY ca_total DESC";
 
+    /**
+     * Meilleures ventes d'une période.
+     *
+     * <p>{@code prix_moyen} est une moyenne <strong>non pondérée</strong> des prix unitaires
+     * ligne à ligne, et c'est voulu : la colonne rapporte le prix de base pratiqué, non le prix
+     * moyen réalisé. Pondérer par les quantités ({@code SUM(ca) / SUM(qty)}) laisserait une
+     * grosse vente négociée tirer la moyenne vers elle et masquer le tarif habituel.
+     *
+     * <p>Ne pas l'aligner sur {@link #PERIOD_AGGREGATION_SQL}, qui a subi le traitement inverse.
+     * Là-bas le panier moyen était une moyenne de moyennes journalières affichée à côté du CA
+     * dont elle prétendait découler : la tuile se contredisait. Ici la colonne ne prétend pas
+     * être le CA divisé par la quantité — elle répond à une autre question. Les deux formules se
+     * ressemblent, leurs intentions non.
+     */
     private static final String TOP_PRODUCTS_SQL =
         "SELECT :period AS mois, p.id, p.libelle," +
             "  COALESCE(fp.code_cip, '') AS code_cip," +

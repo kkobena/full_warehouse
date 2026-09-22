@@ -38,6 +38,9 @@ import org.springframework.transaction.event.TransactionalEventListener;
  * Les types analytiques ou de retrait (PERIME, ALERTE_PEREMPTION, VENDU, INVENDU, EN_RUPTURE)
  * sont exclus.</p>
  *
+ * <p>La réconciliation de {@code lot_stock_location}, elle, n'est conditionnée par rien : elle
+ * suit toute clôture.</p>
+ *
  * <p>Exécuté de manière asynchrone après le commit de la transaction de clôture.</p>
  */
 @Service
@@ -153,17 +156,55 @@ public class InventoryClosedEventListener {
         this.suggestionReassortService = suggestionReassortService;
     }
 
+    /**
+     * Deux travaux sans rapport suivent une clôture, et l'ordre compte.
+     *
+     * <p>La <strong>réconciliation des emplacements de lots</strong> traduit en stock ce que le
+     * comptage vient d'établir : elle est due pour tout inventaire, quel qu'en soit le type. Elle
+     * était pourtant placée après le {@code return} du cas « aucune suggestion de réassort », et
+     * derrière le filtre {@link #CATEGORIES_AVEC_REASSORT}. Un inventaire dont tous les produits
+     * étaient au-dessus de leur seuil — un stock sain, donc le cas courant — se clôturait sans
+     * jamais corriger {@code lot_stock_location} ; un inventaire de périmés, dont l'objet est
+     * précisément le suivi des lots, non plus.
+     *
+     * <p>Les <strong>suggestions de réassort</strong>, elles, gardent leur filtre : elles n'ont de
+     * sens que là où le stock a été physiquement vérifié et où un transfert est pertinent.
+     */
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onInventoryClosed(InventoryClosedEvent event) {
+        reconcileLotStockLocation(event);
+        purgerLotsDeLaReserve(event);
+        genererSuggestionsReassort(event);
+    }
+
+    /**
+     * Sur un inventaire MAGASIN, la procédure de clôture remet la réserve à zéro : les emplacements
+     * de lots qui s'y rattachent n'ont plus d'objet.
+     */
+    private void purgerLotsDeLaReserve(InventoryClosedEvent event) {
+        if (event.inventoryCategory() != InventoryCategory.MAGASIN) {
+            return;
+        }
+        em.createNativeQuery("""
+                DELETE FROM lot_stock_location lsl
+                USING storage s
+                WHERE lsl.storage_id = s.id
+                  AND s.magasin_id   = :magasinId
+                  AND s.storage_type IN %s
+                """.formatted(RESERVE_TYPES_IN))
+            .setParameter("magasinId", event.magasinId())
+            .executeUpdate();
+        log.info("Inventaire MAGASIN {} — lot_stock_location réserve purgée", event.storeInventoryId());
+    }
+
+    private void genererSuggestionsReassort(InventoryClosedEvent event) {
         if (!CATEGORIES_AVEC_REASSORT.contains(event.inventoryCategory())) {
             log.debug("Inventaire {} ({}) : pas de suggestion de réassort pour ce type",
                 event.storeInventoryId(), event.inventoryCategory());
             return;
         }
-
-        AppUser user = em.getReference(AppUser.class, event.userId());
 
         List<ReassortRecord> allSuggestions = new ArrayList<>();
 
@@ -179,25 +220,10 @@ public class InventoryClosedEventListener {
             return;
         }
 
+        AppUser user = em.getReference(AppUser.class, event.userId());
         suggestionReassortService.createLigneReassort(allSuggestions, user);
         log.info("Inventaire {} clôturé : {} suggestions créées (rayon + réserve)",
             event.storeInventoryId(), allSuggestions.size());
-
-        reconcileLotStockLocation(event);
-
-        // MAGASIN : la procédure remet la réserve à 0 → purger lot_stock_location de la réserve aussi
-        if (event.inventoryCategory() == InventoryCategory.MAGASIN) {
-            em.createNativeQuery("""
-                    DELETE FROM lot_stock_location lsl
-                    USING storage s
-                    WHERE lsl.storage_id = s.id
-                      AND s.magasin_id   = :magasinId
-                      AND s.storage_type IN %s
-                    """.formatted(RESERVE_TYPES_IN))
-                .setParameter("magasinId", event.magasinId())
-                .executeUpdate();
-            log.info("Inventaire MAGASIN {} — lot_stock_location réserve purgée", event.storeInventoryId());
-        }
     }
 
     /**

@@ -35,6 +35,7 @@ import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.sale.SaleDepotExtensionService;
 import com.kobe.warehouse.service.sale.SalesLineService;
@@ -71,6 +72,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         StorageService storageService,
         UserRepository userRepository,
         SaleLineServiceFactory saleLineServiceFactory,
+        SaleAmountCalculator saleAmountCalculator,
         CashRegisterService cashRegisterService,
         PosteRepository posteRepository,
         CustomerDisplayService afficheurPosService,
@@ -87,7 +89,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
             referenceService,
             storageService,
             userRepository,
-            saleLineServiceFactory,
+            saleAmountCalculator,
             cashRegisterService,
             posteRepository,
             afficheurPosService,

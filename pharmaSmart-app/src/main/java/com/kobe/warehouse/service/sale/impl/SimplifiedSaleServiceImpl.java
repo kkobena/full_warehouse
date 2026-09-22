@@ -19,6 +19,7 @@ import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SimplifiedSaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
@@ -54,12 +55,12 @@ public class SimplifiedSaleServiceImpl extends SaleCommonService implements Simp
     public SimplifiedSaleServiceImpl(PaymentService paymentService,
                                      CashSaleRepository cashSaleRepository, ReferenceService referenceService,
                                      StorageService storageService, UserRepository userRepository,
-                                     SaleLineServiceFactory saleLineServiceFactory, CashRegisterService cashRegisterService,
+                                     SaleLineServiceFactory saleLineServiceFactory, SaleAmountCalculator saleAmountCalculator, CashRegisterService cashRegisterService,
                                      PosteRepository posteRepository, CustomerDisplayService afficheurPosService,
                                      SaleIdGeneratorService idGeneratorService,
                                      UninsuredCustomerRepository uninsuredCustomerRepository, ObjectMapper objectMapper,
                                      AppConfigurationService appConfigurationService) {
-        super(referenceService, storageService, userRepository, saleLineServiceFactory,
+        super(referenceService, storageService, userRepository, saleAmountCalculator,
             cashRegisterService, posteRepository, afficheurPosService, idGeneratorService,
             objectMapper, appConfigurationService);
         this.uninsuredCustomerRepository = uninsuredCustomerRepository;

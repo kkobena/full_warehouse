@@ -16,7 +16,9 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.historique_inventaire.HistoriqueInventaireService;
 import com.kobe.warehouse.service.inventaire.InventaireCreationService;
+import com.kobe.warehouse.service.report.InventoryReportReportService;
 import com.kobe.warehouse.service.inventaire.InventaireImportService;
+import com.kobe.warehouse.service.inventaire.InventaireService;
 import com.kobe.warehouse.service.inventaire.InventaireProgressService;
 import com.kobe.warehouse.service.inventaire.InventaireQueryService;
 import com.kobe.warehouse.service.inventaire.InventaireSyncService;
@@ -27,6 +29,7 @@ import com.kobe.warehouse.service.inventaire.InventoryValuationService;
 import com.kobe.warehouse.service.inventaire.PlanningInventaireTournantService;
 import com.kobe.warehouse.service.inventaire.impl.InventaireCreationServiceImpl;
 import com.kobe.warehouse.service.inventaire.impl.InventaireImportServiceImpl;
+import com.kobe.warehouse.service.inventaire.impl.InventaireServiceImpl;
 import com.kobe.warehouse.service.inventaire.impl.InventaireProgressServiceImpl;
 import com.kobe.warehouse.service.inventaire.impl.InventaireQueryServiceImpl;
 import com.kobe.warehouse.service.inventaire.impl.InventaireSyncServiceImpl;
@@ -82,6 +85,7 @@ final class InventaireServicesUnderTest {
     final InventoryValuationService inventoryValuationService;
     final InventaireSyncService inventaireSyncService;
     final InventaireImportService inventaireImportService;
+    final InventaireService inventaireService;
     final InventoryCloseService inventoryCloseService;
     final InventoryLotService inventoryLotService;
     final PlanningInventaireTournantService planningInventaireTournantService;
@@ -146,6 +150,18 @@ final class InventaireServicesUnderTest {
             userService,
             inventoryStockService,
             entityManager
+        );
+
+        // Le service d'édition PDF n'entre dans aucun scénario ici : seule sa présence est requise.
+        this.inventaireService = new InventaireServiceImpl(
+            userService,
+            storeInventoryRepository,
+            storeInventoryLineRepository,
+            storageService,
+            rayonRepository,
+            mock(InventoryReportReportService.class),
+            entityManager,
+            inventaireQueryService
         );
 
         this.planningInventaireTournantService = new PlanningInventaireTournantServiceImpl(

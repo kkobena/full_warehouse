@@ -26,6 +26,7 @@ import com.kobe.warehouse.service.dto.filter.StoreInventoryFilterRecord;
 import com.kobe.warehouse.service.dto.projection.IdProjection;
 import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
+import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.errors.InventoryException;
 import com.kobe.warehouse.service.mobile.dto.RayonRecord;
 import com.kobe.warehouse.service.report.InventoryReportReportService;
@@ -44,22 +45,14 @@ import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -68,7 +61,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -84,7 +76,6 @@ public class InventaireServiceImpl implements InventaireService {
     private final InventoryReportReportService inventoryReportService;
     private final EntityManager em;
     private final InventaireQueryService inventaireQueryService;
-    private final InventoryStockService inventoryStockService;
 
     public InventaireServiceImpl(
         UserService userService,
@@ -94,8 +85,7 @@ public class InventaireServiceImpl implements InventaireService {
         RayonRepository rayonRepository,
         InventoryReportReportService inventoryReportService,
         EntityManager em,
-        InventaireQueryService inventaireQueryService,
-        InventoryStockService inventoryStockService
+        InventaireQueryService inventaireQueryService
     ) {
         this.userService = userService;
         this.storeInventoryRepository = storeInventoryRepository;
@@ -105,7 +95,6 @@ public class InventaireServiceImpl implements InventaireService {
         this.inventoryReportService = inventoryReportService;
         this.em = em;
         this.inventaireQueryService = inventaireQueryService;
-        this.inventoryStockService = inventoryStockService;
     }
 
     @Override
@@ -130,92 +119,10 @@ public class InventaireServiceImpl implements InventaireService {
     }
 
     @Override
-    public void importDetail(Long storeInventoryId, MultipartFile multipartFile) {
-        Map<String, Integer> codeCipQuantity = new HashMap<>();
-        CSVFormat csvFormat = CSVFormat.EXCEL.builder()
-            .setDelimiter(';')
-            .get();
-
-        try (Reader reader = new InputStreamReader(multipartFile.getInputStream());
-            CSVParser parser = CSVParser.builder()
-                .setReader(reader)
-                .setFormat(csvFormat)
-                .get()
-        ) {
-            for (CSVRecord record : parser) {
-                String code = record.get(0);
-                codeCipQuantity.put(code, Integer.parseInt(record.get(1)));
-            }
-            // Filtré sur l'inventaire visé : `findAllByCodeCip` ramenait les lignes de tous les
-            // inventaires ouverts partageant un code CIP, et les comptait toutes.
-            List<StoreInventoryLine> storeInventoryLines =
-                this.storeInventoryLineRepository.findAllByStoreInventoryIdAndCodeCipIn(
-                    storeInventoryId, codeCipQuantity.keySet());
-            if (storeInventoryLines.isEmpty()) {
-                return;
-            }
-            applyImportedCounts(storeInventoryLines, codeCipQuantity);
-            this.storeInventoryLineRepository.saveAllAndFlush(storeInventoryLines);
-        } catch (IOException e) {
-            log.debug("{0}", e);
-        }
-    }
-
-    /**
-     * Compte les lignes importées comme le ferait la saisie écran — quantité initiale relue du
-     * stock théorique, valorisation et traçabilité comprises. Poser la seule quantité comptée
-     * laissait {@code quantity_init}, {@code inventory_value_cost} et {@code last_unit_price}
-     * à NULL, ce qui faisait échouer la clôture et sortait la ligne des filtres d'écart.
-     */
-    private void applyImportedCounts(List<StoreInventoryLine> storeInventoryLines,
-        Map<String, Integer> codeCipQuantity) {
-        StoreInventory inventory = storeInventoryLines.getFirst().getStoreInventory();
-        Set<Integer> produitIds = storeInventoryLines.stream()
-            .map(line -> line.getProduit().getId()).collect(Collectors.toSet());
-        Map<Integer, Integer> stockMap = this.inventoryStockService.buildStockMapForInventory(
-            inventory, produitIds);
-        AppUser countedBy = this.userService.getUser();
-
-        storeInventoryLines.forEach(line -> line.applyCount(
-            stockMap.getOrDefault(line.getProduit().getId(), 0),
-            getQtyByCodeCip(codeCipQuantity, line.getProduit()),
-            countedBy
-        ));
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public List<StoreInventoryLineDTO> getAllItems(Long storeInventoryId) {
         return storeInventoryLineRepository.findAllByStoreInventoryId(storeInventoryId).stream()
             .map(StoreInventoryLineDTO::new).toList();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<StoreInventoryLineDTO> getItemsByRayonId(Long storeInventoryId, Long rayonId) {
-        return storeInventoryLineRepository
-            .findAllByStoreInventoryIdAndRayonId(storeInventoryId, rayonId)
-            .stream()
-            .map(s -> {
-                Produit produit = s.getProduit();
-                int stockProduit = produit.getStockProduits().stream()
-                    .mapToInt(StockProduit::getQtyStock).sum();
-                Set<String> produitCips = produit
-                    .getFournisseurProduits()
-                    .stream()
-                    .map(FournisseurProduit::getCodeCip)
-                    .collect(Collectors.toSet());
-                return new StoreInventoryLineDTO(s).setQuantityInit(stockProduit)
-                    .setProduitCips(produitCips).setRayonId(rayonId);
-            })
-            .toList();
-    }
-
-    private int getQtyByCodeCip(Map<String, Integer> codeCipQuantity, Produit produit) {
-        Set<String> codes = produit.getFournisseurProduits().stream()
-            .map(FournisseurProduit::getCodeCip).collect(Collectors.toSet());
-        return codes.stream().map(codeCipQuantity::get).filter(Objects::nonNull).findFirst()
-            .orElse(0);
     }
 
     @Override
@@ -332,15 +239,12 @@ public class InventaireServiceImpl implements InventaireService {
         StoreInventory storeInventory = buildStoreInventory(
             createInventoryFromProduitIds.storeInventoryRecord());
         storeInventory = this.storeInventoryRepository.save(storeInventory);
-        AtomicInteger count = new AtomicInteger(0);
         StoreInventory finalStoreInventory = storeInventory;
         createInventoryFromProduitIds.produitIds()
-            .forEach(id -> {
-                buildStoreInventoryLineFromProduit(new Produit().id(id), finalStoreInventory);
-                count.getAndIncrement();
-            });
+            .forEach(id -> buildStoreInventoryLineFromProduit(
+                em.getReference(Produit.class, id), finalStoreInventory));
         storeInventoryLineRepository.saveAll(storeInventory.getStoreInventoryLines());
-        return count.get();
+        return storeInventory.getStoreInventoryLines().size();
     }
 
     private StoreInventory buildStoreInventory(StoreInventoryRecord storeInventoryRecord) {
@@ -372,22 +276,49 @@ public class InventaireServiceImpl implements InventaireService {
         return storeInventory;
     }
 
+    /**
+     * Une ligne à compter, posée comme le font les requêtes d'insertion du service de création.
+     *
+     * <p>L'emplacement manquait, alors que {@code storage_id} est {@code NOT NULL} : la
+     * création d'un inventaire depuis une sélection de produits échouait au flush. C'est aussi lui
+     * qui rattache la ligne à la grille de saisie.
+     *
+     * <p>{@code quantityInit} reste vide : le stock théorique est lu au comptage, par
+     * {@code InventoryStockService}. Le figer à zéro ferait passer chaque comptage pour un écart
+     * positif du total compté.
+     */
     private void buildStoreInventoryLineFromProduit(Produit produit,
         StoreInventory storeInventory) {
         StoreInventoryLine storeInventoryLine = new StoreInventoryLine();
         storeInventoryLine.setStoreInventory(storeInventory);
         storeInventoryLine.setProduit(produit);
-        storeInventoryLine.setQuantityInit(0);
-        storeInventoryLine.setQuantityOnHand(0);
-        storeInventoryLine.setGap(0);
+        storeInventoryLine.setStorage(storeInventory.getStorage());
+        storeInventoryLine.setUpdated(false);
         storeInventoryLine.setUpdatedAt(LocalDateTime.now());
         storeInventory.getStoreInventoryLines().add(storeInventoryLine);
     }
 
+    /**
+     * Un inventaire clôturé a déjà été appliqué au stock et a laissé une ligne dans
+     * {@code historique_inventaire}. Le supprimer effacerait la justification d'un ajustement de
+     * stock tout en laissant son historique orphelin : rien n'expliquerait plus l'écart.
+     */
     @Override
     public void remove(Long id) {
+        refuserSiCloture(storeInventoryRepository.getReferenceById(id),
+            "Un inventaire clôturé ne peut pas être supprimé", "inventoryClosedCannotBeDeleted");
         storeInventoryLineRepository.deleteAllByStoreInventoryId(id);
         storeInventoryRepository.deleteById(id);
+    }
+
+    /**
+     * Garde commune aux gestes qui modifient un inventaire. Le statut fait foi : une fois
+     * {@code CLOSED}, l'inventaire est un document comptable, plus un brouillon.
+     */
+    private void refuserSiCloture(StoreInventory inventory, String message, String cleErreur) {
+        if (inventory.getStatut() == InventoryStatut.CLOSED) {
+            throw new BadRequestAlertException(message, cleErreur);
+        }
     }
 
     @Override
@@ -395,6 +326,11 @@ public class InventaireServiceImpl implements InventaireService {
         StoreInventoryLineDTO storeInventoryLineDTO) {
         StoreInventoryLine storeInventoryLine = storeInventoryLineRepository.getReferenceById(
             storeInventoryLineDTO.getId());
+        // Recompter une ligne après la clôture ferait diverger l'inventaire de l'historique qu'il
+        // a produit, sans que le stock bouge : la ligne ne dirait plus ce qui a été appliqué.
+        refuserSiCloture(storeInventoryLine.getStoreInventory(),
+            "Cet inventaire est clôturé : ses lignes ne peuvent plus être comptées",
+            "inventoryClosedCannotBeCounted");
         // Verrou optimiste : la ligne a-t-elle été recomptée depuis la lecture du client ?
         // Version nulle côté client = pas de contrôle (appelants legacy).
         if (storeInventoryLineDTO.getVersion() != null

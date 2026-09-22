@@ -29,6 +29,22 @@ scenario('RPT-33', async ({ etape, page }) => {
     // n'avait pas été appliqué.
     await expect(lignes.first()).toBeVisible();
     expect(await score((await lignes.count()) - 1)).toBeGreaterThanOrEqual(70);
+
+    // Le plancher vaut pour TOUTE ligne retenue, pas seulement la dernière.
+    const nombreDeLignes = await lignes.count();
+    for (let rang = 0; rang < nombreDeLignes; rang++) {
+      expect(await score(rang), `score de la ligne ${rang + 1}`).toBeGreaterThanOrEqual(70);
+    }
+
+    // Le bandeau compte les fournisseurs à score ≥ 70 ; le filtre les énumère. Deux calculs
+    // que le serveur fait séparément, et qui doivent tomber sur le même nombre — sinon l'un
+    // des deux ment, et rien à l'écran ne dit lequel.
+    // Le sous-titre de la tuile rappelle le seuil (« score ≥ 70 ») : le retirer avant d'extraire
+    // les chiffres, sans quoi le 70 se recolle au compteur.
+    const texteTuile = (await indicateur('Perf. excellente').innerText())
+      .replace(/score\s*≥\s*70/i, '');
+    const annonces = Number(texteTuile.replace(/[^\d]/g, ''));
+    expect(nombreDeLignes, 'lignes filtrées vs compteur du bandeau').toBe(annonces);
   });
 
   await etape(3, async () => {

@@ -124,6 +124,55 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
     }
 
     @Test
+    @DisplayName("Le filtre par nature de vente s'exécute bien en base")
+    void filtreParNatureDeVente() {
+        Produit produit = produitEnStock("NATURE DATA", 1_000, 600, 0, 100);
+        venteCloturee(produit, 2, AUJOURD_HUI);
+        venteCloturee(produit, 3, AUJOURD_HUI);
+        viderLeCache();
+
+        var comptant = services.saleDataService.listVenteTerminees(
+            null, AUJOURD_HUI, AUJOURD_HUI, null, null, false, null,
+            Set.of("COMPTANT"), null, null, null, null, PageRequest.of(0, 20)
+        );
+        var assurance = services.saleDataService.listVenteTerminees(
+            null, AUJOURD_HUI, AUJOURD_HUI, null, null, false, null,
+            Set.of("ASSURANCE"), null, null, null, null, PageRequest.of(0, 20)
+        );
+
+        assertEquals(2, comptant.getTotalElements());
+        assertEquals(0, assurance.getTotalElements(), "aucune vente assurance n'a été créée");
+    }
+
+    /**
+     * La nature de vente arrive telle quelle de la requête HTTP et finit dans une clause passée à
+     * {@code createNativeQuery}. Concaténée, elle y serait interprétée comme du SQL : la valeur
+     * ci-dessous refermait le littéral et ajoutait une condition toujours vraie, ce qui rendait
+     * <strong>toutes</strong> les ventes. Liée comme paramètre, elle ne désigne aucune nature et ne
+     * remonte donc rien. C'est le seul contrôle qui l'éprouve contre un vrai PostgreSQL.
+     */
+    @Test
+    @DisplayName("Une nature de vente hostile ne détourne pas la requête")
+    void natureDeVenteHostile() {
+        Produit produit = produitEnStock("INJECTION DATA", 1_000, 600, 0, 100);
+        venteCloturee(produit, 2, AUJOURD_HUI);
+        venteCloturee(produit, 3, AUJOURD_HUI);
+        viderLeCache();
+
+        var page = services.saleDataService.listVenteTerminees(
+            null, AUJOURD_HUI, AUJOURD_HUI, null, null, false, null,
+            Set.of("COMPTANT' OR '1'='1"), null, null, null, null, PageRequest.of(0, 20)
+        );
+        long total = services.saleDataService.totalVenteTerminees(
+            null, AUJOURD_HUI, AUJOURD_HUI, null, null, false, null,
+            Set.of("COMPTANT' OR '1'='1"), null, null
+        );
+
+        assertEquals(0, page.getTotalElements(), "la valeur est une donnée, pas du SQL");
+        assertEquals(0L, total);
+    }
+
+    @Test
     @DisplayName("Le total des ventes terminées somme les montants de la période")
     void totalDesVentes() {
         Produit produit = produitEnStock("ADVIL DATA", 1_500, 900, 0, 100);

@@ -76,13 +76,6 @@ public interface StoreInventoryLineRepository extends JpaRepository<StoreInvento
     )
     List<Rayon> findAllRayons(Long storeInventoryId);
 
-    @Query(
-        "SELECT DISTINCT s FROM  StoreInventoryLine  s JOIN s.produit p JOIN p.rayonProduits rp WHERE s.storeInventory.id = :storeInventoryId AND rp.rayon.id=:rayonId ORDER BY rp.rayon.libelle"
-    )
-    List<StoreInventoryLine> findAllByStoreInventoryIdAndRayonId(
-        @Param("storeInventoryId") Long storeInventoryId,
-        @Param("rayonId") Long rayonId
-    );
 
     /**
      * Page des lignes en écart, projetée directement dans {@link GapLineRecord}.

@@ -145,16 +145,20 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
 
     /**
      * Met à jour la quantité en unité de gestion (UG) pour le stockage principal.
+     *
+     * <p>La part d'UG consommée vaut {@code min(quantité vendue, UG disponibles)}, et la quantité
+     * vendue est celle que le serveur a calculée — jamais celle du DTO. La seconde branche lisait
+     * {@code dto.getQuantitySold()} là où la première testait {@code salesLine} : le champ est
+     * facultatif côté client, donc souvent absent à la création d'une ligne, et l'on écrivait alors
+     * {@code null} dans une colonne non nulle. Quand il était présent, il rendait au client un
+     * arbitrage que {@code calculateQuantitySold} venait d'écrêter au stock disponible, et rien ne
+     * bornait plus la quantité d'UG aux UG réellement détenues.
      */
     @Override
     public void processUg(SalesLine salesLine, SaleLineDTO dto, Integer stockageId) {
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(dto.getProduitId(), stockageId);
         if (stockProduit.getQtyUG() > 0) {
-            if (salesLine.getQuantitySold() >= stockProduit.getQtyUG()) {
-                salesLine.setQuantityUg(stockProduit.getQtyUG());
-            } else {
-                salesLine.setQuantityUg(dto.getQuantitySold());
-            }
+            salesLine.setQuantityUg(Math.min(salesLine.getQuantitySold(), stockProduit.getQtyUG()));
         }
     }
 

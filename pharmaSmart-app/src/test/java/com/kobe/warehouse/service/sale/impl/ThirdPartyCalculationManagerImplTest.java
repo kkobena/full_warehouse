@@ -26,6 +26,7 @@ import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.repository.ThirdPartySaleRepository;
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.calculation.TiersPayantCalculationService;
 import com.kobe.warehouse.service.sale.calculation.dto.CalculatedShare;
@@ -62,7 +63,7 @@ class ThirdPartyCalculationManagerImplTest {
     @Mock
     private PrixRererenceService prixRererenceService;
     @Mock
-    private SaleCommonService saleCommonService;
+    private SaleAmountCalculator saleAmountCalculator;
 
     private ThirdPartyCalculationManagerImpl manager;
     private ThirdPartySales sale;
@@ -79,7 +80,7 @@ class ThirdPartyCalculationManagerImplTest {
             saleLineServiceFactory,
             thirdPartySaleRepository,
             prixRererenceService,
-            saleCommonService);
+            saleAmountCalculator);
 
         TiersPayant tiersPayant = new TiersPayant();
         tiersPayant.setId(30);
@@ -171,7 +172,7 @@ class ThirdPartyCalculationManagerImplTest {
         output.setItemShares(List.of(itemShare));
 
         when(calculationService.calculate(any(CalculationInput.class))).thenReturn(output);
-        when(saleCommonService.roundedAmount(200)).thenReturn(200);
+        when(saleAmountCalculator.roundedAmount(200)).thenReturn(200);
 
         String warning = manager.reComputeAndApplyAmounts(sale, null, true);
 
@@ -197,7 +198,7 @@ class ThirdPartyCalculationManagerImplTest {
         output.setTotalPatientShare(new BigDecimal("1000"));
         output.setWarningMessage(null);
         when(calculationService.calculate(any(CalculationInput.class))).thenReturn(output);
-        when(saleCommonService.roundedAmount(1_000)).thenReturn(1_000);
+        when(saleAmountCalculator.roundedAmount(1_000)).thenReturn(1_000);
 
         manager.reComputeAndApplyAmounts(sale, null, false);
 
@@ -212,8 +213,8 @@ class ThirdPartyCalculationManagerImplTest {
 
         manager.computeThirdPartySaleAmounts(sale);
 
-        verify(saleCommonService).computeSaleEagerAmount(sale);
-        verify(saleCommonService).updateAmounts(sale);
+        verify(saleAmountCalculator).computeSaleEagerAmount(sale);
+        verify(saleAmountCalculator).updateAmounts(sale);
     }
 
     @Test
@@ -222,7 +223,7 @@ class ThirdPartyCalculationManagerImplTest {
 
         manager.upddateSaleAmountsOnRemovingItem(sale);
 
-        verify(saleCommonService).computeSaleEagerAmount(sale);
+        verify(saleAmountCalculator).computeSaleEagerAmount(sale);
         verify(calculationService).calculate(any(CalculationInput.class));
     }
 

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.multipart.MultipartFile;
 
 public interface InventaireService {
 
@@ -39,11 +38,9 @@ public interface InventaireService {
 
     List<RayonRecord> fetchRayonsByStoreInventoryId(Long storeInventoryId);
 
-    void importDetail(Long storeInventoryId, MultipartFile multipartFile);
 
     List<StoreInventoryLineDTO> getAllItems(Long storeInventoryId);
 
-    List<StoreInventoryLineDTO> getItemsByRayonId(Long storeInventoryId, Long rayonId);
 
     void synchronizeStoreInventoryLine(List<StoreInventoryLineDTO> storeInventoryLines);
 

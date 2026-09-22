@@ -19,9 +19,11 @@ import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.MotifAjustement;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.Sales;
@@ -55,7 +57,9 @@ import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.domain.enumeration.TypeAssure;
 import com.kobe.warehouse.domain.enumeration.TypePrescription;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.test.IntegrationPostgresDatabase;
+import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import java.math.BigDecimal;
@@ -105,6 +109,8 @@ abstract class AbstractReportIntegrationTest {
     protected Magasin magasin;
     protected Storage rayon;
 
+    protected TransactionIdGeneratorService transactionIdGeneratorService;
+
     private TransactionStatus transaction;
 
     @BeforeAll
@@ -116,6 +122,7 @@ abstract class AbstractReportIntegrationTest {
     void ouvrirLaTransaction() {
         transaction = IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
         services = new ReportServicesUnderTest(em);
+        transactionIdGeneratorService = new TransactionIdGeneratorService(em);
 
         utilisateur = em.find(AppUser.class, 1);
         magasin = em.find(Magasin.class, MAGASIN_ID);
@@ -557,6 +564,77 @@ abstract class AbstractReportIntegrationTest {
         facture.getFacturesDetails().add(dossier);
         em.flush();
         return facture;
+    }
+
+    /**
+     * Un encaissement rattaché à une vente et à une caisse.
+     *
+     * <p>Sans lui, aucun test ne pouvait éprouver la vue des modes de règlement : elle agrège
+     * {@code payment_transaction}, que rien ici ne savait créer.
+     */
+    protected SalePayment reglement(Sales vente, CashRegister caisse, String codeMode, int montant) {
+        SalePayment paiement = new SalePayment();
+        // payment_transaction est partitionnée par date : son identifiant est composite.
+        paiement.setId(transactionIdGeneratorService.nextId());
+        paiement.setSale(vente);
+        paiement.setCashRegister(caisse);
+        paiement.setPaymentMode(em.find(PaymentMode.class, codeMode));
+        paiement.setPaidAmount(montant);
+        paiement.setExpectedAmount(montant);
+        paiement.setMontantVerse(montant);
+        paiement.setReelAmount(montant);
+        paiement.setTransactionDate(vente.getSaleDate());
+        paiement.setCreatedAt(vente.getCreatedAt());
+        paiement.setCategorieChiffreAffaire(CategorieChiffreAffaire.CA);
+        paiement.setTypeFinancialTransaction(TypeFinancialTransaction.CASH_SALE);
+        paiement.setCredit(false);
+        paiement.setPartAssure(montant);
+        paiement.setPartTiersPayant(0);
+        em.persist(paiement);
+        em.flush();
+        return paiement;
+    }
+
+    /**
+     * Une facture de groupe : elle ne porte pas de lignes, elle totalise ses filles.
+     *
+     * <p>C'est la forme qui fait qu'une somme naïve sur {@code facture_tiers_payant} compte deux
+     * fois les mêmes montants — d'où le filtre {@code groupe_facture_tiers_payant_id IS NULL}
+     * que tous les écrans d'encours appliquent.
+     */
+    protected FactureTiersPayant factureDeGroupe(
+        GroupeTiersPayant groupe,
+        LocalDate dateEmission,
+        FactureTiersPayant... filles
+    ) {
+        int total = 0;
+        for (FactureTiersPayant fille : filles) {
+            total += fille.getMontantTtc().intValue();
+        }
+
+        FactureTiersPayant groupee = new FactureTiersPayant();
+        groupee.setId(services.factureIdGeneratorService.nextId());
+        groupee.setNumFacture(unique("GRP"));
+        groupee.setInvoiceDate(dateEmission);
+        groupee.setCreated(LocalDateTime.now());
+        groupee.setUpdated(LocalDateTime.now());
+        groupee.setUser(utilisateur);
+        groupee.setGroupeTiersPayant(groupe);
+        groupee.setFactureProvisoire(false);
+        groupee.setStatut(InvoiceStatut.NOT_PAID);
+        groupee.setMontantRegle(0);
+        groupee.setMontantTtc(BigDecimal.valueOf(total));
+        groupee.setMontantTva(BigDecimal.ZERO);
+        groupee.setMontantNet(BigDecimal.valueOf(total));
+        groupee.setMontantHt(BigDecimal.valueOf(total));
+        em.persist(groupee);
+
+        for (FactureTiersPayant fille : filles) {
+            fille.setGroupeFactureTiersPayant(groupee);
+            em.merge(fille);
+        }
+        em.flush();
+        return groupee;
     }
 
     // --- ajustements de stock ---

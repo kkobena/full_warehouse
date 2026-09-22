@@ -59,6 +59,7 @@ import com.kobe.warehouse.service.errors.PlafondVenteException;
 import com.kobe.warehouse.service.errors.ThirdPartySalesTiersPayantException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.AssuredCustomerManager;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
@@ -191,6 +192,7 @@ class ThirdPartySaleServiceImplTest {
             thirdPartySaleLineService,
             clientTiersPayantRepository,
             saleLineServiceFactory,
+            new SaleAmountCalculator(saleLineServiceFactory),
             storageService,
             thirdPartySaleRepository,
             assuredCustomerRepository,

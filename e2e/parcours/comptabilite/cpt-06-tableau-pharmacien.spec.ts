@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+import { expect, type Locator } from '@playwright/test';
 import { ouvrirOnglet, rechercher, saisirDate } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
@@ -7,17 +7,61 @@ import { scenario } from '../../src/scenario';
  * une ligne par jour (ou par mois), les ventes d'un côté, les achats par grossiste de
  * l'autre, et les deux ratios qui les relient. C'est l'écran le plus large de
  * l'application — d'où l'intérêt d'une image plutôt que d'un paragraphe.
+ *
+ * Deux identités se lisent à même l'écran, et aucune n'était vérifiée :
+ *
+ *  1. le pied de table totalise les lignes, sans en oublier ni en inventer ;
+ *  2. basculer du journalier au mensuel regroupe les mêmes ventes — les totaux ne bougent pas.
+ *
+ * La seconde a du mordant : le mensuel passe par une seconde fonction stockée
+ * (`tableau_pharmacien_month_report`), distincte de la journalière et libre de diverger d'elle
+ * à la première évolution. Rien d'autre ne les confronte.
+ *
+ * Une troisième identité — le Montant Net se décompose en Comptant plus Crédit — n'est PAS
+ * vérifiée ici, et c'est délibéré. Elle ne tient qu'en mode « chiffre d'affaires réel ». En mode
+ * « déclaré », que l'officine peut retenir par réglage (`ModeCaService.modeComptabilite`), le
+ * TTC et les règlements sont ramenés au montant déclarable tandis que la colonne Crédit garde
+ * sa valeur réelle : les trois colonnes ne décomposent plus la même assiette. Sur le jeu de
+ * démonstration, 143 journées sur 155 s'écartent ainsi, pour 8 669 805 F cumulés, quand le mode
+ * réel en laisse 2 F sur l'année entière. L'écran ne dit pas quel mode il applique, et le
+ * parcours ne peut donc pas choisir la borne à exiger.
  */
 scenario('CPT-06', async ({ etape, page }) => {
   const fin = new Date();
   const debut = new Date(fin.getFullYear(), fin.getMonth() - 2, 1);
-  const lignes = page.locator('tbody tr').filter({ visible: true });
+
+  const table = page.locator('table').filter({ has: page.getByText('Montant Net') }).first();
+  const lignes = table.locator('tbody tr').filter({ visible: true });
+  const total = table.locator('tfoot tr').first();
+
+  const nombre = async (ligne: Locator, colonne: number): Promise<number> =>
+    Number((await ligne.locator('td').nth(colonne).innerText()).replace(/[^\d-]/g, ''));
+
+  // Date · Comptant · Crédit · Remise · Montant Net · N. Clients · …
+  const COLONNES = [
+    [1, 'comptant'],
+    [2, 'crédit'],
+    [3, 'remise'],
+    [4, 'net'],
+    [5, 'clients'],
+  ] as const;
+
+  /** Somme d'une colonne sur toutes les lignes visibles. */
+  const sommeColonne = async (colonne: number): Promise<number> => {
+    const valeurs = await Promise.all((await lignes.all()).map(ligne => nombre(ligne, colonne)));
+    return valeurs.reduce((cumul, valeur) => cumul + valeur, 0);
+  };
+
+  const totauxDuPied = async (): Promise<number[]> =>
+    Promise.all(COLONNES.map(([colonne]) => nombre(total, colonne)));
 
   await etape(1, async () => {
     await page.goto('/comptabilite');
     await ouvrirOnglet(page, /Tableau pharmacien/);
     await expect(page.getByText('Tableau de bord pharmacien')).toBeVisible();
   });
+
+  let totauxJournaliers: number[] = [];
 
   await etape(2, async () => {
     await saisirDate(page, 'dateDebut', debut);
@@ -27,6 +71,17 @@ scenario('CPT-06', async ({ etape, page }) => {
     // distinctes. Une seule ligne signifierait que la période n'a pas été prise en compte.
     await expect(lignes.nth(1)).toBeVisible();
     await expect(lignes.first()).toContainText(/\d{2}\/\d{2}\/\d{4}/);
+
+    // 1. Le pied de table totalise ce que les lignes portent — et rien de plus.
+    for (const [colonne, libelle] of COLONNES) {
+      expect(await nombre(total, colonne), `total ${libelle}`).toBe(await sommeColonne(colonne));
+    }
+
+    totauxJournaliers = await totauxDuPied();
+    expect(
+      totauxJournaliers[3],
+      'un tableau dont tout est à zéro ne prouverait rien',
+    ).toBeGreaterThan(0);
   });
 
   await etape(3, async () => {
@@ -35,8 +90,23 @@ scenario('CPT-06', async ({ etape, page }) => {
     await page.getByLabel('Mensuel').check();
     await rechercher(page);
     // Le mensuel condense : la colonne DATE ne porte plus un jour mais un mois. C'est le
-    // seul changement visible, et donc la seule chose à affirmer.
+    // seul changement visible dans la forme.
     await expect(lignes.first()).not.toContainText(/\d{2}\/\d{2}\/\d{4}/);
     await expect(lignes.first()).toContainText(/\d{4}/);
+
+    // 2. Condenser n'est pas recalculer : ce sont les mêmes ventes, donc les mêmes totaux.
+    const totauxMensuels = await totauxDuPied();
+    for (const [rang, [, libelle]] of COLONNES.entries()) {
+      expect(totauxMensuels[rang], `total ${libelle} après regroupement mensuel`).toBe(
+        totauxJournaliers[rang],
+      );
+    }
+
+    // Et le pied continue de totaliser ses lignes, moins nombreuses.
+    for (const [colonne, libelle] of COLONNES) {
+      expect(await nombre(total, colonne), `total mensuel ${libelle}`).toBe(
+        await sommeColonne(colonne),
+      );
+    }
   });
 });

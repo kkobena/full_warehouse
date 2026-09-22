@@ -11,7 +11,8 @@ import { scenario } from '../../src/scenario';
  * Comme pour les péremptions (STK-35), l'export reprend le PÉRIMÈTRE FILTRÉ : un procès-verbal
  * se fait pour une période et un magasin donnés, pas pour l'historique entier.
  *
- * Parcours en LECTURE : il ouvre le choix du format sans produire le document.
+ * Parcours en LECTURE des données, mais il produit le procès-verbal — le document qui justifie
+ * la destruction auprès de l'inspection.
  */
 scenario('STK-45', async ({ etape, page }) => {
   await etape(1, async () => {
@@ -29,5 +30,9 @@ scenario('STK-45', async ({ etape, page }) => {
     await expect(page.getByRole('button', { name: 'PDF' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Excel' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Csv' })).toBeVisible();
+
+    const telechargement = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'PDF' }).click();
+    expect((await telechargement).suggestedFilename()).toMatch(/\.(pdf|xlsx|xls|csv)$/i);
   });
 });

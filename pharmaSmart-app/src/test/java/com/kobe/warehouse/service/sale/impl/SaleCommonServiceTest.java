@@ -16,6 +16,7 @@ import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.errors.*;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
@@ -56,8 +57,10 @@ class SaleCommonServiceTest {
         user.setMagasin(new Magasin());
         storage = new Storage();
         storage.setId(4);
+        // Calculateur réel par-dessus la fabrique doublée : les vérifications sur getService
+        // portent toujours, puisque c'est lui qui la sollicite désormais.
         service = new TestableSaleCommonService(referenceService, storageService, userRepository,
-            saleLineServiceFactory, cashRegisterService, posteRepository, displayService,
+            new SaleAmountCalculator(saleLineServiceFactory), cashRegisterService, posteRepository, displayService,
             idGeneratorService, new ObjectMapper(), configurationService);
         lenient().when(storageService.getUser()).thenReturn(user);
         lenient().when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(storage);
@@ -339,11 +342,11 @@ class SaleCommonServiceTest {
 
     private static final class TestableSaleCommonService extends SaleCommonService {
         private TestableSaleCommonService(ReferenceService referenceService, StorageService storageService,
-            UserRepository userRepository, SaleLineServiceFactory factory,
+            UserRepository userRepository, SaleAmountCalculator calculator,
             CashRegisterService cashRegisterService, PosteRepository posteRepository,
             CustomerDisplayService displayService, SaleIdGeneratorService idGenerator,
             ObjectMapper objectMapper, AppConfigurationService configurationService) {
-            super(referenceService, storageService, userRepository, factory, cashRegisterService,
+            super(referenceService, storageService, userRepository, calculator, cashRegisterService,
                 posteRepository, displayService, idGenerator, objectMapper, configurationService);
         }
 

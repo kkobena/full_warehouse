@@ -122,10 +122,10 @@ public class TiersPayantCalculationService {
             lineOutput.setMontant(cappedAmount);
             lineOutput.setFinalTaux(calculateFinalTaux(cappedAmount, result.getTotalSaleAmount()));
 
-            // Add TVA repartitions for this third-party
+            // Add TVA repartitions for this third-party, brought back onto the amount actually due
             Map<Integer, TvaRepartitionDto> tvaMap = tiersPayantTvaRepartitions.get(tpInput.getClientTiersPayantId());
             if (tvaMap != null) {
-                lineOutput.setRepartitions(new ArrayList<>(tvaMap.values()));
+                lineOutput.setRepartitions(normaliserRepartitions(new ArrayList<>(tvaMap.values()), cappedAmount));
             }
 
             lineOutputs.add(lineOutput);
@@ -238,6 +238,55 @@ public class TiersPayantCalculationService {
 
         itemShare.setTotalReimbursedAmount(totalPartTiersPayant);
         return itemShare;
+    }
+
+    /**
+     * Ramène la ventilation par taux de TVA sur le montant effectivement dû.
+     *
+     * <p>Les parts sont calculées article par article, avant plafonnement, et leur somme vaut donc
+     * le montant brut. Une fois un plafond appliqué, la ligne facturée porte un montant plus petit
+     * que sa propre ventilation : la facture annonce un total que le détail des taux contredit.
+     * Même sans plafond, les parts non arrondies peuvent s'écarter du montant arrondi.
+     *
+     * <p>La répartition se fait au prorata, puis le résidu d'arrondi est porté sur la part la plus
+     * grosse — c'est celle où il pèse le moins. L'invariant obtenu : la somme des
+     * {@code montantTtc} égale exactement le montant de la ligne.
+     */
+    private List<TvaRepartitionDto> normaliserRepartitions(List<TvaRepartitionDto> repartitions, BigDecimal montantLigne) {
+        BigDecimal total = repartitions.stream()
+            .map(TvaRepartitionDto::getMontantTtc)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (repartitions.isEmpty() || total.compareTo(BigDecimal.ZERO) == 0) {
+            return repartitions;
+        }
+
+        BigDecimal cumul = BigDecimal.ZERO;
+        for (TvaRepartitionDto repartition : repartitions) {
+            BigDecimal part = repartition.getMontantTtc()
+                .multiply(montantLigne)
+                .divide(total, SCALE_MONEY, ROUNDING_MODE);
+            appliquerMontantTtc(repartition, part);
+            cumul = cumul.add(part);
+        }
+
+        BigDecimal residu = montantLigne.subtract(cumul);
+        if (residu.compareTo(BigDecimal.ZERO) != 0) {
+            TvaRepartitionDto plusGrosse = repartitions.stream()
+                .max(Comparator.comparing(TvaRepartitionDto::getMontantTtc))
+                .orElseThrow();
+            appliquerMontantTtc(plusGrosse, plusGrosse.getMontantTtc().add(residu));
+        }
+        return repartitions;
+    }
+
+    /** Réécrit une part à partir de son seul TTC : le HT et la TVA en découlent. */
+    private void appliquerMontantTtc(TvaRepartitionDto repartition, BigDecimal montantTtc) {
+        TvaRepartitionDto recalculee = calculateTvaRepartition(montantTtc, repartition.getTva());
+        repartition.setMontantTtc(recalculee.getMontantTtc());
+        repartition.setMontantHt(recalculee.getMontantHt());
+        repartition.setMontantTva(recalculee.getMontantTva());
+        repartition.setMontantNet(recalculee.getMontantNet());
     }
 
     /**

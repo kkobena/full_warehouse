@@ -3,6 +3,8 @@ package com.kobe.warehouse.service.financiel_transaction.integration;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashFund;
 import com.kobe.warehouse.domain.CashRegister;
+import com.kobe.warehouse.domain.DifferePaymentItem;
+import com.kobe.warehouse.domain.DifferePayment;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.Magasin;
@@ -255,6 +257,21 @@ abstract class AbstractFinancialTransactionIntegrationTest {
 
     /** Un encaissement rattaché à la vente et à la caisse. */
     protected SalePayment reglement(Sales vente, CashRegister caisse, String codeMode, int montant) {
+        return reglement(vente, caisse, codeMode, montant, vente.getSaleDate());
+    }
+
+    /**
+     * Le même règlement, mais encaissé un autre jour que celui de la vente — le cas du client qui
+     * revient solder son ardoise. La date d'encaissement entre dans l'identifiant composite de
+     * {@code payment_transaction} (table partitionnée) : elle se pose à la création, jamais après.
+     */
+    protected SalePayment reglement(
+        Sales vente,
+        CashRegister caisse,
+        String codeMode,
+        int montant,
+        java.time.LocalDate dateEncaissement
+    ) {
         SalePayment paiement = new SalePayment();
         // payment_transaction est partitionnée par date : son identifiant est composite et explicite.
         paiement.setId(transactionIdGeneratorService.nextId());
@@ -265,7 +282,7 @@ abstract class AbstractFinancialTransactionIntegrationTest {
         paiement.setExpectedAmount(montant);
         paiement.setMontantVerse(montant);
         paiement.setReelAmount(montant);
-        paiement.setTransactionDate(vente.getSaleDate());
+        paiement.setTransactionDate(dateEncaissement);
         paiement.setCreatedAt(vente.getCreatedAt());
         paiement.setCategorieChiffreAffaire(CategorieChiffreAffaire.CA);
         paiement.setTypeFinancialTransaction(TypeFinancialTransaction.CASH_SALE);
@@ -275,6 +292,45 @@ abstract class AbstractFinancialTransactionIntegrationTest {
         em.persist(paiement);
         em.flush();
         return paiement;
+    }
+
+    /**
+     * Le client revient solder son ardoise. Ce règlement-là n'est <b>pas</b> un {@code SalePayment} :
+     * il s'inscrit dans {@code differe_payment_item}, et le service remet le reste à payer de la
+     * vente à zéro. C'est ce que reproduit ce décor, faute de quoi le cas le plus fréquent de la
+     * base réelle — 70 ventes sur le jeu de démonstration — reste hors de portée des tests.
+     */
+    protected DifferePaymentItem reglementDiffere(Sales vente, CashRegister caisse, int montant, LocalDate dateEncaissement) {
+        DifferePayment paiement = new DifferePayment();
+        paiement.setId(transactionIdGeneratorService.nextId());
+        paiement.setTransactionDate(dateEncaissement);
+        paiement.setCashRegister(caisse);
+        paiement.setPaymentMode(modePaiement("CASH"));
+        paiement.setPaidAmount(montant);
+        paiement.setExpectedAmount(montant);
+        paiement.setMontantVerse(montant);
+        paiement.setReelAmount(montant);
+        paiement.setCreatedAt(java.time.LocalDateTime.now());
+        paiement.setCategorieChiffreAffaire(CategorieChiffreAffaire.CA);
+        paiement.setTypeFinancialTransaction(TypeFinancialTransaction.REGLEMENT_DIFFERE);
+        em.persist(paiement);
+
+        DifferePaymentItem item = new DifferePaymentItem();
+        item.setSale(vente);
+        item.setDifferePayment(paiement);
+        item.setPaidAmount(montant);
+        item.setExpectedAmount(montant);
+        em.persist(item);
+
+        // Le service de règlement solde la vente : c'est ce geste qui effaçait le crédit de la
+        // journée d'origine avant le correctif de V2.1.1.
+        vente.setRestToPay(vente.getRestToPay() - montant);
+        vente.setPayrollAmount(vente.getPayrollAmount() + montant);
+        if (vente.getRestToPay() <= 0) {
+            vente.setPaymentStatus(PaymentStatus.PAYE);
+        }
+        em.flush();
+        return item;
     }
 
     /**

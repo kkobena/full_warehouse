@@ -14,7 +14,7 @@ import { scenario } from '../../src/scenario';
  * Dans les deux cas, le PDF reprend ce qui est à l'écran, filtres compris : on transmet ce
  * qu'on a vérifié, pas un état recalculé autrement.
  *
- * Parcours en LECTURE : il montre les deux boutons sans déclencher de téléchargement.
+ * Parcours en LECTURE des données, mais il produit le fichier du détail fournisseur.
  */
 scenario('ACH-63', async ({ etape, page }) => {
   const lignes = page.locator('tbody tr').filter({ visible: true });
@@ -30,6 +30,11 @@ scenario('ACH-63', async ({ etape, page }) => {
   await etape(2, async () => {
     // Le détail d'un fournisseur porte son propre export, limité à lui.
     await lignes.first().click();
-    await expect(page.getByRole('button', { name: 'Exporter en PDF' }).nth(1)).toBeVisible();
+    const exportDetail = page.getByRole('button', { name: 'Exporter en PDF' }).nth(1);
+    await expect(exportDetail).toBeVisible();
+
+    const telechargement = page.waitForEvent('download');
+    await exportDetail.click();
+    expect((await telechargement).suggestedFilename()).toMatch(/\.(pdf|xlsx|xls|csv)$/i);
   });
 });

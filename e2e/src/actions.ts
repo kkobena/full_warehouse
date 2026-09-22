@@ -533,6 +533,33 @@ export async function saisirMontant(page: Page, selecteur: string, montant: stri
  *  2. **attendre la suggestion, pas un délai.** La recherche interroge le serveur ; cliquer
  *     sur `.ng-option` sans l'avoir vue arrive une fois sur trois sur une liste vide.
  */
+/**
+ * Lit le stock actuel d'un produit sur sa fiche, tel que le pharmacien le lit.
+ *
+ * <p>C'est la mesure qui permet de fermer la boucle d'un parcours : vendre, recevoir ou ajuster
+ * doit se retrouver ici. Sans elle, un parcours ne peut affirmer que « l'écran est revenu au
+ * panier vide » — ce qui reste vrai même si le stock n'a pas bougé.
+ *
+ * <p>La valeur est rendue par le pipe `number`, donc espacée par milliers et suivie de « u » :
+ * on ne garde que les chiffres.
+ */
+export async function lireStockProduit(page: Page, libelle: string): Promise<number> {
+  await page.goto('/produits');
+  await chercherAuCatalogue(page, libelle);
+  await page.locator('tbody tr').filter({ visible: true }).first().click();
+
+  const valeur = page
+    .locator('.kpi-item')
+    .filter({ has: page.locator('.kpi-label', { hasText: 'Stock actuel' }) })
+    .locator('.kpi-value');
+  await expect(valeur).toBeVisible();
+
+  const texte = await valeur.innerText();
+  const chiffres = texte.replace(/[^\d-]/g, '');
+  expect(chiffres, `Stock illisible pour ${libelle} : « ${texte} »`).not.toBe('');
+  return Number(chiffres);
+}
+
 export async function chercherProduit(page: Page, libelle: string): Promise<void> {
   const champ = page.locator('#produitbox');
   // Le critère est l'OUVERTURE de la liste, pas le focus. L'écran de vente donne lui-même le

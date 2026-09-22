@@ -11,6 +11,7 @@ import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.repository.ThirdPartySaleRepository;
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.ThirdPartyCalculationManager;
 import com.kobe.warehouse.service.sale.calculation.TiersPayantCalculationService;
@@ -48,7 +49,7 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
     private final SalesLineService salesLineService;
     private final ThirdPartySaleRepository thirdPartySaleRepository;
     private final PrixRererenceService prixRererenceService;
-    private final SaleCommonService saleCommonService;
+    private final SaleAmountCalculator saleAmountCalculator;
 
     public ThirdPartyCalculationManagerImpl(
         TiersPayantCalculationService tiersPayantCalculationService,
@@ -56,14 +57,14 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
         SaleLineServiceFactory saleLineServiceFactory,
         ThirdPartySaleRepository thirdPartySaleRepository,
         PrixRererenceService prixRererenceService,
-        SaleCommonService saleCommonService
+        SaleAmountCalculator saleAmountCalculator
     ) {
         this.tiersPayantCalculationService = tiersPayantCalculationService;
         this.thirdPartySaleLineService = thirdPartySaleLineService;
         this.salesLineService = saleLineServiceFactory.getService(TypeVente.ThirdPartySales);
         this.thirdPartySaleRepository = thirdPartySaleRepository;
         this.prixRererenceService = prixRererenceService;
-        this.saleCommonService = saleCommonService;
+        this.saleAmountCalculator = saleAmountCalculator;
     }
 
     @Override
@@ -72,7 +73,7 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
         boolean isUpdate,
         List<CompteTiersPayant> clientTiersPayants
     ) {
-        saleCommonService.updateAmounts(thirdPartySales);
+        saleAmountCalculator.updateAmounts(thirdPartySales);
         return reComputeAndApplyAmounts(thirdPartySales, clientTiersPayants, isUpdate);
     }
 
@@ -104,7 +105,7 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
         int totalPatientShare = output.getTotalPatientShare().intValue();
         thirdPartySales.setPartTiersPayant(output.getTotalTiersPayant().intValue());
         thirdPartySales.setPartAssure(totalPatientShare);
-        thirdPartySales.setAmountToBePaid(saleCommonService.roundedAmount(totalPatientShare));
+        thirdPartySales.setAmountToBePaid(saleAmountCalculator.roundedAmount(totalPatientShare));
 
         // Apply results to ThirdPartySaleLine entities
         for (TiersPayantLineOutput lineResult : output.getTiersPayantLines()) {
@@ -154,13 +155,13 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
 
     @Override
     public String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales) {
-        saleCommonService.computeSaleEagerAmount(thirdPartySales);
+        saleAmountCalculator.computeSaleEagerAmount(thirdPartySales);
         return upddateThirdPartySaleAmounts(thirdPartySales, true, null);
     }
 
     @Override
     public void upddateSaleAmountsOnRemovingItem(ThirdPartySales thirdPartySales) {
-        saleCommonService.computeSaleEagerAmount(thirdPartySales);
+        saleAmountCalculator.computeSaleEagerAmount(thirdPartySales);
         reComputeAndApplyAmounts(thirdPartySales, null, true);
     }
 

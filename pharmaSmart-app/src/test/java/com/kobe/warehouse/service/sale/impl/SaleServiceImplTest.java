@@ -62,6 +62,7 @@ import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
@@ -164,7 +165,7 @@ class SaleServiceImplTest {
         saleService = new SaleServiceImpl(
             salesRepository, userRepository, uninsuredCustomerRepository,
             paymentModeRepository, storageService, cashSaleRepository,
-            cashRegisterService, saleLineServiceFactory,
+            cashRegisterService, saleLineServiceFactory, new SaleAmountCalculator(saleLineServiceFactory),
             paymentService, referenceService, posteRepository,
             utilisationCleSecuriteService, remiseRepository,
             customerDisplayService, idGeneratorService, objectMapper,

@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -178,12 +179,21 @@ public class RecapProduitVenduResource {
         }
     }
 
-    @GetMapping("/create-inventory")
+    /**
+     * Le périmètre filtré du récapitulatif devient un inventaire à compter.
+     *
+     * <p>{@code POST} et non {@code GET} : l'appel crée un inventaire et ses lignes. Le front a
+     * toujours posté ; le verbe exposé ici était {@code GET}, si bien que l'action rendait 405 et
+     * n'a jamais pu aboutir depuis l'interface. Un {@code GET} qui écrit se ferait de surcroît
+     * déclencher par n'importe quel préchargement.
+     */
+    @PostMapping("/create-inventory")
     public ResponseEntity<Integer> createInventoryFromRecapProduitVendu(@Valid RecapProduitVenduRequestParam requestParam) {
         return ResponseEntity.ok().body(recapProduitVenduService.createInventoryFromRecapProduitVendu(requestParam));
     }
 
-    @GetMapping("/create-suggestion")
+    /** Même inversion de verbe que ci-dessus, et même conséquence : l'action était injouable. */
+    @PostMapping("/create-suggestion")
     public ResponseEntity<Integer> createSuggestionFromRecapProduitVendu(@Valid RecapProduitVenduRequestParam requestParam) {
         return ResponseEntity.ok().body(recapProduitVenduService.createSuggestionFromRecapProduitVendu(requestParam));
     }

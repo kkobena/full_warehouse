@@ -28,8 +28,26 @@ scenario('ACH-41', async ({ etape, page }) => {
   await etape(2, async () => {
     // Le champ UG est à côté du champ Reçu, et la tabulation y mène : la saisie des gratuites
     // fait partie du geste de réception, pas d'une correction ultérieure.
+    //
+    // « Stock après » chiffre en direct ce que la ligne fera entrer. C'est lui qui prouve la
+    // règle énoncée plus haut — les gratuites ENTRENT en stock : vérifier que le champ UG
+    // contient bien le « 1 » qu'on vient d'y taper ne disait rien de leur comptabilisation.
+    const stockApres = page.locator('.rh-seq__row--result .rh-seq__row-value');
+    await expect(stockApres).toBeVisible();
+    const lireStockApres = async () =>
+      Number((await stockApres.innerText()).replace(/[^\d-]/g, ''));
+
+    // Le champ « Reçu » arrive pré-rempli de la quantité commandée : on part donc d'une valeur
+    // qu'on pose soi-même, puis on n'ajoute qu'une gratuite. L'écart mesuré est alors celui de
+    // l'UG seule, ce qui est exactement la règle à éprouver.
     await page.locator('#rh-qty').fill('2');
+    await expect.poll(lireStockApres, { timeout: 5000 }).toBeGreaterThan(0);
+    const sansGratuite = await lireStockApres();
+
     await page.locator('#rh-ug').fill('1');
     await expect(page.locator('#rh-ug')).toHaveValue('1');
+    // Une gratuite de plus, une unité de stock de plus : elles entrent au même titre que les
+    // facturées. Vérifier que le champ contient « 1 » ne disait rien de leur comptabilisation.
+    await expect.poll(lireStockApres, { timeout: 5000 }).toBe(sansGratuite + 1);
   });
 });

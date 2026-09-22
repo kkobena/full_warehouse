@@ -203,6 +203,52 @@ class InventoryLotServiceIntegrationTest extends AbstractInventaireIntegrationTe
         assertEquals(-3, lots.getFirst().gap());
     }
 
+    /**
+     * La grille des lots porte sa propre recherche — sur le libellé, le code CIP et le numéro de
+     * lot. Aucun test ne l'exerçait, alors qu'elle passe par la même construction de requête que
+     * la grille produit.
+     */
+    @Test
+    @DisplayName("La recherche des lots porte sur le libellé comme sur le numéro de lot")
+    void rechercheSurLesLots() {
+        StoreInventory inventaire = inventaire(InventoryCategory.MAGASIN, rayon);
+        Produit doliprane = produitEnStock(unique("DOLIPRANE LOTS"), 30);
+        StoreInventoryLine ligne = ligne(inventaire, doliprane);
+        ligneDeLot(ligne, lot(doliprane, "LOT-CHERCHE", LocalDate.now().plusYears(1), 20), null);
+        Produit autre = produitEnStock(unique("EFFERALGAN LOTS"), 12);
+        ligne(inventaire, autre);
+        viderLeCache();
+
+        assertEquals(1, rechercher(inventaire, "DOLIPRANE LOTS").getTotalElements());
+        assertEquals(1, rechercher(inventaire, "LOT-CHERCHE").getTotalElements());
+        assertEquals(0, rechercher(inventaire, "INTROUVABLE").getTotalElements());
+    }
+
+    /**
+     * Même défaut que sur la grille produit : le terme était inséré entre apostrophes dans une
+     * chaîne passée à {@code createNativeQuery}, et une apostrophe dans le terme rendait toute la
+     * grille. Lié comme paramètre, il ne désigne rien.
+     */
+    @Test
+    @DisplayName("Un terme de recherche hostile ne détourne pas la grille des lots")
+    void rechercheHostileSurLesLots() {
+        StoreInventory inventaire = inventaire(InventoryCategory.MAGASIN, rayon);
+        Produit doliprane = produitEnStock(unique("DOLIPRANE HOSTILE"), 30);
+        StoreInventoryLine ligne = ligne(inventaire, doliprane);
+        ligneDeLot(ligne, lot(doliprane, unique("LOT-H"), LocalDate.now().plusYears(1), 20), null);
+        ligne(inventaire, produitEnStock(unique("EFFERALGAN HOSTILE"), 12));
+        viderLeCache();
+
+        assertEquals(0, rechercher(inventaire, "' OR 1=1 OR ''='").getTotalElements(),
+            "le terme est une donnée, pas du SQL");
+    }
+
+    private Page<StoreInventoryLotLineRecord> rechercher(StoreInventory inventaire, String terme) {
+        return services.inventoryLotService.findLotFlatPage(
+            new StoreInventoryLineFilterRecord(inventaire.getId(), terme, null, null, null),
+            PREMIERE_PAGE);
+    }
+
     private StoreInventoryLineFilterRecord filtre(StoreInventory inventaire) {
         return new StoreInventoryLineFilterRecord(inventaire.getId(), null, null, null, null);
     }

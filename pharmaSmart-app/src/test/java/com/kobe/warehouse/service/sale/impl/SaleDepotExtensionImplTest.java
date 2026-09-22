@@ -39,6 +39,7 @@ import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.SalesManager;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
@@ -98,6 +99,7 @@ class SaleDepotExtensionImplTest {
         lenient().when(posteRepository.findFirstByAddressOrName(any(), any())).thenReturn(Optional.empty());
         service = new SaleDepotExtensionImpl(
             remiseRepository, referenceService, storageService, userRepository, lineServiceFactory,
+            new SaleAmountCalculator(lineServiceFactory),
             cashRegisterService, posteRepository, customerDisplayService, idGeneratorService,
             repository, stockUpdateService, inventoryTransactionService, new ObjectMapper(),
             salesManager, appConfigurationService

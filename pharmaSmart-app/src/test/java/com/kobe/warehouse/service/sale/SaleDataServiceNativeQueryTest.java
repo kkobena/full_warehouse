@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.sale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,6 +38,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -136,6 +138,49 @@ class SaleDataServiceNativeQueryTest {
 
         assertEquals(12_345L, total);
         verify(countQuery).setParameter("magasinId", 12L);
+    }
+
+    /**
+     * La nature de vente arrive telle quelle de la requête HTTP ({@code @RequestParam Set<String>
+     * types}) et finit dans une clause passée à {@code createNativeQuery}. Concaténée, elle y
+     * serait interprétée comme du SQL ; elle doit donc être liée comme un paramètre, et sa valeur
+     * n'apparaître nulle part dans la requête.
+     */
+    @Test
+    void bindsNatureVenteInsteadOfInliningIt() {
+        ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+        when(entityManager.createNativeQuery(anyString())).thenReturn(countQuery);
+        when(countQuery.getSingleResult()).thenReturn(0L);
+        String hostile = "COMPTANT' OR '1'='1";
+
+        service.totalVenteTerminees(
+            null, null, null, null, null, false, null,
+            Set.of(hostile), Set.of(), null
+        );
+
+        verify(entityManager).createNativeQuery(sql.capture());
+        assertFalse(sql.getValue().contains(hostile), "la valeur ne doit pas atteindre le SQL");
+        assertTrue(sql.getValue().contains("s.nature_vente IN (:natureVente0)"));
+        verify(countQuery).setParameter("natureVente0", hostile);
+    }
+
+    /** Les statuts et catégories de CA suivent la même voie, même s'ils viennent d'énumérations. */
+    @Test
+    void bindsStatutsAndCategoriesToo() {
+        ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+        when(entityManager.createNativeQuery(anyString())).thenReturn(countQuery);
+        when(countQuery.getSingleResult()).thenReturn(0L);
+
+        service.totalVenteTerminees(
+            null, null, null, null, null, false, null,
+            null, Set.of(SalesStatut.CLOSED), Set.of(CategorieChiffreAffaire.CA)
+        );
+
+        verify(entityManager).createNativeQuery(sql.capture());
+        assertFalse(sql.getValue().contains("'CLOSED'"));
+        assertFalse(sql.getValue().contains("'CA'"));
+        verify(countQuery).setParameter("statut0", "CLOSED");
+        verify(countQuery).setParameter("ca0", "CA");
     }
 
     @Test

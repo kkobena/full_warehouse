@@ -36,5 +36,24 @@ scenario('HOME-09', async ({ etape, page }) => {
     const valeurs = montants.map(m => Number(m.replace(/\D/g, '')));
     expect(valeurs.length).toBeGreaterThan(1);
     expect(valeurs).toEqual([...valeurs].sort((a, b) => b - a));
+
+    // Le badge doit désigner le bon fournisseur : « #1 » porte le plus gros montant de la
+    // période, sinon le classement se contredit lui-même à la première ligne.
+    const premier = bloc.locator('li').filter({ hasText: /#1/ }).first();
+    const nom = (await premier.locator('.fw-semibold').first().innerText()).trim();
+    const montantDe = async (fournisseur: string) =>
+      Number(
+        (await bloc.locator('li').filter({ hasText: fournisseur }).first()
+          .locator('.fs-6').innerText()).replace(/\D/g, ''),
+      );
+
+    const surDouzeMois = await montantDe(nom);
+    expect(surDouzeMois, 'le premier rang porte le plus gros montant').toBe(Math.max(...valeurs));
+
+    // Douze mois englobent trente jours : le cumul du même fournisseur ne peut pas diminuer
+    // quand on élargit la période. On le suit par son NOM, l'ordre changeant avec la période.
+    await bloc.getByRole('button', { name: '30 j', exact: true }).click();
+    await expect.poll(() => montantDe(nom), { timeout: 5000 })
+      .toBeLessThanOrEqual(surDouzeMois);
   });
 });

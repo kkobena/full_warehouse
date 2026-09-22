@@ -10,7 +10,8 @@ import { scenario } from '../../src/scenario';
  * payeur, lignes — et non l'état du moment : une facture réglée depuis reste identique à
  * celle qui a été envoyée.
  *
- * Parcours en LECTURE : il montre l'action sans produire le fichier.
+ * Parcours en LECTURE des données, mais il produit la facture : c'est le document qui part
+ * chez le tiers payant, et un export en échec ne se voit qu'à l'ouverture du fichier.
  */
 scenario('FAC-10', async ({ etape, page }) => {
   const lignes = page.locator('tbody tr').filter({ visible: true });
@@ -23,7 +24,11 @@ scenario('FAC-10', async ({ etape, page }) => {
 
   await etape(2, async () => {
     // L'export est offert sur la ligne, sans avoir à ouvrir la facture.
-    await expect(lignes.first().getByRole('button', { name: 'Exporter la facture en PDF' }))
-      .toBeVisible();
+    const exporter = lignes.first().getByRole('button', { name: 'Exporter la facture en PDF' });
+    await expect(exporter).toBeVisible();
+
+    const telechargement = page.waitForEvent('download');
+    await exporter.click();
+    expect((await telechargement).suggestedFilename()).toMatch(/\.(pdf|xlsx|xls|csv)$/i);
   });
 });

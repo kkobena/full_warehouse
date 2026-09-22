@@ -38,7 +38,19 @@ scenario('ACH-42', async ({ etape, page }) => {
     // commande, pas l'inverse.
     const commande = Number((await ecran.innerText()).match(/Commandé\s+(\d+)/)?.[1] ?? '0');
     expect(commande).toBeGreaterThan(0);
+
+    // « Stock après » chiffre en direct ce que la ligne fera entrer. Corriger la quantité de
+    // trois unités doit l'augmenter de trois, ni plus ni moins : c'est la seule façon de
+    // s'assurer que la correction porte sur ce qui entrera vraiment en stock.
+    const stockApres = page.locator('.rh-seq__row--result .rh-seq__row-value');
+    const lireStockApres = async () =>
+      Number((await stockApres.innerText()).replace(/[^\d-]/g, ''));
+    await page.locator('#rh-qty').fill(String(commande));
+    await expect.poll(lireStockApres, { timeout: 5000 }).toBeGreaterThan(0);
+    const avantCorrection = await lireStockApres();
+
     await page.locator('#rh-qty').fill(String(commande + 3));
+    await expect.poll(lireStockApres, { timeout: 5000 }).toBe(avantCorrection + 3);
     // La quantité se valide au clavier : le bouton reprend le même geste, mais la valeur
     // doit d'abord être confirmée dans le champ.
     await page.locator('#rh-qty').press('Enter');

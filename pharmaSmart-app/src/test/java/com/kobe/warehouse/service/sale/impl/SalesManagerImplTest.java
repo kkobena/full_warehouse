@@ -11,6 +11,7 @@ import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.PlafondVenteException;
 import com.kobe.warehouse.service.errors.StockException;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
@@ -41,7 +42,7 @@ class SalesManagerImplTest {
     @Mock private VenteDepotRepository venteDepotRepository;
     @Mock private SaleService saleService;
     @Mock private ThirdPartySaleService thirdPartySaleService;
-    @Mock private SaleCommonService saleCommonService;
+    @Mock private SaleAmountCalculator saleAmountCalculator;
 
     private SalesManagerImpl salesManager;
     private CashSale testCashSale;
@@ -68,7 +69,7 @@ class SalesManagerImplTest {
             venteDepotRepository,
             saleService,
             thirdPartySaleService,
-            saleCommonService
+            saleAmountCalculator
         );
 
         setupTestData();
@@ -222,9 +223,9 @@ class SalesManagerImplTest {
 
         when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
         doNothing().when(salesLineService).incrementItemQuantityRequested(any(), any(), anyInt());
-        doNothing().when(saleCommonService).computeSaleEagerAmount(any());
-        doNothing().when(saleCommonService).proccessDiscount(any());
-        doNothing().when(saleCommonService).arrondirMontantCaisse(any());
+        doNothing().when(saleAmountCalculator).computeSaleEagerAmount(any());
+        doNothing().when(saleAmountCalculator).proccessDiscount(any());
+        doNothing().when(saleAmountCalculator).arrondirMontantCaisse(any());
 
         // When
         SaleLineDTO result = salesManager.updateItemQuantityRequested(dto, testVenteDepot,true);
@@ -232,9 +233,9 @@ class SalesManagerImplTest {
         // Then
         assertNotNull(result);
         verify(salesLineService).incrementItemQuantityRequested(eq(dto), eq(testSalesLine), eq(1));
-        verify(saleCommonService).computeSaleEagerAmount(testVenteDepot);
-        verify(saleCommonService).proccessDiscount(testVenteDepot);
-        verify(saleCommonService).arrondirMontantCaisse(testVenteDepot);
+        verify(saleAmountCalculator).computeSaleEagerAmount(testVenteDepot);
+        verify(saleAmountCalculator).proccessDiscount(testVenteDepot);
+        verify(saleAmountCalculator).arrondirMontantCaisse(testVenteDepot);
         verify(venteDepotRepository).saveAndFlush(testVenteDepot);
         verify(customerDisplayService).displaySaleTotal(testVenteDepot.getNetAmount());
     }
@@ -273,9 +274,9 @@ class SalesManagerImplTest {
 
         when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
         doNothing().when(salesLineService).updateItemRegularPrice(any(), any(), anyInt());
-        doNothing().when(saleCommonService).computeSaleEagerAmount(any());
-        doNothing().when(saleCommonService).proccessDiscount(any());
-        doNothing().when(saleCommonService).arrondirMontantCaisse(any());
+        doNothing().when(saleAmountCalculator).computeSaleEagerAmount(any());
+        doNothing().when(saleAmountCalculator).proccessDiscount(any());
+        doNothing().when(saleAmountCalculator).arrondirMontantCaisse(any());
 
         // When
         SaleLineDTO result = salesManager.updateItemRegularPrice(dto, testVenteDepot);
@@ -387,10 +388,10 @@ class SalesManagerImplTest {
         testVenteDepot.getSalesLines().add(testSalesLine);
 
         doNothing().when(salesLineService).deleteSaleLine(any());
-        doNothing().when(saleCommonService).computeSaleEagerAmountOnRemovingItem(any(), any());
-        doNothing().when(saleCommonService).proccessDiscount(any());
-        doNothing().when(saleCommonService).computeSaleLazyAmountOnRemovingItem(any(), any());
-        doNothing().when(saleCommonService).computeTvaAmountOnRemovingItem(any(), any());
+        doNothing().when(saleAmountCalculator).computeSaleEagerAmountOnRemovingItem(any(), any());
+        doNothing().when(saleAmountCalculator).proccessDiscount(any());
+        doNothing().when(saleAmountCalculator).computeSaleLazyAmountOnRemovingItem(any(), any());
+        doNothing().when(saleAmountCalculator).computeTvaAmountOnRemovingItem(any(), any());
 
         // When
         salesManager.deleteSaleLineById(testSalesLine);
@@ -398,10 +399,10 @@ class SalesManagerImplTest {
         // Then
         assertFalse(testVenteDepot.getSalesLines().contains(testSalesLine));
         verify(salesLineService).deleteSaleLine(testSalesLine);
-        verify(saleCommonService).computeSaleEagerAmountOnRemovingItem(testVenteDepot, testSalesLine);
-        verify(saleCommonService).proccessDiscount(testVenteDepot);
-        verify(saleCommonService).computeSaleLazyAmountOnRemovingItem(testVenteDepot, testSalesLine);
-        verify(saleCommonService).computeTvaAmountOnRemovingItem(testVenteDepot, testSalesLine);
+        verify(saleAmountCalculator).computeSaleEagerAmountOnRemovingItem(testVenteDepot, testSalesLine);
+        verify(saleAmountCalculator).proccessDiscount(testVenteDepot);
+        verify(saleAmountCalculator).computeSaleLazyAmountOnRemovingItem(testVenteDepot, testSalesLine);
+        verify(saleAmountCalculator).computeTvaAmountOnRemovingItem(testVenteDepot, testSalesLine);
         verify(venteDepotRepository).save(testVenteDepot);
         verify(customerDisplayService).displaySaleTotal(testVenteDepot.getNetAmount());
     }
@@ -458,9 +459,9 @@ class SalesManagerImplTest {
 
         when(salesLineService.findBySalesIdAndProduitId(any(), anyInt())).thenReturn(Optional.empty());
         when(salesLineService.create(any(), anyInt(), any())).thenReturn(newSalesLine);
-        doNothing().when(saleCommonService).computeSaleEagerAmount(any());
-        doNothing().when(saleCommonService).proccessDiscount(any());
-        doNothing().when(saleCommonService).arrondirMontantCaisse(any());
+        doNothing().when(saleAmountCalculator).computeSaleEagerAmount(any());
+        doNothing().when(saleAmountCalculator).proccessDiscount(any());
+        doNothing().when(saleAmountCalculator).arrondirMontantCaisse(any());
 
         // When
         SaleLineDTO result = salesManager.addOrUpdateSaleLine(dto, testVenteDepot);
@@ -469,7 +470,7 @@ class SalesManagerImplTest {
         assertNotNull(result);
         assertTrue(testVenteDepot.getSalesLines().contains(newSalesLine));
         verify(salesLineService).create(dto, 1, testVenteDepot);
-        verify(saleCommonService).computeSaleEagerAmount(testVenteDepot);
+        verify(saleAmountCalculator).computeSaleEagerAmount(testVenteDepot);
         verify(venteDepotRepository).saveAndFlush(testVenteDepot);
         verify(customerDisplayService).displaySaleTotal(testVenteDepot.getNetAmount());
     }
@@ -485,9 +486,9 @@ class SalesManagerImplTest {
 
         when(salesLineService.getOneById(any())).thenReturn(testSalesLine);
         doNothing().when(salesLineService).updateItemQuantitySold(any(), any(), anyInt());
-        doNothing().when(saleCommonService).computeSaleEagerAmount(any());
-        doNothing().when(saleCommonService).proccessDiscount(any());
-        doNothing().when(saleCommonService).arrondirMontantCaisse(any());
+        doNothing().when(saleAmountCalculator).computeSaleEagerAmount(any());
+        doNothing().when(saleAmountCalculator).proccessDiscount(any());
+        doNothing().when(saleAmountCalculator).arrondirMontantCaisse(any());
 
         // When
         SaleLineDTO result = salesManager.updateItemQuantitySold(dto, testVenteDepot);
@@ -495,7 +496,7 @@ class SalesManagerImplTest {
         // Then
         assertNotNull(result);
         verify(salesLineService).updateItemQuantitySold(testSalesLine, dto, 1);
-        verify(saleCommonService).computeSaleEagerAmount(testVenteDepot);
+        verify(saleAmountCalculator).computeSaleEagerAmount(testVenteDepot);
         verify(venteDepotRepository).saveAndFlush(testVenteDepot);
         verify(customerDisplayService).displaySaleTotal(testVenteDepot.getNetAmount());
     }

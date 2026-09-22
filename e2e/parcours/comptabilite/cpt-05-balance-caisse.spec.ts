@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+import { expect, type Locator } from '@playwright/test';
 import { ouvrirOnglet, rechercher, saisirDate } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
@@ -27,4 +27,35 @@ scenario('CPT-05', async ({ etape, page }) => {
     await expect(page.getByText(/Total TTC/)).toBeVisible();
     await expect(page.locator('#main-content')).not.toContainText('Total TTC 0 FCFA');
   });
+
+  // Une balance dont les colonnes ne se répondent pas n'est pas une balance. Deux identités
+  // la tiennent, et l'écran donne tout ce qu'il faut pour les éprouver — constater qu'un
+  // « Total TTC » non nul s'affiche ne disait rien de leur justesse.
+  const table = page.locator('table').filter({ has: page.getByText('Brut(TTC)') }).first();
+  const nombre = async (ligne: Locator, colonne: number): Promise<number> =>
+    Number((await ligne.locator('td').nth(colonne).innerText()).replace(/[^\d-]/g, ''));
+
+  const lignes = table.locator('tbody tr').filter({ visible: true });
+  const nombreDeTypes = await lignes.count();
+  expect(nombreDeTypes, 'une balance sans ligne ne prouve rien').toBeGreaterThan(0);
+
+  // 1. Ligne à ligne : le net est le brut diminué de la remise.
+  let sommeBrut = 0;
+  let sommeRemise = 0;
+  let sommeNet = 0;
+  for (let rang = 0; rang < nombreDeTypes; rang++) {
+    const brut = await nombre(lignes.nth(rang), 2);
+    const remise = await nombre(lignes.nth(rang), 3);
+    const net = await nombre(lignes.nth(rang), 4);
+    expect(net, `net du type n°${rang + 1}`).toBe(brut - remise);
+    sommeBrut += brut;
+    sommeRemise += remise;
+    sommeNet += net;
+  }
+
+  // 2. Le pied de table totalise les lignes, sans en oublier ni en inventer.
+  const total = table.locator('tfoot tr').first();
+  expect(await nombre(total, 2), 'total brut').toBe(sommeBrut);
+  expect(await nombre(total, 3), 'total remise').toBe(sommeRemise);
+  expect(await nombre(total, 4), 'total net').toBe(sommeNet);
 });

@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.sale.impl;
+package com.kobe.warehouse.service.sale.calculation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -23,14 +23,15 @@ import org.junit.jupiter.api.Test;
  * lignes divergent, les écrans de comptabilité cessent de se recouper.
  */
 @DisplayName("Montant déclarable — cohérence entre la vente et ses lignes")
-class SaleCommonServiceAmountToDeclareTest {
+class SaleAmountCalculatorAmountToDeclareTest {
 
-    private SaleCommonService service;
+    private SaleAmountCalculator service;
 
     @BeforeEach
     void setUp() {
-        // computeSaleEagerAmount ne calcule qu'à partir des lignes : aucun collaborateur n'est sollicité.
-        service = new SaleCommonService(null, null, null, null, null, null, null, null, null, null);
+        // computeSaleEagerAmount ne calcule qu'à partir des lignes : la fabrique de services de
+        // ligne, seul collaborateur du calculateur, n'est sollicitée que par le calcul des remises.
+        service = new SaleAmountCalculator(null);
     }
 
     @Test

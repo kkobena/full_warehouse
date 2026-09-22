@@ -211,7 +211,11 @@ public class TicketZServiceImpl implements TicketZService {
 
         // build summary
         List<TicketZData> summaryData = new ArrayList<>();
-        List<PaymentMode> paymentModes = this.paymentModeService.fetch();
+        // fetchAll() et non fetch() : cette dernière écarte VIREMENT et CH, parce qu'elle sert à
+        // *proposer* les modes à l'encaissement. Ici on ne propose rien, on nomme des modes déjà
+        // encaissés — les écarter faisait retomber getModePaimentLibelle sur son repli, et le
+        // récapitulatif général affichait « CH » là où les cartes caissiers affichaient « CHEQUE ».
+        List<PaymentMode> paymentModes = this.paymentModeService.fetchAll();
         if (userCount.get() >= 1) {
             summary.forEach((modePaimentCode, tuple) -> {
                 String libelleMode = getModePaimentLibelle(modePaimentCode, paymentModes);

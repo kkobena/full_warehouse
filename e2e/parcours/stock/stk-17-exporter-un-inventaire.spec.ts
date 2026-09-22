@@ -11,7 +11,9 @@ import { scenario } from '../../src/scenario';
  * l'écart — figés à la clôture, et non recalculés : c'est la photographie du comptage, pas
  * l'état du stock d'aujourd'hui.
  *
- * Parcours en LECTURE : il ouvre la demande d'export sans produire le fichier.
+ * Parcours en LECTURE des données — il n'écrit rien — mais il produit bien le document : un
+ * export qui échoue rend un fichier vide d'apparence normale, et le service a longtemps ravalé
+ * ses erreurs pour renvoyer une liste vide. Vérifier que le bouton existe ne disait rien de ça.
  */
 scenario('STK-17', async ({ etape, page }) => {
   const lignes = page.locator('tbody tr').filter({ visible: true });
@@ -30,5 +32,12 @@ scenario('STK-17', async ({ etape, page }) => {
     await expect(modale).toContainText('Grouper par');
     await expect(modale).toContainText('Filtre lignes');
     await expect(modale.getByRole('button', { name: 'Exporter PDF' })).toBeVisible();
+
+    // Le document est réellement produit : c'est la seule assertion qui traverse la requête
+    // d'export jusqu'au rendu PDF.
+    const telechargement = page.waitForEvent('download');
+    await modale.getByRole('button', { name: 'Exporter PDF' }).click();
+    const fichier = await telechargement;
+    expect(fichier.suggestedFilename()).toMatch(/\.pdf$/);
   });
 });

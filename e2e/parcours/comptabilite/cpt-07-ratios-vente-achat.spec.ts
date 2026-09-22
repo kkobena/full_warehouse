@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+import { expect, type Locator } from '@playwright/test';
 import { ouvrirOnglet, rechercher, saisirDate } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
@@ -32,5 +32,37 @@ scenario('CPT-07', async ({ etape, page }) => {
     await expect(contenu).toContainText('Ratios');
     await expect(contenu).toContainText("Chiffre d'affaires");
     await expect(contenu).toContainText('Achats');
+
+    // Les deux ratios sont le sujet même de ce scenario : ils doivent se déduire des colonnes
+    // qui les entourent. V/A = Montant Net / (Achats Nets − Avoirs), A/V l'inverse, tous deux
+    // tronqués au centième (RoundingMode.FLOOR côté serveur).
+    //
+    // Les cellules sont lues depuis la FIN : le nombre de colonnes fournisseurs varie avec le
+    // paramétrage, un index depuis le début désignerait une autre colonne d'une officine à
+    // l'autre.
+    const table = page.locator('table').filter({ has: page.getByText('MONTANT NET') }).first();
+    const lignes = table.locator('tbody tr').filter({ visible: true });
+    const nombreDeJours = await lignes.count();
+    expect(nombreDeJours, 'un tableau sans ligne ne prouve rien').toBeGreaterThan(0);
+
+    const auCentieme = (valeur: number) => Math.floor(valeur * 100) / 100;
+
+    for (let rang = 0; rang < nombreDeJours; rang++) {
+      const cellules = (await lignes.nth(rang).locator('td').allInnerTexts())
+        .map(t => Number(t.replace(/\s/g, '').replace(',', '.').replace(/[^\d.-]/g, '')));
+      const n = cellules.length;
+      const net = cellules[4];
+      const avoirs = cellules[n - 4];
+      const achatsNets = cellules[n - 3];
+      const ratioVA = cellules[n - 2];
+      const ratioAV = cellules[n - 1];
+      const achatNet = achatsNets - avoirs;
+
+      if (achatNet === 0 || net === 0) {
+        continue; // le serveur laisse le ratio à zéro plutôt que de diviser par zéro
+      }
+      expect(ratioVA, `V/A de la ligne ${rang + 1}`).toBe(auCentieme(net / achatNet));
+      expect(ratioAV, `A/V de la ligne ${rang + 1}`).toBe(auCentieme(achatNet / net));
+    }
   });
 });

@@ -32,6 +32,7 @@ import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
@@ -89,7 +90,7 @@ class SimplifiedSaleServiceImplTest {
 
         service = new SimplifiedSaleServiceImpl(
             paymentService, repository, referenceService, storageService, userRepository,
-            lineServiceFactory, cashRegisterService, posteRepository, customerDisplayService,
+            lineServiceFactory, new SaleAmountCalculator(lineServiceFactory), cashRegisterService, posteRepository, customerDisplayService,
             idGeneratorService, customerRepository, new ObjectMapper(), appConfigurationService
         );
     }

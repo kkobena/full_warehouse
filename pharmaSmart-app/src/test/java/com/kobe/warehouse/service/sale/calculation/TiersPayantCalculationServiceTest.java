@@ -1363,6 +1363,93 @@ class TiersPayantCalculationServiceTest {
 
     // Helper methods
 
+    /**
+     * Un plafond qui mord réduit le montant facturé. La ventilation par taux de TVA est, elle,
+     * calculée article par article AVANT plafonnement : sans remise à l'échelle, la facture annonce
+     * un total que son propre détail contredit — ce qui se voit sur une facture normalisée.
+     */
+    @Test
+    void testCeilingApplication_tvaRepartitionsFollowCappedAmount() {
+        CalculationInput input = new CalculationInput();
+        input.setNatureVente(NatureVente.ASSURANCE);
+        input.setTotalSalesAmount(new BigDecimal("10000"));
+        input.setSaleItems(List.of(createSaleItem(1L, "6000", 18), createSaleItem(2L, "4000", 9)));
+
+        TiersPayantInput tp = createTiersPayant(1, 1.0f, PrioriteTiersPayant.R0);
+        tp.setPlafondJournalierClient(new BigDecimal("3000"));
+        input.setTiersPayants(Collections.singletonList(tp));
+
+        CalculationResult result = serviceV2.calculate(input);
+
+        TiersPayantLineOutput ligne = result.getTiersPayantLines().getFirst();
+        assertEquals(0, new BigDecimal("3000").compareTo(ligne.getMontant()));
+        assertEquals(
+            0,
+            ligne.getMontant().compareTo(sommeTtc(ligne)),
+            "la ventilation TVA doit totaliser le montant facturé"
+        );
+    }
+
+    /** Même invariant sans plafond : les parts non arrondies ne doivent pas dériver du total. */
+    @Test
+    void testTvaRepartitions_totalTheLineAmountWithoutCeiling() {
+        CalculationInput input = new CalculationInput();
+        input.setNatureVente(NatureVente.ASSURANCE);
+        input.setTotalSalesAmount(new BigDecimal("1755"));
+        input.setSaleItems(List.of(createSaleItem(1L, "1141", 18), createSaleItem(2L, "614", 9)));
+
+        TiersPayantInput tp = createTiersPayant(1, 0.65f, PrioriteTiersPayant.R0);
+        input.setTiersPayants(Collections.singletonList(tp));
+
+        CalculationResult result = serviceV2.calculate(input);
+
+        TiersPayantLineOutput ligne = result.getTiersPayantLines().getFirst();
+        assertEquals(0, ligne.getMontant().compareTo(sommeTtc(ligne)));
+    }
+
+    /** Chaque part reste comptablement cohérente après remise à l'échelle : HT + TVA = TTC. */
+    @Test
+    void testTvaRepartitions_remainConsistentAfterRescaling() {
+        CalculationInput input = new CalculationInput();
+        input.setNatureVente(NatureVente.ASSURANCE);
+        input.setTotalSalesAmount(new BigDecimal("10000"));
+        input.setSaleItems(List.of(createSaleItem(1L, "6000", 18), createSaleItem(2L, "4000", 9)));
+
+        TiersPayantInput tp = createTiersPayant(1, 1.0f, PrioriteTiersPayant.R0);
+        tp.setPlafondJournalierClient(new BigDecimal("3333"));
+        input.setTiersPayants(Collections.singletonList(tp));
+
+        CalculationResult result = serviceV2.calculate(input);
+
+        for (TvaRepartitionDto repartition : result.getTiersPayantLines().getFirst().getRepartitions()) {
+            assertEquals(
+                0,
+                repartition.getMontantTtc().compareTo(repartition.getMontantHt().add(repartition.getMontantTva())),
+                "HT + TVA doit rendre le TTC de la part"
+            );
+        }
+    }
+
+    private static BigDecimal sommeTtc(TiersPayantLineOutput ligne) {
+        return ligne
+            .getRepartitions()
+            .stream()
+            .map(TvaRepartitionDto::getMontantTtc)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private static SaleItemInput createSaleItem(long ligneId, String montant, int tauxTva) {
+        SaleItemInput saleItem = new SaleItemInput();
+        saleItem.setSalesLineId(ligneId);
+        saleItem.setRegularUnitPrice(new BigDecimal(montant));
+        saleItem.setQuantity(1);
+        saleItem.setTotalSalesAmount(new BigDecimal(montant));
+        saleItem.setDiscountAmount(BigDecimal.ZERO);
+        saleItem.setPrixAssurances(new ArrayList<>());
+        saleItem.setTvaRate(tauxTva);
+        return saleItem;
+    }
+
     private CalculationInput createBasicInput(int totalAmount, NatureVente nature) {
         CalculationInput input = new CalculationInput();
         input.setNatureVente(nature);

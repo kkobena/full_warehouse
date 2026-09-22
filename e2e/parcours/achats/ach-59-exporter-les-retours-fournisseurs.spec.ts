@@ -11,7 +11,8 @@ import { scenario } from '../../src/scenario';
  * depuis la barre, reprend la SÉLECTION affichée : période, statut, fournisseur, pour
  * rapprocher ce qui est parti de ce qui a été remboursé.
  *
- * Parcours en LECTURE : il montre les deux chemins sans déclencher de téléchargement.
+ * Parcours en LECTURE des données, mais il produit le fichier : vérifier qu'un bouton existe
+ * ne dit rien de l'export lui-même, qui peut échouer et rendre un document vide.
  */
 scenario('ACH-59', async ({ etape, page }) => {
   const lignes = page.locator('tbody tr').filter({ visible: true });
@@ -32,5 +33,9 @@ scenario('ACH-59', async ({ etape, page }) => {
     const menu = page.locator('.dropdown-menu.show');
     await expect(menu.getByRole('button', { name: 'Excel' })).toBeVisible();
     await expect(menu.getByRole('button', { name: 'CSV' })).toBeVisible();
+
+    const telechargement = page.waitForEvent('download');
+    await menu.getByRole('button', { name: 'Excel' }).click();
+    expect((await telechargement).suggestedFilename()).toMatch(/\.(pdf|xlsx|xls|csv)$/i);
   });
 });

@@ -17,17 +17,6 @@ import org.springframework.stereotype.Service;
 
 /**
  * Arithmétique des montants d'une vente : totaux, TVA, remises, arrondi de caisse.
- *
- * <p>Ce calcul vivait dans {@code SaleCommonService}, qui est la classe mère des quatre services de
- * vente. Celle-ci portait donc {@code @Service} tout en étant étendue par quatre autres
- * {@code @Service} : cinq beans répondaient au même type, et l'injection par type ne se résolvait
- * que parce que Spring, à défaut de candidat unique, retombe sur la correspondance entre le nom du
- * paramètre et celui du bean. Renommer un paramètre cassait le démarrage.
- *
- * <p>Les deux classes qui injectaient la mère — {@code SalesManagerImpl} et
- * {@code ThirdPartyCalculationManagerImpl} — n'en appelaient que ces méthodes-ci. Les isoler ici
- * leur donne un type sans ambiguïté, et rend la classe mère abstraite, ce qu'elle a toujours été
- * dans les faits.
  */
 @Service
 public class SaleAmountCalculator {

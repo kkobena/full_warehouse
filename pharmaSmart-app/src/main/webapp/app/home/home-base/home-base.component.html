@@ -1,5 +1,5 @@
 <!-- ─── Header : alertes + sélecteur période + toggle ─────────────────────── -->
-<div class=" pharma-smart-content p-2">
+<div class=" pharma-smart-content p-1">
   <div class="row mb-2">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
 
@@ -120,7 +120,7 @@
   <!-- ─── KPI Strip ────────────────────────────────────────────────────────── -->
   @if (isLoading()) {
     <div class="kpi-strip mb-2">
-      @for (_ of [1, 2, 3, 4, 5, 6, 7]; track _) {
+      @for (_ of [1, 2, 3, 4, 5, 6, 7, 8]; track _) {
         <div class="kpi-strip-item">
           <app-skeleton shape="circle" size="1.5rem" />
           <div class="kpi-strip-body">
@@ -141,10 +141,10 @@
           <span class="kpi-strip-value text-primary">{{ venteRecord()?.netAmount | number }}</span>
           <span class="kpi-strip-sub">
             {{ venteRecord()?.saleCount | number }} ventes
-            @if (caEvolutionPct !== undefined && caEvolutionPct !== null) {
-              · <i [class]="(caEvolutionPct ?? 0) >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"
+            @if (caEvolutionPct() !== null) {
+              · <i [class]="caEvolutionPct()! >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"
                    aria-hidden="true"></i>
-              {{ caEvolutionPct | number:'1.1-1' }}%
+              {{ caEvolutionPct() | number:'1.1-1' }}%
             }
           </span>
         </div>
@@ -157,9 +157,22 @@
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Marge brute</span>
           <span
-            class="kpi-strip-value text-success">{{ margeSummary()?.margeBruteGlobale | number }}</span>
-          <span class="kpi-strip-sub">{{ margeSummary()?.tauxMargeMoyen | number:'1.1-1' }}
-            % · coût {{ margeSummary()?.coutAchatGlobal | number }}</span>
+            class="kpi-strip-value text-success">{{ margePeriode()?.marge | number }}</span>
+          <span class="kpi-strip-sub">{{ margePeriode()?.taux | number:'1.1-1' }}
+            % · coût {{ margePeriode()?.cout | number }}</span>
+        </div>
+      </div>
+
+      <div class="kpi-strip-divider"></div>
+
+      <div class="kpi-strip-item">
+        <i aria-hidden="true" class="pi pi-chart-line" style="color: var(--bs-success)"></i>
+        <div class="kpi-strip-body">
+          <span class="kpi-strip-label">Marge de rentabilité
+            <em class="kpi-strip-scope">12 mois glissants</em></span>
+          <span class="kpi-strip-value">{{ marge12Mois()?.margeBruteGlobale | number }}</span>
+          <span class="kpi-strip-sub">{{ marge12Mois()?.tauxMargeMoyen | number:'1.1-1' }}
+            % · {{ marge12Mois()?.totalProduits | number }} réf.</span>
         </div>
       </div>
 
@@ -208,7 +221,8 @@
       <div class="kpi-strip-item danger-accent">
         <i aria-hidden="true" class="pi pi-credit-card text-danger"></i>
         <div class="kpi-strip-body">
-          <span class="kpi-strip-label">Créances TP</span>
+          <span class="kpi-strip-label">Créances TP
+            <em class="kpi-strip-scope">encours</em></span>
           <span class="kpi-strip-value text-danger">{{ totalCreances() | number }}</span>
           <span class="kpi-strip-sub">&gt;90j {{ creancesPlusDe90j() | number }}
             · recouv. {{ facturationKpi()?.tauxRecouvrement | number:'1.0-1' }}%</span>
@@ -233,7 +247,8 @@
       <div class="kpi-strip-item success-accent">
         <i aria-hidden="true" class="pi pi-box text-success"></i>
         <div class="kpi-strip-body">
-          <span class="kpi-strip-label">Stock valorisé</span>
+          <span class="kpi-strip-label">Stock valorisé
+            <em class="kpi-strip-scope">au {{ aujourdhui | date:'dd/MM' }}</em></span>
           <span
             class="kpi-strip-value text-success">{{ stockValuationSummary()?.totalPurchaseValue | number }}</span>
           <span class="kpi-strip-sub">{{ stockValuationSummary()?.totalProducts | number }} réf. · marge pot. {{ stockValuationSummary()?.averageMarginPercentage | number:'1.1-1' }}
@@ -246,7 +261,8 @@
       <div class="kpi-strip-item warning-accent">
         <i aria-hidden="true" class="pi pi-users text-warning"></i>
         <div class="kpi-strip-body">
-          <span class="kpi-strip-label">Différés clients</span>
+          <span class="kpi-strip-label">Différés clients
+            <em class="kpi-strip-scope">encours</em></span>
           <span class="kpi-strip-value text-warning">{{ differeSummary()?.rest | number }}</span>
           <span class="kpi-strip-sub">accordé {{ differeSummary()?.saleAmount | number }}
             · remb. {{ differeSummary()?.paidAmount | number }}</span>
@@ -357,29 +373,15 @@
             <i aria-hidden="true" class="pi pi-truck text-warning"></i>
             Achats par fournisseur
           </h5>
-          <div class="d-flex align-items-center gap-2">
-            <div class="dashboard-periode-selector">
-              <button (click)="fournisseurPeriod.set('30d'); buildFournisseurChart()"
-                      [class.active]="fournisseurPeriod() === '30d'"
-                      class="periode-pill"
-                      type="button">30 j
-              </button>
-              <button (click)="fournisseurPeriod.set('12m'); buildFournisseurChart()"
-                      [class.active]="fournisseurPeriod() === '12m'"
-                      class="periode-pill"
-                      type="button">12 mois
-              </button>
-            </div>
-            <app-select (ngModelChange)="TOP_MAX_FOURNISSEUR.set($event)"
-                        (selectionChange)="onTopFournisseurChange($any($event))"
-                        [items]="tops"
-                        [ngModel]="TOP_MAX_FOURNISSEUR()" bindLabel="label"></app-select>
-          </div>
+          <app-select (ngModelChange)="TOP_MAX_FOURNISSEUR.set($event)"
+                      (selectionChange)="onTopFournisseurChange($any($event))"
+                      [items]="tops"
+                      [ngModel]="TOP_MAX_FOURNISSEUR()" bindLabel="label"></app-select>
         </div>
         <div class="card-body py-4">
           @if (!showGraphs()) {
             <ul class="list-group list-group-flush">
-              @for (f of fournisseursClasses(); track f.fournisseurId; let i = $index) {
+              @for (f of topFournisseurs(); track f.fournisseurId; let i = $index) {
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                   <div class="d-flex align-items-center gap-2">
                     @if (i === 0) {
@@ -404,19 +406,14 @@
                       </small>
                     </div>
                   </div>
-                  <span class="fw-semibold text-warning fs-6">
-                  {{
-                      (fournisseurPeriod() === '30d' ? f.purchaseAmountLast30Days
-                        : f.purchaseAmountLast12Months) | number
-                    }}
-                </span>
+                  <span class="fw-semibold text-warning fs-6">{{ f.montantAchat | number }}</span>
                 </li>
               }
               @if (topFournisseurs().length === 0) {
                 <li class="list-group-item text-center text-muted py-4">
                   <div class="pharma-empty-content">
                     <i aria-hidden="true" class="pi pi-inbox" style="font-size: 2rem"></i>
-                    <p class="mt-2 mb-0">Aucun fournisseur disponible</p>
+                    <p class="mt-2 mb-0">Aucun achat sur la période sélectionnée</p>
                   </div>
                 </li>
               }
@@ -431,11 +428,11 @@
         @if (supplierSummary()) {
           <div class="card-footer d-flex justify-content-between">
             <span
-              class="footer-label">Qualité : <strong>{{ supplierSummary().avgConformityRate | number:'1.0-1' }}
+              class="footer-label">Qualité sur 12 mois : <strong>{{ supplierSummary().avgConformityRate | number:'1.0-1' }}
               %</strong></span>
             <span
               class="badge bg-info-subtle text-info">{{ supplierSummary().avgDeliveryDays | number:'1.0-1' }}
-              j délai moy.</span>
+              j délai moy. sur 12 mois</span>
           </div>
         }
       </div>

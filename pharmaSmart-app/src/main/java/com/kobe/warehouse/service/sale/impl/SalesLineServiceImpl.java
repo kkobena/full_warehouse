@@ -19,6 +19,7 @@ import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.dto.DataMatrixInfo;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.QuantitySoldException;
@@ -27,7 +28,6 @@ import com.kobe.warehouse.service.errors.StockInReserveException;
 import com.kobe.warehouse.service.id_generator.SaleLineIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
-import com.kobe.warehouse.service.dto.DataMatrixInfo;
 import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.stock.DataMatrixParserService;
@@ -41,6 +41,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -146,13 +147,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     /**
      * Met à jour la quantité en unité de gestion (UG) pour le stockage principal.
      *
-     * <p>La part d'UG consommée vaut {@code min(quantité vendue, UG disponibles)}, et la quantité
-     * vendue est celle que le serveur a calculée — jamais celle du DTO. La seconde branche lisait
-     * {@code dto.getQuantitySold()} là où la première testait {@code salesLine} : le champ est
-     * facultatif côté client, donc souvent absent à la création d'une ligne, et l'on écrivait alors
-     * {@code null} dans une colonne non nulle. Quand il était présent, il rendait au client un
-     * arbitrage que {@code calculateQuantitySold} venait d'écrêter au stock disponible, et rien ne
-     * bornait plus la quantité d'UG aux UG réellement détenues.
+     * <p>La part d'UG consommée vaut {@code min(quantité vendue, UG disponibles)}
      */
     @Override
     public void processUg(SalesLine salesLine, SaleLineDTO dto, Integer stockageId) {
@@ -383,16 +378,14 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         String codeScan = salesLine.getCodeScan();
         if (codeScan != null) {
             dataMatrixParserService.parse(codeScan)
-                .filter(DataMatrixInfo::hasBatchInfo)
-                .ifPresent(info -> lotService.findByProduitIdAndNumLot(salesLine.getProduit().getId(), info.batchNumber())
-                    .ifPresent(lot -> {
-                        if (remaining.get() > 0 && lot.getCurrentQuantity() > 0) {
-                            int toTake = Math.min(remaining.get(), lot.getCurrentQuantity());
-                            salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), toTake, lot.getExpiryDate()));
-                            lotStockLocationService.debit(lot, storage, toTake);
-                            remaining.addAndGet(-toTake);
-                        }
-                    }));
+                .filter(DataMatrixInfo::hasBatchInfo).flatMap(info -> lotService.findByProduitIdAndNumLot(salesLine.getProduit().getId(), info.batchNumber())).ifPresent(lot -> {
+                    if (remaining.get() > 0 && lot.getCurrentQuantity() > 0) {
+                        int toTake = Math.min(remaining.get(), lot.getCurrentQuantity());
+                        salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), toTake, lot.getExpiryDate()));
+                        lotStockLocationService.debit(lot, storage, toTake);
+                        remaining.addAndGet(-toTake);
+                    }
+                });
         }
 
         // FEFO pour la quantité restante (ignore les lots déjà traités)
@@ -450,7 +443,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.lotService.restoreLots(salesLine.getLots());
         lotStockLocationService.creditFromSold(salesLine.getLots(), stockProduit.getStorage());
         this.inventoryTransactionService.save(salesLineCopy);
-        avoirClientDocumentService.cancelAvoirsFromSale(salesLine.getId().getId());
+        avoirClientDocumentService.cancelAvoirsFromSale(Objects.requireNonNull(salesLine.getId()).getId());
     }
 
     private void updateItemQuantitySold(SaleLineDTO saleLineDTO, SalesLine salesLine, Integer storageId) {

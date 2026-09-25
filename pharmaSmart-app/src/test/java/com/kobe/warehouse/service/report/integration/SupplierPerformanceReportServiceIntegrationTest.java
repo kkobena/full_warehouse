@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
+import com.kobe.warehouse.service.dto.report.SupplierPurchaseDTO;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -258,6 +259,137 @@ class SupplierPerformanceReportServiceIntegrationTest extends AbstractReportInte
             assertThat(services.supplierPerformanceReportService.getSuppliersWithDeliveryIssues())
                 .extracting(SupplierPerformanceDTO::fournisseurName)
                 .containsExactlyInAnyOrder(lent.getLibelle(), incomplet.getLibelle());
+        }
+    }
+
+    // ===== achats sur une fenêtre quelconque =====
+
+    /**
+     * {@code mv_supplier_performance} ne porte que deux fenêtres, trente jours et douze mois, écrites
+     * en dur dans sa définition. Le tableau de bord, lui, se règle sur cinq périodes : il lui faut
+     * donc un calcul direct sur les commandes. Ce que ces tests tiennent, c'est que la fenêtre
+     * demandée soit bien celle qui borne le montant ET le classement -- c'est l'écart entre les deux
+     * qui mettait en tête un fournisseur moins gros que le second.
+     */
+    @Nested
+    @DisplayName("Achats sur une fenêtre quelconque")
+    class AchatsSurLaPeriode {
+
+        @Test
+        @DisplayName("la fenêtre demandée borne les achats")
+        void fenetreBorneLesAchats() {
+            Fournisseur laborex = fournisseur("LABOREX " + unique(""));
+            reception(laborex, LocalDate.now().minusDays(3), LocalDate.now().minusDays(1), 3_000_000, 10, 10);
+            reception(laborex, LocalDate.now().minusDays(60), LocalDate.now().minusDays(57), 8_000_000, 10, 10);
+            em.flush();
+
+            List<SupplierPurchaseDTO> achats = services.supplierPerformanceReportService.getTopSuppliersByPeriode(
+                LocalDate.now().minusDays(7),
+                LocalDate.now(),
+                5
+            );
+
+            assertThat(achats).hasSize(1);
+            assertThat(achats.getFirst().montantAchat()).isEqualTo(3_000_000L);
+            assertThat(achats.getFirst().nbCommandes()).isEqualTo(1);
+        }
+
+        /**
+         * Le gros fournisseur de l'année n'est pas forcément celui de la semaine. Le bloc affichait
+         * les rangs de la fenêtre douze mois sous des montants de trente jours : le premier pouvait
+         * donc afficher moins que le deuxième.
+         */
+        @Test
+        @DisplayName("le classement suit la fenêtre, pas le volume annuel")
+        void classementSuitLaFenetre() {
+            Fournisseur grosSurLAnnee = fournisseur("ANNUEL " + unique(""));
+            Fournisseur grosCetteSemaine = fournisseur("RECENT " + unique(""));
+            reception(grosSurLAnnee, LocalDate.now().minusMonths(6), LocalDate.now().minusMonths(6).plusDays(2), 9_000_000, 10, 10);
+            reception(grosSurLAnnee, LocalDate.now().minusDays(2), LocalDate.now().minusDays(1), 500_000, 10, 10);
+            reception(grosCetteSemaine, LocalDate.now().minusDays(2), LocalDate.now().minusDays(1), 2_000_000, 10, 10);
+            em.flush();
+
+            List<SupplierPurchaseDTO> achats = services.supplierPerformanceReportService.getTopSuppliersByPeriode(
+                LocalDate.now().minusDays(7),
+                LocalDate.now(),
+                5
+            );
+
+            assertThat(achats)
+                .extracting(SupplierPurchaseDTO::fournisseurName)
+                .containsExactly(grosCetteSemaine.getLibelle(), grosSurLAnnee.getLibelle());
+        }
+
+        @Test
+        @DisplayName("les commandes d'un même fournisseur se cumulent sur la fenêtre")
+        void commandesCumulees() {
+            Fournisseur laborex = fournisseur("LABOREX " + unique(""));
+            reception(laborex, LocalDate.now().minusDays(5), LocalDate.now().minusDays(4), 1_000_000, 10, 10);
+            reception(laborex, LocalDate.now().minusDays(3), LocalDate.now().minusDays(2), 2_500_000, 10, 10);
+            em.flush();
+
+            List<SupplierPurchaseDTO> achats = services.supplierPerformanceReportService.getTopSuppliersByPeriode(
+                LocalDate.now().minusDays(7),
+                LocalDate.now(),
+                5
+            );
+
+            assertThat(achats).hasSize(1);
+            assertThat(achats.getFirst().nbCommandes()).isEqualTo(2);
+            assertThat(achats.getFirst().montantAchat()).isEqualTo(3_500_000L);
+        }
+
+        /**
+         * Le score et le délai restent ceux de la vue : ce sont des indicateurs de qualité sur douze
+         * mois, qu'une fenêtre d'un jour ne saurait mesurer. Ils accompagnent donc le montant de la
+         * période sans être recalculés sur elle.
+         */
+        @Test
+        @DisplayName("le score et le délai restent ceux de la vue douze mois")
+        void qualiteVenueDeLaVue() {
+            Fournisseur laborex = fournisseur("LABOREX " + unique(""));
+            reception(laborex, LocalDate.now().minusDays(10), LocalDate.now().minusDays(7), 10_000_000, 100, 100);
+            reception(laborex, LocalDate.now(), LocalDate.now(), 1_000_000, 100, 100);
+            rafraichir(VUE);
+
+            List<SupplierPurchaseDTO> achats = services.supplierPerformanceReportService.getTopSuppliersByPeriode(
+                LocalDate.now(),
+                LocalDate.now(),
+                5
+            );
+
+            assertThat(achats).hasSize(1);
+            assertThat(achats.getFirst().montantAchat()).isEqualTo(1_000_000L);
+            assertThat(achats.getFirst().avgDeliveryDays()).isEqualTo(2);
+            assertThat(achats.getFirst().performanceScore()).isPositive();
+        }
+
+        @Test
+        @DisplayName("la limite du classement est respectée")
+        void limiteRespectee() {
+            for (int i = 0; i < 3; i++) {
+                reception(fournisseur("FRS " + unique("")), LocalDate.now().minusDays(2), LocalDate.now().minusDays(1), 1_000_000, 10, 10);
+            }
+            em.flush();
+
+            assertThat(
+                services.supplierPerformanceReportService.getTopSuppliersByPeriode(LocalDate.now().minusDays(7), LocalDate.now(), 2)
+            ).hasSize(2);
+        }
+
+        @Test
+        @DisplayName("une fenêtre sans achat ne rend rien")
+        void fenetreVide() {
+            reception(fournisseur("LABOREX " + unique("")), LocalDate.now().minusDays(2), LocalDate.now().minusDays(1), 1_000_000, 10, 10);
+            em.flush();
+
+            assertThat(
+                services.supplierPerformanceReportService.getTopSuppliersByPeriode(
+                    LocalDate.now().minusMonths(6),
+                    LocalDate.now().minusMonths(5),
+                    5
+                )
+            ).isEmpty();
         }
     }
 

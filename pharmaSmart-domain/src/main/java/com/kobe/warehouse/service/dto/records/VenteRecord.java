@@ -27,7 +27,20 @@ public record VenteRecord(
     SalesStatut statut,
     String group
 ) {
+    /**
+     * Marge brute de la periode : le net vendu moins le cout d'achat des lignes.
+     *
+     * <p>L'accesseur retournait 0 en dur -- le tableau de bord allait donc chercher sa marge dans
+     * {@code mv_marge_produit}, douze mois glissants, et la courbe de marge de l'historique des
+     * ventes restait plate. Les deux termes sortent pourtant de la meme requete.
+     *
+     * <p>{@code @JsonProperty} est indispensable : {@code marge} n'est pas un composant du record.
+     */
+    @JsonProperty("marge")
     public Integer marge() {
+        if (nonNull(netAmount) && nonNull(costAmount)) {
+            return netAmount - costAmount;
+        }
         return 0;
     }
 

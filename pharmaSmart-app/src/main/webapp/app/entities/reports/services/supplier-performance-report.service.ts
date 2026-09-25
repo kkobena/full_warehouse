@@ -3,7 +3,12 @@ import { HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { SERVER_API_URL } from 'app/app.constants';
-import { ISupplierEvolution, ISupplierPerformance, ISupplierPerformanceSummary } from 'app/shared/model/report/supplier-performance.model';
+import {
+  ISupplierEvolution,
+  ISupplierPerformance,
+  ISupplierPerformanceSummary,
+  ISupplierPurchase,
+} from 'app/shared/model/report/supplier-performance.model';
 
 type EntityArrayResponseType = HttpResponse<ISupplierPerformance[]>;
 type EntityResponseType = HttpResponse<ISupplierPerformance>;
@@ -34,6 +39,16 @@ export class SupplierPerformanceReportService {
   getTopSuppliersByVolume(limit = 10): Observable<EntityArrayResponseType> {
     const params = new HttpParams().set('limit', limit.toString());
     return this.http.get<ISupplierPerformance[]>(`${this.resourceUrl}/top`, { params, observe: 'response' });
+  }
+
+  /**
+   * Top fournisseurs par montant d'achat sur une fenetre. Contrairement a `getTopSuppliersByVolume`,
+   * dont les fenetres 30 jours et 12 mois sont figees dans la vue materialisee, celle-ci suit la
+   * periode demandee.
+   */
+  getTopSuppliersByPeriode(fromDate: string, toDate: string, limit = 10): Observable<HttpResponse<ISupplierPurchase[]>> {
+    const params = new HttpParams().set('fromDate', fromDate).set('toDate', toDate).set('limit', limit.toString());
+    return this.http.get<ISupplierPurchase[]>(`${this.resourceUrl}/achats`, { params, observe: 'response' });
   }
 
   /**

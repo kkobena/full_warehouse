@@ -3,8 +3,10 @@ package com.kobe.warehouse.web.rest.report;
 import com.kobe.warehouse.service.dto.report.SupplierEvolutionDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
+import com.kobe.warehouse.service.dto.report.SupplierPurchaseDTO;
 import com.kobe.warehouse.service.report.SupplierPerformanceReportService;
 import com.kobe.warehouse.service.report.pdf.SupplierPerformancePdfReportService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -66,6 +69,21 @@ public class SupplierPerformanceReportResource {
     ) {
         List<SupplierPerformanceDTO> topSuppliers = supplierPerformanceReportService.getTopSuppliersByVolume(limit);
         return ResponseEntity.ok().body(topSuppliers);
+    }
+
+    /**
+     * GET /supplier-performance/achats : top fournisseurs par montant d'achat sur une fenetre.
+     *
+     * <p>Complete {@code /top}, dont les deux fenetres -- 30 jours et 12 mois -- sont figees dans
+     * la vue materialisee et ne suivent donc pas le selecteur de periode du tableau de bord.
+     */
+    @GetMapping("/supplier-performance/achats")
+    public ResponseEntity<List<SupplierPurchaseDTO>> getTopSuppliersByPeriode(
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+        @RequestParam(defaultValue = "10") Integer limit
+    ) {
+        return ResponseEntity.ok().body(supplierPerformanceReportService.getTopSuppliersByPeriode(fromDate, toDate, limit));
     }
 
     /**

@@ -3,6 +3,9 @@ package com.kobe.warehouse.service.report;
 import com.kobe.warehouse.service.dto.report.SupplierEvolutionDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
+import com.kobe.warehouse.service.dto.report.SupplierPurchaseDTO;
+
+import java.time.LocalDate;
 
 import java.util.List;
 
@@ -29,6 +32,15 @@ public interface SupplierPerformanceReportService {
      * @return List of top suppliers
      */
     List<SupplierPerformanceDTO> getTopSuppliersByVolume(Integer limit);
+
+    /**
+     * Top fournisseurs par montant d'achat sur une fenetre quelconque.
+     *
+     * @param fromDate debut de la fenetre, inclus
+     * @param toDate   fin de la fenetre, incluse
+     * @param limit    nombre de fournisseurs a retourner
+     */
+    List<SupplierPurchaseDTO> getTopSuppliersByPeriode(LocalDate fromDate, LocalDate toDate, Integer limit);
 
     /**
      * Get suppliers by performance score

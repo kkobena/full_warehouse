@@ -74,7 +74,7 @@ class TicketZServiceImplTest {
         when(salePaymentRepository.fetchSalesPayment(any())).thenReturn(List.of());
         when(salesRepository.getTicketZDifferes(any())).thenReturn(new java.util.ArrayList<>());
         when(thirdPartySaleRepository.getTicketZCreditProjection(any())).thenReturn(new java.util.ArrayList<>());
-        when(paymentModeService.fetch()).thenReturn(List.of());
+        when(paymentModeService.fetchAll()).thenReturn(List.of());
     }
 
     // ===== récapitulatif par caissier =====
@@ -332,7 +332,9 @@ class TicketZServiceImplTest {
             PaymentMode mode = new PaymentMode();
             mode.setCode("CASH");
             mode.setLibelle("Espèces");
-            when(paymentModeService.fetch()).thenReturn(List.of(mode));
+            // fetchAll() et non fetch() : le service nomme des modes deja encaisses, pas des modes
+            // a proposer, et fetch() ecarte VIREMENT et CH (cf. TicketZServiceImpl).
+            when(paymentModeService.fetchAll()).thenReturn(List.of(mode));
             donneReglements(reglement(1, "Awa", "KONE", ModePaimentCode.CASH, 300_000, false));
 
             assertThat(ligneGlobaleDuMode(ModePaimentCode.CASH).libelle()).isEqualTo("Espèces");

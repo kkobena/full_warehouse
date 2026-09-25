@@ -4,10 +4,12 @@ import com.kobe.warehouse.repository.SupplierEvolutionRepository;
 import com.kobe.warehouse.service.dto.report.SupplierEvolutionDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
+import com.kobe.warehouse.service.dto.report.SupplierPurchaseDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
@@ -122,6 +124,53 @@ public class SupplierPerformanceReportServiceImpl implements SupplierPerformance
         List<Object[]> results = query.getResultList();
 
         return mapResultsToDTO(results);
+    }
+
+    /**
+     * Volontairement <b>non</b> mise en cache, contrairement a ses voisines : le tableau de bord se
+     * recharge toutes les deux minutes et c'est justement les achats du jour qu'on y regarde. La
+     * requete s'appuie sur {@code cmd_order_date_index}.
+     */
+    @Override
+    public List<SupplierPurchaseDTO> getTopSuppliersByPeriode(LocalDate fromDate, LocalDate toDate, Integer limit) {
+        // Les memes statuts que mv_supplier_performance, pour que les deux chiffres restent comparables.
+        String sql =
+            "SELECT c.fournisseur_id, " +
+                "       f.libelle, " +
+                "       COUNT(DISTINCT c.id)              AS nb_commandes, " +
+                "       COALESCE(SUM(c.final_amount), 0)  AS montant_achat, " +
+                "       COALESCE(mv.avg_delivery_days, 0) AS avg_delivery_days, " +
+                "       COALESCE(mv.performance_score, 0) AS performance_score " +
+                "FROM commande c " +
+                "  JOIN fournisseur f ON f.id = c.fournisseur_id " +
+                "  LEFT JOIN mv_supplier_performance mv ON mv.fournisseur_id = c.fournisseur_id " +
+                "WHERE c.order_status IN ('RECEIVED', 'CLOSED') " +
+                "  AND c.order_date BETWEEN :fromDate AND :toDate " +
+                "GROUP BY c.fournisseur_id, f.libelle, mv.avg_delivery_days, mv.performance_score " +
+                "ORDER BY montant_achat DESC " +
+                "LIMIT :limit";
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("fromDate", fromDate);
+        query.setParameter("toDate", toDate);
+        query.setParameter("limit", limit);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        return results
+            .stream()
+            .map(row ->
+                new SupplierPurchaseDTO(
+                    row[0] != null ? ((Number) row[0]).intValue() : null,
+                    (String) row[1],
+                    row[2] != null ? ((Number) row[2]).intValue() : 0,
+                    row[3] != null ? ((Number) row[3]).longValue() : 0L,
+                    row[4] != null ? ((Number) row[4]).intValue() : 0,
+                    row[5] != null ? new BigDecimal(row[5].toString()) : BigDecimal.ZERO
+                )
+            )
+            .toList();
     }
 
     @Override

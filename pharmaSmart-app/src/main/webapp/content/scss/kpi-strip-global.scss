@@ -69,6 +69,22 @@ $_ks-border:  #e2e8f0;
   letter-spacing: 0.3px;
 }
 
+// Portee d'un indicateur que le selecteur de periode ne deplace pas : un encours, une photo de
+// stock, une fenetre figee. Sans ce marqueur, le bandeau melange flux et soldes.
+.kpi-strip-scope {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 0.62rem;
+  text-transform: none;
+  letter-spacing: 0;
+  color: $_ks-muted;
+  background: rgba(92, 99, 112, 0.1);
+  border-radius: 3px;
+  padding: 0 0.25rem;
+  margin-left: 0.25rem;
+  white-space: nowrap;
+}
+
 .kpi-strip-value {
   font-size: 1.1rem;
   font-weight: 700;

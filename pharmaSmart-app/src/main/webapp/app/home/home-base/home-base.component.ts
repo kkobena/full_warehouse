@@ -41,7 +41,6 @@ import {Router, RouterModule} from "@angular/router";
 import {AlertBadgeService} from "../../shared/services/alert-badge.service";
 // Report services
 import {MargeReportService} from "../../entities/reports/services/marge-report.service";
-import {DashboardCAService} from "../../entities/reports/services/dashboard-ca.service";
 import {
   StockValuationReportService
 } from "../../entities/reports/services/stock-valuation-report.service";
@@ -53,11 +52,10 @@ import {
 } from "../../entities/reports/services/supplier-performance-report.service";
 // Report models
 import {
-  IDashboardCASummary,
   IMargeSummary,
   IStockValuationSummary,
-  ISupplierPerformance,
   ISupplierPerformanceSummary,
+  ISupplierPurchase,
   ITiersPayantCreancesSummary
 } from "../../shared/model/report";
 // Différés & Facturation
@@ -67,6 +65,7 @@ import {
   FactureApiService
 } from "../../features/facturation/data-access/services/facture-api.service";
 import {IFacturationKpi} from "../../features/facturation/data-access/models";
+import dayjs from "dayjs";
 
 interface TopSelection {
   label: string;
@@ -112,6 +111,8 @@ export class HomeBaseComponent implements OnInit {
   protected isLoading = signal(false);
   protected lastUpdate = signal<Date | null>(null);
   protected activePareto: "qty" | "amt" = "qty";
+  /** Date du jour, pour dater les encours que le sélecteur de période ne déplace pas. */
+  protected readonly aujourdhui = new Date();
   // ─── State ──────────────────────────────────────────────────────
   protected readonly venteRecord = signal<VenteRecord | null>(null);
   protected readonly canceled = signal<VenteRecord | null>(null);
@@ -126,7 +127,6 @@ export class HomeBaseComponent implements OnInit {
   protected readonly venteDepot = signal<VenteRecord | null>(null);
   protected readonly vno = signal<VenteRecord | null>(null);
   protected readonly venteModePaiments = signal<VenteModePaimentRecord[]>([]);
-  protected dashboardPeriode: CaPeriodeFilter | null = CaPeriodeFilter.daily;
   protected readonly TOP_MAX_QUANTITY = signal<TopSelection | undefined>(undefined);
   protected readonly TOP_MAX_AMOUNT = signal<TopSelection | undefined>(undefined);
   protected readonly TOP_MAX_TP = signal<TopSelection | undefined>(undefined);
@@ -140,8 +140,13 @@ export class HomeBaseComponent implements OnInit {
   protected readonly totalQuantity20x80 = signal(0);
   protected readonly tiersPayantAchat = signal<TiersPayantAchat[]>([]);
   // ─── KPI P1 ─────────────────────────────────────────────────────
-  protected readonly margeSummary = signal<IMargeSummary | null>(null);
-  protected caSummary: IDashboardCASummary | null = null;
+  /**
+   * Marge sur douze mois glissants : la fenêtre est gravée dans `mv_marge_produit`, aucun
+   * paramètre ne la déplace. Elle ne suit donc pas la période et s'affiche étiquetée.
+   */
+  protected readonly marge12Mois = signal<IMargeSummary | null>(null);
+  /** Ventes de la fenêtre précédente : sert uniquement l'évolution du CA. */
+  protected readonly ventePrecedente = signal<VenteRecord | null>(null);
   protected readonly stockValuationSummary = signal<IStockValuationSummary | null>(null);
   protected creancesSummary: ITiersPayantCreancesSummary[] = [];
   protected readonly totalCreances = signal(0);
@@ -150,23 +155,16 @@ export class HomeBaseComponent implements OnInit {
   protected readonly differeSummary = signal<IDiffereSummary | null>(null);
   protected readonly facturationKpi = signal<IFacturationKpi | null>(null);
   // ─── Fournisseurs P3 ────────────────────────────────────────────
-  protected readonly topFournisseurs = signal<ISupplierPerformance[]>([]);
-  protected readonly supplierSummary = signal<ISupplierPerformanceSummary | null>(null);
-  protected readonly fournisseurPeriod = signal<"30d" | "12m">("30d");
-
   /**
-   * Classement des fournisseurs RECALCULÉ sur la période affichée.
+   * Achats de la période affichée, classés par le serveur.
    *
-   * L'API classe par volume douze mois. Affiché tel quel sous le bouton « 30 j », le
-   * palmarès mettait en tête un fournisseur au montant inférieur à celui du deuxième :
-   * les rangs venaient d'une période, les montants d'une autre.
+   * Ce bloc offrait un sélecteur 30 j / 12 mois qui lui était propre — les deux seules fenêtres
+   * que porte `mv_supplier_performance`. Classement et montants suivent désormais la période du
+   * tableau de bord, calculés en direct sur les commandes.
    */
-  protected readonly fournisseursClasses = computed(() => {
-    const periode = this.fournisseurPeriod();
-    const montant = (f: ISupplierPerformance): number =>
-      (periode === "30d" ? f.purchaseAmountLast30Days : f.purchaseAmountLast12Months) ?? 0;
-    return [...this.topFournisseurs()].sort((a, b) => montant(b) - montant(a));
-  });
+  protected readonly topFournisseurs = signal<ISupplierPurchase[]>([]);
+  /** Qualité et délais : indicateurs douze mois, indépendants de la période. */
+  protected readonly supplierSummary = signal<ISupplierPerformanceSummary | null>(null);
   protected readonly TOP_MAX_FOURNISSEUR = signal<TopSelection | undefined>(undefined);
   protected readonly fournisseurChartData = signal<any | undefined>(undefined);
   protected readonly fournisseurChartOptions = signal<any | undefined>(undefined);
@@ -190,7 +188,6 @@ export class HomeBaseComponent implements OnInit {
   private readonly tiersPayantService = inject(TiersPayantService);
   private readonly router = inject(Router);
   private readonly margeReportService = inject(MargeReportService);
-  private readonly dashboardCAService = inject(DashboardCAService);
   private readonly stockValuationReportService = inject(StockValuationReportService);
   private readonly tiersPayantReportService = inject(TiersPayantReportService);
   private readonly supplierService = inject(SupplierPerformanceReportService);
@@ -228,21 +225,35 @@ export class HomeBaseComponent implements OnInit {
     return this.alertBadgeService.urgentCount();
   }
 
-  // ─── Évolution CA selon la période active ───────────────────────
-  get caEvolutionPct(): number | null | undefined {
-    switch (this.activePeriode()) {
-      case CaPeriodeFilter.daily:
-        return this.caSummary?.caTodayEvolutionPct;
-      case CaPeriodeFilter.weekly:
-        return this.caSummary?.caWeekEvolutionPct;
-      case CaPeriodeFilter.monthly:
-        return this.caSummary?.caMonthEvolutionPct;
-      case CaPeriodeFilter.yearly:
-        return this.caSummary?.caYearEvolutionPct;
-      default:
-        return null; // halfyearly : pas de champ dédié
+  /**
+   * Marge brute de la période, prise dans le même appel que la tuile « CA Net » voisine.
+   * Le bandeau lisait celle de `mv_marge_produit` : douze mois glissants à côté d'un CA du jour.
+   */
+  protected readonly margePeriode = computed(() => {
+    const vente = this.venteRecord();
+    if (!vente) {
+      return null;
     }
-  }
+    const marge = vente.marge ?? 0;
+    const net = vente.netAmount ?? 0;
+    return {
+      marge,
+      cout: vente.costAmount ?? 0,
+      taux: net > 0 ? (marge * 100) / net : 0
+    };
+  });
+
+  /**
+   * Évolution du CA, comparée à la fenêtre précédente. `dashboard-ca/summary` ne portait ni le
+   * semestre — la flèche disparaissait — ni la même mesure que le montant affiché au-dessus.
+   */
+  protected readonly caEvolutionPct = computed<number | null>(() => {
+    const precedent = this.ventePrecedente()?.netAmount ?? 0;
+    if (precedent === 0) {
+      return null;
+    }
+    return (((this.venteRecord()?.netAmount ?? 0) - precedent) * 100) / precedent;
+  });
 
   ngOnInit(): void {
     this.initializeChartStyles();
@@ -258,7 +269,6 @@ export class HomeBaseComponent implements OnInit {
 
   protected onPeriodeChange(p: CaPeriodeFilter): void {
     this.activePeriode.set(p);
-    this.dashboardPeriode = p;
     this.showGraphs.set(this.toggleStateService.toggleState());
     this.loadDashboardData();
   }
@@ -268,44 +278,49 @@ export class HomeBaseComponent implements OnInit {
     const sources = {
       ca: this.dashboardService.fetchCa({
         categorieChiffreAffaire: TypeCa.CA,
-        dashboardPeriode: this.dashboardPeriode
+        dashboardPeriode: this.activePeriode()
       }),
-      caAchat: this.dashboardService.fetchCaAchat({dashboardPeriode: this.dashboardPeriode}),
-      caTypeVente: this.dashboardService.fetchCaByTypeVente({dashboardPeriode: this.dashboardPeriode}),
-      byModePaiment: this.dashboardService.getCaByModePaiment({dashboardPeriode: this.dashboardPeriode}),
+      caAchat: this.dashboardService.fetchCaAchat({dashboardPeriode: this.activePeriode()}),
+      caTypeVente: this.dashboardService.fetchCaByTypeVente({dashboardPeriode: this.activePeriode()}),
+      byModePaiment: this.dashboardService.getCaByModePaiment({dashboardPeriode: this.activePeriode()}),
       produitCa: this.produitStatService.fetchPoduitCa({
-        dashboardPeriode: this.dashboardPeriode,
+        dashboardPeriode: this.activePeriode(),
         order: OrderBy.QUANTITY_SOLD,
         size: this.TOP_MAX_QUANTITY()?.value
       }),
       produitAmount: this.produitStatService.fetchPoduitCa({
-        dashboardPeriode: this.dashboardPeriode,
+        dashboardPeriode: this.activePeriode(),
         order: OrderBy.AMOUNT,
         size: this.TOP_MAX_AMOUNT()?.value
       }),
       twentyEighty: this.produitStatService.fetch20x80({
-        dashboardPeriode: this.dashboardPeriode,
+        dashboardPeriode: this.activePeriode(),
         order: OrderBy.QUANTITY_SOLD
       }),
       twentyEightyMontant: this.produitStatService.fetch20x80({
-        dashboardPeriode: this.dashboardPeriode,
+        dashboardPeriode: this.activePeriode(),
         order: OrderBy.AMOUNT
       }),
       tiersPayantAchat: this.tiersPayantService.fetchAchatTiersPayant({
-        dashboardPeriode: this.dashboardPeriode,
+        dashboardPeriode: this.activePeriode(),
         limit: this.TOP_MAX_TP()?.value
       }),
-      // P1 — KPI services
-      margeSummary: this.margeReportService.getMargeSummary(),
-      caSummary: this.dashboardCAService.getOverallSummary(),
+      // Même fenêtre, reculée d'une période : alimente caEvolutionPct
+      caPrecedent: this.dashboardService.fetchCa({
+        categorieChiffreAffaire: TypeCa.CA,
+        dashboardPeriode: this.activePeriode(),
+        ...this.bornesPeriodePrecedente()
+      }),
+      // Hors période, étiqueté comme tel à l'écran
+      marge12Mois: this.margeReportService.getMargeSummary(),
       stockValuation: this.stockValuationReportService.getStockValuationSummary(),
       creancesSummary: this.tiersPayantReportService.getCreancesSummary(),
       // P3 — Fournisseurs
-      topFournisseurs: this.supplierService.getTopSuppliersByVolume(this.TOP_MAX_FOURNISSEUR().value),
+      topFournisseurs: this.chargerTopFournisseurs(this.TOP_MAX_FOURNISSEUR().value),
       supplierSummary: this.supplierService.getSupplierPerformanceSummary(),
       // P2 — Différés & Facturation
       differeSummary: this.differeApiService.getDiffereSummary({}),
-      facturationKpi: this.factureApiService.getKpi({})
+      facturationKpi: this.factureApiService.getKpi(this.bornesPeriodeCourante())
     };
 
     forkJoin(sources).subscribe({
@@ -320,8 +335,8 @@ export class HomeBaseComponent implements OnInit {
         this.onFetch20x80AmountSuccess(data.twentyEightyMontant.body);
         this.onFetchTiersPayantSuccess(data.tiersPayantAchat.body);
         // P1
-        this.margeSummary.set(data.margeSummary.body);
-        this.caSummary = data.caSummary.body;
+        this.ventePrecedente.set(data.caPrecedent.body?.close ?? null);
+        this.marge12Mois.set(data.marge12Mois.body);
         this.stockValuationSummary.set(data.stockValuation.body);
         this.creancesSummary = data.creancesSummary.body ?? [];
         this.totalCreances.set(this.creancesSummary.reduce((s, c) => s + (c.montantTotal ?? 0), 0));
@@ -346,7 +361,7 @@ export class HomeBaseComponent implements OnInit {
     this.TOP_MAX_QUANTITY.set(top);
     this.produitStatService
       .fetchPoduitCa({
-        dashboardPeriode: this.dashboardPeriode,
+        dashboardPeriode: this.activePeriode(),
         order: OrderBy.QUANTITY_SOLD,
         size: top.value
       })
@@ -360,7 +375,7 @@ export class HomeBaseComponent implements OnInit {
     this.TOP_MAX_AMOUNT.set(top);
     this.produitStatService
       .fetchPoduitCa({
-        dashboardPeriode: this.dashboardPeriode,
+        dashboardPeriode: this.activePeriode(),
         order: OrderBy.AMOUNT,
         size: top.value
       })
@@ -373,7 +388,7 @@ export class HomeBaseComponent implements OnInit {
   protected onTopTiersPayantChange(top: TopSelection): void {
     this.TOP_MAX_TP.set(top);
     this.tiersPayantService
-      .fetchAchatTiersPayant({dashboardPeriode: this.dashboardPeriode, limit: top.value})
+      .fetchAchatTiersPayant({dashboardPeriode: this.activePeriode(), limit: top.value})
       .subscribe(res => {
         this.onFetchTiersPayantSuccess(res.body);
         this.buildTiersPayantChart();
@@ -382,22 +397,18 @@ export class HomeBaseComponent implements OnInit {
 
   protected onTopFournisseurChange(top: TopSelection): void {
     this.TOP_MAX_FOURNISSEUR.set(top);
-    this.supplierService.getTopSuppliersByVolume(top.value)
-      .subscribe(res => {
-        this.topFournisseurs.set(res.body ?? []);
-        this.buildFournisseurChart();
-      });
+    this.chargerTopFournisseurs(top.value).subscribe(res => {
+      this.topFournisseurs.set(res.body ?? []);
+      this.buildFournisseurChart();
+    });
   }
 
   protected buildFournisseurChart(): void {
-    const items = this.fournisseursClasses().slice(0, this.TOP_MAX_FOURNISSEUR().value);
-    const amounts = this.fournisseurPeriod() === "30d"
-      ? items.map(f => f.purchaseAmountLast30Days ?? 0)
-      : items.map(f => f.purchaseAmountLast12Months ?? 0);
+    const items = this.topFournisseurs();
     this.fournisseurChartData.set({
       labels: items.map(f => f.fournisseurName?.slice(0, 18) ?? ""),
       datasets: [{
-        data: amounts,
+        data: items.map(f => f.montantAchat ?? 0),
         backgroundColor: ["#008cba", "#5bc0de", "#43ac6a", "#e99002", "#f04124"],
         borderWidth: 2
       }]
@@ -427,6 +438,47 @@ export class HomeBaseComponent implements OnInit {
 
   protected voirModifPrix(): void {
     this.router.navigate(["/produit"], {queryParams: {prixModif: true}});
+  }
+
+  /**
+   * Fenêtre courante, telle que `CommonStatService.buildPeriode` la reconstruit. Le taux de
+   * recouvrement, qui n'accepte que des dates, retombait sinon sur le mois calendaire.
+   */
+  private chargerTopFournisseurs(limit: number) {
+    const {fromDate, toDate} = this.bornesPeriodeCourante();
+    return this.supplierService.getTopSuppliersByPeriode(fromDate, toDate, limit);
+  }
+
+  private bornesPeriodeCourante(): { fromDate: string; toDate: string } {
+    const today = dayjs();
+    const debut = this.activePeriode() === CaPeriodeFilter.daily
+      ? today
+      : this.reculeDUnePeriode(today);
+    return {fromDate: debut.format("YYYY-MM-DD"), toDate: today.format("YYYY-MM-DD")};
+  }
+
+  /**
+   * Fenêtre précédente. Hors « Auj. », `buildPeriode` ignore `toDate` et part de `fromDate`
+   * moins la période : reculer la seule borne de départ suffit à décrire la fenêtre d'avant.
+   */
+  private bornesPeriodePrecedente(): { fromDate: string; toDate: string } {
+    const debut = this.reculeDUnePeriode(dayjs()).format("YYYY-MM-DD");
+    return {fromDate: debut, toDate: debut};
+  }
+
+  private reculeDUnePeriode(ref: dayjs.Dayjs): dayjs.Dayjs {
+    switch (this.activePeriode()) {
+      case CaPeriodeFilter.daily:
+        return ref.subtract(1, "day");
+      case CaPeriodeFilter.weekly:
+        return ref.subtract(1, "week");
+      case CaPeriodeFilter.monthly:
+        return ref.subtract(1, "month");
+      case CaPeriodeFilter.halfyearly:
+        return ref.subtract(6, "month");
+      case CaPeriodeFilter.yearly:
+        return ref.subtract(1, "year");
+    }
   }
 
   private onCaSuccess(ca: VenteRecordWrapper | null): void {

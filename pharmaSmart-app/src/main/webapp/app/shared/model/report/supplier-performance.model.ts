@@ -15,6 +15,19 @@ export interface ISupplierPerformance {
   performanceScore?: number;
 }
 
+/**
+ * Achats aupres d'un fournisseur sur la fenetre demandee. Le score et le delai restent des
+ * indicateurs de qualite sur douze mois : une fenetre d'un jour ne saurait les mesurer.
+ */
+export interface ISupplierPurchase {
+  fournisseurId?: number;
+  fournisseurName?: string;
+  nbCommandes?: number;
+  montantAchat?: number;
+  avgDeliveryDays?: number;
+  performanceScore?: number;
+}
+
 export interface ISupplierPerformanceSummary {
   totalSuppliers?: number;
   totalPurchaseAmountLast12Months?: number;

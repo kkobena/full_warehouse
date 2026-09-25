@@ -47,11 +47,6 @@ import static java.util.Objects.nonNull;
 
 /**
  * Socle commun aux quatre services de vente, qui en héritent.
- *
- * <p>Elle ne porte plus {@code @Service} : elle était à la fois bean et classe mère de quatre
- * autres beans, donc cinq candidats pour un même type, et l'injection par type ne se résolvait que
- * par correspondance de nom. L'arithmétique des montants, seule chose que les appelants extérieurs
- * lui demandaient, vit désormais dans {@link SaleAmountCalculator}.
  */
 public abstract class SaleCommonService {
 
@@ -118,13 +113,6 @@ public abstract class SaleCommonService {
         saleAmountCalculator.updateAmounts(c);
     }
 
-    public void processDiscountCash(CashSale c, int discountAmount) {
-        saleAmountCalculator.processDiscountCash(c, discountAmount);
-    }
-
-    public void processDiscountCommonAmounts(Sales c) {
-        saleAmountCalculator.processDiscountCommonAmounts(c);
-    }
 
     public void computeSaleEagerAmountOnRemovingItem(Sales c, SalesLine saleLine) {
         saleAmountCalculator.computeSaleEagerAmountOnRemovingItem(c, saleLine);

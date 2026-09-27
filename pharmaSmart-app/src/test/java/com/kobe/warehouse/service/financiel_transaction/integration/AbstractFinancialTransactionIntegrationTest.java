@@ -3,9 +3,9 @@ package com.kobe.warehouse.service.financiel_transaction.integration;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashFund;
 import com.kobe.warehouse.domain.CashRegister;
-import com.kobe.warehouse.domain.DifferePaymentItem;
-import com.kobe.warehouse.domain.DifferePayment;
 import com.kobe.warehouse.domain.CashSale;
+import com.kobe.warehouse.domain.DifferePayment;
+import com.kobe.warehouse.domain.DifferePaymentItem;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.PaymentMode;
@@ -15,10 +15,10 @@ import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tva;
-import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.CashFundStatut;
 import com.kobe.warehouse.domain.enumeration.CashFundType;
 import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
+import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.OrigineVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
@@ -51,23 +51,23 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * <p>Chaque test s'exécute dans une transaction annulée à la fin : la base revient d'elle-même à
  * l'état laissé par Flyway, et l'ordre des tests cesse d'être un paramètre du résultat.
  *
- * <p>Ce paquet a une particularité qui justifie à elle seule des tests d'intégration : la balance de
- * caisse et l'état de TVA ne sont pas calculés en Java mais par des <b>fonctions stockées</b> qui
- * rendent du JSON, que le service relit ensuite avec Jackson. Le contrat entre la fonction et le DTO
- * n'est donc écrit nulle part — ni dans le schéma, ni dans le code Java — et une clé renommée d'un
- * côté sans l'autre ne produit aucune erreur : la valeur disparaît simplement de l'état.
+ * <p>Ce paquet a une particularité qui justifie à elle seule des tests d'intégration : la balance
+ * de caisse et l'état de TVA ne sont pas calculés en Java mais par des <b>fonctions stockées</b>
+ * qui rendent du JSON, que le service relit ensuite avec Jackson. Le contrat entre la fonction et
+ * le DTO n'est donc écrit nulle part — ni dans le schéma, ni dans le code Java — et une clé
+ * renommée d'un côté sans l'autre ne produit aucune erreur : la valeur disparaît simplement de
+ * l'état.
  */
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 abstract class AbstractFinancialTransactionIntegrationTest {
 
     protected static final int MAGASIN_ID = 1;
     protected static final int STORAGE_RAYON_ID = 1;
-
-    protected static EntityManager em;
-
-    /** Suffixe unique par fixture : codes et libellés sont uniques en base. */
+    /**
+     * Suffixe unique par fixture : codes et libellés sont uniques en base.
+     */
     private static final AtomicInteger COMPTEUR = new AtomicInteger();
-
+    protected static EntityManager em;
     protected AppUser utilisateur;
     protected Magasin magasin;
     protected Storage rayon;
@@ -80,12 +80,18 @@ abstract class AbstractFinancialTransactionIntegrationTest {
 
     @BeforeAll
     static void demarrerLaBase() {
-        em = SharedEntityManagerCreator.createSharedEntityManager(IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+        em = SharedEntityManagerCreator.createSharedEntityManager(
+            IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+    }
+
+    protected static String unique(String prefixe) {
+        return prefixe + "-" + COMPTEUR.incrementAndGet();
     }
 
     @BeforeEach
     void ouvrirLaTransaction() {
-        transaction = IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
+        transaction = IntegrationPostgresDatabase.transactionManager()
+            .getTransaction(new DefaultTransactionDefinition());
 
         utilisateur = em.find(AppUser.class, 1);
         magasin = em.find(Magasin.class, MAGASIN_ID);
@@ -96,14 +102,14 @@ abstract class AbstractFinancialTransactionIntegrationTest {
         transactionIdGeneratorService = new TransactionIdGeneratorService(em);
     }
 
+    // ===== repères de date =====
+
     @AfterEach
     void annulerLaTransaction() {
         if (transaction != null && !transaction.isCompleted()) {
             IntegrationPostgresDatabase.transactionManager().rollback(transaction);
         }
     }
-
-    // ===== repères de date =====
 
     /**
      * La date d'aujourd'hui telle que <b>la base</b> la voit.
@@ -114,21 +120,20 @@ abstract class AbstractFinancialTransactionIntegrationTest {
      */
     protected LocalDate aujourdHui() {
         Object date = em.createNativeQuery("SELECT CURRENT_DATE").getSingleResult();
-        return date instanceof java.sql.Date jour ? jour.toLocalDate() : LocalDate.parse(date.toString());
-    }
-
-    protected static String unique(String prefixe) {
-        return prefixe + "-" + COMPTEUR.incrementAndGet();
+        return date instanceof java.sql.Date jour ? jour.toLocalDate()
+            : LocalDate.parse(date.toString());
     }
 
     // ===== référentiel =====
 
     protected Tva tva(int taux) {
-        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class).setParameter("taux", taux).getSingleResult();
+        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class)
+            .setParameter("taux", taux).getSingleResult();
     }
 
     protected FamilleProduit premiereFamille() {
-        return em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class).setMaxResults(1).getSingleResult();
+        return em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
+            .setMaxResults(1).getSingleResult();
     }
 
     protected PaymentMode modePaiement(String code) {
@@ -190,8 +195,8 @@ abstract class AbstractFinancialTransactionIntegrationTest {
     /**
      * Une vente comptant clôturée, comptée en chiffre d'affaires.
      *
-     * <p>Les trois conditions — {@code CLOSED}, non annulée, {@code ca = 'CA'} — sont celles que les
-     * fonctions stockées exigent : en manquer une seule rend la vente invisible à la balance.
+     * <p>Les trois conditions — {@code CLOSED}, non annulée, {@code ca = 'CA'} — sont celles que
+     * les fonctions stockées exigent : en manquer une seule rend la vente invisible à la balance.
      */
     protected CashSale venteFermee(LocalDate date, int montantTtc, int remise) {
         CashSale vente = new CashSale();
@@ -205,7 +210,8 @@ abstract class AbstractFinancialTransactionIntegrationTest {
         vente.setTypePrescription(TypePrescription.PRESCRIPTION);
         vente.setCategorieChiffreAffaire(CategorieChiffreAffaire.CA);
         vente.setCanceled(false);
-        vente.setCreatedAt(date.atTime(LocalTime.of(10, 0).plusSeconds(COMPTEUR.incrementAndGet())));
+        vente.setCreatedAt(
+            date.atTime(LocalTime.of(10, 0).plusSeconds(COMPTEUR.incrementAndGet())));
         vente.setUpdatedAt(LocalDateTime.now());
         vente.setEffectiveUpdateDate(LocalDateTime.now());
         vente.setSalesAmount(montantTtc);
@@ -224,7 +230,9 @@ abstract class AbstractFinancialTransactionIntegrationTest {
         return vente;
     }
 
-    /** Une ligne de vente. Les montants de l'en-tête doivent rester cohérents avec ses lignes. */
+    /**
+     * Une ligne de vente. Les montants de l'en-tête doivent rester cohérents avec ses lignes.
+     */
     protected SalesLine ligneDeVente(Sales vente, Produit produit, int quantite, int remise) {
         SalesLine ligne = new SalesLine();
         ligne.setId(saleLineIdGeneratorService.nextId());
@@ -255,8 +263,11 @@ abstract class AbstractFinancialTransactionIntegrationTest {
         return ligne;
     }
 
-    /** Un encaissement rattaché à la vente et à la caisse. */
-    protected SalePayment reglement(Sales vente, CashRegister caisse, String codeMode, int montant) {
+    /**
+     * Un encaissement rattaché à la vente et à la caisse.
+     */
+    protected SalePayment reglement(Sales vente, CashRegister caisse, String codeMode,
+        int montant) {
         return reglement(vente, caisse, codeMode, montant, vente.getSaleDate());
     }
 
@@ -295,12 +306,13 @@ abstract class AbstractFinancialTransactionIntegrationTest {
     }
 
     /**
-     * Le client revient solder son ardoise. Ce règlement-là n'est <b>pas</b> un {@code SalePayment} :
-     * il s'inscrit dans {@code differe_payment_item}, et le service remet le reste à payer de la
+     * Le client revient solder son ardoise. Ce règlement-là n'est <b>pas</b> un {@code SalePayment}
+     * : il s'inscrit dans {@code differe_payment_item}, et le service remet le reste à payer de la
      * vente à zéro. C'est ce que reproduit ce décor, faute de quoi le cas le plus fréquent de la
      * base réelle — 70 ventes sur le jeu de démonstration — reste hors de portée des tests.
      */
-    protected DifferePaymentItem reglementDiffere(Sales vente, CashRegister caisse, int montant, LocalDate dateEncaissement) {
+    protected DifferePaymentItem reglementDiffere(Sales vente, CashRegister caisse, int montant,
+        LocalDate dateEncaissement) {
         DifferePayment paiement = new DifferePayment();
         paiement.setId(transactionIdGeneratorService.nextId());
         paiement.setTransactionDate(dateEncaissement);
@@ -322,8 +334,6 @@ abstract class AbstractFinancialTransactionIntegrationTest {
         item.setExpectedAmount(montant);
         em.persist(item);
 
-        // Le service de règlement solde la vente : c'est ce geste qui effaçait le crédit de la
-        // journée d'origine avant le correctif de V2.1.1.
         vente.setRestToPay(vente.getRestToPay() - montant);
         vente.setPayrollAmount(vente.getPayrollAmount() + montant);
         if (vente.getRestToPay() <= 0) {
@@ -338,7 +348,8 @@ abstract class AbstractFinancialTransactionIntegrationTest {
      *
      * @param remise remise accordée sur la ligne et reportée sur l'en-tête
      */
-    protected CashSale venteEncaissee(LocalDate date, Produit produit, int quantite, int remise, String codeMode) {
+    protected CashSale venteEncaissee(LocalDate date, Produit produit, int quantite, int remise,
+        String codeMode) {
         int montantTtc = quantite * produit.getRegularUnitPrice();
         CashSale vente = venteFermee(date, montantTtc, remise);
         ligneDeVente(vente, produit, quantite, remise);

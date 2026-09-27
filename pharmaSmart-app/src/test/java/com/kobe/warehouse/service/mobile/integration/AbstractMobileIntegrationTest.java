@@ -13,8 +13,8 @@ import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.Ticketing;
@@ -64,7 +64,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * <p>Chaque test s'exécute dans une transaction annulée à la fin : la base revient d'elle-même à
  * l'état laissé par Flyway, et l'ordre des tests cesse d'être un paramètre du résultat.
  *
- * <p>Les repositories mobiles sont écrits en <b>SQL natif</b>, hors de portée de toute vérification
+ * <p>Les repositories mobiles sont écrits en <b>SQL natif</b>, hors de portée de toute
+ * vérification
  * à la compilation : un nom de colonne inexistant, une jointure qui multiplie les lignes ou un
  * {@code COUNT} qui ne compte pas la même chose que la liste qu'il annonce ne se voient qu'en
  * exécutant la requête sur un vrai PostgreSQL. C'est l'objet de ces tests.
@@ -73,17 +74,16 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * mesure donc systématiquement un écart par rapport à l'état initial plutôt qu'une valeur absolue,
  * ce que fait {@link #ecart(java.util.function.IntSupplier, Runnable)}.
  */
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 abstract class AbstractMobileIntegrationTest {
 
     protected static final int MAGASIN_ID = 1;
     protected static final int STORAGE_RAYON_ID = 1;
-
-    protected static EntityManager em;
-
-    /** Suffixe unique par fixture : codes, libellés et numéros de lot sont uniques en base. */
+    /**
+     * Suffixe unique par fixture : codes, libellés et numéros de lot sont uniques en base.
+     */
     private static final AtomicInteger COMPTEUR = new AtomicInteger();
-
+    protected static EntityManager em;
     protected AppUser utilisateur;
     protected Magasin magasin;
     protected Storage rayon;
@@ -96,12 +96,32 @@ abstract class AbstractMobileIntegrationTest {
 
     @BeforeAll
     static void demarrerLaBase() {
-        em = SharedEntityManagerCreator.createSharedEntityManager(IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
+        em = SharedEntityManagerCreator.createSharedEntityManager(
+            IntegrationPostgresDatabase.bean(EntityManagerFactory.class));
     }
+
+    /**
+     * Mesure un compteur avant puis après l'ajout des fixtures, et rend l'écart. Le jeu de
+     * référence livré par Flyway n'est pas vide : compter en absolu rendrait le test dépendant de
+     * son contenu.
+     */
+    protected static int ecart(java.util.function.IntSupplier compteur, Runnable fixtures) {
+        int avant = compteur.getAsInt();
+        fixtures.run();
+        em.flush();
+        return compteur.getAsInt() - avant;
+    }
+
+    protected static String unique(String prefixe) {
+        return prefixe + "-" + COMPTEUR.incrementAndGet();
+    }
+
+    // ===== mesure relative =====
 
     @BeforeEach
     void ouvrirLaTransaction() {
-        transaction = IntegrationPostgresDatabase.transactionManager().getTransaction(new DefaultTransactionDefinition());
+        transaction = IntegrationPostgresDatabase.transactionManager()
+            .getTransaction(new DefaultTransactionDefinition());
 
         utilisateur = em.find(AppUser.class, 1);
         magasin = em.find(Magasin.class, MAGASIN_ID);
@@ -119,31 +139,16 @@ abstract class AbstractMobileIntegrationTest {
         }
     }
 
-    // ===== mesure relative =====
-
-    /**
-     * Mesure un compteur avant puis après l'ajout des fixtures, et rend l'écart. Le jeu de référence
-     * livré par Flyway n'est pas vide : compter en absolu rendrait le test dépendant de son contenu.
-     */
-    protected static int ecart(java.util.function.IntSupplier compteur, Runnable fixtures) {
-        int avant = compteur.getAsInt();
-        fixtures.run();
-        em.flush();
-        return compteur.getAsInt() - avant;
-    }
-
-    protected static String unique(String prefixe) {
-        return prefixe + "-" + COMPTEUR.incrementAndGet();
-    }
-
     // ===== produits et stock =====
 
     protected Tva tva(int taux) {
-        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class).setParameter("taux", taux).getSingleResult();
+        return em.createQuery("SELECT t FROM Tva t WHERE t.taux = :taux", Tva.class)
+            .setParameter("taux", taux).getSingleResult();
     }
 
     protected FamilleProduit premiereFamille() {
-        return em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class).setMaxResults(1).getSingleResult();
+        return em.createQuery("SELECT f FROM FamilleProduit f ORDER BY f.id", FamilleProduit.class)
+            .setMaxResults(1).getSingleResult();
     }
 
     protected Produit produit(String libelle) {
@@ -169,7 +174,9 @@ abstract class AbstractMobileIntegrationTest {
         return produit;
     }
 
-    /** Un produit et son stock. Sans ligne de stock, il sort du champ des ruptures. */
+    /**
+     * Un produit et son stock. Sans ligne de stock, il sort du champ des ruptures.
+     */
     protected Produit produitEnStock(String libelle, int quantite) {
         Produit produit = produit(libelle);
         stock(produit, quantite);
@@ -220,7 +227,8 @@ abstract class AbstractMobileIntegrationTest {
         return venteFermee(date, montant, false, CategorieChiffreAffaire.CA, null);
     }
 
-    protected CashSale venteFermee(LocalDate date, int montant, boolean annulee, CategorieChiffreAffaire categorie, Customer client) {
+    protected CashSale venteFermee(LocalDate date, int montant, boolean annulee,
+        CategorieChiffreAffaire categorie, Customer client) {
         CashSale vente = new CashSale();
         vente.setCustomer(client);
         vente.setSaleDate(date);
@@ -233,7 +241,8 @@ abstract class AbstractMobileIntegrationTest {
         vente.setTypePrescription(TypePrescription.PRESCRIPTION);
         vente.setCategorieChiffreAffaire(categorie);
         vente.setCanceled(annulee);
-        vente.setCreatedAt(date.atTime(LocalTime.of(10, 0).plusSeconds(COMPTEUR.incrementAndGet())));
+        vente.setCreatedAt(
+            date.atTime(LocalTime.of(10, 0).plusSeconds(COMPTEUR.incrementAndGet())));
         vente.setUpdatedAt(LocalDateTime.now());
         vente.setEffectiveUpdateDate(LocalDateTime.now());
         vente.setSalesAmount(montant);
@@ -251,7 +260,9 @@ abstract class AbstractMobileIntegrationTest {
         return vente;
     }
 
-    /** Un client nominatif : sans lui, la vente est anonyme et ne compte pas de client distinct. */
+    /**
+     * Un client nominatif : sans lui, la vente est anonyme et ne compte pas de client distinct.
+     */
     protected UninsuredCustomer client(String nom) {
         UninsuredCustomer client = new UninsuredCustomer();
         client.setFirstName("Client");
@@ -277,7 +288,9 @@ abstract class AbstractMobileIntegrationTest {
         return groupe;
     }
 
-    /** Un tiers payant rattaché à un groupe, ou isolé si {@code groupe} est nul. */
+    /**
+     * Un tiers payant rattaché à un groupe, ou isolé si {@code groupe} est nul.
+     */
     protected TiersPayant tiersPayant(String nom, GroupeTiersPayant groupe) {
         TiersPayant tiersPayant = new TiersPayant();
         tiersPayant.setName(unique(nom));
@@ -300,7 +313,8 @@ abstract class AbstractMobileIntegrationTest {
      * <p>Le montant facturé n'est pas une colonne : c'est la somme des dossiers. Une facture sans
      * dossier vaut zéro et n'est jamais en retard de paiement.
      */
-    protected FactureTiersPayant factureAgee(TiersPayant tiersPayant, int anciennete, int montant, int montantRegle, InvoiceStatut statut) {
+    protected FactureTiersPayant factureAgee(TiersPayant tiersPayant, int anciennete, int montant,
+        int montantRegle, InvoiceStatut statut) {
         LocalDate emission = LocalDate.now().minusDays(anciennete);
 
         AssuredCustomer assure = new AssuredCustomer();
@@ -351,7 +365,8 @@ abstract class AbstractMobileIntegrationTest {
 
         FactureTiersPayant facture = new FactureTiersPayant();
         facture.setId(factureIdGeneratorService.nextId());
-        facture.setNumFacture(LocalDate.now().getYear() + "_" + String.format("%04d", COMPTEUR.incrementAndGet()));
+        facture.setNumFacture(
+            LocalDate.now().getYear() + "_" + String.format("%04d", COMPTEUR.incrementAndGet()));
         facture.setInvoiceDate(emission);
         facture.setCreated(emission.atTime(LocalTime.of(10, 0)));
         facture.setUpdated(LocalDateTime.now());

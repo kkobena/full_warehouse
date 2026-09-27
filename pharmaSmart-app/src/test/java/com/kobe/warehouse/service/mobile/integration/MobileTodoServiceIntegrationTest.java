@@ -11,6 +11,7 @@ import com.kobe.warehouse.service.dto.mobile.MobileTodoDTO.TodoPriority;
 import com.kobe.warehouse.service.mobile.MobileTodoService;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,14 +23,15 @@ import org.springframework.test.util.ReflectionTestUtils;
  * Le pense-bête mobile répond à « que dois-je faire aujourd'hui ? » : commander ce qui manque,
  * relancer ce qui n'est pas payé, écouler ce qui va périmer.
  *
- * <p>C'est délibérément une liste courte — chaque nature d'action y est plafonnée — et c'est là que
- * se logeait un défaut : l'écran la parcourt page par page en se fiant à un <b>total</b> calculé,
- * lui, sans plafond. Une officine avec cent ruptures annonçait cent tâches et n'en servait que
- * vingt, les pages suivantes revenant vides sans explication.
+ * <p>C'est délibérément une liste courte — chaque nature d'action y est plafonnée — et c'est là
+ * que se logeait un défaut : l'écran la parcourt page par page en se fiant à un <b>total</b>
+ * calculé, lui, sans plafond. Une officine avec cent ruptures annonçait cent tâches et n'en servait
+ * que vingt, les pages suivantes revenant vides sans explication.
  *
  * <p>Le second défaut est le même que celui des alertes : les impayés se listaient à travers une
  * jointure fermée sur le groupe de tiers payant, ce qui effaçait les tiers payants isolés.
  */
+
 @DisplayName("MobileTodoService — pense-bête des actions prioritaires")
 class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
 
@@ -42,6 +44,44 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
     }
 
     // ===== natures d'action =====
+
+    private TodoItemDTO tacheDuProduit(Produit produit) {
+        return service
+            .getAllTodoItems()
+            .stream()
+            .filter(t -> "PRODUCT".equals(t.relatedEntityType())
+                && produit.getId().longValue() == t.relatedEntityId())
+            .findFirst()
+            .orElseThrow();
+    }
+
+    // ===== regroupement par priorité =====
+
+    private TodoItemDTO tacheDemarque(Produit produit) {
+        return service
+            .getAllTodoItems()
+            .stream()
+            .filter(t -> "CREATE_DISCOUNT".equals(t.type())
+                && produit.getId().longValue() == t.relatedEntityId())
+            .findFirst()
+            .orElseThrow();
+    }
+
+    // ===== pagination =====
+
+    private TodoItemDTO tacheDeLaFacture(FactureTiersPayant facture) {
+        return service
+            .getAllTodoItems()
+            .stream()
+            // Les deux identifiants sont des Long : les comparer avec == compare des references,
+            // ce qui ne tient que tant que la valeur reste dans le cache des petits entiers.
+            .filter(t -> "INVOICE".equals(t.relatedEntityType()) && Objects.requireNonNull(
+                facture.getId()).getId().equals(t.relatedEntityId()))
+            .findFirst()
+            .orElseThrow();
+    }
+
+    // ===== compteurs par priorité =====
 
     @Nested
     @DisplayName("Natures d'action")
@@ -74,7 +114,9 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             assertThat(tache.description()).isEqualTo("Stock: 3/5 (seuil mini)");
         }
 
-        /** Réapprovisionner jusqu'au double du seuil, jamais moins que le seuil lui-même. */
+        /**
+         * Réapprovisionner jusqu'au double du seuil, jamais moins que le seuil lui-même.
+         */
         @Test
         @DisplayName("la quantité suggérée vise le double du seuil")
         void quantiteSuggeree() {
@@ -90,7 +132,8 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             Produit produit = produitEnStock("STOCK CONFORTABLE", 50);
             em.flush();
 
-            assertThat(service.getAllTodoItems()).noneMatch(t -> produit.getId().longValue() == t.relatedEntityId());
+            assertThat(service.getAllTodoItems()).noneMatch(
+                t -> produit.getId().longValue() == t.relatedEntityId());
         }
 
         @Test
@@ -107,7 +150,9 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             assertThat(tache.actionData()).containsEntry("quantity", 12);
         }
 
-        /** Un mois : en deçà, la démarque presse ; au-delà, elle peut attendre. */
+        /**
+         * Un mois : en deçà, la démarque presse ; au-delà, elle peut attendre.
+         */
         @Test
         @DisplayName("l'urgence de la démarque dépend du délai restant")
         void urgenceDeLaDemarque() {
@@ -137,7 +182,8 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
 
             assertThat(tache.type()).isEqualTo("CALL_CLIENT");
             assertThat(tache.actionLabel()).isEqualTo("Appeler");
-            assertThat(tache.description()).containsPattern("Facture impayee depuis 120 jours \\(300.000 F\\)");
+            assertThat(tache.description()).containsPattern(
+                "Facture impayee depuis 120 jours \\(300.000 F\\)");
             assertThat(tache.actionData()).containsEntry("phone", "0102030405");
         }
 
@@ -149,7 +195,8 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
         @Test
         @DisplayName("la facture d'un tiers payant isolé appelle aussi une relance")
         void impayeSansGroupe() {
-            FactureTiersPayant facture = factureAgee(tiersPayant("MUGEF isolé", null), 150, 300_000, 0, InvoiceStatut.NOT_PAID);
+            FactureTiersPayant facture = factureAgee(tiersPayant("MUGEF isolé", null), 150, 300_000,
+                0, InvoiceStatut.NOT_PAID);
             em.flush();
 
             TodoItemDTO tache = tacheDeLaFacture(facture);
@@ -165,11 +212,12 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             em.flush();
 
             // Vingt-cinq caractères au plus, points de suspension compris.
-            assertThat(tacheDuProduit(produit).title()).isEqualTo("Commander PARACETAMOL BIOGARAN 1...");
+            assertThat(tacheDuProduit(produit).title()).isEqualTo(
+                "Commander PARACETAMOL BIOGARAN 1...");
         }
     }
 
-    // ===== regroupement par priorité =====
+    // ===== utilitaires =====
 
     @Nested
     @DisplayName("Regroupement par priorité")
@@ -182,21 +230,25 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             Produit sousSeuil = produitEnStock(unique("BAS"), 2);
             Produit aPerimer = produitEnStock(unique("PEREMPTION"), 40);
             lot(aPerimer, LocalDate.now().plusDays(60), 10);
-            factureAgee(tiersPayant("Caisse", groupeTiersPayant("CNAM")), 120, 500_000, 0, InvoiceStatut.NOT_PAID);
+            factureAgee(tiersPayant("Caisse", groupeTiersPayant("CNAM")), 120, 500_000, 0,
+                InvoiceStatut.NOT_PAID);
             em.flush();
 
             MobileTodoDTO penseBete = service.getTodoList();
 
-            assertThat(penseBete.urgent()).anyMatch(t -> enRupture.getId().longValue() == t.relatedEntityId());
-            assertThat(penseBete.important()).anyMatch(t -> aPerimer.getId().longValue() == t.relatedEntityId());
-            assertThat(penseBete.normal()).anyMatch(t -> sousSeuil.getId().longValue() == t.relatedEntityId());
+            assertThat(penseBete.urgent()).anyMatch(
+                t -> enRupture.getId().longValue() == t.relatedEntityId());
+            assertThat(penseBete.important()).anyMatch(
+                t -> aPerimer.getId().longValue() == t.relatedEntityId());
+            assertThat(penseBete.normal()).anyMatch(
+                t -> sousSeuil.getId().longValue() == t.relatedEntityId());
         }
 
         /**
          * L'incohérence que ce test fixe : un lot périmant dans la semaine porte la priorité
-         * {@code URGENT}, mais la liste le rangeait dans le groupe « important » au seul motif qu'il
-         * relève de la nature « péremptions ». L'écran affichait donc une ligne rouge dans la section
-         * orange, et le compteur d'urgences l'ignorait.
+         * {@code URGENT}, mais la liste le rangeait dans le groupe « important » au seul motif
+         * qu'il relève de la nature « péremptions ». L'écran affichait donc une ligne rouge dans la
+         * section orange, et le compteur d'urgences l'ignorait.
          */
         @Test
         @DisplayName("un lot périmant dans le mois est rangé parmi les urgences")
@@ -207,11 +259,15 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
 
             MobileTodoDTO penseBete = service.getTodoList();
 
-            assertThat(penseBete.urgent()).anyMatch(t -> imminent.getId().longValue() == t.relatedEntityId());
-            assertThat(penseBete.important()).noneMatch(t -> imminent.getId().longValue() == t.relatedEntityId());
+            assertThat(penseBete.urgent()).anyMatch(
+                t -> imminent.getId().longValue() == t.relatedEntityId());
+            assertThat(penseBete.important()).noneMatch(
+                t -> imminent.getId().longValue() == t.relatedEntityId());
         }
 
-        /** Chaque tâche est rangée dans le groupe que sa propre priorité désigne, sans exception. */
+        /**
+         * Chaque tâche est rangée dans le groupe que sa propre priorité désigne, sans exception.
+         */
         @Test
         @DisplayName("aucune tâche n'est rangée dans un groupe qui contredit sa priorité")
         void groupesConformesAuxPriorites() {
@@ -254,8 +310,6 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
         }
     }
 
-    // ===== pagination =====
-
     @Nested
     @DisplayName("Pagination")
     class Pagination {
@@ -295,7 +349,8 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
 
             assertThat(premiere).hasSize(3);
             assertThat(seconde).hasSize(3);
-            assertThat(premiere).extracting(TodoItemDTO::id).doesNotContainAnyElementsOf(seconde.stream().map(TodoItemDTO::id).toList());
+            assertThat(premiere).extracting(TodoItemDTO::id)
+                .doesNotContainAnyElementsOf(seconde.stream().map(TodoItemDTO::id).toList());
         }
 
         @Test
@@ -304,8 +359,6 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             assertThat(service.getAllTodoItems(999, 20)).isEmpty();
         }
     }
-
-    // ===== compteurs par priorité =====
 
     @Nested
     @DisplayName("Compteurs par priorité")
@@ -317,7 +370,8 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             MobileTodoService.TodoCountsDTO avant = service.getTodoCounts();
             produitEnStock(unique("RUPTURE"), 0);
             produitEnStock(unique("RUPTURE"), 0);
-            factureAgee(tiersPayant("Caisse", groupeTiersPayant("CNAM")), 120, 500_000, 0, InvoiceStatut.NOT_PAID);
+            factureAgee(tiersPayant("Caisse", groupeTiersPayant("CNAM")), 120, 500_000, 0,
+                InvoiceStatut.NOT_PAID);
             em.flush();
 
             assertThat(service.getTodoCounts().urgent() - avant.urgent()).isEqualTo(3);
@@ -334,7 +388,9 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             assertThat(service.getTodoCounts().normal() - avant.normal()).isEqualTo(2);
         }
 
-        /** Le compteur ne peut plus diverger du groupe : les deux se déduisent des mêmes tâches. */
+        /**
+         * Le compteur ne peut plus diverger du groupe : les deux se déduisent des mêmes tâches.
+         */
         @Test
         @DisplayName("chaque compteur égale la taille du groupe qu'il annonce")
         void compteursEgalentLesGroupes() {
@@ -344,7 +400,8 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
             lot(lointain, LocalDate.now().plusDays(70), 10);
             produitEnStock(unique("RUPTURE"), 0);
             produitEnStock(unique("BAS"), 2);
-            factureAgee(tiersPayant("Caisse", groupeTiersPayant("CNAM")), 120, 500_000, 0, InvoiceStatut.NOT_PAID);
+            factureAgee(tiersPayant("Caisse", groupeTiersPayant("CNAM")), 120, 500_000, 0,
+                InvoiceStatut.NOT_PAID);
             em.flush();
 
             MobileTodoDTO penseBete = service.getTodoList();
@@ -375,38 +432,8 @@ class MobileTodoServiceIntegrationTest extends AbstractMobileIntegrationTest {
         void totalDesCompteurs() {
             MobileTodoService.TodoCountsDTO compteurs = service.getTodoCounts();
 
-            assertThat(compteurs.total()).isEqualTo(compteurs.urgent() + compteurs.important() + compteurs.normal());
+            assertThat(compteurs.total()).isEqualTo(
+                compteurs.urgent() + compteurs.important() + compteurs.normal());
         }
-    }
-
-    // ===== utilitaires =====
-
-    private TodoItemDTO tacheDuProduit(Produit produit) {
-        return service
-            .getAllTodoItems()
-            .stream()
-            .filter(t -> "PRODUCT".equals(t.relatedEntityType()) && produit.getId().longValue() == t.relatedEntityId())
-            .findFirst()
-            .orElseThrow();
-    }
-
-    private TodoItemDTO tacheDemarque(Produit produit) {
-        return service
-            .getAllTodoItems()
-            .stream()
-            .filter(t -> "CREATE_DISCOUNT".equals(t.type()) && produit.getId().longValue() == t.relatedEntityId())
-            .findFirst()
-            .orElseThrow();
-    }
-
-    private TodoItemDTO tacheDeLaFacture(FactureTiersPayant facture) {
-        return service
-            .getAllTodoItems()
-            .stream()
-            // Les deux identifiants sont des Long : les comparer avec == compare des references,
-            // ce qui ne tient que tant que la valeur reste dans le cache des petits entiers.
-            .filter(t -> "INVOICE".equals(t.relatedEntityType()) && facture.getId().getId().equals(t.relatedEntityId()))
-            .findFirst()
-            .orElseThrow();
     }
 }

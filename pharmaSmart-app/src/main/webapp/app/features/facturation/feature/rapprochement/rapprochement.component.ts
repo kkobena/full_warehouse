@@ -206,7 +206,15 @@ export class RapprochementComponent implements OnInit {
                 this.onSearch();
               }
             },
-            error: () => this.notificationService.error("Erreur lors de l'enregistrement du règlement")
+            error: err => {
+              // Le serveur dit pourquoi (facture réglée entre-temps, règlement en cours ailleurs) :
+              // on l'affiche, puis on recharge pour montrer l'état réel plutôt que la ligne périmée.
+              this.notificationService.error(
+                this.errorService.getErrorMessage(err, "Erreur lors de l'enregistrement du règlement"),
+                "Règlement"
+              );
+              this.onSearch();
+            }
           });
       },
       () => {
@@ -259,7 +267,12 @@ export class RapprochementComponent implements OnInit {
           this.onSearch();
           this.notificationService.success("Règlement annulé");
         },
-        error: () => this.notificationService.error("Erreur lors de l'annulation")
+        error: err => {
+          // « Déjà annulé », « en cours sur un autre poste » : le serveur dit pourquoi, et l'état a
+          // pu changer depuis l'affichage — on le relit.
+          this.notificationService.error(this.errorService.getErrorMessage(err, "Erreur lors de l'annulation"), "Règlement");
+          this.onSearch();
+        }
       });
   }
 

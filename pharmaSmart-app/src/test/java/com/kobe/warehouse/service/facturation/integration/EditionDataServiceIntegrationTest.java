@@ -267,6 +267,69 @@ class EditionDataServiceIntegrationTest extends AbstractFacturationIntegrationTe
     }
 
     @Test
+    @DisplayName("Une facture réglée ne s'annule pas : ses règlements doivent l'être d'abord")
+    void annulationDUneFactureRegleeRefusee() {
+        FactureTiersPayant facture = factureAvecMontant(tiersPayant("REGLEE"), 10_000, 4_000, InvoiceStatut.PARTIALLY_PAID);
+        viderLeCache();
+
+        GenericError refus = assertThrows(GenericError.class, () -> services.editionDataService.deleteFacture(facture.getId()));
+
+        assertTrue(refus.getMessage().contains("a des règlements"));
+        assertEquals(1, compter("SELECT count(*) FROM facture_tiers_payant WHERE id = " + facture.getId().getId()));
+    }
+
+    @Test
+    @DisplayName("Une seconde annulation de la même facture est refusée plutôt qu'en erreur 500")
+    void secondeAnnulationRefusee() {
+        TiersPayant organisme = tiersPayant("DOUBLE ANNUL");
+        FactureTiersPayant facture = facture(organisme, false, List.of(dossier(compte(organisme), 8_000)));
+        viderLeCache();
+        services.editionDataService.deleteFacture(facture.getId());
+        viderLeCache();
+
+        GenericError refus = assertThrows(GenericError.class, () -> services.editionDataService.deleteFacture(facture.getId()));
+        assertTrue(refus.getMessage().contains("déjà été annulée"));
+    }
+
+    @Test
+    @DisplayName("L'annulation en lot d'une facture de groupe emporte aussi ses filles")
+    void annulationEnLotDUnGroupe() throws Exception {
+        GroupeTiersPayant groupe = groupe("GROUPE LOT");
+        dossier(compte(tiersPayant("ADHERENT LOT 1", TiersPayantCategorie.ASSURANCE, groupe)), 12_000);
+        viderLeCache();
+        FactureEditionResponse edition = services.editionByGroupTiersService.createFactureEdition(
+            editionDeToutLeMois(ModeEditionEnum.GROUP)
+        );
+        viderLeCache();
+        FactureTiersPayant porteuse = facturesDe(edition.generationCode())
+            .stream()
+            .filter(f -> f.getGroupeTiersPayant() != null)
+            .findFirst()
+            .orElseThrow();
+
+        services.editionDataService.deleteFacture(Set.of(porteuse.getId()));
+        viderLeCache();
+
+        assertEquals(0, compter("SELECT count(*) FROM facture_tiers_payant"), "la porteuse et sa fille");
+    }
+
+    @Test
+    @DisplayName("L'édition définitive refuse de reprendre les dossiers d'une facture provisoire réglée")
+    void editionRefuseLesDossiersDUneProvisoireReglee() {
+        TiersPayant organisme = tiersPayant("PROVISOIRE REGLEE");
+        FactureTiersPayant provisoire = facture(organisme, true, List.of(dossier(compte(organisme), 9_000)));
+        provisoire.setMontantRegle(3_000);
+        viderLeCache();
+
+        GenericError refus = assertThrows(
+            GenericError.class,
+            () -> services.editionAllService.createFactureEdition(editionDeToutLeMois(ModeEditionEnum.ALL))
+        );
+
+        assertTrue(refus.getMessage().contains(provisoire.getNumFacture()));
+    }
+
+    @Test
     @DisplayName("Une facture se relit avec ses dossiers")
     void lectureDUneFacture() {
         TiersPayant organisme = tiersPayant("LECTURE");

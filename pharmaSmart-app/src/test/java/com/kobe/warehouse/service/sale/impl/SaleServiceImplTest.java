@@ -18,12 +18,14 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashSale;
+import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.PaymentMode;
@@ -69,6 +71,7 @@ import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
+import jakarta.persistence.OptimisticLockException;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -577,7 +580,7 @@ class SaleServiceImplTest {
         testSale.setNatureVente(NatureVente.COMPTANT);
         when(cashSaleRepository.findOneWithEagerSalesLine(1L, testDate)).thenReturn(Optional.of(testSale));
 
-        assertEquals(testSale.getId(), saleService.transformToVenteEncour(testSale.getId()));
+        assertEquals(testSale.getId(), saleService.transformToVenteEncour(testSale.getId(), null));
 
         assertEquals(SalesStatut.ACTIVE, testSale.getStatut());
         verify(cashSaleRepository).save(testSale);
@@ -589,7 +592,7 @@ class SaleServiceImplTest {
             .thenReturn(Optional.empty());
 
         assertThrows(GenericError.class,
-            () -> saleService.transformToVenteEncour(testSale.getId()));
+            () -> saleService.transformToVenteEncour(testSale.getId(), null));
     }
 
     @Test
@@ -603,7 +606,7 @@ class SaleServiceImplTest {
             .thenAnswer(invocation -> invocation.getArgument(0));
         when(salesLineService.cloneSalesLine(anySet(), any(CashSale.class))).thenReturn(Set.of());
 
-        SaleId cloneId = saleService.transformToVenteEncour(testSale.getId());
+        SaleId cloneId = saleService.transformToVenteEncour(testSale.getId(), null);
 
         assertEquals(20L, cloneId.getId());
         verify(salesLineService).deleteSaleLine(testSalesLine);
@@ -759,5 +762,74 @@ class SaleServiceImplTest {
     void testFindBySalesIdAndSalesSaleDateOrderByProduitLibelle() {
         saleService.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(1L, testDate);
         verify(salesLineService).findBySalesIdAndSalesSaleDateOrderByProduitLibelle(1L, testDate);
+    }
+
+    // ===== verrou optimiste, volet client (phase B) =====
+
+    @Test
+    void encaissementRefuseSiLaVenteAChangeDepuisSonAffichage() {
+        testSale.setVersion(3L);
+        when(cashSaleRepository.findOneWithEagerSalesLines(1L, testDate)).thenReturn(Optional.of(testSale));
+        CashSaleDTO dto = new CashSaleDTO();
+        dto.setSaleId(testSale.getId());
+        dto.setVersion(2L);
+
+        assertThrows(OptimisticLockException.class, () -> saleService.save(dto));
+
+        verify(salesRepository, never()).save(any());
+        verifyNoInteractions(paymentService);
+    }
+
+    @Test
+    void miseEnAttenteRefuseeSiLaVenteAChangeDepuisSonAffichage() {
+        testSale.setVersion(3L);
+        when(cashSaleRepository.getReferenceById(testSale.getId())).thenReturn(testSale);
+        CashSaleDTO dto = new CashSaleDTO();
+        dto.setSaleId(testSale.getId());
+        dto.setVersion(2L);
+
+        assertThrows(OptimisticLockException.class, () -> saleService.putCashSaleOnHold(dto));
+
+        verify(salesRepository, never()).save(any());
+        verify(salesRepository, never()).delete(any(Sales.class));
+    }
+
+    @Test
+    void finalisationDePreventeRefuseeSiLaVenteAChangeDepuisSonAffichage() {
+        testSale.setVersion(3L);
+        testSale.setStatut(SalesStatut.PROCESSING);
+        when(cashSaleRepository.findById(testSale.getId())).thenReturn(Optional.of(testSale));
+        CashSaleDTO dto = new CashSaleDTO();
+        dto.setSaleId(testSale.getId());
+        dto.setVersion(2L);
+
+        assertThrows(OptimisticLockException.class, () -> saleService.savePrevente(dto, true));
+
+        assertEquals(SalesStatut.PROCESSING, testSale.getStatut());
+        verify(cashSaleRepository, never()).save(any());
+    }
+
+    @Test
+    void transformationRefuseeSiLaPreventeAChangeDepuisLAffichageDeLaListe() {
+        testSale.setVersion(3L);
+        testSale.setStatut(SalesStatut.PROCESSING);
+        when(cashSaleRepository.findOneWithEagerSalesLine(1L, testDate)).thenReturn(Optional.of(testSale));
+
+        assertThrows(OptimisticLockException.class, () -> saleService.transformToVenteEncour(testSale.getId(), 2L));
+
+        assertEquals(SalesStatut.PROCESSING, testSale.getStatut());
+        verify(cashSaleRepository, never()).save(any());
+    }
+
+    @Test
+    void transformationAccepteeQuandLaVersionConcorde() {
+        testSale.setVersion(3L);
+        testSale.setStatut(SalesStatut.PROCESSING);
+        testSale.setNatureVente(NatureVente.COMPTANT);
+        when(cashSaleRepository.findOneWithEagerSalesLine(1L, testDate)).thenReturn(Optional.of(testSale));
+
+        assertEquals(testSale.getId(), saleService.transformToVenteEncour(testSale.getId(), 3L));
+
+        assertEquals(SalesStatut.ACTIVE, testSale.getStatut());
     }
 }

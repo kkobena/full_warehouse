@@ -139,8 +139,13 @@ export class FactureListComponent {
               this.store.removeFactureFromList(facture.factureItemId!.id);
               this.notificationService.success("Facture supprimée", "Suppression");
             },
-            error: err =>
-              this.notificationService.error(this.errorService.getErrorMessage(err), "Suppression")
+            error: err => {
+              this.notificationService.error(this.errorService.getErrorMessage(err), "Suppression");
+              if (err?.error?.errorKey === "factureDejaAnnulee") {
+                // Annulée entre-temps sur un autre poste : elle n'a plus rien à faire dans la liste.
+                this.store.removeFactureFromList(facture.factureItemId!.id);
+              }
+            }
           }),
       "Suppression facture",
       `Supprimer la facture ${facture.numFacture} ?`

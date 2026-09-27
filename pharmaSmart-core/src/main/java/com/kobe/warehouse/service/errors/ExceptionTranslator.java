@@ -1,7 +1,14 @@
 package com.kobe.warehouse.service.errors;
 
+import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.license.LicenseViolationException;
+import jakarta.persistence.LockTimeoutException;
 import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.PessimisticLockException;
+import org.hibernate.StaleObjectStateException;
+import org.hibernate.StaleStateException;
+import org.hibernate.exception.LockAcquisitionException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -28,12 +35,87 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ExceptionTranslator.class);
 
 
+    /**
+     * Verrou optimiste : une autre opération a écrit la même ligne entre-temps.
+     *
+     * <p>Chaque conflit est journalisé : c'est ce décompte qui dira, en pharmacie pilote, si le verrou
+     * sur les ventes produit des faux positifs (docs/PLAN-VERROU-OPTIMISTE-SALES.md).
+     */
     @ExceptionHandler({OptimisticLockException.class, ObjectOptimisticLockingFailureException.class})
     public ResponseEntity<Object> handleOptimisticLock(Exception ex, NativeWebRequest request) {
         Custom pd = new Custom(HttpStatus.CONFLICT.value());
-        pd.setDetail("Le stock a été modifié par une autre opération. Veuillez réessayer.");
-        pd.setMessage("stock.concurrent.modification");
+        String detail;
+        if (concerneUneVente(ex)) {
+            LOG.warn("Conflit de verrou optimiste (409) sur une vente : {}", ex.getMessage());
+            detail = "Cette vente a été modifiée par une autre opération (autre poste ou double validation). "
+                + "Rechargez-la avant de continuer.";
+            pd.setErrorKey("sale.concurrent.modification");
+        } else {
+            LOG.warn("Conflit de verrou optimiste (409) : {}", ex.getMessage());
+            detail = "Le stock a été modifié par une autre opération. Veuillez réessayer.";
+            pd.setErrorKey("stock.concurrent.modification");
+        }
+        // Le front affiche `message` en priorité : il porte le texte, la clé va dans errorKey.
+        pd.setDetail(detail);
+        pd.setMessage(detail);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(pd);
+    }
+
+    /**
+     * Verrou pessimiste non obtenu dans le délai (règlements : la même facture est en cours de
+     * traitement ailleurs), ou interblocage résolu par PostgreSQL. Rien n'a été écrit : la
+     * transaction est annulée, l'opération peut être relancée telle quelle.
+     */
+    @ExceptionHandler({
+        PessimisticLockingFailureException.class,
+        PessimisticLockException.class,
+        LockTimeoutException.class,
+        LockAcquisitionException.class,
+    })
+    public ResponseEntity<Object> handlePessimisticLock(Exception ex, NativeWebRequest request) {
+        LOG.warn("Verrou non obtenu (409) : {}", ex.getMessage());
+        Custom pd = new Custom(HttpStatus.CONFLICT.value());
+        String detail = "Cette opération est en cours sur un autre poste. Réessayez dans un instant.";
+        pd.setDetail(detail);
+        pd.setMessage(detail);
+        pd.setErrorKey("concurrent.lock");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(pd);
+    }
+
+    /**
+     * Selon le chemin emprunté (flush explicite, commit, lot JDBC), l'entité en conflit est
+     * désignée par sa classe, par l'instance, ou seulement par l'ordre SQL : on les essaie tous le
+     * long de la chaîne des causes.
+     */
+    private static boolean concerneUneVente(Throwable ex) {
+        for (Throwable t = ex; t != null; t = t.getCause() == t ? null : t.getCause()) {
+            if (t instanceof ObjectOptimisticLockingFailureException o && estUneVente(o.getPersistentClassName())) {
+                return true;
+            }
+            if (t instanceof OptimisticLockException o && o.getEntity() instanceof Sales) {
+                return true;
+            }
+            if (t instanceof StaleObjectStateException s && estUneVente(s.getEntityName())) {
+                return true;
+            }
+            // Échec au sein d'un lot JDBC : Hibernate ne nomme pas l'entité, seulement l'ordre SQL.
+            if (t instanceof StaleStateException && t.getMessage() != null
+                && t.getMessage().toLowerCase().contains("update sales ")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean estUneVente(String entityName) {
+        if (entityName == null) {
+            return false;
+        }
+        try {
+            return Sales.class.isAssignableFrom(Class.forName(entityName, false, Sales.class.getClassLoader()));
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     /**

@@ -132,6 +132,13 @@ class ReglementDataServiceImplTest {
     }
 
     /** InvoicePaymentDTO exige un paiement complet : facture, organisme, mode et caissier. */
+    /** Le règlement existe encore : sa facture est retrouvée, verrouillée, puis le règlement relu. */
+    private void stubAnnulable(PaymentId id, InvoicePayment paiement) {
+        when(invoicePaymentRepository.findFactureIdOf(any(), any()))
+            .thenReturn(java.util.Optional.of(new FactureItemId(7L, LocalDate.of(2026, 4, 18))));
+        when(invoicePaymentRepository.findById(id)).thenReturn(java.util.Optional.of(paiement));
+    }
+
     private static InvoicePayment paiement(FactureTiersPayant facture, int expected, int paid) {
         AppUser user = new AppUser();
         user.setFirstName("Awa");
@@ -180,13 +187,41 @@ class ReglementDataServiceImplTest {
     class DeleteReglement {
 
         @Test
+        @DisplayName("une seconde annulation du meme reglement est refusee, sans double contrepassation")
+        void dejaAnnule() {
+            when(invoicePaymentRepository.findFactureIdOf(any(), any())).thenReturn(java.util.Optional.empty());
+
+            assertThatThrownBy(() -> service.deleteReglement(PAYMENT_ID))
+                .isInstanceOf(com.kobe.warehouse.service.errors.GenericError.class)
+                .hasMessageContaining("déjà été annulé");
+
+            verify(facturationRepository, org.mockito.Mockito.never()).save(any());
+            verify(invoicePaymentRepository, org.mockito.Mockito.never()).delete(any(InvoicePayment.class));
+        }
+
+        @Test
+        @DisplayName("verrouille la facture avant de relire le reglement")
+        void verrouilleAvantDeLire() {
+            FactureTiersPayant facture = facture(tiersPayant(3, "CNAM"), null).setMontantRegle(0);
+            stubAnnulable(PAYMENT_ID, paiement(facture, 0, 0));
+
+            service.deleteReglement(PAYMENT_ID);
+
+            FactureItemId factureId = new FactureItemId(7L, LocalDate.of(2026, 4, 18));
+            var ordre = org.mockito.Mockito.inOrder(facturationRepository, invoicePaymentRepository);
+            ordre.verify(facturationRepository).verrouiller(factureId);
+            ordre.verify(facturationRepository).verrouillerFilles(factureId);
+            ordre.verify(invoicePaymentRepository).findById(PAYMENT_ID);
+        }
+
+        @Test
         @DisplayName("annule un reglement simple et remet les bons a leur solde d avant")
         void reglementSimple() {
             FactureTiersPayant facture = facture(tiersPayant(3, "CNAM"), null).setMontantRegle(1000);
             InvoicePayment paiement = paiement(facture, 1000, 1000);
             ThirdPartySaleLine bon = bon(1000, 1000);
             paiement.getInvoicePaymentItems().add(item(bon, 1000, 1000));
-            when(invoicePaymentRepository.getReferenceById(PAYMENT_ID)).thenReturn(paiement);
+            stubAnnulable(PAYMENT_ID, paiement);
 
             service.deleteReglement(PAYMENT_ID);
 
@@ -206,7 +241,7 @@ class ReglementDataServiceImplTest {
             InvoicePayment paiement = paiement(facture, 1000, 1000);
             ThirdPartySaleLine bon = bon(1000, 1000);
             paiement.getInvoicePaymentItems().add(item(bon, 400, 400));
-            when(invoicePaymentRepository.getReferenceById(PAYMENT_ID)).thenReturn(paiement);
+            stubAnnulable(PAYMENT_ID, paiement);
 
             service.deleteReglement(PAYMENT_ID);
 
@@ -222,7 +257,7 @@ class ReglementDataServiceImplTest {
             InvoicePayment paiement = paiement(facture, 1000, 1000);
             ThirdPartySaleLine bon = bon(1000, 100);
             paiement.getInvoicePaymentItems().add(item(bon, 1000, 1000));
-            when(invoicePaymentRepository.getReferenceById(PAYMENT_ID)).thenReturn(paiement);
+            stubAnnulable(PAYMENT_ID, paiement);
 
             service.deleteReglement(PAYMENT_ID);
 
@@ -237,7 +272,7 @@ class ReglementDataServiceImplTest {
             InvoicePayment paiement = paiement(facture, 1000, 1000);
             ThirdPartySaleLine bon = bon(1000, 1000);
             paiement.getInvoicePaymentItems().add(item(bon, 400, 400));
-            when(invoicePaymentRepository.getReferenceById(PAYMENT_ID)).thenReturn(paiement);
+            stubAnnulable(PAYMENT_ID, paiement);
 
             service.deleteReglement(PAYMENT_ID);
 
@@ -256,7 +291,7 @@ class ReglementDataServiceImplTest {
 
             InvoicePayment paiementGroupe = paiement(groupe, 1000, 1000);
             paiementGroupe.setInvoicePayments(new ArrayList<>(List.of(paiementFille)));
-            when(invoicePaymentRepository.getReferenceById(PAYMENT_ID)).thenReturn(paiementGroupe);
+            stubAnnulable(PAYMENT_ID, paiementGroupe);
 
             service.deleteReglement(PAYMENT_ID);
 
@@ -272,7 +307,7 @@ class ReglementDataServiceImplTest {
         @DisplayName("un paiement sans ligne ne touche a aucun bon")
         void paiementSansLigne() {
             FactureTiersPayant facture = facture(tiersPayant(3, "CNAM"), null).setMontantRegle(0);
-            when(invoicePaymentRepository.getReferenceById(PAYMENT_ID)).thenReturn(paiement(facture, 0, 0));
+            stubAnnulable(PAYMENT_ID, paiement(facture, 0, 0));
 
             service.deleteReglement(PAYMENT_ID);
 
@@ -284,7 +319,9 @@ class ReglementDataServiceImplTest {
         @DisplayName("annule chaque reglement du lot")
         void lotDeReglements() {
             FactureTiersPayant facture = facture(tiersPayant(3, "CNAM"), null).setMontantRegle(0);
-            when(invoicePaymentRepository.getReferenceById(any(PaymentId.class))).thenReturn(paiement(facture, 0, 0));
+            when(invoicePaymentRepository.findFactureIdOf(any(), any()))
+                .thenReturn(java.util.Optional.of(new FactureItemId(7L, LocalDate.of(2026, 4, 18))));
+            when(invoicePaymentRepository.findById(any(PaymentId.class))).thenReturn(java.util.Optional.of(paiement(facture, 0, 0)));
 
             service.deleteReglement(Set.of(PAYMENT_ID, new PaymentId(56L, LocalDate.of(2026, 4, 19))));
 

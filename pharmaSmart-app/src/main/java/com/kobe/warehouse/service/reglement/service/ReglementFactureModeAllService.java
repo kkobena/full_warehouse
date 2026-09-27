@@ -23,8 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ReglementFactureModeAllService extends AbstractReglementService {
 
-    private final FacturationRepository facturationRepository;
-
     public ReglementFactureModeAllService(
         CashRegisterService cashRegisterService,
         InvoicePaymentRepository invoicePaymentRepository,
@@ -47,12 +45,12 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
             invoicePaymentItemService,
             referenceService
         );
-        this.facturationRepository = facturationRepository;
     }
 
     @Override
     public ResponseReglementDTO doReglement(ReglementParam reglementParam) throws CashRegisterException, PaymentAmountException {
-        FactureTiersPayant factureTiersPayant = getFactureTiersPayant(reglementParam);
+        FactureTiersPayant factureTiersPayant = verrouillerFacture(reglementParam.getId());
+        refuserSiSoldee(resteDu(factureTiersPayant));
 
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, reglementParam);
         int montantPaye = 0;
@@ -65,7 +63,7 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
         }
 
         super.updateFactureTiersPayant(factureTiersPayant, montantPaye);
-        super.updateStatut(factureTiersPayant, reglementParam.getMontantFacture());
+        appliquerStatut(factureTiersPayant);
         super.saveFactureTiersPayant(factureTiersPayant);
         super.saveThirdPartyLines(factureTiersPayant.getFacturesDetails());
         invoicePayment.setReelAmount(montantPaye);
@@ -75,10 +73,6 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
         invoicePayment = super.saveInvoicePayment(invoicePayment);
 
         return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
-    }
-
-    private FactureTiersPayant getFactureTiersPayant(ReglementParam reglementParam) {
-        return facturationRepository.getReferenceById(reglementParam.getId());
     }
 
     public InvoicePayment doReglement(InvoicePayment groupeInvoicePayment, FactureTiersPayant factureTiersPayant) {

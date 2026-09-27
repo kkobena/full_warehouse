@@ -121,8 +121,8 @@
           </ng-template>
         </ng-container>
 
-        <!-- Onglet Régler (uniquement pour les factures non réglées ou partiellement réglées + permission) -->
-        @if (canExecute() && (facture().statut === 'NOT_PAID' || facture().statut === 'PARTIALLY_PAID')) {
+        <!-- Onglet Régler : factures définitives non soldées, avec permission. Une provisoire ne se règle pas. -->
+        @if (canExecute() && !facture().factureProvisoire && (facture().statut === 'NOT_PAID' || facture().statut === 'PARTIALLY_PAID')) {
           <ng-container ngbNavItem="regler">
             <a class="pharma-nav-tab-link" ngbNavLink>
               <i class="pi pi-money-bill"></i>

@@ -44,6 +44,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -146,18 +147,43 @@ public class EditionDataServiceImpl implements EditionDataService {
         }
     }
 
+    /**
+     * Annulation d'une facture : ses dossiers redeviennent facturables et elle disparaît.
+     *
+     * <p>La facture et ses filles sont verrouillées avant toute lecture, dans l'ordre des
+     * règlements : une annulation et un règlement de la même facture s'exécutent l'un après l'autre,
+     * et l'annulation voit le règlement qu'elle a attendu. Une facture réglée est refusée —
+     * ses règlements doivent être annulés d'abord ; la base le refusait déjà par clé étrangère, mais
+     * en HTTP 500.
+     */
     @Override
     public void deleteFacture(FactureItemId id) {
-        FactureTiersPayant factureTiersPayant = getFactureTiersPayant(id);
-        if (Objects.nonNull(factureTiersPayant)) {
-            resetThirdPartySaleLines(factureTiersPayant);
-            List<FactureTiersPayant> factureTiersPayants = factureTiersPayant.getFactureTiersPayants();
-            if (!CollectionUtils.isEmpty(factureTiersPayants)) {
-                factureTiersPayants.forEach(this::resetThirdPartySaleLines);
-                this.facturationRepository.deleteAll(factureTiersPayants);
-            }
+        this.facturationRepository.verrouillerAvecFilles(List.of(id));
+        supprimerFacture(id);
+    }
 
-            this.facturationRepository.delete(factureTiersPayant);
+    private void supprimerFacture(FactureItemId id) {
+        FactureTiersPayant factureTiersPayant = this.facturationRepository.findById(id)
+            .orElseThrow(() -> new GenericError("Cette facture a déjà été annulée", "factureDejaAnnulee"));
+        refuserSiReglee(factureTiersPayant);
+        resetThirdPartySaleLines(factureTiersPayant);
+        List<FactureTiersPayant> factureTiersPayants = factureTiersPayant.getFactureTiersPayants();
+        if (!CollectionUtils.isEmpty(factureTiersPayants)) {
+            factureTiersPayants.forEach(this::resetThirdPartySaleLines);
+            this.facturationRepository.deleteAll(factureTiersPayants);
+        }
+
+        this.facturationRepository.delete(factureTiersPayant);
+    }
+
+    private static void refuserSiReglee(FactureTiersPayant facture) {
+        boolean reglee = facture.getMontantRegle() > 0
+            || facture.getFactureTiersPayants().stream().anyMatch(fille -> fille.getMontantRegle() > 0);
+        if (reglee) {
+            throw new GenericError(
+                "La facture " + facture.getNumFacture() + " a des règlements : annulez-les avant d'annuler la facture",
+                "factureReglee"
+            );
         }
     }
 
@@ -183,19 +209,29 @@ public class EditionDataServiceImpl implements EditionDataService {
         return Optional.of(buildFactureDtoWrapper(facture));
     }
 
+    /**
+     * Annulation en lot : toutes les factures et leurs filles sont verrouillées en une instruction,
+     * puis annulées comme une à une — filles comprises, que l'ancienne version laissait en place.
+     */
     @Override
     public void deleteFacture(Set<FactureItemId> ids) {
-        List<FactureTiersPayant> factureTiersPayants = this.facturationRepository.findAll(
-            this.facturationRepository.fetchByIds(ids));
-        factureTiersPayants.forEach(t -> {
-            List<ThirdPartySaleLine> thirdPartySaleLines = t.getFacturesDetails();
-            thirdPartySaleLines.forEach(thirdPartySaleLine -> {
-                thirdPartySaleLine.setFactureTiersPayant(null);
-                thirdPartySaleLine.setUpdated(LocalDateTime.now());
-                thirdPartySaleLineRepository.save(thirdPartySaleLine);
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        this.facturationRepository.verrouillerAvecFilles(ids);
+        Set<FactureItemId> annulees = new HashSet<>();
+        ids.stream()
+            .sorted(Comparator.comparing(FactureItemId::getInvoiceDate).thenComparing(FactureItemId::getId))
+            .forEach(id -> {
+                if (annulees.contains(id)) {
+                    return; // fille d'un groupe du lot, déjà annulée avec lui
+                }
+                FactureTiersPayant facture = this.facturationRepository.findById(id)
+                    .orElseThrow(() -> new GenericError("Une ou plusieurs factures ont déjà été annulées", "factureDejaAnnulee"));
+                facture.getFactureTiersPayants().forEach(fille -> annulees.add(fille.getId()));
+                supprimerFacture(id);
+                annulees.add(id);
             });
-            this.facturationRepository.delete(t);
-        });
     }
 
     @Override

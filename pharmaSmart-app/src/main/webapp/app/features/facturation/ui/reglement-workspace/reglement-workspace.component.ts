@@ -181,8 +181,12 @@ export class ReglementWorkspaceComponent {
             this.onPrintReceipt(res.body);
           }
         },
-        error: err =>
-          this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur règlement")
+        error: err => {
+          this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur règlement");
+          // Refus du serveur (facture réglée entre-temps, règlement en cours ailleurs) : on relit
+          // la facture pour montrer son état réel, au lieu de laisser des montants périmés à l'écran.
+          this.rechargerFacture();
+        }
       });
   }
 
@@ -265,13 +269,21 @@ export class ReglementWorkspaceComponent {
       this.reglementFactureDossiersSignal.set([]);
       this.reglementFormComponent()?.cashInput.setValue(null);
     } else {
-      const factureId: IFactureId = {
-        id: this.dossierFactureProjectionSignal().id,
-        invoiceDate: this.dossierFactureProjectionSignal().invoiceDate
-      };
-      this.loadDossierProjection(this.dossierFactureProjectionSignal().factureItemId);
-      this.reloadDossiers(factureId);
+      this.rechargerFacture();
     }
+  }
+
+  private rechargerFacture(): void {
+    const projection = this.dossierFactureProjectionSignal();
+    if (!projection) {
+      return;
+    }
+    const factureId: IFactureId = {
+      id: projection.id,
+      invoiceDate: projection.invoiceDate
+    };
+    this.loadDossierProjection(projection.factureItemId);
+    this.reloadDossiers(factureId);
   }
 
   private loadDossierProjection(factureId: IFactureId): void {

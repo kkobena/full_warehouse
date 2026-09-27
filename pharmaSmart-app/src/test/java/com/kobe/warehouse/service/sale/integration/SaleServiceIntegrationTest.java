@@ -23,9 +23,12 @@ import com.kobe.warehouse.service.dto.PaymentModeDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
+import jakarta.persistence.OptimisticLockException;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
+import org.hibernate.StaleStateException;
 import org.junit.jupiter.api.Test;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 /**
  * {@link com.kobe.warehouse.service.sale.SaleService} sur un vrai PostgreSQL.
@@ -266,7 +269,88 @@ class SaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         assertNull(em.find(CashSale.class, cree.getSaleId()).getCustomer());
     }
 
+    @Test
+    @DisplayName("Chaque écriture de la vente fait avancer sa version")
+    void laVersionAvanceAChaqueEcriture() {
+        Produit produit = produitEnStock("VOGALENE", 900, 500, 0, 10);
+        CashSaleDTO cree = services.saleService.createCashSale(venteDe(produit, 1));
+        viderLeCache();
+        long avant = version(cree.getSaleId());
+
+        cloturer(cree.getSaleId(), 900);
+        viderLeCache();
+
+        assertTrue(version(cree.getSaleId()) > avant, "la clôture a incrémenté la version");
+    }
+
+    /**
+     * Le double encaissement : le poste A a chargé la vente, le poste B l'a écrite entre-temps. A
+     * doit échouer, et non écraser silencieusement ce que B a enregistré.
+     */
+    @Test
+    @DisplayName("Une écriture partie d'une vente périmée échoue au lieu d'écraser l'autre")
+    void ecriturePerimeeRefusee() {
+        Produit produit = produitEnStock("SMECTA", 1_200, 700, 0, 10);
+        CashSaleDTO cree = services.saleService.createCashSale(venteDe(produit, 2));
+        viderLeCache();
+        CashSale chargeeParA = em.find(CashSale.class, cree.getSaleId());
+        assertNotNull(chargeeParA);
+
+        em.createNativeQuery("UPDATE sales SET version = version + 1 WHERE id = :id AND sale_date = :date")
+            .setParameter("id", cree.getSaleId().getId())
+            .setParameter("date", cree.getSaleId().getSaleDate())
+            .executeUpdate();
+
+        RuntimeException erreur = assertThrows(RuntimeException.class, () -> {
+            cloturer(cree.getSaleId(), 2_400);
+            em.flush();
+        });
+        assertTrue(estUnConflitDeVersion(erreur), () -> "conflit de version attendu, obtenu : " + erreur);
+    }
+
+    /**
+     * Le poste garde la réponse de création comme vente courante, sans la relire : si elle portait
+     * une version antérieure à celle écrite, l'encaissement suivant partirait en faux conflit.
+     */
+    @Test
+    @DisplayName("La vente renvoyée à la création porte la version réellement écrite")
+    void laCreationRenvoieLaVersionEcrite() {
+        Produit produit = produitEnStock("MAALOX", 1_100, 600, 0, 10);
+        CashSaleDTO cree = services.saleService.createCashSale(venteDe(produit, 1));
+        viderLeCache();
+
+        assertEquals(version(cree.getSaleId()), cree.getVersion());
+    }
+
+    @Test
+    @DisplayName("Un encaissement portant la version affichée passe")
+    void encaissementAvecLaVersionAffichee() {
+        Produit produit = produitEnStock("GAVISCON", 1_300, 800, 0, 10);
+        CashSaleDTO cree = services.saleService.createCashSale(venteDe(produit, 1));
+        viderLeCache();
+
+        CashSaleDTO cloture = clotureDe(cree.getSaleId(), 1_300);
+        cloture.setVersion(cree.getVersion());
+        services.saleService.save(cloture);
+        viderLeCache();
+
+        assertEquals(SalesStatut.CLOSED, em.find(CashSale.class, cree.getSaleId()).getStatut());
+    }
+
     // ===== outils =====
+
+    private long version(SaleId saleId) {
+        return compter("SELECT version FROM sales WHERE id = " + saleId.getId() + " AND sale_date = '" + saleId.getSaleDate() + "'");
+    }
+
+    private static boolean estUnConflitDeVersion(Throwable erreur) {
+        for (Throwable t = erreur; t != null; t = t.getCause() == t ? null : t.getCause()) {
+            if (t instanceof OptimisticLockException || t instanceof ObjectOptimisticLockingFailureException || t instanceof StaleStateException) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private int stockRayon(Produit produit) {
         StockProduit stock = services.stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), STORAGE_RAYON_ID);

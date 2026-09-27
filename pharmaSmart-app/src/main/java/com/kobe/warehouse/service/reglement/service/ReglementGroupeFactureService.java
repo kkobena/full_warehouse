@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ReglementGroupeFactureService extends AbstractReglementService {
 
-    private final FacturationRepository facturationRepository;
     private final ReglementFactureModeAllService reglementFactureModeAllService;
 
     public ReglementGroupeFactureService(
@@ -50,13 +49,13 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
             invoicePaymentItemService,
             referenceService
         );
-        this.facturationRepository = facturationRepository;
         this.reglementFactureModeAllService = reglementFactureModeAllService;
     }
 
     @Override
     public ResponseReglementDTO doReglement(ReglementParam reglementParam) throws CashRegisterException, PaymentAmountException {
-        FactureTiersPayant factureTiersPayant = this.facturationRepository.getReferenceById(reglementParam.getId());
+        FactureTiersPayant factureTiersPayant = verrouillerFactureGroupe(reglementParam.getId());
+        refuserSiSoldee(resteDuGroupe(factureTiersPayant));
 
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, reglementParam);
         invoicePayment.setGrouped(true);
@@ -69,15 +68,18 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
         }
 
         for (FactureTiersPayant item : factureTiersPayant.getFactureTiersPayants()) {
+            if (resteDu(item) <= 0) {
+                // Fille déjà soldée (réglée à part) : rien à y imputer, pas de pièce à 0.
+                continue;
+            }
+            refuserSiProvisoire(item);
             var invoicePaymentItem = this.reglementFactureModeAllService.doReglement(invoicePayment, item);
             montantPaye += invoicePaymentItem.getPaidAmount();
             invoicePayments.add(invoicePaymentItem);
         }
 
         super.updateFactureTiersPayant(factureTiersPayant, montantPaye);
-        factureTiersPayant.setStatut(
-            factureTiersPayant.getMontantRegle() < reglementParam.getMontantFacture() ? InvoiceStatut.PARTIALLY_PAID : InvoiceStatut.PAID
-        );
+        appliquerStatutGroupe(factureTiersPayant);
         super.saveFactureTiersPayant(factureTiersPayant);
         invoicePayment.setExpectedAmount(totalAmount);
         invoicePayment.setPaidAmount(montantPaye);

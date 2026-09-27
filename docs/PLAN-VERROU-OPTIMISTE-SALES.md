@@ -5,6 +5,43 @@
 > [plan inventaire](PLAN-AMELIORATION-INVENTAIRE-OFFICINE.md), dont il reprend le
 > mécanisme éprouvé sur `store_inventory_line`.
 
+## État d'avancement
+
+**Phases A et B implémentées (2026-09-27).** Le §7 recommande de ne pas les *déployer*
+ensemble : livrer A seule en pharmacie pilote, puis B.
+
+Phase B :
+
+- B1 : `SaleDTO.version`, alimentée par le constructeur depuis l'entité (donc présente dans
+  `GET /api/sales/{id}/{date}` et dans les listes de préventes/devis).
+- B2/B3 : `SaleCommonService.verifierVersion` (version client nulle = pas de contrôle) appelée
+  par `save`, `put-on-hold`, `finalize-prevente(-and-transform)` et `transform`, en comptant
+  **et** en assurance. `transform` ne reçoit qu'un `SaleId` (clé JPA) : la version passe en
+  paramètre de requête facultatif `?version=`.
+- Garde-fou anti-faux-positif : les deux créations (`POST comptant` / `POST assurance`)
+  flushent avant de construire la réponse, que le poste garde comme vente courante sans la
+  relire. Toutes les autres écritures de l'écran de vente sont suivies d'un `findSale` qui
+  rafraîchit la version (audit des façades `sale-product`, `sale-customer`, `sale-lifecycle`).
+- B5 : sur 409, `SalePaymentFacade` relit la vente et la remplace dans le store, sans fusion ;
+  une vente devenue `CLOSED` ou annulée ailleurs quitte l'écran. Les listes de préventes et de
+  devis se rechargent.
+- Hors périmètre, volontairement : opérations de ligne, `save/completed-sale` (édition),
+  vente dépôt, anciens services `entities/sales/` (plus appelés pour ces flux).
+
+Phase A :
+
+- A1 : `V2.1.2__sales_optimistic_lock.sql` (`SET LOCAL lock_timeout = '5s'`).
+- A2/A3 : `Sales.version` (`@Version`) ; `clone()` remet la version à `null`.
+- A4 — audit : les quatre `REQUIRES_NEW` du projet (planification de facturation, FNE) ne
+  touchent pas `sales` ; aucun batch ne sauvegarde de vente détachée ; toutes les créations
+  partent de `new …()`. Seule écriture SQL directe : `PonctionCalculator`, appelée par
+  `cancel` **entre** le chargement et la sauvegarde de la vente — elle ne doit donc **pas**
+  incrémenter la version (commenté dans le code).
+- A5 : `ExceptionTranslator` reconnaît une vente (classe, instance ou ordre SQL d'un lot JDBC)
+  et renvoie un libellé dédié, clé `sale.concurrent.modification`. Le texte lisible est
+  désormais dans `message` **et** `detail` (le front affiche `message` en priorité), la clé
+  dans `errorKey`. Chaque 409 est journalisé en `WARN` pour le décompte en pharmacie pilote.
+
 ## 1. Objectif
 
 Empêcher qu'une vente soit écrasée par deux opérations concurrentes — double

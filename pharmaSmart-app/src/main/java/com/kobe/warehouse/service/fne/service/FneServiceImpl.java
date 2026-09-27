@@ -224,8 +224,8 @@ public class FneServiceImpl implements FneService {
 
 
     private void saveResponse(FneResponse fneResponse, FactureTiersPayant factureTiersPayant) {
-        factureTiersPayant.setFneResponse(fneResponse);
-        facturationRepository.save(factureTiersPayant);
+        // Pas de save() de l'entité lue avant l'appel HTTP : il réécrirait aussi son montant réglé.
+        certificationTransactionService.enregistrerReponse(factureTiersPayant.getId(), fneResponse);
     }
 
 

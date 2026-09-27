@@ -12,6 +12,7 @@ import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.FactureTiersPayant;
+import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
@@ -100,17 +101,37 @@ class ReglementGroupeSelectionFactureServiceTest {
         when(transactionIdGeneratorService.nextId()).thenReturn(55L);
         when(referenceService.buildNumTransaction()).thenReturn("TR-0001");
         when(invoicePaymentRepository.save(any(InvoicePayment.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(reglementFactureSelectionneesService.doReglement(any(), any(), anyInt(), any())).thenReturn(new InvoicePayment());
+        // Le simulacre impute comme le vrai service : au plus le reste du dossier de la fille.
+        when(reglementFactureSelectionneesService.doReglement(any(), any(), anyInt(), any())).thenAnswer(inv -> {
+            FactureTiersPayant fille = inv.getArgument(1);
+            int montant = inv.getArgument(2);
+            ThirdPartySaleLine dossier = fille.getFacturesDetails().getFirst();
+            int paye = Math.min(montant, dossier.getMontant() - dossier.getMontantRegle());
+            dossier.setMontantRegle(dossier.getMontantRegle() + paye);
+            InvoicePayment paiement = new InvoicePayment();
+            paiement.setPaidAmount(paye);
+            return paiement;
+        });
     }
+
+    private FactureTiersPayant groupeVerrouille;
 
     private FactureTiersPayant groupe() {
         FactureTiersPayant groupe = new FactureTiersPayant().setId(7L).setMontantRegle(0);
-        when(facturationRepository.getReferenceById(GROUPE_ID)).thenReturn(groupe);
+        groupe.setFactureTiersPayants(new ArrayList<>());
+        when(facturationRepository.verrouiller(GROUPE_ID)).thenReturn(java.util.Optional.of(groupe));
+        groupeVerrouille = groupe;
         return groupe;
     }
 
-    private void stubFille(FactureItemId id, long entityId) {
-        when(facturationRepository.getReferenceById(id)).thenReturn(new FactureTiersPayant().setId(entityId).setMontantRegle(0));
+    /** Une fille du groupe, d'un seul dossier de {@code montant}. */
+    private FactureTiersPayant stubFille(FactureItemId id, long entityId, int montant) {
+        FactureTiersPayant fille = new FactureTiersPayant().setId(entityId).setMontantRegle(0).setNumFacture("F-" + entityId);
+        fille.setFacturesDetails(new ArrayList<>(List.of(new ThirdPartySaleLine().setMontant(montant).setMontantRegle(0))));
+        fille.setGroupeFactureTiersPayant(groupeVerrouille);
+        groupeVerrouille.getFactureTiersPayants().add(fille);
+        when(facturationRepository.getReferenceById(id)).thenReturn(fille);
+        return fille;
     }
 
     private static LigneSelectionnesDTO selection(FactureItemId id, int montantVerse) {
@@ -145,8 +166,8 @@ class ReglementGroupeSelectionFactureServiceTest {
     @DisplayName("marque le paiement comme groupe et ventile le versement sur chaque facture")
     void ventileSurChaqueFacture() {
         FactureTiersPayant groupe = groupe();
-        stubFille(FILLE_1, 9L);
-        stubFille(FILLE_2, 10L);
+        stubFille(FILLE_1, 9L, 1000);
+        stubFille(FILLE_2, 10L, 500);
 
         ResponseReglementDTO response = service.doReglement(
             param(1500, 1500, 1500, selection(FILLE_1, 1000), selection(FILLE_2, 500))
@@ -168,8 +189,8 @@ class ReglementGroupeSelectionFactureServiceTest {
     @DisplayName("ecrete la derniere facture quand le versement ne suffit pas")
     void ecreteLaDerniereFacture() {
         FactureTiersPayant groupe = groupe();
-        stubFille(FILLE_1, 9L);
-        stubFille(FILLE_2, 10L);
+        stubFille(FILLE_1, 9L, 1000);
+        stubFille(FILLE_2, 10L, 500);
 
         service.doReglement(param(1200, 1500, 1500, selection(FILLE_1, 1000), selection(FILLE_2, 500)));
 
@@ -184,8 +205,8 @@ class ReglementGroupeSelectionFactureServiceTest {
     @DisplayName("s arrete des que le versement est epuise")
     void sArreteQuandEpuise() {
         groupe();
-        stubFille(FILLE_1, 9L);
-        stubFille(FILLE_2, 10L);
+        stubFille(FILLE_1, 9L, 1000);
+        stubFille(FILLE_2, 10L, 500);
 
         service.doReglement(param(1000, 1500, 1500, selection(FILLE_1, 1000), selection(FILLE_2, 500)));
 
@@ -195,23 +216,80 @@ class ReglementGroupeSelectionFactureServiceTest {
     }
 
     @Test
-    @DisplayName("un versement nul ne regle aucune facture")
+    @DisplayName("un versement nul est refuse, sans piece a 0")
     void versementNul() {
         FactureTiersPayant groupe = groupe();
+        stubFille(FILLE_1, 9L, 1000);
 
-        service.doReglement(param(0, 1000, 1000, selection(FILLE_1, 1000)));
+        assertThatThrownBy(() -> service.doReglement(param(0, 1000, 1000, selection(FILLE_1, 1000))))
+            .isInstanceOf(GenericError.class);
 
         assertThat(groupe.getMontantRegle()).isZero();
         verifyNoInteractions(reglementFactureSelectionneesService);
-        verify(invoicePaymentRepository).saveAll(List.of());
+        verify(invoicePaymentRepository, org.mockito.Mockito.never()).save(any());
+    }
+
+    @Test
+    @DisplayName("refuse une facture fille deja soldee depuis l affichage : c est le double reglement")
+    void filleDejaSoldee() {
+        groupe();
+        FactureTiersPayant soldee = stubFille(FILLE_1, 9L, 1000);
+        soldee.getFacturesDetails().getFirst().setMontantRegle(1000);
+
+        assertThatThrownBy(() -> service.doReglement(param(1000, 1000, 1000, selection(FILLE_1, 1000))))
+            .isInstanceOf(GenericError.class)
+            .hasMessageContaining("déjà réglée");
+
+        verifyNoInteractions(reglementFactureSelectionneesService);
+    }
+
+    @Test
+    @DisplayName("refuse une facture fille provisoire")
+    void filleProvisoire() {
+        groupe();
+        stubFille(FILLE_1, 9L, 1000).setFactureProvisoire(true);
+
+        assertThatThrownBy(() -> service.doReglement(param(1000, 1000, 1000, selection(FILLE_1, 1000))))
+            .isInstanceOf(GenericError.class)
+            .hasMessageContaining("provisoire");
+
+        verifyNoInteractions(reglementFactureSelectionneesService);
+    }
+
+    @Test
+    @DisplayName("refuse une facture qui n appartient pas au groupe regle")
+    void filleHorsGroupe() {
+        groupe();
+        FactureTiersPayant etrangere = stubFille(FILLE_1, 9L, 1000);
+        etrangere.setGroupeFactureTiersPayant(new FactureTiersPayant().setId(99L));
+
+        assertThatThrownBy(() -> service.doReglement(param(1000, 1000, 1000, selection(FILLE_1, 1000))))
+            .isInstanceOf(GenericError.class)
+            .hasMessageContaining("n'appartient pas");
+    }
+
+    @Test
+    @DisplayName("n impute a une fille que ce qu elle doit encore, le reliquat passe a la suivante")
+    void imputeLeReellementDu() {
+        FactureTiersPayant groupe = groupe();
+        FactureTiersPayant f1 = stubFille(FILLE_1, 9L, 1000);
+        f1.getFacturesDetails().getFirst().setMontantRegle(600); // l ecran perime croit qu elle doit 1000
+        stubFille(FILLE_2, 10L, 500);
+
+        service.doReglement(param(900, 1500, 1500, selection(FILLE_1, 1000), selection(FILLE_2, 500)));
+
+        verify(reglementFactureSelectionneesService).doReglement(any(), any(), org.mockito.ArgumentMatchers.eq(900), any());
+        verify(reglementFactureSelectionneesService).doReglement(any(), any(), org.mockito.ArgumentMatchers.eq(500), any());
+        assertThat(groupe.getMontantRegle()).isEqualTo(900);
+        assertThat(groupe.getStatut()).isEqualTo(InvoiceStatut.PAID);
     }
 
     @Test
     @DisplayName("rattache chaque paiement fille au paiement de groupe")
     void rattacheLesPaiementsFilles() {
         groupe();
-        stubFille(FILLE_1, 9L);
-        stubFille(FILLE_2, 10L);
+        stubFille(FILLE_1, 9L, 1000);
+        stubFille(FILLE_2, 10L, 500);
 
         service.doReglement(param(1500, 1500, 1500, selection(FILLE_1, 1000), selection(FILLE_2, 500)));
 
@@ -226,7 +304,7 @@ class ReglementGroupeSelectionFactureServiceTest {
     @DisplayName("enregistre la facture de groupe")
     void persiste() {
         FactureTiersPayant groupe = groupe();
-        stubFille(FILLE_1, 9L);
+        stubFille(FILLE_1, 9L, 1000);
 
         service.doReglement(param(1000, 1000, 1000, selection(FILLE_1, 1000)));
 

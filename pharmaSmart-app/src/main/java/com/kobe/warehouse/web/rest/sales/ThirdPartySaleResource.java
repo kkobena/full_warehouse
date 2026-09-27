@@ -313,8 +313,9 @@ public class ThirdPartySaleResource {
 
 
     @PutMapping("/sales/assurance/transform")
-    public ResponseEntity<SaleId> transformToVenteEncour(@Valid @RequestBody SaleId saleId) {
-        return ResponseEntity.accepted().body(saleService.transformToVenteEncour(saleId));
+    public ResponseEntity<SaleId> transformToVenteEncour(@Valid @RequestBody SaleId saleId,
+        @RequestParam(name = "version", required = false) Long version) {
+        return ResponseEntity.accepted().body(saleService.transformToVenteEncour(saleId, version));
     }
 
     @PutMapping("/sales/assurance/clone-devis")

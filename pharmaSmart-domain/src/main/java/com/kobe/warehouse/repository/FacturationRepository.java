@@ -17,6 +17,7 @@ import jakarta.persistence.criteria.Predicate;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,6 +40,100 @@ public interface FacturationRepository
     JpaRepository<FactureTiersPayant, FactureItemId>, JpaSpecificationExecutor<FactureTiersPayant>, FactureTiersPayantRepositoryCustom {
     @Query(value = "SELECT f.num_facture FROM facture_tiers_payant f  ORDER BY f.id DESC LIMIT 1", nativeQuery = true)
     String findLatestFactureNumber();
+
+    /**
+     * Délai d'attente maximal des verrous de ligne, pour la seule transaction courante
+     * ({@code set_config(..., true)} équivaut à {@code SET LOCAL}). Au-delà, PostgreSQL abandonne
+     * l'attente plutôt que de bloquer le poste derrière une transaction qui traîne.
+     */
+    String DELAI_VERROU = "10s";
+
+    @Query(value = "SELECT set_config('lock_timeout', :delai, true)", nativeQuery = true)
+    String definirDelaiVerrou(@Param("delai") String delai);
+
+    @Query(
+        value = "SELECT f.id FROM facture_tiers_payant f WHERE f.id = :id AND f.invoice_date = :invoiceDate FOR UPDATE",
+        nativeQuery = true
+    )
+    List<Long> verrouillerLigne(@Param("id") Long id, @Param("invoiceDate") LocalDate invoiceDate);
+
+    /** L'ordre de verrouillage est fixé par l'{@code ORDER BY} : c'est lui qui écarte les interblocages. */
+    @Query(
+        value = """
+        SELECT f.id FROM facture_tiers_payant f
+         WHERE f.groupe_facture_tiers_payant_id = :id AND f.groupe_facture_tiers_payant_invoice_date = :invoiceDate
+         ORDER BY f.invoice_date, f.id
+           FOR UPDATE
+        """,
+        nativeQuery = true
+    )
+    List<Long> verrouillerLignesFilles(@Param("id") Long id, @Param("invoiceDate") LocalDate invoiceDate);
+
+    /**
+     * Factures demandées et leurs filles, verrouillées en une seule instruction, dans le même ordre
+     * ({@code invoice_date}, {@code id}) que les règlements. Un groupe reçoit son identifiant avant
+     * ses filles : il passe donc devant elles, comme dans {@link #verrouillerFilles}.
+     */
+    @Query(
+        value = """
+        SELECT f.id FROM facture_tiers_payant f
+         WHERE f.id IN (:ids) OR f.groupe_facture_tiers_payant_id IN (:ids)
+         ORDER BY f.invoice_date, f.id
+           FOR UPDATE
+        """,
+        nativeQuery = true
+    )
+    List<Long> verrouillerLignesEtFilles(@Param("ids") Collection<Long> ids);
+
+    /** Relu en SQL, hors contexte de persistance : la valeur est celle validée en base, pas une copie en mémoire. */
+    @Query(value = "SELECT f.num_facture FROM facture_tiers_payant f WHERE f.id IN (:ids) AND f.montant_regle > 0", nativeQuery = true)
+    List<String> numerosFacturesReglees(@Param("ids") Collection<Long> ids);
+
+    /**
+     * Verrou consultatif de transaction : une seule édition de factures à la fois. Deux éditions
+     * simultanées liraient les mêmes dossiers non facturés — chacun finirait sur deux factures — et
+     * le même dernier numéro de facture. Libéré automatiquement à la fin de la transaction.
+     *
+     * <p>Un verrou consultatif vaut pour toute la base, pas pour un schéma : la clé comprend donc le
+     * schéma courant — celui contre lequel se résolvent les tables de cette requête et des autres —
+     * sans quoi deux officines hébergées dans la même base, chacune dans son schéma, bloqueraient
+     * mutuellement leurs éditions. Seconde moitié de la clé : l'opération verrouillée.
+     */
+    @Query(
+        value = "SELECT count(*) FROM (SELECT pg_advisory_xact_lock(hashtext(current_schema()), hashtext('facturation.edition'))) verrou",
+        nativeQuery = true
+    )
+    Long verrouillerEditionSql();
+
+    default void verrouillerEdition() {
+        definirDelaiVerrou(DELAI_VERROU);
+        verrouillerEditionSql();
+    }
+
+    default void verrouillerAvecFilles(Collection<FactureItemId> ids) {
+        definirDelaiVerrou(DELAI_VERROU);
+        verrouillerLignesEtFilles(ids.stream().map(FactureItemId::getId).toList());
+    }
+
+    /**
+     * Verrou pessimiste sur une facture, puis relecture : sérialise les règlements et les
+     * annulations d'une même facture. La relecture suit le verrou, elle voit donc l'état laissé
+     * par la transaction qu'on a attendue. À appeler avant tout autre chargement de la facture dans
+     * la transaction — une instance déjà gérée ne serait pas relue.
+     */
+    default Optional<FactureTiersPayant> verrouiller(FactureItemId id) {
+        definirDelaiVerrou(DELAI_VERROU);
+        verrouillerLigne(id.getId(), id.getInvoiceDate());
+        return findById(id);
+    }
+
+    /**
+     * Verrouille les factures filles d'une facture de groupe, dans un ordre stable. Le groupe doit
+     * être verrouillé d'abord ({@link #verrouiller}) : groupe puis filles, toujours dans ce sens.
+     */
+    default void verrouillerFilles(FactureItemId groupeId) {
+        verrouillerLignesFilles(groupeId.getId(), groupeId.getInvoiceDate());
+    }
 
     /**
      * Factures définitives (non provisoires) dont la réponse FNE n'est pas encore enregistrée

@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.fne.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.repository.FacturationRepository;
@@ -48,6 +49,26 @@ public class FneCertificationTransactionService {
      * Envoie une facture à l'API FNE et sauvegarde la réponse.
      * Chaque appel est dans sa propre transaction : une erreur n'impacte pas les autres.
      */
+    /**
+     * Enregistre la réponse FNE sur une facture relue dans la transaction courante, et ne touche
+     * qu'à ce champ.
+     *
+     * <p>La facture reçue par les appelants a été lue avant les appels HTTP à la FNE, parfois hors
+     * transaction : la fusionner réécrivait toutes ses colonnes, dont {@code montant_regle} et
+     * {@code statut}, avec des valeurs périmées — un règlement saisi entre-temps était effacé.
+     */
+    @Transactional
+    public void enregistrerReponse(FactureItemId factureId, FneResponse fneResponse) {
+        ecrireReponse(factureId, fneResponse);
+    }
+
+    private void ecrireReponse(FactureItemId factureId, FneResponse fneResponse) {
+        FactureTiersPayant aJour = facturationRepository.findById(factureId)
+            .orElseThrow(() -> new GenericError("Facture introuvable"));
+        aJour.setFneResponse(fneResponse);
+        facturationRepository.save(aJour);
+    }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void certifier(FactureTiersPayant facture, FneInvoice fneInvoice, Magasin magasin) {
         try {
@@ -66,8 +87,7 @@ public class FneCertificationTransactionService {
 
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
                 FneResponse fneResponse = objectMapper.readValue(response.body(), FneResponse.class);
-                facture.setFneResponse(fneResponse);
-                facturationRepository.save(facture);
+                ecrireReponse(facture.getId(), fneResponse);
             } else {
                 throw new GenericError("FNE HTTP " + response.statusCode() + " — " + response.body());
             }

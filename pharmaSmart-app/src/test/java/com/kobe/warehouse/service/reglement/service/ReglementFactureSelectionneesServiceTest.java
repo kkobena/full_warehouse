@@ -116,15 +116,24 @@ class ReglementFactureSelectionneesServiceTest {
         return new ThirdPartySaleLine().setMontant(montant).setMontantRegle(montantRegle);
     }
 
+    private FactureTiersPayant factureVerrouillee;
+
     private FactureTiersPayant facture() {
         FactureTiersPayant facture = new FactureTiersPayant().setId(7L).setMontantRegle(0);
+        facture.setInvoiceDate(FACTURE_ID.getInvoiceDate());
         facture.setFacturesDetails(new ArrayList<>());
-        when(facturationRepository.getReferenceById(FACTURE_ID)).thenReturn(facture);
+        when(facturationRepository.verrouiller(FACTURE_ID)).thenReturn(java.util.Optional.of(facture));
+        factureVerrouillee = facture;
         return facture;
     }
 
+    /** Les bons sélectionnés appartiennent à la facture réglée, comme en base. */
     @SuppressWarnings("unchecked")
     private void stubBonsSelectionnes(ThirdPartySaleLine... lignes) {
+        for (ThirdPartySaleLine ligne : lignes) {
+            ligne.setFactureTiersPayant(factureVerrouillee);
+            factureVerrouillee.getFacturesDetails().add(ligne);
+        }
         when(thirdPartySaleLineRepository.findAll(any(Specification.class))).thenReturn(List.of(lignes));
     }
 
@@ -206,17 +215,56 @@ class ReglementFactureSelectionneesServiceTest {
         }
 
         @Test
-        @DisplayName("un versement nul ne touche aucun bon")
+        @DisplayName("un versement nul est refuse, sans piece a 0")
         void versementNul() {
             FactureTiersPayant facture = facture();
             ThirdPartySaleLine l1 = ligne(1000, 0);
             stubBonsSelectionnes(l1);
 
-            service.doReglement(param(0, 1000, 1000, 1L));
+            assertThatThrownBy(() -> service.doReglement(param(0, 1000, 1000, 1L))).isInstanceOf(GenericError.class);
+
+            assertThat(facture.getMontantRegle()).isZero();
+            verify(invoicePaymentRepository, org.mockito.Mockito.never()).save(any());
+        }
+
+        @Test
+        @DisplayName("refuse un bon deja solde depuis l affichage : c est le double reglement")
+        void bonDejaSolde() {
+            facture();
+            ThirdPartySaleLine l1 = ligne(1000, 0);
+            ThirdPartySaleLine l2 = ligne(500, 500);
+            stubBonsSelectionnes(l1, l2);
+
+            assertThatThrownBy(() -> service.doReglement(param(1500, 1500, 1500, 1L, 2L)))
+                .isInstanceOf(GenericError.class)
+                .hasMessageContaining("déjà réglés");
 
             assertThat(l1.getMontantRegle()).isZero();
-            assertThat(facture.getMontantRegle()).isZero();
-            verify(thirdPartySaleLineRepository).saveAll(List.of());
+            verify(invoicePaymentRepository, org.mockito.Mockito.never()).save(any());
+        }
+
+        @Test
+        @DisplayName("refuse un bon qui n appartient pas a la facture reglee")
+        void bonHorsFacture() {
+            facture();
+            ThirdPartySaleLine etranger = ligne(1000, 0)
+                .setFactureTiersPayant(new FactureTiersPayant().setId(99L));
+            when(thirdPartySaleLineRepository.findAll(any(Specification.class))).thenReturn(List.of(etranger));
+
+            assertThatThrownBy(() -> service.doReglement(param(1000, 1000, 1000, 1L)))
+                .isInstanceOf(GenericError.class)
+                .hasMessageContaining("n'appartient pas");
+        }
+
+        @Test
+        @DisplayName("refuse une selection dont un bon est introuvable")
+        void bonIntrouvable() {
+            facture();
+            stubBonsSelectionnes(ligne(1000, 0));
+
+            assertThatThrownBy(() -> service.doReglement(param(1000, 1000, 1000, 1L, 2L)))
+                .isInstanceOf(GenericError.class)
+                .hasMessageContaining("introuvables");
         }
 
         @Test

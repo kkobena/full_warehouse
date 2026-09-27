@@ -76,7 +76,10 @@ public interface SaleService {
 
     void savePrevente(CashSaleDTO dto, boolean transform);
 
-    SaleId transformToVenteEncour(SaleId saleId);
+    /**
+     * @param version version de la prévente lue par le client ; {@code null} = pas de contrôle
+     */
+    SaleId transformToVenteEncour(SaleId saleId, Long version);
 
     void cloneDevis(SaleId saleId);
 }

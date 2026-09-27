@@ -10,6 +10,7 @@ import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.domain.TiersPayant_;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
@@ -23,6 +24,17 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface InvoicePaymentRepository extends JpaRepository<InvoicePayment, PaymentId>, JpaSpecificationExecutor<InvoicePayment> {
     List<InvoicePayment> findInvoicePaymentByParentIdAndParentTransactionDate(long parentId, LocalDate parentTransactionDate);
+
+    /**
+     * Facture d'un règlement, lue sans charger le règlement ni la facture : l'annulation doit
+     * verrouiller la facture <em>avant</em> de charger quoi que ce soit, sans quoi elle travaillerait
+     * sur une instance lue avant l'attente du verrou.
+     */
+    @Query(
+        "SELECT new com.kobe.warehouse.domain.FactureItemId(p.factureTiersPayant.id, p.factureTiersPayant.invoiceDate) " +
+        "FROM InvoicePayment p WHERE p.id = :id AND p.transactionDate = :transactionDate"
+    )
+    Optional<FactureItemId> findFactureIdOf(@Param("id") Long id, @Param("transactionDate") LocalDate transactionDate);
 
     /**
      * Une facture porte soit un tiers payant, soit un groupe — jamais les deux. Les jointures

@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.reglement.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
@@ -26,6 +27,7 @@ import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.reglement.dto.ReglementParam;
 import com.kobe.warehouse.service.reglement.dto.ResponseReglementDTO;
 import java.time.LocalDate;
@@ -112,7 +114,7 @@ class ReglementFactureModeAllServiceTest {
     private FactureTiersPayant facture(ThirdPartySaleLine... lignes) {
         FactureTiersPayant facture = new FactureTiersPayant().setId(7L).setMontantRegle(0);
         facture.setFacturesDetails(new ArrayList<>(List.of(lignes)));
-        when(facturationRepository.getReferenceById(FACTURE_ID)).thenReturn(facture);
+        when(facturationRepository.verrouiller(FACTURE_ID)).thenReturn(java.util.Optional.of(facture));
         return facture;
     }
 
@@ -166,37 +168,66 @@ class ReglementFactureModeAllServiceTest {
         }
 
         @Test
-        @DisplayName("reste partiellement payee quand le montant facture depasse le solde des bons")
-        void resteFacturePartielle() {
+        @DisplayName("le statut est calcule sur les bons relus, pas sur le montant envoye par l ecran")
+        void statutCalculeCoteServeur() {
             FactureTiersPayant facture = facture(ligne(1000, 0));
 
+            // Un ecran perime annonce 5000 : la facture n en doit que 1000, elle est bien soldee.
             ResponseReglementDTO response = service.doReglement(param(1000, 5000));
 
-            assertThat(facture.getStatut()).isEqualTo(InvoiceStatut.PARTIALLY_PAID);
-            assertThat(response.total()).isFalse();
-        }
-
-        @Test
-        @DisplayName("une facture sans bon ne solde rien")
-        void factureSansBon() {
-            FactureTiersPayant facture = facture();
-
-            service.doReglement(param(0, 0));
-
-            assertThat(facture.getMontantRegle()).isZero();
             assertThat(facture.getStatut()).isEqualTo(InvoiceStatut.PAID);
+            assertThat(response.total()).isTrue();
         }
 
         @Test
-        @DisplayName("un bon deja solde n ajoute rien au paiement")
+        @DisplayName("verrouille la facture avant de la regler")
+        void verrouilleLaFacture() {
+            facture(ligne(1000, 0));
+
+            service.doReglement(param(1000, 1000));
+
+            verify(facturationRepository).verrouiller(FACTURE_ID);
+            verify(facturationRepository, org.mockito.Mockito.never()).getReferenceById(any());
+        }
+
+        @Test
+        @DisplayName("une facture provisoire ne se regle pas")
+        void factureProvisoire() {
+            ThirdPartySaleLine l1 = ligne(1000, 0);
+            FactureTiersPayant facture = facture(l1);
+            facture.setFactureProvisoire(true);
+
+            assertThatThrownBy(() -> service.doReglement(param(1000, 1000)))
+                .isInstanceOf(GenericError.class)
+                .hasMessageContaining("provisoire");
+
+            assertThat(l1.getMontantRegle()).isZero();
+            verify(invoicePaymentRepository, org.mockito.Mockito.never()).save(any());
+        }
+
+        @Test
+        @DisplayName("une facture sans reste du est refusee, sans piece a 0")
+        void factureSansBon() {
+            facture();
+
+            assertThatThrownBy(() -> service.doReglement(param(0, 0))).isInstanceOf(GenericError.class);
+
+            verify(invoicePaymentRepository, org.mockito.Mockito.never()).save(any());
+        }
+
+        @Test
+        @DisplayName("un second reglement d une facture deja soldee est refuse")
         void bonDejaSolde() {
             ThirdPartySaleLine l1 = ligne(1000, 1000);
             FactureTiersPayant facture = facture(l1);
 
-            service.doReglement(param(0, 0));
+            assertThatThrownBy(() -> service.doReglement(param(1000, 1000)))
+                .isInstanceOf(GenericError.class)
+                .hasMessageContaining("déjà entièrement réglée");
 
             assertThat(l1.getMontantRegle()).isEqualTo(1000);
             assertThat(facture.getMontantRegle()).isZero();
+            verify(invoicePaymentRepository, org.mockito.Mockito.never()).save(any());
         }
 
         @Test

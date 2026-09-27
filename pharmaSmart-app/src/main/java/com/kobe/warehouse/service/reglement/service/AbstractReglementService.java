@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.reglement.service;
 
 import com.kobe.warehouse.domain.Banque;
 import com.kobe.warehouse.domain.CashRegister;
+import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.InvoicePaymentItem;
@@ -18,6 +19,7 @@ import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.reglement.dto.BanqueInfoDTO;
 import com.kobe.warehouse.service.reglement.dto.ReglementParam;
@@ -63,6 +65,76 @@ public abstract class AbstractReglementService implements ReglementService {
         this.transactionIdGeneratorService = transactionIdGeneratorService;
         this.invoicePaymentItemService = invoicePaymentItemService;
         this.referenceService = referenceService;
+    }
+
+    /**
+     * Verrou pessimiste sur la facture réglée, pris avant toute lecture : deux règlements de la même
+     * facture s'exécutent l'un après l'autre, et le second voit le reste dû laissé par le premier.
+     */
+    protected FactureTiersPayant verrouillerFacture(FactureItemId id) {
+        FactureTiersPayant facture = facturationRepository.verrouiller(id)
+            .orElseThrow(() -> new GenericError("Facture introuvable", "factureNotFound"));
+        refuserSiProvisoire(facture);
+        return facture;
+    }
+
+    /**
+     * Une facture provisoire est un brouillon : ses dossiers seront repris par la facture
+     * définitive, qui seule se règle. La régler rattacherait le paiement à une facture appelée à
+     * être remplacée. Ses règlements antérieurs à cette règle restent annulables.
+     */
+    protected static void refuserSiProvisoire(FactureTiersPayant facture) {
+        if (facture.isFactureProvisoire()) {
+            throw new GenericError(
+                "La facture " + facture.getNumFacture() + " est provisoire : seule la facture définitive se règle",
+                "factureProvisoire"
+            );
+        }
+    }
+
+    /** Groupe puis filles, dans un ordre stable : un règlement individuel d'une fille ne peut pas l'interbloquer. */
+    protected FactureTiersPayant verrouillerFactureGroupe(FactureItemId id) {
+        FactureTiersPayant groupe = verrouillerFacture(id);
+        facturationRepository.verrouillerFilles(id);
+        return groupe;
+    }
+
+    protected static int resteDu(ThirdPartySaleLine dossier) {
+        return Math.max(Objects.requireNonNullElse(dossier.getMontant(), 0) - Objects.requireNonNullElse(dossier.getMontantRegle(), 0), 0);
+    }
+
+    protected static int resteDu(FactureTiersPayant facture) {
+        return facture.getFacturesDetails().stream().mapToInt(AbstractReglementService::resteDu).sum();
+    }
+
+    protected static int resteDuGroupe(FactureTiersPayant groupe) {
+        return groupe.getFactureTiersPayants().stream().mapToInt(AbstractReglementService::resteDu).sum();
+    }
+
+    /**
+     * Statut déduit des dossiers relus sous verrou : soldée si et seulement si plus aucun dossier ne
+     * doit rien. Il ne dépend ni du montant envoyé par l'écran (périmé, et limité aux dossiers non
+     * soldés), ni du cumul {@code montantRegle} de la facture.
+     */
+    protected static void appliquerStatut(FactureTiersPayant facture) {
+        facture.setStatut(resteDu(facture) > 0 ? InvoiceStatut.PARTIALLY_PAID : InvoiceStatut.PAID);
+    }
+
+    protected static void appliquerStatutGroupe(FactureTiersPayant groupe) {
+        groupe.setStatut(resteDuGroupe(groupe) > 0 ? InvoiceStatut.PARTIALLY_PAID : InvoiceStatut.PAID);
+    }
+
+    /** Un second règlement d'une facture soldée est un doublon : on le refuse au lieu d'enregistrer une pièce à 0. */
+    protected static void refuserSiSoldee(int resteDu) {
+        if (resteDu <= 0) {
+            throw new GenericError("Cette facture est déjà entièrement réglée", "factureDejaReglee");
+        }
+    }
+
+    protected static void refuserSiRienRegle(int montantPaye) {
+        if (montantPaye <= 0) {
+            throw new GenericError("Aucun montant à régler : les dossiers sélectionnés sont déjà soldés", "factureDejaReglee");
+        }
     }
 
     protected CashRegister getCashRegister() {

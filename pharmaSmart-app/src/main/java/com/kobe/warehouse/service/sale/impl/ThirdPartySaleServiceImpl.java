@@ -167,6 +167,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         salesLineService.saveSalesLine(saleLine);
         String message = saveTiersPayantLines(dto, thirdPartySales);
         this.displayNet(thirdPartySales.getPartAssure());
+        // Le poste garde cette réponse comme vente courante sans la relire : elle doit porter la
+        // version réellement écrite — les lignes de tiers-payant ont pu retoucher la vente.
+        thirdPartySaleRepository.flush();
         ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(thirdPartySales);
         if (StringUtils.hasLength(message)) {
             throw new PlafondVenteException(thirdPartySaleDTO, message);
@@ -336,6 +339,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, NumBonAlreadyUseException {
         ThirdPartySales p = thirdPartySaleRepository.findOneWithEagerSalesLines(
             dto.getSaleId().getId(), dto.getSaleId().getSaleDate()).orElseThrow();
+        verifierVersion(p, dto.getVersion());
         this.save(p, dto);
         FinalyseSaleDTO response = finalizeSaleProcess(p, dto);
         displayMonnaie(dto.getMontantRendu());
@@ -381,6 +385,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     public ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto) {
         ResponseDTO response = new ResponseDTO();
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.findOneById(dto.getId());
+        verifierVersion(thirdPartySales, dto.getVersion());
         if (CollectionUtils.isEmpty(thirdPartySales.getSalesLines())) {
             response.setSuccess(true);
             thirdPartySaleRepository.delete(thirdPartySales);
@@ -533,6 +538,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException {
         thirdPartySaleRepository.findOneWithEagerSalesLines(dto.getSaleId().getId(),
             dto.getSaleId().getSaleDate()).ifPresent(p -> {
+            verifierVersion(p, dto.getVersion());
             preValidatePrevente(p, transform ? SalesStatut.ACTIVE : SalesStatut.PROCESSING);
             List<ThirdPartySaleLine> thirdPartySaleLines = findAllBySaleId(p.getId());
             if (!CollectionUtils.isEmpty(thirdPartySaleLines)) {
@@ -735,11 +741,12 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    public SaleId transformToVenteEncour(SaleId saleId) {
+    public SaleId transformToVenteEncour(SaleId saleId, Long version) {
 
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.findByIdAndSaleDate(
                 saleId.getId(), saleId.getSaleDate())
             .orElseThrow(() -> new GenericError("Une erreur est survenue"));
+        verifierVersion(thirdPartySales, version);
         preValidateTrasnform(thirdPartySales.getStatut(), thirdPartySales.getNatureVente());
         if (thirdPartySales.getStatut() == SalesStatut.DEVIS) {
             // Matérialiser les collections AVANT toute suppression (thirdPartySaleLines est désormais lazy)

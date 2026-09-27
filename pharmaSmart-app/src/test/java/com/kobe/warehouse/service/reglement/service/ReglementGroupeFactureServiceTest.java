@@ -11,6 +11,8 @@ import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.FactureTiersPayant;
+import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
@@ -101,20 +103,34 @@ class ReglementGroupeFactureServiceTest {
     private FactureTiersPayant groupe(FactureTiersPayant... filles) {
         FactureTiersPayant groupe = new FactureTiersPayant().setId(7L).setMontantRegle(0);
         groupe.setFactureTiersPayants(new ArrayList<>(List.of(filles)));
-        when(facturationRepository.getReferenceById(GROUPE_ID)).thenReturn(groupe);
+        when(facturationRepository.verrouiller(GROUPE_ID)).thenReturn(java.util.Optional.of(groupe));
         return groupe;
     }
 
-    private static FactureTiersPayant fille(long id) {
-        return new FactureTiersPayant().setId(id).setMontantRegle(0);
+    /** Une fille qui doit {@code montant} (un seul dossier) : le statut du groupe se lit sur les dossiers. */
+    private static FactureTiersPayant fille(long id, int montant) {
+        FactureTiersPayant fille = new FactureTiersPayant().setId(id).setMontantRegle(0);
+        fille.setFacturesDetails(new ArrayList<>(List.of(new ThirdPartySaleLine().setMontant(montant).setMontantRegle(0))));
+        return fille;
     }
 
-    /** Chaque fille est reglee par le service de facture complete, qui renvoie son paiement. */
+    private static FactureTiersPayant fille(long id) {
+        return fille(id, 1000);
+    }
+
+    /**
+     * Chaque fille est reglee par le service de facture complete, qui renvoie son paiement. Le
+     * simulacre impute le montant sur le dossier de la fille, comme le vrai service.
+     */
     private void stubReglementFille(FactureTiersPayant fille, int paidAmount) {
         InvoicePayment paiementFille = new InvoicePayment();
         paiementFille.setPaidAmount(paidAmount);
         when(reglementFactureModeAllService.doReglement(any(InvoicePayment.class), org.mockito.ArgumentMatchers.eq(fille)))
-            .thenReturn(paiementFille);
+            .thenAnswer(inv -> {
+                ThirdPartySaleLine dossier = fille.getFacturesDetails().getFirst();
+                dossier.setMontantRegle(dossier.getMontantRegle() + paidAmount);
+                return paiementFille;
+            });
     }
 
     private static ReglementParam param(int amount, int totalAmount, int montantFacture) {
@@ -130,7 +146,7 @@ class ReglementGroupeFactureServiceTest {
     @Test
     @DisplayName("refuse un total attendu superieur au montant verse")
     void totalSuperieurAuVerse() {
-        groupe(fille(9L));
+        groupe(fille(9L, 1500));
         ReglementParam param = param(1000, 1500, 1500);
 
         assertThatThrownBy(() -> service.doReglement(param)).isInstanceOf(PaymentAmountException.class);
@@ -151,8 +167,8 @@ class ReglementGroupeFactureServiceTest {
     @Test
     @DisplayName("marque le paiement comme groupe et cumule le regle de chaque fille")
     void cumuleLesFilles() {
-        FactureTiersPayant f1 = fille(9L);
-        FactureTiersPayant f2 = fille(10L);
+        FactureTiersPayant f1 = fille(9L, 1000);
+        FactureTiersPayant f2 = fille(10L, 400);
         FactureTiersPayant groupe = groupe(f1, f2);
         stubReglementFille(f1, 1000);
         stubReglementFille(f2, 400);
@@ -174,9 +190,9 @@ class ReglementGroupeFactureServiceTest {
     }
 
     @Test
-    @DisplayName("reste partiellement payee quand le regle n atteint pas le montant facture")
+    @DisplayName("reste partiellement payee tant qu un dossier d une fille doit encore")
     void groupePartiellementPaye() {
-        FactureTiersPayant f1 = fille(9L);
+        FactureTiersPayant f1 = fille(9L, 1000);
         FactureTiersPayant groupe = groupe(f1);
         stubReglementFille(f1, 400);
 
@@ -189,8 +205,8 @@ class ReglementGroupeFactureServiceTest {
     @Test
     @DisplayName("rattache chaque paiement fille au paiement de groupe")
     void rattacheLesPaiementsFilles() {
-        FactureTiersPayant f1 = fille(9L);
-        FactureTiersPayant f2 = fille(10L);
+        FactureTiersPayant f1 = fille(9L, 1000);
+        FactureTiersPayant f2 = fille(10L, 400);
         groupe(f1, f2);
         stubReglementFille(f1, 1000);
         stubReglementFille(f2, 400);
@@ -205,23 +221,72 @@ class ReglementGroupeFactureServiceTest {
     }
 
     @Test
-    @DisplayName("un groupe sans facture fille ne regle rien")
+    @DisplayName("un groupe deja entierement solde est refuse : c est le double reglement")
     void groupeSansFille() {
-        FactureTiersPayant groupe = groupe();
+        FactureTiersPayant soldee = fille(9L, 1000);
+        soldee.getFacturesDetails().getFirst().setMontantRegle(1000);
+        groupe(soldee);
 
-        service.doReglement(param(1000, 0, 0));
+        assertThatThrownBy(() -> service.doReglement(param(1000, 1000, 1000)))
+            .isInstanceOf(GenericError.class)
+            .hasMessageContaining("déjà entièrement réglée");
 
-        assertThat(groupe.getMontantRegle()).isZero();
+        verifyNoInteractions(reglementFactureModeAllService);
+        verify(invoicePaymentRepository, org.mockito.Mockito.never()).save(any());
+    }
+
+    @Test
+    @DisplayName("une fille deja soldee a part n est pas reglee une seconde fois")
+    void filleDejaSoldeeIgnoree() {
+        FactureTiersPayant soldee = fille(9L, 1000);
+        soldee.getFacturesDetails().getFirst().setMontantRegle(1000);
+        FactureTiersPayant due = fille(10L, 400);
+        FactureTiersPayant groupe = groupe(soldee, due);
+        stubReglementFille(due, 400);
+
+        service.doReglement(param(400, 400, 400));
+
+        verify(reglementFactureModeAllService, org.mockito.Mockito.never())
+            .doReglement(any(InvoicePayment.class), org.mockito.ArgumentMatchers.eq(soldee));
+        assertThat(groupe.getMontantRegle()).isEqualTo(400);
         assertThat(groupe.getStatut()).isEqualTo(InvoiceStatut.PAID);
-        verify(invoicePaymentRepository).saveAll(List.of());
+    }
+
+    @Test
+    @DisplayName("un groupe provisoire ne se regle pas")
+    void groupeProvisoire() {
+        FactureTiersPayant groupe = groupe(fille(9L, 1000));
+        groupe.setFactureProvisoire(true);
+
+        assertThatThrownBy(() -> service.doReglement(param(1000, 1000, 1000)))
+            .isInstanceOf(GenericError.class)
+            .hasMessageContaining("provisoire");
+
+        verifyNoInteractions(reglementFactureModeAllService);
+    }
+
+    @Test
+    @DisplayName("verrouille le groupe puis ses filles")
+    void verrouilleGroupePuisFilles() {
+        FactureTiersPayant f1 = fille(9L, 1000);
+        groupe(f1);
+        stubReglementFille(f1, 1000);
+
+        service.doReglement(param(1000, 1000, 1000));
+
+        var ordre = org.mockito.Mockito.inOrder(facturationRepository);
+        ordre.verify(facturationRepository).verrouiller(GROUPE_ID);
+        ordre.verify(facturationRepository).verrouillerFilles(GROUPE_ID);
     }
 
     @Test
     @DisplayName("enregistre la facture de groupe")
     void persiste() {
-        FactureTiersPayant groupe = groupe();
+        FactureTiersPayant f1 = fille(9L, 1000);
+        FactureTiersPayant groupe = groupe(f1);
+        stubReglementFille(f1, 1000);
 
-        service.doReglement(param(1000, 0, 0));
+        service.doReglement(param(1000, 1000, 1000));
 
         verify(facturationRepository).save(groupe);
     }

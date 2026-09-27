@@ -260,6 +260,10 @@ export class FacturationHomeComponent implements OnInit {
         tap(() => this.store.removeFactureFromList(f.factureItemId!.id)),
         catchError(err => {
           this.notificationService.error(this.errorService.getErrorMessage(err), 'Suppression');
+          if (err?.error?.errorKey === 'factureDejaAnnulee') {
+            // Annulée entre-temps sur un autre poste : elle n'a plus rien à faire dans la liste.
+            this.store.removeFactureFromList(f.factureItemId!.id);
+          }
           return of(null); // ne pas bloquer forkJoin sur une erreur partielle
         }),
       ),

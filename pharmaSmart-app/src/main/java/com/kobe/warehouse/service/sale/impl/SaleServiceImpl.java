@@ -224,6 +224,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
         salesLineService.saveSalesLine(saleLine);
         this.displayNet(sale.getNetAmount());
+        // Le poste garde cette réponse comme vente courante sans la relire : elle doit porter la
+        // version réellement écrite, sans quoi l'encaissement qui suit partirait en faux conflit.
+        salesRepository.flush();
         return new CashSaleDTO(sale);
     }
 
@@ -272,6 +275,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         CashSale cashSale = cashSaleRepository.findOneWithEagerSalesLines(dto.getSaleId().getId(),
                 dto.getSaleId().getSaleDate())
             .orElseThrow(() -> new GenericError("Une erreur est survenue"));
+        verifierVersion(cashSale, dto.getVersion());
         UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
         cashSale.setCustomer(uninsuredCustomer);
         this.save(cashSale, dto);
@@ -293,6 +297,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     public ResponseDTO putCashSaleOnHold(CashSaleDTO dto) {
         ResponseDTO response = new ResponseDTO();
         CashSale cashSale = findOne(dto.getSaleId());
+        verifierVersion(cashSale, dto.getVersion());
         if (CollectionUtils.isEmpty(cashSale.getSalesLines())) {
             response.setSuccess(true);
             salesRepository.delete(cashSale);
@@ -370,16 +375,18 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     @Override
     public void savePrevente(CashSaleDTO dto, boolean transform) {
         cashSaleRepository.findById(dto.getSaleId()).ifPresent(s -> {
+            verifierVersion(s, dto.getVersion());
             preValidatePrevente(s, transform ? SalesStatut.ACTIVE : SalesStatut.PROCESSING);
             cashSaleRepository.save(s);
         });
     }
 
     @Override
-    public SaleId transformToVenteEncour(SaleId saleId) {
+    public SaleId transformToVenteEncour(SaleId saleId, Long version) {
         CashSale cashSale = cashSaleRepository.findOneWithEagerSalesLine(saleId.getId(),
                 saleId.getSaleDate())
             .orElseThrow(() -> new GenericError("Une erreur est survenue"));
+        verifierVersion(cashSale, version);
         preValidateTrasnform(cashSale.getStatut(), cashSale.getNatureVente());
         if (cashSale.getStatut() == SalesStatut.DEVIS) {
             SaleId cloneId = clone(cashSale, SalesStatut.ACTIVE);

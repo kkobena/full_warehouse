@@ -104,15 +104,23 @@ export class DevisListComponent implements OnInit {
   private transformDevis(sale: ISales): void {
     if (!sale.saleId) return;
     const transform$ = sale.categorie === "VNO"
-      ? this.api.transformPreventeToSaleComptant(sale.saleId)
-      : this.api.transformPreventeToSaleAssurance(sale.saleId);
+      ? this.api.transformPreventeToSaleComptant(sale.saleId, sale.version)
+      : this.api.transformPreventeToSaleAssurance(sale.saleId, sale.version);
 
     transform$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: res => {
         const saleId: SaleId = res.body!;
         this.router.navigate(["/sales-home"], { state: { saleInfo: { saleId } } });
       },
-      error: () => this.notificationService.error("Erreur lors de la transformation", "Proforma")
+      error: err => {
+        if (err?.status === 409) {
+          // Le devis a changé depuis l'affichage de la liste : on montre l'état réel.
+          this.notificationService.error(err.error?.message ?? "Ce devis a été modifié entre-temps.", "Proforma");
+          this.load();
+          return;
+        }
+        this.notificationService.error("Erreur lors de la transformation", "Proforma");
+      }
     });
   }
 

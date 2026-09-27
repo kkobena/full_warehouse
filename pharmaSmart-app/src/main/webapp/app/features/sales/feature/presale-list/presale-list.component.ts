@@ -125,8 +125,8 @@ export class PresaleListComponent implements OnInit {
     if (!sale.saleId) return;
     this.transforming.set(true);
     const transform$ = sale.categorie === "VNO"
-      ? this.api.transformPreventeToSaleComptant(sale.saleId)
-      : this.api.transformPreventeToSaleAssurance(sale.saleId);
+      ? this.api.transformPreventeToSaleComptant(sale.saleId, sale.version)
+      : this.api.transformPreventeToSaleAssurance(sale.saleId, sale.version);
 
     transform$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: res => {
@@ -134,8 +134,14 @@ export class PresaleListComponent implements OnInit {
         const saleId: SaleId = res.body!;
         this.router.navigate(["/sales-home"], { state: { saleInfo: { saleId } } });
       },
-      error: () => {
+      error: err => {
         this.transforming.set(false);
+        if (err?.status === 409) {
+          // La pré-vente a changé depuis l'affichage de la liste : on montre l'état réel.
+          this.notificationService.error(err.error?.message ?? "Cette pré-vente a été modifiée entre-temps.", "Pré-vente");
+          this.load();
+          return;
+        }
         this.notificationService.error("Erreur lors de la transformation", "Pré-vente");
       }
     });

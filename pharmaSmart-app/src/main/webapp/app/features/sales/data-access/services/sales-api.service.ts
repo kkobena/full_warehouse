@@ -482,15 +482,15 @@ export class SalesApiService {
   /**
    * Transform a prévente to a finalized comptant sale
    */
-  transformPreventeToSaleComptant(id: SaleId): Observable<HttpResponse<SaleId>> {
-    return this.http.put<SaleId>(`${this.resourceUrl}/comptant/transform`, id, {observe: 'response'});
+  transformPreventeToSaleComptant(id: SaleId, version?: number | null): Observable<HttpResponse<SaleId>> {
+    return this.http.put<SaleId>(`${this.resourceUrl}/comptant/transform`, id, {params: versionParam(version), observe: 'response'});
   }
 
   /**
    * Transform a prévente to a finalized assurance/carnet sale
    */
-  transformPreventeToSaleAssurance(id: SaleId): Observable<HttpResponse<SaleId>> {
-    return this.http.put<SaleId>(`${this.resourceUrl}/assurance/transform`, id, {observe: 'response'});
+  transformPreventeToSaleAssurance(id: SaleId, version?: number | null): Observable<HttpResponse<SaleId>> {
+    return this.http.put<SaleId>(`${this.resourceUrl}/assurance/transform`, id, {params: versionParam(version), observe: 'response'});
   }
 
   /**
@@ -528,4 +528,9 @@ export class SalesApiService {
         catchError(() => of(null)),
       );
   }
+}
+
+/** Version lue par le client, pour le contrôle de verrou optimiste ; absente = pas de contrôle. */
+function versionParam(version?: number | null): Record<string, number> {
+  return version != null ? {version} : {};
 }

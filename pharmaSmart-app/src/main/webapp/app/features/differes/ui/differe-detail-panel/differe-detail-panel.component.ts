@@ -119,8 +119,12 @@ export class DiffereDetailPanelComponent {
             this.onPrintReceipt(res.body.idReglement);
           }
         },
-        error: err =>
-          this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur règlement")
+        error: err => {
+          this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur règlement");
+          // Refus du serveur (ventes soldées entre-temps, vente modifiée ailleurs) : relire les
+          // soldes réels plutôt que de laisser l'écran proposer de régler ce qui ne l'est plus.
+          this.onReglementComplete();
+        }
       });
   }
 

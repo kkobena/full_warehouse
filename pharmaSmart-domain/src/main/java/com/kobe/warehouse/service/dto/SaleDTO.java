@@ -95,6 +95,12 @@ public class SaleDTO implements Serializable {
     private String commentaire;
     private boolean canceled;
     private int itemCount;
+    /**
+     * Version de la vente lue par le client. Renvoyée à l'écriture sur les flux longs (encaissement,
+     * mise en attente, prévente) : une version périmée y signale une modification concurrente.
+     * Nulle = pas de contrôle.
+     */
+    private Long version;
 
     public SaleDTO() {
     }
@@ -114,6 +120,7 @@ public class SaleDTO implements Serializable {
     public SaleDTO(Sales sale, boolean withSalesLines) {
         this.saleId = sale.getId();
         this.id = saleId.getId();
+        this.version = sale.getVersion();
         this.commentaire = sale.getCommentaire();
         this.canceled = sale.isCanceled();
         this.discountAmount = sale.getDiscountAmount();
@@ -691,6 +698,14 @@ public class SaleDTO implements Serializable {
 
     public SaleId getSaleId() {
         return saleId;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public void setSaleId(SaleId saleId) {

@@ -189,6 +189,21 @@ class RapprochementServiceIntegrationTest extends AbstractFacturationIntegration
     }
 
     @Test
+    @DisplayName("Une facture provisoire ne compte ni dans les lignes ni dans les totaux")
+    void factureProvisoireExclue() {
+        TiersPayant organisme = tiersPayant("PROVISOIRE EXCLUE");
+        factureReglee(organisme, 30_000, 0);
+        factureReglee(organisme, 50_000, 0).setFactureProvisoire(true);
+        viderLeCache();
+
+        List<EtatRapprochementDto> etats = services.rapprochementService.getEtatRapprochement(params(organisme.getId()), page()).getContent();
+
+        assertEquals(1, etats.size());
+        assertEquals(1, etats.getFirst().lignes().size(), "seule la facture définitive est une créance");
+        assertEquals(0, BigDecimal.valueOf(30_000).compareTo(etats.getFirst().totalFacture()));
+    }
+
+    @Test
     @DisplayName("La pagination découpe les organismes sans en perdre le compte")
     void pagination() {
         factureReglee(tiersPayant("PAGE A"), 10_000, 0);

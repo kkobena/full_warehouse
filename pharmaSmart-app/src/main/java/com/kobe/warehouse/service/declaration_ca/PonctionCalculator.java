@@ -341,6 +341,10 @@ public class PonctionCalculator {
      * de la règle d'éligibilité : une vente ponctionnée était <strong>intacte</strong>. Son montant
      * déclarable valait donc exactement son montant réel, et celui d'un règlement son montant
      * encaissé. Il n'y a rien à reconstituer, seulement à revenir à la valeur brute.
+     *
+     * <p>Ne pas incrémenter {@code sales.version} ici : l'annulation d'une vente charge la vente,
+     * passe par cette méthode, puis sauvegarde l'entité dans la même transaction. Une version
+     * incrémentée en SQL ferait échouer cette sauvegarde en conflit contre elle-même.
      */
     @Transactional
     public void annuler(Integer ponctionId) {

@@ -24,6 +24,7 @@ import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
@@ -143,6 +144,14 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
      */
     @Column(name = "ponction_id", insertable = false, updatable = false)
     private Integer ponctionId;
+
+    /**
+     * Verrou optimiste : deux transactions qui écrivent la même vente, la seconde échoue en 409 au
+     * lieu d'écraser la première. Nulle sur une vente pas encore insérée (voir {@link #clone()}).
+     */
+    @Version
+    @Column(name = "version")
+    private Long version;
 
     @Column(name = "copy", nullable = false)
     private boolean copy = false;
@@ -449,6 +458,15 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
         return ponctionId;
     }
 
+    public Long getVersion() {
+        return version;
+    }
+
+    public Sales setVersion(Long version) {
+        this.version = version;
+        return this;
+    }
+
     public boolean isCopy() {
         return copy;
     }
@@ -696,6 +714,9 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
         try {
             Sales sales = (Sales) super.clone();
             sales.isNew = true;
+            // Le clone est une vente nouvelle : avec la version de l'original, Hibernate la
+            // prendrait pour une entité détachée et refuserait de l'insérer.
+            sales.version = null;
             return sales;
         } catch (CloneNotSupportedException e) {
             return null;

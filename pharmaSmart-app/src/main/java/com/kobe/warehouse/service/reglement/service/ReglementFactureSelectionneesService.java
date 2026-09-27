@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReglementFactureSelectionneesService extends AbstractReglementService {
 
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
-    private final FacturationRepository facturationRepository;
 
     public ReglementFactureSelectionneesService(
         CashRegisterService cashRegisterService,
@@ -53,7 +52,6 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
             invoicePaymentItemService,
             referenceService
         );
-        this.facturationRepository = facturationRepository;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
     }
 
@@ -64,8 +62,9 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
             throw new GenericError("Aucun dossiers à regler");
         }
         List<ThirdPartySaleLine> thirdPartySaleLinesUpdated = new ArrayList<>();
-        FactureTiersPayant factureTiersPayant = facturationRepository.getReferenceById(reglementParam.getId());
+        FactureTiersPayant factureTiersPayant = verrouillerFacture(reglementParam.getId());
         List<ThirdPartySaleLine> thirdPartySaleLines = getThirdPartySaleLines(reglementParam);
+        verifierDossiers(factureTiersPayant, thirdPartySaleLines, reglementParam.getDossierIds());
 
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, reglementParam);
         int montantPaye = 0;
@@ -90,8 +89,9 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
             thirdPartySaleLinesUpdated.add(thirdParty);
         }
 
+        refuserSiRienRegle(montantPaye);
         super.updateFactureTiersPayant(factureTiersPayant, montantPaye);
-        super.updateStatut(factureTiersPayant, reglementParam.getMontantFacture());
+        appliquerStatut(factureTiersPayant);
         super.saveFactureTiersPayant(factureTiersPayant);
         super.saveThirdPartyLines(thirdPartySaleLinesUpdated);
         invoicePayment.setExpectedAmount(totalAmount);
@@ -132,13 +132,33 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
         }
 
         super.updateFactureTiersPayant(factureTiersPayant, montantPaye);
-        super.updateStatut(factureTiersPayant, item.getMontantFacture());
+        appliquerStatut(factureTiersPayant);
         super.saveFactureTiersPayant(factureTiersPayant);
         super.saveThirdPartyLines(thirdPartySaleLinesUpdated);
         invoicePayment.setExpectedAmount(totalAmount);
         invoicePayment.setPaidAmount(montantPaye);
         invoicePayment.setReelAmount(montantPaye);
         return invoicePayment;
+    }
+
+    /**
+     * Les dossiers sont chargés par leurs seuls identifiants : on vérifie qu'ils existent tous, qu'ils
+     * appartiennent à la facture réglée, et qu'aucun n'a été soldé depuis l'affichage de l'écran —
+     * ce dernier cas est précisément celui d'un double règlement.
+     */
+    private static void verifierDossiers(FactureTiersPayant facture, List<ThirdPartySaleLine> dossiers, List<Long> dossierIds) {
+        if (dossiers.size() != Set.copyOf(dossierIds).size()) {
+            throw new GenericError("Un ou plusieurs dossiers sélectionnés sont introuvables ; rechargez la facture", "dossierNotFound");
+        }
+        for (ThirdPartySaleLine dossier : dossiers) {
+            FactureTiersPayant factureDuDossier = dossier.getFactureTiersPayant();
+            if (factureDuDossier == null || !facture.getId().equals(factureDuDossier.getId())) {
+                throw new GenericError("Un dossier sélectionné n'appartient pas à cette facture", "dossierHorsFacture");
+            }
+            if (resteDu(dossier) <= 0) {
+                throw new GenericError("Un ou plusieurs dossiers sélectionnés sont déjà réglés ; rechargez la facture", "dossierDejaRegle");
+            }
+        }
     }
 
     private List<ThirdPartySaleLine> getThirdPartySaleLines(ReglementParam reglementParam) {

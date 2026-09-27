@@ -10,6 +10,7 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.UserService;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.InvoiceEmptyDataException;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
@@ -65,6 +66,7 @@ public abstract class AbstractEditionFactureService implements EditionService {
     @Transactional
     public FactureEditionResponse createFactureEdition(EditionSearchParams editionSearchParams)
         throws InvoiceEmptyDataException {
+        commencerEdition();
         LocalDateTime dateCreation = LocalDateTime.now();
         int generationCode = getGenerationCode();
         saveAll(editionSearchParams, dateCreation, generationCode);
@@ -74,8 +76,46 @@ public abstract class AbstractEditionFactureService implements EditionService {
     protected abstract Specification<ThirdPartySaleLine> buildCriteria(
         EditionSearchParams editionSearchParams);
 
+    /**
+     * Une seule édition à la fois, et avant toute lecture : les dossiers non facturés et le dernier
+     * numéro de facture doivent être lus <em>après</em> l'édition concurrente qu'on a attendue.
+     */
+    protected void commencerEdition() {
+        this.facturationRepository.verrouillerEdition();
+    }
+
     protected List<ThirdPartySaleLine> getDatas(EditionSearchParams editionSearchParams) {
-        return this.thirdPartySaleLineRepository.findAll(this.buildCriteria(editionSearchParams));
+        List<ThirdPartySaleLine> dossiers = this.thirdPartySaleLineRepository.findAll(this.buildCriteria(editionSearchParams));
+        verrouillerFacturesProvisoiresReprises(dossiers);
+        return dossiers;
+    }
+
+    /**
+     * L'édition définitive reprend aussi les dossiers portés par une facture provisoire. Ces factures
+     * ne se règlent plus, mais des règlements antérieurs à cette règle peuvent subsister : on les
+     * verrouille, comme le fait l'annulation d'un règlement, puis on vérifie en base qu'aucune n'est
+     * réglée. Déplacer les dossiers d'une facture réglée détacherait son
+     * règlement de ce qu'il paie ; et un règlement validé entre la lecture des dossiers et ce verrou
+     * serait écrasé par la sauvegarde de dossiers lus avant lui.
+     */
+    private void verrouillerFacturesProvisoiresReprises(List<ThirdPartySaleLine> dossiers) {
+        Set<Long> provisoires = dossiers.stream()
+            .map(ThirdPartySaleLine::getFactureTiersPayant)
+            .filter(Objects::nonNull)
+            .map(facture -> facture.getId().getId())
+            .collect(Collectors.toSet());
+        if (provisoires.isEmpty()) {
+            return;
+        }
+        this.facturationRepository.verrouillerLignesEtFilles(provisoires);
+        List<String> reglees = this.facturationRepository.numerosFacturesReglees(provisoires);
+        if (!reglees.isEmpty()) {
+            throw new GenericError(
+                "Les factures provisoires " + String.join(", ", reglees)
+                    + " ont des règlements : annulez-les avant de refacturer leurs dossiers",
+                "factureProvisoireReglee"
+            );
+        }
     }
 
     protected Specification<ThirdPartySaleLine> buildFetchSpecification(

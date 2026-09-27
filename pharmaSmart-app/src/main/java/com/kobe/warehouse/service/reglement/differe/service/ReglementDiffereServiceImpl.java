@@ -19,6 +19,7 @@ import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.ReportPeriode;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.receipt.service.DiffereReceiptService;
 import com.kobe.warehouse.service.reglement.differe.dto.ClientDiffere;
@@ -155,6 +156,12 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
     public ReglementDiffereResponse doReglement(NewDifferePaymentDTO differePayment) {
         Customer customer = this.customerRepository.getReferenceById(differePayment.customerId());
         List<Sales> sales = this.salesRepository.findSalesByIdIn(differePayment.saleIds());
+        // Les règlements simultanés d'une même vente sont refusés par sa version (@Version) ; reste le
+        // second règlement séquentiel — double clic, écran resté ouvert — qui trouverait une vente
+        // déjà soldée et enregistrerait une pièce à 0 au lieu d'être refusé.
+        if (sales.stream().anyMatch(sale -> Objects.requireNonNullElse(sale.getRestToPay(), 0) <= 0)) {
+            throw new GenericError("Une ou plusieurs ventes sélectionnées sont déjà soldées ; rechargez la liste", "differeDejaRegle");
+        }
         DifferePayment differePaymentEntity = new DifferePayment();
         differePaymentEntity.setTransactionNumber(referenceService.buildNumTransaction());
         differePaymentEntity.setId(this.transactionIdGeneratorService.nextId());
@@ -185,7 +192,8 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
                 differePaymentItem.setPaidAmount(remainingAmount);
                 paidAmount.set(0);
             }
-            sale.setPayrollAmount(Objects.requireNonNullElse(sale.getPayrollAmount(), 0) + amountToPay);
+            // Le versé de la vente croît de ce qui vient d'être réglé, pas de tout son reste dû.
+            sale.setPayrollAmount(Objects.requireNonNullElse(sale.getPayrollAmount(), 0) + differePaymentItem.getPaidAmount());
             differePaymentItem.setExpectedAmount(sale.getRestToPay());
             differePaymentItem.setSale(sale);
             differePaymentItem.setDifferePayment(differePaymentEntity);

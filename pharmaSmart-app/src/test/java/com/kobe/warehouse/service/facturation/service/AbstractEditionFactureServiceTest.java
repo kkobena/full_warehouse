@@ -8,6 +8,9 @@ import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.TiersPayant;
+import com.kobe.warehouse.domain.FactureTiersPayant;
+import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.errors.InvoiceEmptyDataException;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.UserService;
@@ -19,6 +22,7 @@ import java.time.Year;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -190,6 +194,57 @@ class AbstractEditionFactureServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("verrouillage")
+    class Verrouillage {
+
+        @Test
+        @DisplayName("prend le verrou d'edition avant de lire le dernier numero et les dossiers")
+        void verrouAvantLecture() {
+            org.mockito.Mockito.lenient().when(invoiceGenerationCodeGeneratorService.getNextIdAsString()).thenReturn("1");
+            when(thirdPartySaleLineRepository.findAll(org.mockito.ArgumentMatchers.<Specification<ThirdPartySaleLine>>any()))
+                .thenReturn(List.of());
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.createFactureEdition(null))
+                .isInstanceOf(InvoiceEmptyDataException.class);
+
+            var ordre = org.mockito.Mockito.inOrder(facturationRepository, thirdPartySaleLineRepository);
+            ordre.verify(facturationRepository).verrouillerEdition();
+            ordre.verify(facturationRepository).findLatestFactureNumber();
+            ordre.verify(thirdPartySaleLineRepository).findAll(org.mockito.ArgumentMatchers.<Specification<ThirdPartySaleLine>>any());
+        }
+
+        @Test
+        @DisplayName("refuse de reprendre les dossiers d'une facture provisoire reglee")
+        void provisoireReglee() {
+            ThirdPartySaleLine dossier = new ThirdPartySaleLine();
+            FactureTiersPayant provisoire = new FactureTiersPayant().setId(5L);
+            dossier.setFactureTiersPayant(provisoire);
+            when(thirdPartySaleLineRepository.findAll(org.mockito.ArgumentMatchers.<Specification<ThirdPartySaleLine>>any()))
+                .thenReturn(List.of(dossier));
+            when(facturationRepository.numerosFacturesReglees(Set.of(5L))).thenReturn(List.of("2026_0005"));
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.donnees())
+                .isInstanceOf(GenericError.class)
+                .hasMessageContaining("2026_0005");
+
+            var ordre = org.mockito.Mockito.inOrder(facturationRepository);
+            ordre.verify(facturationRepository).verrouillerLignesEtFilles(Set.of(5L));
+            ordre.verify(facturationRepository).numerosFacturesReglees(Set.of(5L));
+        }
+
+        @Test
+        @DisplayName("des dossiers jamais factures ne verrouillent aucune facture")
+        void dossiersNonFactures() {
+            when(thirdPartySaleLineRepository.findAll(org.mockito.ArgumentMatchers.<Specification<ThirdPartySaleLine>>any()))
+                .thenReturn(List.of(new ThirdPartySaleLine()));
+
+            assertThat(service.donnees()).hasSize(1);
+
+            org.mockito.Mockito.verify(facturationRepository, org.mockito.Mockito.never()).verrouillerLignesEtFilles(org.mockito.ArgumentMatchers.any());
+        }
+    }
+
     /** Ouvre les méthodes protégées du socle, seul moyen de les éprouver isolément. */
     private static final class TestableEditionService extends AbstractEditionFactureService {
 
@@ -213,7 +268,11 @@ class AbstractEditionFactureServiceTest {
 
         @Override
         protected Specification<ThirdPartySaleLine> buildCriteria(EditionSearchParams editionSearchParams) {
-            return null;
+            return (root, query, cb) -> null;
+        }
+
+        List<ThirdPartySaleLine> donnees() {
+            return getDatas(null);
         }
 
         String numero(int annee, int indice) {

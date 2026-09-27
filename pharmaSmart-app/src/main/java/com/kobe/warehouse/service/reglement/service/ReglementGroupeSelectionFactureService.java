@@ -63,7 +63,7 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
         if (ligneSelectionnes.isEmpty()) {
             throw new GenericError("Aucun dossiers à regler");
         }
-        FactureTiersPayant factureTiersPayant = this.facturationRepository.getReferenceById(reglementParam.getId());
+        FactureTiersPayant factureTiersPayant = verrouillerFactureGroupe(reglementParam.getId());
 
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, reglementParam);
         invoicePayment.setGrouped(true);
@@ -76,23 +76,19 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
             if (montantVerse <= 0) {
                 break;
             }
-            int itemAmountToPay = item.getMontantVerse();
-            int itemAmount = itemAmountToPay;
-            if (montantVerse >= itemAmountToPay) {
-                montantVerse -= itemAmountToPay;
-            } else {
-                itemAmount = montantVerse;
-                montantVerse = 0;
-            }
-            montantPaye += itemAmount;
+            int itemAmount = Math.min(item.getMontantVerse(), montantVerse);
             FactureTiersPayant facture = this.facturationRepository.getReferenceById(item.getId());
+            verifierFille(factureTiersPayant, facture);
             var invoicePaymentItem = this.reglementFactureSelectionneesService.doReglement(invoicePayment, facture, itemAmount, item);
+            // Le réellement imputé, pas le montant demandé par l'écran : une fille dont le reste dû a
+            // baissé depuis l'affichage n'absorbe que ce qu'elle doit, le reste passe aux suivantes.
+            montantVerse -= invoicePaymentItem.getPaidAmount();
+            montantPaye += invoicePaymentItem.getPaidAmount();
             invoicePayments.add(invoicePaymentItem);
         }
+        refuserSiRienRegle(montantPaye);
         super.updateFactureTiersPayant(factureTiersPayant, montantPaye);
-        factureTiersPayant.setStatut(
-            factureTiersPayant.getMontantRegle() < reglementParam.getMontantFacture() ? InvoiceStatut.PARTIALLY_PAID : InvoiceStatut.PAID
-        );
+        appliquerStatutGroupe(factureTiersPayant);
         super.saveFactureTiersPayant(factureTiersPayant);
         invoicePayment.setExpectedAmount(totalAmount);
         invoicePayment.setPaidAmount(montantPaye);
@@ -103,5 +99,20 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
         }
         super.saveInvoicePayments(invoicePayments);
         return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
+    }
+
+    /** La fille est verrouillée avec son groupe ; encore faut-il qu'elle en soit une, et qu'elle doive quelque chose. */
+    private static void verifierFille(FactureTiersPayant groupe, FactureTiersPayant fille) {
+        FactureTiersPayant groupeDeLaFille = fille.getGroupeFactureTiersPayant();
+        if (groupeDeLaFille == null || !groupe.getId().equals(groupeDeLaFille.getId())) {
+            throw new GenericError("Une facture sélectionnée n'appartient pas à ce groupe", "factureHorsGroupe");
+        }
+        refuserSiProvisoire(fille);
+        if (resteDu(fille) <= 0) {
+            throw new GenericError(
+                "La facture " + fille.getNumFacture() + " est déjà réglée ; rechargez le groupe",
+                "factureDejaReglee"
+            );
+        }
     }
 }

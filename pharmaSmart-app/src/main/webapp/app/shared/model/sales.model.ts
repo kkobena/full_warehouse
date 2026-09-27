@@ -59,6 +59,12 @@ export interface ISales {
   magasin?: IMagasin;
   canceled?: boolean;
   itemCount?: number;
+  /**
+   * Verrou optimiste : version lue sur le serveur, renvoyée telle quelle à l'encaissement, à la
+   * mise en attente et à la finalisation de prévente. Ne jamais la calculer ni la conserver
+   * au-delà d'un rechargement : elle vient toujours de la dernière réponse du serveur.
+   */
+  version?: number | null;
 }
 
 export class Sales implements ISales {

@@ -219,6 +219,9 @@ public class RapprochementServiceImpl implements RapprochementService {
         CriteriaQuery<FactureTiersPayant> cq = cb.createQuery(FactureTiersPayant.class);
         Root<FactureTiersPayant> root = cq.from(FactureTiersPayant.class);
         List<Predicate> predicates = new ArrayList<>();
+        // Une facture provisoire n'est pas une créance : elle ne se règle pas, et ses dossiers seront
+        // repris par la facture définitive. La compter ici doublerait le facturé de ces dossiers.
+        predicates.add(cb.isFalse(root.get(FactureTiersPayant_.factureProvisoire)));
 
         if (params.startDate() != null && params.endDate() != null) {
             predicates.add(cb.between(root.get(FactureTiersPayant_.invoiceDate), params.startDate(), params.endDate()));

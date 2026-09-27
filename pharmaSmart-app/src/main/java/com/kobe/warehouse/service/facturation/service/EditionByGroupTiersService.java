@@ -55,6 +55,7 @@ public class EditionByGroupTiersService extends AbstractEditionFactureService {
     @Override
     public FactureEditionResponse createFactureEdition(EditionSearchParams editionSearchParams)
         throws InvoiceEmptyDataException {
+        commencerEdition();
         return buildAndSaveFacturesGroupe(editionSearchParams);
     }
 

@@ -31,6 +31,7 @@ import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
+import jakarta.persistence.OptimisticLockException;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
@@ -224,6 +225,20 @@ public abstract class SaleCommonService {
         }
         if (c.getStatut() == SalesStatut.CLOSED) {
             throw new SaleAlreadyCloseException();
+        }
+    }
+
+    /**
+     * Verrou optimiste, volet client : la vente a-t-elle été écrite depuis que le poste l'a lue ?
+     *
+     * <p>{@code @Version} ne protège que la durée d'une transaction ; une vente restée ouverte
+     * vingt minutes sur un poste, puis encaissée sur un autre, passerait. Seul le client sait quelle
+     * version il affiche. Version nulle côté client = pas de contrôle (appelants qui ne la
+     * transportent pas).
+     */
+    protected static void verifierVersion(Sales vente, Long versionClient) {
+        if (versionClient != null && vente.getVersion() != null && !versionClient.equals(vente.getVersion())) {
+            throw new OptimisticLockException("La vente a été modifiée depuis son affichage sur ce poste", null, vente);
         }
     }
 

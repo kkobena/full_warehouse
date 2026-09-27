@@ -80,6 +80,7 @@ export class SalePaymentFacade {
         this.notificationService.error(errorMessage);
         this.store.setError(errorMessage);
         this.store.setIsSaving(false);
+        this.reloadAfterConflict(error, currentSale.saleId);
         return of(null);
       }),
     );
@@ -129,6 +130,7 @@ export class SalePaymentFacade {
           const {errorMessage} = extractApiError(error, 'Erreur lors de la mise en attente');
           this.notificationService.error(errorMessage);
           this.store.setError(errorMessage);
+          this.reloadAfterConflict(error, currentSale.saleId);
           return EMPTY;
         }),
         finalize(() => this.store.setIsSaving(false)),
@@ -158,6 +160,7 @@ export class SalePaymentFacade {
         this.notificationService.error(errorMessage);
         this.store.setError(errorMessage);
         this.store.setIsSaving(false);
+        this.reloadAfterConflict(error, sale.saleId);
         return of(null);
       }),
     );
@@ -189,6 +192,7 @@ export class SalePaymentFacade {
         this.notificationService.error(errorMessage);
         this.store.setError(errorMessage);
         this.store.setIsSaving(false);
+        this.reloadAfterConflict(error, sale.saleId);
         return of(null);
       }),
     );
@@ -220,6 +224,7 @@ export class SalePaymentFacade {
         this.notificationService.error(errorMessage);
         this.store.setError(errorMessage);
         this.store.setIsSaving(false);
+        this.reloadAfterConflict(error, sale.saleId);
         return of(null);
       }),
     );
@@ -276,6 +281,36 @@ export class SalePaymentFacade {
   }
 
   // ── Private helpers ────────────────────────────────────────
+
+  /**
+   * Après un 409 (vente modifiée ailleurs depuis son affichage), l'écran montre l'état réel de la
+   * vente relu sur le serveur — jamais une fusion avec ce que le poste affichait. Une vente déjà
+   * finalisée ou annulée ailleurs quitte l'écran : il n'y a plus rien à y encaisser.
+   */
+  private reloadAfterConflict(error: any, saleId?: SaleId): void {
+    if (error?.status !== 409 || !saleId) {
+      return;
+    }
+    this.apiService
+      .findSale(saleId)
+      .pipe(
+        catchError(() => {
+          // Introuvable : supprimée ou transformée sur un autre poste.
+          this.store.resetCurrentSale();
+          return EMPTY;
+        }),
+      )
+      .subscribe(sale => {
+        if (sale.statut === SalesStatut.CLOSED || sale.canceled) {
+          this.store.resetCurrentSale();
+          this.notificationService.warning('Cette vente a déjà été finalisée sur un autre poste.');
+          return;
+        }
+        this.store.setCurrentSale(sale);
+        this.store.setSelectedCustomer(sale.customer ?? null);
+        this.store.emitEvent('SALE_RELOADED');
+      });
+  }
 
   private calculateSaleAmounts(sale: ISales): void {
     const montantVerse = Number(sale.montantVerse) || 0;

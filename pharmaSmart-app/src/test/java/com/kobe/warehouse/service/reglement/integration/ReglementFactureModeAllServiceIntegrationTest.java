@@ -1,8 +1,8 @@
 package com.kobe.warehouse.service.reglement.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.kobe.warehouse.domain.ClientTiersPayant;
@@ -14,6 +14,7 @@ import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.reglement.dto.BanqueInfoDTO;
 import com.kobe.warehouse.service.reglement.dto.ModeEditionReglement;
 import com.kobe.warehouse.service.reglement.dto.ReglementParam;
@@ -113,21 +114,52 @@ class ReglementFactureModeAllServiceIntegrationTest extends AbstractReglementInt
     }
 
     @Test
-    @DisplayName("Quand le montant facturé dépasse ce qui a été réglé, la facture reste partiellement payée")
-    void factureIncompletementReglee() throws Exception {
+    @DisplayName("Le statut se déduit des dossiers relus, pas du montant facturé annoncé par l'écran")
+    void statutDeduitDesDossiers() throws Exception {
         TiersPayant organisme = tiersPayant("MUTUELLE");
         FactureTiersPayant facture = facture(organisme, List.of(dossier(compte(organisme), 10_000)));
         viderLeCache();
 
-        // Le montant facturé annoncé (15 000) excède la somme des dossiers rattachés (10 000) :
-        // c'est le cas d'une facture dont tous les dossiers n'ont pas encore été rapatriés.
+        // L'écran annonce 15 000 — valeur périmée, ou limitée aux dossiers non soldés au moment de
+        // l'affichage. Le seul dossier rattaché (10 000) est soldé : la facture l'est aussi.
         ResponseReglementDTO reponse = services.reglementFactureModeAllService.doReglement(
             parametre(facture, 10_000).setMontantFacture(15_000)
         );
         viderLeCache();
 
-        assertEquals(InvoiceStatut.PARTIALLY_PAID, em.find(FactureTiersPayant.class, facture.getId()).getStatut());
-        assertFalse(reponse.total());
+        assertEquals(InvoiceStatut.PAID, em.find(FactureTiersPayant.class, facture.getId()).getStatut());
+        assertTrue(reponse.total());
+    }
+
+    @Test
+    @DisplayName("Une facture provisoire ne se règle pas")
+    void factureProvisoireRefusee() throws Exception {
+        TiersPayant organisme = tiersPayant("MUTUELLE PROVISOIRE");
+        FactureTiersPayant facture = facture(organisme, List.of(dossier(compte(organisme), 7_000)));
+        facture.setFactureProvisoire(true);
+        viderLeCache();
+
+        assertThrows(GenericError.class, () -> services.reglementFactureModeAllService.doReglement(parametre(facture, 7_000)));
+
+        assertEquals(0, compter("SELECT count(*) FROM payment_transaction WHERE dtype = 'InvoicePayment'"));
+    }
+
+    @Test
+    @DisplayName("Un second règlement d'une facture soldée est refusé, sans pièce à 0")
+    void secondReglementRefuse() throws Exception {
+        TiersPayant organisme = tiersPayant("MUTUELLE BIS");
+        FactureTiersPayant facture = facture(organisme, List.of(dossier(compte(organisme), 12_000)));
+        viderLeCache();
+        services.reglementFactureModeAllService.doReglement(parametre(facture, 12_000));
+        viderLeCache();
+
+        assertThrows(GenericError.class, () -> services.reglementFactureModeAllService.doReglement(parametre(facture, 12_000)));
+
+        assertEquals(
+            1,
+            compter("SELECT count(*) FROM payment_transaction WHERE dtype = 'InvoicePayment'"),
+            "un seul règlement enregistré"
+        );
     }
 
     @Test

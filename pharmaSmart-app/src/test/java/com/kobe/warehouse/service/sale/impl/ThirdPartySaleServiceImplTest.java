@@ -74,6 +74,7 @@ import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.sale.dto.UpdateSale;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
+import jakarta.persistence.OptimisticLockException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -2072,7 +2073,7 @@ class ThirdPartySaleServiceImplTest {
         when(thirdPartySaleRepository.findByIdAndSaleDate(1L, testDate))
             .thenReturn(Optional.of(testSale));
 
-        SaleId result = thirdPartySaleService.transformToVenteEncour(testSale.getId());
+        SaleId result = thirdPartySaleService.transformToVenteEncour(testSale.getId(), null);
 
         assertEquals(testSale.getId(), result);
         assertEquals(SalesStatut.ACTIVE, testSale.getStatut());
@@ -2448,7 +2449,7 @@ class ThirdPartySaleServiceImplTest {
         when(salesLineService.cloneSalesLine(anySet(), any(ThirdPartySales.class))).thenReturn(Set.of());
         when(thirdPartyClientManager.clone(anyList(), any(ThirdPartySales.class))).thenReturn(List.of());
 
-        SaleId result = thirdPartySaleService.transformToVenteEncour(testSale.getId());
+        SaleId result = thirdPartySaleService.transformToVenteEncour(testSale.getId(), null);
 
         assertEquals(40L, result.getId());
         verify(salesLineService).deleteSaleLine(testSalesLine);
@@ -2461,7 +2462,7 @@ class ThirdPartySaleServiceImplTest {
         when(thirdPartySaleRepository.findByIdAndSaleDate(1L, testDate))
             .thenReturn(Optional.empty());
         assertThrows(GenericError.class,
-            () -> thirdPartySaleService.transformToVenteEncour(testSale.getId()));
+            () -> thirdPartySaleService.transformToVenteEncour(testSale.getId(), null));
         assertThrows(GenericError.class,
             () -> thirdPartySaleService.cloneDevis(testSale.getId()));
 
@@ -2485,4 +2486,32 @@ class ThirdPartySaleServiceImplTest {
         return dto;
     }
 
+
+    // ===== verrou optimiste, volet client (phase B) =====
+
+    @Test
+    void encaissementAssuranceRefuseSiLaVenteAChangeDepuisSonAffichage() {
+        testSale.setVersion(5L);
+        when(thirdPartySaleRepository.findOneWithEagerSalesLines(1L, testDate)).thenReturn(Optional.of(testSale));
+        ThirdPartySaleDTO dto = new ThirdPartySaleDTO();
+        dto.setSaleId(testSale.getId());
+        dto.setVersion(4L);
+
+        assertThrows(OptimisticLockException.class, () -> thirdPartySaleService.save(dto));
+
+        verify(thirdPartySaleRepository, never()).save(any());
+        verifyNoInteractions(paymentService);
+    }
+
+    @Test
+    void transformationAssuranceRefuseeSiLaPreventeAChangeDepuisLAffichageDeLaListe() {
+        testSale.setVersion(5L);
+        testSale.setStatut(SalesStatut.PROCESSING);
+        when(thirdPartySaleRepository.findByIdAndSaleDate(1L, testDate)).thenReturn(Optional.of(testSale));
+
+        assertThrows(OptimisticLockException.class, () -> thirdPartySaleService.transformToVenteEncour(testSale.getId(), 4L));
+
+        assertEquals(SalesStatut.PROCESSING, testSale.getStatut());
+        verify(thirdPartySaleRepository, never()).save(any());
+    }
 }

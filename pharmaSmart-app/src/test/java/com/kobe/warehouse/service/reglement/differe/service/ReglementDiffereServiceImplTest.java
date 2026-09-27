@@ -400,6 +400,32 @@ class ReglementDiffereServiceImplTest {
         }
 
         @Test
+        @DisplayName("un reglement partiel n ajoute au verse que ce qui a ete regle")
+        void payrollAmountPartiel() {
+            when(customerRepository.getReferenceById(3)).thenReturn(customer());
+            Sales vente = vente(1L, 3000, 1000);
+            when(salesRepository.findSalesByIdIn(any())).thenReturn(List.of(vente));
+
+            service.doReglement(commande(1200, null, null));
+
+            assertThat(vente.getPayrollAmount()).isEqualTo(2200);
+            assertThat(vente.getRestToPay()).isEqualTo(1800);
+        }
+
+        @Test
+        @DisplayName("refuse une vente deja soldee : c est le second reglement d un double clic")
+        void venteDejaSoldee() {
+            when(customerRepository.getReferenceById(3)).thenReturn(customer());
+            when(salesRepository.findSalesByIdIn(any())).thenReturn(List.of(vente(1L, 3000, 0), vente(2L, 0, 2000)));
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.doReglement(commande(3000, null, null)))
+                .isInstanceOf(com.kobe.warehouse.service.errors.GenericError.class)
+                .hasMessageContaining("déjà soldées");
+
+            verify(differePaymentRepository, org.mockito.Mockito.never()).save(any());
+        }
+
+        @Test
         @DisplayName("cumule le versement sur le montant deja verse de la vente")
         void cumulePayrollAmount() {
             when(customerRepository.getReferenceById(3)).thenReturn(customer());

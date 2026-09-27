@@ -26,22 +26,6 @@ import org.xhtmlrenderer.pdf.PagePosition;
  * <p>
  * Rendu en deux passes, technique classique avec Flying Saucer pour une table des matières à
  * numéros de page réels :
- * <ol>
- *   <li>1ʳᵉ passe : rend le document (TOC comprise, numéros de page vides), écrit un PDF
- *   jetable puis {@link ITextRenderer#findPagePositionsByID} donne le numéro de page réel de
- *   chaque module et fonctionnalité. ⚠ {@code layout()} seul ne suffit pas :
- *   {@code findPagePositionsByID} lit {@code ITextOutputDevice._root}, qui n'est affecté que
- *   par {@code createPDF} (via {@code setRoot}) — il faut donc avoir écrit un PDF avant de
- *   pouvoir l'appeler (vérifié en inspectant le jar flying-saucer-pdf).</li>
- *   <li>2ᵉ passe : rend exactement le même template avec ces numéros injectés dans la TOC, et
- *   produit le PDF final. Comme seul le texte des numéros change (pas la structure), la
- *   pagination ne bouge pas entre les deux passes.</li>
- * </ol>
- * Les bookmarks PDF (panneau de navigation) sont générés automatiquement par Flying Saucer
- * depuis la hiérarchie {@code h1}/{@code h2}/{@code h3} du template — aucun code dédié requis.
- * Le template évite délibérément tout {@code h4} : Flying Saucer bookmarke TOUTE balise de
- * titre (h1-h6), un titre par sous-section ("Le besoin", "Étapes"...) noierait le panneau de
- * navigation sous des centaines d'entrées.
  */
 @Service
 public class CahierRecettePdfService {

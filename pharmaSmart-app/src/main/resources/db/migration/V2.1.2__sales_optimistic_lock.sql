@@ -1,0 +1,4 @@
+SET LOCAL lock_timeout = '5s';
+
+ALTER TABLE sales
+  ADD COLUMN IF NOT EXISTS version BIGINT NOT NULL DEFAULT 0;

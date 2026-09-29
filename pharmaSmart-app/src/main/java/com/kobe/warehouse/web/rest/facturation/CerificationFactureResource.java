@@ -10,10 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 
 @RestController
 @RequestMapping("/api/certification-factures")
+@RequiresNavAccess(value = { "facturation.factures", "facturation.edition", "factures" }, action = NavAction.CREATE)
 public class CerificationFactureResource {
     private final FneService fneService;
 

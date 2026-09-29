@@ -13,6 +13,7 @@
     "cleanup": "rimraf target/ pharmaSmart-app/target/",
     "e2e": "playwright test -c e2e --project=parcours",
     "e2e:liage": "playwright test -c e2e --project=liage",
+    "e2e:droits": "playwright test -c e2e --project=droits",
     "e2e:rapport": "playwright show-report target/playwright-report",
     "generate:cahier-recette": "tsx scripts/generate-cahier-recette-json.ts",
     "lint": "eslint .",

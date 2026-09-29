@@ -16,11 +16,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /** REST controller for managing {@link com.kobe.warehouse.domain.InventoryTransaction}. */
 @RestController
 @RequestMapping("/api")
 @Transactional
+@RequiresNavAccess({ "catalogue", "ajustements", "inventaire" })
 public class InventoryTransactionResource {
 
     private final Logger log = LoggerFactory.getLogger(InventoryTransactionResource.class);

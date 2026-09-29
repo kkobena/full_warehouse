@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for mobile ML forecasting data.
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/mobile/forecast")
+@RequiresNavAccess("rapport-ventes.sales-forecast")
 public class MobileForecastResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(MobileForecastResource.class);

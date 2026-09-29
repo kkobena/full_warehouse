@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for authentication using JWT tokens.
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 @LicenseExempt("Sans connexion possible, l'utilisateur ne pourrait pas atteindre l'écran de renouvellement de licence")
+@NavAccessExempt("authentification, publique par la chaîne de filtres")
 public class AuthenticationResource {
 
     private static final Logger log = LoggerFactory.getLogger(AuthenticationResource.class);

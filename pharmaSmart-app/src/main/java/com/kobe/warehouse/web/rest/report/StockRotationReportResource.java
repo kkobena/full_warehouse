@@ -14,9 +14,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("rapport-stock.stock-rotation")
 public class StockRotationReportResource {
 
     private final StockRotationReportService stockRotationReportService;
@@ -92,6 +95,7 @@ public class StockRotationReportResource {
      * @return PDF file
      */
     @GetMapping(value = "/stock/rotation/export", produces = MediaType.APPLICATION_PDF_VALUE)
+    @RequiresNavAccess(value = "rapport-stock.stock-rotation", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportStockRotationToPdf() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=stock-rotation.pdf");

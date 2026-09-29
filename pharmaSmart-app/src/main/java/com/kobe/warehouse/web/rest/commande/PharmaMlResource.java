@@ -20,9 +20,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api/pharmaml")
+@RequiresNavAccess({ "commande", "depot.achat-depot" })
 public class PharmaMlResource {
 
     private final PharmaMlService pharmaMlService;

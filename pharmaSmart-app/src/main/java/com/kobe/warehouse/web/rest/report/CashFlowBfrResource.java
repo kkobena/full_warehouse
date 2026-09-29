@@ -7,9 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api/cash-flow-bfr")
+@RequiresNavAccess("rapport-finance.cash-flow-bfr")
 public class CashFlowBfrResource {
 
     private final CashFlowBfrService service;

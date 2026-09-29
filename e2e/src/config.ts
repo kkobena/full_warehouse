@@ -24,6 +24,22 @@ export const IDENTIFIANTS = {
 };
 
 /**
+ * Comptes du contrôle des droits (projet « droits »), au format `login:motDePasse`, séparés par
+ * des virgules. Par défaut, les comptes non-admin du jeu de démonstration, qui partagent le mot
+ * de passe de l'admin. Un compte propre au poste s'ajoute par E2E_COMPTES_DROITS.
+ */
+export const COMPTES_DROITS = (
+  process.env.E2E_COMPTES_DROITS ??
+  ['kkone', 'ybrou', 'rkouassi'].map(login => `${login}:${IDENTIFIANTS.motDePasse}`).join(',')
+)
+  .split(',')
+  .filter(Boolean)
+  .map(compte => {
+    const [login, ...reste] = compte.split(':');
+    return { login: login.trim(), motDePasse: reste.join(':') };
+  });
+
+/**
  * Nom du projet Playwright qui déclenche la prise d'images. Le mode capture est porté par le
  * projet plutôt que par une variable d'environnement : `CAPTURE=1 playwright …` dans un script
  * npm échoue sous Windows, où npm passe par cmd.exe. `--project=captures` marche partout.

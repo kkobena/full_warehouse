@@ -31,6 +31,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link Categorie}.
@@ -38,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api")
 @Transactional
+@RequiresNavAccess({ "tiers-payant.groupe-tiers-payant", "tiers-payant" })
 public class GroupeTiersPayantResource {
 
     private static final String ENTITY_NAME = "GroupeTiersPayant";
@@ -77,6 +81,7 @@ public class GroupeTiersPayantResource {
     }
 
     @GetMapping("/groupe-tierspayants")
+    @NavAccessExempt("lecture de référentiel, utilisée par la vente assurance et la facturation")
     public ResponseEntity<List<GroupeTiersPayant>> getAll(@RequestParam(value = "search", required = false) String search) {
         log.debug("REST request to get a page of GroupeTiersPayant");
         List<GroupeTiersPayant> list = groupeTiersPayantService.list(search);
@@ -85,6 +90,7 @@ public class GroupeTiersPayantResource {
     }
 
     @GetMapping("/groupe-tierspayants/{id}")
+    @NavAccessExempt("lecture de référentiel, utilisée par la vente assurance et la facturation")
     public ResponseEntity<GroupeTiersPayant> getOne(@PathVariable Integer id) {
         log.debug("REST request to get GroupeTiersPayant : {}", id);
         Optional<GroupeTiersPayant> groupeTiersPayant = groupeTiersPayantService.getOne(id);
@@ -107,6 +113,7 @@ public class GroupeTiersPayantResource {
     }
 
     @PatchMapping("/groupe-tierspayants/mass-update-facture-config")
+    @RequiresNavAccess(value = { "tiers-payant.groupe-tiers-payant", "tiers-payant", "factures", "facturation.automatisation" }, action = NavAction.EDIT)
     public ResponseEntity<Void> massUpdateFactureConfig(@RequestBody MassUpdateFactureConfigRequest request) {
         groupeTiersPayantService.massUpdateFactureConfig(request);
         return ResponseEntity.noContent().build();

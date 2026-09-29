@@ -26,9 +26,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api/avoirs-fournisseur")
+@RequiresNavAccess({ "commande.retour-fournisseur.avoirs", "commande.retour-fournisseur", "commande" })
 public class AvoirFournisseurResource {
 
     private final AvoirFournisseurService avoirFournisseurService;

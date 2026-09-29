@@ -24,12 +24,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Sales}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "ventes", "nouvelle-vente", "nouvelle-prevente" })
 public class SalesResource {
 
     private static final String ENTITY_NAME = "sales";
@@ -130,6 +133,7 @@ public class SalesResource {
     }
 
     @DeleteMapping("/sales/cancel/comptant/{id}/{saleDate}")
+    @RequiresNavAccess(value = { "ventes.journal.cancel", "pr-annuler-vente" }, action = NavAction.EXECUTE)
     public ResponseEntity<Void> cancelCashSale(@PathVariable("id") Long id,
         @PathVariable("saleDate") LocalDate saleDate,
         @RequestParam(required = false) String cancelComment) throws CashRegisterException {
@@ -153,6 +157,7 @@ public class SalesResource {
     }
 
     @PostMapping("/sales/comptant/authorize-action")
+    @RequiresNavAccess(value = { "ventes", "nouvelle-vente", "nouvelle-prevente" }, action = NavAction.ACCESS)
     public ResponseEntity<Void> authorizeAction(
         @Valid @RequestBody UtilisationCleSecuriteDTO utilisationCleSecurite,
         HttpServletRequest request

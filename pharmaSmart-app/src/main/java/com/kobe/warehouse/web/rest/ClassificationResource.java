@@ -21,6 +21,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.Map;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for managing product criticality classification.
@@ -33,6 +34,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/classification")
+@RequiresNavAccess("catalogue")
 public class ClassificationResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClassificationResource.class);

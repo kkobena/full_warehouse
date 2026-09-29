@@ -86,6 +86,7 @@ public class CacheConfiguration {
                 buildCache("concentrationPayers", 30, TimeUnit.MINUTES, 10),
                 buildCache("cashFlowBfr", 15, TimeUnit.MINUTES, 5),
                 buildCache(EntityConstant.NAV_TREE_CACHE, defaultTtl, TimeUnit.HOURS, 500),
+                buildCache(EntityConstant.NAV_ACCESS_CACHE, defaultTtl, TimeUnit.HOURS, 100),
                 // Layout dashboard résolu par utilisateur — 1 entrée/utilisateur, changement rare
                 buildCache(EntityConstant.DASHBOARD_LAYOUT_RESOLVED_CACHE, defaultTtl, TimeUnit.HOURS, 500)
             )

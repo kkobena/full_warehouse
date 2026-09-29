@@ -27,6 +27,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for managing SEMOIS (Stock Économique Mensuel d'Objectif Interne de Sécurité).
@@ -38,6 +39,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/semois")
+@RequiresNavAccess({ "commande", "commande.suggestions", "catalogue" })
 public class SemoisResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(SemoisResource.class);

@@ -33,9 +33,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "commande.suggestions", "commande" })
 public class SuggestionResource {
 
     private final SuggestionProduitService suggestionProduitService;
@@ -238,6 +241,7 @@ public class SuggestionResource {
     }
 
     @GetMapping("/suggestions/{id}/export-csv")
+    @RequiresNavAccess(value = { "commande.suggestions", "commande" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportCsv(@PathVariable Integer id) throws Exception {
         byte[] data = suggestionProduitService.exportToCsv(id);
         return ResponseEntity.ok()
@@ -247,6 +251,7 @@ public class SuggestionResource {
     }
 
     @GetMapping("/suggestions/{id}/export-pdf")
+    @RequiresNavAccess(value = { "commande.suggestions", "commande" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportPdf(@PathVariable Integer id) {
         byte[] data = suggestionProduitService.exportToPdf(id);
         return ResponseEntity.ok()

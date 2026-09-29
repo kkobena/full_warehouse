@@ -32,12 +32,15 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.GammeProduit}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("gamme-produit")
 public class GammeProduitResource {
 
     private static final String ENTITY_NAME = "gammeProduit";
@@ -103,6 +106,7 @@ public class GammeProduitResource {
      * in body.
      */
     @GetMapping(value = "/gamme-produits")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes de tous les écrans")
     public ResponseEntity<List<GammeProduitDTO>> getAllGammeProduits(
         @RequestParam(value = "search", required = false) String search,
         Pageable pageable
@@ -121,6 +125,7 @@ public class GammeProduitResource {
      * gammeProduitDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/gamme-produits/{id}")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes de tous les écrans")
     public ResponseEntity<GammeProduitDTO> getGammeProduit(@PathVariable Integer id) {
         log.debug("REST request to get GammeProduit : {}", id);
         Optional<GammeProduitDTO> gammeProduitDTO = gammeProduitService.findOne(id);

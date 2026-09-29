@@ -17,12 +17,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Decondition}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "catalogue", "ventes", "nouvelle-vente", "nouvelle-prevente" })
 public class DeconditionResource {
 
     private final Logger log = LoggerFactory.getLogger(DeconditionResource.class);

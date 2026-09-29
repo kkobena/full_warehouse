@@ -27,12 +27,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.FormProduit}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("forme-produit")
 public class FormProduitResource {
 
     private static final String ENTITY_NAME = "formProduit";
@@ -97,6 +100,7 @@ public class FormProduitResource {
      * in body.
      */
     @GetMapping("/form-produits")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes de tous les écrans")
     public ResponseEntity<List<FormProduitDTO>> getAllFormProduits(Pageable pageable) {
         log.debug("REST request to get a page of FormProduits");
         Page<FormProduitDTO> page = formProduitService.findAll(pageable);
@@ -112,6 +116,7 @@ public class FormProduitResource {
      * formProduitDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/form-produits/{id}")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes de tous les écrans")
     public ResponseEntity<FormProduitDTO> getFormProduit(@PathVariable Integer id) {
         log.debug("REST request to get FormProduit : {}", id);
         Optional<FormProduitDTO> formProduitDTO = formProduitService.findOne(id);

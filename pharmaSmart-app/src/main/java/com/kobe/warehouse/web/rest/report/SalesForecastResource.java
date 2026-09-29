@@ -10,12 +10,14 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for Sales Forecasting
  */
 @RestController
 @RequestMapping("/api/sales-forecast")
+@RequiresNavAccess({ "rapport-ventes.sales-forecast", "rapport-ventes.seasonality" })
 public class SalesForecastResource {
 
     /** Horizon maximum au-delà duquel la fiabilité de la prévision est dégradée. */

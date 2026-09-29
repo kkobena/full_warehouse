@@ -15,9 +15,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "mvt-caisse.gestion-caisse", "mvt-caisse.recapitulatif-caisse", "comptabilite.recapitulatif-caisse" })
 public class CashRegisterReportResource {
 
     private final CashRegisterReportService cashRegisterReportService;
@@ -88,6 +91,7 @@ public class CashRegisterReportResource {
      * @return PDF file
      */
     @GetMapping(value = "/cash-register/daily-report/export", produces = MediaType.APPLICATION_PDF_VALUE)
+    @RequiresNavAccess(value = { "mvt-caisse.gestion-caisse", "mvt-caisse.recapitulatif-caisse", "comptabilite.recapitulatif-caisse" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportDailyReportToPdf(
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {

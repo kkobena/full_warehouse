@@ -18,12 +18,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for {@link com.kobe.warehouse.domain.PlanningInventaireTournant}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "inventaire.tournant", "inventaire" })
 public class PlanningInventaireTournantResource {
 
     private static final Logger log = LoggerFactory.getLogger(

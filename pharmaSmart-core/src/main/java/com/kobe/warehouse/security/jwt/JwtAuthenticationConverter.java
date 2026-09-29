@@ -50,7 +50,7 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
      * - Menus (from Menu table via Authority)
      * - Privileges (from Privilege table via Authority)
      *
-     * These were merged by SecurityUtils.mergeAuthorities() during token generation.
+     * These were merged by DomainUserDetailsService during token generation.
      */
     private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
         Collection<String> authorities = jwt.getClaimAsStringList("authorities");

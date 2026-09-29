@@ -1,13 +1,11 @@
 package com.kobe.warehouse.repository.nav;
 
 import com.kobe.warehouse.domain.enumeration.NavTargetType;
-import com.kobe.warehouse.domain.nav.NavItem;
 import com.kobe.warehouse.domain.nav.NavItemRole;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.kobe.warehouse.service.dto.projection.NavItemCode;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -18,8 +16,6 @@ public interface NavItemRoleRepository extends JpaRepository<NavItemRole, Intege
     List<NavItemRole> findAllByRoleName(String roleName);
 
     Optional<NavItemRole> findByNavItemIdAndRoleName(Integer navItemId, String roleName);
-    @Query("SELECT DISTINCT r.navItem.code AS code FROM NavItemRole r WHERE r.roleName = :roleName AND r.canExecute = true AND r.navItem.targetType = :targetType")
-    Set<NavItemCode> findAllNavItemCodeByRoleNameAndCanExecuteTrueAndNavItemTargetType(String roleName, NavTargetType targetType);
 
     /**
      * Codes des items ACTION exécutables par l'union des rôles donnés.
@@ -37,16 +33,16 @@ public interface NavItemRoleRepository extends JpaRepository<NavItemRole, Intege
     )
     Set<String> findExecutableCodesByRoles(Set<String> roleNames, NavTargetType targetType);
 
-    /** Items d'un type donné affichables par l'union des rôles donnés (widgets du dashboard). */
+    /**
+     * Droits de l'union des rôles donnés sur les items actifs, tous types confondus. Source du
+     * contrôle d'accès des endpoints (docs/PLAN-SECURISATION-ENDPOINTS.md) et des widgets.
+     */
     @Query(
         """
-            SELECT DISTINCT r.navItem FROM NavItemRole r
+            SELECT r FROM NavItemRole r JOIN FETCH r.navItem n
             WHERE r.roleName IN :roleNames
-              AND r.canDisplay = true
-              AND r.navItem.actif = true
-              AND r.navItem.targetType = :targetType
+              AND n.actif = true
             """
     )
-    List<NavItem> findDisplayableItemsByRoles(Set<String> roleNames, NavTargetType targetType);
+    List<NavItemRole> findAllActiveByRoleNames(Set<String> roleNames);
 }
-

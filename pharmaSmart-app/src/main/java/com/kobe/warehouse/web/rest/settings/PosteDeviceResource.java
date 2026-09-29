@@ -16,9 +16,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api/postes/{posteId}/devices")
+@RequiresNavAccess("poste")
 public class PosteDeviceResource {
 
     private final PosteDeviceService posteDeviceService;
@@ -39,6 +42,7 @@ public class PosteDeviceResource {
     }
 
     @GetMapping("/active")
+    @NavAccessExempt("périphériques actifs du poste, lus par l'impression sur chaque poste")
     public ResponseEntity<PosteDeviceRecord> getActive(
         @PathVariable Integer posteId,
         @RequestParam DeviceType type

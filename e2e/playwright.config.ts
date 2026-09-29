@@ -12,6 +12,8 @@ import { join } from 'node:path';
  *   - « authentification »: se connecte une fois et enregistre la session.
  *   - « parcours »        : les parcours, rejouant cette session, sans prise d'images.
  *   - « captures »        : les mêmes fichiers, avec prise d'images.
+ *   - « droits »          : chaque compte non-admin ouvre les écrans et onglets de son menu ;
+ *                           échoue sur tout 403 (docs/PLAN-SECURISATION-ENDPOINTS.md).
  *
  * « parcours » et « captures » partagent leurs fichiers : c'est le même code qui vérifie et qui
  * illustre. Les séparer par projet plutôt que par variable d'environnement rend `npm run
@@ -83,6 +85,10 @@ export default defineConfig({
       testDir: join(RACINE, 'e2e', 'parcours'),
       dependencies: ['authentification'],
       use: { storageState: FICHIER_SESSION },
+    },
+    {
+      name: 'droits',
+      testDir: join(RACINE, 'e2e', 'droits'),
     },
     {
       name: PROJET_CAPTURES,

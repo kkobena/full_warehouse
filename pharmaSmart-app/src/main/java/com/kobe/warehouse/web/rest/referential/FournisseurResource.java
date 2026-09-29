@@ -32,12 +32,15 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Fournisseur}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("fournisseurs")
 public class FournisseurResource {
 
     private static final String ENTITY_NAME = "fournisseur";
@@ -102,6 +105,7 @@ public class FournisseurResource {
      * in body.
      */
     @GetMapping(value = "/fournisseurs")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue, les commandes et les listes déroulantes")
     public ResponseEntity<List<FournisseurDTO>> getAllFournisseurs(
         @RequestParam(value = "search", required = false) String search,
         Pageable pageable
@@ -120,6 +124,7 @@ public class FournisseurResource {
      * fournisseurDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/fournisseurs/{id}")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue, les commandes et les listes déroulantes")
     public ResponseEntity<FournisseurDTO> getFournisseur(@PathVariable Integer id) {
         log.debug("REST request to get Fournisseur : {}", id);
         Optional<FournisseurDTO> fournisseurDTO = fournisseurService.findOne(id);
@@ -149,6 +154,7 @@ public class FournisseurResource {
     }
 
     @GetMapping("/fournisseurs/parents")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue, les commandes et les listes déroulantes")
     public ResponseEntity<List<FournisseurDTO>> getParents(
         @RequestParam(value = "search", required = false) String search,
         Pageable pageable
@@ -159,6 +165,7 @@ public class FournisseurResource {
     }
 
     @GetMapping("/fournisseurs/{id}/agences")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue, les commandes et les listes déroulantes")
     public ResponseEntity<List<FournisseurDTO>> getAgences(@PathVariable Integer id) {
         return ResponseEntity.ok().body(fournisseurService.findAgences(id));
     }

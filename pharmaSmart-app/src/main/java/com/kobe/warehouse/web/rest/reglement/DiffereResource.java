@@ -31,9 +31,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/differes")
+@RequiresNavAccess({ "differes", "differes.differes", "differes.historique" })
 public class DiffereResource {
 
     private final ReglementDiffereService reglementDiffereService;
@@ -89,6 +92,7 @@ public class DiffereResource {
     }
 
     @GetMapping("/pdf")
+    @RequiresNavAccess(value = { "differes", "differes.differes", "differes.historique" }, action = NavAction.EXPORT)
     public ResponseEntity<Resource> exportList(
         HttpServletRequest request,
         @RequestParam(name = "customerId", required = false) Integer customerId
@@ -97,6 +101,7 @@ public class DiffereResource {
     }
 
     @GetMapping("/reglements/pdf")
+    @RequiresNavAccess(value = { "differes", "differes.differes", "differes.historique" }, action = NavAction.EXPORT)
     public ResponseEntity<Resource> printReglementToPdf(
         HttpServletRequest request,
         @RequestParam(name = "customerId", required = false) Integer customerId,
@@ -138,6 +143,7 @@ public class DiffereResource {
     }
 
     @GetMapping("/export")
+    @RequiresNavAccess(value = { "differes", "differes.differes", "differes.historique" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportDifferesToExcel(
         @RequestParam(name = "customerId", required = false) Integer customerId
     ) {

@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "ventes", "nouvelle-vente", "nouvelle-prevente" })
 public class SalesLineResource {
 
     private static final String ENTITY_NAME = "salesLine";

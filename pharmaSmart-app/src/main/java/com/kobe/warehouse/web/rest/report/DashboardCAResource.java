@@ -15,12 +15,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller for Dashboard Chiffre d'Affaires (CA)
  */
 @RestController
 @RequestMapping("/api/dashboard-ca")
+@RequiresNavAccess({ "rapport-ventes.dashboard-ca", "rapport-ventes.generics-substitution", "rapport-ventes.remises-analysis", "rapport-ventes.sales-by-staff", "rapport-ventes.seasonality" })
 public class DashboardCAResource {
 
     private final DashboardCAService dashboardCAService;
@@ -136,6 +139,7 @@ public class DashboardCAResource {
      * @return PDF file
      */
     @GetMapping(value = "/export", produces = MediaType.APPLICATION_PDF_VALUE)
+    @RequiresNavAccess(value = { "rapport-ventes.dashboard-ca", "rapport-ventes.generics-substitution", "rapport-ventes.remises-analysis", "rapport-ventes.sales-by-staff", "rapport-ventes.seasonality" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportDashboardToPdf(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
@@ -152,6 +156,7 @@ public class DashboardCAResource {
      * @return Excel file (.xlsx)
      */
     @GetMapping(value = "/export/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    @RequiresNavAccess(value = { "rapport-ventes.dashboard-ca", "rapport-ventes.generics-substitution", "rapport-ventes.remises-analysis", "rapport-ventes.sales-by-staff", "rapport-ventes.seasonality" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportDailySummaryToExcel(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
@@ -178,6 +183,7 @@ public class DashboardCAResource {
      * @return CSV file
      */
     @GetMapping(value = "/export/csv", produces = "text/csv")
+    @RequiresNavAccess(value = { "rapport-ventes.dashboard-ca", "rapport-ventes.generics-substitution", "rapport-ventes.remises-analysis", "rapport-ventes.sales-by-staff", "rapport-ventes.seasonality" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportDailySummaryToCsv(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
@@ -204,6 +210,7 @@ public class DashboardCAResource {
      * @return Excel file (.xlsx)
      */
     @GetMapping(value = "/export/top-products/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    @RequiresNavAccess(value = { "rapport-ventes.dashboard-ca", "rapport-ventes.generics-substitution", "rapport-ventes.remises-analysis", "rapport-ventes.sales-by-staff", "rapport-ventes.seasonality" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportTopProductsToExcel(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
@@ -230,6 +237,7 @@ public class DashboardCAResource {
      * @return CSV file
      */
     @GetMapping(value = "/export/top-products/csv", produces = "text/csv")
+    @RequiresNavAccess(value = { "rapport-ventes.dashboard-ca", "rapport-ventes.generics-substitution", "rapport-ventes.remises-analysis", "rapport-ventes.sales-by-staff", "rapport-ventes.seasonality" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportTopProductsToCsv(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
@@ -310,6 +318,7 @@ public class DashboardCAResource {
      */
     @PostMapping("/refresh")
     @LicenseExempt("Consultation : rafraîchissement de vues matérialisées, aucune donnée métier modifiée")
+    @RequiresNavAccess(value = { "rapport-ventes.dashboard-ca", "rapport-ventes.generics-substitution", "rapport-ventes.remises-analysis", "rapport-ventes.sales-by-staff", "rapport-ventes.seasonality" }, action = NavAction.ACCESS)
     public ResponseEntity<Void> refreshViews() {
         dashboardCAService.refreshViews();
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

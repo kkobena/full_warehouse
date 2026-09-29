@@ -15,9 +15,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "comptabilite.balance", "mvt-caisse.balance", "declaration-ca.balance-reelle" })
 public class BalanceResource  {
     private final BalanceCaisseService balanceCaisseService;
     public BalanceResource(BalanceCaisseService balanceCaisseService) {
@@ -43,6 +46,7 @@ public class BalanceResource  {
         }
     }
     @GetMapping("/balances/pdf")
+    @RequiresNavAccess(value = { "comptabilite.balance", "mvt-caisse.balance", "declaration-ca.balance-reelle" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> getExport(
         @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
         @RequestParam(value = "toDate", required = false) LocalDate toDate,

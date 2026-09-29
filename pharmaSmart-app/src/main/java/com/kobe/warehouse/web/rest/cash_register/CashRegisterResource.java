@@ -26,9 +26,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "mvt-caisse", "ventes", "nouvelle-vente", "nouvelle-prevente" })
 public class CashRegisterResource {
     private final CashRegisterService cashRegisterService;
     private final TicketingService ticketingService;
@@ -44,6 +47,7 @@ public class CashRegisterResource {
     }
 
     @PostMapping("/cash-registers/do-ticketing")
+    @RequiresNavAccess(value = { "mvt-caisse", "mvt-caisse.gestion-caisse" }, action = NavAction.CREATE)
     public ResponseEntity<Void> doTicketing(@Valid @RequestBody TicketingDTO ticketingDto) {
         ticketingService.doTicketing(ticketingDto);
         return ResponseEntity.ok().build();

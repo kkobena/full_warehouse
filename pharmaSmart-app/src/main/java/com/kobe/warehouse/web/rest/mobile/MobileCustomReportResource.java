@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for mobile custom report generation.
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/mobile/custom-reports")
+@RequiresNavAccess({ "ventes.kpi", "rapport-ventes", "comptabilite" })
 public class MobileCustomReportResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(MobileCustomReportResource.class);

@@ -7,12 +7,14 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing Dashboard Layouts
  */
 @RestController
 @RequestMapping("/api/dashboard-layouts")
+@NavAccessExempt("layouts personnels de chaque utilisateur, chargés à la connexion ; droits sur les widgets et les layouts système vérifiés par DashboardLayoutServiceImpl")
 public class DashboardLayoutResource {
 
     private final DashboardLayoutService dashboardLayoutService;

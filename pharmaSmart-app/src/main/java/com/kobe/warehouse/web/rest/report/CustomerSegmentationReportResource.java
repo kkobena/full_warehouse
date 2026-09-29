@@ -14,9 +14,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("rapport-partners.customer-segmentation")
 public class CustomerSegmentationReportResource {
 
     private final CustomerSegmentationReportService customerSegmentationReportService;
@@ -107,6 +110,7 @@ public class CustomerSegmentationReportResource {
      * @return PDF file
      */
     @GetMapping(value = "/customers/segmentation/export", produces = MediaType.APPLICATION_PDF_VALUE)
+    @RequiresNavAccess(value = "rapport-partners.customer-segmentation", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportCustomerSegmentationToPdf() {
 
         HttpHeaders headers = new HttpHeaders();

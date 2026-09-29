@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller pour la fusion de produits en doublon du catalogue.
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/produits/merge")
+@RequiresNavAccess(value = "pr-fusion-produit", action = NavAction.EXECUTE)
 public class ProduitMergeResource {
 
     private static final String ENTITY_NAME = "produit";

@@ -26,9 +26,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/supplier-performance")
+@RequiresNavAccess("facturation.comptes-fournisseurs")
 public class AccountsPayableResource {
 
     private final AccountsPayableService accountsPayableService;
@@ -80,6 +83,7 @@ public class AccountsPayableResource {
     }
 
     @GetMapping(value = "/ap/export/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @RequiresNavAccess(value = "facturation.comptes-fournisseurs", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportComptesAsPdf(
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
@@ -91,6 +95,7 @@ public class AccountsPayableResource {
     }
 
     @GetMapping(value = "/{fournisseurId}/ap/export/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @RequiresNavAccess(value = "facturation.comptes-fournisseurs", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportFournisseurAsPdf(@PathVariable Integer fournisseurId) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=compte-fournisseur.pdf");

@@ -28,12 +28,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Ajustement}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("ajustements")
 public class AjustementResource {
 
     private final Logger log = LoggerFactory.getLogger(AjustementResource.class);
@@ -79,6 +82,7 @@ public class AjustementResource {
     }
 
     @GetMapping("/ajustements/ecarts-a-regulariser")
+    @RequiresNavAccess({ "ajustements", "inventaire" })
     public List<EcartStockDTO> getEcartsARegulariser() {
         return ajustementService.findEcartsARegulariser();
     }
@@ -115,12 +119,14 @@ public class AjustementResource {
     }
 
     @PutMapping("/ajustements/delete/items")
+    @RequiresNavAccess(value = "ajustements", action = NavAction.DELETE)
     public ResponseEntity<Void> deleteAll(@RequestBody List<Integer> ids) {
         ajustementService.deleteAll(ids);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/ajustements/pdf/{id}")
+    @RequiresNavAccess(value = "ajustements", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> getPdf(@PathVariable Integer id) {
         String fileName = "ajustement_" + id + ".pdf";
         return Utils.printPDF(this.ajustService.exportToPdf(id), fileName);

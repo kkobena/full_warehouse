@@ -170,6 +170,13 @@ pharma-smart:
         - ${PHARMA_PUBLISHER_PHONE:+33 0x xx xx xx xx}
         - ${PHARMA_PUBLISHER_PHONE:+225 07 xx xx xx xx}
 
+  # Contrôle des endpoints par les droits des menus (docs/PLAN-SECURISATION-ENDPOINTS.md).
+  # AUDIT : un accès sans droit est journalisé (logger « nav-access-audit ») et laissé passer.
+  # ENFORCE : il est refusé en 403. OFF : aucun contrôle. Surcharge : PHARMA_NAV_ACCESS_MODE.
+  security:
+    nav-access:
+      mode: ${PHARMA_NAV_ACCESS_MODE:ENFORCE}
+
   # Relais de mise à jour des postes clients (cf. docs/PLAN-AMELIORATION-MODULE-TAURI.md §7.6).
   # Le poste serveur publie l'installeur client de sa propre version, déposé ici par l'installeur
   # NSIS. Laissé vide, l'emplacement est résolu par ClientUpdateService :

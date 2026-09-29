@@ -25,9 +25,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/avoirs")
+@RequiresNavAccess({ "facturation.avoirs", "factures" })
 public class AvoirResource {
 
     private final AvoirService avoirService;
@@ -94,11 +97,13 @@ public class AvoirResource {
     }
 
     @GetMapping("/{id}/pdf")
+    @RequiresNavAccess(value = { "facturation.avoirs", "factures" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportPdf(@PathVariable Long id) {
         return Utils.printPDF(avoirService.exportPdf(id), "avoir_" + id + ".pdf");
     }
 
     @GetMapping("/export/pdf")
+    @RequiresNavAccess(value = { "facturation.avoirs", "factures" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportListPdf(
         @RequestParam(required = false) Integer tiersPayantId,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -111,6 +116,7 @@ public class AvoirResource {
     }
 
     @GetMapping("/export/excel")
+    @RequiresNavAccess(value = { "facturation.avoirs", "factures" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportExcel(
         @RequestParam(required = false) Integer tiersPayantId,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

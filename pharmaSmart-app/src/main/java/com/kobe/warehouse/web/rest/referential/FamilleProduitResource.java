@@ -32,12 +32,15 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.FamilleProduit}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("famille-produit")
 public class FamilleProduitResource {
 
     private static final String ENTITY_NAME = "familleProduit";
@@ -104,6 +107,7 @@ public class FamilleProduitResource {
      * familleProduits in body.
      */
     @GetMapping(value = "/famille-produits")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes de tous les écrans")
     public ResponseEntity<List<FamilleProduitDTO>> getAllFamilleProduits(
         @RequestParam(value = "search", required = false, defaultValue = "") String search,
         Pageable pageable
@@ -122,6 +126,7 @@ public class FamilleProduitResource {
      * familleProduitDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/famille-produits/{id}")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes de tous les écrans")
     public ResponseEntity<FamilleProduitDTO> getFamilleProduit(@PathVariable Integer id) {
         log.debug("REST request to get FamilleProduit : {}", id);
         Optional<FamilleProduitDTO> familleProduitDTO = familleProduitService.findOne(id);

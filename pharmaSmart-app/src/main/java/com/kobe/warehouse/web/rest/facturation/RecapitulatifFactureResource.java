@@ -16,9 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/edition-factures")
+@RequiresNavAccess({ "facturation.recapitulatif", "factures" })
 public class RecapitulatifFactureResource {
 
     private final RecapitulatifMensuelService recapitulatifMensuelService;
@@ -45,6 +48,7 @@ public class RecapitulatifFactureResource {
     }
 
     @GetMapping("/recapitulatif/pdf")
+    @RequiresNavAccess(value = { "facturation.recapitulatif", "factures" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportPdf(
         @RequestParam int annee,
         @RequestParam int mois,
@@ -58,6 +62,7 @@ public class RecapitulatifFactureResource {
     }
 
     @GetMapping("/recapitulatif/excel")
+    @RequiresNavAccess(value = { "facturation.recapitulatif", "factures" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportExcel(
         @RequestParam int annee,
         @RequestParam int mois,

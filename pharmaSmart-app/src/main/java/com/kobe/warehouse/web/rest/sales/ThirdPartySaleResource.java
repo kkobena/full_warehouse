@@ -37,12 +37,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller for managing {@link Sales}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "ventes", "nouvelle-vente", "nouvelle-prevente" })
 public class ThirdPartySaleResource {
 
     private static final String ENTITY_NAME = "sales";
@@ -170,6 +173,7 @@ public class ThirdPartySaleResource {
     }
 
     @DeleteMapping("/sales/cancel/assurance/{id}/{saleDate}")
+    @RequiresNavAccess(value = { "ventes.journal.cancel", "pr-annuler-vente" }, action = NavAction.EXECUTE)
     public ResponseEntity<Void> cancelSale(@PathVariable("id") Long id,
         @PathVariable("saleDate") LocalDate saleDate,
         @RequestParam(required = false) String cancelComment) throws CashRegisterException {
@@ -202,6 +206,7 @@ public class ThirdPartySaleResource {
 
     @GetMapping("/sales/assurance/transform")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
+    @RequiresNavAccess(value = { "ventes", "nouvelle-vente", "nouvelle-prevente" }, action = NavAction.EDIT)
     public ResponseEntity<SaleId> transform(
         @RequestParam(name = "natureVente") NatureVente natureVente,
         @RequestParam(name = "saleId") Long saleId,
@@ -232,6 +237,7 @@ public class ThirdPartySaleResource {
 
     @PutMapping("/sales/assurance/save/completed-sale")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
+    @RequiresNavAccess(value = "pr-modifier-vente", action = NavAction.EXECUTE)
     public ResponseEntity<FinalyseSaleDTO> editSale(
         @Valid @RequestBody ThirdPartySaleDTO thirdPartySaleDTO) {
         if (thirdPartySaleDTO.getId() == null) {
@@ -243,6 +249,7 @@ public class ThirdPartySaleResource {
     }
 
     @PostMapping("/sales/assurance/authorize-action")
+    @RequiresNavAccess(value = { "ventes", "nouvelle-vente", "nouvelle-prevente" }, action = NavAction.ACCESS)
     public ResponseEntity<Void> authorizeAction(
         @Valid @RequestBody UtilisationCleSecuriteDTO utilisationCleSecurite,
         HttpServletRequest request
@@ -306,6 +313,7 @@ public class ThirdPartySaleResource {
      */
 
     @PutMapping("/sales/assurance/copier")
+    @RequiresNavAccess(value = "pr-modifier-vente", action = NavAction.EXECUTE)
     public ResponseEntity<SaleId> copiePourEdition(@Valid @RequestBody SaleId sale) {
         return ResponseEntity.accepted()
             .body(saleService.copiePourEdition(sale));

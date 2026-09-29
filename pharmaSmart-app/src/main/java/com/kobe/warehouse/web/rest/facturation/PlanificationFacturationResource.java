@@ -21,9 +21,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api/planifications-facturation")
+@RequiresNavAccess({ "facturation.automatisation", "factures" })
 public class PlanificationFacturationResource {
 
     private final PlanificationFacturationService planificationService;

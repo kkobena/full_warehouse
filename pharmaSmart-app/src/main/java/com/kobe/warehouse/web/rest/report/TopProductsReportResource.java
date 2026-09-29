@@ -12,12 +12,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for top products reports
  */
 @RestController
 @RequestMapping("/api/top-products")
+@RequiresNavAccess("rapport-ventes.top-products")
 public class TopProductsReportResource {
 
     private final TopProductsReportService topProductsReportService;

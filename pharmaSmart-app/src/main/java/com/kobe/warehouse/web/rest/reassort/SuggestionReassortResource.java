@@ -9,12 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for managing suggestion reassort (stock replenishment suggestions)
  */
 @RestController
 @RequestMapping("/api/suggestion-reassort")
+@RequiresNavAccess({ "commande.repartition-stock", "commande" })
 public class SuggestionReassortResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(SuggestionReassortResource.class);

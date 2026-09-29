@@ -13,8 +13,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -46,11 +48,15 @@ public class DomainUserDetailsService implements UserDetailsService {
         if (!user.isActivated()) {
             throw new UserNotActivatedException("User " + lowercaseLogin + " was not activated");
         }
-        Authority authority = user.getAuthorities().stream().findFirst().orElseThrow(() -> new UsernameNotFoundException("User " + lowercaseLogin + " has no authorities"));
-        List<SimpleGrantedAuthority> grantedAuthorities = SecurityUtils.mergeAuthorities(authority, navItemRoleRepository.findAllNavItemCodeByRoleNameAndCanExecuteTrueAndNavItemTargetType(authority.getName(), NavTargetType.ACTION))
-            .stream()
-            .map(SimpleGrantedAuthority::new)
-            .collect(Collectors.toList());
+        // Tous les rôles, et les actions de leur union : un utilisateur à deux rôles n'avait que
+        // celles du premier.
+        Set<String> roles = user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet());
+        if (roles.isEmpty()) {
+            throw new UsernameNotFoundException("User " + lowercaseLogin + " has no authorities");
+        }
+        Set<String> authorities = new HashSet<>(roles);
+        authorities.addAll(navItemRoleRepository.findExecutableCodesByRoles(roles, NavTargetType.ACTION));
+        List<SimpleGrantedAuthority> grantedAuthorities = authorities.stream().map(SimpleGrantedAuthority::new).toList();
 
         return new User(user.getLogin(), user.getPassword(), grantedAuthorities);
     }

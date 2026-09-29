@@ -20,9 +20,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("parametres")
 public class ConfigurationResource {
 
     private final AppConfigurationService appConfigurationService;
@@ -32,16 +35,19 @@ public class ConfigurationResource {
     }
 
     @GetMapping("/app/{id}")
+    @NavAccessExempt("paramètres de l'application, lus par la vente, le stock et l'inventaire mobile")
     public ResponseEntity<AppConfigurationDto> getParam(@PathVariable String id) {
         return ResponseUtil.wrapOrNotFound(appConfigurationService.findOne(id));
     }
 
     @GetMapping("/app/param-gestion-stock")
+    @NavAccessExempt("paramètres de l'application, lus par la vente, le stock et l'inventaire mobile")
     public ResponseEntity<AppConfigurationDto> getParamGestionStock() {
         return ResponseUtil.wrapOrNotFound(appConfigurationService.findStockParam());
     }
 
     @GetMapping("/app")
+    @NavAccessExempt("paramètres de l'application, lus par la vente, le stock et l'inventaire mobile")
     public ResponseEntity<List<AppConfigurationDto>> fetchAll(
         @RequestParam(value = "search", required = false, defaultValue = "") String search,
         Pageable pageable
@@ -64,6 +70,7 @@ public class ConfigurationResource {
      * @return ResponseEntity avec le modèle actuel et les options
      */
     @GetMapping("/app/model-reappro")
+    @NavAccessExempt("paramètres de l'application, lus par la vente, le stock et l'inventaire mobile")
     public ResponseEntity<Map<String, Object>> getModelReappro() {
         return ResponseEntity.ok(appConfigurationService.getModelReapproConfiguration());
     }

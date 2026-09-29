@@ -9,6 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.kobe.warehouse.service.errors.ForbiddenOperationException;
 import com.kobe.warehouse.service.errors.GenericError;
 import java.time.LocalDate;
 import java.util.List;
@@ -53,10 +54,10 @@ class DashboardWidgetServiceTest {
     @DisplayName("un refus de droit empêche l'appel au fournisseur")
     void refusAvantChargement() {
         WidgetDataProvider provider = provider("marge");
-        doThrow(new GenericError("refus", WidgetAuthorizationService.ERROR_NON_AUTORISE)).when(authorization).checkCanLoad("marge");
+        doThrow(new ForbiddenOperationException("refus", WidgetAuthorizationService.ERROR_NON_AUTORISE)).when(authorization).checkCanLoad("marge");
         DashboardWidgetService service = new DashboardWidgetService(providers(provider), authorization);
 
-        assertThatThrownBy(() -> service.load("marge", null, null, null, Map.of())).isInstanceOf(GenericError.class);
+        assertThatThrownBy(() -> service.load("marge", null, null, null, Map.of())).isInstanceOf(ForbiddenOperationException.class);
         verify(provider, never()).load(any(), any());
     }
 

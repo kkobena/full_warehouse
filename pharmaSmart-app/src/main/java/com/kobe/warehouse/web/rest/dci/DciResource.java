@@ -21,9 +21,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api/dci")
+@RequiresNavAccess("dci")
 public class DciResource {
 
     private final DciService dciService;
@@ -33,11 +36,13 @@ public class DciResource {
     }
 
     @GetMapping("/unpaged")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et la recherche de produits")
     public ResponseEntity<List<DciDTO>> getAllUnpaged(@RequestParam(name = "search", required = false) String search) {
         return ResponseEntity.ok().body(dciService.findAll(search, Pageable.unpaged()).getContent());
     }
 
     @GetMapping
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et la recherche de produits")
     public ResponseEntity<List<DciDTO>> getAll(@RequestParam(name = "search", required = false) String search, Pageable pageable) {
         Page<DciDTO> page = dciService.findAll(search, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
@@ -45,12 +50,14 @@ public class DciResource {
     }
 
     @GetMapping("/{id}")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et la recherche de produits")
     public ResponseEntity<DciDTO> getOne(@PathVariable Integer id) {
         return ResponseUtil.wrapOrNotFound(dciService.findOne(id));
     }
 
     /** Produits portant cette substance active — alimente le panneau de détail. */
     @GetMapping("/{id}/produits")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et la recherche de produits")
     public ResponseEntity<List<DciProduitDTO>> getProduits(@PathVariable Integer id) {
         return ResponseEntity.ok().body(dciService.findProduits(id));
     }

@@ -19,10 +19,13 @@ import com.kobe.warehouse.repository.AuthorityRepository;
 import com.kobe.warehouse.repository.DashboardLayoutAuthorityRepository;
 import com.kobe.warehouse.repository.DashboardLayoutRepository;
 import com.kobe.warehouse.repository.UserRepository;
+import com.kobe.warehouse.repository.nav.NavItemRepository;
 import com.kobe.warehouse.repository.nav.NavItemRoleRepository;
+import com.kobe.warehouse.security.navaccess.NavAccessService;
 import com.kobe.warehouse.service.dashboard.widget.AllowedWidgetDTO;
 import com.kobe.warehouse.service.dashboard.widget.WidgetAuthorizationService;
 import com.kobe.warehouse.service.dto.DashboardLayoutDTO;
+import com.kobe.warehouse.service.errors.ForbiddenOperationException;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.impl.DashboardLayoutServiceImpl;
 import com.kobe.warehouse.service.license.LicenseService;
@@ -38,6 +41,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.orm.jpa.SharedEntityManagerCreator;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -85,9 +89,13 @@ class DashboardWidgetDroitsIntegrationTest {
         when(licenseService.hasFeature(any())).thenReturn(true);
 
         widgets = new WidgetAuthorizationService(
-            IntegrationPostgresDatabase.bean(NavItemRoleRepository.class),
-            IntegrationPostgresDatabase.bean(UserRepository.class),
-            licenseService
+            new NavAccessService(
+                IntegrationPostgresDatabase.bean(NavItemRoleRepository.class),
+                IntegrationPostgresDatabase.bean(NavItemRepository.class),
+                IntegrationPostgresDatabase.bean(UserRepository.class),
+                licenseService,
+                new NoOpCacheManager()
+            )
         );
         layouts = new DashboardLayoutServiceImpl(
             IntegrationPostgresDatabase.bean(DashboardLayoutRepository.class),
@@ -138,7 +146,7 @@ class DashboardWidgetDroitsIntegrationTest {
         void donneesRefusees() {
             connecter(caissier);
             assertThatThrownBy(() -> widgets.checkCanLoad(WIDGET_MARGE))
-                .isInstanceOf(GenericError.class)
+                .isInstanceOf(ForbiddenOperationException.class)
                 .extracting("errorKey")
                 .isEqualTo(WidgetAuthorizationService.ERROR_NON_AUTORISE);
         }
@@ -170,7 +178,7 @@ class DashboardWidgetDroitsIntegrationTest {
 
             assertThat(widgets.findAllowedForCurrentUser()).contains(new AllowedWidgetDTO(WIDGET_MARGE, false));
             assertThatThrownBy(() -> widgets.checkCanLoad(WIDGET_MARGE))
-                .isInstanceOf(GenericError.class)
+                .isInstanceOf(ForbiddenOperationException.class)
                 .extracting("errorKey")
                 .isEqualTo(WidgetAuthorizationService.ERROR_NON_SOUSCRIT);
         }
@@ -185,7 +193,7 @@ class DashboardWidgetDroitsIntegrationTest {
         void layoutRefuse() {
             connecter(caissier);
             assertThatThrownBy(() -> layouts.save(layout(WIDGET_CAISSE, WIDGET_MARGE)))
-                .isInstanceOf(GenericError.class)
+                .isInstanceOf(ForbiddenOperationException.class)
                 .extracting("errorKey")
                 .isEqualTo(WidgetAuthorizationService.ERROR_NON_AUTORISE);
         }
@@ -228,8 +236,8 @@ class DashboardWidgetDroitsIntegrationTest {
 
             DashboardLayoutDTO modification = layouts.findOne(homeBase.getId()).orElseThrow();
             modification.setDescription("détourné");
-            assertThatThrownBy(() -> layouts.update(modification)).isInstanceOf(GenericError.class).extracting("errorKey").isEqualTo("adminRequis");
-            assertThatThrownBy(() -> layouts.delete(homeBase.getId())).isInstanceOf(GenericError.class).extracting("errorKey").isEqualTo("adminRequis");
+            assertThatThrownBy(() -> layouts.update(modification)).isInstanceOf(ForbiddenOperationException.class).extracting("errorKey").isEqualTo("adminRequis");
+            assertThatThrownBy(() -> layouts.delete(homeBase.getId())).isInstanceOf(ForbiddenOperationException.class).extracting("errorKey").isEqualTo("adminRequis");
         }
 
         @Test
@@ -282,10 +290,10 @@ class DashboardWidgetDroitsIntegrationTest {
             Integer id = homeBase().getId();
             connecter(pharmacien);
             assertThatThrownBy(() -> layouts.setAsDefaultForAuthority(id, "ROLE_CAISSIER"))
-                .isInstanceOf(GenericError.class)
+                .isInstanceOf(ForbiddenOperationException.class)
                 .extracting("errorKey")
                 .isEqualTo("adminRequis");
-            assertThatThrownBy(() -> layouts.findAllForAuthority("ROLE_CAISSIER")).isInstanceOf(GenericError.class);
+            assertThatThrownBy(() -> layouts.findAllForAuthority("ROLE_CAISSIER")).isInstanceOf(ForbiddenOperationException.class);
         }
     }
 

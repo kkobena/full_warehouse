@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * Relais de mise à jour pour les postes clients de l'officine.
@@ -37,6 +38,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
  */
 @RestController
 @RequestMapping("/api/updates")
+@NavAccessExempt("relais de mise à jour des postes, public par la chaîne de filtres (cf. SecurityConfiguration)")
 public class ClientUpdateResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientUpdateResource.class);

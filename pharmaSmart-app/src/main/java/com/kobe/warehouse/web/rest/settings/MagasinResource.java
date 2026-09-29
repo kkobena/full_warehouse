@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Magasin}.
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 @LicenseExempt("Modifiaction des données de l'officine")
+@RequiresNavAccess("magasin")
 public class MagasinResource {
 
     private static final String ENTITY_NAME = "magasin";
@@ -98,6 +101,7 @@ public class MagasinResource {
      * body.
      */
     @GetMapping("/magasins/current-user-magasin")
+    @NavAccessExempt("officine et dépôts de l'utilisateur, lus à la connexion et par la vente")
     public ResponseEntity<MagasinDTO> findOne() {
         log.debug("REST request to get all Magasins");
 
@@ -113,6 +117,7 @@ public class MagasinResource {
      * with status {@code 404 (Not Found)}.
      */
     @GetMapping("/magasins/{id}")
+    @NavAccessExempt("officine et dépôts de l'utilisateur, lus à la connexion et par la vente")
     public ResponseEntity<MagasinDTO> getMagasin(@PathVariable Integer id) {
         log.debug("REST request to get Magasin : {}", id);
 
@@ -136,11 +141,13 @@ public class MagasinResource {
     }
 
     @GetMapping("/magasins")
+    @NavAccessExempt("officine et dépôts de l'utilisateur, lus à la connexion et par la vente")
     public ResponseEntity<List<MagasinDTO>> getAllMagasins() {
         return ResponseEntity.ok().body(magasinService.findAll(Set.of()));
     }
 
     @GetMapping("/magasins/depots")
+    @NavAccessExempt("officine et dépôts de l'utilisateur, lus à la connexion et par la vente")
     public ResponseEntity<List<MagasinDTO>> getAllDepots(
         @RequestParam(required = false, name = "types") Set<TypeMagasin> types) {
         return ResponseEntity.ok().body(magasinService.findAll(
@@ -148,6 +155,7 @@ public class MagasinResource {
     }
 
     @GetMapping("/magasins/has-depot")
+    @NavAccessExempt("officine et dépôts de l'utilisateur, lus à la connexion et par la vente")
     public ResponseEntity<Boolean> hasDepot() {
         return ResponseEntity.ok().body(magasinService.hasDepot());
     }

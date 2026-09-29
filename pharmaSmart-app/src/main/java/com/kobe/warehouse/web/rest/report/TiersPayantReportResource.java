@@ -15,9 +15,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "rapport-finance.creances", "rapport-finance.situation-creances" })
 public class TiersPayantReportResource {
 
     private final TiersPayantReportService tiersPayantReportService;
@@ -81,6 +84,7 @@ public class TiersPayantReportResource {
      * @return PDF file
      */
     @GetMapping(value = "/tiers-payant/creances/export", produces = MediaType.APPLICATION_PDF_VALUE)
+    @RequiresNavAccess(value = { "rapport-finance.creances", "rapport-finance.situation-creances" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportCreancesToPdf() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=creances-tiers-payant.pdf");

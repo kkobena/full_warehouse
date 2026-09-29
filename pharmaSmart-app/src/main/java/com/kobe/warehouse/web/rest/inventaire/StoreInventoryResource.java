@@ -39,12 +39,15 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.Optional;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.StoreInventory}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "inventaire", "inventaire.en-cours", "inventaire.clotures", "inventaire.tournant" })
 public class StoreInventoryResource {
 
     private static final String ENTITY_NAME = "storeInventory";
@@ -127,6 +130,7 @@ public class StoreInventoryResource {
 
     @PostMapping(value = "/store-inventories/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     @LicenseExempt("Consultation : export PDF d'inventaire, aucune donnée modifiée")
+    @RequiresNavAccess(value = { "inventaire", "inventaire.en-cours", "inventaire.clotures", "inventaire.tournant" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> getPdf(@RequestBody StoreInventoryExportRecord filterRecord) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=inventaire.pdf");

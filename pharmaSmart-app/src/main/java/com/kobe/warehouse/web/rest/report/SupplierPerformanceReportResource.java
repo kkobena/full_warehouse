@@ -18,9 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "rapport-partners.supplier-performance", "facturation.comptes-fournisseurs" })
 public class SupplierPerformanceReportResource {
 
     private final SupplierPerformanceReportService supplierPerformanceReportService;
@@ -136,6 +139,7 @@ public class SupplierPerformanceReportResource {
      * @return PDF file
      */
     @GetMapping(value = "/supplier-performance/export", produces = MediaType.APPLICATION_PDF_VALUE)
+    @RequiresNavAccess(value = { "rapport-partners.supplier-performance", "facturation.comptes-fournisseurs" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportSupplierPerformanceToPdf() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=supplier-performance.pdf");

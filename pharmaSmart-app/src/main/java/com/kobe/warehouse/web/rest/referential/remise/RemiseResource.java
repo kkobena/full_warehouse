@@ -25,12 +25,16 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link PaymentMode}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("remises")
 public class RemiseResource {
     private final RemiseService remiseService;
 
@@ -57,6 +61,7 @@ public class RemiseResource {
     }
 
     @GetMapping("/remises/{id}")
+    @NavAccessExempt("lecture de référentiel, utilisée par la vente (remises applicables) et le catalogue")
     public ResponseEntity<RemiseDTO> getOne(@PathVariable Integer id) {
         Optional<RemiseDTO> remiseDTO = this.remiseService.findOne(id);
         return ResponseUtil.wrapOrNotFound(remiseDTO);
@@ -78,6 +83,7 @@ public class RemiseResource {
     }
 
     @GetMapping("/remises")
+    @NavAccessExempt("lecture de référentiel, utilisée par la vente (remises applicables) et le catalogue")
     public ResponseEntity<List<RemiseDTO>> getAll(
         @RequestParam(required = false, name = "typeRemise", defaultValue = "ALL") TypeRemise typeRemise
     ) {
@@ -85,21 +91,25 @@ public class RemiseResource {
     }
 
     @GetMapping("/remises/codes")
+    @NavAccessExempt("lecture de référentiel, utilisée par la vente (remises applicables) et le catalogue")
     public ResponseEntity<List<CodeRemiseDTO>> getCodesRemise() {
         return ResponseEntity.ok().body(this.remiseService.findAllCodeRemise());
     }
 
     @GetMapping("/remises/grilles")
+    @NavAccessExempt("lecture de référentiel, utilisée par la vente (remises applicables) et le catalogue")
     public ResponseEntity<List<GrilleRemiseDTO>> findAllGrilles() {
         return ResponseEntity.ok().body(this.remiseService.findAllGrilles());
     }
 
     @GetMapping("/remises/full-codes")
+    @NavAccessExempt("lecture de référentiel, utilisée par la vente (remises applicables) et le catalogue")
     public ResponseEntity<List<CodeRemiseDTO>> queryFullCodes() {
         return ResponseEntity.ok().body(this.remiseService.queryFullCodes());
     }
 
     @PostMapping("/remises/associer")
+    @RequiresNavAccess(value = { "remises", "catalogue" }, action = NavAction.CREATE)
     public ResponseEntity<Void> assosier(@Valid @RequestBody RemiseProduitsDTO remiseProduits) {
         this.remiseService.assosier(remiseProduits);
         return ResponseEntity.ok().build();

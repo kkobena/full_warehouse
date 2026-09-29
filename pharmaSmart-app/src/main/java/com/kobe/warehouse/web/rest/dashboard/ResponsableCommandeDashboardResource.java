@@ -6,9 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/responsable-commande/dashboard")
+@RequiresNavAccess("commande.dashboard")
 public class ResponsableCommandeDashboardResource {
 
     private final ResponsableCommandeDashboardService dashboardService;
@@ -95,6 +98,7 @@ public class ResponsableCommandeDashboardResource {
      * POST /api/responsable-commande/dashboard/refresh : Rafraîchit les données du dashboard
      */
     @PostMapping("/refresh")
+    @RequiresNavAccess(value = "commande.dashboard", action = NavAction.ACCESS)
     public ResponseEntity<ResponsableCommandeDashboardDTO> refreshDashboard() {
         ResponsableCommandeDashboardDTO dashboard = dashboardService.getDashboardData();
         return ResponseEntity.ok(dashboard);

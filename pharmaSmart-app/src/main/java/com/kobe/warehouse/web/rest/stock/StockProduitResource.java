@@ -11,12 +11,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for managing StockProduit
  */
 @RestController
 @RequestMapping("/api/stock-produit")
+@RequiresNavAccess({ "catalogue", "commande.repartition-stock" })
 public class StockProduitResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(StockProduitResource.class);

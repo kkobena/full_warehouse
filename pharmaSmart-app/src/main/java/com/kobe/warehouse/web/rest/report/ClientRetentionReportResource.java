@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api/client-retention")
+@RequiresNavAccess("rapport-ventes.client-retention")
 public class ClientRetentionReportResource {
 
     private final ClientRetentionReportService clientRetentionReportService;

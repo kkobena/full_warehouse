@@ -14,9 +14,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "rapport-stock.abc-pareto", "rapport-stock.stock-abc" })
 public class ABCParetoReportResource {
 
     private final ABCParetoReportService abcParetoReportService;
@@ -91,6 +94,7 @@ public class ABCParetoReportResource {
      * @return PDF file
      */
     @GetMapping(value = "/abc-pareto/export", produces = MediaType.APPLICATION_PDF_VALUE)
+    @RequiresNavAccess(value = { "rapport-stock.abc-pareto", "rapport-stock.stock-abc" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportABCParetoToPdf() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=abc_pareto_report.pdf");

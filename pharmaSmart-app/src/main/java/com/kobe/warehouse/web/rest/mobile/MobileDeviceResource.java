@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for mobile device management.
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/mobile/devices")
+@NavAccessExempt("enregistrement de l'appareil mobile de l'utilisateur connecté")
 public class MobileDeviceResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(MobileDeviceResource.class);

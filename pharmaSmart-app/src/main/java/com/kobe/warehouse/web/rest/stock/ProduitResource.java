@@ -43,12 +43,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Produit}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("catalogue")
 public class ProduitResource {
 
     /** Réponse retournée après la création d'un produit. */
@@ -124,6 +127,7 @@ public class ProduitResource {
      */
 
     @GetMapping("/produits")
+    @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<List<ProduitDTO>> getAllProduits(
         @RequestParam(required = false, name = "search") String search,
         @RequestParam(required = false, name = "storageId") Integer storageId,
@@ -170,6 +174,7 @@ public class ProduitResource {
      */
 
     @GetMapping("/produits/{id}")
+    @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<ProduitDTO> getProduit(@PathVariable Integer id) {
         log.debug("REST request to get Produit : {}", id);
         Optional<ProduitDTO> produit = produitService.findOne(id);
@@ -185,6 +190,7 @@ public class ProduitResource {
      * @return indicateurs ou 404 si le produit est inconnu
      */
     @GetMapping("/produits/{id}/indicateurs")
+    @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<ProduitIndicateursDTO> getProduitIndicateurs(@PathVariable Integer id) {
         log.debug("REST request to get indicateurs for Produit : {}", id);
         return ResponseUtil.wrapOrNotFound(produitIndicateursService.getIndicateurs(id));
@@ -199,6 +205,7 @@ public class ProduitResource {
      * @return liste triée par mois croissant
      */
     @GetMapping("/produits/{id}/ventes-mensuelles")
+    @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<List<VenteMoisDTO>> getVentesMensuelles(
         @PathVariable Integer id,
         @RequestParam(required = false, defaultValue = "12") int nbMois
@@ -265,6 +272,7 @@ public class ProduitResource {
     }
 
     @GetMapping("/produits/lite")
+    @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<List<ProduitDTO>> getAllLite(
         @RequestParam(required = false, name = "search") String search,
         @RequestParam(required = false, name = "storageId") Integer storageId,
@@ -293,6 +301,7 @@ public class ProduitResource {
     }
 
     @GetMapping("/produits/code/{code}")
+    @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<List<ProduitSearch>> findByCode(@PathVariable("code") String code
 
     ) {
@@ -302,6 +311,7 @@ public class ProduitResource {
     }
 
     @GetMapping("/produits/search")
+    @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<List<ProduitSearch>> search(
         @RequestParam(name = "search") String search,
         @RequestParam(required = false, name = "magasinId") Integer magasinId,
@@ -312,6 +322,7 @@ public class ProduitResource {
     }
 
     @GetMapping("/produits/activity")
+    @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<List<ProductActivityDTO>> getProduitActivity(
         @RequestParam(name = "produitId") Long produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
@@ -322,6 +333,7 @@ public class ProduitResource {
     }
 
     @GetMapping("/produits/search-by-storage")
+    @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<List<ProduitSearch>> searchByStorage(
         @RequestParam(name = "search") String search,
         @RequestParam(name = "storageId") Integer storageId,
@@ -332,11 +344,13 @@ public class ProduitResource {
     }
 
     @GetMapping("/produits/{id}/generiques")
+    @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<List<SubstitutDTO>> getGeneriques(@PathVariable Integer id) {
         return ResponseEntity.ok().body(produitService.findGeneriques(id));
     }
 
     @GetMapping("/produits/{id}/etiquettes")
+    @NavAccessExempt("lecture du catalogue, nécessaire à la vente et aux commandes pour tous les rôles")
     public ResponseEntity<byte[]> getEtiquettes(
         @PathVariable Integer id,
         @RequestParam(defaultValue = "1") int qty,

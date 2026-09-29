@@ -22,12 +22,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Sales}.
  */
 @RestController
 @RequestMapping("/api/vente-depot")
+@RequiresNavAccess({ "ventes.vente-depot", "depot.liste-depots", "depot" })
 public class VenteDepotResource {
 
     private static final String ENTITY_NAME = "sales";
@@ -126,6 +129,7 @@ public class VenteDepotResource {
     }
 
     @GetMapping("/change-depot")
+    @RequiresNavAccess(value = { "ventes.vente-depot", "depot.liste-depots", "depot" }, action = NavAction.EDIT)
     public ResponseEntity<SaleId> changeDepot(
         @RequestParam(name = "saleId") Long saleId,
         @RequestParam(name = "saleDate") LocalDate SaleDate,

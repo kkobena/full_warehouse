@@ -37,12 +37,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.List;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Customer}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "customer", "ventes", "nouvelle-vente", "nouvelle-prevente" })
 public class CustomerResource {
     private static final String ENTITY_NAME = "customer";
 
@@ -64,6 +67,7 @@ public class CustomerResource {
     }
 
     @GetMapping("/customers")
+    @NavAccessExempt("lecture du fichier clients, nécessaire à la vente pour tous les rôles de comptoir")
     public ResponseEntity<List<CustomerDTO>> getAllCustomers(
         Pageable pageable,
         @RequestParam(required = false, defaultValue = "ENABLE", name = "status") Status status,
@@ -76,12 +80,14 @@ public class CustomerResource {
     }
 
     @GetMapping("/customers/{id}")
+    @NavAccessExempt("lecture du fichier clients, nécessaire à la vente pour tous les rôles de comptoir")
     public ResponseEntity<CustomerDTO> getCustomer(@PathVariable Integer id) {
 
         return ResponseUtil.wrapOrNotFound(customerDataService.getOneCustomer(id));
     }
 
     @GetMapping("/customers/purchases")
+    @NavAccessExempt("lecture du fichier clients, nécessaire à la vente pour tous les rôles de comptoir")
     public ResponseEntity<List<SaleDTO>> customerPurchases(
         @RequestParam(value = "customerId") Integer id,
         @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
@@ -116,6 +122,7 @@ public class CustomerResource {
     }
 
     @GetMapping("/customers/uninsured")
+    @NavAccessExempt("lecture du fichier clients, nécessaire à la vente pour tous les rôles de comptoir")
     public ResponseEntity<List<UninsuredCustomerDTO>> getAllUninsuredCustomers(
         @RequestParam(value = "search", required = false) String search
     ) {
@@ -124,6 +131,7 @@ public class CustomerResource {
     }
 
     @DeleteMapping("/customers/{id}")
+    @RequiresNavAccess("customer")
     public ResponseEntity<Void> deleteCustomer(@PathVariable Integer id) {
 
         uninsuredCustomerService.deleteCustomerById(id);
@@ -133,6 +141,7 @@ public class CustomerResource {
     }
 
     @PostMapping("/customers/importjson")
+    @RequiresNavAccess("customer")
     public ResponseEntity<ResponseDTO> uploadFile(@RequestPart("importjson") MultipartFile file) throws IOException {
         ResponseDTO responseDTO = importationCustomer.updateStocFromJSON(file.getInputStream());
         return ResponseEntity.ok(responseDTO);

@@ -21,9 +21,12 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/recap-produit-vendu")
+@RequiresNavAccess("rapport-stock.recap-produit-vendu")
 public class RecapProduitVenduResource {
     private final RecapProduitVenduService recapProduitVenduService;
 
@@ -60,6 +63,7 @@ public class RecapProduitVenduResource {
      * @return Excel file (.xlsx)
      */
     @GetMapping(value = "/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    @RequiresNavAccess(value = "rapport-stock.recap-produit-vendu", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportToExcel(@Valid RecapProduitVenduRequestParam requestParam
     ) {
         try {
@@ -81,6 +85,7 @@ public class RecapProduitVenduResource {
      * @return CSV file
      */
     @GetMapping(value = "/csv", produces = "text/csv")
+    @RequiresNavAccess(value = "rapport-stock.recap-produit-vendu", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportCsv(@Valid RecapProduitVenduRequestParam requestParam
     ) {
         try {
@@ -102,6 +107,7 @@ public class RecapProduitVenduResource {
      * @return PDF file
      */
     @GetMapping(value = "/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @RequiresNavAccess(value = "rapport-stock.recap-produit-vendu", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportToPdf(@Valid RecapProduitVenduRequestParam requestParam) {
         try {
             byte[] pdfData = recapProduitVenduService.exportToPdf(requestParam);
@@ -122,6 +128,7 @@ public class RecapProduitVenduResource {
      * @return Excel file (.xlsx) for unsold products
      */
     @GetMapping(value = "/invendus/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    @RequiresNavAccess(value = "rapport-stock.recap-produit-vendu", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportInvenduToExcel(@Valid RecapProduitVenduRequestParam requestParam
     ) {
         try {
@@ -143,6 +150,7 @@ public class RecapProduitVenduResource {
      * @return CSV file for unsold products
      */
     @GetMapping(value = "/invendus/csv", produces = "text/csv")
+    @RequiresNavAccess(value = "rapport-stock.recap-produit-vendu", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportInvenduToCsv(@Valid RecapProduitVenduRequestParam requestParam
     ) {
         try {
@@ -164,6 +172,7 @@ public class RecapProduitVenduResource {
      * @return PDF file for unsold products
      */
     @GetMapping(value = "/invendus/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @RequiresNavAccess(value = "rapport-stock.recap-produit-vendu", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportInvenduToPdf(@Valid RecapProduitVenduRequestParam requestParam) {
         try {
             byte[] pdfData = recapProduitVenduService.exportInvenduToPdf(requestParam);

@@ -27,12 +27,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller pour la navigation dynamique.
  */
 @RestController
 @RequestMapping("/api")
+@NavAccessExempt("arbre de navigation et droits de l'utilisateur connecté, ordre personnel de ses menus")
 public class NavItemResource {
 
     private static final Logger log = LoggerFactory.getLogger(NavItemResource.class);

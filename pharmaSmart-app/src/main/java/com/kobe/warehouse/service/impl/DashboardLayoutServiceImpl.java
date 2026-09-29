@@ -16,6 +16,7 @@ import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.DashboardLayoutService;
 import com.kobe.warehouse.service.dashboard.widget.WidgetAuthorizationService;
 import com.kobe.warehouse.service.dto.DashboardLayoutDTO;
+import com.kobe.warehouse.service.errors.ForbiddenOperationException;
 import com.kobe.warehouse.service.errors.GenericError;
 import java.util.List;
 import java.util.Objects;
@@ -186,7 +187,10 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
             throw new GenericError("Un tableau de bord système ne peut pas devenir votre accueil ; dupliquez-le d'abord.", "layoutSysteme");
         }
         if (!isOwner(layout, currentUser)) {
-            throw new GenericError("Seul le propriétaire peut faire de ce tableau de bord son accueil ; dupliquez-le d'abord.", "layoutNonProprietaire");
+            throw new ForbiddenOperationException(
+                "Seul le propriétaire peut faire de ce tableau de bord son accueil ; dupliquez-le d'abord.",
+                "layoutNonProprietaire"
+            );
         }
 
         unsetOtherUserDefaults(currentUser, layout.getId());
@@ -304,13 +308,13 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
         if (layout.getUser() == null) {
             requireAdmin(user);
         } else if (!isOwner(layout, user) && !isAdmin(user)) {
-            throw new GenericError("Seul le propriétaire peut modifier ce tableau de bord.", "layoutNonProprietaire");
+            throw new ForbiddenOperationException("Seul le propriétaire peut modifier ce tableau de bord.", "layoutNonProprietaire");
         }
     }
 
     private static void requireAdmin(AppUser user) {
         if (!isAdmin(user)) {
-            throw new GenericError("Opération réservée à l'administrateur.", "adminRequis");
+            throw new ForbiddenOperationException("Opération réservée à l'administrateur.", "adminRequis");
         }
     }
 

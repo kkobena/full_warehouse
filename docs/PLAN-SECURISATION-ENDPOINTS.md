@@ -16,6 +16,55 @@ Le plan aligne l'API sur ce que les menus accordent déjà : **un endpoint exige
 dashboard. Il se déploie d'abord en **mode audit** (on journalise sans bloquer), puis on bascule en
 **mode blocage** une fois les journaux lus.
 
+## État d'avancement (2026-09-29)
+
+Lots 0 à 5 réalisés. **Mode par défaut : `ENFORCE`** (décision du 2026-09-29), sans période
+d'audit préalable : un droit oublié se traduit directement par un 403. Pour diagnostiquer sans
+bloquer, `PHARMA_NAV_ACCESS_MODE=AUDIT` le temps de corriger (redémarrage requis).
+
+| Élément | Où |
+|---|---|
+| Annotations `@RequiresNavAccess`, `@NavAccessExempt`, `NavAction` | `pharmaSmart-app/…/security/navaccess/` |
+| Contrôle : `NavAccessInterceptor` + `NavAccessService` (cache `navAccess`, vidé par l'attribution des menus) | idem, enregistré par `config/NavAccessConfiguration` |
+| Mode : `pharma-smart.security.nav-access.mode` (variable `PHARMA_NAV_ACCESS_MODE`) | `application.yml`, défaut `ENFORCE` |
+| Journal d'audit : logger `nav-access-audit`, une ligne par utilisateur et par handler et par heure | — |
+| 403 pour `AccessDeniedException` (et donc les `@PreAuthorize` existants, qui partaient en 500) | `ExceptionTranslator.handleAccessDenied` |
+| `WidgetAuthorizationService` réécrit sur `NavAccessService` | — |
+| Jeton multi-rôle : tous les rôles, et les `ACTION` de leur union | `DomainUserDetailsService` |
+| Swagger / OpenAPI : publics en profil `dev` seulement, `ROLE_ADMIN` ailleurs | `SecurityConfiguration` |
+| Tests : complétude (liste d'attente **déjà vide**), intercepteur, droits en base et existence des codes déclarés | `src/test/…/security/navaccess/` |
+| Contrôle par rôle : chaque compte non-admin ouvre les écrans et onglets de son menu, échec sur tout 403 | `e2e/droits/`, `npm run e2e:droits` |
+
+**Écarts au plan, assumés :**
+
+- **Un intercepteur MVC plutôt qu'un aspect.** Il voit le verbe HTTP réel, y compris sur les
+  contrôleurs en `@RequestMapping(method = …)`, et l'URI pour le journal. C'est le même choix que
+  `LicenseEnforcementInterceptor`.
+- **L'administrateur passe toujours**, comme dans l'`AuthGuard` du front.
+- **Décisions du § 8 prises par défaut** : lectures de référentiels exemptées (1) ; Swagger réservé à
+  l'admin (3).
+- **Refus du dashboard alignés sur le 403** (décision 4) : widget non autorisé ou non souscrit,
+  layout d'un autre, opération réservée à l'admin. Ils lèvent `ForbiddenOperationException`, qui
+  garde sa clé métier (`widgetNonAutorise`, `adminRequis`…). Les règles métier (layout système
+  pris pour accueil, configuration illisible) restent en 400, et un layout privé d'un autre reste
+  « inexistant » pour ne pas en révéler l'existence.
+
+**Points de vigilance :**
+
+- **Opérations soumises à autorisation d'un superviseur** (prix, remise, suppression de ligne,
+  forçage de stock) : l'opération part ensuite avec le jeton du caissier. Elles restent donc sur
+  les codes de comptoir (`ventes`, `nouvelle-vente`, `nouvelle-prevente`). Seules l'annulation
+  (`ventes.journal.cancel`, `pr-annuler-vente`), la modification d'une vente clôturée
+  (`pr-modifier-vente`), la clôture d'avoir et la création de retour client exigent leur `ACTION`.
+- **Application mobile de rapports** : `mobile_admin` et `mobile_user` n'existent pas dans la table
+  `authority` et ne sont jamais entrés dans le jeton. Ils ne protégeaient donc rien. Chaque
+  endpoint `/api/mobile/**` exige désormais le code de son rapport web. La migration `V2.1.12`
+  attribue au pharmacien les trois rapports qui lui manquaient : `rapport-stock.stock-rotation`,
+  `rapport-stock.recap-produit-vendu` et `rapport-ventes.sales-forecast`. L'ABC-Pareto lui était
+  déjà ouvert par `rapport-stock.stock-abc`, et les alertes par `ventes.kpi`.
+- **URL hors `/api/**`** (§ 1.1, « à vérifier ») : non traitées ici ; un `anyRequest()` casserait
+  les liens profonds de l'application Angular, rechargés sans jeton.
+
 ## 1. État des lieux
 
 ### 1.1 Chaîne de filtres (`config/SecurityConfiguration.java`)

@@ -37,9 +37,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/produits/stat")
+@RequiresNavAccess({ "catalogue", "ventes.kpi" })
 public class ProductStatResource {
 
     private final ProductStatService productStatService;
@@ -72,6 +75,7 @@ public class ProductStatResource {
 
     @PostMapping("/transactions/pdf")
     @LicenseExempt("Consultation : export PDF de l'historique produit, la traçabilité doit rester imprimable")
+    @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
     public ResponseEntity<Resource> getTransactionsPdf(
         @RequestBody @Valid ProduitAuditingParam produitAuditingParam,
         HttpServletRequest request
@@ -81,6 +85,7 @@ public class ProductStatResource {
     }
 
     @GetMapping("/transactions/excel")
+    @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportTransactionsToExcel(@Valid ProduitAuditingParam produitAuditingParam) {
         byte[] data = this.productStatService.exportToExcel(produitAuditingParam);
         HttpHeaders headers = new HttpHeaders();
@@ -187,6 +192,7 @@ public class ProductStatResource {
     }
 
     @GetMapping("/historique-vente/pdf")
+    @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
     public ResponseEntity<Resource> exportHistoriqueVenteToPdf(
         @RequestParam(name = "produitId") Integer produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
@@ -201,6 +207,7 @@ public class ProductStatResource {
     }
 
     @GetMapping("/historique-achat/pdf")
+    @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
     public ResponseEntity<Resource> exportHistoriqueAchatToPdf(
         @RequestParam(name = "produitId") Integer produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
@@ -215,6 +222,7 @@ public class ProductStatResource {
     }
 
     @GetMapping("/historique-vente-mensuelle/pdf")
+    @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
     public ResponseEntity<Resource> exportHistoriqueVenteMensuelleToPdf(
         @RequestParam(name = "produitId") Integer produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
@@ -229,6 +237,7 @@ public class ProductStatResource {
     }
 
     @GetMapping("/historique-achat-mensuelle/pdf")
+    @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
     public ResponseEntity<Resource> exportHistoriqueAchatMensuelToPdf(
         @RequestParam(name = "produitId") Integer produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,

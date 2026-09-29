@@ -8,12 +8,14 @@ import java.net.URISyntaxException;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for managing scheduled reports
  */
 @RestController
 @RequestMapping("/api/scheduled-reports")
+@RequiresNavAccess({ "parametres", "rapports" })
 public class ScheduledReportResource {
 
     private final ScheduledReportService scheduledReportService;

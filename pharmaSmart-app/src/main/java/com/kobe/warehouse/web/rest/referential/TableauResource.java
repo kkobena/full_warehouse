@@ -21,12 +21,16 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Tableau}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("tableaux")
 public class TableauResource {
 
     private static final String ENTITY_NAME = "tableau";
@@ -64,11 +68,13 @@ public class TableauResource {
     }
 
     @GetMapping("/tableaux")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes")
     public ResponseEntity<List<TableauDTO>> getAllTableaux() {
         return ResponseEntity.ok().body(tableauService.findAll());
     }
 
     @GetMapping("/tableaux/{id}")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes")
     public ResponseEntity<TableauDTO> getOne(@PathVariable Integer id) {
         return ResponseUtil.wrapOrNotFound(tableauService.findOne(id));
     }
@@ -82,12 +88,14 @@ public class TableauResource {
     }
 
     @PutMapping("/tableaux/associer/{id}")
+    @RequiresNavAccess(value = { "tableaux", "catalogue" }, action = NavAction.EDIT)
     public ResponseEntity<Void> associer(@PathVariable Integer id, @RequestBody List<Integer> produitIds) {
         this.tableauService.associer(id, produitIds);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/tableaux/dissocier")
+    @RequiresNavAccess(value = { "tableaux", "catalogue" }, action = NavAction.EDIT)
     public ResponseEntity<Void> dissocier(@RequestBody List<Integer> produitIds) {
         this.tableauService.dissocier(produitIds);
         return ResponseEntity.ok().build();

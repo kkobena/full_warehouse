@@ -23,9 +23,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("motif-ajustement")
 public class MotifAjustementRessource {
 
     private static final String ENTITY_NAME = "motifAjustement";
@@ -65,6 +68,7 @@ public class MotifAjustementRessource {
     }
 
     @GetMapping(value = "/motif-ajsutements")
+    @NavAccessExempt("lecture de référentiel, utilisée par les ajustements, l'inventaire et la vente")
     public ResponseEntity<List<MotifAjustement>> getAll(
         @RequestParam(value = "search", required = false) String search,
         Pageable pageable

@@ -7,8 +7,10 @@ import com.kobe.warehouse.security.jwt.JwtAuthenticationConverter;
 import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,10 +29,16 @@ public class SecurityConfiguration {
 
     private final LogProperties logProperties;
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
+    private final Environment environment;
 
-    public SecurityConfiguration(LogProperties logProperties, JwtAuthenticationConverter jwtAuthenticationConverter) {
+    public SecurityConfiguration(
+        LogProperties logProperties,
+        JwtAuthenticationConverter jwtAuthenticationConverter,
+        Environment environment
+    ) {
         this.logProperties = logProperties;
         this.jwtAuthenticationConverter = jwtAuthenticationConverter;
+        this.environment = environment;
     }
 
     @Bean
@@ -75,8 +83,6 @@ public class SecurityConfiguration {
                         request -> request.getRequestURI().startsWith("/app/"),
                         request -> request.getRequestURI().startsWith("/i18n/"),
                         request -> request.getRequestURI().startsWith("/content/"),
-                        request -> request.getRequestURI().startsWith("/swagger-ui/"),
-                        request -> request.getRequestURI().startsWith("/v3/api-docs/"),
                         request -> request.getRequestURI().startsWith("/api/auth/"), // JWT login endpoint
                         request -> request.getRequestURI().equals("/api/register"),
                         request -> request.getRequestURI().equals("/api/activate"),
@@ -94,6 +100,22 @@ public class SecurityConfiguration {
                         request -> request.getRequestURI().equals("/")
                     )
                     .permitAll()
+                    // La description de l'API en donne la carte complète : publique en dev
+                    // seulement, réservée à l'administrateur ailleurs.
+                    .requestMatchers(
+                        request -> request.getRequestURI().startsWith("/swagger-ui/"),
+                        request -> request.getRequestURI().startsWith("/v3/api-docs")
+                    )
+                    .access((authentication, context) ->
+                        new AuthorizationDecision(
+                            environment.matchesProfiles("dev") ||
+                            authentication
+                                .get()
+                                .getAuthorities()
+                                .stream()
+                                .anyMatch(a -> AuthoritiesConstants.ADMIN.equals(a.getAuthority()))
+                        )
+                    )
                     // Admin-only endpoints (excluding public health/info endpoints)
                     .requestMatchers(
                         request -> request.getRequestURI().startsWith("/api/admin/"),

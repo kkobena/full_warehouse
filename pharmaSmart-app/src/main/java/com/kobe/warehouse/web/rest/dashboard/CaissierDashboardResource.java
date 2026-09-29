@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller du dashboard préparateur en pharmacie.
@@ -23,6 +24,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/caissier/dashboard")
+@RequiresNavAccess({ "mvt-caisse", "ventes" })
 public class CaissierDashboardResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(CaissierDashboardResource.class);

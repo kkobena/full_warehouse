@@ -17,6 +17,7 @@ prises dans le modèle — le manuel ne peut donc pas décrire autre chose que c
 | `npm run e2e:liage` | contrôles sur le modèle et la couverture | **aucun** |
 | `npm run e2e` | joue les parcours sans prendre d'images | application démarrée |
 | `npm run captures` | joue les parcours **et** produit les images | application + base de démo |
+| `npm run e2e:droits` | chaque compte non-admin ouvre les écrans et onglets de son menu ; échoue sur tout 403 | application démarrée, backend en `ENFORCE` |
 | `npm run e2e:rapport` | ouvre le rapport HTML de la dernière exécution | — |
 
 `npm run e2e:liage` s'exécute sans navigateur, sans serveur et sans base : c'est le contrôle à
@@ -37,6 +38,7 @@ Tous par variable d'environnement, tous facultatifs :
 | `E2E_SCALE` | `1` | densité de pixels — `2` pour une impression plus fine |
 | `E2E_FULL_PAGE` | — | `1` : capture le document entier au lieu de la zone visible |
 | `E2E_TIMEZONE` | `Europe/Paris` | **doit rester fixe** : sinon les colonnes de date changent d'une machine à l'autre |
+| `E2E_COMPTES_DROITS` | `kkone`, `ybrou`, `rkouassi` (mot de passe de l'admin) | comptes du contrôle des droits, `login:motDePasse,…` |
 | `E2E_WORKERS` | `1` | voir l'avertissement ci-dessous |
 
 ### Taille des captures
@@ -70,6 +72,7 @@ e2e/
 ├── setup/auth.setup.ts      connexion unique, session enregistrée pour tous les parcours
 ├── verifications/           contrôles sur le modèle — sans navigateur
 ├── parcours/                un fichier par scénario (voir parcours/README.md)
+├── droits/                  contrôle des droits par rôle (endpoints en ENFORCE)
 └── src/
     ├── config.ts            réglages
     ├── cahier-recette.ts    index des 476 scénarios, résolution par identifiant

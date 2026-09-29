@@ -36,12 +36,15 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Rayon}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("rayon")
 public class RayonResource {
 
     private static final String ENTITY_NAME = "rayon";
@@ -103,6 +106,7 @@ public class RayonResource {
      * body.
      */
     @GetMapping(value = "/rayons")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue, l'inventaire et les listes déroulantes")
     public ResponseEntity<List<RayonDTO>> getAllRayons(
         @RequestParam(name = "magasinId", required = false) Integer magasinId,
         @RequestParam(name = "storageId", required = false) Integer storageId,
@@ -124,6 +128,7 @@ public class RayonResource {
      * or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/rayons/{id}")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue, l'inventaire et les listes déroulantes")
     public ResponseEntity<RayonDTO> getRayon(@PathVariable Integer id) {
         log.debug("REST request to get Rayon : {}", id);
         Optional<RayonDTO> rayonDTO = rayonService.findOne(id);
@@ -170,6 +175,7 @@ public class RayonResource {
     }
 
     @GetMapping(value = "/rayons/export", produces = "text/csv")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue, l'inventaire et les listes déroulantes")
     public ResponseEntity<byte[]> exportRayonsToCsv(
         @RequestParam(name = "storageId", required = false) Integer storageId
     ) {

@@ -20,9 +20,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/activity-summary")
+@RequiresNavAccess({ "comptabilite.raport-activite", "mvt-caisse.raport-activite" })
 public class ActivitySummaryResource {
 
     private final ActivitySummaryService activitySummaryService;
@@ -93,6 +96,7 @@ public class ActivitySummaryResource {
     }
 
     @GetMapping("/ca/pdf")
+    @RequiresNavAccess(value = { "comptabilite.raport-activite", "mvt-caisse.raport-activite" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportToPdf(
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate,

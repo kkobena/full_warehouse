@@ -112,7 +112,7 @@ public class NavItemServiceImpl implements NavItemService {
     }
 
     @Override
-    @CacheEvict(cacheNames = EntityConstant.NAV_TREE_CACHE, allEntries = true)
+    @CacheEvict(cacheNames = { EntityConstant.NAV_TREE_CACHE, EntityConstant.NAV_ACCESS_CACHE }, allEntries = true)
     public void saveAdminOrder(List<NavReorderDTO> reorderList) {
         if (CollectionUtils.isEmpty(reorderList)) return;
         for (NavReorderDTO dto : reorderList) {
@@ -128,7 +128,7 @@ public class NavItemServiceImpl implements NavItemService {
     }
 
     @Override
-    @CacheEvict(cacheNames = EntityConstant.NAV_TREE_CACHE, allEntries = true)
+    @CacheEvict(cacheNames = { EntityConstant.NAV_TREE_CACHE, EntityConstant.NAV_ACCESS_CACHE }, allEntries = true)
     public void assignItemsToRole(NavAssignDTO dto) {
         if (dto == null || CollectionUtils.isEmpty(dto.assignments())) return;
         for (NavItemAssignmentDTO assignment : dto.assignments()) {
@@ -327,7 +327,7 @@ public class NavItemServiceImpl implements NavItemService {
     }
 
     @Override
-    @CacheEvict(cacheNames = EntityConstant.NAV_TREE_CACHE, allEntries = true)
+    @CacheEvict(cacheNames = { EntityConstant.NAV_TREE_CACHE, EntityConstant.NAV_ACCESS_CACHE }, allEntries = true)
     public void updateLibelle(Integer id, String libelle) {
         NavItem item = navItemRepository.getReferenceById(id);
         item.setLibelle(libelle.trim());
@@ -335,7 +335,7 @@ public class NavItemServiceImpl implements NavItemService {
     }
 
     @Override
-    @CacheEvict(cacheNames = EntityConstant.NAV_TREE_CACHE, allEntries = true)
+    @CacheEvict(cacheNames = { EntityConstant.NAV_TREE_CACHE, EntityConstant.NAV_ACCESS_CACHE }, allEntries = true)
     public void updateTitreLong(Integer id, String titreLong) {
         NavItem item = navItemRepository.getReferenceById(id);
         String valeur = titreLong == null ? null : titreLong.trim();

@@ -14,9 +14,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "ventes.kpi", "rapport-ventes", "comptabilite" })
 public class DashboardResource {
 
     private final DashboardService dashboardService;
@@ -59,6 +62,7 @@ public class DashboardResource {
      * @return the ResponseEntity with status 200 (OK) and the alert counts in body
      */
     @GetMapping("/dashboard/alert-counts")
+    @NavAccessExempt("compteurs d'alertes des badges de la barre de navigation, pour tous les rôles")
     public ResponseEntity<DashboardAlertCountDTO> getAlertCounts() {
         return ResponseEntity.ok().body(dashboardAlertService.getAlertCounts());
     }

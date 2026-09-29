@@ -32,12 +32,15 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Laboratoire}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("laboratoire")
 public class LaboratoireResource {
 
     private static final String ENTITY_NAME = "laboratoire";
@@ -102,6 +105,7 @@ public class LaboratoireResource {
      * in body.
      */
     @GetMapping(value = "/laboratoires")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes")
     public ResponseEntity<List<LaboratoireDTO>> getAllLaboratoires(
         @RequestParam(value = "search", required = false, defaultValue = "") String search,
         Pageable pageable
@@ -120,6 +124,7 @@ public class LaboratoireResource {
      * laboratoireDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/laboratoires/{id}")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes")
     public ResponseEntity<LaboratoireDTO> getLaboratoire(@PathVariable Integer id) {
         log.debug("REST request to get Laboratoire : {}", id);
         Optional<LaboratoireDTO> laboratoireDTO = laboratoireService.findOne(id);

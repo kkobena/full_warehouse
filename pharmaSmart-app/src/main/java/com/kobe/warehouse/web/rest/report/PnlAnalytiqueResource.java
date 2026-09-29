@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api/pnl-analytique")
+@RequiresNavAccess("rapport-finance.pnl-analytique")
 public class PnlAnalytiqueResource {
 
     private final PnlAnalytiqueService pnlAnalytiqueService;

@@ -40,9 +40,13 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "tiers-payant.tiers-payant", "tiers-payant" })
 public class TiersPayantResource {
 
     private static final String ENTITY_NAME = "tiers-payant";
@@ -71,6 +75,7 @@ public class TiersPayantResource {
     }
 
     @GetMapping("/tiers-payants/result")
+    @NavAccessExempt("lecture de référentiel, utilisée par la vente assurance, les clients et la facturation")
     public ResponseEntity<ResponseDTO> getCuurent() {
         Importation importation = importationTiersPayantService.current(ImportationType.TIERS_PAYANT);
         if (importation == null) {
@@ -87,6 +92,7 @@ public class TiersPayantResource {
     }
 
     @GetMapping(value = "/tiers-payants")
+    @NavAccessExempt("lecture de référentiel, utilisée par la vente assurance, les clients et la facturation")
     public ResponseEntity<List<TiersPayantDto>> getAll(
         @RequestParam(name = "groupeTiersPayantId", required = false) Integer groupeTiersPayantId,
         @RequestParam(value = "search", required = false, defaultValue = "") String search,
@@ -104,6 +110,7 @@ public class TiersPayantResource {
     }
 
     @PatchMapping("/tiers-payants/mass-update-facture-config")
+    @RequiresNavAccess(value = { "tiers-payant.tiers-payant", "tiers-payant", "factures", "facturation.automatisation" }, action = NavAction.EDIT)
     public ResponseEntity<Void> massUpdateFactureConfig(@RequestBody MassUpdateFactureConfigRequest request) {
         tiersPayantService.massUpdateFactureConfig(request);
         return ResponseEntity.noContent().build();
@@ -141,16 +148,19 @@ public class TiersPayantResource {
     }
 
     @GetMapping("/tiers-payants/models-facture")
+    @NavAccessExempt("lecture de référentiel, utilisée par la vente assurance, les clients et la facturation")
     public ResponseEntity<List<Pair>> getModelsFacture() {
         return ResponseEntity.ok().body(this.tiersPayantService.getModelFacture());
     }
 
     @GetMapping("/tiers-payants/order-tris-facture")
+    @NavAccessExempt("lecture de référentiel, utilisée par la vente assurance, les clients et la facturation")
     public ResponseEntity<List<Pair>> getOrdreTrisFacture() {
         return ResponseEntity.ok().body(this.tiersPayantService.getOrdreTrisFacture());
     }
 
     @GetMapping("/tiers-payants/achats-summary")
+    @NavAccessExempt("lecture de référentiel, utilisée par la vente assurance, les clients et la facturation")
     public ResponseEntity<List<TiersPayantAchat>> fetchAchatTiersPayant(@Valid VenteRecordParamDTO venteRecordParam) {
         return ResponseEntity.ok().body(this.tiersPayantService.fetchAchatTiersPayant(venteRecordParam));
     }

@@ -39,7 +39,7 @@ public class JwtService {
      * - "iat" claim: Token issue time
      * - "exp" claim: Token expiration time
      *
-     * The authorities are already merged by DomainUserDetailsService using SecurityUtils.mergeAuthorities(),
+     * The authorities are already merged by DomainUserDetailsService (all roles plus the ACTION codes of their union),
      * which flattens Authority roles, Menu names, and Privilege names into a single collection.
      *
      * @param authentication Spring Security authentication object containing user and authorities

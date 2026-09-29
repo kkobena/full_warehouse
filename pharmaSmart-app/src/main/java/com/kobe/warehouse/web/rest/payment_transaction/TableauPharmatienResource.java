@@ -18,9 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "comptabilite.tableau-pharmacien", "mvt-caisse.tableau-pharmacien", "declaration-ca.tableau-pharmacien-reel" })
 public class TableauPharmatienResource {
     private final TableauPharmacienService tableauPharmacienService;
 
@@ -51,6 +54,7 @@ public class TableauPharmatienResource {
     }
 
     @GetMapping("/tableau-pharmacien/pdf")
+    @RequiresNavAccess(value = { "comptabilite.tableau-pharmacien", "mvt-caisse.tableau-pharmacien", "declaration-ca.tableau-pharmacien-reel" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportToPdf(
         @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
         @RequestParam(value = "toDate", required = false) LocalDate toDate,
@@ -67,6 +71,7 @@ public class TableauPharmatienResource {
     }
 
     @GetMapping("/tableau-pharmacien/excel")
+    @RequiresNavAccess(value = { "comptabilite.tableau-pharmacien", "mvt-caisse.tableau-pharmacien", "declaration-ca.tableau-pharmacien-reel" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportToExcel(
         @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
         @RequestParam(value = "toDate", required = false) LocalDate toDate,

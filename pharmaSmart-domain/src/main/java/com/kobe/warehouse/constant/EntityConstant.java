@@ -91,6 +91,8 @@ public final class EntityConstant {
     // ─── Navigation dynamique ─────────────────────────────────────────────────
     /** Cache de l'arbre de navigation par utilisateur. Clé : login. */
     public static final String NAV_TREE_CACHE = "navTree";
+    /** Droits nav_item_role fusionnés par ensemble de rôles, pour le contrôle des endpoints. */
+    public static final String NAV_ACCESS_CACHE = "navAccess";
 
     // ─── Dashboard layout ─────────────────────────────────────────────────────
     /**

@@ -19,9 +19,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("catalogue")
 public class FournisseurProduitResource {
 
     private static final String ENTITY_NAME = "fournisseurProduit";
@@ -69,16 +73,19 @@ public class FournisseurProduitResource {
     }
 
     @GetMapping("/fournisseur-produits/{id}")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue, les commandes et les suggestions")
     public ResponseEntity<FournisseurProduitDTO> getOne(@PathVariable Integer id) {
         return ResponseUtil.wrapOrNotFound(fournisseurProduitService.findOneById(id));
     }
 
     @GetMapping("/fournisseur-produits/by-produit/{produitId}")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue, les commandes et les suggestions")
     public ResponseEntity<List<FournisseurProduitDTO>> getByProduitId(@PathVariable Integer produitId) {
         return ResponseEntity.ok(fournisseurProduitService.findAllByProduitId(produitId));
     }
 
     @PutMapping("/fournisseur-produits/update-from-commande")
+    @RequiresNavAccess(value = { "commande", "catalogue" }, action = NavAction.EDIT)
     public ResponseEntity<Void> updateProduitFournisseurFromCommande(@Valid @RequestBody FournisseurProduitDTO fournisseurProduitDTO) {
         fournisseurProduitService.updateProduitFournisseurFromCommande(fournisseurProduitDTO);
         return ResponseEntity.ok()

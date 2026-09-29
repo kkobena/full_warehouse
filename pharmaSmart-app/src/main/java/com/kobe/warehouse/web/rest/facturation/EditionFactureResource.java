@@ -44,9 +44,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "factures", "facturation.edition", "facturation.factures", "facturation.historique" })
 public class EditionFactureResource {
 
     private final EditionDataService editionService;
@@ -231,12 +234,14 @@ public class EditionFactureResource {
     }
 
     @GetMapping("/edition-factures/pdf/{id}/{invoiceDate}")
+    @RequiresNavAccess(value = { "factures", "facturation.edition", "facturation.factures", "facturation.historique" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportToPdf(@PathVariable Long id, @PathVariable LocalDate invoiceDate) {
         String fileName = "facture_" + id + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".pdf";
         return Utils.printPDF(editionService.printToPdf(new FactureItemId(id, invoiceDate)), fileName);
     }
 
     @GetMapping("/edition-factures/pdf")
+    @RequiresNavAccess(value = { "factures", "facturation.edition", "facturation.factures", "facturation.historique" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportAllInvoices(
         @RequestParam(name = "generationCode") Integer generationCode,
         @RequestParam(name = "isGroup", required = false, defaultValue = "false") Boolean isGroup
@@ -289,6 +294,7 @@ public class EditionFactureResource {
 
 
     @GetMapping("/edition-factures/export")
+    @RequiresNavAccess(value = { "factures", "facturation.edition", "facturation.factures", "facturation.historique" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportInvoicesToExcel(
         @RequestParam(name = "startDate", required = false) LocalDate startDate,
         @RequestParam(name = "endDate", required = false) LocalDate endDate,
@@ -319,6 +325,7 @@ public class EditionFactureResource {
      */
     @Deprecated
     @GetMapping("/edition-factures/groupes/export")
+    @RequiresNavAccess(value = { "factures", "facturation.edition", "facturation.factures", "facturation.historique" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportGroupInvoicesToExcel(
         @RequestParam(name = "startDate", required = false) LocalDate startDate,
         @RequestParam(name = "endDate", required = false) LocalDate endDate,

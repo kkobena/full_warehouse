@@ -10,12 +10,14 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for daily sales summary reports
  */
 @RestController
 @RequestMapping("/api/sales-summary")
+@RequiresNavAccess({ "rapport-ventes.sales-summary", "rapport-ventes.dashboard-ca", "ventes.kpi" })
 public class SalesSummaryReportResource {
 
     private final SalesSummaryReportService salesSummaryReportService;

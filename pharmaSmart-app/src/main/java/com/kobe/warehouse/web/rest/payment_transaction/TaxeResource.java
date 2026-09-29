@@ -15,9 +15,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "comptabilite.taxe-report", "mvt-caisse.taxe-report", "mvt-caisse.declaration-tva", "declaration-ca.taxe-report-reel" })
 public class TaxeResource  {
     private final TaxeService taxeService;
     public TaxeResource(TaxeService taxeService) {
@@ -39,6 +42,7 @@ public class TaxeResource  {
     }
 
     @GetMapping("/taxe-report/pdf")
+    @RequiresNavAccess(value = { "comptabilite.taxe-report", "mvt-caisse.taxe-report", "mvt-caisse.declaration-tva", "declaration-ca.taxe-report-reel" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> getExportTaxes(
         @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
         @RequestParam(value = "toDate", required = false) LocalDate toDate,
@@ -54,6 +58,7 @@ public class TaxeResource  {
     }
 
     @GetMapping("/taxe-report/declaration/pdf")
+    @RequiresNavAccess(value = { "comptabilite.taxe-report", "mvt-caisse.taxe-report", "mvt-caisse.declaration-tva", "declaration-ca.taxe-report-reel" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportDeclarationToPdf(
         @RequestParam(value = "startDate", required = false) LocalDate startDate,
         @RequestParam(value = "endDate", required = false) LocalDate endDate

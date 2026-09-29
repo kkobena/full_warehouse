@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Sales}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "ventes", "nouvelle-vente", "nouvelle-prevente" })
 public class SimplifiedSaleResource {
 
 

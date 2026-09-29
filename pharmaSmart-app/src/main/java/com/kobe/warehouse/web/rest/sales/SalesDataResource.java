@@ -25,9 +25,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "ventes", "nouvelle-vente", "nouvelle-prevente" })
 public class SalesDataResource {
 
     private final Logger log = LoggerFactory.getLogger(SalesDataResource.class);

@@ -7,9 +7,11 @@ import java.util.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
+@NavAccessExempt("liste des utilisateurs actifs, pour le choix du vendeur à la vente (web et sales-android)")
 public class PublicUserResource extends PublicUserResourceProxy {
 
     public PublicUserResource(UserService userService) {

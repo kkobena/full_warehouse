@@ -28,9 +28,12 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "customer", "ventes", "nouvelle-vente", "nouvelle-prevente" })
 public class AssuredCustomerResource  {
     private final AssuredCustomerService assuredCustomerService;
     private final CustomerDataService customerDataService;
@@ -96,6 +99,7 @@ public class AssuredCustomerResource  {
     }
 
     @DeleteMapping("/customers/assured/{id}")
+    @RequiresNavAccess("customer")
     public ResponseEntity<Void> deleteCustomer(@PathVariable Integer id) {
 
         assuredCustomerService.deleteCustomerById(id);
@@ -141,6 +145,7 @@ public class AssuredCustomerResource  {
     }
 
     @GetMapping("/customers/assured")
+    @NavAccessExempt("lecture du fichier clients et de leurs tiers payants, nécessaire à la vente assurance (et aux applications mobiles)")
     public ResponseEntity<List<AssuredCustomerDTO>> getAllAssuredCustomers(
         @RequestParam(value = "search", required = false) String search,
         @RequestParam(value = "typeTiersPayant", required = false) TiersPayantCategorie typeTiersPayant,
@@ -151,11 +156,13 @@ public class AssuredCustomerResource  {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
     @GetMapping("/customers/tiers-payants/{id}")
+    @NavAccessExempt("lecture du fichier clients et de leurs tiers payants, nécessaire à la vente assurance (et aux applications mobiles)")
     public ResponseEntity<List<ClientTiersPayantDTO>> getAssuredTiersPayants(@PathVariable("id") Integer id) {
         return ResponseEntity.ok().body(customerDataService.fetchCustomersTiersPayant(id));
     }
 
     @GetMapping("/customers/ayant-droits/{id}")
+    @NavAccessExempt("lecture du fichier clients et de leurs tiers payants, nécessaire à la vente assurance (et aux applications mobiles)")
     public ResponseEntity<List<AssuredCustomerDTO>> getAyantDroits(@PathVariable("id") Integer id) {
         return ResponseEntity.ok().body(customerDataService.fetchAyantDroit(id));
     }

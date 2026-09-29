@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Categorie}.
@@ -38,6 +40,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RestController
 @RequestMapping("/api/categories")
 @Transactional
+@RequiresNavAccess({ "catalogue", "famille-produit" })
 public class CategorieResource {
 
     private static final String ENTITY_NAME = "categorie";
@@ -156,6 +159,7 @@ public class CategorieResource {
      * body.
      */
     @GetMapping("")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes de tous les écrans")
     public ResponseEntity<List<Categorie>> getAllCategories(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
         log.debug("REST request to get a page of Categories");
         Page<Categorie> page = categorieRepository.findAll(pageable);
@@ -171,6 +175,7 @@ public class CategorieResource {
      * or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/{id}")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes de tous les écrans")
     public ResponseEntity<Categorie> getCategorie(@PathVariable("id") Integer id) {
         log.debug("REST request to get Categorie : {}", id);
         Optional<Categorie> categorie = categorieRepository.findById(id);

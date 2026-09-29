@@ -10,12 +10,15 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller for Comparative Reports (Tableaux Comparatifs)
  */
 @RestController
 @RequestMapping("/api/comparative-reports")
+@RequiresNavAccess("rapport-ventes.comparative")
 public class ComparativeReportResource {
 
     private final ComparativeReportService comparativeReportService;
@@ -135,6 +138,7 @@ public class ComparativeReportResource {
      * @return PDF file
      */
     @GetMapping(value = "/export", produces = MediaType.APPLICATION_PDF_VALUE)
+    @RequiresNavAccess(value = "rapport-ventes.comparative", action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportComparativeReportToPdf(
         @RequestParam(defaultValue = "MONTHLY") String comparisonType,
         @RequestParam(required = false) Integer year

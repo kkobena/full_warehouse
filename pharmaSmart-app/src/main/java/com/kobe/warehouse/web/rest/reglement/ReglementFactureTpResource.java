@@ -28,9 +28,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "factures", "facturation.factures", "facturation.historique" })
 public class ReglementFactureTpResource {
 
     private final ReglementRegistry reglementRegistry;
@@ -107,6 +110,7 @@ public class ReglementFactureTpResource {
     }
 
     @GetMapping("/reglements/pdf")
+    @RequiresNavAccess(value = { "factures", "facturation.factures", "facturation.historique" }, action = NavAction.EXPORT)
     public ResponseEntity<Resource> exportAllInvoicesPayment(
         HttpServletRequest request,
         @RequestParam(required = false, name = "fromDate") LocalDate fromDate,

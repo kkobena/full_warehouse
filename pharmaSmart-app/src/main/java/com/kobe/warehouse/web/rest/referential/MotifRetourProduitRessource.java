@@ -23,9 +23,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("motif-retour-produit")
 public class MotifRetourProduitRessource {
 
     private static final String ENTITY_NAME = "motifRetourProduit";
@@ -65,6 +68,7 @@ public class MotifRetourProduitRessource {
     }
 
     @GetMapping(value = "/motif-retour-produits")
+    @NavAccessExempt("lecture de référentiel, utilisée par les retours client et fournisseur")
     public ResponseEntity<List<MotifRetourProduit>> getAll() {
         return ResponseEntity.ok(motifRetourProduitRepository.findAll());
     }

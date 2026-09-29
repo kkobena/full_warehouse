@@ -35,9 +35,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "mvt-caisse", "mvt-caisse.mvt-caisse", "mvt-caisse.gestion-caisse" })
 public class FinancialTransactionResource {
 
     private final FinancialTransactionService financialTransactionService;
@@ -91,6 +94,7 @@ public class FinancialTransactionResource {
     }
 
     @GetMapping("/payment-transactions/pdf")
+    @RequiresNavAccess(value = { "mvt-caisse", "mvt-caisse.mvt-caisse", "mvt-caisse.gestion-caisse" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportToPdf(
         @RequestParam(value = "search", required = false) String search,
         @RequestParam(value = "fromDate", required = false) LocalDate fromDate,

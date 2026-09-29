@@ -1,20 +1,15 @@
 package com.kobe.warehouse.security;
 
 import com.kobe.warehouse.config.Constants;
-import com.kobe.warehouse.domain.Authority;
-import com.kobe.warehouse.service.dto.projection.NavItemCode;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -87,17 +82,6 @@ public final class SecurityUtils {
         return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority);
     }
 
-
-    public static Set<String> mergeAuthorities(Authority authority, Set<NavItemCode> actions) {
-        Set<String> authorities0 = new HashSet<>();
-        authorities0.add(authority.getName());
-        if (!CollectionUtils.isEmpty(actions)) {
-            actions.forEach(navItemCode -> authorities0.add(navItemCode.getCode()));
-        }
-
-
-        return authorities0;
-    }
 
     public static boolean hasMobileAccess(String authority) {
         return (

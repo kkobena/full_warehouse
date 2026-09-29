@@ -24,9 +24,12 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.util.List;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "commande", "depot.achat-depot" })
 public class StockEntryDataResource {
 
     private final StockEntryDataService stockEntryDataServicetryService;
@@ -58,6 +61,7 @@ public class StockEntryDataResource {
     }
 
     @GetMapping("/commandes/data/entree-stock/pdf/{id}/{orderDate}")
+    @RequiresNavAccess(value = { "commande", "depot.achat-depot" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> getDeliveryReceiptPdf(@PathVariable Integer id, @PathVariable LocalDate orderDate) {
         String fileName = "bon_livraison_" + id + "_" + orderDate + ".pdf";
         return Utils.printPDF(stockEntryDataServicetryService.exportToPdf(new CommandeId(id, orderDate)), fileName);

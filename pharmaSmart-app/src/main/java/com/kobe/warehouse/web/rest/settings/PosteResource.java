@@ -14,9 +14,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api/postes")
+@RequiresNavAccess("poste")
 public class PosteResource {
 
     private final PosteService posteService;
@@ -26,6 +29,7 @@ public class PosteResource {
     }
 
     @GetMapping("/current")
+    @NavAccessExempt("poste courant, lu au démarrage de chaque poste client")
     public ResponseEntity<PosteRecord> getCurrentPoste(HttpServletRequest request) {
         // En mode Tauri, le backend tourne en local (127.0.0.1) : utiliser les headers
         // X-Poste-Ip / X-Poste-Hostname qui portent la vraie IP LAN et le hostname de la machine.

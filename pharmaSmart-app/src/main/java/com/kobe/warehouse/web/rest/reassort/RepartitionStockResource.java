@@ -28,12 +28,14 @@ import java.time.format.DateTimeFormatter;
 
 import java.time.LocalDate;
 import java.util.List;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for managing stock repartition history
  */
 @RestController
 @RequestMapping("/api/repartition-stock")
+@RequiresNavAccess({ "commande.repartition-stock", "commande" })
 public class RepartitionStockResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(RepartitionStockResource.class);

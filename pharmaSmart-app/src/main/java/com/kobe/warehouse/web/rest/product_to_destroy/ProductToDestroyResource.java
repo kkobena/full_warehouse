@@ -26,9 +26,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/product-to-destroy")
+@RequiresNavAccess({ "peremptions.lot-a-detruire", "peremptions" })
 public class ProductToDestroyResource {
 
     private final ProductsToDestroyService productsToDestroyService;
@@ -56,6 +59,7 @@ public class ProductToDestroyResource {
     }
 
     @GetMapping(value = "/export/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    @RequiresNavAccess(value = { "peremptions.lot-a-detruire", "peremptions" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportToExcel(ProductToDestroyFilter productToDestroyFilter) {
         try {
             byte[] excelData = productToDestroyExcelCsvReportService.exportToExcel(productToDestroyFilter);
@@ -71,6 +75,7 @@ public class ProductToDestroyResource {
     }
 
     @GetMapping(value = "/export/csv", produces = "text/csv")
+    @RequiresNavAccess(value = { "peremptions.lot-a-detruire", "peremptions" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportToCsv(ProductToDestroyFilter productToDestroyFilter) {
         try {
             byte[] csvData = productToDestroyExcelCsvReportService.exportToCsv(productToDestroyFilter);
@@ -120,18 +125,21 @@ public class ProductToDestroyResource {
     }
 
     @PostMapping("/modify-product")
+    @RequiresNavAccess(value = { "peremptions.lot-a-detruire", "peremptions" }, action = NavAction.EDIT)
     public ResponseEntity<Void> modifyProductQuantity(@Valid @RequestBody ProductToDestroyPayload payload) {
         productsToDestroyService.modifyProductQuantity(payload);
         return ResponseEntity.accepted().build();
     }
 
     @PostMapping("/delete")
+    @RequiresNavAccess(value = { "peremptions.lot-a-detruire", "peremptions" }, action = NavAction.DELETE)
     public ResponseEntity<Void> deleteAll(@RequestBody Keys keys) {
         productsToDestroyService.remove(keys);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/pdf")
+    @RequiresNavAccess(value = { "peremptions.lot-a-detruire", "peremptions" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> generatePdf(ProductToDestroyFilter productToDestroyFilter) {
         return productsToDestroyService.generatePdf(productToDestroyFilter);
     }

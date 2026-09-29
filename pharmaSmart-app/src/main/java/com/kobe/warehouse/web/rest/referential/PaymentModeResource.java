@@ -13,12 +13,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.PaymentMode}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("mode-payments")
 public class PaymentModeResource {
 
     private final PaymentModeService paymentModeService;
@@ -28,16 +31,19 @@ public class PaymentModeResource {
     }
 
     @GetMapping("/payment-modes")
+    @NavAccessExempt("lecture de référentiel, utilisée par l'encaissement pour tous les rôles de comptoir")
     public ResponseEntity<List<PaymentMode>> getAllPaymentModes() {
         return ResponseEntity.ok().body(this.paymentModeService.fetchAll());
     }
 
     @GetMapping("/payment-restricts-modes")
+    @NavAccessExempt("lecture de référentiel, utilisée par l'encaissement pour tous les rôles de comptoir")
     public ResponseEntity<List<PaymentMode>> fetch() {
         return ResponseEntity.ok().body(this.paymentModeService.fetch());
     }
 
     @GetMapping("/payment-modes/{code}")
+    @NavAccessExempt("lecture de référentiel, utilisée par l'encaissement pour tous les rôles de comptoir")
     public ResponseEntity<PaymentMode> getPaymentMode(@PathVariable String code) {
         return this.paymentModeService.findByCode(code)
             .map(ResponseEntity::ok)
@@ -45,6 +51,7 @@ public class PaymentModeResource {
     }
 
     @GetMapping("/payment-modes/{code}/qr-code")
+    @NavAccessExempt("lecture de référentiel, utilisée par l'encaissement pour tous les rôles de comptoir")
     public ResponseEntity<QrCodeResponse> getPaymentQrCode(@PathVariable String code) {
         return ResponseEntity.ok().body(this.paymentModeService.getPaymentQrCode(code));
     }

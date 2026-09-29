@@ -19,9 +19,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/rapprochement")
+@RequiresNavAccess(value = { "facturation.rapprochement", "factures" }, action = NavAction.EXPORT)
 public class RapprochementResource {
 
     private final RapprochementService rapprochementService;

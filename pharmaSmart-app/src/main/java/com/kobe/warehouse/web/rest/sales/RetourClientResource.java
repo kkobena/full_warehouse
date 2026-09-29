@@ -31,10 +31,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "ventes.retours-client", "ventes", "nouvelle-vente" })
 public class RetourClientResource {
 
     private final RetourClientService retourClientService;
@@ -97,6 +100,7 @@ public class RetourClientResource {
     }
 
     @PostMapping("/sales/retours")
+    @RequiresNavAccess(value = "ventes.retours-client.create", action = NavAction.EXECUTE)
     public ResponseEntity<RetourClientResultDTO> validerRetour(@RequestBody RetourClientRequest request) {
         return ResponseEntity.ok(retourClientService.validerRetour(request));
     }

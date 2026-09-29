@@ -13,9 +13,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api/prix-reference")
+@RequiresNavAccess("catalogue")
 public class PrixReferenceResource {
 
     private final PrixRererenceService prixRererenceService;
@@ -25,6 +28,7 @@ public class PrixReferenceResource {
     }
 
     @GetMapping("/{produitId}")
+    @NavAccessExempt("lecture des prix de référence, utilisée par la vente assurance et le catalogue")
     public ResponseEntity<List<PrixReferenceDTO>> getAll(@PathVariable(name = "produitId") Integer produitId) {
         return ResponseEntity.ok().body(this.prixRererenceService.findAllByProduitId(produitId));
     }

@@ -32,12 +32,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.StoreInventoryLine}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "inventaire", "inventaire.en-cours", "inventaire.tournant" })
 public class StoreInventoryLineResource {
 
     private static final String ENTITY_NAME = "storeInventoryLine";

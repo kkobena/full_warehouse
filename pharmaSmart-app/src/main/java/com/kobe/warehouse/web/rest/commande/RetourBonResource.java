@@ -44,12 +44,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.RetourBon}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "commande.retour-fournisseur", "commande", "peremptions.lot-a-detruire", "peremptions" })
 public class RetourBonResource {
 
     private static final String ENTITY_NAME = "retourBon";
@@ -134,6 +137,7 @@ public class RetourBonResource {
      * @return the PDF as byte array.
      */
     @GetMapping("/retour-bons/{id}/pdf")
+    @RequiresNavAccess(value = { "commande.retour-fournisseur", "commande", "peremptions.lot-a-detruire", "peremptions" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> getRetourBonPdf(@PathVariable Integer id) {
         log.debug("REST request to generate PDF for RetourBon : {}", id);
 
@@ -293,6 +297,7 @@ public class RetourBonResource {
      * @return le fichier en bytes.
      */
     @GetMapping("/retour-bons/export")
+    @RequiresNavAccess(value = { "commande.retour-fournisseur", "commande", "peremptions.lot-a-detruire", "peremptions" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportRetourBons(
         @RequestParam(defaultValue = "excel") String format,
         @RequestParam(required = false) RetourStatut statut,
@@ -368,6 +373,7 @@ public class RetourBonResource {
      */
     @PostMapping("/retour-bons/export-groupe")
     @LicenseExempt("Consultation : export PDF groupé, aucune donnée modifiée")
+    @RequiresNavAccess(value = { "commande.retour-fournisseur", "commande", "peremptions.lot-a-detruire", "peremptions" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportGroupe(@RequestBody List<Integer> ids) {
         log.debug("REST request to export groupe PDF for RetourBons : {}", ids);
         byte[] pdf = retourBonService.exportGroupe(ids);

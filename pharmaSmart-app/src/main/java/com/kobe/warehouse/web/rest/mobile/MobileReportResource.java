@@ -64,6 +64,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.util.Objects.isNull;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for mobile report endpoints.
@@ -78,6 +80,7 @@ import static java.util.Objects.isNull;
 @RestController
 @RequestMapping("/api/mobile")
 //@Secured({AuthoritiesConstants.ADMIN, AuthoritiesConstants.USER})
+@RequiresNavAccess({ "ventes.kpi", "rapport-ventes", "comptabilite" })
 public class MobileReportResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(MobileReportResource.class);
@@ -180,6 +183,7 @@ public class MobileReportResource {
      * @return List of detailed alerts with pagination headers
      */
     @GetMapping("/alerts")
+    @RequiresNavAccess({ "rapport-stock.stock-alerts", "ventes.kpi", "peremptions" })
     public ResponseEntity<List<MobileAlertDetailDTO>> getAlerts(
         @RequestParam(required = false) List<String> types,
         @RequestParam(defaultValue = "0") int page,
@@ -203,6 +207,7 @@ public class MobileReportResource {
      * @return Product quick info with stock, price, lots, and sales stats
      */
     @GetMapping("/products/{id}/quick-info")
+    @NavAccessExempt("lecture du catalogue")
     public ResponseEntity<MobileProductQuickInfoDTO> getProductQuickInfo(@PathVariable Integer id) {
         LOG.debug("REST request to get product quick info for ID: {}", id);
 
@@ -224,6 +229,7 @@ public class MobileReportResource {
      * @return List of matching products
      */
     @GetMapping("/products/search")
+    @NavAccessExempt("lecture du catalogue")
     public ResponseEntity<List<ProduitSearch>> searchProducts(@RequestParam String q, @RequestParam(defaultValue = "20") int limit) {
         LOG.debug("REST request to search products with query: {}", q);
 
@@ -393,6 +399,7 @@ public class MobileReportResource {
      * @return Complete cash summary data
      */
     @GetMapping("/reports/cash-summary")
+    @RequiresNavAccess({ "comptabilite.recapitulatif-caisse", "mvt-caisse.recapitulatif-caisse" })
     public ResponseEntity<MobileCashSummaryDTO> getCashSummary(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
@@ -427,6 +434,7 @@ public class MobileReportResource {
      * @return Complete activity report data
      */
     @GetMapping("/reports/activity")
+    @RequiresNavAccess({ "comptabilite.raport-activite", "mvt-caisse.raport-activite" })
     public ResponseEntity<MobileActivityReportDTO> getActivityReport(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
@@ -454,6 +462,7 @@ public class MobileReportResource {
      * @return Complete cash balance data
      */
     @GetMapping("/reports/cash-balance")
+    @RequiresNavAccess({ "comptabilite.balance", "mvt-caisse.balance" })
     public ResponseEntity<MobileCashBalanceDTO> getCashBalance(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
@@ -480,6 +489,7 @@ public class MobileReportResource {
      * @return Complete TVA report data
      */
     @GetMapping("/reports/tva")
+    @RequiresNavAccess({ "comptabilite.taxe-report", "mvt-caisse.declaration-tva" })
     public ResponseEntity<MobileTvaReportDTO> getTvaReport(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
@@ -507,6 +517,7 @@ public class MobileReportResource {
      * @return List of créances summaries
      */
     @GetMapping("/reports/tiers-payant/creances/summary")
+    @RequiresNavAccess({ "rapport-finance.creances", "rapport-finance.situation-creances" })
     public ResponseEntity<List<TiersPayantCreancesSummaryDTO>> getCreancesSummary() {
         LOG.debug("REST request to get créances summary");
         return ResponseEntity.ok(tiersPayantReportService.getCreancesSummary());
@@ -521,6 +532,7 @@ public class MobileReportResource {
      * @return List of unpaid invoices
      */
     @GetMapping("/reports/tiers-payant/creances/unpaid")
+    @RequiresNavAccess({ "rapport-finance.creances", "rapport-finance.situation-creances" })
     public ResponseEntity<List<TiersPayantInvoiceDTO>> getUnpaidInvoices(
         @RequestParam(required = false) Integer groupeId,
         @RequestParam(required = false) TiersPayantInvoiceDTO.AgeCategory ageCategory
@@ -539,6 +551,7 @@ public class MobileReportResource {
      * @return List of paid invoices
      */
     @GetMapping("/reports/tiers-payant/payment-history")
+    @RequiresNavAccess({ "rapport-finance.creances", "rapport-finance.situation-creances" })
     public ResponseEntity<List<TiersPayantInvoiceDTO>> getPaymentHistory(
         @RequestParam Integer groupeId,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -559,6 +572,7 @@ public class MobileReportResource {
      * @return List of all suppliers with performance metrics
      */
     @GetMapping("/reports/supplier-performance/all")
+    @RequiresNavAccess("rapport-partners.supplier-performance")
     public ResponseEntity<List<SupplierPerformanceDTO>> getAllSupplierPerformance() {
         LOG.debug("REST request to get all supplier performance");
         return ResponseEntity.ok(supplierPerformanceReportService.getAllSupplierPerformance());
@@ -572,6 +586,7 @@ public class MobileReportResource {
      * @return List of top suppliers
      */
     @GetMapping("/reports/supplier-performance/top")
+    @RequiresNavAccess("rapport-partners.supplier-performance")
     public ResponseEntity<List<SupplierPerformanceDTO>> getTopSuppliers(
         @RequestParam(defaultValue = "10") Integer limit
     ) {
@@ -586,6 +601,7 @@ public class MobileReportResource {
      * @return Supplier performance summary with aggregate metrics
      */
     @GetMapping("/reports/supplier-performance/summary")
+    @RequiresNavAccess("rapport-partners.supplier-performance")
     public ResponseEntity<SupplierPerformanceSummaryDTO> getSupplierPerformanceSummary() {
         LOG.debug("REST request to get supplier performance summary");
         return ResponseEntity.ok(supplierPerformanceReportService.getSupplierPerformanceSummary());
@@ -599,6 +615,7 @@ public class MobileReportResource {
      * @return List of suppliers with score >= minScore
      */
     @GetMapping("/reports/supplier-performance/by-score")
+    @RequiresNavAccess("rapport-partners.supplier-performance")
     public ResponseEntity<List<SupplierPerformanceDTO>> getSuppliersByScore(
         @RequestParam Double minScore
     ) {
@@ -613,6 +630,7 @@ public class MobileReportResource {
      * @return List of suppliers with delivery problems
      */
     @GetMapping("/reports/supplier-performance/issues")
+    @RequiresNavAccess("rapport-partners.supplier-performance")
     public ResponseEntity<List<SupplierPerformanceDTO>> getSuppliersWithIssues() {
         LOG.debug("REST request to get suppliers with delivery issues");
         return ResponseEntity.ok(supplierPerformanceReportService.getSuppliersWithDeliveryIssues());
@@ -629,6 +647,7 @@ public class MobileReportResource {
      * @return List of products with stock valuation and pagination headers
      */
     @GetMapping("/reports/stock-valuation")
+    @RequiresNavAccess("rapport-stock.stock-valuation")
     public ResponseEntity<List<StockValuationView>> getAllStockValuation(Pageable pageable,
                                                                          @RequestParam(value = "familleProduitId", required = false) Integer familleProduitId,
                                                                          @RequestParam(value = "rayonId", required = false) Integer rayonId) {
@@ -649,6 +668,7 @@ public class MobileReportResource {
      * @return Stock valuation summary with totals
      */
     @GetMapping("/reports/stock-valuation/summary")
+    @RequiresNavAccess("rapport-stock.stock-valuation")
     public ResponseEntity<StockValuationSummaryDTO> getStockValuationSummary(@RequestParam(value = "familleProduitId", required = false) Integer familleProduitId,
                                                                              @RequestParam(value = "rayonId", required = false) Integer rayonId) {
         LOG.debug("REST request to get stock valuation summary");
@@ -674,6 +694,7 @@ public class MobileReportResource {
      * @param pageable         pagination + tri (défaut : marge_brute DESC, 20 par page)
      */
     @GetMapping("/reports/profitability/all")
+    @RequiresNavAccess({ "rapport-ventes.profitability", "rapport-finance.profitability" })
     public ResponseEntity<List<MargeDTO>> getAllProductProfitability(
         @RequestParam(required = false) Integer familleProduitId,
         @RequestParam(required = false) String search,
@@ -698,6 +719,7 @@ public class MobileReportResource {
      * @param seuilHaut        seuil haut en % (défaut 20)
      */
     @GetMapping("/reports/profitability/summary")
+    @RequiresNavAccess({ "rapport-ventes.profitability", "rapport-finance.profitability" })
     public ResponseEntity<MargeSummaryDTO> getProfitabilitySummary(
         @RequestParam(required = false) Integer familleProduitId,
         @RequestParam(defaultValue = "10") int seuilBas,
@@ -715,6 +737,7 @@ public class MobileReportResource {
      * @param pageable pagination à l'intérieur du top
      */
     @GetMapping("/reports/profitability/top")
+    @RequiresNavAccess({ "rapport-ventes.profitability", "rapport-finance.profitability" })
     public ResponseEntity<List<MargeDTO>> getTopProfitableProducts(
         @RequestParam(defaultValue = "20") int limit,
         Pageable pageable
@@ -737,6 +760,7 @@ public class MobileReportResource {
      * @param pageable pagination
      */
     @GetMapping("/reports/profitability/low-margin")
+    @RequiresNavAccess({ "rapport-ventes.profitability", "rapport-finance.profitability" })
     public ResponseEntity<List<MargeDTO>> getLowMarginProducts(
         @RequestParam(defaultValue = "10") int seuil,
         Pageable pageable
@@ -764,6 +788,7 @@ public class MobileReportResource {
      * @return List of products with rotation metrics and pagination headers
      */
     @GetMapping("/reports/stock-rotation/all")
+    @RequiresNavAccess("rapport-stock.stock-rotation")
     public ResponseEntity<List<StockRotationDTO>> getAllStockRotation(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "50") int size
@@ -784,6 +809,7 @@ public class MobileReportResource {
      * @return List of slow moving products
      */
     @GetMapping("/reports/stock-rotation/slow-moving")
+    @RequiresNavAccess("rapport-stock.stock-rotation")
     public ResponseEntity<List<StockRotationDTO>> getSlowMovingProducts() {
         LOG.debug("REST request to get slow moving products");
         return ResponseEntity.ok(stockRotationReportService.getSlowMovingProducts());
@@ -796,6 +822,7 @@ public class MobileReportResource {
      * @return Map of ABC category to count
      */
     @GetMapping("/reports/stock-rotation/abc-counts")
+    @RequiresNavAccess("rapport-stock.stock-rotation")
     public ResponseEntity<Map<CategorieABC, Long>> getStockRotationABCCounts() {
         LOG.debug("REST request to get stock rotation ABC counts");
         return ResponseEntity.ok(stockRotationReportService.getStockRotationCountByABCClassification());
@@ -811,6 +838,7 @@ public class MobileReportResource {
      * @return List of products in ABC category with pagination headers
      */
     @GetMapping("/reports/stock-rotation/by-abc")
+    @RequiresNavAccess("rapport-stock.stock-rotation")
     public ResponseEntity<List<StockRotationDTO>> getStockRotationByABC(
         @RequestParam CategorieABC category,
         @RequestParam(defaultValue = "0") int page,
@@ -838,6 +866,7 @@ public class MobileReportResource {
      * @return List of products with Pareto analysis and pagination headers
      */
     @GetMapping("/reports/abc-pareto/all")
+    @RequiresNavAccess({ "rapport-stock.abc-pareto", "rapport-stock.stock-abc" })
     public ResponseEntity<List<ABCParetoDTO>> getAllABCPareto(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "50") int size
@@ -858,6 +887,7 @@ public class MobileReportResource {
      * @return ABC Pareto summary with class distribution
      */
     @GetMapping("/reports/abc-pareto/summary")
+    @RequiresNavAccess({ "rapport-stock.abc-pareto", "rapport-stock.stock-abc" })
     public ResponseEntity<ABCParetoSummaryDTO> getABCParetoSummary() {
         LOG.debug("REST request to get ABC Pareto summary");
         return ResponseEntity.ok(abcParetoReportService.getABCParetoSummary());
@@ -873,6 +903,7 @@ public class MobileReportResource {
      * @return List of products in Pareto class with pagination headers
      */
     @GetMapping("/reports/abc-pareto/by-class")
+    @RequiresNavAccess({ "rapport-stock.abc-pareto", "rapport-stock.stock-abc" })
     public ResponseEntity<List<ABCParetoDTO>> getByParetoClass(
         @RequestParam ClassePareto classePareto,
         @RequestParam(defaultValue = "0") int page,
@@ -895,6 +926,7 @@ public class MobileReportResource {
      * @return List of top revenue contributors
      */
     @GetMapping("/reports/abc-pareto/top")
+    @RequiresNavAccess({ "rapport-stock.abc-pareto", "rapport-stock.stock-abc" })
     public ResponseEntity<List<ABCParetoDTO>> getTopRevenueContributors(
         @RequestParam(defaultValue = "20") int limit
     ) {
@@ -916,6 +948,7 @@ public class MobileReportResource {
      * @param pageable  Pagination
      */
     @GetMapping("/reports/sold-products")
+    @RequiresNavAccess("rapport-stock.recap-produit-vendu")
     public ResponseEntity<List<RecapProduitVendu>> getSoldProducts(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
@@ -945,6 +978,7 @@ public class MobileReportResource {
      * @param search    Optional search term
      */
     @GetMapping("/reports/sold-products/summary")
+    @RequiresNavAccess("rapport-stock.recap-produit-vendu")
     public ResponseEntity<RecapProduitVenduSummary> getSoldProductsSummary(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
@@ -971,6 +1005,7 @@ public class MobileReportResource {
      * @return Simple health status
      */
     @GetMapping("/health")
+    @NavAccessExempt("test de disponibilité du serveur par l'application mobile")
     public ResponseEntity<HealthResponse> healthCheck() {
         return ResponseEntity.ok(new HealthResponse("OK", System.currentTimeMillis()));
     }

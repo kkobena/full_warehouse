@@ -15,6 +15,9 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.ErrorResponse;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -122,7 +125,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
      * Licence expirée, absente, invalide, ou module non souscrit.
      *
      * <p>Le statut <strong>402 Payment Required</strong> est ici sémantiquement exact, et surtout il
-     * n'est pas intercepté par {@code auth-expired.interceptor.ts} côté Angular : répondre 401 ou 403
+     * n'est pas intercepté par {@code auth-expired.interceptor.ts} côté Angular : répondre 401
      * déconnecterait l'utilisateur, qui ne pourrait plus atteindre l'écran de renouvellement.
      */
     @ExceptionHandler(LicenseViolationException.class)
@@ -135,6 +138,27 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         pd.setErrorKey(ex.getErrorKey());
         pd.setPayload(ex.getPayload());
         return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED).body(pd);
+    }
+
+    /**
+     * Droit manquant : {@code @PreAuthorize}, {@code @Secured} ou droit de menu
+     * (docs/PLAN-SECURISATION-ENDPOINTS.md). Sans ce gestionnaire, le refus partait en 500.
+     *
+     * <p>Côté Angular, seul un 401 déconnecte : un 403 affiche le message et laisse l'utilisateur
+     * sur son écran.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDenied(AccessDeniedException ex) {
+        Custom pd = new Custom(HttpStatus.FORBIDDEN.value());
+        // Le message d'une AccessDeniedException de Spring est technique : seul le nôtre est affiché.
+        String detail = ex instanceof ForbiddenOperationException
+            ? ex.getMessage()
+            : "Accès refusé : vous n'avez pas le droit d'effectuer cette opération.";
+        pd.setTitle("Accès refusé");
+        pd.setDetail(detail);
+        pd.setMessage(detail);
+        pd.setErrorKey(ex instanceof ForbiddenOperationException forbidden ? forbidden.getErrorKey() : "accessDenied");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(pd);
     }
 
     @ExceptionHandler
@@ -158,8 +182,29 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         HttpStatusCode statusCode,
         WebRequest request
     ) {
-        body = body == null ? wrapAndCustomizeProblem(ex, (NativeWebRequest) request) : body;
+        if (body == null) {
+            body = ex instanceof ErrorResponse errorResponse
+                ? requeteInvalide(ex, errorResponse, statusCode)
+                : wrapAndCustomizeProblem(ex, (NativeWebRequest) request);
+        }
         return super.handleExceptionInternal(ex, body, headers, statusCode, request);
+    }
+
+    /**
+     * Requête mal formée, rejetée par Spring MVC avant le contrôleur (paramètre absent, verbe ou
+     * type de contenu non supporté…) : elle garde son statut 4xx, au lieu du corps « erreur
+     * interne » réservé aux défauts du logiciel.
+     */
+    private Custom requeteInvalide(Exception ex, ErrorResponse errorResponse, HttpStatusCode statusCode) {
+        LOG.warn("Requête invalide ({}) : {}", statusCode.value(), ex.getMessage());
+        Custom pd = new Custom(statusCode.value());
+        String detail = ex instanceof MissingServletRequestParameterException missing
+            ? "Paramètre obligatoire manquant : " + missing.getParameterName()
+            : errorResponse.getBody().getDetail();
+        pd.setTitle(errorResponse.getBody().getTitle());
+        pd.setDetail(detail);
+        pd.setMessage(detail);
+        return pd;
     }
 
     protected ProblemDetail wrapAndCustomizeProblem(Throwable ex, NativeWebRequest request) {

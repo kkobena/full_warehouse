@@ -34,12 +34,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 /**
  * REST controller for managing {@link Commande}.
  */
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "commande", "depot.achat-depot" })
 public class CommandeDataResource {
 
     private final Logger log = LoggerFactory.getLogger(CommandeDataResource.class);
@@ -100,6 +103,7 @@ public class CommandeDataResource {
     }
 
     @GetMapping("/commandes/csv/{id}/{orderDate}")
+    @RequiresNavAccess(value = { "commande", "depot.achat-depot" }, action = NavAction.EXPORT)
     public ResponseEntity<Resource> getCsv(
         @PathVariable("id") Integer id,
         @PathVariable("orderDate") LocalDate orderDate,
@@ -110,6 +114,7 @@ public class CommandeDataResource {
     }
 
     @GetMapping("/commandes/pdf/{id}/{orderDate}")
+    @RequiresNavAccess(value = { "commande", "depot.achat-depot" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> getPdf(
         @PathVariable("id") Integer id,
         @PathVariable("orderDate") LocalDate orderDate
@@ -130,6 +135,7 @@ public class CommandeDataResource {
     }
 
     @GetMapping("/commandes/rupture-csv/{reference}")
+    @RequiresNavAccess(value = { "commande", "depot.achat-depot" }, action = NavAction.EXPORT)
     public ResponseEntity<Resource> getRuptureCsv(@PathVariable("reference") String reference, HttpServletRequest request) {
         final Resource resource = commandeDataService.getRuptureCsv(reference);
         return Utils.exportCsv(resource, request);

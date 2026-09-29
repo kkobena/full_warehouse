@@ -32,12 +32,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /**
  * REST controller for managing the current user's account.
  */
 @RestController
 @RequestMapping("/api")
+@NavAccessExempt("compte de l'utilisateur connecté, activation et réinitialisation du mot de passe")
 public class AccountResource extends AccountResourcesProxy {
 
     private final Logger log = LoggerFactory.getLogger(AccountResource.class);

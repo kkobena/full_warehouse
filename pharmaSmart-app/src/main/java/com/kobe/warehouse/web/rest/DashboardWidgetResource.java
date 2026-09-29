@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 /** Données des widgets du dashboard personnalisable. Les droits sont vérifiés par le service. */
 @RestController
 @RequestMapping("/api/dashboard-widgets")
+@NavAccessExempt("droits vérifiés widget par widget par WidgetAuthorizationService")
 public class DashboardWidgetResource {
 
     private static final Set<String> CONTEXT_PARAMS = Set.of("startDate", "endDate", "magasinId");

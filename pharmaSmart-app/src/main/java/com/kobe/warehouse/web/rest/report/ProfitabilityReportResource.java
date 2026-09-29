@@ -18,9 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "rapport-ventes.profitability", "rapport-finance.profitability" })
 public class ProfitabilityReportResource {
 
 
@@ -39,6 +42,7 @@ public class ProfitabilityReportResource {
 
 
     @GetMapping(value = "/profitability/export", produces = MediaType.APPLICATION_PDF_VALUE)
+    @RequiresNavAccess(value = { "rapport-ventes.profitability", "rapport-finance.profitability" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportProfitabilityToPdf(  @RequestParam(required = false) Integer familleProduitId,
                                                              @RequestParam(required = false) String search) {
         HttpHeaders headers = new HttpHeaders();

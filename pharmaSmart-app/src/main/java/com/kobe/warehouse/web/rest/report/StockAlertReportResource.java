@@ -18,9 +18,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "rapport-stock.stock-alerts", "ventes.kpi" })
 public class StockAlertReportResource {
 
     private final StockAlertReportService stockAlertReportService;
@@ -55,6 +59,7 @@ public class StockAlertReportResource {
      * @return Map of alert type to count
      */
     @GetMapping("/stock/alerts/count")
+    @NavAccessExempt("compteurs d'alertes de stock affichés dans l'en-tête de l'application, pour tous les rôles")
     public ResponseEntity<Map<StockAlertType, Long>> getStockAlertsCount() {
         Map<StockAlertType, Long> counts = stockAlertReportService.getStockAlertsCount();
         return ResponseEntity.ok().body(counts);
@@ -67,6 +72,7 @@ public class StockAlertReportResource {
      * @return PDF file
      */
     @GetMapping(value = "/stock/alerts/export", produces = MediaType.APPLICATION_PDF_VALUE)
+    @RequiresNavAccess(value = { "rapport-stock.stock-alerts", "ventes.kpi" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportStockAlertsToPdf(@RequestParam(required = false) List<StockAlertType> types) {
 
         HttpHeaders headers = new HttpHeaders();
@@ -81,6 +87,7 @@ public class StockAlertReportResource {
      * @return Excel file (.xlsx)
      */
     @GetMapping(value = "/stock/alerts/export/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    @RequiresNavAccess(value = { "rapport-stock.stock-alerts", "ventes.kpi" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportStockAlertsToExcel(@RequestParam(required = false) List<StockAlertType> types) {
         try {
             byte[] excelData = stockAlertExcelCsvReportService.exportToExcel(types);
@@ -103,6 +110,7 @@ public class StockAlertReportResource {
      * @return CSV file
      */
     @GetMapping(value = "/stock/alerts/export/csv", produces = "text/csv")
+    @RequiresNavAccess(value = { "rapport-stock.stock-alerts", "ventes.kpi" }, action = NavAction.EXPORT)
     public ResponseEntity<byte[]> exportStockAlertsToCsv(@RequestParam(required = false) List<StockAlertType> types) {
         try {
             byte[] csvData = stockAlertExcelCsvReportService.exportToCsv(types);

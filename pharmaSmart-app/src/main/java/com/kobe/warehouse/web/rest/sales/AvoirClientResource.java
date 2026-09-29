@@ -22,9 +22,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "ventes.avoirs", "ventes", "facturation.avoirs" })
 public class AvoirClientResource {
 
     private final AvoirClientService avoirClientService;
@@ -73,6 +76,7 @@ public class AvoirClientResource {
     }
 
     @PostMapping("/sales/avoirs/documents/{id}/cloturer")
+    @RequiresNavAccess(value = "ventes.avoirs.cloturer", action = NavAction.EXECUTE)
     public ResponseEntity<AvoirClientDocumentDTO> cloturerAvoir(
         @PathVariable Integer id,
         @RequestBody CloturerAvoirRequest request

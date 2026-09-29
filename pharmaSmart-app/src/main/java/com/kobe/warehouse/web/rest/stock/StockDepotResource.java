@@ -26,9 +26,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAction;
 
 @RestController
 @RequestMapping("/api/stock-depots")
+@RequiresNavAccess({ "depot.stock-depot", "depot" })
 public class StockDepotResource {
 
     private final GestionStockDepotService gestionStockDepotService;
@@ -71,6 +74,8 @@ public class StockDepotResource {
     }
 
     @GetMapping("/sales")
+    // Liste des ventes dépôt (onglet « Ventes dépôt » de la gestion des ventes), pas le stock du dépôt.
+    @RequiresNavAccess({ "ventes.vente-depot", "depot.liste-depots", "depot" })
     public ResponseEntity<List<DepotExtensionSaleDTO>> getAllSales(
         @RequestParam(name = "magasinId", required = false) Integer magasinId,
         @RequestParam(name = "search", required = false) String search,
@@ -94,6 +99,8 @@ public class StockDepotResource {
     }
 
     @GetMapping(value = "/export/{id}/{saleDate}/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    // Le document d'une vente, comme sa facture PDF : le droit d'ouvrir la vente suffit.
+    @RequiresNavAccess(value = { "ventes.vente-depot", "depot.liste-depots", "depot" }, action = NavAction.ACCESS)
     public ResponseEntity<byte[]> exportToExcel(
         @PathVariable("id") Long id,
         @PathVariable("saleDate") LocalDate saleDate
@@ -112,6 +119,8 @@ public class StockDepotResource {
     }
 
     @GetMapping(value = "/export/{id}/{saleDate}/csv", produces = "text/csv")
+    // Le document d'une vente, comme sa facture PDF : le droit d'ouvrir la vente suffit.
+    @RequiresNavAccess(value = { "ventes.vente-depot", "depot.liste-depots", "depot" }, action = NavAction.ACCESS)
     public ResponseEntity<byte[]> exportToCsv(
         @PathVariable("id") Long id,
         @PathVariable("saleDate") LocalDate saleDate

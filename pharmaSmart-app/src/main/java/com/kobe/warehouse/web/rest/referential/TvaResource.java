@@ -26,9 +26,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess("tva")
 public class TvaResource {
 
     private static final String ENTITY_NAME = "tva";
@@ -72,6 +75,7 @@ public class TvaResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of tvas in body.
      */
     @GetMapping("/tvas")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes")
     public ResponseEntity<List<TvaDTO>> getAllTvas(Pageable pageable) {
         log.debug("REST request to get a page of Tvas");
         Page<TvaDTO> page = tvaService.findAll(pageable);
@@ -88,6 +92,7 @@ public class TvaResource {
      * with status {@code 404 (Not Found)}.
      */
     @GetMapping("/tvas/{id}")
+    @NavAccessExempt("lecture de référentiel, utilisée par le catalogue et les listes déroulantes")
     public ResponseEntity<TvaDTO> getTva(@PathVariable Integer id) {
         log.debug("REST request to get Tva : {}", id);
         Optional<TvaDTO> tvaDTO = tvaService.findOne(id);

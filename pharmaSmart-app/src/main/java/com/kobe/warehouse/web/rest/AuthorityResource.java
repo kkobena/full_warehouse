@@ -18,9 +18,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
 @RequestMapping("/api")
+@RequiresNavAccess({ "utilisateurs", "nav-manager" })
 public class AuthorityResource {
 
     private final AuthorityService authorityService;
@@ -35,6 +38,7 @@ public class AuthorityResource {
 
 
     @GetMapping(value = "/authorities/all")
+    @NavAccessExempt("liste des rôles, affichée par la gestion des utilisateurs, des menus et des accueils")
     public ResponseEntity<List<AuthorityDTO>> getAuthorities(
         @RequestParam(value = "search", required = false, defaultValue = "") String search
     ) {
@@ -56,6 +60,7 @@ public class AuthorityResource {
     }
 
     @GetMapping(value = "/authorities/{role}")
+    @NavAccessExempt("liste des rôles, affichée par la gestion des utilisateurs, des menus et des accueils")
     public ResponseEntity<AuthorityDTO> getOneRole(@PathVariable("role") String roleName) {
         return ResponseEntity.ok(authorityService.fetchOne(roleName));
     }
@@ -63,6 +68,7 @@ public class AuthorityResource {
 
 
     @GetMapping(value = "/authorities/all/v2")
+    @NavAccessExempt("liste des rôles, affichée par la gestion des utilisateurs, des menus et des accueils")
     public ResponseEntity<List<AuthorityDTO>> fetchAllAuthorities( ) {
         return ResponseEntity.ok(authorityService.fetchAll());
     }

@@ -9,12 +9,14 @@ import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 
 /**
  * REST controller for Market Basket Analysis (Cross-selling)
  */
 @RestController
 @RequestMapping("/api/market-basket")
+@RequiresNavAccess("rapport-ventes.market-basket")
 public class MarketBasketAnalysisResource {
 
     private final MarketBasketAnalysisService marketBasketAnalysisService;

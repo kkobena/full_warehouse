@@ -613,6 +613,22 @@ public class AppConfigurationService {
             .orElse(30);
     }
 
+    /** Encours différé maximal par client, pour toute l'officine ; 0 = aucune limite. */
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_LIMITE_CREDIT_CLIENT_CACHE)
+    public int getLimiteCreditClient() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_LIMITE_CREDIT_CLIENT)
+            .map(c -> {
+                try {
+                    return Math.max(0, Integer.parseInt(c.getValue().trim()));
+                } catch (NumberFormatException e) {
+                    return 0;
+                }
+            })
+            .orElse(0);
+    }
+
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_DELAI_VALIDITE_AVOIR_CACHE)
     public int getDelaiValiditeAvoir() {

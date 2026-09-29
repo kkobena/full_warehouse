@@ -11,6 +11,8 @@
             [ngModel]="typeSelected()"
             [searchable]="false"
             [style]="{ 'min-width': '170px' }"
+            bindLabel="label"
+            bindValue="value"
             inputId="typeFilter"
             size="large"
           >
@@ -54,14 +56,16 @@
             crée un ASSURÉ, de loin le cas courant ; le menu garde les trois types, qui
             n'ouvrent pas le même formulaire.
           -->
-          <app-split-button
-            (clicked)="addAssureCustomer('ASSURANCE')"
-            [items]="newCustomerbuttons()"
-            [raised]="true"
-            icon="pi pi-user-plus"
-            label="Nouveau client"
-            severity="success"
-          ></app-split-button>
+          @if (canCreate()) {
+            <app-split-button
+              (clicked)="addAssureCustomer('ASSURANCE')"
+              [items]="newCustomerbuttons()"
+              [raised]="true"
+              icon="pi pi-user-plus"
+              label="Nouveau client"
+              severity="success"
+            ></app-split-button>
+          }
         </div>
       </div>
     </ng-container>
@@ -91,7 +95,7 @@
             <th style="width: 10%">Identifiant</th>
             <th style="width: 12%">Numéro assuré</th>
             <th style="width: 10%">Téléphone</th>
-            <th style="width: 10%">Encours</th>
+            <th container="body" ngbTooltip="Reste dû sur les ventes différées" style="width: 10%">Encours</th>
 
             <th style="width: 15%"></th>
           </tr>
@@ -134,7 +138,7 @@
                 >
                 </app-button>
 
-                @if (customer.categorie === 'ASSURE') {
+                @if (customer.categorie === 'ASSURE' && canEdit()) {
                   <app-button
                     (clicked)="editAssureCustomer(customer)"
                     [rounded]="true"
@@ -161,7 +165,7 @@
                   }
                 }
 
-                @if (customer.categorie === 'STANDARD') {
+                @if (customer.categorie === 'STANDARD' && canEdit()) {
                   <app-button
                     (clicked)="editUninsuredCustomer(customer)"
                     [rounded]="true"
@@ -175,26 +179,43 @@
                   </app-button>
                 }
 
-                <app-button
-                  (clicked)="confirmRemove(customer)"
-                  [rounded]="true"
-                  [text]="true"
-                  icon="pi pi-trash"
-                  ngbTooltip="Supprimer"
-                  severity="danger"
-                  type="button"
-                >
-                </app-button>
-                <app-button
-                  (clicked)="confirmDesactivation(customer)"
-                  [rounded]="true"
-                  [text]="true"
-                  icon="pi pi-lock"
-                  ngbTooltip="Désactiver"
-                  severity="warn"
-                  type="button"
-                >
-                </app-button>
+                @if (canDelete()) {
+                  <app-button
+                    (clicked)="confirmRemove(customer)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-trash"
+                    ngbTooltip="Supprimer"
+                    severity="danger"
+                    type="button"
+                  >
+                  </app-button>
+                }
+                @if (canEdit()) {
+                  @if (statutSelected() === 'DISABLE') {
+                    <app-button
+                      (clicked)="confirmReactivation(customer)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-lock-open"
+                      ngbTooltip="Réactiver"
+                      severity="success"
+                      type="button"
+                    >
+                    </app-button>
+                  } @else {
+                    <app-button
+                      (clicked)="confirmDesactivation(customer)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-lock"
+                      ngbTooltip="Désactiver"
+                      severity="warn"
+                      type="button"
+                    >
+                    </app-button>
+                  }
+                }
               </div>
             </td>
           </tr>
@@ -261,14 +282,15 @@
                               <th style="width: 17%">Date de naissance</th>
                               <th style="width: 8%">Sexe</th>
                               <th style="width: 15%; text-align: right">
-                                <app-button
-                                  (clicked)="addAyantDroit(customer)"
-                                  [rounded]="true"
-
-                                  icon="pi pi-plus"
-                                  ngbTooltip="Ajouter un ayant droit"
-                                  severity="info"
-                                ></app-button>
+                                @if (canEdit()) {
+                                  <app-button
+                                    (clicked)="addAyantDroit(customer)"
+                                    [rounded]="true"
+                                    icon="pi pi-plus"
+                                    ngbTooltip="Ajouter un ayant droit"
+                                    severity="info"
+                                  ></app-button>
+                                }
                               </th>
                             </tr>
                             </thead>
@@ -284,6 +306,7 @@
                                   </td>
                                   <td>{{ ayantDroit?.sexe }}</td>
                                   <td class="text-right">
+                                    @if (canEdit()) {
                                     <div class="btn-group">
                                       <app-button
                                         (clicked)="editAyantDroit(customer, ayantDroit)"
@@ -304,6 +327,7 @@
                                         severity="danger"
                                       ></app-button>
                                     </div>
+                                    }
                                   </td>
                                 </tr>
                               }
@@ -326,11 +350,10 @@
                             <th style="width: 28%">Tiers-payant</th>
                             <th style="width: 14%">N° Sécu</th>
                             <th style="width: 7%">Taux</th>
-                            <th style="width: 8%">Catégorie</th>
-                            <th style="width: 13%">Plafond encours</th>
-                            <th style="width: 13%">Plafond vente</th>
-                            <!--                                            <th style="width:8%;">Plafond absolu ?</th>-->
-                            @if (displayTiersPayantAddBtn(customer)) {
+                            <th style="width: 8%">Priorité</th>
+                            <th container="body" ngbTooltip="Défini sur le tiers payant, commun à tous ses adhérents" style="width: 13%">Plafond conso. (organisme)</th>
+                            <th container="body" ngbTooltip="Défini sur le tiers payant, commun à tous ses adhérents" style="width: 13%">Plafond vente (organisme)</th>
+                            @if (canEdit() && displayTiersPayantAddBtn(customer)) {
                               <th style="width: 11%; text-align: right">
                                 <app-button
                                   (clicked)="onAddNewTiersPayant(customer)"
@@ -359,8 +382,7 @@
                                     tierspayant?.plafondJournalier | number
                                   }}
                                 </td>
-                                <!--                                            <td>{{tierspayant?.plafondAbsolu }}</td>-->
-                                @if (displayTiersPayantAction) {
+                                @if (canEdit()) {
                                   <td class="text-right">
                                     <div class="btn-group">
                                       <app-button

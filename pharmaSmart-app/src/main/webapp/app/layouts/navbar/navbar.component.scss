@@ -21,6 +21,21 @@
 
   &.navbar-chrome {
     background-color: var(--pharma-nav-bg);
+    background-image: var(--pharma-nav-gradient-h);
+    border-bottom: 2px solid transparent;
+    border-image: var(--pharma-nav-rainbow) 1;
+  }
+
+  .nav-link fa-icon:not(.nav-caret) {
+    color: var(--nav-hue, inherit);
+  }
+
+  .nav-link:hover {
+    background-color: color-mix(in srgb, var(--nav-hue, #fff) 16%, transparent);
+  }
+
+  .nav-item.active > .nav-link {
+    box-shadow: inset 0 -2px 0 var(--nav-hue, var(--pharma-nav-active));
   }
 
   // CSS variables Bootstrap 5 — style barre d'application desktop
@@ -61,7 +76,7 @@
     }
 
     &.expanded {
-      background-color: var(--pharma-nav-bg-hover);
+      background-color: color-mix(in srgb, var(--nav-hue, #fff) 22%, transparent);
 
       .nav-caret {
         transform: rotate(180deg);

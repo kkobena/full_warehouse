@@ -19,3 +19,4 @@ export * from './customer-overlay-panel/customer-overlay-panel.component';
 export * from './assured-customer-list-modal/assured-customer-list-modal.component';
 export * from './ayant-droit-list-modal/ayant-droit-list-modal.component';
 export * from './force-stock-choice-modal/force-stock-choice-modal.component';
+export * from './fiche-client-panel/fiche-client-panel.component';

@@ -33,6 +33,8 @@ import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import jakarta.persistence.OptimisticLockException;
 import org.springframework.util.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.kobe.warehouse.service.customer.LimiteCreditService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -61,6 +63,7 @@ public abstract class SaleCommonService {
     private final SaleIdGeneratorService idGeneratorService;
     private final ObjectMapper objectMapper;
     private final AppConfigurationService appConfigurationService;
+    private LimiteCreditService limiteCreditService;
 
 
     public SaleCommonService(
@@ -87,6 +90,23 @@ public abstract class SaleCommonService {
         this.objectMapper = objectMapper;
         this.appConfigurationService = appConfigurationService;
 
+    }
+
+    /**
+     * Par mutateur plutôt que par le constructeur : quatre services de vente en héritent, et ajouter
+     * un paramètre à leur chaîne de constructeurs n'apportait rien. Absent (tests qui construisent
+     * les services à la main), le contrôle de la limite de crédit est simplement sauté.
+     */
+    @Autowired
+    public void setLimiteCreditService(LimiteCreditService limiteCreditService) {
+        this.limiteCreditService = limiteCreditService;
+    }
+
+    /** Vente différée au-delà de la limite de crédit de l'officine : refusée sans dérogation. */
+    protected void controlerLimiteCredit(Sales vente) {
+        if (limiteCreditService != null) {
+            limiteCreditService.controlerCloture(vente);
+        }
     }
 
     /**
@@ -287,6 +307,7 @@ public abstract class SaleCommonService {
         this.posteRepository.findFirstByAddressOrName(dto.getCaisseEndNum(), dto.getCaisseNum())
             .ifPresent(c::setLastCaisse);
         c.setRestToPay(calculateRestToPay(dto.getPayrollAmount(), dto.getAmountToBePaid()));
+        controlerLimiteCredit(c);
         c.setUpdatedAt(LocalDateTime.now());
         c.setMonnaie(dto.getMontantRendu());
         c.setEffectiveUpdateDate(c.getUpdatedAt());
@@ -437,6 +458,7 @@ public abstract class SaleCommonService {
         }
         c.setPayrollAmount(dto.getPayrollAmount());
         c.setRestToPay(dto.getRestToPay());
+        controlerLimiteCredit(c);
         c.setUpdatedAt(LocalDateTime.now());
         c.setMonnaie(dto.getMontantRendu());
         c.setEffectiveUpdateDate(c.getUpdatedAt());

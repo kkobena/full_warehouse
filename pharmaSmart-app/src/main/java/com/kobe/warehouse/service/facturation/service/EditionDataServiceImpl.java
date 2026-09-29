@@ -57,6 +57,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
+import com.kobe.warehouse.service.sale.impl.ConsommationPlafondService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -91,6 +93,13 @@ public class EditionDataServiceImpl implements EditionDataService {
         this.groupeFacturePdfExportService = groupeFacturePdfExportService;
         this.reportExcelExportService = reportExcelExportService;
         this.appConfigurationService = appConfigurationService;
+    }
+
+    private ConsommationPlafondService consommationPlafondService;
+
+    @Autowired
+    public void setConsommationPlafondService(ConsommationPlafondService consommationPlafondService) {
+        this.consommationPlafondService = consommationPlafondService;
     }
 
     @Override
@@ -167,13 +176,21 @@ public class EditionDataServiceImpl implements EditionDataService {
             .orElseThrow(() -> new GenericError("Cette facture a déjà été annulée", "factureDejaAnnulee"));
         refuserSiReglee(factureTiersPayant);
         resetThirdPartySaleLines(factureTiersPayant);
+        rendreConsommation(factureTiersPayant);
         List<FactureTiersPayant> factureTiersPayants = factureTiersPayant.getFactureTiersPayants();
         if (!CollectionUtils.isEmpty(factureTiersPayants)) {
             factureTiersPayants.forEach(this::resetThirdPartySaleLines);
+            factureTiersPayants.forEach(this::rendreConsommation);
             this.facturationRepository.deleteAll(factureTiersPayants);
         }
 
         this.facturationRepository.delete(factureTiersPayant);
+    }
+
+    private void rendreConsommation(FactureTiersPayant facture) {
+        if (consommationPlafondService != null) {
+            consommationPlafondService.annulerReinitialisation(facture.getId());
+        }
     }
 
     private static void refuserSiReglee(FactureTiersPayant facture) {

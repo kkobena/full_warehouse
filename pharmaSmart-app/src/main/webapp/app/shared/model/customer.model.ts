@@ -21,6 +21,8 @@ export interface ICustomer {
   type?: string;
   code?: string;
   num?: string;
+  /** Fin de validité de la carte d'assuré de l'organisme principal (ISO). */
+  dateFinValidite?: string;
   categorie?: string;
   datNaiss?: string;
   numAyantDroit?: string;

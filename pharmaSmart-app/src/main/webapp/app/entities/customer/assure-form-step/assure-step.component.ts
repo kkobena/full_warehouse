@@ -15,6 +15,8 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {FormTiersPayantComponent} from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
+import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
+import {ISO_TO_NGB_DATE, NGB_DATE_TO_ISO} from '../../../shared/util/warehouse-util';
 import {
   CardComponent,
   KeyFilterDirective,
@@ -33,7 +35,8 @@ import {
     CardComponent,
     KeyFilterDirective,
     RadioComponent,
-    SelectSearchComponent
+    SelectSearchComponent,
+    PharmaDatePickerComponent
   ],
   templateUrl: './assure-step.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,6 +73,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
     tiersPayantId: [null, [Validators.required]],
     taux: [null, [Validators.required, Validators.min(0), Validators.max(100)]],
     num: [null, [Validators.required]],
+    dateFinValidite: [null],
     phone: [],
     email: [],
     adresse: [],
@@ -157,6 +161,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       phone: formValue.phone,
       type: 'ASSURE',
       num: formValue.num,
+      dateFinValidite: NGB_DATE_TO_ISO(formValue.dateFinValidite),
       datNaiss: formValue.datNaiss,
       sexe: formValue.sexe,
       tiersPayantId: formValue.tiersPayantId?.id,
@@ -195,6 +200,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       email: customer.email,
       phone: customer.phone,
       num: customer.num,
+      dateFinValidite: ISO_TO_NGB_DATE(customer.dateFinValidite),
       datNaiss: customer.datNaiss,
       sexe: customer.sexe,
       tiersPayantId: customer.tiersPayant,

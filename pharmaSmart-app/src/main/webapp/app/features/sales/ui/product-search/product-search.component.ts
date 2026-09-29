@@ -226,6 +226,13 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
   // ===== Public Methods =====
 
+  /** Affiche un produit choisi hors du champ (re-délivrance depuis la fiche client). */
+  afficher(produit: ProduitSearch): void {
+    this.produits.set([produit]);
+    this._produitSelected.set(produit);
+    this.selectProduit.set(produit);
+  }
+
   getFocus(): void {
     requestAnimationFrame(() => {
       const el = this.produitboxEl()?.nativeElement.querySelector("input");

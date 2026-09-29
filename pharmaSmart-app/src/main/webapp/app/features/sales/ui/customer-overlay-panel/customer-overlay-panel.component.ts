@@ -6,6 +6,7 @@ import { CustomerSearchTableComponent } from '../customer-search-table/customer-
 import { ICustomer } from '../../../../shared/model';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { CommonModule } from "@angular/common";
+import { FicheClientPanelService } from '../../data-access/services/fiche-client-panel.service';
 
 /**
  * Customer Overlay Panel Component
@@ -26,6 +27,7 @@ import { CommonModule } from "@angular/common";
 })
 export class CustomerOverlayPanelComponent {
   private readonly facade = inject(SalesFacade);
+  private readonly ficheClient = inject(FicheClientPanelService);
 
   // Inputs
   /** Client passé en input (mode autonome) - prioritaire sur le store */
@@ -72,5 +74,9 @@ export class CustomerOverlayPanelComponent {
       this.facade.removeCustomer();
     }
     this.customerRemoved.emit();
+  }
+
+  protected voirFiche(): void {
+    this.ficheClient.ouvrir(this.customer()?.id);
   }
 }

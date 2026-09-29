@@ -17,10 +17,11 @@ import {
   ButtonComponent,
   CardComponent,
   KeyFilterDirective,
-  SelectSearchComponent,
-  SwitchComponent
+  SelectSearchComponent
 } from '../../../shared/ui';
 import TranslateDirective from "../../../shared/language/translate.directive";
+import {PharmaDatePickerComponent} from "../../../shared/date-picker/pharma-date-picker.component";
+import {ISO_TO_NGB_DATE, NGB_DATE_TO_ISO} from "../../../shared/util/warehouse-util";
 
 @Component({
   selector: "app-customer-tiers-payant",
@@ -31,8 +32,8 @@ import TranslateDirective from "../../../shared/language/translate.directive";
     CardComponent,
     KeyFilterDirective,
     SelectSearchComponent,
-    SwitchComponent,
-    TranslateDirective
+    TranslateDirective,
+    PharmaDatePickerComponent
   ],
   templateUrl: "./customer-tiers-payant.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,9 +51,7 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
     tiersPayant: [null, [Validators.required]],
     taux: [null, [Validators.required, Validators.min(5), Validators.max(100)]],
     num: [null, [Validators.required]],
-    plafondConso: [],
-    plafondJournalier: [],
-    plafondAbsolu: []
+    dateFinValidite: [null]
   });
   protected readonly isSaving = signal(false);
   protected isValid = true;
@@ -124,9 +123,7 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
       id: clientTiersPayant.id,
       num: clientTiersPayant.num,
       tiersPayant: clientTiersPayant.tiersPayant,
-      plafondConso: clientTiersPayant.plafondConso,
-      plafondJournalier: clientTiersPayant.plafondJournalier,
-      plafondAbsolu: clientTiersPayant.plafondAbsolu,
+      dateFinValidite: ISO_TO_NGB_DATE(clientTiersPayant.dateFinValidite),
       taux: clientTiersPayant.taux
     });
   }
@@ -138,9 +135,7 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
       id: this.editForm.get("id")?.value,
       num: this.editForm.get("num")?.value,
       tiersPayantId: this.editForm.get("tiersPayant")?.value?.id,
-      plafondConso: this.editForm.get("plafondConso")?.value,
-      plafondJournalier: this.editForm.get("plafondJournalier")?.value,
-      plafondAbsolu: this.editForm.get("plafondAbsolu")?.value,
+      dateFinValidite: NGB_DATE_TO_ISO(this.editForm.get("dateFinValidite")?.value),
       taux: this.editForm.get("taux")?.value,
       priorite: this.computePriorite()
     };

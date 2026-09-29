@@ -14,6 +14,7 @@ import {
   ChangeDetectionStrategy
 } from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {FicheClientPanelService} from '../../data-access/services/fiche-client-panel.service';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
@@ -146,6 +147,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   readonly isAvoir = this.facade.isAvoir;
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
+  private readonly ficheClient = inject(FicheClientPanelService);
   private customerDisplay = inject(CustomerDisplayService);
   private customerSearchService = inject(CustomerSearchService);
   private spinner = inject(NgxSpinnerService);
@@ -286,6 +288,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       finalizeSale: () => this.onSave(),
       putOnStandby: () => this.onPutOnHold(),
       cancelSale: () => this.onCancel(),
+      openCustomerRecord: () => this.ouvrirFicheClient(),
       focusPayment: () => this.paymentModeComponent()?.focusFirstMode(),
       saveAsPresale: () => this.onSaveAsPresale(true),
       savePresale: () => this.onSaveAsPresale(false),
@@ -308,6 +311,10 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   });
 
   constructor() {
+    this.ficheClient.redelivrer$.pipe(takeUntilDestroyed()).subscribe(produit => {
+      this.productSearchComponent()?.afficherProduit(produit);
+      this.onProductSelected(produit);
+    });
     // Initialiser les effects de gestion du forçage de stock via le mixin
     this.forceStockHandling.initializeEffects();
     // Initialiser les effects de déconditionnement (après force-stock)
@@ -450,6 +457,13 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
    * Délègue au mixin productHandling
    * Focus automatique sur quantité après sélection
    */
+  /** Fiche client en panneau, sans quitter la vente ; « Re-délivrer » y présélectionne le produit. */
+  protected ouvrirFicheClient(): void {
+    if (!this.ficheClient.ouvrir(this.facade.selectedCustomer()?.id)) {
+      this.notificationService.warning('Aucun client sélectionné');
+    }
+  }
+
   onProductSelected(product: ProduitSearch | null): void {
     this.productHandling.onProductSelected(product);
   }

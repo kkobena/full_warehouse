@@ -50,6 +50,10 @@ export class ProductSearchSectionComponent {
     this.produitboxRef()?.reset();
   }
 
+  afficherProduit(produit: ProduitSearch): void {
+    this.produitboxRef()?.afficher(produit);
+  }
+
   focusProduitControl(): void {
     this.quantityBoxRef()?.focusProduitControl();
   }

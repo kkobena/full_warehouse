@@ -21,7 +21,7 @@
       <ul class="navbar-nav ms-auto">
         @for (item of navItems(); track item.id) {
           @if (item.children && item.children.length > 0) {
-            <li class="nav-item">
+            <li [style.--nav-hue]="item.accent" class="nav-item">
               <!-- Entrée parente : ouvre le panneau partagé avec la sidebar -->
               <button
                 type="button"
@@ -76,7 +76,7 @@
               </ng-template>
             </li>
           } @else if (item.routerLink) {
-            <li [routerLinkActiveOptions]="{ exact: true }" class="nav-item"
+            <li [routerLinkActiveOptions]="{ exact: true }" [style.--nav-hue]="item.accent" class="nav-item"
                 routerLinkActive="active">
               <a (click)="onLeafClick(item)"
                  [routerLink]="item.routerLink"
@@ -87,7 +87,7 @@
           } @else {
             <!-- Action sans cible de navigation : un <button>, pas un <a> sans href,
                  qui serait hors du parcours clavier. -->
-            <li class="nav-item">
+            <li [style.--nav-hue]="item.accent" class="nav-item">
               <button type="button" (click)="onLeafClick(item)" class="nav-link btn btn-link">
                 <ng-container [ngTemplateOutlet]="leafContent" [ngTemplateOutletContext]="{ $implicit: item }" />
               </button>

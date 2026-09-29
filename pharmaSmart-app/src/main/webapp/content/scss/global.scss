@@ -19,18 +19,9 @@ h4 {
   margin: 0;
 }
 
-body,
-:host {
-  background: url('../../content/images/pharmabg.png') no-repeat center center fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-  height: 100%;
-}
-
+// Couleur de fond : voir `_pharma-themes.scss`.
 body {
-  // background-color: rgba(179, 241, 237, 0.25);
+  height: 100%;
 }
 
 a:hover {
@@ -1394,4 +1385,9 @@ table tfoot tr td {
   --pharma-nav-accent: #3498db;
   --pharma-nav-accent-soft: rgba(52, 152, 219, 0.2);
   --pharma-nav-active: #2ecc71;
+  // Fonds colorés du rail et de la barre, et liseré reprenant les teintes des menus.
+  --pharma-nav-gradient-v: linear-gradient(180deg, #243b55 0%, #2c3e50 50%, #1f4e5a 100%);
+  --pharma-nav-gradient-h: linear-gradient(90deg, #34506b 0%, #3a5269 45%, #2f5b6b 100%);
+  --pharma-nav-rainbow: linear-gradient(90deg, #10b981, #3b82f6, #f59e0b, #8b5cf6, #f43f5e, #14b8a6);
+  --pharma-nav-rainbow-v: linear-gradient(180deg, #10b981, #3b82f6, #f59e0b, #8b5cf6, #f43f5e, #14b8a6);
 }

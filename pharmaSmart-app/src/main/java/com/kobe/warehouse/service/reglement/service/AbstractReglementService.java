@@ -23,10 +23,12 @@ import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.reglement.dto.BanqueInfoDTO;
 import com.kobe.warehouse.service.reglement.dto.ReglementParam;
+import com.kobe.warehouse.service.sale.impl.ConsommationPlafondService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,6 +67,13 @@ public abstract class AbstractReglementService implements ReglementService {
         this.transactionIdGeneratorService = transactionIdGeneratorService;
         this.invoicePaymentItemService = invoicePaymentItemService;
         this.referenceService = referenceService;
+    }
+
+    private ConsommationPlafondService consommationPlafondService;
+
+    @Autowired
+    public void setConsommationPlafondService(ConsommationPlafondService consommationPlafondService) {
+        this.consommationPlafondService = consommationPlafondService;
     }
 
     /**
@@ -147,6 +156,9 @@ public abstract class AbstractReglementService implements ReglementService {
 
     protected void updateThirdPartyLine(ThirdPartySaleLine thirdPartySaleLine, int amount) {
         thirdPartySaleLine.setMontantRegle(thirdPartySaleLine.getMontantRegle() + amount);
+        if (consommationPlafondService != null) {
+            consommationPlafondService.imputerReglement(thirdPartySaleLine, amount);
+        }
         thirdPartySaleLine.setEffectiveUpdateDate(LocalDateTime.now());
         thirdPartySaleLine.setUpdated(thirdPartySaleLine.getEffectiveUpdateDate());
         if (thirdPartySaleLine.getMontant() <= thirdPartySaleLine.getMontantRegle()) {

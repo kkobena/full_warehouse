@@ -16,6 +16,7 @@ import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
 import com.kobe.warehouse.service.id_generator.FactureIdGeneratorService;
 import com.kobe.warehouse.service.id_generator.InvoiceGenerationCodeGeneratorService;
+import com.kobe.warehouse.service.sale.impl.ConsommationPlafondService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,6 +31,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +62,13 @@ public abstract class AbstractEditionFactureService implements EditionService {
         this.userService = userService;
         this.factureIdGeneratorService = factureIdGeneratorService;
         this.invoiceGenerationCodeGeneratorService = invoiceGenerationCodeGeneratorService;
+    }
+
+    private ConsommationPlafondService consommationPlafondService;
+
+    @Autowired
+    public void setConsommationPlafondService(ConsommationPlafondService consommationPlafondService) {
+        this.consommationPlafondService = consommationPlafondService;
     }
 
     @Override
@@ -277,6 +286,9 @@ public abstract class AbstractEditionFactureService implements EditionService {
         applyTotalsAndRepartitions(factureTiersPayant, aggregated);
         this.facturationRepository.saveAndFlush(factureTiersPayant);
         cumulerSurFactureGroupe(factureGroup, factureTiersPayant);
+        if (consommationPlafondService != null) {
+            consommationPlafondService.reinitialiserALaFacturation(factureTiersPayant, saleLines);
+        }
     }
 
     /**

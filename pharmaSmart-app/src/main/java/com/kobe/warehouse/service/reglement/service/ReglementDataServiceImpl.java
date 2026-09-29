@@ -34,6 +34,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
+import com.kobe.warehouse.service.sale.impl.ConsommationPlafondService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -65,6 +67,13 @@ public class ReglementDataServiceImpl implements ReglementDataService {
         this.invoicePaymentItemRepository = invoicePaymentItemRepository;
         this.reglementReportService = reglementReportService;
         this.invoiceReceiptService = invoiceReceiptService;
+    }
+
+    private ConsommationPlafondService consommationPlafondService;
+
+    @Autowired
+    public void setConsommationPlafondService(ConsommationPlafondService consommationPlafondService) {
+        this.consommationPlafondService = consommationPlafondService;
     }
 
     private static GenericError reglementDejaAnnule() {
@@ -229,6 +238,9 @@ public class ReglementDataServiceImpl implements ReglementDataService {
                     0));
             totalAmount += thirdPartySaleLine.getMontant();
             paidAmount += invoicePaymentItem.getPaidAmount();
+            if (consommationPlafondService != null) {
+                consommationPlafondService.imputerReglement(thirdPartySaleLine, -invoicePaymentItem.getPaidAmount());
+            }
             if (thirdPartySaleLine.getMontantRegle() == 0) {
                 thirdPartySaleLine.setStatut(ThirdPartySaleStatut.ACTIF);
             } else {

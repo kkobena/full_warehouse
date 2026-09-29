@@ -68,6 +68,10 @@ public class ClientTiersPayant implements Serializable, HasConsommation {
     @Column(name = "updated", nullable = false)
     private LocalDateTime updated = LocalDateTime.now();
 
+    /** Fin de validité de la carte d'assuré pour cet organisme ; signalée à la vente une fois passée. */
+    @Column(name = "date_fin_validite")
+    private java.time.LocalDate dateFinValidite;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "priorite", nullable = false, length = 2)
@@ -239,6 +243,15 @@ public class ClientTiersPayant implements Serializable, HasConsommation {
     @JsonIgnore
     public void setConsoMensuelle(Number consoMensuelle) {
         this.consoMensuelle = (consoMensuelle != null) ? consoMensuelle.longValue() : null;
+    }
+
+    public java.time.LocalDate getDateFinValidite() {
+        return dateFinValidite;
+    }
+
+    public ClientTiersPayant setDateFinValidite(java.time.LocalDate dateFinValidite) {
+        this.dateFinValidite = dateFinValidite;
+        return this;
     }
 
     public Set<Consommation> getConsommations() {

@@ -196,9 +196,12 @@ class SaleDataServiceNativeQueryTest {
         when(customer.and(closed)).thenReturn(afterClosed);
         when(salesRepository.between(any(), any())).thenReturn(dates);
         when(afterClosed.and(dates)).thenReturn(finalCustomer);
-        when(salesRepository.findAll(finalCustomer)).thenReturn(List.of());
+        when(salesRepository.findAll(org.mockito.ArgumentMatchers.eq(finalCustomer), any(org.springframework.data.domain.Pageable.class)))
+            .thenReturn(org.springframework.data.domain.Page.empty());
 
-        assertTrue(service.customerPurchases(7, LocalDate.now().minusDays(2), LocalDate.now()).isEmpty());
+        assertTrue(
+            service.customerPurchases(7, LocalDate.now().minusDays(2), LocalDate.now(), org.springframework.data.domain.PageRequest.of(0, 20)).isEmpty()
+        );
 
         Specification<com.kobe.warehouse.domain.Sales> active = org.mockito.Mockito.mock(Specification.class);
         Specification<com.kobe.warehouse.domain.Sales> today = org.mockito.Mockito.mock(Specification.class);

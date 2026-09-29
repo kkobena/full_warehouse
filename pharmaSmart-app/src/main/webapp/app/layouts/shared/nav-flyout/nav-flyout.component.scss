@@ -9,6 +9,7 @@
   background: var(--pharma-nav-panel);
   color: var(--pharma-nav-fg);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 3px solid var(--nav-hue, var(--pharma-nav-accent));
   border-radius: 10px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
   overflow: hidden;
@@ -69,14 +70,14 @@
   flex-shrink: 0;
 
   .flyout-header-icon {
-    color: var(--pharma-nav-accent);
+    color: var(--nav-hue, var(--pharma-nav-accent));
     font-size: 1rem;
   }
 
   .flyout-header-label {
     font-weight: 600;
     font-size: 0.95rem;
-    color: var(--pharma-nav-accent);
+    color: var(--nav-hue, var(--pharma-nav-accent));
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -170,6 +171,7 @@
     width: 24px;
     font-size: 1rem;
     flex-shrink: 0;
+    color: var(--nav-hue, inherit);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -185,21 +187,21 @@
   // Pas de décalage du texte au survol : seul le fond change.
   &:hover,
   &:focus-visible {
-    background: rgba(52, 152, 219, 0.18);
+    background: color-mix(in srgb, var(--nav-hue, var(--pharma-nav-accent)) 16%, transparent);
     color: #fff;
   }
 
   &:focus-visible {
-    outline: 2px solid var(--pharma-nav-accent);
+    outline: 2px solid var(--nav-hue, var(--pharma-nav-accent));
     outline-offset: -2px;
   }
 
   &.active,
   &.router-link-active {
-    background: rgba(52, 152, 219, 0.25);
+    background: color-mix(in srgb, var(--nav-hue, var(--pharma-nav-accent)) 24%, transparent);
     color: #fff;
     font-weight: 500;
-    border-left-color: var(--pharma-nav-active);
+    border-left-color: var(--nav-hue, var(--pharma-nav-active));
   }
 }
 

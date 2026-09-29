@@ -3,6 +3,8 @@ package com.kobe.warehouse.service.facturation.integration;
 import static org.mockito.Mockito.mock;
 
 import com.kobe.warehouse.repository.AvoirTiersPayantRepository;
+import com.kobe.warehouse.repository.ClientTiersPayantRepository;
+import com.kobe.warehouse.repository.ReinitialisationConsommationRepository;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.FactureTiersPayantRepository;
 import com.kobe.warehouse.repository.GroupeTiersPayantRepository;
@@ -40,6 +42,7 @@ import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
 import com.kobe.warehouse.service.report.pdf.RapprochementPdfReportService;
+import com.kobe.warehouse.service.sale.impl.ConsommationPlafondService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import jakarta.persistence.EntityManager;
@@ -88,6 +91,7 @@ final class FacturationServicesUnderTest {
     final AvoirService avoirService;
     final RapprochementService rapprochementService;
     final EditionDataService editionDataService;
+    final ConsommationPlafondService consommationPlafondService;
     final RecapitulatifMensuelService recapitulatifMensuelService;
     final PlanificationFacturationService planificationFacturationService;
 
@@ -156,6 +160,19 @@ final class FacturationServicesUnderTest {
             invoiceGenerationCodeGeneratorService
         );
 
+        this.consommationPlafondService = new ConsommationPlafondService(
+            IntegrationPostgresDatabase.bean(ClientTiersPayantRepository.class),
+            tiersPayantRepository,
+            IntegrationPostgresDatabase.bean(ReinitialisationConsommationRepository.class)
+        );
+        java.util.List.of(
+            editionAllService,
+            editionBySelectionBonsService,
+            editionByTiersPayantService,
+            editionByTypeTiersPayantService,
+            editionByGroupTiersService
+        ).forEach(edition -> edition.setConsommationPlafondService(consommationPlafondService));
+
         this.avoirService = new AvoirServiceImpl(
             avoirTiersPayantRepository,
             factureTiersPayantRepository,
@@ -172,6 +189,7 @@ final class FacturationServicesUnderTest {
             new ReportExcelExportService(),
             appConfigurationService
         );
+        ((EditionDataServiceImpl) this.editionDataService).setConsommationPlafondService(consommationPlafondService);
 
         RapprochementServiceImpl rapprochement = new RapprochementServiceImpl(
             appConfigurationService,

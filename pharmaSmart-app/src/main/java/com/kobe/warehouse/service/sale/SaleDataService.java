@@ -63,6 +63,8 @@ import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -210,8 +212,9 @@ public class SaleDataService {
         };
     }
 
-    public List<SaleDTO> customerPurchases(Integer customerId, LocalDate fromDate,
-                                           LocalDate toDate) {
+    /** Achats clôturés d'un client, du plus récent au plus ancien. */
+    public Page<SaleDTO> customerPurchases(Integer customerId, LocalDate fromDate,
+                                           LocalDate toDate, Pageable pageable) {
         Specification<Sales> specification = Specification.where(
             salesRepository.filterByCustomerId(customerId));
         specification = specification.and(
@@ -219,7 +222,8 @@ public class SaleDataService {
         if (fromDate != null) {
             specification = specification.and(salesRepository.between(fromDate, toDate));
         }
-        return salesRepository.findAll(specification).stream().map(this::buildSaleDTO).toList();
+        Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "updatedAt"));
+        return salesRepository.findAll(specification, page).map(this::buildSaleDTO);
     }
 
     public SaleDTO findOne(SaleId id) {

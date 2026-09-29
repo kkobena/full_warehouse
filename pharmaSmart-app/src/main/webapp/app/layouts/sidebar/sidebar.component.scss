@@ -5,6 +5,9 @@
   bottom: 0;
   width: 280px;
   background: var(--pharma-nav-bg);
+  background: var(--pharma-nav-gradient-v);
+  border-right: 3px solid transparent;
+  border-image: var(--pharma-nav-rainbow-v) 1;
   color: var(--pharma-nav-fg);
   display: flex;
   flex-direction: column;
@@ -57,6 +60,10 @@
         font-size: 1.5rem;
         font-weight: 700;
         color: var(--pharma-nav-accent);
+        background: linear-gradient(90deg, var(--nav-hue-emerald), var(--nav-hue-blue), var(--nav-hue-violet));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
         white-space: nowrap;
       }
 
@@ -181,6 +188,7 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        color: var(--nav-hue, inherit);
       }
 
       .nav-label {
@@ -198,7 +206,7 @@
 
       // Le chevron pivote quand le flyout de l'entrée est ouvert
       &.has-children.expanded {
-        background: var(--pharma-nav-accent-soft);
+        background: color-mix(in srgb, var(--nav-hue, var(--pharma-nav-accent)) 18%, transparent);
         color: #fff;
 
         .nav-arrow {
@@ -207,15 +215,23 @@
       }
 
       &:hover {
-        background: var(--pharma-nav-accent-soft);
+        background: color-mix(in srgb, var(--nav-hue, var(--pharma-nav-accent)) 18%, transparent);
         color: #fff;
       }
 
       &.active,
       &.router-link-active {
-        background: linear-gradient(90deg, var(--pharma-nav-accent) 0%, rgba(52, 152, 219, 0.8) 100%);
+        background: linear-gradient(
+          90deg,
+          color-mix(in srgb, var(--nav-hue, var(--pharma-nav-accent)) 35%, transparent) 0%,
+          color-mix(in srgb, var(--nav-hue, var(--pharma-nav-accent)) 10%, transparent) 100%
+        );
         color: #fff;
         font-weight: 600;
+
+        .nav-icon {
+          color: #fff;
+        }
 
         &::before {
           content: '';
@@ -224,7 +240,7 @@
           top: 0;
           bottom: 0;
           width: 4px;
-          background: var(--pharma-nav-active);
+          background: var(--nav-hue, var(--pharma-nav-active));
         }
       }
 

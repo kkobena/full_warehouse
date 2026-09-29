@@ -40,6 +40,7 @@ export interface SaleShortcutCallbacks {
   removeDiscount?: () => void;
   saveAsPresale?: () => void;
   savePresale?: () => void;
+  openCustomerRecord?: () => void;
 }
 
 export interface KeyboardShortcutsConfig {
@@ -297,6 +298,16 @@ function buildShortcuts(
     category: 'Navigation Rapide',
     action: () => cb.focusCustomer(),
   });
+
+  if (cb.openCustomerRecord) {
+    shortcuts.push({
+      key: 'v',
+      alt: true,
+      description: 'Voir la fiche client',
+      category: 'Navigation Rapide',
+      action: () => cb.openCustomerRecord!(),
+    });
+  }
 
   shortcuts.push({
     key: 'f',

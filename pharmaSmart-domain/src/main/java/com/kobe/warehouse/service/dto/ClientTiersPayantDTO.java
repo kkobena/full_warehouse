@@ -1,11 +1,13 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.ClientTiersPayant;
+import com.kobe.warehouse.domain.ClientTiersPayantTauxHistorique;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ClientTiersPayantDTO {
 
@@ -23,6 +25,11 @@ public class ClientTiersPayantDTO {
     private int categorie;
     private Integer taux;
     private boolean plafondAbsolu;
+    private List<ClientTiersPayantTauxHistorique> tauxHistorique = List.of();
+    /** Fin de validité de la carte d'assuré pour cet organisme. */
+    private java.time.LocalDate dateFinValidite;
+    /** Consommation en cours face au plafond de l'organisme (cf. ConsommationPlafondService). */
+    private long consommation;
     private TiersPayantDto tiersPayant;
     private TiersPayantCategorie typeTiersPayant;
     private String numBon;
@@ -46,6 +53,15 @@ public class ClientTiersPayantDTO {
         this.statut = c.getStatut();
         this.taux = c.getTaux();
         this.plafondAbsolu = cTiersPayant.isPlafondAbsolu();
+        this.dateFinValidite = c.getDateFinValidite();
+        this.consommation = c.getConsoMensuelle() == null ? 0L : c.getConsoMensuelle();
+        if (c.getClientTiersPayantTauxHistoriques() != null) {
+            this.tauxHistorique = c
+                .getClientTiersPayantTauxHistoriques()
+                .stream()
+                .sorted(java.util.Comparator.comparing(ClientTiersPayantTauxHistorique::updatedAt).reversed())
+                .toList();
+        }
         this.tiersPayantId = cTiersPayant.getId();
         this.typeTiersPayant = cTiersPayant.getCategorie();
         this.tiersPayant = new TiersPayantDto()
@@ -170,6 +186,30 @@ public class ClientTiersPayantDTO {
     public ClientTiersPayantDTO setTaux(Integer taux) {
         this.taux = taux;
         return this;
+    }
+
+    public java.time.LocalDate getDateFinValidite() {
+        return dateFinValidite;
+    }
+
+    public void setDateFinValidite(java.time.LocalDate dateFinValidite) {
+        this.dateFinValidite = dateFinValidite;
+    }
+
+    public long getConsommation() {
+        return consommation;
+    }
+
+    public void setConsommation(long consommation) {
+        this.consommation = consommation;
+    }
+
+    public List<ClientTiersPayantTauxHistorique> getTauxHistorique() {
+        return tauxHistorique;
+    }
+
+    public void setTauxHistorique(List<ClientTiersPayantTauxHistorique> tauxHistorique) {
+        this.tauxHistorique = tauxHistorique;
     }
 
     public boolean isPlafondAbsolu() {

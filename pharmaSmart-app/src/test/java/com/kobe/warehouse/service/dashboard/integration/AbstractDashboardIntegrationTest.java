@@ -70,7 +70,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * {@code system} et le magasin viennent des migrations.
  */
 @Testcontainers(disabledWithoutDocker = true)
-abstract class AbstractDashboardIntegrationTest {
+// Public : ses fabriques (clients, ventes différées) servent aussi aux tests de la fiche client.
+public abstract class AbstractDashboardIntegrationTest {
 
     protected static final int MAGASIN_ID = 1;
     protected static final int STORAGE_RAYON_ID = 1;

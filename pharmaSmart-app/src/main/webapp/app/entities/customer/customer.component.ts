@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   OnDestroy,
   OnInit,
@@ -32,6 +33,7 @@ import {
   NgbConfirmDialogService
 } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import {NotificationService} from "../../shared/services/notification.service";
+import {AbilityService} from "app/core/auth/ability.service";
 import {
   AppSplitButtonItem,
   AppTableLazyLoadEvent,
@@ -74,7 +76,14 @@ import {
 export class CustomerComponent implements OnInit, OnDestroy {
   translate = inject(TranslateService);
   protected readonly customers = signal<ICustomer[] | undefined>(undefined);
-  types: string[] = ["TOUT", "ASSURE", "STANDARD"];
+  // Carnet et dépôt sont des assurés rattachés à un tiers payant de cette catégorie.
+  types = [
+    {value: "TOUT", label: "Tous"},
+    {value: "ASSURE", label: "Assurés"},
+    {value: "CARNET", label: "Carnets"},
+    {value: "DEPOT", label: "Dépôts"},
+    {value: "STANDARD", label: "Standards"}
+  ];
   statuts: object[] = [
     {value: "ENABLE", label: "Actifs"},
     {value: "DISABLE", label: "Désactivés"}
@@ -89,8 +98,17 @@ export class CustomerComponent implements OnInit, OnDestroy {
   protected readonly ascending = signal<boolean | undefined>(undefined);
   protected readonly loading = signal<boolean | undefined>(undefined);
   protected readonly ngbPaginationPage = signal(1);
-  protected readonly newCustomerbuttons = signal<AppSplitButtonItem[] | undefined>(undefined);
-  displayTiersPayantAction = true;
+  private readonly ability = inject(AbilityService);
+  protected readonly canCreate = this.ability.canSignal("create", "customer");
+  protected readonly canEdit = this.ability.canSignal("edit", "customer");
+  protected readonly canDelete = this.ability.canSignal("delete", "customer");
+  protected readonly newCustomerbuttons = computed<AppSplitButtonItem[]>(() => [
+    {label: "Assuré", icon: "pi pi-user-plus", command: () => this.addAssureCustomer("ASSURANCE")},
+    {label: "Carnet", icon: "pi pi-user-plus", command: () => this.addCarnet("CARNET")},
+    {label: "Dépôt", icon: "pi pi-user-plus", command: () => this.addCarnet("DEPOT")},
+    {label: "Standard", icon: "pi pi-user-plus", command: () => this.addUninsuredCustomer()},
+    {label: "Importer (JSON)", icon: "pi pi-upload", command: () => this.openJsonImport()}
+  ]);
   responseDialog = false;
   protected customerService = inject(CustomerService);
   protected activatedRoute = inject(ActivatedRoute);
@@ -101,31 +119,6 @@ export class CustomerComponent implements OnInit, OnDestroy {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
 
-
-  constructor() {
-    this.newCustomerbuttons.set([
-      {
-        label: "Assuré",
-        icon: "pi pi-user-plus",
-        command: () => this.addAssureCustomer("ASSURANCE")
-      },
-      {
-        label: "Carnet",
-        icon: "pi pi-user-plus",
-        command: () => this.addCarnet("CARNET")
-      },
-      {
-        label: "Dépôt",
-        icon: "pi pi-user-plus",
-        command: () => this.addCarnet("DEPOT")
-      },
-      {
-        label: "Standard",
-        icon: "pi pi-user-plus",
-        command: () => this.addUninsuredCustomer()
-      }
-    ]);
-  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -210,8 +203,8 @@ export class CustomerComponent implements OnInit, OnDestroy {
     this.handleServiceCall(this.customerService.deleteAssuredCustomer(customer.id), () => this.loadPage());
   }
 
-  lock(customer: ICustomer): void {
-    this.handleServiceCall(this.customerService.lock(customer.id), () => this.loadPage());
+  private changeStatus(customer: ICustomer, status: "ENABLE" | "DISABLE"): void {
+    this.handleServiceCall(this.customerService.changeStatus(customer.id, status), () => this.loadPage());
   }
 
   confirmRemove(customer: ICustomer): void {
@@ -229,7 +222,19 @@ export class CustomerComponent implements OnInit, OnDestroy {
   }
 
   confirmDesactivation(customer: ICustomer): void {
-    this.confirmDialog.onConfirm(() => this.lock(customer), "DESACTIVATION DE CLIENT", "Voulez-vous vraiment désactiver ce client ?");
+    this.confirmDialog.onConfirm(
+      () => this.changeStatus(customer, "DISABLE"),
+      "DESACTIVATION DE CLIENT",
+      "Voulez-vous vraiment désactiver ce client ?"
+    );
+  }
+
+  confirmReactivation(customer: ICustomer): void {
+    this.confirmDialog.onConfirm(
+      () => this.changeStatus(customer, "ENABLE"),
+      "REACTIVATION DE CLIENT",
+      "Voulez-vous vraiment réactiver ce client ?"
+    );
   }
 
   sort(): string[] {

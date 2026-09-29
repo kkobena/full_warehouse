@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { DD_MM_YYYY, DD_MM_YYYY_HH_MM_SS } from '../constants/input.constants';
-import { IDeliveryItem } from '../model/delivery-item';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 export const formatNumberToString = (cellValue: any): string | null => {
@@ -44,6 +43,19 @@ export const TODAY_NGB_DATE = (): NgbDateStruct => {
  */
 export const NGB_DATE_TO_ISO = (date: NgbDateStruct | null): string | null =>
   date ? `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}` : null;
+
+/** Inverse de {@link NGB_DATE_TO_ISO} : `YYYY-MM-DD` vers `NgbDateStruct`, sans passage par `Date`. */
+export const ISO_TO_NGB_DATE = (iso: string | null | undefined): NgbDateStruct | null => {
+  if (!iso) {
+    return null;
+  }
+  const [year, month, day] = iso.slice(0, 10).split('-').map(Number);
+  return { year, month, day };
+};
+
+/** Une date `YYYY-MM-DD` antérieure à aujourd'hui (carte d'assuré expirée…). */
+export const IS_ISO_DATE_PAST = (iso: string | null | undefined): boolean =>
+  !!iso && iso.slice(0, 10) < NGB_DATE_TO_ISO(TODAY_NGB_DATE())!;
 export const DATE_FORMAT_FROM_STRING_FR = (date: string): string | null => {
   if (date) {
     const dateArray = date.split('/');

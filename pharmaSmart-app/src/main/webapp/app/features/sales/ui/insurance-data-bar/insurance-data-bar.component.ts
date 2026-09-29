@@ -21,6 +21,9 @@ import { FormsModule } from '@angular/forms';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonComponent, IconFieldComponent, KeyFilterDirective } from '../../../../shared/ui';
 import { IClientTiersPayant } from '../../../../shared/model';
+import { DatePipe } from '@angular/common';
+import { IS_ISO_DATE_PAST } from '../../../../shared/util/warehouse-util';
+import { FicheClientPanelService } from '../../data-access/services/fiche-client-panel.service';
 
 @Component({
   selector: 'app-insurance-data-bar',
@@ -30,6 +33,7 @@ import { IClientTiersPayant } from '../../../../shared/model';
     IconFieldComponent,
     KeyFilterDirective,
     NgbTooltip,
+    DatePipe,
   ],
   templateUrl: './insurance-data-bar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -57,6 +61,8 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
   readonly focusProductSearch = output<void>();
 
   protected readonly search = signal<string>('');
+  /** Carte d'assuré dont la date de fin est passée : à signaler avant de servir. */
+  protected readonly carteExpiree = IS_ISO_DATE_PAST;
   protected selectedTiersPayants: WritableSignal<IClientTiersPayant[]> = signal<IClientTiersPayant[]>([]);
   protected divClass: Signal<string> = computed(() => this.getDivClassForCount(this.selectedTiersPayants().length));
   protected divCustomer: Signal<string> = computed(() => this.getDivCustomerClassForCount(this.selectedTiersPayants().length));
@@ -295,5 +301,11 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
       this.selectedTiersPayants.set([customer.tiersPayants[0]]);
     }
     this.tiersPayantsChanged.emit(this.selectedTiersPayants());
+  }
+
+  private readonly ficheClient = inject(FicheClientPanelService);
+
+  protected voirFiche(): void {
+    this.ficheClient.ouvrir(this.customer()?.id);
   }
 }

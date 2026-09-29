@@ -1,0 +1,106 @@
+// ====================================
+// COULEURS DES ICÔNES
+// ====================================
+//
+// Une couleur par famille de sens, pas par icône : au-delà d'une douzaine de teintes l'œil ne
+// les distingue plus, alors qu'une même icône toujours de la même couleur se reconnaît d'un coup
+// d'œil. Les icônes d'état gardent leur sens (vert, rouge, ambre, bleu).
+
+// Palette : `--icon-*` pour fond clair (niveau 600, contraste ≥ 3:1 sur blanc),
+// `--nav-hue-*` pour la navigation sombre (niveau 300).
+:root {
+  --icon-emerald: #059669;
+  --icon-blue: #2563eb;
+  --icon-amber: #d97706;
+  --icon-violet: #7c3aed;
+  --icon-rose: #e11d48;
+  --icon-teal: #0d9488;
+  --icon-orange: #ea580c;
+  --icon-indigo: #4f46e5;
+  --icon-lime: #65a30d;
+  --icon-fuchsia: #c026d3;
+  --icon-cyan: #0891b2;
+  --icon-pink: #db2777;
+  --icon-green: #15803d;
+  --icon-slate: #64748b;
+
+  --icon-success: #16a34a;
+  --icon-danger: #dc2626;
+  --icon-warning: #d97706;
+  --icon-info: #0284c7;
+
+  --nav-hue-emerald: #6ee7b7;
+  --nav-hue-blue: #93c5fd;
+  --nav-hue-amber: #fcd34d;
+  --nav-hue-violet: #c4b5fd;
+  --nav-hue-rose: #fda4af;
+  --nav-hue-teal: #5eead4;
+  --nav-hue-orange: #fdba74;
+  --nav-hue-indigo: #a5b4fc;
+  --nav-hue-lime: #bef264;
+  --nav-hue-fuchsia: #f0abfc;
+  --nav-hue-cyan: #67e8f9;
+  --nav-hue-pink: #f9a8d4;
+}
+
+$icon-families: (
+  // Ventes & caisse
+  emerald: (shopping-cart, shopping-bag, shop, cart-plus, cart-arrow-down, cart-minus),
+  // Argent
+  amber: (wallet, money-bill, dollar, euro, credit-card, calculator, lightbulb, bell, star, star-fill, trophy),
+  // Remises & promotions
+  fuchsia: (percentage, gift, tag, tags),
+  // Stock
+  orange: (box, warehouse, barcode, qrcode, objects-column),
+  // Logistique
+  blue: (truck, send, arrows-h, arrows-v, arrow-right-arrow-left, directions, globe, map, map-marker),
+  // Personnes & tiers
+  indigo: (user, users, user-plus, user-edit, user-minus, id-card, building, building-columns, briefcase, phone, envelope, at, address-book),
+  // Analyses
+  violet: (chart-bar, chart-line, chart-pie, chart-scatter, sort-amount-down, sort-amount-up, sort-amount-down-alt, sort-amount-up-alt, gauge),
+  // Temps
+  cyan: (clock, calendar, calendar-plus, calendar-minus, calendar-times, calendar-clock, history, hourglass, stopwatch),
+  // Documents
+  teal: (file, file-edit, file-plus, file-import, file-export, file-check, file-arrow-up, copy, clone, clipboard, book, bookmark, list, list-check, table, th-large, sitemap, align-justify, print, save, upload, download, cloud-upload, cloud-download, folder, folder-open, receipt, image),
+  rose: (file-pdf, flag, heart, heart-fill),
+  green: (file-excel, file-word),
+  // Réglages & sécurité
+  slate: (cog, cogs, sliders-h, sliders-v, wrench, lock, lock-open, unlock, shield, key, server, database, desktop, mobile, power-off, sign-out, sign-in, inbox),
+  // États
+  success: (check-circle, check-square, verified, thumbs-up),
+  danger: (times-circle, ban, trash, minus-circle, thumbs-down),
+  warning: (exclamation-triangle, exclamation-circle),
+  info: (info-circle, question-circle),
+);
+
+// `:where` : spécificité nulle, pour que tout style d'écran ou de composant l'emporte.
+// Les utilitaires `text-*` de Bootstrap sont en `!important` : ils gagnent de toute façon.
+@each $color, $icons in $icon-families {
+  @each $icon in $icons {
+    :where(.pi.pi-#{$icon}) {
+      color: var(--icon-#{$color});
+    }
+  }
+}
+
+// Contextes où l'icône doit suivre la couleur de son conteneur : fond plein, boutons (déjà
+// colorés par leur sévérité), élément actif, ligne sélectionnée, spinner.
+.btn .pi,
+.app-btn-icon,
+.badge .pi,
+.alert .pi,
+.toast .pi,
+.pi.pi-spin,
+.nav-link.active .pi,
+.list-group-item.active .pi,
+.dropdown-item.active .pi,
+.dropdown-item:active .pi,
+.page-item.active .pi,
+.pharma-nav-vertical-link.active .pi,
+.pharma-nav-sidebar-header .pi,
+.ligne-selected .pi,
+.ag-row-selected .pi,
+[class*='text-bg-'] .pi,
+:is(.bg-primary, .bg-secondary, .bg-success, .bg-danger, .bg-warning, .bg-info, .bg-dark) .pi {
+  color: inherit;
+}

@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 
-import { NavigationService, NavMenuActions } from './navigation.service';
+import { NAV_ACCENTS, NavigationService, NavMenuActions } from './navigation.service';
 import { LayoutService } from './layout.service';
 import { NavStore } from 'app/core/store/nav.store';
 import { AccountService } from 'app/core/auth/account.service';
@@ -84,7 +84,18 @@ describe('NavigationService', () => {
 
       expect(items).toHaveLength(1);
       expect(items[0].id).toBe('account');
-      expect(items[0].children?.map(c => c.id)).toEqual(['layout.toggle', 'account.login']);
+      expect(items[0].children?.map(c => c.id)).toEqual(['layout.toggle', 'theme', 'account.divider', 'account.login']);
+    });
+
+    it('coche le thème courant et bascule au clic', () => {
+      const themes = () => find(service.buildNavItems(noopActions), 'theme')!.children!;
+      expect(themes().map(t => t.id)).toEqual(['theme.menthe', 'theme.ardoise', 'theme.clair']);
+      expect(themes().filter(t => t.faIcon).map(t => t.id)).toEqual(['theme.menthe']);
+
+      themes()[1].click!();
+
+      expect(themes().filter(t => t.faIcon).map(t => t.id)).toEqual(['theme.ardoise']);
+      expect(document.documentElement.getAttribute('data-theme')).toBe('ardoise');
     });
 
     it('ajoute les paramètres serveur sous Tauri seulement', () => {
@@ -124,6 +135,19 @@ describe('NavigationService', () => {
 
       TestBed.inject(LayoutService).setLayoutMode('navbar');
       expect(find(service.buildNavItems(noopActions), 'layout.toggle')?.label).toBe('Menu vertical');
+    });
+
+    it('donne une teinte distincte à chaque entrée de premier niveau, reprise par ses sous-entrées', () => {
+      navTree.set(
+        Array.from({ length: NAV_ACCENTS.length - 1 }, (_, i) =>
+          node({ id: i + 1, code: `m${i}`, libelle: `M${i}`, ordre: i, routerLink: `/m${i}` }),
+        ),
+      );
+      const items = service.buildNavItems(noopActions);
+
+      expect(new Set(items.map(i => i.accent)).size).toBe(items.length);
+      const accountMenu = find(items, 'account')!;
+      expect(find(items, 'account.logout')?.accent).toBe(accountMenu.accent);
     });
   });
 

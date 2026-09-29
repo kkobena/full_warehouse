@@ -1,5 +1,7 @@
 import {inject, Injectable} from '@angular/core';
-import {catchError, EMPTY, finalize, map, Observable, of, tap} from 'rxjs';
+import {catchError, EMPTY, finalize, from, map, Observable, of, switchMap, tap} from 'rxjs';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {DepassementLimiteCredit, LimiteCreditModalComponent} from '../../ui/limite-credit-modal/limite-credit-modal.component';
 import {SalesStore} from '../store/sales.store';
 import {SalesApiService} from '../services/sales-api.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
@@ -17,6 +19,7 @@ export class SalePaymentFacade {
   private readonly apiService = inject(SalesApiService);
   private readonly notificationService = inject(NotificationService);
   private readonly printService = inject(PrintService);
+  private readonly modalService = inject(NgbModal);
 
   // ── Public methods ─────────────────────────────────────────
 
@@ -75,6 +78,11 @@ export class SalePaymentFacade {
         this.store.setIsSaving(false);
       }),
       catchError(error => {
+        // Vente à crédit au-delà de la limite de l'officine : dérogation tracée, puis nouvelle finalisation.
+        if (error?.error?.errorKey === 'limiteCreditDepassee' && error.error.payload) {
+          this.store.setIsSaving(false);
+          return this.demanderDerogationLimiteCredit(error.error.payload).pipe(switchMap(autorise => (autorise ? this.saveSale() : of(null))));
+        }
         console.error('Error saving sale:', error);
         const {errorMessage} = extractApiError(error, "Erreur lors de l'enregistrement de la vente");
         this.notificationService.error(errorMessage);
@@ -83,6 +91,15 @@ export class SalePaymentFacade {
         this.reloadAfterConflict(error, currentSale.saleId);
         return of(null);
       }),
+    );
+  }
+
+  private demanderDerogationLimiteCredit(depassement: DepassementLimiteCredit): Observable<boolean> {
+    const modalRef = this.modalService.open(LimiteCreditModalComponent, {backdrop: 'static', centered: true, size: 'md'});
+    modalRef.componentInstance.depassement = depassement;
+    return from(modalRef.result).pipe(
+      map(result => result === true),
+      catchError(() => of(false)),
     );
   }
 

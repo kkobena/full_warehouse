@@ -10,6 +10,8 @@
     <!-- Action Buttons -->
     <div class="customer-action-btn">
       @if (customer()) {
+        <app-button (clicked)="voirFiche()" ariaLabel="Voir la fiche client" ngbTooltip="Voir la fiche client (Alt+V)"
+                    icon="pi pi-id-card" severity="primary" size="small" [rounded]="true" [text]="true" />
         <!-- Edit button - opens popover to replace customer -->
         <app-button
           #editPopover="ngbPopover"

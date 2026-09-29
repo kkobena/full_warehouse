@@ -1,18 +1,54 @@
-import { Injectable } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { inject, Injectable, signal } from '@angular/core';
 
-/**
- * Historique : ce service pilotait un sélecteur multi-thèmes PrimeNG
- * (Aura/Lara/Material/Nora). Depuis le retrait de `primeng`/`@primeuix/themes`,
- * l'app n'a plus qu'un seul habillage visuel (Bootswatch "yeti" + tokens figés
- * dans `_pharma-tokens.scss`, cf. docs/PLAN-MIGRATION-PRIMENG-VERS-NGBOOTSTRAP.md §8.8).
- * Conservé en stub le temps qu'un futur thème custom PharmaSmart (§8.8.2) ne le
- * remplace, pour ne pas casser les injections existantes.
- */
+export type ThemeName = 'ardoise' | 'menthe' | 'clair';
+
+export interface ThemeOption {
+  name: ThemeName;
+  label: string;
+}
+
+/** Mêmes noms que `$pharma-themes` dans `_pharma-themes.scss` ; le défaut en tête. */
+export const THEMES: readonly ThemeOption[] = [
+  { name: 'menthe', label: 'Menthe' },
+  { name: 'ardoise', label: 'Ardoise' },
+  { name: 'clair', label: 'Clair' },
+];
+
+const DEFAULT_THEME: ThemeName = 'menthe';
+const THEME_STORAGE_KEY = 'pharmasmart_theme';
+
+/** Thème du poste : posé en `data-theme` sur `<html>`, mémorisé dans le navigateur. */
 @Injectable({
   providedIn: 'root',
 })
 export class ThemeService {
+  private readonly document = inject(DOCUMENT);
+
+  readonly theme = signal<ThemeName>(this.loadFromStorage());
+
   loadCurrentTheme(): void {
-    // Aucun thème alternatif à charger — voir le commentaire de classe.
+    this.apply(this.theme());
+  }
+
+  setTheme(name: ThemeName): void {
+    this.theme.set(name);
+    this.apply(name);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, name);
+    } catch { /* silently ignore storage errors */ }
+  }
+
+  private apply(name: ThemeName): void {
+    this.document.documentElement.setAttribute('data-theme', name);
+  }
+
+  private loadFromStorage(): ThemeName {
+    try {
+      const stored = localStorage.getItem(THEME_STORAGE_KEY);
+      return THEMES.some(t => t.name === stored) ? (stored as ThemeName) : DEFAULT_THEME;
+    } catch {
+      return DEFAULT_THEME;
+    }
   }
 }

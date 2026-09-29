@@ -32,7 +32,7 @@
   <nav aria-label="Menu principal" class="sidebar-nav">
     <ul class="nav-list">
       @for (item of navItems(); track item.id) {
-        <li class="nav-item">
+        <li [style.--nav-hue]="item.accent" class="nav-item">
           <!--
             `!item.children?.length` et non `!item.children` : un tableau vide est *truthy*, et un
             menu dont tous les enfants sont filtrés en ressortait avec `children: []`. Il n'était

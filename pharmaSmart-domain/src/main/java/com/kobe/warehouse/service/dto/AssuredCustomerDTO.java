@@ -26,6 +26,17 @@ public class AssuredCustomerDTO extends CustomerDTO {
     private LocalDate datNaiss;
 
     private String num;
+    /** Fin de validité de la carte d'assuré de l'organisme principal. */
+    private java.time.LocalDate dateFinValidite;
+
+    public java.time.LocalDate getDateFinValidite() {
+        return dateFinValidite;
+    }
+
+    public AssuredCustomerDTO setDateFinValidite(java.time.LocalDate dateFinValidite) {
+        this.dateFinValidite = dateFinValidite;
+        return this;
+    }
     private Integer assureId;
     private String numAyantDroit;
     private Integer remiseId;
@@ -67,6 +78,7 @@ public class AssuredCustomerDTO extends CustomerDTO {
                 this.priorite = pr.getPriorite();
                 this.taux = pr.getTaux();
                 this.num = pr.getNum();
+                this.dateFinValidite = pr.getDateFinValidite();
                 this.plafondAbsolu = pr.isPlafondAbsolu();
                 this.tiersPayant = buildTiersPayan(pr);
                 this.typeTiersPayant = pr.getTypeTiersPayant();

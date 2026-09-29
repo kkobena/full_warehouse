@@ -3,6 +3,9 @@ package com.kobe.warehouse.service.reglement.integration;
 import static org.mockito.Mockito.mock;
 
 import com.kobe.warehouse.repository.BanqueRepository;
+import com.kobe.warehouse.repository.ClientTiersPayantRepository;
+import com.kobe.warehouse.repository.ReinitialisationConsommationRepository;
+import com.kobe.warehouse.repository.TiersPayantRepository;
 import com.kobe.warehouse.repository.CustomerRepository;
 import com.kobe.warehouse.repository.DifferePaymentRepository;
 import com.kobe.warehouse.repository.FacturationRepository;
@@ -34,6 +37,7 @@ import com.kobe.warehouse.service.reglement.service.ReglementGroupeFactureServic
 import com.kobe.warehouse.service.reglement.service.ReglementGroupeSelectionFactureService;
 import com.kobe.warehouse.service.reglement.service.ReglementReportService;
 import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
+import com.kobe.warehouse.service.sale.impl.ConsommationPlafondService;
 import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import jakarta.persistence.EntityManager;
 
@@ -79,6 +83,7 @@ final class ReglementServicesUnderTest {
     final ReglementDataService reglementDataService;
     final ReglementDiffereService reglementDiffereService;
     final ReglementRegistry reglementRegistry;
+    final ConsommationPlafondService consommationPlafondService;
 
     // --- rouages réels utiles aux fabriques du jeu d'essai ---
     final ReferenceService referenceService;
@@ -155,6 +160,16 @@ final class ReglementServicesUnderTest {
             referenceService
         );
 
+        this.consommationPlafondService = new ConsommationPlafondService(
+            IntegrationPostgresDatabase.bean(ClientTiersPayantRepository.class),
+            IntegrationPostgresDatabase.bean(TiersPayantRepository.class),
+            IntegrationPostgresDatabase.bean(ReinitialisationConsommationRepository.class)
+        );
+        reglementFactureModeAllService.setConsommationPlafondService(consommationPlafondService);
+        reglementFactureSelectionneesService.setConsommationPlafondService(consommationPlafondService);
+        reglementGroupeFactureService.setConsommationPlafondService(consommationPlafondService);
+        reglementGroupeSelectionFactureService.setConsommationPlafondService(consommationPlafondService);
+
         this.reglementRegistry = new ReglementRegistry(
             reglementGroupeSelectionFactureService,
             reglementGroupeFactureService,
@@ -171,6 +186,7 @@ final class ReglementServicesUnderTest {
             reglementReportService,
             invoiceReceiptService
         );
+        ((ReglementDataServiceImpl) this.reglementDataService).setConsommationPlafondService(consommationPlafondService);
 
         this.reglementDiffereService = new ReglementDiffereServiceImpl(
             differePaymentRepository,

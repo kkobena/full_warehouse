@@ -15,6 +15,12 @@ export interface IClientTiersPayant {
   categorie?: number;
   numBon?: string;
   typeTiersPayant?: string;
+  /** Fin de validité de la carte d'assuré pour cet organisme (ISO). */
+  dateFinValidite?: string;
+  /** Consommation du mois en cours, face au plafond de l'organisme. */
+  consommation?: number;
+  /** Changements de taux, du plus récent au plus ancien. */
+  tauxHistorique?: { updatedAt: string; taux: number }[];
 }
 
 export class ClientTiersPayant implements IClientTiersPayant {

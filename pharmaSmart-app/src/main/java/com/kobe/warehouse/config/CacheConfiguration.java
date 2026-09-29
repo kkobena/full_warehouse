@@ -61,6 +61,7 @@ public class CacheConfiguration {
                 buildCache(EntityConstant.APP_NOTIF_AVOIR_SMS_ENABLED_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_DELAI_RETOUR_CLIENT_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_DELAI_VALIDITE_AVOIR_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_LIMITE_CREDIT_CLIENT_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
 
                 buildCache("dailySalesReport", 15, TimeUnit.MINUTES, 100),
                 buildCache("produits", 15, TimeUnit.MINUTES, 100),

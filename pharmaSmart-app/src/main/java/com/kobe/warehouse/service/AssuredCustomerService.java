@@ -59,6 +59,7 @@ public interface AssuredCustomerService {
         o.setNum(Objects.nonNull(dto.getNum()) ? dto.getNum().trim() : null);
         o.setPriorite(PrioriteTiersPayant.R0);
         o.setTaux(dto.getTaux());
+        o.setDateFinValidite(dto.getDateFinValidite());
         o.setStatut(TiersPayantStatut.ACTIF);
         return o;
     }
@@ -68,6 +69,7 @@ public interface AssuredCustomerService {
         o.setTiersPayant(new TiersPayant().setId(dto.getTiersPayantId()));
         o.setNum(Objects.nonNull(dto.getNum()) ? dto.getNum().trim() : null);
         o.setTaux(dto.getTaux());
+        o.setDateFinValidite(dto.getDateFinValidite());
         return o;
     }
 
@@ -80,6 +82,7 @@ public interface AssuredCustomerService {
         o.setNum(Objects.nonNull(dto.getNum()) ? dto.getNum().trim() : null);
         o.setPriorite(dto.getPriorite());
         o.setTaux(dto.getTaux());
+        o.setDateFinValidite(dto.getDateFinValidite());
         o.setStatut(TiersPayantStatut.ACTIF);
         return o;
     }
@@ -145,6 +148,7 @@ public interface AssuredCustomerService {
             o.setNum(c.getNum());
             o.setPriorite(c.getPriorite());
             o.setTaux(c.getTaux());
+            o.setDateFinValidite(c.getDateFinValidite());
             o.setStatut(TiersPayantStatut.ACTIF);
             o.setUpdated(o.getCreated());
             o.setAssuredCustomer(assuredCustomer);
@@ -157,6 +161,7 @@ public interface AssuredCustomerService {
         o.setNum(c.getNum());
         o.setPriorite(c.getPriorite());
         o.setTaux(c.getTaux());
+        o.setDateFinValidite(c.getDateFinValidite());
         o.setAssuredCustomer(assuredCustomer);
         o.setTiersPayant(new TiersPayant().setId(c.getTiersPayantId()));
         assuredCustomer.getClientTiersPayants().add(o);

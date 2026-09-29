@@ -4,6 +4,20 @@ import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.service.CustomerDataService;
 import com.kobe.warehouse.service.ImportationCustomer;
 import com.kobe.warehouse.service.UninsuredCustomerService;
+import com.kobe.warehouse.service.customer.AlerteSanteDTO;
+import com.kobe.warehouse.service.customer.CustomerFicheService;
+import com.kobe.warehouse.service.customer.DerogationAlerteSanteDTO;
+import com.kobe.warehouse.service.customer.DossierSanteDTO;
+import com.kobe.warehouse.service.customer.DossierSanteService;
+import com.kobe.warehouse.service.customer.DerogationLimiteCreditDTO;
+import com.kobe.warehouse.service.customer.LimiteCreditService;
+import com.kobe.warehouse.service.customer.RelanceDiffereDTO;
+import com.kobe.warehouse.service.customer.RelanceDiffereService;
+import com.kobe.warehouse.service.customer.SituationCreditDTO;
+import com.kobe.warehouse.service.customer.CustomerSyntheseDTO;
+import com.kobe.warehouse.service.customer.ProduitDelivreDTO;
+import com.kobe.warehouse.service.reglement.differe.dto.DiffereDTO;
+import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereWrapperDTO;
 import com.kobe.warehouse.service.dto.CustomerDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
@@ -37,6 +51,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.List;
+import com.kobe.warehouse.security.navaccess.NavAction;
 import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
@@ -53,12 +68,29 @@ public class CustomerResource {
     private final SaleDataService saleService;
     private final UninsuredCustomerService uninsuredCustomerService;
     private final ImportationCustomer importationCustomer;
+    private final CustomerFicheService customerFicheService;
+    private final DossierSanteService dossierSanteService;
+    private final LimiteCreditService limiteCreditService;
+    private final RelanceDiffereService relanceDiffereService;
 
 
     @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
-    public CustomerResource(CustomerDataService customerDataService, SaleDataService saleService, UninsuredCustomerService uninsuredCustomerService, ImportationCustomer importationCustomer) {
+    public CustomerResource(
+        CustomerDataService customerDataService,
+        SaleDataService saleService,
+        UninsuredCustomerService uninsuredCustomerService,
+        ImportationCustomer importationCustomer,
+        CustomerFicheService customerFicheService,
+        DossierSanteService dossierSanteService,
+        LimiteCreditService limiteCreditService,
+        RelanceDiffereService relanceDiffereService
+    ) {
+        this.limiteCreditService = limiteCreditService;
+        this.relanceDiffereService = relanceDiffereService;
+        this.customerFicheService = customerFicheService;
+        this.dossierSanteService = dossierSanteService;
         this.customerDataService = customerDataService;
         this.saleService = saleService;
         this.uninsuredCustomerService = uninsuredCustomerService;
@@ -91,10 +123,12 @@ public class CustomerResource {
     public ResponseEntity<List<SaleDTO>> customerPurchases(
         @RequestParam(value = "customerId") Integer id,
         @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) LocalDate toDate
+        @RequestParam(value = "toDate", required = false) LocalDate toDate,
+        Pageable pageable
     ) {
-        List<SaleDTO> data = saleService.customerPurchases(id, fromDate, toDate);
-        return ResponseEntity.ok().body(data);
+        Page<SaleDTO> page = saleService.customerPurchases(id, fromDate, toDate, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @PostMapping("/customers/uninsured")
@@ -128,6 +162,104 @@ public class CustomerResource {
     ) {
 
         return ResponseEntity.ok().body(uninsuredCustomerService.fetch(search));
+    }
+
+    // ── Fiche client 360° (docs/PLAN-FICHE-CLIENT.md, lot 1) : lectures bornées au client ──
+
+    @GetMapping("/customers/{id}/synthese")
+    public ResponseEntity<CustomerSyntheseDTO> getSynthese(@PathVariable Integer id) {
+        return ResponseEntity.ok(customerFicheService.synthese(id));
+    }
+
+    @GetMapping("/customers/{id}/produits-delivres")
+    public ResponseEntity<List<ProduitDelivreDTO>> getProduitsDelivres(
+        @PathVariable Integer id,
+        @RequestParam(value = "fromDate") LocalDate fromDate,
+        @RequestParam(value = "toDate") LocalDate toDate,
+        @RequestParam(value = "search", required = false) String search,
+        Pageable pageable
+    ) {
+        Page<ProduitDelivreDTO> page = customerFicheService.produitsDelivres(id, fromDate, toDate, search, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /** Différés non soldés du client ; 204 s'il n'en a aucun. */
+    @GetMapping("/customers/{id}/differes")
+    public ResponseEntity<DiffereDTO> getDifferes(@PathVariable Integer id) {
+        return customerFicheService.differes(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
+    }
+
+    @GetMapping("/customers/{id}/reglements-differes")
+    public ResponseEntity<List<ReglementDiffereWrapperDTO>> getReglementsDifferes(
+        @PathVariable Integer id,
+        @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) LocalDate toDate,
+        Pageable pageable
+    ) {
+        Page<ReglementDiffereWrapperDTO> page = customerFicheService.reglementsDifferes(id, fromDate, toDate, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    // ── Sécurité du patient (docs/PLAN-FICHE-CLIENT.md, lot 2) ──
+
+    @GetMapping("/customers/{id}/dossier-sante")
+    public ResponseEntity<DossierSanteDTO> getDossierSante(@PathVariable Integer id) {
+        return ResponseEntity.ok(dossierSanteService.dossier(id));
+    }
+
+    @PutMapping("/customers/{id}/dossier-sante")
+    public ResponseEntity<DossierSanteDTO> updateDossierSante(@PathVariable Integer id, @RequestBody DossierSanteDTO dossier) {
+        return ResponseEntity.ok(dossierSanteService.enregistrer(id, dossier));
+    }
+
+    /** Alertes levées par l'ajout du produit à une vente de ce client. */
+    @GetMapping("/customers/{id}/alertes-sante")
+    public ResponseEntity<List<AlerteSanteDTO>> getAlertesSante(@PathVariable Integer id, @RequestParam Integer produitId) {
+        return ResponseEntity.ok(dossierSanteService.alertes(id, produitId));
+    }
+
+    /** Délivrance malgré une alerte bloquante : droit {@code pr-forcer-alerte-sante} ou clé d'un collègue qui le détient. */
+    @PostMapping("/customers/{id}/alertes-sante/derogations")
+    public ResponseEntity<Void> derogerAlerteSante(@PathVariable Integer id, @Valid @RequestBody DerogationAlerteSanteDTO derogation) {
+        dossierSanteService.deroger(id, derogation);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ── Crédit (docs/PLAN-FICHE-CLIENT.md, lot 3) ──
+
+    @GetMapping("/customers/{id}/limite-credit")
+    public ResponseEntity<SituationCreditDTO> getSituationCredit(@PathVariable Integer id) {
+        return ResponseEntity.ok(limiteCreditService.situation(id));
+    }
+
+    /** Vente à crédit au-delà de la limite : droit {@code pr-depasser-limite-credit} ou clé d'un collègue qui le détient. */
+    @PostMapping("/customers/{id}/limite-credit/derogations")
+    public ResponseEntity<Void> derogerLimiteCredit(@PathVariable Integer id, @Valid @RequestBody DerogationLimiteCreditDTO derogation) {
+        limiteCreditService.deroger(id, derogation);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/customers/{id}/relances-differes")
+    @RequiresNavAccess({ "customer", "differes", "ventes", "nouvelle-vente", "nouvelle-prevente" })
+    public ResponseEntity<List<RelanceDiffereDTO>> getRelancesDifferes(@PathVariable Integer id) {
+        return ResponseEntity.ok(relanceDiffereService.historique(id));
+    }
+
+    /** Relance SMS du client pour ses différés ; ouverte à qui peut consulter sa fiche. */
+    @PostMapping("/customers/{id}/relances-differes")
+    @RequiresNavAccess(value = { "customer", "differes", "ventes", "nouvelle-vente", "nouvelle-prevente" }, action = NavAction.ACCESS)
+    public ResponseEntity<RelanceDiffereDTO> relancerDifferes(@PathVariable Integer id) {
+        return ResponseEntity.ok(relanceDiffereService.relancer(id));
+    }
+
+    /** Désactive ({@code DISABLE}) ou réactive ({@code ENABLE}) un client, assuré comme standard. */
+    @PutMapping("/customers/{id}/status")
+    @RequiresNavAccess(value = "customer", action = NavAction.EDIT)
+    public ResponseEntity<Void> changeStatus(@PathVariable Integer id, @RequestParam Status status) {
+        customerDataService.changeStatus(id, status);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/customers/{id}")

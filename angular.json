@@ -61,6 +61,7 @@
               "pharmaSmart-app/src/main/webapp/content/scss/form-styles-global.scss",
               "pharmaSmart-app/src/main/webapp/content/scss/action-bar-global.scss",
               "pharmaSmart-app/src/main/webapp/content/scss/pharma-toolbar-global.scss",
+              "pharmaSmart-app/src/main/webapp/content/scss/icon-colors-global.scss",
               "pharmaSmart-app/src/main/webapp/content/css/open-sans.css",
               "node_modules/ngx-spinner/animations/timer.css",
               "node_modules/gridstack/dist/gridstack.min.css"

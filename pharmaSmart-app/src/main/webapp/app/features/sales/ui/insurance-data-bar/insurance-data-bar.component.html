@@ -19,9 +19,13 @@
               <i class="pi pi-user-shield"></i>
               <span>Assuré</span>
             </div>
+            <div class="btn-group" role="group">
+              <app-button (clicked)="voirFiche()" ariaLabel="Voir la fiche client" ngbTooltip="Voir la fiche client (Alt+V)"
+                          icon="pi pi-id-card" severity="primary" size="small" [rounded]="true" [text]="true" />
             <app-button (clicked)="editAssuredCustomer()" ariaLabel="Modifier les infos du client"
                       ngbTooltip="Modifier les infos du client" icon="pi pi-user-edit"
                       severity="info" size="small" [rounded]="true"/>
+            </div>
           </div>
           <div class="card-body">
             <div class="info-row">
@@ -100,6 +104,11 @@
                 <span class="rate-value">{{ tp.taux }}%</span>
               </div>
             </div>
+            @if (carteExpiree(tp.dateFinValidite)) {
+              <div class="text-danger small fw-semibold px-2 pb-1">
+                <i class="pi pi-exclamation-triangle me-1"></i>Carte expirée le {{ tp.dateFinValidite | date: 'dd/MM/yyyy' }}
+              </div>
+            }
 
             <div class="tp-input-section">
               <div class="input-group input-group-sm">

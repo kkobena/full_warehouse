@@ -1,0 +1,144 @@
+// ====================================
+// PHARMA SMART - THÈMES
+// ====================================
+//
+// Couleurs par rôle, redéfinies par thème sous `:root[data-theme='…']` (posé par
+// ThemeService). Sans attribut, le thème par défaut s'applique.
+//
+// Ratios WCAG AA vérifiés sur la surface (blanc) ET sur le fond de page :
+// texte ≥ 4,5:1, bordure des champs ≥ 3:1 (contre le blanc du champ).
+// Importé après Bootstrap : les mixins de bouton en ont besoin.
+
+$pharma-default-theme: 'menthe';
+
+$pharma-themes: (
+  'ardoise': (
+    app-bg: #f1f5f9,
+    surface: #ffffff,
+    surface-alt: #f8fafc,
+    border: #e2e8f0,
+    text: #334155,
+    text-muted: #5b6778,
+    field-border: #7c8ba1,
+    accent: #047857,
+    accent-scale: (50: #ecfdf5, 100: #d1fae5, 200: #a7f3d0, 400: #34d399, 500: #10b981, 600: #059669, 700: #047857, 800: #065f46),
+  ),
+  'menthe': (
+    app-bg: #e6f0f1,
+    surface: #ffffff,
+    surface-alt: #f3f8f8,
+    border: #d5e3e5,
+    text: #334155,
+    text-muted: #5b6778,
+    field-border: #7c8ba1,
+    accent: #0f766e,
+    accent-scale: (50: #f0fdfa, 100: #ccfbf1, 200: #99f6e4, 400: #2dd4bf, 500: #14b8a6, 600: #0d9488, 700: #0f766e, 800: #115e59),
+  ),
+  'clair': (
+    app-bg: #f8fafc,
+    surface: #ffffff,
+    surface-alt: #f8fafc,
+    border: #e2e8f0,
+    text: #334155,
+    text-muted: #5b6778,
+    field-border: #7c8ba1,
+    accent: #047857,
+    accent-scale: (50: #ecfdf5, 100: #d1fae5, 200: #a7f3d0, 400: #34d399, 500: #10b981, 600: #059669, 700: #047857, 800: #065f46),
+  ),
+);
+
+@mixin pharma-theme-tokens($t) {
+  $accent: map-get($t, accent);
+
+  --pharma-app-bg: #{map-get($t, app-bg)};
+  --pharma-surface: #{map-get($t, surface)};
+  --pharma-surface-alt: #{map-get($t, surface-alt)};
+  --pharma-border: #{map-get($t, border)};
+  --pharma-text: #{map-get($t, text)};
+  --pharma-text-muted: #{map-get($t, text-muted)};
+  --pharma-field-border: #{map-get($t, field-border)};
+  --pharma-accent: #{$accent};
+
+  // Bootstrap (lu à l'affichage) — `.text-muted` suit `--bs-secondary-color`.
+  --bs-body-bg: #{map-get($t, surface)};
+  --bs-body-bg-rgb: #{to-rgb(map-get($t, surface))};
+  --bs-body-color: #{map-get($t, text)};
+  --bs-body-color-rgb: #{to-rgb(map-get($t, text))};
+  --bs-secondary-color: #{map-get($t, text-muted)};
+  --bs-border-color: #{map-get($t, border)};
+  --bs-primary: #{$accent};
+  --bs-primary-rgb: #{to-rgb($accent)};
+  --bs-link-color: #{$accent};
+  --bs-link-color-rgb: #{to-rgb($accent)};
+  --bs-link-hover-color: #{shade-color($accent, 20%)};
+  --bs-link-hover-color-rgb: #{to-rgb(shade-color($accent, 20%))};
+
+  // Tokens hérités d'Aura (~380 références `--p-*`).
+  --p-text-color: #{map-get($t, text)};
+  --p-text-muted-color: #{map-get($t, text-muted)};
+  --p-form-field-border-color: #{map-get($t, field-border)};
+  @each $step, $color in map-get($t, accent-scale) {
+    --p-primary-#{$step}: #{$color};
+  }
+  --p-primary-color: #{$accent};
+
+  --pharma-focus-ring: 0 0 0 0.2rem #{rgba($accent, 0.15)};
+}
+
+// Composants Bootstrap dont la couleur primaire est figée à la compilation : à regénérer
+// seulement quand l'accent du thème diffère de `$primary`.
+@mixin pharma-theme-accent-components($accent) {
+  .btn-primary {
+    @include button-variant($accent, $accent);
+  }
+
+  .btn-outline-primary {
+    @include button-outline-variant($accent);
+  }
+
+  .form-check-input:checked {
+    background-color: $accent;
+    border-color: $accent;
+  }
+
+  .pagination {
+    --bs-pagination-active-bg: #{$accent};
+    --bs-pagination-active-border-color: #{$accent};
+  }
+
+  .nav-pills {
+    --bs-nav-pills-link-active-bg: #{$accent};
+  }
+
+  .dropdown-menu {
+    --bs-dropdown-link-active-bg: #{$accent};
+  }
+
+  .list-group {
+    --bs-list-group-active-bg: #{$accent};
+    --bs-list-group-active-border-color: #{$accent};
+  }
+
+  .progress,
+  .progress-stacked {
+    --bs-progress-bar-bg: #{$accent};
+  }
+}
+
+:root:not([data-theme]) {
+  @include pharma-theme-tokens(map-get($pharma-themes, $pharma-default-theme));
+}
+
+@each $name, $t in $pharma-themes {
+  :root[data-theme='#{$name}'] {
+    @include pharma-theme-tokens($t);
+
+    @if map-get($t, accent) != $primary {
+      @include pharma-theme-accent-components(map-get($t, accent));
+    }
+  }
+}
+
+body {
+  background-color: var(--pharma-app-bg);
+}

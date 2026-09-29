@@ -52,19 +52,7 @@
           </div>
 
           <div class="form-field form-field-full">
-            <label for="field_num">Numéro <span class="required">*</span></label>
-
-            <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control" formControlName="num"
-                   id="field_num" name="num" type="text" />
-            @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get(
-              'num')!.touched)) {
-              <div>
-                @if (editForm.get('num')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required">
-                    This field is required. </small>
-                }
-              </div>
-            }
+            <pharma-date-picker formControlName="dateFinValidite" id="field_dateFinValidite" label="Carte valable jusqu'au" />
           </div>
 
           <div class="form-field form-field-full">
@@ -81,41 +69,12 @@
               </div>
             }
           </div>
-        </div>
-      </app-card>
-      <app-card [variant]="'form'" [withHeader]="true">
-        <div class="section-header" ngProjectAs="[cardHeader]">
-          <i class="pi pi-user"></i>
-          <span>Informations Complémentaires</span>
-        </div>
-        <div class="form-grid-compact">
-          <div class="form-field form-field-full">
-            <label for="plafondJournalier">Plafond de vente</label>
-            <input
-              [appKeyFilter]="'int'"
-              autocomplete="off"
-              class="form-control"
-              formControlName="plafondJournalier"
-              id="plafondJournalier"
-              name="plafondJournalier" type="text" />
-          </div>
-
-          <div class="form-field form-field-full">
-            <label for="plafondConso">Plafond consommation</label>
-            <input
-              [appKeyFilter]="'int'"
-              autocomplete="off"
-              class="form-control"
-              formControlName="plafondConso"
-              id="plafondConso"
-              name="plafondConso" type="text" />
-          </div>
-
-          <div class="form-field form-field-full">
-            <label for="plafondAbsolu">Le plafond est-il absolu ?</label>
-
-            <app-switch formControlName="plafondAbsolu" id="plafondAbsolu"></app-switch>
-          </div>
+          <!-- Les plafonds sont portés par le tiers payant et communs à tous ses adhérents. -->
+          <p class="form-field form-field-full text-muted small mb-0">
+            <i class="pi pi-info-circle me-1"></i>
+            Les plafonds de vente et de consommation se règlent sur la fiche du tiers payant : ils
+            s'appliquent à tous ses adhérents.
+          </p>
         </div>
       </app-card>
     </div>

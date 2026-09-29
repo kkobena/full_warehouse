@@ -237,7 +237,9 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
         venteCloturee(produit, 1, AUJOURD_HUI);
         viderLeCache();
 
-        List<SaleDTO> achats = services.saleDataService.customerPurchases(client.getId(), HIER, AUJOURD_HUI);
+        List<SaleDTO> achats = services.saleDataService
+            .customerPurchases(client.getId(), HIER, AUJOURD_HUI, org.springframework.data.domain.PageRequest.of(0, 20))
+            .getContent();
 
         assertEquals(1, achats.size());
         assertEquals(4_000, achats.getFirst().getSalesAmount());

@@ -1,4 +1,5 @@
 @import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-nav-tabs';
 
 .table tr:hover {
   cursor: pointer;
@@ -122,7 +123,7 @@ invoice .invoice-items table th,
   padding-top: 0.5rem;
 }
 
-.active {
+tr.active {
   background-color: #95caf9 !important;
 }
 
@@ -134,4 +135,37 @@ invoice .invoice-items table th,
   display: flex;
   flex-flow: column nowrap;
   justify-content: space-between;
+}
+
+// ── En-tête de la fiche 360° ──
+.fiche-entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.fiche-infos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin-top: 0.35rem;
+}
+
+.fiche-couverture {
+  margin-top: 0.35rem;
+}
+
+.fiche-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.fiche-recherche {
+  max-width: 260px;
+}
+
+.clickable {
+  cursor: pointer;
 }

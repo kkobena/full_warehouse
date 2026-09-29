@@ -87,6 +87,8 @@ public final class EntityConstant {
     public static final String APP_DELAI_VALIDITE_AVOIR_CACHE = "APP_DELAI_VALIDITE_AVOIR_CACHE";
     public static final String APP_DELAI_RETOUR_CLIENT = "APP_DELAI_RETOUR_CLIENT"; // Délai max (jours) entre la vente et le retour client avant avertissement (défaut 30)
     public static final String APP_DELAI_RETOUR_CLIENT_CACHE = "APP_DELAI_RETOUR_CLIENT_CACHE";
+    public static final String APP_LIMITE_CREDIT_CLIENT = "APP_LIMITE_CREDIT_CLIENT"; // Encours différé maximal par client (0 = aucune limite)
+    public static final String APP_LIMITE_CREDIT_CLIENT_CACHE = "APP_LIMITE_CREDIT_CLIENT_CACHE";
 
     // ─── Navigation dynamique ─────────────────────────────────────────────────
     /** Cache de l'arbre de navigation par utilisateur. Clé : login. */

@@ -1,9 +1,10 @@
-import {Signal, signal} from '@angular/core';
+import {inject, Signal, signal} from '@angular/core';
 import {ISales, ISalesLine, ProduitSearch} from '../../../../shared/model';
 import {SalesFacade} from '../../data-access/facades/sales.facade';
 import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
 import {createSalesLineFromProduct} from '../../data-access/utils/sales-line.utils';
+import {AlerteSanteGuardService} from '../../data-access/services/alerte-sante-guard.service';
 
 /**
  * Type pour les infos de produit en attente d'affichage
@@ -109,6 +110,8 @@ export function createProductHandling(context: ProductHandlingContext) {
 
   // Signal pour stocker les infos du produit en attente d'affichage (après succès API)
   const pendingDisplayProduct = signal<PendingDisplayProduct | null>(null);
+  // Appelé dans l'initialiseur de champ du composant : le contexte d'injection est disponible.
+  const alerteSanteGuard = inject(AlerteSanteGuardService);
 
   /**
    * Met le focus sur le composant de recherche produit
@@ -207,6 +210,21 @@ export function createProductHandling(context: ProductHandlingContext) {
    * Note: Le reset et focus sont gérés via souscription à facade.productAddedSuccess$ dans le composant
    */
   function addProductToSale(product: ProduitSearch, quantity: number, codeScan?: string | null): void {
+    // Allergie connue du patient à une molécule du produit : rien n'est ajouté sans dérogation tracée.
+    // Le patient d'une vente assurance peut être un ayant droit plutôt que l'assuré principal.
+    const sale = currentSale();
+    const customerId =
+      facade.selectedAyantDroit?.()?.id ?? sale?.ayantDroit?.id ?? sale?.ayantDroitId ?? facade.selectedCustomer?.()?.id ?? sale?.customerId;
+    alerteSanteGuard.verifier(customerId, product).subscribe(autorise => {
+      if (autorise) {
+        ajouterSansControle(product, quantity, codeScan);
+      } else {
+        resetProductSelection();
+      }
+    });
+  }
+
+  function ajouterSansControle(product: ProduitSearch, quantity: number, codeScan?: string | null): void {
     const sale = currentSale();
     const salesLine = createSalesLineFromProduct(product, quantity, sale, codeScan);
 

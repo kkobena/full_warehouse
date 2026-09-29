@@ -1,250 +1,607 @@
 <div class="pharma-smart-content p-1">
-  @if (customer()) {
-    <h4 class="mb-3">
-      <span jhiTranslate="warehouseApp.customer.detail.title">Client</span>
-      {{ customer().firstName + ' ' + customer().lastName }}
-    </h4>
-  }
+  @if (customer(); as client) {
+    <!-- ── En-tête permanent : qui, quelle couverture, quelle situation ───────────────── -->
+    <app-card>
+      <div class="fiche-entete">
+        <div class="fiche-identite">
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h4 class="mb-0">{{ client.fullName || client.firstName + ' ' + client.lastName }}</h4>
+            <app-badge [label]="client.categorie" severity="info" />
+            @if (client.tiersPayants?.length && client.typeTiersPayant && client.typeTiersPayant !== 'ASSURANCE') {
+              <app-badge [label]="client.typeTiersPayant" severity="secondary" />
+            }
+          </div>
+          <div class="fiche-infos text-muted">
+            @if (client.code) {
+              <span><i class="pi pi-id-card me-1"></i>{{ client.code }}</span>
+            }
+            @if (age() !== null) {
+              <span>
+                <i class="pi pi-calendar me-1"></i>{{ age() }} ans ({{ client.datNaiss | date: 'dd/MM/yyyy' }})
+              </span>
+            }
+            @if (client.sexe) {
+              <span>{{ client.sexe }}</span>
+            }
+            @if (client.phone) {
+              <span><i class="pi pi-phone me-1"></i>{{ client.phone }}</span>
+            }
+            @if (client.email) {
+              <span><i class="pi pi-envelope me-1"></i>{{ client.email }}</span>
+            }
+          </div>
+          <!-- Pastilles d'alerte : ce qu'on doit voir avant de délivrer -->
+          @if (dossierSante(); as sante) {
+            <div class="d-flex flex-wrap gap-2 mt-2">
+              @for (allergie of sante.allergies; track allergie.id) {
+                <app-badge [label]="'Allergie : ' + (allergie.dciLibelle ?? allergie.libelle)" icon="pi pi-exclamation-triangle"
+                           severity="danger" />
+              }
+              @if (grossesseEnCours()) {
+                <app-badge [label]="sante.dateTerme ? 'Enceinte (terme ' + (sante.dateTerme | date: 'dd/MM/yyyy') + ')' : 'Enceinte'"
+                           severity="help" />
+              }
+              @if (sante.allaitement) {
+                <app-badge label="Allaitement" severity="help" />
+              }
+              @for (pathologie of sante.pathologies; track pathologie) {
+                <app-badge [label]="pathologie" severity="info" />
+              }
+            </div>
+          }
+          @if (couverturePrincipale(); as couverture) {
+            @for (tp of cartesExpirees(); track tp.id) {
+              <div class="mt-1">
+                <app-badge [label]="'Carte ' + tp.tiersPayantFullName + ' expirée le ' + (tp.dateFinValidite | date: 'dd/MM/yyyy')"
+                           icon="pi pi-exclamation-triangle" severity="danger" />
+              </div>
+            }
+            <div class="fiche-couverture">
+              <i class="pi pi-shield me-1"></i>
+              <strong>{{ couverture.tiersPayantFullName }}</strong>
+              — {{ couverture.taux }} %
+              @if (couverture.num) {
+                · n° {{ couverture.num }}
+              }
+              @if (tiersPayants().length > 1) {
+                <span class="text-muted"> · + {{ tiersPayants().length - 1 }} complémentaire(s)</span>
+              }
+            </div>
+          }
+        </div>
+        <div class="fiche-actions">
+          @if (canEdit()) {
+            <app-button (clicked)="edit()" icon="pi pi-pencil" label="Modifier" severity="primary" />
+          }
+          <app-button (clicked)="previousState()" icon="pi pi-arrow-left" label="Retour" severity="secondary" />
+        </div>
+      </div>
 
-  <app-nav-tabs [nav]="nav">
-    <div #nav="ngbNav" class="nav pharma-nav-tabs" ngbNav>
-      <!-- ── Onglet Achats ─────────────────────────────────────────────────── -->
-      <ng-container ngbNavItem="achats">
-        <a class="pharma-nav-tab-link" ngbNavLink>
-          <i class="pi pi-shopping-cart"></i>
-          <span>Achats</span>
-        </a>
-        <ng-template ngbNavContent>
-          <div class="row">
-            <div class="col-4 ">
-              <app-card>   @if (sales() && sales().length > 0) {
-                <div class="table-responsive table-sm table-hover">
-                  <table class="table table-striped">
-                    <thead class="pharma-table-head">
-                    <tr>
-                      <th scope="col"><span jhiTranslate="warehouseApp.sales.numberTransaction">N° vente</span>
-                      </th>
-                      <th scope="col"><span
-                        jhiTranslate="warehouseApp.sales.updatedAt">Date</span></th>
-                      <th class="text-end" scope="col"><span
-                        jhiTranslate="warehouseApp.sales.netAmount">Montant</span></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                      @for (sale of sales(); track sale) {
-                        <tr (click)="clickRow(sale)"
-                            [class.active]="selectedRowIndex() === sale.id">
+      <app-kpi-strip [loading]="!synthese()" [skeletonCount]="4" stripClass="mt-3">
+        <app-kpi-item
+          (click)="voirCredit()"
+          [accent]="(synthese()?.encours ?? 0) > 0 ? 'danger' : 'success'"
+          [suffix]="devise"
+          [value]="synthese()?.encours | number"
+          class="clickable"
+          icon="pi pi-credit-card"
+          label="Encours (différés)"
+        />
+        <app-kpi-item
+          [accent]="soldeTotalAvoirs() > 0 ? 'success' : 'none'"
+          [suffix]="devise"
+          [value]="soldeTotalAvoirs() | number"
+          icon="pi pi-wallet"
+          label="Avoirs disponibles"
+        />
+        <app-kpi-item
+          [value]="synthese()?.derniereVisite ? (synthese()!.derniereVisite | date: 'dd/MM/yyyy') : '—'"
+          accent="info"
+          icon="pi pi-clock"
+          label="Dernière visite"
+        />
+        <app-kpi-item
+          [suffix]="devise"
+          [value]="synthese()?.montantAchats | number"
+          accent="primary"
+          icon="pi pi-shopping-cart"
+          label="Achats sur 12 mois ({{ synthese()?.nombreAchats ?? 0 }})"
+        />
+      </app-kpi-strip>
+    </app-card>
+
+    <!-- ── Onglets ─────────────────────────────────────────────────────────────────────── -->
+    <app-nav-tabs [nav]="nav">
+      <div #nav="ngbNav" (activeIdChange)="onTabChange($event)" [(activeId)]="activeTab" class="nav pharma-nav-tabs" ngbNav>
+        <!-- Achats -->
+        <ng-container ngbNavItem="achats">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-shopping-cart"></i>
+            <span>Achats</span>
+          </a>
+          <ng-template ngbNavContent>
+            <div class="d-flex flex-wrap align-items-end gap-2 mb-2 mt-2">
+              <pharma-date-picker (ngModelChange)="fromDate.set($event)" [maxDate]="toDate()"
+                                  [ngModel]="fromDate()" [style]="{ 'max-width': '180px' }"
+                                  id="purchasesFrom" label="Du" />
+              <pharma-date-picker (ngModelChange)="toDate.set($event)" [minDate]="fromDate()"
+                                  [ngModel]="toDate()" [style]="{ 'max-width': '180px' }"
+                                  id="purchasesTo" label="Au" />
+              <app-button (clicked)="searchSales()" icon="pi pi-search" label="Rechercher" severity="info" />
+            </div>
+            <div class="row">
+              <div class="col-4">
+                <app-card>
+                  @if (sales().length > 0) {
+                    <app-data-table [value]="sales()" [stripedRows]="true" size="small">
+                      <ng-template #header>
+                        <tr>
+                          <th scope="col">N° vente</th>
+                          <th scope="col">Date</th>
+                          <th class="text-end" scope="col">Montant</th>
+                        </tr>
+                      </ng-template>
+                      <ng-template #body let-sale>
+                        <tr (click)="clickRow(sale)" [class.active]="selectedRowIndex() === sale.id">
                           <td>{{ sale.numberTransaction }}</td>
                           <td>{{ sale.updatedAt | date: 'dd/MM/yyyy' }}</td>
                           <td class="text-end pharma-total">{{ sale.salesAmount | number }}</td>
                         </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              }</app-card>
-
-            </div>
-            <div class="col-8 ">
-              <app-card>
-                <jhi-alert-error></jhi-alert-error>
-                @if (saleSelected()) {
-                  <div class="card" id="print-area">
-                    <div class="card-body" id="invoice-content">
-                      <div class="invoice">
-                        <div class="invoice-header">
-                          @if (magasin()) {
-                            <div class="invoice-company">
-                              <div class="company-name">{{ magasin()?.name }}</div>
-                              @if (magasin()?.phone) {
-                                <div>{{ magasin()?.phone }}</div>
-                              }
-                              @if (magasin()?.address) {
-                                <div>{{ magasin()?.address }}</div>
-                              }
+                      </ng-template>
+                    </app-data-table>
+                    @if (totalSales() > pageSize) {
+                      <ngb-pagination (pageChange)="changePage($event)" [collectionSize]="totalSales()"
+                                      [maxSize]="3" [page]="page()" [pageSize]="pageSize" [rotate]="true" size="sm" />
+                    }
+                  } @else {
+                    <p class="text-muted mb-0">Aucun achat sur la période.</p>
+                  }
+                </app-card>
+              </div>
+              <div class="col-8">
+                <app-card>
+                  <jhi-alert-error></jhi-alert-error>
+                  @if (saleSelected(); as vente) {
+                    <div class="card" id="print-area">
+                      <div class="card-body" id="invoice-content">
+                        <div class="invoice">
+                          <div class="invoice-header">
+                            @if (magasin()) {
+                              <div class="invoice-company">
+                                <div class="company-name">{{ magasin()?.name }}</div>
+                                @if (magasin()?.phone) {
+                                  <div>{{ magasin()?.phone }}</div>
+                                }
+                                @if (magasin()?.address) {
+                                  <div>{{ magasin()?.address }}</div>
+                                }
+                              </div>
+                            }
+                            <div class="invoice-details">
+                              <div class="invoice-label">DATE</div>
+                              <div class="invoice-value">{{ vente.updatedAt | date: 'dd/MM/yyyy' }}</div>
+                              <div class="invoice-label">FACTURE #</div>
+                              <div class="invoice-value">{{ vente.numberTransaction }}</div>
                             </div>
-                          }
-                          <div class="invoice-details">
-                            <div class="invoice-label">DATE</div>
-                            <div
-                              class="invoice-value">{{ saleSelected()?.updatedAt | date: 'dd/MM/yyyy' }}
-                            </div>
-                            <div class="invoice-label"><span
-                              jhiTranslate="warehouseApp.customer.detail.invoice">FACTURE</span> #
-                            </div>
-                            <div class="invoice-value">{{ saleSelected()?.numberTransaction }}</div>
                           </div>
-                        </div>
-                        <div class="invoice-to">
-                          <div class="bill-to"><span
-                            jhiTranslate="warehouseApp.customer.detail.billto">FACTURE DE</span>
-                          </div>
-                          <div class="invoice-to-info">
-                            <div>{{
-                                saleSelected()?.customer?.firstName + ' '
-                                + saleSelected()?.customer?.lastName
-                              }}
+                          <div class="invoice-to">
+                            <div class="bill-to">FACTURE DE</div>
+                            <div class="invoice-to-info">
+                              <div>{{ client.firstName + ' ' + client.lastName }}</div>
+                              <div>{{ client.phone }}</div>
                             </div>
-                            <div>{{ saleSelected()?.customer?.phone }}</div>
                           </div>
-                        </div>
-                        <div class="invoice-items">
-                          <table>
-                            <thead class="pharma-table-head">
-                            <tr>
-                              <th><span jhiTranslate="warehouseApp.produit.libelle">Libellé</span>
-                              </th>
-                              <th><span
-                                jhiTranslate="warehouseApp.salesLine.quantitySold">Qté</span></th>
-                              <th><span
-                                jhiTranslate="warehouseApp.salesLine.regularUnitPrice">P.U.</span>
-                              </th>
-                              <th><span
-                                jhiTranslate="warehouseApp.salesLine.salesAmount">Montant</span>
-                              </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                              @for (saleLine of selectedRowSaleLines(); track saleLine) {
-                                <tr>
-                                  <td><span
-                                    class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
-                                  </td>
-                                  <td
-                                    class="pharma-qty-value">{{ saleLine.quantitySold | number }}
-                                  </td>
-                                  <td
-                                    class="pharma-price">{{ saleLine.regularUnitPrice | number }}
-                                  </td>
-                                  <td class="pharma-total">{{ saleLine.salesAmount | number }}</td>
-                                </tr>
-                              }
-                            </tbody>
-                          </table>
-                        </div>
-                        <div class="invoice-summary">
-                          <div></div>
-                          <div class="invoice-details">
-                            <div class="invoice-label pharma-footer-label">TOTAL</div>
-                            <div
-                              class="invoice-value pharma-footer-total">{{ saleSelected()?.salesAmount | number }}
+                          <div class="invoice-items">
+                            <table>
+                              <thead class="pharma-table-head">
+                              <tr>
+                                <th>Libellé</th>
+                                <th>Qté</th>
+                                <th>P.U.</th>
+                                <th>Montant</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                                @for (saleLine of selectedRowSaleLines(); track saleLine.id) {
+                                  <tr>
+                                    <td><span class="pharma-product-name">{{ saleLine.produitLibelle }}</span></td>
+                                    <td class="pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
+                                    <td class="pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
+                                    <td class="pharma-total">{{ saleLine.salesAmount | number }}</td>
+                                  </tr>
+                                }
+                              </tbody>
+                            </table>
+                          </div>
+                          <div class="invoice-summary">
+                            <div></div>
+                            <div class="invoice-details">
+                              <div class="invoice-label pharma-footer-label">TOTAL</div>
+                              <div class="invoice-value pharma-footer-total">{{ vente.salesAmount | number }}</div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                    <div class="mt-2">
+                      <app-button (clicked)="print()" icon="pi pi-print" label="Imprimer" severity="warn" type="button" />
+                    </div>
+                  } @else {
+                    <p class="text-muted mb-0">Sélectionnez un achat pour en voir le détail.</p>
+                  }
+                </app-card>
+              </div>
+            </div>
+          </ng-template>
+        </ng-container>
+
+        <!-- Produits délivrés : « le même que la dernière fois » -->
+        <ng-container ngbNavItem="produits">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-box"></i>
+            <span>Produits délivrés</span>
+          </a>
+          <ng-template ngbNavContent>
+            <app-card>
+              <div class="d-flex flex-wrap align-items-end gap-2 mb-2">
+                <pharma-date-picker (ngModelChange)="produitsFrom.set($event)" [maxDate]="produitsTo()"
+                                    [ngModel]="produitsFrom()" [style]="{ 'max-width': '180px' }"
+                                    id="produitsFrom" label="Du" />
+                <pharma-date-picker (ngModelChange)="produitsTo.set($event)" [minDate]="produitsFrom()"
+                                    [ngModel]="produitsTo()" [style]="{ 'max-width': '180px' }"
+                                    id="produitsTo" label="Au" />
+                <input (keyup.enter)="searchProduits()" (ngModelChange)="produitsSearch.set($event)"
+                       [ngModel]="produitsSearch()" class="form-control fiche-recherche"
+                       placeholder="Rechercher un produit" type="text" />
+                <app-button (clicked)="searchProduits()" icon="pi pi-search" label="Rechercher" severity="info" />
+              </div>
+              @if (produits().length > 0) {
+                <app-data-table [value]="produits()" [stripedRows]="true" size="small">
+                  <ng-template #header>
+                    <tr>
+                      <th>Produit</th>
+                      <th class="text-end">Délivrances</th>
+                      <th class="text-end">Quantité</th>
+                      <th class="text-end">Montant</th>
+                      <th>Dernière délivrance</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template #body let-produit>
+                    <tr>
+                      <td><span class="pharma-product-name">{{ produit.libelle }}</span></td>
+                      <td class="text-end">{{ produit.nombreDelivrances | number }}</td>
+                      <td class="text-end pharma-qty-value">{{ produit.quantite | number }}</td>
+                      <td class="text-end pharma-total">{{ produit.montant | number }} <span appDevise></span></td>
+                      <td>{{ produit.derniereDelivrance | date: 'dd/MM/yyyy' }}</td>
+                    </tr>
+                  </ng-template>
+                </app-data-table>
+                @if (totalProduits() > pageSize) {
+                  <ngb-pagination (pageChange)="changeProduitsPage($event)" [collectionSize]="totalProduits()"
+                                  [maxSize]="5" [page]="produitsPage()" [pageSize]="pageSize" [rotate]="true" size="sm" />
+                }
+              } @else {
+                <p class="text-muted mb-0">Aucun produit délivré sur la période.</p>
+              }
+            </app-card>
+          </ng-template>
+        </ng-container>
+
+        <!-- Couverture : tiers payants et ayants droit -->
+        @if (estAssure()) {
+          <ng-container ngbNavItem="couverture">
+            <a class="pharma-nav-tab-link" ngbNavLink>
+              <i class="pi pi-shield"></i>
+              <span>Couverture</span>
+            </a>
+            <ng-template ngbNavContent>
+              <app-card>
+                <h6 class="mb-2">Tiers payants</h6>
+                @if (tiersPayants().length > 0) {
+                  <app-data-table [value]="tiersPayants()" [stripedRows]="true" size="small">
+                    <ng-template #header>
+                      <tr>
+                        <th>Organisme</th>
+                        <th>N° assuré</th>
+                        <th>Carte valable jusqu'au</th>
+                        <th>Rang</th>
+                        <th class="text-end">Taux</th>
+                        <th class="text-end" title="Défini sur le tiers payant, commun à tous ses adhérents">Plafond conso. (organisme)</th>
+                        <th class="text-end" title="Depuis la dernière facture définitive ; si le plafond est absolu, ce qui reste à régler">Consommation</th>
+                        <th class="text-end" title="Défini sur le tiers payant, commun à tous ses adhérents">Plafond vente (organisme)</th>
+                        <th>Statut</th>
+                        <th>Historique du taux</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template #body let-tp>
+                      <tr>
+                        <td>{{ tp.tiersPayantFullName }}</td>
+                        <td>{{ tp.num }}</td>
+                        <td>
+                          @if (tp.dateFinValidite) {
+                            <span [class.fw-bold]="carteExpiree(tp.dateFinValidite)" [class.text-danger]="carteExpiree(tp.dateFinValidite)">
+                              {{ tp.dateFinValidite | date: 'dd/MM/yyyy' }}
+                              @if (carteExpiree(tp.dateFinValidite)) {
+                                <i class="pi pi-exclamation-triangle ms-1" title="Carte expirée"></i>
+                              }
+                            </span>
+                          } @else {
+                            <span class="text-muted">—</span>
+                          }
+                        </td>
+                        <td>{{ tp.categorie === 0 ? 'Principal' : 'Complémentaire ' + tp.categorie }}</td>
+                        <td class="text-end">{{ tp.taux }} %</td>
+                        <td class="text-end">{{ tp.plafondConso | number }}</td>
+                        <td class="text-end"
+                            [class.fw-bold]="tp.plafondConso && (tp.consommation ?? 0) >= tp.plafondConso"
+                            [class.text-danger]="tp.plafondConso && (tp.consommation ?? 0) >= tp.plafondConso">
+                          {{ tp.consommation ?? 0 | number }}
+                          @if (tp.plafondConso) {
+                            <span class="text-muted small">/ {{ tp.plafondConso | number }}</span>
+                          }
+                        </td>
+                        <td class="text-end">{{ tp.plafondJournalier | number }}</td>
+                        <td>
+                          <app-badge [label]="tp.statut === 'ACTIF' ? 'Actif' : tp.statut"
+                                     [severity]="tp.statut === 'ACTIF' ? 'success' : 'secondary'" />
+                        </td>
+                        <td class="small">
+                          @for (h of tp.tauxHistorique ?? []; track h.updatedAt; let premier = $first) {
+                            <div [class.text-muted]="!premier">{{ h.taux }} % depuis le {{ h.updatedAt | date: 'dd/MM/yyyy' }}</div>
+                          } @empty {
+                            <span class="text-muted">—</span>
+                          }
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </app-data-table>
+                } @else {
+                  <p class="text-muted">Aucun tiers payant.</p>
+                }
+
+                <h6 class="mb-2 mt-3">Ayants droit</h6>
+                @if (client.ayantDroits?.length) {
+                  <app-data-table [value]="client.ayantDroits ?? []" [stripedRows]="true" size="small">
+                    <ng-template #header>
+                      <tr>
+                        <th>Nom et prénom(s)</th>
+                        <th>N° ayant droit</th>
+                        <th>Date de naissance</th>
+                        <th>Sexe</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template #body let-ayantDroit>
+                      <tr>
+                        <td>{{ ayantDroit.fullName }}</td>
+                        <td>{{ ayantDroit.numAyantDroit }}</td>
+                        <td>{{ ayantDroit.datNaiss | date: 'dd/MM/yyyy' }}</td>
+                        <td>{{ ayantDroit.sexe }}</td>
+                      </tr>
+                    </ng-template>
+                  </app-data-table>
+                } @else {
+                  <p class="text-muted mb-0">Aucun ayant droit.</p>
                 }
               </app-card>
-            </div>
-          </div>
-        </ng-template>
-      </ng-container>
+            </ng-template>
+          </ng-container>
+        }
 
-      <!-- ── Onglet Avoirs ─────────────────────────────────────────────────── -->
-      <ng-container ngbNavItem="avoirs">
-        <a class="pharma-nav-tab-link" ngbNavLink>
-          <i class="pi pi-wallet"></i>
-          <span>Avoirs</span>
-          @if (avoirsOuverts.length > 0) {
-            <span class="badge bg-success ms-2">{{ avoirsOuverts.length }}</span>
-          }
-        </a>
-        <ng-template ngbNavContent>
+        <!-- Santé : allergies, pathologies, grossesse -->
+        <ng-container ngbNavItem="sante">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-heart"></i>
+            <span>Santé</span>
+            @if (dossierSante()?.allergies?.length) {
+              <span class="badge bg-danger ms-2">{{ dossierSante()?.allergies?.length }}</span>
+            }
+          </a>
+          <ng-template ngbNavContent>
+            <app-dossier-sante-tab (saved)="dossierSante.set($event)" [canEdit]="canEditSante()" [customerId]="client.id!" />
+          </ng-template>
+        </ng-container>
 
-          @if (avoirsOuverts.length > 0) {
-            <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
-              <i class="pi pi-wallet"></i>
-              <strong>Solde disponible : {{ soldeTotalAvoirs | number }} CFA</strong>
-              <span class="ms-2 text-muted">({{ avoirsOuverts.length }}
-                avoir{{ avoirsOuverts.length > 1 ? 's' : '' }} ouvert{{
-                  avoirsOuverts.length > 1 ? 's' : ''
-                }})</span>
-            </div>
-          }
-
-          @if (avoirs().length === 0) {
-            <p class="text-muted">Aucun avoir pour ce client.</p>
-          } @else {
-            <div class="table-responsive table-sm">
-              <table class="table table-striped table-hover">
-                <thead class="pharma-table-head">
-                <tr>
-                  <th>Référence</th>
-                  <th>Produit</th>
-                  <th>Créé le</th>
-                  <th>Expiration</th>
-                  <th class="text-end">Montant</th>
-                  <th>Statut</th>
-                  <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                  @for (avoir of avoirs(); track avoir.id) {
-                    <tr>
-                      <td><code>{{ avoir.reference }}</code></td>
-                      <td>{{ avoir.produitLibelle }}</td>
-                      <td>{{ avoir.createdAt | date: 'dd/MM/yyyy' }}</td>
-                      <td>
-                        @if (avoir.dateExpiration) {
-                          <span [class.fw-bold]="avoir.procheExpiration"
-                                [class.text-danger]="avoir.procheExpiration">
-                          {{ avoir.dateExpiration | date: 'dd/MM/yyyy' }}
-                            @if (avoir.procheExpiration) {
-                              <i class="pi pi-exclamation-triangle ms-1"></i>
-                            }
-                        </span>
-                        } @else {
-                          <span class="text-muted">—</span>
-                        }
-                      </td>
-                      <td class="text-end pharma-total">{{ avoir.montant | number }} CFA</td>
-                      <td>
-                        @switch (avoir.statut) {
-                          @case ('OUVERT') {
-                            <span class="badge bg-success">Ouvert</span>
-                          }
-                          @case ('CLOTURE') {
-                            <span class="badge bg-secondary">Clôturé</span>
-                          }
-                          @case ('ANNULE') {
-                            <span class="badge bg-danger">Annulé</span>
-                          }
-                          @case ('EXPIRE') {
-                            <span class="badge bg-warning text-white">Expiré</span>
-                          }
-                        }
-                      </td>
-                      <td>
-                        @if (avoir.id) {
-                          <app-button
-                            (clicked)="openAvoirPdf(avoir.id)"
-                            [text]="true"
-                            icon="pi pi-file-pdf"
-                            severity="secondary"
-                            size="small"
-                            title="Bon d'avoir PDF">
-                          </app-button>
-                        }
-                      </td>
-                    </tr>
+        <!-- Crédit : différés et règlements -->
+        <ng-container ngbNavItem="credit">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-credit-card"></i>
+            <span>Crédit</span>
+            @if ((synthese()?.encours ?? 0) > 0) {
+              <span class="badge bg-danger ms-2">{{ synthese()?.encours | number }}</span>
+            }
+          </a>
+          <ng-template ngbNavContent>
+            <app-card>
+              @if (situationCredit(); as situation) {
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                  <div>
+                    @if (situation.limite > 0) {
+                      <span class="text-muted">Limite de crédit de l'officine :</span>
+                      <strong>{{ situation.limite | number }} {{ devise }}</strong>
+                      <span class="ms-2" [class.text-danger]="situation.disponible === 0">
+                        — disponible : <strong>{{ situation.disponible | number }} {{ devise }}</strong>
+                      </span>
+                    } @else {
+                      <span class="text-muted">Aucune limite de crédit n'est fixée pour l'officine.</span>
+                    }
+                  </div>
+                  @if (situation.encours > 0 && client.phone) {
+                    <app-button (clicked)="relancer()" [disabled]="relanceEnCours()" icon="pi pi-send" label="Relancer par SMS" severity="warn" />
                   }
-                </tbody>
-              </table>
-            </div>
-          }
-        </ng-template>
-      </ng-container>
-    </div>
-  </app-nav-tabs>
+                </div>
+              }
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">Ventes différées non soldées</h6>
+                @if (canOpenDifferes() && differe()) {
+                  <app-button [routerLink]="['/differes']" icon="pi pi-money-bill" label="Régler dans Différés" severity="success" />
+                }
+              </div>
+              @if (differe(); as d) {
+                <app-kpi-strip stripClass="mb-2">
+                  <app-kpi-item [suffix]="devise" [value]="d.saleAmount | number" accent="primary" label="Montant vendu" />
+                  <app-kpi-item [suffix]="devise" [value]="d.paidAmount | number" accent="success" label="Déjà payé" />
+                  <app-kpi-item [suffix]="devise" [value]="d.rest | number" accent="danger" label="Reste dû" />
+                </app-kpi-strip>
+                <app-data-table [value]="d.differeItems ?? []" [stripedRows]="true" size="small">
+                  <ng-template #header>
+                    <tr>
+                      <th>Référence</th>
+                      <th>Date</th>
+                      <th class="text-end">Montant</th>
+                      <th class="text-end">Payé</th>
+                      <th class="text-end">Reste</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template #body let-item>
+                    <tr>
+                      <td><code>{{ item.reference }}</code></td>
+                      <td>{{ item.mvtDate | date: 'dd/MM/yyyy' }}</td>
+                      <td class="text-end">{{ item.amount | number }}</td>
+                      <td class="text-end">{{ item.paidAmount | number }}</td>
+                      <td class="text-end pharma-total">{{ item.restAmount | number }}</td>
+                    </tr>
+                  </ng-template>
+                </app-data-table>
+              } @else {
+                <p class="text-muted">Aucune vente différée en attente de règlement.</p>
+              }
 
-  <div class="mt-3">
-    <app-button (clicked)="previousState()" icon="pi pi-arrow-left" label="Retour"
-                severity="secondary"></app-button>
-    @if (saleSelected()) {
-      <app-button (clicked)="print()" class="ms-2" icon="pi pi-print" label="Imprimer"
-                  severity="warn" type="button"></app-button>
-    }
-  </div>
+              <h6 class="mb-2 mt-3">Relances</h6>
+              @if (relances().length > 0) {
+                <app-data-table [value]="relances()" [stripedRows]="true" size="small">
+                  <ng-template #header>
+                    <tr>
+                      <th>Date</th>
+                      <th>Téléphone</th>
+                      <th class="text-end">Montant rappelé</th>
+                      <th>Envoyée par</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template #body let-relance>
+                    <tr [title]="relance.message">
+                      <td>{{ relance.date | date: 'dd/MM/yyyy HH:mm' }}</td>
+                      <td>{{ relance.telephone }}</td>
+                      <td class="text-end">{{ relance.montant | number }}</td>
+                      <td>{{ relance.envoyePar }}</td>
+                    </tr>
+                  </ng-template>
+                </app-data-table>
+              } @else {
+                <p class="text-muted">Aucune relance envoyée.</p>
+              }
+
+              <h6 class="mb-2 mt-3">Règlements</h6>
+              @if (reglements().length > 0) {
+                <app-data-table [value]="lignesReglement()" [stripedRows]="true" size="small">
+                  <ng-template #header>
+                    <tr>
+                      <th>Date</th>
+                      <th>Mode</th>
+                      <th class="text-end">Attendu</th>
+                      <th class="text-end">Réglé</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template #body let-item>
+                    <tr>
+                      <td>{{ item.mvtDate | date: 'dd/MM/yyyy HH:mm' }}</td>
+                      <td>{{ item.libelleMode }}</td>
+                      <td class="text-end">{{ item.expectedAmount | number }}</td>
+                      <td class="text-end pharma-total">{{ item.paidAmount | number }}</td>
+                    </tr>
+                  </ng-template>
+                </app-data-table>
+                @if (totalReglements() > pageSize) {
+                  <ngb-pagination (pageChange)="changeReglementsPage($event)" [collectionSize]="totalReglements()"
+                                  [maxSize]="5" [page]="reglementsPage()" [pageSize]="pageSize" [rotate]="true" size="sm" />
+                }
+              } @else {
+                <p class="text-muted mb-0">Aucun règlement enregistré.</p>
+              }
+            </app-card>
+          </ng-template>
+        </ng-container>
+
+        <!-- Avoirs -->
+        <ng-container ngbNavItem="avoirs">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-wallet"></i>
+            <span>Avoirs</span>
+            @if (avoirsOuverts().length > 0) {
+              <span class="badge bg-success ms-2">{{ avoirsOuverts().length }}</span>
+            }
+          </a>
+          <ng-template ngbNavContent>
+            @if (avoirsOuverts().length > 0) {
+              <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
+                <i class="pi pi-wallet"></i>
+                <strong>Solde disponible : {{ soldeTotalAvoirs() | number }} <span appDevise></span></strong>
+                <span class="ms-2 text-muted">({{ avoirsOuverts().length }}
+                  avoir{{ avoirsOuverts().length > 1 ? 's' : '' }} ouvert{{ avoirsOuverts().length > 1 ? 's' : '' }})</span>
+              </div>
+            }
+
+            @if (avoirs().length === 0) {
+              <p class="text-muted">Aucun avoir pour ce client.</p>
+            } @else {
+              <app-data-table [value]="avoirs()" [stripedRows]="true" size="small">
+                <ng-template #header>
+                  <tr>
+                    <th>Référence</th>
+                    <th>Produit</th>
+                    <th>Créé le</th>
+                    <th>Expiration</th>
+                    <th class="text-end">Montant</th>
+                    <th>Statut</th>
+                    <th></th>
+                  </tr>
+                </ng-template>
+                <ng-template #body let-avoir>
+                  <tr>
+                    <td><code>{{ avoir.reference }}</code></td>
+                    <td>{{ avoir.produitLibelle }}</td>
+                    <td>{{ avoir.createdAt | date: 'dd/MM/yyyy' }}</td>
+                    <td>
+                      @if (avoir.dateExpiration) {
+                        <span [class.fw-bold]="avoir.procheExpiration" [class.text-danger]="avoir.procheExpiration">
+                          {{ avoir.dateExpiration | date: 'dd/MM/yyyy' }}
+                          @if (avoir.procheExpiration) {
+                            <i class="pi pi-exclamation-triangle ms-1"></i>
+                          }
+                        </span>
+                      } @else {
+                        <span class="text-muted">—</span>
+                      }
+                    </td>
+                    <td class="text-end pharma-total">{{ avoir.montant | number }} <span appDevise></span></td>
+                    <td>
+                      @switch (avoir.statut) {
+                        @case ('OUVERT') {
+                          <span class="badge bg-success">Ouvert</span>
+                        }
+                        @case ('CLOTURE') {
+                          <span class="badge bg-secondary">Clôturé</span>
+                        }
+                        @case ('ANNULE') {
+                          <span class="badge bg-danger">Annulé</span>
+                        }
+                        @case ('EXPIRE') {
+                          <span class="badge bg-warning text-white">Expiré</span>
+                        }
+                      }
+                    </td>
+                    <td>
+                      @if (avoir.id) {
+                        <app-button (clicked)="openAvoirPdf(avoir.id)" [text]="true" icon="pi pi-file-pdf"
+                                    severity="secondary" size="small" title="Bon d'avoir PDF" />
+                      }
+                    </td>
+                  </tr>
+                </ng-template>
+              </app-data-table>
+            }
+          </ng-template>
+        </ng-container>
+      </div>
+    </app-nav-tabs>
+  }
 </div>
-

@@ -107,6 +107,8 @@ public class UninsuredCustomerService {
     public void deleteCustomerById(Integer id) throws GenericError {
         try {
             uninsuredCustomerRepository.deleteById(id);
+            // Écrit maintenant, pour que la violation de clé étrangère tombe dans ce catch et non au commit.
+            uninsuredCustomerRepository.flush();
         } catch (Exception e) {
             throw new GenericError("Impossible de supprimer ce client, Il existe des ventes qui lui sont ratachées ", "deleteCustomer");
         }

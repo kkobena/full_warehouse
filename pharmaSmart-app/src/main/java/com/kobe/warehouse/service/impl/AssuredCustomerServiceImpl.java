@@ -169,6 +169,8 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
             List<AssuredCustomer> ayantDroits = assuredCustomerRepository.findAllByAssurePrincipalId(id);
             ayantDroits.forEach(ayantDroit -> assuredCustomerRepository.deleteById(ayantDroit.getId()));
             assuredCustomerRepository.delete(assuredCustomer);
+            // Écrit maintenant, pour que la violation de clé étrangère tombe dans ce catch et non au commit.
+            assuredCustomerRepository.flush();
         } catch (Exception e) {
             throw new GenericError("Impossible de supprimer ce client, Il existe des ventes qui lui sont ratachées ", "deleteCustomer");
         }
@@ -189,6 +191,7 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
 
         clientTiersPayant.setTaux(dto.getTaux());
         clientTiersPayant.setNum(dto.getNum());
+        clientTiersPayant.setDateFinValidite(dto.getDateFinValidite());
         if (dto.getPriorite() != clientTiersPayant.getPriorite()) {
             AssuredCustomer customer = clientTiersPayant.getAssuredCustomer();
             Set<ClientTiersPayant> clientTiersPayants = customer

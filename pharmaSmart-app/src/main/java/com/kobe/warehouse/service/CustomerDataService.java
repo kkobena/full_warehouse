@@ -15,11 +15,13 @@ import com.kobe.warehouse.domain.enumeration.TypeAssure;
 import com.kobe.warehouse.repository.AssuredCustomerRepository;
 import com.kobe.warehouse.repository.ClientTiersPayantRepository;
 import com.kobe.warehouse.repository.CustomerRepository;
+import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.repository.UninsuredCustomerRepository;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.CustomerDTO;
 import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
+import com.kobe.warehouse.service.errors.GenericError;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -41,7 +43,9 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -55,31 +59,63 @@ public class CustomerDataService {
     private final EntityManager entityManager;
     private final ClientTiersPayantRepository clientTiersPayantRepository;
     private final UninsuredCustomerRepository uninsuredCustomerRepository;
+    private final SalesRepository salesRepository;
 
     public CustomerDataService(
         CustomerRepository customerRepository,
         AssuredCustomerRepository assuredCustomerRepository,
         EntityManager entityManager,
         ClientTiersPayantRepository clientTiersPayantRepository,
-        UninsuredCustomerRepository uninsuredCustomerRepository
+        UninsuredCustomerRepository uninsuredCustomerRepository,
+        SalesRepository salesRepository
     ) {
         this.customerRepository = customerRepository;
         this.assuredCustomerRepository = assuredCustomerRepository;
         this.entityManager = entityManager;
         this.clientTiersPayantRepository = clientTiersPayantRepository;
         this.uninsuredCustomerRepository = uninsuredCustomerRepository;
+        this.salesRepository = salesRepository;
     }
 
+    /**
+     * @param categorie TOUT, ASSURE (assurance), CARNET, DEPOT ou STANDARD. Carnet et dépôt sont des
+     *                  assurés rattachés à un tiers payant de cette catégorie.
+     */
     public Page<CustomerDTO> fetchAllCustomers(String categorie, String search, Status status, Pageable pageable) {
+        Page<CustomerDTO> page;
         if (!StringUtils.hasLength(categorie) || categorie.equalsIgnoreCase(EntityConstant.TOUT)) {
-            return loadAll(search, status, pageable);
+            page = loadAll(search, status, pageable);
+        } else if (categorie.equalsIgnoreCase(EntityConstant.ASSURE)) {
+            page = loadAllAsuredCustomers(search, status, TiersPayantCategorie.ASSURANCE, pageable);
+        } else if (categorie.equalsIgnoreCase(EntityConstant.CARNET)) {
+            page = loadAllAsuredCustomers(search, status, TiersPayantCategorie.CARNET, pageable);
+        } else if (categorie.equalsIgnoreCase(TiersPayantCategorie.DEPOT.name())) {
+            page = loadAllAsuredCustomers(search, status, TiersPayantCategorie.DEPOT, pageable);
+        } else {
+            page = loadAllUninsuredCustomers(search, status, pageable);
         }
-        if (categorie.equalsIgnoreCase(EntityConstant.ASSURE) || EntityConstant.CARNET.equalsIgnoreCase(categorie)) {
-            return loadAllAsuredCustomers(search, status, pageable);
-        } else if (EntityConstant.STANDARD.equals(categorie)) {
-            return loadAllUninsuredCustomers(search, status, pageable);
+        return withEncours(page);
+    }
+
+    /** Encours = reste dû sur les ventes différées, comme dans l'écran des différés. */
+    private Page<CustomerDTO> withEncours(Page<CustomerDTO> page) {
+        List<Integer> ids = page.getContent().stream().map(CustomerDTO::getId).toList();
+        if (ids.isEmpty()) {
+            return page;
         }
-        return loadAllUninsuredCustomers(search, status, pageable);
+        Map<Integer, Integer> encours = new HashMap<>();
+        for (Object[] row : salesRepository.sumDiffereSoldeByCustomerIds(ids)) {
+            encours.put((Integer) row[0], row[1] == null ? 0 : ((Number) row[1]).intValue());
+        }
+        page.getContent().forEach(customer -> customer.setEncours(encours.getOrDefault(customer.getId(), 0)));
+        return page;
+    }
+
+    /** Désactive ou réactive un client, assuré comme standard. */
+    @Transactional
+    public void changeStatus(Integer id, Status status) {
+        Customer customer = customerRepository.findById(id).orElseThrow(() -> new GenericError("Client introuvable", "customerNotFound"));
+        customer.setStatus(status);
     }
 
     public Page<CustomerDTO> loadAllUninsuredCustomers(String search, Status status, Pageable pageable) {
@@ -90,7 +126,8 @@ public class CustomerDataService {
         );
         Specification<UninsuredCustomer> specification = uninsuredCustomerRepository.specialisation(status);
         if (StringUtils.hasLength(search)) {
-            specification = uninsuredCustomerRepository.specialisationQueryString(search.toUpperCase() + "%");
+            // La recherche restreint le statut au lieu de le remplacer : sinon les clients désactivés remontaient.
+            specification = specification.and(uninsuredCustomerRepository.specialisationQueryString(search.toUpperCase() + "%"));
         }
         return uninsuredCustomerRepository.findAll(specification, page).map(UninsuredCustomerDTO::new);
     }
@@ -116,8 +153,8 @@ public class CustomerDataService {
         return new PageImpl<>(customers.stream().map(this::mapFromEntity).toList(), pageable, count);
     }
 
-    public Page<CustomerDTO> loadAllAsuredCustomers(String search, Status status, Pageable pageable) {
-        long count = countAssuredCustomer(search, status);
+    public Page<CustomerDTO> loadAllAsuredCustomers(String search, Status status, TiersPayantCategorie categorie, Pageable pageable) {
+        long count = countAssuredCustomer(search, status, categorie);
         if (count == 0) {
             return new PageImpl<>(Collections.emptyList(), pageable, count);
         }
@@ -126,7 +163,7 @@ public class CustomerDataService {
         CriteriaQuery<Customer> cq = cb.createQuery(Customer.class);
         Root<Customer> root = cq.from(Customer.class);
         Root<AssuredCustomer> assuredCustomerRoot = cb.treat(root, AssuredCustomer.class);
-        predicatsAssuredCustomer(search, status, predicates, cb, assuredCustomerRoot);
+        predicatsAssuredCustomer(search, status, categorie, predicates, cb, assuredCustomerRoot);
         cq
             .select(root)
             .orderBy(
@@ -144,13 +181,13 @@ public class CustomerDataService {
         return new PageImpl<>(assuredCustomers.stream().map(this::mapFromEntity).collect(Collectors.toList()), pageable, count);
     }
 
-    private long countAssuredCustomer(String search, Status status) {
+    private long countAssuredCustomer(String search, Status status, TiersPayantCategorie categorie) {
         List<Predicate> predicates = new ArrayList<>();
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<Customer> root = cq.from(Customer.class);
         Root<AssuredCustomer> assuredCustomerRoot = cb.treat(root, AssuredCustomer.class);
-        predicatsAssuredCustomer(search, status, predicates, cb, assuredCustomerRoot);
+        predicatsAssuredCustomer(search, status, categorie, predicates, cb, assuredCustomerRoot);
         cq.select(cb.countDistinct(root));
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Long> q = entityManager.createQuery(cq);
@@ -195,14 +232,21 @@ public class CustomerDataService {
     private void predicatsAssuredCustomer(
         String search,
         Status status,
+        TiersPayantCategorie categorie,
         List<Predicate> predicates,
         CriteriaBuilder cb,
         Root<AssuredCustomer> root
     ) {
         predicates.add(cb.equal(root.get(AssuredCustomer_.status), status));
         predicates.add(cb.isNull(root.get(AssuredCustomer_.assurePrincipal)));
+        SetJoin<AssuredCustomer, ClientTiersPayant> tiersPayantSetJoin = null;
+        if (categorie != null || StringUtils.hasLength(search)) {
+            tiersPayantSetJoin = root.joinSet(AssuredCustomer_.CLIENT_TIERS_PAYANTS);
+        }
+        if (categorie != null) {
+            predicates.add(cb.equal(tiersPayantSetJoin.get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.categorie), categorie));
+        }
         if (StringUtils.hasLength(search)) {
-            SetJoin<AssuredCustomer, ClientTiersPayant> tiersPayantSetJoin = root.joinSet(AssuredCustomer_.CLIENT_TIERS_PAYANTS);
             String queryValue = search.toUpperCase() + "%";
             predicates.add(
                 cb.or(

@@ -13,6 +13,7 @@ import {
   viewChild
 } from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {FicheClientPanelService} from '../../data-access/services/fiche-client-panel.service';
 import {take} from 'rxjs/operators';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
@@ -135,6 +136,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
+  private readonly ficheClient = inject(FicheClientPanelService);
   private customerDisplay = inject(CustomerDisplayService);
   private modalService = inject(NgbModal);
   private destroyRef = inject(DestroyRef);
@@ -207,6 +209,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
       finalizeSale: () => this.onSave(),
       putOnStandby: () => this.onPutOnHold(),
       cancelSale: () => this.onCancel(),
+      openCustomerRecord: () => this.ouvrirFicheClient(),
       focusPayment: () => this.paymentMode()?.focusFirstMode(),
       printReceipt: () => this.onPrint(),
       saveAsPresale: () => this.onSaveAsPresale(true),
@@ -263,6 +266,10 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   });
 
   constructor() {
+    this.ficheClient.redelivrer$.pipe(takeUntilDestroyed()).subscribe(produit => {
+      this.productSearchComponent()?.afficherProduit(produit);
+      this.onProductSelected(produit);
+    });
     // Initialiser les effects de gestion du forçage de stock via le mixin
     this.forceStockHandling.initializeEffects();
     // Initialiser les effects de déconditionnement (après force-stock)
@@ -306,6 +313,13 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
    * Délègue au mixin productHandling
    * Focus automatique sur quantité après sélection
    */
+  /** Fiche client en panneau, sans quitter la vente ; « Re-délivrer » y présélectionne le produit. */
+  protected ouvrirFicheClient(): void {
+    if (!this.ficheClient.ouvrir(this.facade.selectedCustomer()?.id)) {
+      this.notificationService.warning('Aucun client sélectionné');
+    }
+  }
+
   onProductSelected(product: ProduitSearch | null): void {
     this.productHandling.onProductSelected(product);
   }

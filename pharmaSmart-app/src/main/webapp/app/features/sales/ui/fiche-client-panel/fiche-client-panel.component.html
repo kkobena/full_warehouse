@@ -1,0 +1,93 @@
+<app-offcanvas [(visible)]="visible" width="560px">
+  <div appOffcanvasHeader class="d-flex align-items-center gap-2">
+    <i class="pi pi-id-card text-primary"></i>
+    <span class="fw-bold fs-5">{{ fiche()?.customer?.fullName ?? 'Fiche client' }}</span>
+  </div>
+
+  @if (chargement() && !fiche()) {
+    <div class="text-center text-muted py-4"><span class="spinner-border spinner-border-sm me-2"></span>Chargement…</div>
+  } @else if (fiche(); as f) {
+    <!-- Alertes : ce qu'il faut savoir avant de délivrer -->
+    <div class="d-flex flex-column gap-1 mb-3">
+      @for (allergie of f.sante?.allergies ?? []; track allergie.id) {
+        <app-badge [label]="'Allergie : ' + (allergie.dciLibelle ?? allergie.libelle)" icon="pi pi-exclamation-triangle" severity="danger" />
+      }
+      @if (grossesseEnCours()) {
+        <app-badge label="Grossesse en cours" icon="pi pi-heart" severity="warn" />
+      }
+      @if (f.sante?.allaitement) {
+        <app-badge label="Allaitement" icon="pi pi-heart" severity="warn" />
+      }
+      @for (tp of cartesExpirees(); track tp.id) {
+        <app-badge [label]="'Carte ' + tp.tiersPayantFullName + ' expirée le ' + (tp.dateFinValidite | date: 'dd/MM/yyyy')"
+                   icon="pi pi-exclamation-triangle" severity="danger" />
+      }
+      @if (f.credit && f.credit.encours > 0) {
+        <app-badge [label]="'Encours : ' + (f.credit.encours | number) + ' ' + devise + (f.credit.limite > 0 ? ' / limite ' + (f.credit.limite | number) : '')"
+                   icon="pi pi-credit-card" [severity]="creditDepasse() ? 'danger' : 'warn'" />
+      }
+      @if (avoirsOuverts().length > 0) {
+        <app-badge [label]="'Avoirs disponibles : ' + (soldeAvoirs() | number) + ' ' + devise" icon="pi pi-wallet" severity="success" />
+      }
+      @if (!(f.sante?.allergies?.length) && !grossesseEnCours() && !f.sante?.allaitement && cartesExpirees().length === 0 && !(f.credit?.encours) && avoirsOuverts().length === 0) {
+        <span class="text-muted small">Aucune alerte.</span>
+      }
+    </div>
+
+    <!-- Couverture -->
+    @if (tiersPayants().length > 0) {
+      <h6 class="mb-2">Couverture</h6>
+      <app-data-table [value]="tiersPayants()" [stripedRows]="true" size="small" class="d-block mb-3">
+        <ng-template #header>
+          <tr>
+            <th>Organisme</th>
+            <th class="text-end">Taux</th>
+            <th class="text-end">Consommation</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-tp>
+          <tr>
+            <td>{{ tp.tiersPayantFullName }}</td>
+            <td class="text-end">{{ tp.taux }} %</td>
+            <td class="text-end" [class.text-danger]="tp.plafondConso && (tp.consommation ?? 0) >= tp.plafondConso">
+              {{ tp.consommation ?? 0 | number }}
+              @if (tp.plafondConso) {
+                <span class="text-muted small">/ {{ tp.plafondConso | number }}</span>
+              }
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    }
+
+    <!-- Dernières délivrances, avec re-délivrance -->
+    <h6 class="mb-2">Dernières délivrances</h6>
+    <app-data-table [value]="f.produits" [stripedRows]="true" size="small" emptyMessage="Aucune délivrance sur les douze derniers mois">
+      <ng-template #header>
+        <tr>
+          <th>Produit</th>
+          <th>Dernière</th>
+          <th class="text-end">Qté</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-produit>
+        <tr>
+          <td><span class="pharma-product-name">{{ produit.libelle }}</span></td>
+          <td>{{ produit.derniereDelivrance | date: 'dd/MM/yyyy' }}</td>
+          <td class="text-end">{{ produit.quantite | number }}</td>
+          <td class="text-end">
+            <app-button (clicked)="choisir(produit)" icon="pi pi-replay" severity="primary" size="small" [text]="true"
+                        label="Re-délivrer" ariaLabel="Re-délivrer ce produit" />
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+
+    @if (peutOuvrirFiche()) {
+      <div class="text-end mt-3">
+        <app-button (clicked)="ouvrirFicheComplete()" icon="pi pi-external-link" label="Fiche complète" severity="secondary" size="small" />
+      </div>
+    }
+  }
+</app-offcanvas>

@@ -19,6 +19,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
+import jakarta.persistence.QueryHint;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
@@ -27,6 +29,7 @@ import org.springframework.util.StringUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -60,6 +63,26 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         "SELECT SUM(o.restToPay)   FROM Sales o  JOIN o.customer c  WHERE o.differe AND o.statut='CLOSED' AND o.canceled =FALSE  AND c.id =:customerId"
     )
     BigDecimal getDiffereSoldeByCustomerId(Integer customerId);
+
+    /**
+     * Encours différé du client, hors la vente en cours de clôture (contrôle de la limite de crédit).
+     * Sans vidage préalable : appelée au milieu de la clôture, elle écrirait une vente encore incomplète.
+     */
+    @QueryHints(@QueryHint(name = org.hibernate.jpa.HibernateHints.HINT_FLUSH_MODE, value = "COMMIT"))
+    @Query(
+        "SELECT COALESCE(SUM(o.restToPay), 0) FROM Sales o WHERE o.customer.id = :customerId AND o.differe AND o.statut='CLOSED' AND o.canceled = FALSE AND NOT (o.id = :saleId AND o.saleDate = :saleDate)"
+    )
+    long getDiffereSoldeHorsVente(
+        @Param("customerId") Integer customerId,
+        @Param("saleId") Long saleId,
+        @Param("saleDate") LocalDate saleDate
+    );
+
+    /** Reste dû sur les ventes différées, par client : l'encours de la liste des clients, en une requête par page. */
+    @Query(
+        "SELECT c.id, SUM(o.restToPay) FROM Sales o JOIN o.customer c WHERE o.differe AND o.statut='CLOSED' AND o.canceled = FALSE AND c.id IN :customerIds GROUP BY c.id"
+    )
+    List<Object[]> sumDiffereSoldeByCustomerIds(@Param("customerIds") Collection<Integer> customerIds);
 
     /*
      * ATTENTION au paramètre `toIgnore` : il n'exclut pas les lignes ignorées, il filtre par

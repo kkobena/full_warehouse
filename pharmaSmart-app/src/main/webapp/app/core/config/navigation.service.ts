@@ -6,6 +6,7 @@ import {AlertBadgeService} from '../../shared/services/alert-badge.service';
 import {AccountService} from '../auth/account.service';
 import {TauriPrinterService} from '../../shared/services/tauri-printer.service';
 import {LayoutService} from './layout.service';
+import {THEMES, ThemeService} from 'app/core/theme/theme.service';
 import {Authority} from '../../config/authority.constants';
 import {NavStore} from 'app/core/store/nav.store';
 import {INavNode} from 'app/shared/model/nav-item.model';
@@ -22,6 +23,7 @@ import {
   faCalculator,
   faCalendarTimes,
   faCashRegister,
+  faCheck,
   faChartBar,
   faClipboardList,
   faClock,
@@ -64,6 +66,25 @@ import {
   faWallet,
 } from '@fortawesome/free-solid-svg-icons';
 
+/**
+ * Teintes des entrées de premier niveau, dans l'ordre d'attribution (`--nav-hue-*`,
+ * icon-colors-global.scss). Ordonnées pour que deux voisines ne se ressemblent pas.
+ */
+export const NAV_ACCENTS = [
+  'emerald',
+  'blue',
+  'amber',
+  'violet',
+  'rose',
+  'teal',
+  'orange',
+  'indigo',
+  'lime',
+  'fuchsia',
+  'cyan',
+  'pink',
+].map(hue => `var(--nav-hue-${hue})`);
+
 export interface NavigationOptions {
   includeNewSale?: boolean;
   additionalAccountMenuItems?: NavItem[];
@@ -93,6 +114,7 @@ export class NavigationService {
   private readonly accountService = inject(AccountService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly layoutService = inject(LayoutService);
+  private readonly themeService = inject(ThemeService);
 
   /**
    * Construit l'arbre de navigation complet, identique pour la navbar
@@ -112,10 +134,23 @@ export class NavigationService {
       faIcon: faBars,
       click: () => this.layoutService.toggleLayout(),
     };
+    const themeMenu: NavItem = {
+      id: 'theme',
+      label: 'Thème',
+      children: THEMES.map(theme => ({
+        id: `theme.${theme.name}`,
+        label: theme.label,
+        faIcon: this.themeService.theme() === theme.name ? faCheck : undefined,
+        click: () => this.themeService.setTheme(theme.name),
+      })),
+    };
+    const menuDivider: NavItem = {id: 'account.divider', label: '', divider: true};
 
     if (!account) {
       const anonymousItems: NavItem[] = [
         layoutToggle,
+        themeMenu,
+        menuDivider,
         {
           id: 'account.login',
           label: 'Se connecter',
@@ -137,6 +172,8 @@ export class NavigationService {
     const isAdmin = this.hasAnyAuthority(Authority.ADMIN, account.authorities);
     const accountItems: NavItem[] = [
       layoutToggle,
+      themeMenu,
+      menuDivider,
       {
         id: 'account.logout',
         label: 'Se déconnecter',
@@ -182,21 +219,21 @@ export class NavigationService {
     }
     const items = this.mapNodesToNavItems(tree);
     items.push(this.buildAccountMenu(options));
-    return items;
+    return this.applyNavAccents(items);
   }
 
   /**
    * Build unauthenticated navigation items
    */
   buildUnauthenticatedNavItems(additionalItems: NavItem[] = []): NavItem[] {
-    return [
+    return this.applyNavAccents([
       {
         id: 'account',
         label: this.translateLabel('account.main'),
         faIcon: 'user',
         children: additionalItems,
       },
-    ];
+    ]);
   }
 
   /**
@@ -317,6 +354,21 @@ export class NavigationService {
       faIcon: 'user',
       children: accountChildren
     };
+  }
+
+  /** Une teinte distincte par entrée de premier niveau ; les sous-entrées reprennent celle du parent. */
+  private applyNavAccents(items: NavItem[]): NavItem[] {
+    const paint = (nodes: NavItem[] | undefined, accent: string): void =>
+      nodes?.forEach(node => {
+        node.accent = accent;
+        paint(node.children, accent);
+      });
+    items.forEach((item, index) => {
+      const accent = NAV_ACCENTS[index % NAV_ACCENTS.length];
+      item.accent = accent;
+      paint(item.children, accent);
+    });
+    return items;
   }
 
   private translateLabel(key: string): string {

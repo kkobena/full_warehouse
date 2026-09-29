@@ -92,6 +92,7 @@ class SalesLineServiceBaseImplTest {
     @Mock
     private AvoirClientDocumentService avoirClientDocumentService;
     @Mock private DataMatrixParserService dataMatrixParserService;
+    @Mock private com.kobe.warehouse.service.AjustementService ajustementService;
 
     @BeforeEach
     void setUp() {
@@ -113,7 +114,8 @@ class SalesLineServiceBaseImplTest {
             repartitionStockService,
             lotStockLocationService,
             avoirClientDocumentService,
-            dataMatrixParserService
+            dataMatrixParserService,
+            ajustementService
         );
     }
 

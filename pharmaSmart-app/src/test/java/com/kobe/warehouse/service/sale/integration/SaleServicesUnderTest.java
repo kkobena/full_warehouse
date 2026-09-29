@@ -160,6 +160,7 @@ final class SaleServicesUnderTest {
     final SaleIdGeneratorService saleIdGeneratorService;
     final SaleLineIdGeneratorService saleLineIdGeneratorService;
     final StockUpdateService stockUpdateService;
+    final com.kobe.warehouse.service.AjustementService ajustementService;
     final ConsommationService consommationService;
     final ThirdPartyClientManager thirdPartyClientManager;
     final ThirdPartyCalculationManager thirdPartyCalculationManager;
@@ -208,7 +209,25 @@ final class SaleServicesUnderTest {
             stockProduitRepository,
             avoirClientNotificationService,
             appConfigurationService,
-            avoirClientUtilisationRepository
+            avoirClientUtilisationRepository,
+            lotService,
+            lotStockLocationService,
+            logsService
+        );
+
+        // Réel : la régularisation d'un écart d'inventaire est un ajustement écrit en base.
+        this.ajustementService = new com.kobe.warehouse.service.AjustementService(
+            IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.AjustementRepository.class),
+            produitRepository,
+            IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.AjustRepository.class),
+            storageService,
+            stockProduitRepository,
+            logsService,
+            inventoryTransactionService,
+            suggestionReassortService,
+            lotStockLocationService,
+            lotService,
+            IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.MotifAjustementRepository.class)
         );
 
         SalesLineServiceBaseImpl salesLineServiceBase = new SalesLineServiceBaseImpl(
@@ -223,7 +242,8 @@ final class SaleServicesUnderTest {
             repartitionStockService,
             lotStockLocationService,
             avoirClientDocumentService,
-            dataMatrixParserService
+            dataMatrixParserService,
+            ajustementService
         );
         this.salesLineService = salesLineServiceBase;
         SaleLineServiceFactory saleLineServiceFactory = new SaleLineServiceFactory(salesLineServiceBase);

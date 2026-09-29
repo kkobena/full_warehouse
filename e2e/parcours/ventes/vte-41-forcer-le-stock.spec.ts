@@ -7,10 +7,9 @@ import { scenario } from '../../src/scenario';
  * encaisse aujourd'hui et livrera après le prochain réapprovisionnement.
  *
  * L'application refuse d'abord (« Stock insuffisant »), puis PROPOSE de forcer. Le forçage
- * n'est offert qu'aux utilisateurs qui en ont le privilège, et il ne crée AUCUN stock : la
- * quantité servie reste bornée au disponible, l'écart devient un avoir client — d'où le
- * client obligatoire à l'encaissement. Le stock ne passe pas en négatif : rien ne sort de
- * ce qui n'existe pas.
+ * n'est offert qu'aux utilisateurs qui en ont le privilège : la quantité servie reste bornée
+ * au disponible, l'écart devient un avoir client — d'où le client obligatoire à l'encaissement.
+ * Le stock sort la quantité demandée et passe en négatif : c'est la dette envers le client.
  *
  * Parcours en LECTURE : il décline le forçage, et le stock n'est pas touché.
  */
@@ -33,15 +32,16 @@ scenario('VTE-41', async ({ etape, page }) => {
   });
 
   await etape(2, async () => {
-    // Le refus n'est pas un blocage : c'est une question. « La quantité saisie est supérieure
-    // à la quantité stock du produit. Voulez-vous continuer ? »
-    await expect(modale).toContainText('Forcer le stock');
-    await expect(modale).toContainText('supérieure à la quantité stock');
-    await expect(modale.getByRole('button', { name: 'Oui' })).toBeVisible();
-    await expect(modale.getByRole('button', { name: 'Non' })).toBeVisible();
+    // Le refus n'est pas un blocage : c'est une question, et elle porte sur le POURQUOI.
+    // Seul le caissier, devant le rayon, sait si la boîte manque ou si la machine se trompe.
+    await expect(modale).toContainText('Stock insuffisant');
+    await expect(modale).toContainText('dépasse le stock affiché');
+    await expect(modale.getByRole('button', { name: /Le client sera livré plus tard/ })).toBeVisible();
+    await expect(modale.getByRole('button', { name: /la machine se trompe/ })).toBeVisible();
+    await expect(modale.getByRole('button', { name: 'Annuler' })).toBeVisible();
   });
 
   // ── Remise en état : on décline. Le panier reste vide, le stock intact. ─────────────────
-  await modale.getByRole('button', { name: 'Non' }).click();
+  await modale.getByRole('button', { name: 'Annuler' }).click();
   await expect(modale).toBeHidden();
 });

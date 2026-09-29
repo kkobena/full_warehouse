@@ -5,5 +5,7 @@ public enum NavTargetType {
     ACTION,
     GROUP,
     SECTION,
-    DIVIDER
+    DIVIDER,
+    // widget du dashboard personnalisable : jamais affiché dans le menu, can_display = droit de l'ajouter
+    WIDGET
 }

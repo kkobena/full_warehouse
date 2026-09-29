@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.kobe.warehouse.domain.Dci;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
@@ -174,6 +175,40 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
 
         assertEquals(Status.DISABLE, em.find(Produit.class, doublon.getId()).getStatus(), "le doublon est archivé, jamais supprimé");
         assertEquals(1, compter("SELECT COUNT(*) FROM produit WHERE id = " + doublon.getId()));
+    }
+
+    /** Défaut corrigé (PLAN-PRODUIT-DCI-N-N) : la fusion perdait la DCI du produit absorbé. */
+    @Test
+    @DisplayName("Les molécules du doublon s'ajoutent à celles de la cible, qui gardent leur rang")
+    void fusionDesMolecules() {
+        Dci commune = dci("COMMUNE");
+        Dci propreCible = dci("PROPRE CIBLE");
+        Dci propreDoublon = dci("PROPRE DOUBLON");
+        Produit cible = produit(unique("CIBLE DCI"));
+        fournisseurProduit(cible);
+        cible.remplacerDcis(List.of(propreCible, commune));
+        Produit doublon = produit(unique("DOUBLON DCI"));
+        fournisseurProduit(doublon);
+        doublon.remplacerDcis(List.of(commune, propreDoublon));
+        em.flush();
+        viderLeCache();
+
+        services.produitMergeService.merge(fusion(cible, doublon));
+        viderLeCache();
+
+        List<Integer> molecules = em.createNativeQuery("SELECT dci_id FROM produit_dci WHERE produit_id = :id ORDER BY rang", Integer.class)
+            .setParameter("id", cible.getId())
+            .getResultList();
+        assertEquals(List.of(propreCible.getId(), commune.getId(), propreDoublon.getId()), molecules);
+    }
+
+    private Dci dci(String libelle) {
+        Dci dci = new Dci();
+        dci.setLibelle(unique(libelle));
+        dci.setCode(unique("D"));
+        em.persist(dci);
+        em.flush();
+        return dci;
     }
 
     @Test

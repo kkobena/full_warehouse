@@ -41,6 +41,9 @@ public interface FacturationRepository
     @Query(value = "SELECT f.num_facture FROM facture_tiers_payant f  ORDER BY f.id DESC LIMIT 1", nativeQuery = true)
     String findLatestFactureNumber();
 
+    /** Une facture de groupe ne porte pas de dossiers en propre : ce sont ses filles qui en portent. */
+    boolean existsByIdAndInvoiceDateAndGroupeTiersPayantIsNotNull(Long id, LocalDate invoiceDate);
+
     /**
      * Délai d'attente maximal des verrous de ligne, pour la seule transaction courante
      * ({@code set_config(..., true)} équivaut à {@code SET LOCAL}). Au-delà, PostgreSQL abandonne

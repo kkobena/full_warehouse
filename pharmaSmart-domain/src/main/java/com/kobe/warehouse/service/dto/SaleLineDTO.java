@@ -1,11 +1,14 @@
 package com.kobe.warehouse.service.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.SalesLine;
+import com.kobe.warehouse.domain.enumeration.MotifForcageStock;
 import com.kobe.warehouse.service.sale.calculation.dto.Rate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -77,6 +80,9 @@ public class SaleLineDTO {
     private Integer taxValue;
 
     private boolean forceStock; // mis pour forcer le stock a la vente
+    // Pourquoi on force ; un motif renseigné vaut forçage. Jamais renvoyé : un DTO relu puis renvoyé forcerait sans confirmation.
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private MotifForcageStock motifForcage;
     private String codeScan;
     private SaleLineId saleLineId;
     private SaleId saleCompositeId;
@@ -110,6 +116,15 @@ public class SaleLineDTO {
         calculationBasePrice = salesLine.getCalculationBasePrice();
         rates = salesLine.getRates();
         codeScan = salesLine.getCodeScan();
+    }
+
+    public MotifForcageStock getMotifForcage() {
+        return motifForcage;
+    }
+
+    public SaleLineDTO setMotifForcage(MotifForcageStock motifForcage) {
+        this.motifForcage = motifForcage;
+        return this;
     }
 
     public SaleId getSaleCompositeId() {
@@ -364,6 +379,12 @@ public class SaleLineDTO {
 
     public boolean isForceStock() {
         return forceStock;
+    }
+
+    /** Forçage effectif : le drapeau historique ou un motif explicite. */
+    @JsonIgnore
+    public boolean isForcage() {
+        return forceStock || motifForcage != null;
     }
 
     public SaleLineDTO setForceStock(boolean forceStock) {

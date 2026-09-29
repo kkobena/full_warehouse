@@ -44,7 +44,7 @@ public class ReglementFactureTpResource {
     @PostMapping("/reglement-factures-tp")
     public ResponseEntity<ResponseReglementDTO> doReglement(@Valid @RequestBody ReglementParam reglementParam) {
         return ResponseEntity.status(HttpStatus.CREATED).body(
-            reglementRegistry.getService(reglementParam.getMode()).doReglement(reglementParam)
+            reglementRegistry.getService(reglementParam).doReglement(reglementParam)
         );
     }
 

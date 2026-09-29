@@ -17,10 +17,20 @@ import org.springframework.stereotype.Repository;
 public interface DashboardLayoutRepository extends JpaRepository<DashboardLayout, Integer> {
 
     /**
-     * Find all layouts for a specific user (private + public)
+     * Layouts de l'utilisateur et layouts publics des autres utilisateurs. Les layouts système
+     * (sans propriétaire, livrés par migration pour l'accueil par rôle) n'y figurent pas.
      */
-    @Query("SELECT dl FROM DashboardLayout dl WHERE dl.user = :user OR dl.scope = 'PUBLIC' ORDER BY dl.updatedAt DESC")
+    @Query(
+        "SELECT dl FROM DashboardLayout dl WHERE dl.user = :user OR (dl.scope = 'PUBLIC' AND dl.user IS NOT NULL) ORDER BY dl.updatedAt DESC"
+    )
     List<DashboardLayout> findByUserOrPublic(@Param("user") AppUser user);
+
+    /** Layouts publics créés par des utilisateurs, hors layouts système. */
+    @Query("SELECT dl FROM DashboardLayout dl WHERE dl.scope = 'PUBLIC' AND dl.user IS NOT NULL ORDER BY dl.updatedAt DESC")
+    List<DashboardLayout> findPublicUserLayouts();
+
+    /** Tous les layouts marqués par défaut de l'utilisateur, quelle que soit leur portée. */
+    List<DashboardLayout> findAllByUserAndIsDefaultTrue(AppUser user);
 
     /**
      * Find user's private layouts only

@@ -1,5 +1,7 @@
-import { Signal, WritableSignal, effect } from '@angular/core';
-import { ISalesLine, ISales } from '../../../../shared/model';
+import { NgZone, Signal, WritableSignal, effect, inject } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ISalesLine, ISales, MotifForcageStock } from '../../../../shared/model';
+import { ForceStockChoiceModalComponent } from '../../ui/force-stock-choice-modal/force-stock-choice-modal.component';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { AuthorizationService } from '../../data-access/services/authorization.service';
 
@@ -60,6 +62,9 @@ export interface ForceStockHandlingContext {
   resetProductSelection: () => void;
   // Operations spécifiques au type de vente
   operations: ForceStockSaleOperations;
+  // Injectés par défaut ; fournis explicitement par les tests
+  modalService?: NgbModal;
+  zone?: NgZone;
 }
 
 /**
@@ -108,31 +113,44 @@ export function createForceStockHandling(context: ForceStockHandlingContext) {
     waitingForForceStockSuccess,
     forceStockContext,
   } = context;
+  const modalService = context.modalService ?? inject(NgbModal);
+  const zone = context.zone ?? inject(NgZone);
 
   /**
-   * Gère l'erreur de stock insuffisant avec option de forçage
+   * Stock insuffisant : le caissier choisit entre rupture (avoir) et écart d'inventaire,
+   * chaque option n'étant offerte qu'avec son privilège.
    */
   function handleStockError(errorDetails: StockErrorDetails): void {
     const isFromTableEdit = errorDetails.isFromTableCellEdit === true;
     const detectedContext: ForceStockContext = isFromTableEdit ? 'editCell' : 'addProduct';
     forceStockContext.set(detectedContext);
 
-    context.getConfirmDialog().onConfirm(
-      () => onForceStockConfirmed(errorDetails, detectedContext),
-      'Forcer le stock',
-      'La quantité saisie est supérieure à la quantité stock du produit. Voulez-vous continuer ?',
-      undefined,
-      () => onForceStockCancelled(),
-    );
+    // NgZone.run : ouverte depuis un effect(), la modale doit déclencher la détection de changements
+    zone.run(() => {
+      const modalRef = modalService.open(ForceStockChoiceModalComponent, { backdrop: 'static', centered: true });
+      const choix = modalRef.componentInstance as ForceStockChoiceModalComponent;
+      choix.produitLibelle = errorDetails.attemptedLine?.produitLibelle;
+      choix.quantiteDemandee = errorDetails.attemptedLine?.quantityRequested;
+      choix.canRupture = authorizationService.canForceStock();
+      choix.canEcart = authorizationService.canRegulariserStock();
+      modalRef.result.then(
+        (motif: MotifForcageStock) => onForceStockConfirmed(errorDetails, detectedContext, motif),
+        () => onForceStockCancelled(),
+      );
+    });
   }
 
   /**
-   * Callback appelé quand l'utilisateur confirme le forçage de stock
+   * Callback appelé quand l'utilisateur confirme le forçage de stock.
+   * Sans motif (transfert depuis la réserve), le serveur traite le reliquat en rupture.
    */
-  function onForceStockConfirmed(errorDetails: StockErrorDetails, detectedContext: ForceStockContext): void {
+  function onForceStockConfirmed(errorDetails: StockErrorDetails, detectedContext: ForceStockContext, motif?: MotifForcageStock): void {
     if (!errorDetails.attemptedLine) return;
 
     errorDetails.attemptedLine.forceStock = true;
+    if (motif) {
+      errorDetails.attemptedLine.motifForcage = motif;
+    }
     waitingForForceStockSuccess.set(true);
 
     if (detectedContext === 'editCell') {
@@ -206,12 +224,11 @@ export function createForceStockHandling(context: ForceStockHandlingContext) {
       // Si on attend le résultat du forçage, ignorer pour éviter de montrer le dialog en double
       if (waiting) return;
 
-      if (errorMsg && errorDetails && authorizationService.canForceStock()) {
-        if (errorDetails.errorKey === 'stock') {
-          handleStockError(errorDetails);
-        } else if (errorDetails.errorKey === 'stock.reserve.available') {
-          handleReserveStockError(errorDetails);
-        }
+      if (!errorMsg || !errorDetails) return;
+      if (errorDetails.errorKey === 'stock' && (authorizationService.canForceStock() || authorizationService.canRegulariserStock())) {
+        handleStockError(errorDetails);
+      } else if (errorDetails.errorKey === 'stock.reserve.available' && authorizationService.canForceStock()) {
+        handleReserveStockError(errorDetails);
       }
       // Les autres erreurs sont gérées par le composant
     });

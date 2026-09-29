@@ -15,10 +15,15 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
+import com.kobe.warehouse.domain.enumeration.MotifForcageStock;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
+import com.kobe.warehouse.security.AuthoritiesConstants;
+import com.kobe.warehouse.security.SecurityUtils;
+import com.kobe.warehouse.service.AjustementService;
 import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.dto.DataMatrixInfo;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
@@ -63,6 +68,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     private final LotStockLocationService lotStockLocationService;
     private final AvoirClientDocumentService avoirClientDocumentService;
     private final DataMatrixParserService dataMatrixParserService;
+    private final AjustementService ajustementService;
 
     protected SalesLineServiceImpl(
         ProduitRepository produitRepository,
@@ -76,8 +82,10 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         RepartitionStockService repartitionStockService,
         LotStockLocationService lotStockLocationService,
         AvoirClientDocumentService avoirClientDocumentService,
-        DataMatrixParserService dataMatrixParserService
+        DataMatrixParserService dataMatrixParserService,
+        AjustementService ajustementService
     ) {
+        this.ajustementService = ajustementService;
         this.produitRepository = produitRepository;
         this.salesLineRepository = salesLineRepository;
         this.stockProduitRepository = stockProduitRepository;
@@ -100,9 +108,9 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
 
     protected SalesLine setCommonSaleLine(SaleLineDTO dto, Integer stockageId) throws StockException, DeconditionnementStockOut {
         Produit produit = produitRepository.getReferenceById(dto.getProduitId());
-        int currentStockQuantity = getCurrentStockQuantity(produit.getId(), dto.getQuantityRequested(), dto.isForceStock());
+        int currentStockQuantity = getCurrentStockQuantity(produit.getId(), dto.getQuantityRequested(), dto.isForcage());
 
-        if (dto.getQuantityRequested() > currentStockQuantity && !dto.isForceStock()) {
+        if (dto.getQuantityRequested() > currentStockQuantity && !dto.isForcage()) {
             Produit parentProduit = produit.getParent();
             if (parentProduit == null) {
                 throw new StockException();
@@ -121,7 +129,8 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLine.setNetUnitPrice(dto.getRegularUnitPrice());
         salesLine.setRegularUnitPrice(dto.getRegularUnitPrice());
         salesLine.setQuantityRequested(dto.getQuantityRequested());
-        salesLine.setQuantitySold(calculateQuantitySold(salesLine.getQuantityRequested(), currentStockQuantity));
+        salesLine.setMotifForcage(motifForcageAutorise(dto.isForcage(), dto.getMotifForcage(), salesLine.getQuantityRequested(), currentStockQuantity));
+        salesLine.setQuantitySold(calculateQuantitySold(salesLine.getQuantityRequested(), currentStockQuantity, salesLine.getMotifForcage()));
         salesLine.setSalesAmount(salesLine.getQuantityRequested() * salesLine.getRegularUnitPrice());
         // Valeur de départ ; elle est réétablie à chaque recalcul par SaleCommonService#updateAmounts
         salesLine.setAmountToBeTakenIntoAccount(salesLine.getSalesAmount());
@@ -202,7 +211,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLine.setDiscountUnitPrice(dto.getRegularUnitPrice());
         salesLine.setQuantityRequested(dto.getQuantityRequested());
         // buildSaleLineFromDTO est utilisé pour l'import de données : pas de forceStock
-        salesLine.setQuantitySold(calculateQuantitySold(salesLine.getQuantityRequested(), getCurrentStockQuantity(produit.getId(), salesLine.getQuantityRequested(), false)));
+        salesLine.setQuantitySold(calculateQuantitySold(salesLine.getQuantityRequested(), getCurrentStockQuantity(produit.getId(), salesLine.getQuantityRequested(), false), null));
         salesLine.setQuantityAvoir(dto.getQuantiyAvoir());
         salesLine.setQuantityUg(dto.getQuantityUg());
         salesLine.setToIgnore(dto.isToIgnore());
@@ -266,14 +275,15 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     private void updateSalesLine(SalesLine salesLine, SaleLineDTO dto, Integer stockageId) throws StockException {
         int quantityRequested = salesLine.getQuantityRequested() + dto.getQuantityRequested();
 
-        int currentStockQuantity = getCurrentStockQuantity(salesLine.getProduit().getId(), quantityRequested, dto.isForceStock());
-        processItemQuantityRequested(quantityRequested, salesLine, currentStockQuantity, dto.isForceStock());
+        int currentStockQuantity = getCurrentStockQuantity(salesLine.getProduit().getId(), quantityRequested, dto.isForcage());
+        processItemQuantityRequested(quantityRequested, salesLine, currentStockQuantity, dto.isForcage());
         salesLine.setUpdatedAt(LocalDateTime.now());
         salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
         salesLine.setQuantityRequested(quantityRequested);
         salesLine.setSalesAmount(salesLine.getQuantityRequested() * dto.getRegularUnitPrice());
         salesLine.setNetUnitPrice(dto.getRegularUnitPrice());
-        salesLine.setQuantitySold(calculateQuantitySold(salesLine.getQuantityRequested(), currentStockQuantity));
+        salesLine.setMotifForcage(motifForcageAutorise(dto.isForcage(), motifDemande(dto, salesLine), quantityRequested, currentStockQuantity));
+        salesLine.setQuantitySold(calculateQuantitySold(salesLine.getQuantityRequested(), currentStockQuantity, salesLine.getMotifForcage()));
         salesLine.setRegularUnitPrice(dto.getRegularUnitPrice());
         if (dto.getCodeScan() != null) {
             salesLine.setCodeScan(dto.getCodeScan());
@@ -332,6 +342,10 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
             salesLines.forEach(salesLine -> {
                 Produit p = salesLine.getProduit();
                 StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
+                // Avant la sortie : les lots crédités couvrent alors le débit FEFO.
+                if (salesLine.getMotifForcage() == MotifForcageStock.ECART_INVENTAIRE) {
+                    regulariserEcartInventaire(salesLine, stockProduit);
+                }
                 updateSaleLineLotSold(salesLine, stockProduit.getStorage());
                 salesLine.setQuantityAvoir(salesLine.getQuantityRequested() - salesLine.getQuantitySold());
                 save(salesLine, stockProduit);
@@ -460,8 +474,8 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     @Override
     public void updateItemQuantityRequested(SaleLineDTO saleLineDTO, SalesLine salesLine, Integer storageId)
         throws StockException, DeconditionnementStockOut {
-        int quantity = getCurrentStockQuantity(salesLine.getProduit().getId(), saleLineDTO.getQuantityRequested(), saleLineDTO.isForceStock());
-        processItemQuantityRequested(saleLineDTO, salesLine, quantity);
+        int quantity = getCurrentStockQuantity(salesLine.getProduit().getId(), saleLineDTO.getQuantityRequested(), saleLineDTO.isForcage());
+        processItemQuantityRequested(saleLineDTO.getQuantityRequested(), salesLine, quantity, saleLineDTO.isForcage());
         salesLine.setQuantityRequested(saleLineDTO.getQuantityRequested());
         updateStock(quantity, saleLineDTO, salesLine, storageId);
     }
@@ -470,21 +484,11 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     public void incrementItemQuantityRequested(SaleLineDTO saleLineDTO, SalesLine salesLine, Integer storageId)
         throws StockException, DeconditionnementStockOut {
         int totalRequested = salesLine.getQuantityRequested() + saleLineDTO.getQuantityRequested();
-        int quantity = getCurrentStockQuantity(salesLine.getProduit().getId(), totalRequested, saleLineDTO.isForceStock());
-        processItemQuantityRequested(saleLineDTO, salesLine, quantity);
+        int quantity = getCurrentStockQuantity(salesLine.getProduit().getId(), totalRequested, saleLineDTO.isForcage());
+        // Le contrôle porte sur le total de la ligne, pas sur le seul incrément.
+        processItemQuantityRequested(totalRequested, salesLine, quantity, saleLineDTO.isForcage());
         salesLine.setQuantityRequested(totalRequested);
         updateStock(quantity, saleLineDTO, salesLine, storageId);
-    }
-
-    private void processItemQuantityRequested(SaleLineDTO saleLineDTO, SalesLine salesLine, int quantity) throws StockException, DeconditionnementStockOut {
-
-        if (saleLineDTO.getQuantityRequested() > quantity && !saleLineDTO.isForceStock()) {
-            if (salesLine.getProduit().getParent() == null) {
-                throw new StockException();
-            } else {
-                throw new DeconditionnementStockOut(salesLine.getProduit().getParent().getId().toString());
-            }
-        }
     }
 
     private void processItemQuantityRequested(Integer quantityRequested, SalesLine salesLine, int currentStock, boolean forceStock) throws StockException, DeconditionnementStockOut {
@@ -510,7 +514,8 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
 
     private void updateStock(int quantity, SaleLineDTO saleLineDTO, SalesLine salesLine, Integer storageId) {
 
-        salesLine.setQuantitySold(calculateQuantitySold(salesLine.getQuantityRequested(), quantity));
+        salesLine.setMotifForcage(motifForcageAutorise(saleLineDTO.isForcage(), motifDemande(saleLineDTO, salesLine), salesLine.getQuantityRequested(), quantity));
+        salesLine.setQuantitySold(calculateQuantitySold(salesLine.getQuantityRequested(), quantity, salesLine.getMotifForcage()));
         salesLine.setUpdatedAt(LocalDateTime.now());
         salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
         salesLine.setSalesAmount(salesLine.getQuantityRequested() * salesLine.getRegularUnitPrice());
@@ -519,8 +524,43 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLineRepository.save(salesLine);
     }
 
-    private int calculateQuantitySold(int quantityRequested, int currentStockQuantity) {
+    /** Sans manque, pas de motif ; avec manque, l'écart d'inventaire s'il est demandé, la rupture sinon. */
+    static MotifForcageStock motifForcage(boolean forceStock, MotifForcageStock demande, int quantityRequested, int currentStockQuantity) {
+        if (!forceStock || quantityRequested <= currentStockQuantity) {
+            return null;
+        }
+        return demande == MotifForcageStock.ECART_INVENTAIRE ? MotifForcageStock.ECART_INVENTAIRE : MotifForcageStock.RUPTURE_AVOIR;
+    }
 
+    private MotifForcageStock motifForcageAutorise(boolean forceStock, MotifForcageStock demande, int quantityRequested, int currentStockQuantity) {
+        MotifForcageStock motif = motifForcage(forceStock, demande, quantityRequested, currentStockQuantity);
+        if (motif == MotifForcageStock.ECART_INVENTAIRE
+            && !SecurityUtils.hasCurrentUserAnyOfAuthorities(AuthoritiesConstants.PR_REGULARISER_STOCK_VENTE, AuthoritiesConstants.ADMIN)) {
+            throw new GenericError(
+                "Vous n'avez pas le privilège de régulariser le stock à la vente",
+                "regularisationStockNonAutorisee"
+            );
+        }
+        return motif;
+    }
+
+    /** Le motif du DTO prime ; à défaut, une ligne déjà forcée garde le sien. */
+    private static MotifForcageStock motifDemande(SaleLineDTO dto, SalesLine salesLine) {
+        return dto.getMotifForcage() != null ? dto.getMotifForcage() : salesLine.getMotifForcage();
+    }
+
+    /** Écart d'inventaire : on porte le stock à ce que le rayon vient de prouver, sans effacer les dettes d'avoir. */
+    private void regulariserEcartInventaire(SalesLine salesLine, StockProduit stockProduit) {
+        int manque = salesLine.getQuantityRequested() - Math.max(stockProduit.getTotalStockQuantity(), 0);
+        if (manque > 0) {
+            ajustementService.regulariserALaVente(stockProduit, manque, "Vente " + salesLine.getSales().getNumberTransaction());
+        }
+    }
+
+    static int calculateQuantitySold(int quantityRequested, int currentStockQuantity, MotifForcageStock motifForcage) {
+        if (motifForcage == MotifForcageStock.ECART_INVENTAIRE) {
+            return quantityRequested;
+        }
         if (currentStockQuantity <= 0) {
             return 0;
         }

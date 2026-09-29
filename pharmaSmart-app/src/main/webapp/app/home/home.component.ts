@@ -10,6 +10,7 @@ import { CaissierDashboardComponent } from './caissier-dashboard/caissier-dashbo
 import { CommandeHomeComponent } from '../features/commande/feature/commande-home/commande-home.component';
 import { HomeBaseComponent } from './home-base/home-base.component';
 import { DefaultDashboardComponent } from './default-dashboard/default-dashboard.component';
+import { DashboardViewComponent } from '../features/dashboard/feature/dashboard-view/dashboard-view.component';
 
 @Component({
   selector: 'jhi-home',
@@ -23,6 +24,7 @@ import { DefaultDashboardComponent } from './default-dashboard/default-dashboard
     CaissierDashboardComponent,
     CommandeHomeComponent,
     DefaultDashboardComponent,
+    DashboardViewComponent,
   ],
 })
 export default class HomeComponent implements OnInit, OnDestroy {

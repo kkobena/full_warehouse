@@ -8,7 +8,12 @@ export interface IDci {
   id?: number;
   code?: string;
   libelle?: string;
+  /** `COMPOSEE` : association saisie comme une seule DCI (« A/B »), à décomposer. */
+  statut?: 'ACTIVE' | 'COMPOSEE' | 'ARCHIVEE';
 }
+
+/** Affectation en masse : ajouter la molécule à celles des produits, ou les remplacer par elle seule. */
+export type ModeRattachementDci = 'AJOUTER' | 'REMPLACER';
 
 export class Dci implements IDci {
   constructor(

@@ -268,7 +268,7 @@ export class NavigationService {
   private mapNodesToNavItems(nodes: INavNode[]): NavItem[] {
     return nodes
       .filter(n => n.permissions?.canDisplay !== false)
-      .filter(n => n.targetType !== 'SECTION' && n.targetType !== 'ACTION')
+      .filter(n => n.targetType !== 'SECTION' && n.targetType !== 'ACTION' && n.targetType !== 'WIDGET')
       .sort((a, b) => a.ordre - b.ordre)
       .map(n => {
         const perimesCount = n.code === 'peremptions' ? this.peremptionAlertService.urgentCount() : 0;

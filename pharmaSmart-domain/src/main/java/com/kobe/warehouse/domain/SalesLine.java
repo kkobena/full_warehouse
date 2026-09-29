@@ -3,6 +3,7 @@ package com.kobe.warehouse.domain;
 import com.kobe.warehouse.service.sale.calculation.dto.Rate;
 import jakarta.persistence.Column;
 import com.kobe.warehouse.domain.enumeration.ExclusionMotif;
+import com.kobe.warehouse.domain.enumeration.MotifForcageStock;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -135,6 +136,10 @@ public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneab
     @Enumerated(EnumType.STRING)
     @Column(name = "exclusion_motif", length = 20)
     private ExclusionMotif exclusionMotif;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "motif_forcage", length = 20)
+    private MotifForcageStock motifForcage;
 
     @Column(name = "after_stock")
     private Integer afterStock;
@@ -371,6 +376,15 @@ public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneab
 
     public SalesLine setExclusionMotif(ExclusionMotif exclusionMotif) {
         this.exclusionMotif = exclusionMotif;
+        return this;
+    }
+
+    public MotifForcageStock getMotifForcage() {
+        return motifForcage;
+    }
+
+    public SalesLine setMotifForcage(MotifForcageStock motifForcage) {
+        this.motifForcage = motifForcage;
         return this;
     }
 

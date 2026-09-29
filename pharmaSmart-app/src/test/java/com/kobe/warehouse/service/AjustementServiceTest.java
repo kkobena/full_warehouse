@@ -67,6 +67,9 @@ class AjustementServiceTest {
     private static final int STORAGE_ID = 2;
 
     @Mock
+    private com.kobe.warehouse.repository.MotifAjustementRepository motifAjustementRepository;
+
+    @Mock
     private AjustementRepository ajustementRepository;
 
     @Mock
@@ -113,7 +116,8 @@ class AjustementServiceTest {
             inventoryTransactionService,
             suggestionReassortService,
             lotStockLocationService,
-            lotService
+            lotService,
+            motifAjustementRepository
         );
         currentUser = new AppUser();
         currentUser.setId(9);
@@ -766,6 +770,138 @@ class AjustementServiceTest {
             service.delete(AJUST_ID);
 
             verify(ajustRepository, never()).deleteById(anyInt());
+        }
+    }
+
+    /** Lot 4 de PLAN-VENTE-SUR-STOCK-ERRONE. */
+    @Nested
+    @DisplayName("findEcartsARegulariser")
+    class EcartsARegulariser {
+
+        private StockProduitRepository.EcartStockProjection ligne(int stock, int due) {
+            return new StockProduitRepository.EcartStockProjection() {
+                public Integer getProduitId() { return PRODUIT_ID; }
+                public String getLibelle() { return "DOLIPRANE"; }
+                public String getCodeCip() { return "3400"; }
+                public Integer getStock() { return stock; }
+                public Integer getQuantiteDue() { return due; }
+            };
+        }
+
+        @Test
+        @DisplayName("interroge le magasin de l'utilisateur et chiffre la part non couverte par les avoirs")
+        void ecartNonCouvert() {
+            com.kobe.warehouse.domain.Magasin magasin = new com.kobe.warehouse.domain.Magasin();
+            magasin.setId(3);
+            currentUser.setMagasin(magasin);
+            when(stockProduitRepository.findEcartsARegulariser(3)).thenReturn(List.of(ligne(-5, 2)));
+
+            List<com.kobe.warehouse.service.dto.EcartStockDTO> ecarts = service.findEcartsARegulariser();
+
+            assertThat(ecarts).singleElement().satisfies(e -> {
+                assertThat(e.stock()).isEqualTo(-5);
+                assertThat(e.quantiteDue()).isEqualTo(2);
+                assertThat(e.ecart()).isEqualTo(3);
+                assertThat(e.codeCip()).isEqualTo("3400");
+            });
+        }
+    }
+
+    /** Lot 2 de PLAN-VENTE-SUR-STOCK-ERRONE. */
+    @Nested
+    @DisplayName("regulariserALaVente")
+    class RegularisationALaVente {
+
+        private final MotifAjustement motif = new MotifAjustement();
+
+        @BeforeEach
+        void motifEtIdentifiant() {
+            motif.setId(40);
+            when(motifAjustementRepository.findFirstByLibelle(AjustementService.MOTIF_REGULARISATION_VENTE))
+                .thenReturn(Optional.of(motif));
+            when(ajustementRepository.save(any(Ajustement.class))).thenAnswer(inv -> {
+                Ajustement a = inv.getArgument(0);
+                a.setId(900);
+                return a;
+            });
+        }
+
+        @Test
+        @DisplayName("écrit un ajustement d'entrée motivé, clôturé d'office et attribué")
+        void ajustementEntreeCloture() {
+            StockProduit stock = stock(produit("DOLIPRANE", "3400"), principal, 1, 0);
+
+            Ajustement ajustement = service.regulariserALaVente(stock, 2, "Vente IT42");
+
+            assertThat(ajustement.getType()).isEqualTo(AjustType.AJUSTEMENT_IN);
+            assertThat(ajustement.getQtyMvt()).isEqualTo(2);
+            assertThat(ajustement.getStockBefore()).isEqualTo(1);
+            assertThat(ajustement.getStockAfter()).isEqualTo(3);
+            assertThat(ajustement.getMotifAjustement()).isSameAs(motif);
+            Ajust ajust = ajustement.getAjust();
+            assertThat(ajust.getStatut()).isEqualTo(AjustementStatut.CLOSED);
+            assertThat(ajust.getUser()).isSameAs(currentUser);
+            assertThat(ajust.getCommentaire()).isEqualTo("Vente IT42");
+            assertThat(stock.getQtyStock()).isEqualTo(3);
+            assertThat(stock.getQtyVirtual()).isEqualTo(3);
+        }
+
+        @Test
+        @DisplayName("préserve les UG et rafraîchit le total lu par la sortie de vente")
+        void preserveLesUg() {
+            StockProduit stock = stock(produit("SPASFON", "3401"), principal, 0, 2);
+            stock.setTotalStockQuantity(2);
+
+            Ajustement ajustement = service.regulariserALaVente(stock, 3, "Vente IT43");
+
+            assertThat(stock.getQtyUG()).as("la vente qui suit consomme ces UG").isEqualTo(2);
+            assertThat(stock.getQtyStock()).isEqualTo(3);
+            assertThat(stock.getTotalStockQuantity()).as("la @Formula n'est pas relue en cours de transaction").isEqualTo(5);
+            assertThat(ajustement.getStockBefore()).isEqualTo(2);
+            assertThat(ajustement.getStockAfter()).isEqualTo(5);
+        }
+
+        @Test
+        @DisplayName("repart d'un stock négatif sans l'effacer")
+        void depuisUnStockNegatif() {
+            StockProduit stock = stock(produit("SMECTA", "3402"), principal, -3, 0);
+
+            Ajustement ajustement = service.regulariserALaVente(stock, 2, "Vente IT44");
+
+            assertThat(stock.getQtyStock()).isEqualTo(-1);
+            assertThat(ajustement.getStockBefore()).isEqualTo(-3);
+            assertThat(ajustement.getStockAfter()).isEqualTo(-1);
+        }
+
+        @Test
+        @DisplayName("crédite les lots, journalise le mouvement et trace l'opération")
+        void lotsJournalEtTrace() {
+            Produit produit = produit("VOGALENE", "3403");
+            StockProduit stock = stock(produit, principal, 0, 0);
+
+            Ajustement ajustement = service.regulariserALaVente(stock, 4, "Vente IT45");
+
+            verify(lotService).adjustLots(produit, 4);
+            verify(lotStockLocationService).creditLastLot(produit, principal, 4);
+            verify(inventoryTransactionService).save(ajustement);
+            ArgumentCaptor<String> trace = ArgumentCaptor.forClass(String.class);
+            verify(logsService).create(org.mockito.ArgumentMatchers.eq(TransactionType.AJUSTEMENT_IN), trace.capture(),
+                org.mockito.ArgumentMatchers.eq("900"));
+            assertThat(trace.getValue()).contains(AjustementService.MOTIF_REGULARISATION_VENTE, "VOGALENE", "+4", "0 -> 4");
+            verify(suggestionReassortService, never()).createRayonSuggestionReassort(any());
+        }
+
+        @Test
+        @DisplayName("sans le motif en base, l'ajustement est écrit quand même")
+        void motifAbsent() {
+            when(motifAjustementRepository.findFirstByLibelle(AjustementService.MOTIF_REGULARISATION_VENTE))
+                .thenReturn(Optional.empty());
+            StockProduit stock = stock(produit("GAVISCON", "3404"), principal, 0, 0);
+
+            Ajustement ajustement = service.regulariserALaVente(stock, 1, "Vente IT46");
+
+            assertThat(ajustement.getMotifAjustement()).isNull();
+            assertThat(stock.getQtyStock()).isEqualTo(1);
         }
     }
 }

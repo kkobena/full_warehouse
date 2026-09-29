@@ -1,0 +1,92 @@
+<div class="pharma-smart-content p-2">
+  <app-toolbar icon="pi pi-th-large" [title]="title()" [compact]="true">
+    <ng-container ngProjectAs="[toolbarHeaderExtra]">
+      @if (store.dirty()) {
+        <app-badge label="Non enregistré" severity="warn" />
+      }
+      @if (facade.isHome()) {
+        <app-badge label="Mon accueil" severity="success" icon="pi pi-home" />
+      }
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <app-dashboard-context-bar (changed)="store.markDirty()" />
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="d-flex flex-wrap gap-2">
+        @if (store.editMode()) {
+          <app-button label="Ajouter un widget" icon="pi pi-plus" size="small" (clicked)="openPanel()" />
+        }
+        <app-button
+          [label]="store.editMode() ? 'Terminer' : 'Modifier'"
+          [icon]="store.editMode() ? 'pi pi-check' : 'pi pi-pencil'"
+          size="small"
+          severity="secondary"
+          (clicked)="facade.toggleEditMode()"
+        />
+        <app-split-button
+          label="Enregistrer"
+          icon="pi pi-save"
+          size="small"
+          severity="success"
+          [disabled]="store.saving()"
+          menuAriaLabel="Autres options d'enregistrement"
+          [items]="saveMenu()"
+          (clicked)="facade.save()"
+        />
+        <app-button label="Ouvrir" icon="pi pi-folder-open" size="small" [outlined]="true" (clicked)="facade.openDialog()" />
+        <app-button label="Nouveau" icon="pi pi-file" size="small" [outlined]="true" (clicked)="facade.newDashboard()" />
+      </div>
+    </ng-container>
+  </app-toolbar>
+
+  @if (store.loading()) {
+    <app-skeleton height="320px" width="100%" />
+  } @else {
+    @if (store.items().length === 0) {
+      <div class="dashboard-empty">
+        <i class="pi pi-th-large" aria-hidden="true"></i>
+        <p class="mb-3">Ce tableau de bord est vide.</p>
+        <app-button label="Ajouter un widget" icon="pi pi-plus" (clicked)="openPanel()" />
+        @if (templates().length > 0) {
+          <p class="mt-4 mb-2 small">… ou partir d'un modèle :</p>
+          <div class="d-flex flex-wrap justify-content-center gap-2">
+            @for (template of templates(); track template.key) {
+              <div class="template-card">
+                <i [class]="template.icon" aria-hidden="true"></i>
+                <span class="fw-semibold">{{ template.label }}</span>
+                <span class="small text-body-secondary">{{ template.description }}</span>
+                <app-button label="Utiliser" size="small" [outlined]="true" (clicked)="useTemplate(template)" />
+              </div>
+            }
+          </div>
+        }
+      </div>
+    } @else if (store.editMode()) {
+      <p class="dashboard-hint">
+        <i class="pi pi-info-circle" aria-hidden="true"></i>
+        Faites glisser une tuile par son en-tête, redimensionnez-la par son coin, puis enregistrez.
+      </p>
+    }
+
+    <app-dashboard-grid
+      [items]="store.items()"
+      [availability]="store.availability()"
+      [editable]="store.editMode()"
+      (positionsChange)="store.applyPositions($event)"
+      (userChanged)="store.markDirty()"
+      (removeItem)="store.removeItem($event)"
+      (openSettings)="facade.openSettings($event)"
+      (duplicateItem)="facade.duplicateItem($event)"
+      (paramsChange)="store.updateParams($event.id, $event.params)"
+    />
+  }
+
+  <app-add-widget-panel
+    [visible]="panelVisible()"
+    (visibleChange)="panelVisible.set($event)"
+    [entries]="store.catalogue()"
+    (add)="onAdd($event)"
+  />
+</div>

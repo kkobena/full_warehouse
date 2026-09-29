@@ -19,10 +19,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -30,6 +32,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -177,8 +180,15 @@ public class Produit implements Serializable {
     private GammeProduit gamme;
 
 
+    /** Transition : alignée sur la molécule principale de {@link #produitDcis}, écrite par {@link #remplacerDcis}. */
     @ManyToOne(fetch = FetchType.LAZY)
     private Dci dci;
+
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("rang")
+    @BatchSize(size = 50)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    private List<ProduitDci> produitDcis = new ArrayList<>();
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -339,6 +349,41 @@ public class Produit implements Serializable {
 
     public void setDci(Dci dci) {
         this.dci = dci;
+    }
+
+    public List<ProduitDci> getProduitDcis() {
+        return produitDcis;
+    }
+
+    /** Molécules du produit, principale en tête. */
+    public List<Dci> getDcis() {
+        return produitDcis.stream().sorted(Comparator.comparingInt(ProduitDci::getRang)).map(ProduitDci::getDci).toList();
+    }
+
+    /**
+     * Remplace les molécules, dans l'ordre donné (la première devient la principale). Les liens
+     * conservés sont mis à jour sur place : les supprimer puis les recréer violerait l'unicité
+     * (produit, dci), Hibernate insérant avant de supprimer.
+     */
+    public void remplacerDcis(List<Dci> dcis) {
+        List<Dci> cibles = new ArrayList<>();
+        Set<Integer> vus = new HashSet<>();
+        for (Dci candidate : Objects.requireNonNullElse(dcis, List.<Dci>of())) {
+            if (candidate != null && candidate.getId() != null && vus.add(candidate.getId())) {
+                cibles.add(candidate);
+            }
+        }
+        produitDcis.removeIf(lien -> !vus.contains(lien.getDci().getId()));
+        for (int rang = 1; rang <= cibles.size(); rang++) {
+            Dci cible = cibles.get(rang - 1);
+            int rangCible = rang;
+            produitDcis.stream()
+                .filter(lien -> Objects.equals(lien.getDci().getId(), cible.getId()))
+                .findFirst()
+                .ifPresentOrElse(lien -> lien.setRang(rangCible), () -> produitDcis.add(new ProduitDci(this, cible, rangCible)));
+        }
+        produitDcis.sort(Comparator.comparingInt(ProduitDci::getRang));
+        this.dci = cibles.isEmpty() ? null : cibles.getFirst();
     }
 
     public Integer getId() {

@@ -23,9 +23,21 @@
           placeholder="Taper pour rechercher"
         />
 
-        <small class="form-text text-muted">
-          Les produits retenus recevront cette substance active. Celle qu'ils portaient
-          éventuellement sera remplacée — l'opération se défait en réaffectant.
+      </div>
+
+      <div class="form-field form-field-full">
+        <span class="field-label">Molécules déjà portées</span>
+        <app-pill-selector (ngModelChange)="mode.set($event)" [items]="modes" [ngModel]="mode()" />
+        <small class="form-text text-muted" data-aide-mode>
+          @if (mode() === 'AJOUTER') {
+            La molécule s'ajoute à celles des produits — c'est ainsi qu'on décrit une association.
+            Un produit qui la porte déjà n'est pas modifié.
+          } @else {
+            Les produits ne porteront plus que cette molécule : celles qu'ils avaient sont retirées.
+          }
+          @if (dejaPourvus()) {
+            <strong>{{ dejaPourvus() }} produit(s)</strong> en portent déjà au moins une.
+          }
         </small>
       </div>
 

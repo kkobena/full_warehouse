@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.kobe.warehouse.domain.Ajust;
 import com.kobe.warehouse.domain.Ajustement;
+import com.kobe.warehouse.domain.Dci;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
@@ -25,6 +26,7 @@ import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.domain.enumeration.TypeSubstitut;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.ProduitDTO;
+import com.kobe.warehouse.service.dto.ProduitDciDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.dto.SubstitutDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
@@ -187,6 +189,96 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         );
         assertEquals(1, compter("SELECT COUNT(*) FROM stock_produit WHERE produit_id = " + id));
         assertEquals(30, compter("SELECT item_qty FROM produit WHERE id = " + boiteId), "le colisage saisi est reporté sur la boîte");
+    }
+
+    // ===== molécules (DCI) — PLAN-PRODUIT-DCI-N-N =====
+
+    @Test
+    @DisplayName("Une association est créée avec ses molécules dans l'ordre, la première étant la principale")
+    void creationDUneAssociation() {
+        Dci amoxicilline = dci("AMOXICILLINE");
+        Dci clavulanique = dci("ACIDE CLAVULANIQUE");
+        ProduitDTO fiche = fiche("ASSOCIATION", fournisseur())
+            .setDcis(List.of(molecule(amoxicilline), molecule(clavulanique)));
+
+        Long id = services.produitService.save(fiche);
+        viderLeCache();
+
+        assertEquals(List.of(amoxicilline.getId(), clavulanique.getId()), moleculesEnBase(id.intValue()));
+        assertEquals(amoxicilline.getId().longValue(), compter("SELECT dci_id FROM produit WHERE id = " + id), "dci_id suit la principale");
+    }
+
+    @Test
+    @DisplayName("Un client qui n'envoie que dciId crée un produit à une seule molécule")
+    void creationParUnAncienClient() {
+        Dci paracetamol = dci("PARACETAMOL");
+        ProduitDTO fiche = fiche("MONO", fournisseur()).setDciId(paracetamol.getId());
+
+        Long id = services.produitService.save(fiche);
+        viderLeCache();
+
+        assertEquals(List.of(paracetamol.getId()), moleculesEnBase(id.intValue()));
+    }
+
+    /** Défaut corrigé : la DCI modifiée dans la fiche n'était pas enregistrée. */
+    @Test
+    @DisplayName("Modifier la fiche remplace et réordonne les molécules")
+    void modificationDesMolecules() {
+        Produit produit = boiteAvecRayon("A REORDONNER", 1);
+        Dci premiere = dci("PREMIERE");
+        Dci seconde = dci("SECONDE");
+        Dci troisieme = dci("TROISIEME");
+        produit.remplacerDcis(List.of(premiere, seconde, troisieme));
+        em.flush();
+        viderLeCache();
+
+        services.produitService.update(ficheExistante(produit).setDcis(List.of(molecule(seconde), molecule(premiere))));
+        viderLeCache();
+
+        assertEquals(List.of(seconde.getId(), premiere.getId()), moleculesEnBase(produit.getId()),
+            "l'inversion passe malgré l'unicité (produit, rang) grâce aux contraintes différées");
+        assertEquals(seconde.getId().longValue(), compter("SELECT dci_id FROM produit WHERE id = " + produit.getId()));
+    }
+
+    @Test
+    @DisplayName("Un ancien client ne change que la principale d'une association, sans effacer l'autre molécule")
+    void ancienClientSurUneAssociation() {
+        Produit produit = boiteAvecRayon("ASSOCIATION CONSERVEE", 1);
+        Dci codeine = dci("CODEINE");
+        Dci paracetamol = dci("PARACETAMOL BIS");
+        produit.remplacerDcis(List.of(paracetamol, codeine));
+        em.flush();
+        viderLeCache();
+
+        services.produitService.update(ficheExistante(produit).setDciId(codeine.getId()));
+        viderLeCache();
+
+        assertEquals(List.of(codeine.getId(), paracetamol.getId()), moleculesEnBase(produit.getId()));
+    }
+
+    @Test
+    @DisplayName("Un produit détail reprend les molécules de sa boîte")
+    void detailHeriteDesMolecules() {
+        Produit boite = boiteAvecRayon("BOITE ASSOCIATION", 10);
+        Dci premiere = dci("MOLECULE UN");
+        Dci seconde = dci("MOLECULE DEUX");
+        boite.remplacerDcis(List.of(premiere, seconde));
+        em.flush();
+        int boiteId = boite.getId();
+        viderLeCache();
+
+        ProduitDTO detail = new ProduitDTO()
+            .setLibelle("unité association")
+            .setProduitId(boiteId)
+            .setTypeProduit(TypeProduit.DETAIL)
+            .setCostAmount(300)
+            .setRegularUnitPrice(500)
+            .setDeconditionnable(false)
+            .setItemQty(10);
+        Long id = services.produitService.saveDetail(detail);
+        viderLeCache();
+
+        assertEquals(List.of(premiere.getId(), seconde.getId()), moleculesEnBase(id.intValue()));
     }
 
     // ===== mise à jour =====
@@ -615,6 +707,25 @@ class ProduitServiceIntegrationTest extends AbstractStockIntegrationTest {
         dto.setTvaId(TVA_ZERO_ID);
         dto.setFamilleId(premiereFamilleId());
         return dto;
+    }
+
+    private Dci dci(String libelle) {
+        Dci dci = new Dci();
+        dci.setLibelle(unique(libelle));
+        dci.setCode(unique("D"));
+        em.persist(dci);
+        em.flush();
+        return dci;
+    }
+
+    private static ProduitDciDTO molecule(Dci dci) {
+        return new ProduitDciDTO(dci.getId(), null, null, null, null, null);
+    }
+
+    private List<Integer> moleculesEnBase(int produitId) {
+        return em.createNativeQuery("SELECT dci_id FROM produit_dci WHERE produit_id = :id ORDER BY rang", Integer.class)
+            .setParameter("id", produitId)
+            .getResultList();
     }
 
     /** La même fiche, rejouée sur un produit déjà en base : c'est ce que l'écran de modification poste. */

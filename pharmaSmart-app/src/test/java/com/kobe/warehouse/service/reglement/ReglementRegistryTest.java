@@ -2,8 +2,14 @@ package com.kobe.warehouse.service.reglement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
+import com.kobe.warehouse.domain.FactureItemId;
+import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.reglement.dto.ReglementParam;
+import java.time.LocalDate;
 import com.kobe.warehouse.service.reglement.dto.ModeEditionReglement;
 import com.kobe.warehouse.service.reglement.service.ReglementFactureModeAllService;
 import com.kobe.warehouse.service.reglement.service.ReglementFactureSelectionneesService;
@@ -34,6 +40,9 @@ class ReglementRegistryTest {
     @Mock
     private ReglementFactureSelectionneesService reglementFactureSelectionneesService;
 
+    @Mock
+    private FacturationRepository facturationRepository;
+
     private ReglementRegistry registry;
 
     @BeforeEach
@@ -42,7 +51,8 @@ class ReglementRegistryTest {
             reglementGroupeSelectionFactureService,
             reglementGroupeFactureService,
             reglementFactureModeAllService,
-            reglementFactureSelectionneesService
+            reglementFactureSelectionneesService,
+            facturationRepository
         );
     }
 
@@ -82,9 +92,41 @@ class ReglementRegistryTest {
             .hasMessageContaining("Ce mode de facturation n'est pas pris en charge");
     }
 
+    /** FAC-48 : le rapprochement envoie FACTURE_TOTAL même pour une facture de groupe. */
+    @Test
+    @DisplayName("FACTURE_TOTAL sur une facture de groupe est servi par le reglement de groupe")
+    void factureTotaleDUnGroupe() {
+        FactureItemId id = new FactureItemId(61L, LocalDate.of(2026, 9, 1));
+        when(facturationRepository.existsByIdAndInvoiceDateAndGroupeTiersPayantIsNotNull(id.getId(), id.getInvoiceDate())).thenReturn(true);
+
+        ReglementParam param = new ReglementParam().setId(id).setMode(ModeEditionReglement.FACTURE_TOTAL);
+
+        assertThat(registry.getService(param)).isSameAs(reglementGroupeFactureService);
+    }
+
+    @Test
+    @DisplayName("FACTURE_TOTAL sur une facture individuelle reste au reglement de facture complete")
+    void factureTotaleIndividuelle() {
+        FactureItemId id = new FactureItemId(12L, LocalDate.of(2026, 9, 1));
+        when(facturationRepository.existsByIdAndInvoiceDateAndGroupeTiersPayantIsNotNull(id.getId(), id.getInvoiceDate())).thenReturn(false);
+
+        ReglementParam param = new ReglementParam().setId(id).setMode(ModeEditionReglement.FACTURE_TOTAL);
+
+        assertThat(registry.getService(param)).isSameAs(reglementFactureModeAllService);
+    }
+
+    @ParameterizedTest(name = "le mode {0} est respecte tel quel")
+    @EnumSource(value = ModeEditionReglement.class, names = { "GROUPE_TOTAL", "GROUPE_PARTIEL", "FACTURE_PARTIEL" })
+    void autresModesSansConsulterLaFacture(ModeEditionReglement mode) {
+        ReglementParam param = new ReglementParam().setId(new FactureItemId(61L, LocalDate.of(2026, 9, 1))).setMode(mode);
+
+        assertThat(registry.getService(param)).isSameAs(registry.getService(mode));
+        verifyNoInteractions(facturationRepository);
+    }
+
     @Test
     @DisplayName("un mode nul n est pas pris en charge")
     void modeNul() {
-        assertThatThrownBy(() -> registry.getService(null)).isInstanceOf(GenericError.class);
+        assertThatThrownBy(() -> registry.getService((ModeEditionReglement) null)).isInstanceOf(GenericError.class);
     }
 }

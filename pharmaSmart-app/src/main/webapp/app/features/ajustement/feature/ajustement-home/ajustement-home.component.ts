@@ -123,6 +123,10 @@ export class AjustementHomeComponent implements OnInit {
     this.load();
   }
 
+  protected goToEcarts(): void {
+    this.router.navigate(['/features-ajustement/ecarts']);
+  }
+
   protected goToNew(): void {
     this.router.navigate(['/features-ajustement/new']);
   }

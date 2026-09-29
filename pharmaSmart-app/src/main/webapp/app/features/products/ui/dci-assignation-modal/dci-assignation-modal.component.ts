@@ -2,11 +2,11 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { ButtonComponent, CardComponent, SelectSearchComponent } from 'app/shared/ui';
+import { AppPillOption, ButtonComponent, CardComponent, PillSelectorComponent, SelectSearchComponent } from 'app/shared/ui';
 import { IProduit } from 'app/shared/model/produit.model';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { ErrorService } from 'app/shared/error.service';
-import { IDci } from '../../../dci/models/dci.model';
+import { IDci, ModeRattachementDci } from '../../../dci/models/dci.model';
 import { DciApiService } from '../../../dci/data-access/services/dci-api.service';
 import { DciService } from '../../../../entities/dci/dci.service';
 
@@ -22,7 +22,7 @@ import { DciService } from '../../../../entities/dci/dci.service';
  */
 @Component({
   selector: 'app-dci-assignation-modal',
-  imports: [FormsModule, ButtonComponent, CardComponent, SelectSearchComponent],
+  imports: [FormsModule, ButtonComponent, CardComponent, SelectSearchComponent, PillSelectorComponent],
   templateUrl: './dci-assignation-modal.component.html',
   styleUrls: ['./dci-assignation-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,6 +34,13 @@ export class DciAssignationModalComponent {
   protected readonly dci = signal<IDci | null>(null);
   protected readonly suggestions = signal<IDci[]>([]);
   protected readonly enCours = signal(false);
+  protected readonly mode = signal<ModeRattachementDci>('AJOUTER');
+  protected readonly modes: AppPillOption[] = [
+    { label: 'Ajouter cette molécule', value: 'AJOUTER', icon: 'pi pi-plus' },
+    { label: 'Remplacer les molécules', value: 'REMPLACER', icon: 'pi pi-sync' },
+  ];
+  /** Produits qui portent déjà au moins une molécule : c'est pour eux que le mode compte. */
+  protected readonly dejaPourvus = computed(() => this.produits.filter(produit => (produit.dcis?.length ?? 0) > 0 || !!produit.dciId).length);
 
   /** Les premiers libellés seulement : la modal doit tenir à l'écran. */
   protected readonly apercu = computed(() => this.produits.slice(0, 8));
@@ -61,10 +68,10 @@ export class DciAssignationModalComponent {
       return;
     }
     this.enCours.set(true);
-    this.api.rattacherProduits(cible.id, this.produits.map(produit => produit.id!)).subscribe({
+    this.api.rattacherProduits(cible.id, this.produits.map(produit => produit.id!), this.mode()).subscribe({
       next: res => {
         this.enCours.set(false);
-        this.activeModal.close({ dci: cible, nombre: res.body ?? 0 });
+        this.activeModal.close({ dci: cible, nombre: res.body ?? 0, mode: this.mode() });
       },
       error: err => {
         this.enCours.set(false);

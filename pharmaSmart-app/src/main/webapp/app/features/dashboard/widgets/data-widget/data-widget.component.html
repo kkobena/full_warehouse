@@ -1,0 +1,68 @@
+@if (error(); as message) {
+  <div class="widget-state">
+    <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+    <span>{{ message }}</span>
+    <app-button label="Réessayer" icon="pi pi-refresh" size="small" [text]="true" (clicked)="resource.reload()" />
+  </div>
+} @else if (!data()) {
+  <app-skeleton height="100%" width="100%" />
+} @else if (empty()) {
+  <div class="widget-state">
+    <i class="pi pi-inbox" aria-hidden="true"></i>
+    <span>{{ emptyLabel() }}</span>
+  </div>
+} @else {
+  <div class="widget-content" [class.is-reloading]="resource.isLoading()">
+    @if (kpi(); as k) {
+      <div class="kpi" [class.is-alert]="k.alert">
+        @if (k.alert) {
+          <div class="kpi-alert">
+            <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+            {{ k.alert }}
+          </div>
+        }
+        <div class="kpi-value">
+          {{ k.value }}
+          @if (k.data.unit && k.data.value != null) {
+            <span class="kpi-unit">{{ k.data.unit }}</span>
+          }
+        </div>
+        @if (k.pctLabel) {
+          <div class="kpi-evolution" [class.is-up]="k.pct! > 0" [class.is-down]="k.pct! < 0">
+            <i [class]="k.pct! >= 0 ? 'pi pi-arrow-up-right' : 'pi pi-arrow-down-right'" aria-hidden="true"></i>
+            {{ k.pctLabel }} <span class="kpi-evolution-ref">{{ k.data.previousLabel || 'vs période précédente' }}</span>
+          </div>
+        }
+        @if (k.data.detail; as detail) {
+          <div class="kpi-detail">{{ detail }}</div>
+        }
+      </div>
+    } @else if (table(); as t) {
+      <div class="table-scroll">
+        <app-data-table [value]="t.rows" [scrollable]="true" scrollHeight="100%" size="small" [stripedRows]="true">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              @for (col of t.columns; track col.field) {
+                <th scope="col" [class.text-end]="isNumeric(col.type)">{{ col.header }}</th>
+              }
+            </tr>
+          </ng-template>
+          <ng-template #body let-row>
+            <tr>
+              @for (col of t.columns; track col.field) {
+                <td [class.text-end]="isNumeric(col.type)">{{ formatCell(row[col.field], col.type) }}</td>
+              }
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </div>
+    } @else if (chart(); as c) {
+      <div class="chart-area">
+        <app-chart [type]="c.type" [data]="c.data" [options]="c.options" height="100%" [ariaLabel]="item().title || item().widgetKey" />
+      </div>
+    }
+    @if (footer(); as f) {
+      <div class="widget-footer">{{ f }}</div>
+    }
+  </div>
+}

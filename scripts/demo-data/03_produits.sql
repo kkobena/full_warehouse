@@ -545,6 +545,47 @@ SELECT p.id, r.id
    END
 ON CONFLICT (produit_id, rayon_id) DO NOTHING;
 
+-- ---------------------------------------------------------------------------
+-- Molécules des produits (produit_dci) : une ligne par molécule, rang 1 = principale.
+-- produit.dci_id, conservée pendant la transition, reste alignée sur la principale.
+-- Pas d'ON CONFLICT : les contraintes d'unicité de produit_dci sont différées.
+-- ---------------------------------------------------------------------------
+INSERT INTO produit_dci (produit_id, dci_id, rang)
+SELECT p.id, p.dci_id, 1
+  FROM produit p
+ WHERE p.dci_id IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM produit_dci pd WHERE pd.produit_id = p.id);
+
+-- Deux associations décomposées en leurs molécules, pour que la démo en montre.
+CREATE TEMP TABLE tmp_association (composee text, molecule text, rang int);
+INSERT INTO tmp_association VALUES
+    ('AMOXICILLINE ACIDE CLAVULANIQUE', 'AMOXICILLINE',       1),
+    ('AMOXICILLINE ACIDE CLAVULANIQUE', 'ACIDE CLAVULANIQUE', 2),
+    ('SALMETEROL FLUTICASONE',          'SALMETEROL',         1),
+    ('SALMETEROL FLUTICASONE',          'FLUTICASONE',        2);
+
+CREATE TEMP TABLE tmp_produit_association AS
+SELECT p.id AS produit_id, m.id AS dci_id, a.rang
+  FROM produit p
+  JOIN dci c ON c.id = p.dci_id
+  JOIN tmp_association a ON a.composee = c.libelle
+  JOIN dci m ON m.libelle = a.molecule;
+
+DELETE FROM produit_dci pd
+ USING (SELECT DISTINCT produit_id FROM tmp_produit_association) t
+ WHERE pd.produit_id = t.produit_id;
+
+INSERT INTO produit_dci (produit_id, dci_id, rang)
+SELECT produit_id, dci_id, rang FROM tmp_produit_association;
+
+UPDATE produit p
+   SET dci_id = t.dci_id
+  FROM tmp_produit_association t
+ WHERE t.produit_id = p.id AND t.rang = 1;
+
+DROP TABLE tmp_produit_association;
+DROP TABLE tmp_association;
+
 DROP FUNCTION pg_temp.dci_de(text);
 DROP TABLE tmp_dci_marque;
 DROP TABLE tmp_fam_cfg;

@@ -8,19 +8,25 @@ import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
+import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.enumeration.AvoirClientStatut;
+import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.ModeClotureAvoir;
 import com.kobe.warehouse.domain.AvoirClientUtilisation;
 import com.kobe.warehouse.repository.AvoirClientRepository;
 import com.kobe.warehouse.repository.AvoirClientUtilisationRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
+import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.sale.AvoirClientNotificationService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
+import com.kobe.warehouse.service.stock.LotService;
+import com.kobe.warehouse.service.stock.LotStockLocationService;
 import com.kobe.warehouse.service.sale.dto.AvoirClientDocumentDTO;
 import com.kobe.warehouse.service.sale.dto.CloturerAvoirRequest;
 import org.springframework.data.domain.Page;
@@ -47,6 +53,9 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
     private final AvoirClientNotificationService avoirClientNotificationService;
     private final AppConfigurationService appConfigurationService;
     private final AvoirClientUtilisationRepository utilisationRepository;
+    private final LotService lotService;
+    private final LotStockLocationService lotStockLocationService;
+    private final LogsService logsService;
 
     public AvoirClientDocumentServiceImpl(
         AvoirClientRepository avoirClientRepository,
@@ -56,8 +65,14 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
         StockProduitRepository stockProduitRepository,
         AvoirClientNotificationService avoirClientNotificationService,
         AppConfigurationService appConfigurationService,
-        AvoirClientUtilisationRepository utilisationRepository
+        AvoirClientUtilisationRepository utilisationRepository,
+        LotService lotService,
+        LotStockLocationService lotStockLocationService,
+        LogsService logsService
     ) {
+        this.logsService = logsService;
+        this.lotService = lotService;
+        this.lotStockLocationService = lotStockLocationService;
         this.avoirClientRepository = avoirClientRepository;
         this.salesLineRepository = salesLineRepository;
         this.referenceService = referenceService;
@@ -110,14 +125,16 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
             throw new GenericError("Cet avoir est déjà clôturé");
         }
         Produit produit = avoir.getProduit();
-        if (produit != null) {
+        boolean remiseProduit = produit != null && request.modeCloture() == ModeClotureAvoir.RETOUR_PRODUIT;
+        if (remiseProduit) {
+            // La vente a déjà déduit la quantité due : un stock ≥ 0 signifie que toutes les dettes sont couvertes.
             Integer magasinId = storageService.getUser().getMagasin().getId();
             Integer stockTotal = stockProduitRepository.findTotalQuantityByMagasinIdIdAndProduitId(magasinId, produit.getId());
             int stock = Objects.requireNonNullElse(stockTotal, 0);
-            if (stock < avoir.getQuantite()) {
+            if (stock < 0) {
                 throw new GenericError(
-                    "Stock insuffisant pour clôturer l'avoir : stock disponible = " + stock
-                    + ", quantité avoir = " + avoir.getQuantite()
+                    "Stock insuffisant pour remettre le produit : il manque " + (-stock)
+                    + " unité(s) pour couvrir les avoirs en cours"
                 );
             }
         }
@@ -145,6 +162,15 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
                 sl.setQuantityAvoir(0);
                 salesLineRepository.save(sl);
             }
+            if (produit != null && avoir.getQuantite() > 0) {
+                if (remiseProduit) {
+                    // qty_stock a été débité à la vente, les lots non : ils sortent maintenant.
+                    lotService.adjustLots(produit, -avoir.getQuantite());
+                    lotStockLocationService.debitFefo(produit, storageService.getDefaultConnectedUserMainStorage(), avoir.getQuantite());
+                } else {
+                    recrediterStock(avoir, produit);
+                }
+            }
         }
 
         AvoirClient saved = avoirClientRepository.save(avoir);
@@ -170,6 +196,29 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
         return avoirClientRepository.findAll(
             AvoirClientRepository.buildSpec(search, fromDate, toDate, statut), pageable
         ).map(this::toDTO);
+    }
+
+    /** Avoir soldé sans remise du produit : la quantité due, sortie à la vente, revient en stock. */
+    private void recrediterStock(AvoirClient avoir, Produit produit) {
+        Storage storage = storageService.getDefaultConnectedUserMainStorage();
+        StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), storage.getId());
+        if (stockProduit == null) {
+            return;
+        }
+        int stockAvant = stockProduit.getQtyStock();
+        stockProduit.setQtyStock(stockAvant + avoir.getQuantite());
+        stockProduit.setQtyVirtual(stockProduit.getQtyStock());
+        stockProduit.setUpdatedAt(LocalDateTime.now());
+        stockProduitRepository.save(stockProduit);
+        logsService.create(
+            TransactionType.AVOIR_SOLDE_SANS_PRODUIT,
+            String.format(
+                "Avoir %s soldé (%s) : %d unité(s) de %s recréditée(s), stock %d -> %d",
+                avoir.getReference(), avoir.getModeCloture(), avoir.getQuantite(),
+                produit.getLibelle(), stockAvant, stockProduit.getQtyStock()
+            ),
+            avoir.getId().toString()
+        );
     }
 
     private int resoudreMontantUtilise(AvoirClient avoir, CloturerAvoirRequest request) {

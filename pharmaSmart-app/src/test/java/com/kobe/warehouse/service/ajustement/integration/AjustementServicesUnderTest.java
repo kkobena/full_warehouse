@@ -61,6 +61,7 @@ final class AjustementServicesUnderTest {
     final LotRepository lotRepository;
     final LotStockLocationRepository lotStockLocationRepository;
     final InventoryTransactionRepository inventoryTransactionRepository;
+    final com.kobe.warehouse.repository.MotifAjustementRepository motifAjustementRepository;
 
     // --- services réels ---
     final LotStockLocationService lotStockLocationService;
@@ -78,6 +79,7 @@ final class AjustementServicesUnderTest {
         this.lotRepository = IntegrationPostgresDatabase.bean(LotRepository.class);
         this.lotStockLocationRepository = IntegrationPostgresDatabase.bean(LotStockLocationRepository.class);
         this.inventoryTransactionRepository = IntegrationPostgresDatabase.bean(InventoryTransactionRepository.class);
+        this.motifAjustementRepository = IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.MotifAjustementRepository.class);
 
         this.lotStockLocationService = new LotStockLocationServiceImpl(lotStockLocationRepository, lotRepository);
 
@@ -111,7 +113,8 @@ final class AjustementServicesUnderTest {
             inventoryTransactionService,
             suggestionReassortService,
             lotStockLocationService,
-            lotService
+            lotService,
+            motifAjustementRepository
         );
     }
 }

@@ -1,0 +1,117 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.widget-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: opacity 0.2s;
+
+  &.is-reloading {
+    opacity: 0.6;
+  }
+}
+
+.widget-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  height: 100%;
+  color: var(--bs-secondary-color);
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+// ── Indicateur ─────────────────────────────────────────────────────────────
+.kpi {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  gap: 0.25rem;
+}
+
+// L'icône et le libellé portent l'alerte ; la couleur ne fait que la souligner
+.kpi.is-alert .kpi-value {
+  color: var(--bs-danger-text-emphasis);
+}
+
+.kpi-alert {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--bs-danger-text-emphasis);
+}
+
+.kpi-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.kpi-unit {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--bs-secondary-color);
+}
+
+// La flèche et le signe portent le sens ; la couleur ne fait que le renforcer
+.kpi-evolution {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--bs-secondary-color);
+
+  &.is-up {
+    color: var(--bs-success-text-emphasis);
+  }
+
+  &.is-down {
+    color: var(--bs-danger-text-emphasis);
+  }
+}
+
+.kpi-evolution-ref {
+  font-weight: 400;
+  color: var(--bs-secondary-color);
+}
+
+.kpi-detail {
+  font-size: 0.8rem;
+  color: var(--bs-secondary-color);
+}
+
+// ── Tableau et graphique ───────────────────────────────────────────────────
+// app-data-table fait défiler son contenu dans la hauteur restante de la tuile
+.table-scroll {
+  flex: 1;
+  min-height: 0;
+
+  app-data-table {
+    display: block;
+    height: 100%;
+  }
+
+  th {
+    white-space: nowrap;
+  }
+
+  td {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.chart-area {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.widget-footer {
+  padding-top: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--bs-secondary-color);
+}

@@ -24,6 +24,7 @@ DECLARE
     v_table text;
     v_annee int;
     v_nom   text;
+    v_proprietaire text;
     v_cree  int := 0;
     v_ignore int := 0;
 BEGIN
@@ -42,6 +43,13 @@ BEGIN
             CONTINUE;
         END IF;
 
+        -- Le script tourne en postgres : sans cela, les partitions lui appartiendraient, et
+        -- l'utilisateur applicatif ne pourrait plus les modifier (ALTER TABLE d'une migration).
+        SELECT pg_get_userbyid(c.relowner) INTO v_proprietaire
+          FROM pg_class c
+          JOIN pg_namespace n ON n.oid = c.relnamespace
+         WHERE c.relname = v_table AND n.nspname = current_schema();
+
         FOR v_annee IN v_debut..v_fin LOOP
             v_nom := v_table || '_' || v_annee;
 
@@ -51,14 +59,16 @@ BEGIN
                  WHERE c.relname = v_nom AND n.nspname = current_schema()
             ) THEN
                 v_ignore := v_ignore + 1;
-                CONTINUE;
+            ELSE
+                EXECUTE format(
+                    'CREATE TABLE %I PARTITION OF %I FOR VALUES FROM (%L) TO (%L)',
+                    v_nom, v_table, make_date(v_annee, 1, 1), make_date(v_annee + 1, 1, 1)
+                );
+                v_cree := v_cree + 1;
             END IF;
 
-            EXECUTE format(
-                'CREATE TABLE %I PARTITION OF %I FOR VALUES FROM (%L) TO (%L)',
-                v_nom, v_table, make_date(v_annee, 1, 1), make_date(v_annee + 1, 1, 1)
-            );
-            v_cree := v_cree + 1;
+            -- Aussi sur une partition déjà présente : répare une base chargée avant ce correctif.
+            EXECUTE format('ALTER TABLE %I OWNER TO %I', v_nom, v_proprietaire);
         END LOOP;
     END LOOP;
 

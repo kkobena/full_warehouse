@@ -9,16 +9,16 @@ import { scenario } from '../../src/scenario';
  * donc un travail de reprise — des dizaines de fiches d'affilée —, pas une correction de
  * fiche isolée. D'où l'affectation en masse, depuis la sélection du catalogue.
  *
- * Rien n'est perdu si l'on se trompe : la DCI choisie REMPLACE celle que les produits
- * portaient, et l'opération se défait en réaffectant. C'est ce qui distingue ce geste de la
- * fusion (REF-62), irréversible, et ce qui explique qu'aucune confirmation ne le précède —
- * la fenêtre, qui rappelle les produits retenus, en tient lieu.
+ * Un produit peut porter plusieurs molécules (association). Par défaut, la DCI choisie
+ * S'AJOUTE à celles des produits ; « Remplacer » les réduit à elle seule. L'opération se défait
+ * depuis la fiche : c'est ce qui la distingue de la fusion (REF-62), irréversible, et ce qui
+ * explique qu'aucune confirmation ne la précède — la fenêtre, qui rappelle les produits
+ * retenus, en tient lieu.
  *
  * Parcours ÉCRIVANT, et qui se nettoie. Il travaille sur le catalogue de démonstration —
- * de vrais DOLIPRANE, ce que le manuel doit montrer — puis REPOSE sur chaque fiche la DCI
- * qu'elle portait, ou l'efface si elle n'en portait aucune. La remise en état ne peut pas
- * passer par la fenêtre d'affectation, qui remplace mais n'efface pas : elle passe fiche par
- * fiche, dont le champ DCI est effaçable. Sans elle, le parcours laisserait une substance
+ * de vrais DOLIPRANE, ce que le manuel doit montrer — puis REPOSE sur chaque fiche les
+ * molécules qu'elle portait, dans le même ordre. La remise en état passe fiche par fiche, dont
+ * le champ DCI est effaçable. Sans elle, le parcours laisserait une substance
  * sur des produits du jeu de démonstration et changerait ce que les parcours de substitution
  * proposent ensuite.
  */
@@ -37,16 +37,16 @@ scenario('REF-63', async ({ etape, page }) => {
     await chercherAuCatalogue(page, libelle);
     await lignes.filter({ hasText: libelle }).first().getByRole('button', { name: 'Actions' }).click();
     await page.getByRole('button', { name: 'Éditer' }).click();
-    await expect(page.locator('#f_libelle')).toBeVisible();
+    // La fiche se remplit en une fois, molécules comprises : un libellé posé veut dire qu'elles
+    // sont affichées. Les lire avant, c'est lire une liste vide et croire la fiche modifiée.
+    await expect(page.locator('#f_libelle')).not.toHaveValue('');
     await ouvrirOnglet(page, /Classification/);
     await expect(selectDci).toBeVisible();
   };
 
-  /** La DCI que porte la fiche ouverte — chaîne vide si elle n'en porte aucune. */
-  const dciDeLaFiche = async (): Promise<string> => {
-    const etiquette = selectDci.locator('.ng-value-label');
-    return (await etiquette.count()) > 0 ? (await etiquette.first().innerText()).trim() : '';
-  };
+  /** Les molécules que porte la fiche ouverte, dans l'ordre — liste vide si aucune. */
+  const dcisDeLaFiche = async (): Promise<string[]> =>
+    (await selectDci.locator('.ng-value-label').allInnerTexts()).map(libelle => libelle.trim());
 
   // ── Relevé préalable, hors étape : quels produits vont être touchés, et quelle DCI
   //    portent-ils aujourd'hui. C'est ce relevé qui rend la remise en état possible ; sans
@@ -62,10 +62,10 @@ scenario('REF-63', async ({ etape, page }) => {
   }
   expect(cibles.filter(Boolean)).toHaveLength(2);
 
-  const dciInitiales: string[] = [];
+  const dciInitiales: string[][] = [];
   for (const libelle of cibles) {
     await ouvrirLaFiche(libelle);
-    dciInitiales.push(await dciDeLaFiche());
+    dciInitiales.push(await dcisDeLaFiche());
   }
 
   await etape(1, async () => {
@@ -97,6 +97,8 @@ scenario('REF-63', async ({ etape, page }) => {
     // Le champ interroge le SERVEUR à partir de deux caractères : la liste est vide tant
     // qu'on n'a pas tapé, d'où l'aide dédiée plutôt qu'un simple clic.
     await chercherDansSelect(page, 'dci-cible', 'PARACETAMOL');
+    // Ajouter est le choix par défaut : c'est ainsi qu'on décrit une association.
+    await expect(modal.getByRole('button', { name: 'Ajouter cette molécule' })).toHaveClass(/active/);
     await expect(modal.getByRole('button', { name: 'Affecter la DCI' })).toBeEnabled();
   });
 
@@ -116,13 +118,20 @@ scenario('REF-63', async ({ etape, page }) => {
   //    aucune. Le catalogue de démonstration ressort exactement comme il est entré. ───────
   for (const [rang, libelle] of cibles.entries()) {
     await ouvrirLaFiche(libelle);
-    const initiale = dciInitiales[rang];
-    if (initiale === '') {
-      await selectDci.locator('.ng-clear-wrapper').click();
-      await expect(selectDci.locator('.ng-value-label')).toHaveCount(0);
-    } else {
-      await chercherDansSelect(page, 'f_dci', initiale);
+    const initiales = dciInitiales[rang];
+    // Rien à reposer si l'ajout n'a rien changé (la fiche portait déjà la molécule). Sinon on
+    // repart de zéro : re-choisir une molécule déjà présente la retirerait au lieu de l'ajouter.
+    if (JSON.stringify(await dcisDeLaFiche()) === JSON.stringify(initiales)) {
+      continue;
     }
+    await selectDci.locator('.ng-clear-wrapper').click();
+    await expect(selectDci.locator('.ng-value-label')).toHaveCount(0);
+    for (const molecule of initiales) {
+      await chercherDansSelect(page, 'f_dci', molecule);
+    }
+    // La sélection multiple reste ouverte après un choix, et sa liste couvre « Enregistrer ».
+    await page.keyboard.press('Escape');
+    await expect(page.locator('ng-dropdown-panel')).toHaveCount(0);
     await page.getByRole('button', { name: 'Enregistrer' }).click();
     await expect(page.getByRole('heading', { name: 'Catalogue produits' })).toBeVisible();
   }

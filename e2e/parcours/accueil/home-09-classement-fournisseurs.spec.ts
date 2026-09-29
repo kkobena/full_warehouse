@@ -4,12 +4,14 @@ import { scenario } from '../../src/scenario';
 
 /**
  * Le classement fournisseurs de l'accueil est le résumé du rapport « Performance des
- * fournisseurs » (RPT-33) : même score, mêmes délais, mais réduit au Top 5 et doublé d'un
- * choix de période. Sur trente jours, une officine qui n'a rien commandé voit des montants à
- * zéro — c'est la vue douze mois qui montre l'écran utile.
+ * fournisseurs » (RPT-33) : même score, mêmes délais, mais réduit au Top 5. Il suit la période
+ * du tableau de bord — le bloc n'a plus de sélecteur propre. Sur une journée, une officine qui
+ * n'a rien commandé voit des montants à zéro : c'est l'année qui montre l'écran utile.
  */
 scenario('HOME-09', async ({ etape, page }) => {
   const bloc = carte(page, 'Achats par fournisseur');
+  const periode = (libelle: string) =>
+    page.locator('.dashboard-periode-selector').getByRole('button', { name: libelle, exact: true });
 
   await etape(1, async () => {
     await page.goto('/');
@@ -17,9 +19,8 @@ scenario('HOME-09', async ({ etape, page }) => {
   });
 
   await etape(2, async () => {
-    const douzeMois = bloc.getByRole('button', { name: '12 mois', exact: true });
-    await douzeMois.click();
-    await expect(douzeMois).toHaveClass(/active/);
+    await periode('Année').click();
+    await expect(periode('Année')).toHaveClass(/active/);
     await bloc.scrollIntoViewIfNeeded();
   });
 
@@ -47,13 +48,15 @@ scenario('HOME-09', async ({ etape, page }) => {
           .locator('.fs-6').innerText()).replace(/\D/g, ''),
       );
 
-    const surDouzeMois = await montantDe(nom);
-    expect(surDouzeMois, 'le premier rang porte le plus gros montant').toBe(Math.max(...valeurs));
+    const surLAnnee = await montantDe(nom);
+    expect(surLAnnee, 'le premier rang porte le plus gros montant').toBe(Math.max(...valeurs));
 
-    // Douze mois englobent trente jours : le cumul du même fournisseur ne peut pas diminuer
-    // quand on élargit la période. On le suit par son NOM, l'ordre changeant avec la période.
-    await bloc.getByRole('button', { name: '30 j', exact: true }).click();
-    await expect.poll(() => montantDe(nom), { timeout: 5000 })
-      .toBeLessThanOrEqual(surDouzeMois);
+    // L'année englobe le mois : le cumul du même fournisseur ne peut pas augmenter quand on
+    // resserre la période. On le suit par son NOM — il peut aussi sortir du Top, montant nul.
+    await periode('Mois').click();
+    await expect(periode('Mois')).toHaveClass(/active/);
+    const surLeMois = async () =>
+      (await bloc.locator('li').filter({ hasText: nom }).count()) === 0 ? 0 : montantDe(nom);
+    await expect.poll(surLeMois, { timeout: 5000 }).toBeLessThanOrEqual(surLAnnee);
   });
 });

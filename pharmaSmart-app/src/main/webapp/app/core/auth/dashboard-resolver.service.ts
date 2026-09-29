@@ -2,7 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { EMPTY, Observable, tap } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { DashboardLayoutService } from 'app/entities/dashboard/dashboard-layout.service';
+import { DashboardLayoutApiService } from 'app/features/dashboard/data-access/services/dashboard-layout-api.service';
 import { IDashboardLayout } from 'app/shared/model/dashboard-layout.model';
 
 /**
@@ -21,7 +21,7 @@ import { IDashboardLayout } from 'app/shared/model/dashboard-layout.model';
 @Injectable({ providedIn: 'root' })
 export class DashboardResolverService {
 
-  private readonly layoutService = inject(DashboardLayoutService);
+  private readonly layoutService = inject(DashboardLayoutApiService);
   private readonly router = inject(Router);
 
   /** null = pas encore chargé ou aucun layout configuré */

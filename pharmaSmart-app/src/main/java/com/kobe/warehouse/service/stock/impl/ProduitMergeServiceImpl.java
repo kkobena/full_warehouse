@@ -251,6 +251,7 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
             counts.merge("rayonProduit", mergeRayonProduits(target, source), Integer::sum);
             counts.merge("salesLine", mergeSalesLines(target, source), Integer::sum);
             counts.merge("substitut", mergeSubstituts(target, source), Integer::sum);
+            counts.merge("produitDci", mergeDcis(target, source), Integer::sum);
             counts.merge("semoisConfiguration", mergeSemoisConfiguration(target, source), Integer::sum);
             counts.merge("ventesMensuellesAgregees", mergeVentesMensuellesAgregees(target, source), Integer::sum);
             counts.merge("storeInventoryLine", mergeStoreInventoryLines(target, source), Integer::sum);
@@ -615,6 +616,19 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
             }
         }
         return sourceLines.size();
+    }
+
+    /** Les molécules du produit absorbé s'ajoutent à celles du produit conservé, qui gardent leur rang. */
+    private int mergeDcis(Produit target, Produit source) {
+        List<com.kobe.warehouse.domain.Dci> dcis = new ArrayList<>(target.getDcis());
+        int avant = dcis.size();
+        source.getDcis().stream()
+            .filter(dci -> dcis.stream().noneMatch(d -> d.getId().equals(dci.getId())))
+            .forEach(dcis::add);
+        if (dcis.size() > avant) {
+            target.remplacerDcis(dcis);
+        }
+        return dcis.size() - avant;
     }
 
     private int mergeSubstituts(Produit target, Produit source) {

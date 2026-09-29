@@ -4,6 +4,7 @@ import com.kobe.warehouse.repository.AjustService;
 import com.kobe.warehouse.service.AjustementService;
 import com.kobe.warehouse.service.dto.AjustDTO;
 import com.kobe.warehouse.service.dto.AjustementDTO;
+import com.kobe.warehouse.service.dto.EcartStockDTO;
 import com.kobe.warehouse.service.dto.filter.AjustementFilterRecord;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
@@ -75,6 +76,11 @@ public class AjustementResource {
         log.debug("REST request to save ajustDto : {}", ajustDto);
         ajustementService.saveAjust(ajustDto);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/ajustements/ecarts-a-regulariser")
+    public List<EcartStockDTO> getEcartsARegulariser() {
+        return ajustementService.findEcartsARegulariser();
     }
 
     @GetMapping(value = "/ajustements/ajust")

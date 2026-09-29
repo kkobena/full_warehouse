@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.dci.service;
 
+import com.kobe.warehouse.service.dci.dto.ModeRattachementDci;
+
 import com.kobe.warehouse.domain.Dci;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.repository.DciRepository;
@@ -14,6 +16,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -129,7 +132,7 @@ public class DciServiceImpl implements DciService {
      * lot : une sélection peut vieillir entre l'écran et l'envoi.
      */
     @Override
-    public int rattacherProduits(Integer dciId, List<Integer> produitIds) {
+    public int rattacherProduits(Integer dciId, List<Integer> produitIds, ModeRattachementDci mode) {
         if (CollectionUtils.isEmpty(produitIds)) {
             return 0;
         }
@@ -137,7 +140,16 @@ public class DciServiceImpl implements DciService {
             .orElseThrow(() -> new GenericError("DCI introuvable", "dciIntrouvable"));
 
         List<Produit> produits = this.produitRepository.findAllById(produitIds);
-        produits.forEach(produit -> produit.setDci(dci));
+        produits.forEach(produit -> {
+            if (mode == ModeRattachementDci.REMPLACER) {
+                produit.remplacerDcis(List.of(dci));
+            } else {
+                // Ajoutée en dernier rang ; déjà présente, elle garde sa place.
+                List<Dci> dcis = new ArrayList<>(produit.getDcis());
+                dcis.add(dci);
+                produit.remplacerDcis(dcis);
+            }
+        });
         this.produitRepository.saveAll(produits);
         return produits.size();
     }

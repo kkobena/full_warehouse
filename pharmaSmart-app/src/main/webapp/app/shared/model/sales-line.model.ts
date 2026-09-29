@@ -1,6 +1,9 @@
 import { ISales, SaleId } from 'app/shared/model/sales.model';
 import { IProduit } from 'app/shared/model/produit.model';
 
+/** Pourquoi on force : client livré plus tard (avoir) ou stock machine démenti par le rayon. */
+export type MotifForcageStock = 'RUPTURE_AVOIR' | 'ECART_INVENTAIRE';
+
 export interface ISalesLine {
   id?: number;
   quantitySold?: number;
@@ -25,6 +28,7 @@ export interface ISalesLine {
   calculationBasePrice?: number;
   code?: string;
   forceStock?: boolean;
+  motifForcage?: MotifForcageStock;
   codeScan?: string | null;
   saleLineId?: SaleLineId;
   saleCompositeId?: SaleId;

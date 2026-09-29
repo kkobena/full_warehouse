@@ -38,6 +38,41 @@ public interface StockProduitRepository extends JpaRepository<StockProduit, Inte
     )
     Integer findPointVenteStock(@Param("produitId") Integer produitId, @Param("storageId") Integer storageId);
 
+    interface EcartStockProjection {
+        Integer getProduitId();
+
+        String getLibelle();
+
+        String getCodeCip();
+
+        Integer getStock();
+
+        Integer getQuantiteDue();
+    }
+
+    /** Produits dont le stock du magasin est plus négatif que la somme des avoirs ouverts. */
+    @Query(
+        value = """
+            SELECT p.id AS produitId, p.libelle AS libelle, fp.code_cip AS codeCip,
+                   s.stock AS stock, COALESCE(a.due, 0) AS quantiteDue
+            FROM (SELECT sp.produit_id, SUM(sp.qty_stock + sp.qty_ug) AS stock
+                  FROM stock_produit sp
+                  JOIN storage st ON st.id = sp.storage_id
+                  WHERE st.magasin_id = :magasinId
+                  GROUP BY sp.produit_id) s
+            JOIN produit p ON p.id = s.produit_id
+            LEFT JOIN fournisseur_produit fp ON fp.id = p.fournisseur_produit_principal_id
+            LEFT JOIN (SELECT produit_id, SUM(quantite) AS due
+                       FROM avoir_client
+                       WHERE statut = 'OUVERT'
+                       GROUP BY produit_id) a ON a.produit_id = s.produit_id
+            WHERE s.stock + COALESCE(a.due, 0) < 0
+            ORDER BY s.stock + COALESCE(a.due, 0), p.libelle
+            """,
+        nativeQuery = true
+    )
+    List<EcartStockProjection> findEcartsARegulariser(@Param("magasinId") Integer magasinId);
+
     @Query(
         value = "SELECT COALESCE(SUM(sp.qtyStock + sp.qtyUG), 0) FROM StockProduit sp WHERE sp.produit.id = :produitId AND sp.storage.id = :reserveStorageId"
     )

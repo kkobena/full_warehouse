@@ -2,8 +2,10 @@ package com.kobe.warehouse.service.sale.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,20 +14,28 @@ import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.enumeration.MotifForcageStock;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.OrigineVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypePrescription;
+import com.kobe.warehouse.security.AuthoritiesConstants;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.QuantitySoldException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.errors.StockInReserveException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * {@link com.kobe.warehouse.service.sale.SalesLineService} sur un vrai PostgreSQL.
@@ -326,10 +336,297 @@ class SalesLineServiceIntegrationTest extends AbstractSaleIntegrationTest {
         assertEquals(1, compter("SELECT count(*) FROM sales_line WHERE sales_id = " + copie.getId().getId()));
     }
 
+    // ===== motif de forçage (lot 1 de PLAN-VENTE-SUR-STOCK-ERRONE) =====
+
+    @Test
+    @DisplayName("Un forçage avec manque est qualifié de rupture, et le motif est écrit en base")
+    void forcageQualifieRupture() {
+        Produit produit = produitEnStock("DAFALGAN", 1_000, 600, 0, 2);
+        SalesLine ligne = ligneEnBase(venteActive(), produit, forcee(ligneDe(produit, 5)));
+        viderLeCache();
+
+        assertEquals(MotifForcageStock.RUPTURE_AVOIR, em.find(SalesLine.class, ligne.getId()).getMotifForcage());
+        assertEquals(2, ligne.getQuantitySold(), "aucun changement de comportement : on sert ce qui existe");
+    }
+
+    @Test
+    @DisplayName("Une ligne couverte par le stock n'a pas de motif, même demandée en forçage")
+    void pasDeMotifSansManque() {
+        Produit produit = produitEnStock("EFFERALGAN", 1_000, 600, 0, 10);
+        CashSale vente = venteActive();
+        SalesLine normale = ligneEnBase(vente, produit, 3);
+        SalesLine forceeInutilement = ligneEnBase(vente, produitEnStock("DOLIPRANE", 1_000, 600, 0, 10), 3, true);
+        viderLeCache();
+
+        assertNull(em.find(SalesLine.class, normale.getId()).getMotifForcage());
+        assertNull(em.find(SalesLine.class, forceeInutilement.getId()).getMotifForcage());
+    }
+
+    @Test
+    @DisplayName("Un forçage comblé par la réserve n'est pas une rupture")
+    void reserveComblePasDeMotif() {
+        Produit produit = produitEnStock("ORELOX", 3_000, 1_800, 0, 1);
+        stock(produit, reserve, 10, 0);
+        em.flush();
+        when(services.storageService.getDefaultConnectedUserReserveStorage()).thenReturn(reserve);
+
+        SalesLine ligne = services.salesLineService.createSaleLineFromDTO(forcee(ligneDe(produit, 4)), STORAGE_RAYON_ID);
+
+        assertNull(ligne.getMotifForcage(), "le transfert implicite sert toute la demande");
+    }
+
+    @Test
+    @DisplayName("Ramener la quantité sous le stock efface le motif de rupture")
+    void remplacementEffaceLeMotif() {
+        Produit produit = produitEnStock("TOPLEXIL", 1_200, 700, 0, 2);
+        CashSale vente = venteActive();
+        SalesLine ligne = ligneEnBase(vente, produit, 5, true);
+        assertEquals(MotifForcageStock.RUPTURE_AVOIR, ligne.getMotifForcage());
+
+        SaleLineDTO remplacement = ligneDe(produit, 2);
+        remplacement.setSaleLineId(ligne.getId());
+        services.salesLineService.updateItemQuantityRequested(remplacement, ligne, STORAGE_RAYON_ID);
+        services.saleService.upddateCashSaleAmounts(vente);
+        viderLeCache();
+
+        SalesLine relue = em.find(SalesLine.class, ligne.getId());
+        assertNull(relue.getMotifForcage());
+        assertEquals(2, relue.getQuantitySold());
+    }
+
+    @Test
+    @DisplayName("Incrémenter en forçage au-delà du stock qualifie la ligne de rupture")
+    void incrementForceQualifieRupture() {
+        Produit produit = produitEnStock("HUMEX", 900, 500, 0, 4);
+        CashSale vente = venteActive();
+        SalesLine ligne = ligneEnBase(vente, produit, 2);
+
+        SaleLineDTO increment = forcee(ligneDe(produit, 3));
+        increment.setSaleLineId(ligne.getId());
+        services.salesLineService.incrementItemQuantityRequested(increment, ligne, STORAGE_RAYON_ID);
+        services.saleService.upddateCashSaleAmounts(vente);
+        viderLeCache();
+
+        SalesLine relue = em.find(SalesLine.class, ligne.getId());
+        assertEquals(MotifForcageStock.RUPTURE_AVOIR, relue.getMotifForcage());
+        assertEquals(4, relue.getQuantitySold());
+    }
+
+    /** Bug 6 de PLAN-VENTE-SUR-STOCK-ERRONE : le contrôle portait sur l'incrément seul. */
+    @Test
+    @DisplayName("Incrémenter sans forçage au-delà du stock est refusé, même si l'incrément seul passe")
+    void incrementSansForcageRefuse() {
+        Produit produit = produitEnStock("RHINADVIL", 900, 500, 0, 4);
+        CashSale vente = venteActive();
+        SalesLine ligne = ligneEnBase(vente, produit, 2);
+
+        SaleLineDTO increment = ligneDe(produit, 3);
+        increment.setSaleLineId(ligne.getId());
+
+        assertThrows(StockException.class,
+            () -> services.salesLineService.incrementItemQuantityRequested(increment, ligne, STORAGE_RAYON_ID));
+        assertEquals(2, ligne.getQuantityRequested(), "la ligne reste telle quelle");
+    }
+
+    @Test
+    @DisplayName("La migration crée le motif d'ajustement et le privilège de régularisation")
+    void referentielsDuForcage() {
+        assertEquals(1, compter("SELECT count(*) FROM motif_ajustement WHERE libelle = 'Régularisation constatée à la vente'"));
+        assertEquals(2, compter("""
+            SELECT count(*) FROM nav_item_role r JOIN nav_item n ON n.id = r.nav_item_id
+            WHERE n.code = 'pr-regulariser-stock-vente' AND r.can_execute
+              AND r.role_name IN ('ROLE_ADMIN', 'ROLE_CAISSIER')
+            """), "les mêmes profils que le forçage en avoir");
+    }
+
+    // ===== écart d'inventaire (lot 2 de PLAN-VENTE-SUR-STOCK-ERRONE) =====
+
+    @AfterEach
+    void oublierLUtilisateur() {
+        SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    @DisplayName("Écart d'inventaire : toute la demande est servie, sans avoir à venir")
+    void ecartInventaireServiEnEntier() {
+        habiliter(AuthoritiesConstants.ROLE_CAISSIER, AuthoritiesConstants.PR_REGULARISER_STOCK_VENTE);
+        Produit produit = produitEnStock("SPASFON", 1_500, 900, 0, 0);
+
+        SalesLine ligne = services.salesLineService.createSaleLineFromDTO(ecart(ligneDe(produit, 3)), STORAGE_RAYON_ID);
+
+        assertEquals(MotifForcageStock.ECART_INVENTAIRE, ligne.getMotifForcage());
+        assertEquals(3, ligne.getQuantitySold());
+    }
+
+    @Test
+    @DisplayName("Sans le privilège, l'écart d'inventaire est refusé côté serveur")
+    void ecartInventaireSansPrivilege() {
+        habiliter(AuthoritiesConstants.ROLE_CAISSIER, "pr-force-stock");
+        Produit produit = produitEnStock("NUROFEN", 1_500, 900, 0, 0);
+        SaleLineDTO dto = ecart(ligneDe(produit, 3));
+
+        GenericError refus = assertThrows(GenericError.class,
+            () -> services.salesLineService.createSaleLineFromDTO(dto, STORAGE_RAYON_ID));
+        assertTrue(refus.getMessage().contains("privilège"), refus.getMessage());
+    }
+
+    @Test
+    @DisplayName("L'administrateur régularise sans privilège explicite")
+    void ecartInventaireAdministrateur() {
+        habiliter(AuthoritiesConstants.ADMIN);
+        Produit produit = produitEnStock("MAALOX", 1_500, 900, 0, 0);
+
+        SalesLine ligne = services.salesLineService.createSaleLineFromDTO(ecart(ligneDe(produit, 2)), STORAGE_RAYON_ID);
+
+        assertEquals(MotifForcageStock.ECART_INVENTAIRE, ligne.getMotifForcage());
+    }
+
+    @Test
+    @DisplayName("Sans manque, demander l'écart d'inventaire n'exige aucun privilège et ne laisse aucun motif")
+    void ecartDemandeSansManque() {
+        Produit produit = produitEnStock("STREPSILS", 1_500, 900, 0, 10);
+
+        SalesLine ligne = services.salesLineService.createSaleLineFromDTO(ecart(ligneDe(produit, 2)), STORAGE_RAYON_ID);
+
+        assertNull(ligne.getMotifForcage());
+    }
+
+    @Test
+    @DisplayName("À la clôture, l'écart est régularisé par un ajustement d'entrée motivé, puis vendu sans avoir")
+    void clotureRegulariseParAjustement() {
+        habiliter(AuthoritiesConstants.PR_REGULARISER_STOCK_VENTE);
+        Produit produit = produitEnStock("IMODIUM", 1_500, 900, 0, 1);
+        StockProduit stockProduit = stockRayonDe(produit);
+        SalesLine ligne = services.salesLineService.createSaleLineFromDTO(ecart(ligneDe(produit, 3)), STORAGE_RAYON_ID);
+        ligne.setSales(venteActive());
+
+        services.salesLineService.save(Set.of(ligne), caissier, STORAGE_RAYON_ID);
+        viderLeCache();
+
+        assertEquals(1, compter("""
+            SELECT count(*) FROM ajustement a
+            JOIN ajust j ON j.id = a.ajust_id
+            JOIN motif_ajustement m ON m.id = a.motif_ajustement_id
+            WHERE a.stock_produit_id = %d AND a.qty_mvt = 2 AND a.type_ajust = 'AJUSTEMENT_IN'
+              AND a.stock_before = 1 AND a.stock_after = 3
+              AND j.statut = 'CLOSED' AND j.user_id = %d
+              AND m.libelle = 'Régularisation constatée à la vente'
+            """.formatted(stockProduit.getId(), caissier.getId())), "1 en machine + 2 constatés au rayon");
+        SalesLine relue = em.find(SalesLine.class, ligne.getId());
+        assertEquals(3, relue.getInitStock(), "la sortie lit le stock régularisé");
+        assertEquals(0, relue.getAfterStock());
+        assertEquals(0, relue.getQuantityAvoir());
+        assertEquals(0, em.find(StockProduit.class, stockProduit.getId()).getQtyStock());
+        assertEquals(0, compter("SELECT count(*) FROM avoir_client WHERE sales_line_id = " + ligne.getId().getId()));
+        verify(services.lotStockLocationService).creditLastLot(any(Produit.class), eq(rayon), eq(2));
+    }
+
+    @Test
+    @DisplayName("Un stock négatif de dettes d'avoir n'est pas effacé par la régularisation")
+    void regularisationPreserveLesDettesDAvoir() {
+        habiliter(AuthoritiesConstants.PR_REGULARISER_STOCK_VENTE);
+        Produit produit = produitEnStock("MOTILIUM", 1_500, 900, 0, -3);
+        StockProduit stockProduit = stockRayonDe(produit);
+        SalesLine ligne = services.salesLineService.createSaleLineFromDTO(ecart(ligneDe(produit, 2)), STORAGE_RAYON_ID);
+        ligne.setSales(venteActive());
+
+        services.salesLineService.save(Set.of(ligne), caissier, STORAGE_RAYON_ID);
+        viderLeCache();
+
+        assertEquals(1, compter("SELECT count(*) FROM ajustement WHERE qty_mvt = 2 AND stock_produit_id = " + stockProduit.getId()),
+            "on régularise les 2 boîtes vendues, pas les 3 dues");
+        assertEquals(-3, em.find(StockProduit.class, stockProduit.getId()).getQtyStock(), "les 3 boîtes dues le restent");
+    }
+
+    @Test
+    @DisplayName("Si le stock a été réapprovisionné entre-temps, la clôture n'écrit aucun ajustement")
+    void stockReconstitueAvantLaCloture() {
+        habiliter(AuthoritiesConstants.PR_REGULARISER_STOCK_VENTE);
+        Produit produit = produitEnStock("TITANOREINE", 1_500, 900, 0, 0);
+        StockProduit stockProduit = stockRayonDe(produit);
+        SalesLine ligne = services.salesLineService.createSaleLineFromDTO(ecart(ligneDe(produit, 2)), STORAGE_RAYON_ID);
+        ligne.setSales(venteActive());
+        // Une réception arrive entre l'ajout de la ligne et l'encaissement.
+        stockProduit.setQtyStock(5);
+        stockProduit.setQtyVirtual(5);
+        stockProduit.setTotalStockQuantity(5);
+        em.flush();
+
+        services.salesLineService.save(Set.of(ligne), caissier, STORAGE_RAYON_ID);
+        viderLeCache();
+
+        assertEquals(0, compter("SELECT count(*) FROM ajustement WHERE stock_produit_id = " + stockProduit.getId()));
+        assertEquals(3, em.find(StockProduit.class, stockProduit.getId()).getQtyStock());
+    }
+
+    @Test
+    @DisplayName("Une rupture reste une rupture : ni ajustement, ni régularisation")
+    void ruptureSansAjustement() {
+        Produit produit = produitEnStock("RENNIE", 1_500, 900, 0, 1);
+        StockProduit stockProduit = stockRayonDe(produit);
+        SalesLine ligne = services.salesLineService.createSaleLineFromDTO(forcee(ligneDe(produit, 3)), STORAGE_RAYON_ID);
+        ligne.setSales(venteActive());
+
+        services.salesLineService.save(Set.of(ligne), caissier, STORAGE_RAYON_ID);
+        viderLeCache();
+
+        assertEquals(0, compter("SELECT count(*) FROM ajustement WHERE stock_produit_id = " + stockProduit.getId()));
+        assertEquals(-2, em.find(StockProduit.class, stockProduit.getId()).getQtyStock());
+        assertEquals(2, em.find(SalesLine.class, ligne.getId()).getQuantityAvoir());
+    }
+
+    @Test
+    @DisplayName("Une ligne en écart d'inventaire le reste quand on en ajoute en forçage")
+    void incrementGardeLEcart() {
+        habiliter(AuthoritiesConstants.PR_REGULARISER_STOCK_VENTE);
+        Produit produit = produitEnStock("POLYDEXA", 1_500, 900, 0, 0);
+        CashSale vente = venteActive();
+        SalesLine ligne = ligneEnBase(vente, produit, ecart(ligneDe(produit, 2)));
+
+        SaleLineDTO increment = forcee(ligneDe(produit, 1));
+        increment.setSaleLineId(ligne.getId());
+        services.salesLineService.incrementItemQuantityRequested(increment, ligne, STORAGE_RAYON_ID);
+        services.saleService.upddateCashSaleAmounts(vente);
+        viderLeCache();
+
+        SalesLine relue = em.find(SalesLine.class, ligne.getId());
+        assertEquals(MotifForcageStock.ECART_INVENTAIRE, relue.getMotifForcage());
+        assertEquals(3, relue.getQuantitySold());
+    }
+
     // ===== outils =====
 
+    private void habiliter(String... autorites) {
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+            "caissier", null, Arrays.stream(autorites).map(SimpleGrantedAuthority::new).toList()));
+    }
+
+    private SaleLineDTO ecart(SaleLineDTO dto) {
+        dto.setMotifForcage(MotifForcageStock.ECART_INVENTAIRE);
+        return dto;
+    }
+
+    private StockProduit stockRayonDe(Produit produit) {
+        return services.stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), STORAGE_RAYON_ID);
+    }
+
+    private SaleLineDTO forcee(SaleLineDTO dto) {
+        dto.setForceStock(true);
+        return dto;
+    }
+
+    private SalesLine ligneEnBase(CashSale vente, Produit produit, int quantite, boolean forceStock) {
+        SaleLineDTO dto = ligneDe(produit, quantite);
+        dto.setForceStock(forceStock);
+        return ligneEnBase(vente, produit, dto);
+    }
+
     private SalesLine ligneEnBase(CashSale vente, Produit produit, int quantite) {
-        SalesLine ligne = services.salesLineService.createSaleLineFromDTO(ligneDe(produit, quantite), STORAGE_RAYON_ID);
+        return ligneEnBase(vente, produit, ligneDe(produit, quantite));
+    }
+
+    private SalesLine ligneEnBase(CashSale vente, Produit produit, SaleLineDTO dto) {
+        SalesLine ligne = services.salesLineService.createSaleLineFromDTO(dto, STORAGE_RAYON_ID);
         ligne.setSales(vente);
         vente.getSalesLines().add(ligne);
         services.salesLineService.saveSalesLine(ligne);

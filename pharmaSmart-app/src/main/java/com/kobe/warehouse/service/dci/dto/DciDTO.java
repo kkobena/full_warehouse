@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.dci.dto;
 
+import com.kobe.warehouse.domain.enumeration.StatutDci;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.kobe.warehouse.domain.Dci;
 
@@ -8,6 +10,7 @@ public class DciDTO {
     private long id;
     private String code;
     private String libelle;
+    private StatutDci statut;
 
     @JsonCreator
     public DciDTO() {
@@ -17,6 +20,7 @@ public class DciDTO {
         this.id = dci.getId();
         this.code = dci.getCode();
         this.libelle = dci.getLibelle();
+        this.statut = dci.getStatut();
     }
 
     public long getId() {
@@ -41,5 +45,13 @@ public class DciDTO {
 
     public void setLibelle(String libelle) {
         this.libelle = libelle;
+    }
+
+    public StatutDci getStatut() {
+        return statut;
+    }
+
+    public void setStatut(StatutDci statut) {
+        this.statut = statut;
     }
 }

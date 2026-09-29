@@ -350,6 +350,17 @@ SELECT pg_temp.verif_vide('dci', 'Tout médicament a sa substance active', $q$
        AND p.dci_id IS NULL
 $q$);
 
+-- Transition n-n : produit.dci_id reste la molécule principale de produit_dci.
+SELECT pg_temp.verif_vide('dci', 'dci_id aligné sur la molécule principale', $q$
+    SELECT p.id FROM produit p
+      LEFT JOIN produit_dci pd ON pd.produit_id = p.id AND pd.rang = 1
+     WHERE p.dci_id IS DISTINCT FROM pd.dci_id
+$q$);
+
+SELECT pg_temp.verif_compte('dci', 'Associations à plusieurs molécules', $q$
+    SELECT produit_id FROM produit_dci GROUP BY produit_id HAVING count(*) > 1
+$q$, 2);
+
 -- À l'inverse, la parapharmacie et les accessoires n'en ont pas.
 SELECT pg_temp.verif_vide('dci', 'La parapharmacie n''a pas de substance active', $q$
     SELECT p.id FROM produit p

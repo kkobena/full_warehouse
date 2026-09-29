@@ -28,6 +28,7 @@ export function createSalesLineFromProduct(
   return {
     ...new SalesLine(),
     produitId: product.id,
+    produitLibelle: product.libelle,
     regularUnitPrice: product.regularUnitPrice,
     quantityRequested: quantity,
     saleId: currentSale?.id,

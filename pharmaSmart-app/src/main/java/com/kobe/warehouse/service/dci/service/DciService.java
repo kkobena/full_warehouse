@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.dci.service;
 
+import com.kobe.warehouse.service.dci.dto.ModeRattachementDci;
+
 import com.kobe.warehouse.service.dci.dto.DciDTO;
 import com.kobe.warehouse.service.dci.dto.DciProduitDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
@@ -28,7 +30,7 @@ public interface DciService {
      *
      * @return le nombre de produits effectivement modifiés.
      */
-    int rattacherProduits(Integer dciId, List<Integer> produitIds);
+    int rattacherProduits(Integer dciId, List<Integer> produitIds, ModeRattachementDci mode);
 
     /**
      * Importe un fichier CSV « code;libelle ».

@@ -204,11 +204,18 @@ export async function ouvrirInventaireACompter(page: Page): Promise<void> {
  * pas.
  */
 export async function assurerCaisseOuverte(page: Page, fonds = '50000'): Promise<void> {
+  // L'écran affiche le formulaire d'ouverture TANT QUE la liste des caisses n'est pas chargée,
+  // même si une caisse est déjà ouverte : se fier au premier rendu, c'était écrire dans un champ
+  // qui disparaît à l'arrivée de la réponse. On décide donc sur la réponse elle-même.
+  const chargement = page.waitForResponse(
+    reponse => reponse.request().method() === 'GET' && reponse.url().includes('/connected-user-non-closed-cash-registers'),
+  );
   await page.goto('/my-cash-register');
+  const caisses = (await (await chargement).json()) as unknown[];
   const formulaire = page.getByRole('button', { name: 'Ouvrir la caisse' });
   const enCours = page.getByText(/Ma caisse en cours/i);
-  await expect(formulaire.or(enCours).first()).toBeVisible();
-  if (await enCours.isVisible()) {
+  if (caisses.length > 0) {
+    await expect(enCours).toBeVisible();
     return;
   }
   const montant = page.locator('#cashFundAmount');

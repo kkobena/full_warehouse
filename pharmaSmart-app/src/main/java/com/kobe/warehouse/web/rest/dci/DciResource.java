@@ -1,5 +1,7 @@
 package com.kobe.warehouse.web.rest.dci;
 
+import com.kobe.warehouse.service.dci.dto.ModeRattachementDci;
+
 import com.kobe.warehouse.service.dci.dto.DciDTO;
 import com.kobe.warehouse.service.dci.dto.DciProduitDTO;
 import com.kobe.warehouse.service.dci.service.DciService;
@@ -66,9 +68,10 @@ public class DciResource {
     @PostMapping("/{id}/produits")
     public ResponseEntity<Integer> rattacherProduits(
         @PathVariable Integer id,
-        @RequestBody List<Integer> produitIds
+        @RequestBody List<Integer> produitIds,
+        @RequestParam(name = "mode", defaultValue = "AJOUTER") ModeRattachementDci mode
     ) {
-        return ResponseEntity.ok(dciService.rattacherProduits(id, produitIds));
+        return ResponseEntity.ok(dciService.rattacherProduits(id, produitIds, mode));
     }
 
     @PutMapping

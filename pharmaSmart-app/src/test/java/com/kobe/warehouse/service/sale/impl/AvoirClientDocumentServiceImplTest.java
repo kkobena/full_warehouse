@@ -22,9 +22,15 @@ import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
+import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.UninsuredCustomer;
 import com.kobe.warehouse.domain.enumeration.AvoirClientStatut;
 import com.kobe.warehouse.domain.enumeration.ModeClotureAvoir;
+import com.kobe.warehouse.domain.enumeration.TransactionType;
+import com.kobe.warehouse.service.LogsService;
+import com.kobe.warehouse.service.stock.LotService;
+import com.kobe.warehouse.service.stock.LotStockLocationService;
 import com.kobe.warehouse.repository.AvoirClientRepository;
 import com.kobe.warehouse.repository.AvoirClientUtilisationRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
@@ -42,6 +48,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -59,6 +67,9 @@ class AvoirClientDocumentServiceImplTest {
     @Mock private AvoirClientNotificationService notificationService;
     @Mock private AppConfigurationService configurationService;
     @Mock private AvoirClientUtilisationRepository utilisationRepository;
+    @Mock private LotService lotService;
+    @Mock private LotStockLocationService lotStockLocationService;
+    @Mock private LogsService logsService;
 
     private AvoirClientDocumentServiceImpl service;
     private AppUser user;
@@ -74,7 +85,8 @@ class AvoirClientDocumentServiceImplTest {
         user.setMagasin(magasin);
         service = new AvoirClientDocumentServiceImpl(
             repository, lineRepository, referenceService, storageService, stockRepository,
-            notificationService, configurationService, utilisationRepository
+            notificationService, configurationService, utilisationRepository,
+            lotService, lotStockLocationService, logsService
         );
     }
 
@@ -159,8 +171,9 @@ class AvoirClientDocumentServiceImplTest {
         AvoirClient open = avoir();
         when(repository.findById(2)).thenReturn(Optional.of(open));
         when(storageService.getUser()).thenReturn(user);
-        when(stockRepository.findTotalQuantityByMagasinIdIdAndProduitId(2, 100)).thenReturn(1);
-        assertThrows(GenericError.class, () -> service.cloturerAvoir(2, request));
+        when(stockRepository.findTotalQuantityByMagasinIdIdAndProduitId(2, 100)).thenReturn(-1);
+        assertThrows(GenericError.class, () -> service.cloturerAvoir(2,
+            new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, "x", null)));
 
         AvoirClient noProduct = avoir().setProduit(null);
         when(repository.findById(3)).thenReturn(Optional.of(noProduct));
@@ -205,6 +218,179 @@ class AvoirClientDocumentServiceImplTest {
         assertSame(user, avoir.getClosedBy());
         verify(lineRepository).save(line);
         verify(notificationService).notifierProduitsDisponibles(avoir);
+    }
+
+    /** Bugs 2 et 3 du plan PLAN-VENTE-SUR-STOCK-ERRONE. */
+    @Test
+    void handsOverProductWhenStockIsZeroAndDebitsLots() {
+        AvoirClient avoir = avoir();
+        Storage rayon = new Storage();
+        rayon.setId(1);
+        when(repository.findById(1)).thenReturn(Optional.of(avoir));
+        when(storageService.getUser()).thenReturn(user);
+        when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(rayon);
+        when(stockRepository.findTotalQuantityByMagasinIdIdAndProduitId(2, 100)).thenReturn(0);
+        when(repository.save(avoir)).thenReturn(avoir);
+
+        service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null));
+
+        verify(lotService).adjustLots(avoir.getProduit(), -2);
+        verify(lotStockLocationService).debitFefo(avoir.getProduit(), rayon, 2);
+        verify(stockRepository, never()).save(any());
+    }
+
+    /** Bug 5 du plan PLAN-VENTE-SUR-STOCK-ERRONE. */
+    @Test
+    void refundIgnoresStockAndCreditsOwedQuantityBack() {
+        AvoirClient avoir = avoir();
+        Storage rayon = new Storage();
+        rayon.setId(1);
+        StockProduit stock = new StockProduit();
+        stock.setQtyStock(-2);
+        when(repository.findById(1)).thenReturn(Optional.of(avoir));
+        when(storageService.getUser()).thenReturn(user);
+        when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(rayon);
+        when(stockRepository.findOneByProduitIdAndStockageId(100, 1)).thenReturn(stock);
+        when(repository.save(avoir)).thenReturn(avoir);
+
+        service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.REMBOURSEMENT_ESPECES, null, null));
+
+        assertEquals(0, stock.getQtyStock());
+        assertEquals(0, stock.getQtyVirtual());
+        verify(stockRepository, never()).findTotalQuantityByMagasinIdIdAndProduitId(any(), any());
+        verify(lotService, never()).adjustLots(any(), org.mockito.ArgumentMatchers.anyInt());
+        verify(logsService).create(org.mockito.ArgumentMatchers.eq(TransactionType.AVOIR_SOLDE_SANS_PRODUIT),
+            org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.eq("1"));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = ModeClotureAvoir.class, names = "RETOUR_PRODUIT", mode = EnumSource.Mode.EXCLUDE)
+    void everyModeWithoutProductCreditsStockBack(ModeClotureAvoir mode) {
+        AvoirClient avoir = avoir();
+        StockProduit stock = stockRayon(-2);
+        when(repository.findById(1)).thenReturn(Optional.of(avoir));
+        when(storageService.getUser()).thenReturn(user);
+        when(repository.save(avoir)).thenReturn(avoir);
+
+        service.cloturerAvoir(1, new CloturerAvoirRequest(mode, null, null));
+
+        assertEquals(0, stock.getQtyStock());
+        verify(stockRepository).save(stock);
+        verify(lotStockLocationService, never()).debitFefo(any(), any(), org.mockito.ArgumentMatchers.anyInt());
+    }
+
+    @Test
+    void refundLogsReferenceModeAndStockMovement() {
+        AvoirClient avoir = avoir();
+        stockRayon(-2);
+        when(repository.findById(1)).thenReturn(Optional.of(avoir));
+        when(storageService.getUser()).thenReturn(user);
+        when(repository.save(avoir)).thenReturn(avoir);
+
+        service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.REMBOURSEMENT_CB, null, null));
+
+        ArgumentCaptor<String> comment = ArgumentCaptor.forClass(String.class);
+        verify(logsService).create(org.mockito.ArgumentMatchers.eq(TransactionType.AVOIR_SOLDE_SANS_PRODUIT),
+            comment.capture(), org.mockito.ArgumentMatchers.eq("1"));
+        assertTrue(comment.getValue().contains("AV-1"), comment.getValue());
+        assertTrue(comment.getValue().contains("REMBOURSEMENT_CB"), comment.getValue());
+        assertTrue(comment.getValue().contains("-2 -> 0"), comment.getValue());
+    }
+
+    @Test
+    void partialRefundCreditsStockOnlyOnceTheCreditIsSettled() {
+        AvoirClient avoir = avoir();
+        StockProduit stock = stockRayon(-2);
+        when(repository.findById(1)).thenReturn(Optional.of(avoir));
+        when(storageService.getUser()).thenReturn(user);
+        when(repository.save(avoir)).thenReturn(avoir);
+
+        service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.BON_AVOIR, null, 400));
+        assertEquals(-2, stock.getQtyStock(), "une utilisation partielle ne touche pas au stock");
+        verify(stockRepository, never()).save(any());
+
+        service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.BON_AVOIR, null, 600));
+        assertEquals(0, stock.getQtyStock());
+        verify(stockRepository).save(stock);
+    }
+
+    @Test
+    void partialProductHandOverDebitsNoLotBeforeSettlement() {
+        AvoirClient avoir = avoir();
+        when(repository.findById(1)).thenReturn(Optional.of(avoir));
+        when(storageService.getUser()).thenReturn(user);
+        when(stockRepository.findTotalQuantityByMagasinIdIdAndProduitId(2, 100)).thenReturn(5);
+        when(repository.save(avoir)).thenReturn(avoir);
+
+        service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, 300));
+
+        assertEquals(AvoirClientStatut.OUVERT, avoir.getStatut());
+        verify(lotService, never()).adjustLots(any(), org.mockito.ArgumentMatchers.anyInt());
+        verify(lotStockLocationService, never()).debitFefo(any(), any(), org.mockito.ArgumentMatchers.anyInt());
+    }
+
+    @Test
+    void refusedHandOverStatesMissingUnitsAndWritesNothing() {
+        AvoirClient avoir = avoir();
+        when(repository.findById(1)).thenReturn(Optional.of(avoir));
+        when(storageService.getUser()).thenReturn(user);
+        when(stockRepository.findTotalQuantityByMagasinIdIdAndProduitId(2, 100)).thenReturn(-3);
+
+        GenericError error = assertThrows(GenericError.class, () -> service.cloturerAvoir(1,
+            new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null)));
+
+        assertTrue(error.getMessage().contains("il manque 3"), error.getMessage());
+        assertEquals(AvoirClientStatut.OUVERT, avoir.getStatut());
+        assertEquals(0, avoir.getMontantUtilise());
+        verify(utilisationRepository, never()).save(any());
+        verify(lotService, never()).adjustLots(any(), org.mockito.ArgumentMatchers.anyInt());
+    }
+
+    @Test
+    void refundWithoutStockRowInRayonCreditsNothing() {
+        AvoirClient avoir = avoir();
+        Storage rayon = new Storage();
+        rayon.setId(1);
+        when(repository.findById(1)).thenReturn(Optional.of(avoir));
+        when(storageService.getUser()).thenReturn(user);
+        when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(rayon);
+        when(stockRepository.findOneByProduitIdAndStockageId(100, 1)).thenReturn(null);
+        when(repository.save(avoir)).thenReturn(avoir);
+
+        AvoirClientDocumentDTO result = service.cloturerAvoir(1,
+            new CloturerAvoirRequest(ModeClotureAvoir.REMBOURSEMENT_ESPECES, null, null));
+
+        assertEquals(AvoirClientStatut.CLOTURE, result.statut());
+        verify(stockRepository, never()).save(any());
+        verify(logsService, never()).create(any(TransactionType.class), any(String.class), any(String.class));
+    }
+
+    @Test
+    void creditWithoutProductOrQuantityHasNoStockEffect() {
+        AvoirClient sansProduit = avoir().setProduit(null);
+        AvoirClient sansQuantite = avoir().setId(2).setQuantite(0);
+        when(repository.findById(1)).thenReturn(Optional.of(sansProduit));
+        when(repository.findById(2)).thenReturn(Optional.of(sansQuantite));
+        when(storageService.getUser()).thenReturn(user);
+        when(repository.save(any(AvoirClient.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null));
+        service.cloturerAvoir(2, new CloturerAvoirRequest(ModeClotureAvoir.REMBOURSEMENT_ESPECES, null, null));
+
+        verify(stockRepository, never()).findTotalQuantityByMagasinIdIdAndProduitId(any(), any());
+        verify(stockRepository, never()).findOneByProduitIdAndStockageId(any(), any());
+        verify(lotService, never()).adjustLots(any(), org.mockito.ArgumentMatchers.anyInt());
+        verify(logsService, never()).create(any(TransactionType.class), any(String.class), any(String.class));
+    }
+
+    private StockProduit stockRayon(int quantite) {
+        Storage rayon = new Storage();
+        rayon.setId(1);
+        StockProduit stock = new StockProduit();
+        stock.setQtyStock(quantite);
+        when(storageService.getDefaultConnectedUserMainStorage()).thenReturn(rayon);
+        when(stockRepository.findOneByProduitIdAndStockageId(100, 1)).thenReturn(stock);
+        return stock;
     }
 
     @Test

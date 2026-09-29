@@ -133,12 +133,12 @@ const routes: Routes = [
     loadChildren: () => import("./cash-register/user-cash-register/user-cash-register.route")
   },
 
-  // ── Dashboard (auth only) ──────────────────────────────────────────────────
+  // ── Dashboard personnalisable ──────────────────────────────────────────────
   {
     path: "dashboard",
-    data: { pageTitle: "Dashboard Personnalisable" },
+    data: { pageTitle: "Mon tableau de bord", abilitySubject: "dashboard-perso" },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./dashboard/dashboard.route")
+    loadChildren: () => import("../features/dashboard/dashboard.routes")
   },
 
   // ── Semois (auth only) ─────────────────────────────────────────────────────

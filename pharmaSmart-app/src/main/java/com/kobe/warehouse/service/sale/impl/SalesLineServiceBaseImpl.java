@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
+import com.kobe.warehouse.service.AjustementService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
@@ -43,7 +44,8 @@ public class SalesLineServiceBaseImpl extends SalesLineServiceImpl {
         RepartitionStockService repartitionStockService,
         LotStockLocationService lotStockLocationService,
         AvoirClientDocumentService avoirClientDocumentService,
-        DataMatrixParserService dataMatrixParserService
+        DataMatrixParserService dataMatrixParserService,
+        AjustementService ajustementService
     ) {
         super(
             produitRepository,
@@ -57,7 +59,8 @@ public class SalesLineServiceBaseImpl extends SalesLineServiceImpl {
             repartitionStockService,
             lotStockLocationService,
             avoirClientDocumentService,
-            dataMatrixParserService
+            dataMatrixParserService,
+            ajustementService
         );
     }
 

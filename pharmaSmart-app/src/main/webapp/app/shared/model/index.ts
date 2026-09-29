@@ -5,7 +5,7 @@
 
 // Sales & Customer
 export type { ISales } from './sales.model';
-export type { ISalesLine } from './sales-line.model';
+export type { ISalesLine, MotifForcageStock } from './sales-line.model';
 export type { IClientTiersPayant } from './client-tiers-payant.model';
 export type { ICustomer } from './customer.model';
 

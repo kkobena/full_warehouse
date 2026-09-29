@@ -14,10 +14,12 @@ import com.kobe.warehouse.domain.enumeration.AjustementStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.AjustRepository;
 import com.kobe.warehouse.repository.AjustementRepository;
+import com.kobe.warehouse.repository.MotifAjustementRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.dto.AjustDTO;
 import com.kobe.warehouse.service.dto.AjustementDTO;
+import com.kobe.warehouse.service.dto.EcartStockDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.reassort.SuggestionReassortService;
@@ -54,6 +56,10 @@ public class AjustementService {
     private final SuggestionReassortService suggestionReassortService;
     private final LotStockLocationService lotStockLocationService;
     private final LotService lotService;
+    private final MotifAjustementRepository motifAjustementRepository;
+
+    /** Libellé inséré par V2.1.4__motif_forcage_stock.sql. */
+    public static final String MOTIF_REGULARISATION_VENTE = "Régularisation constatée à la vente";
 
     private final BiPredicate<Ajustement, String> searchPredicate = (ajustement, s) -> {
         Produit produit = ajustement.getStockProduit().getProduit();
@@ -72,8 +78,10 @@ public class AjustementService {
         InventoryTransactionService inventoryTransactionService,
         SuggestionReassortService suggestionReassortService,
         LotStockLocationService lotStockLocationService,
-        LotService lotService
+        LotService lotService,
+        MotifAjustementRepository motifAjustementRepository
     ) {
+        this.motifAjustementRepository = motifAjustementRepository;
         this.ajustementRepository = ajustementRepository;
         this.produitRepository = produitRepository;
         this.ajustRepository = ajustRepository;
@@ -178,6 +186,59 @@ public class AjustementService {
         saveItems(ajustements);
         ajust.setCommentaire(ajustDto.getCommentaire());
         ajust.setStatut(AjustementStatut.CLOSED);
+    }
+
+    /** Négatifs non couverts par les avoirs ouverts du magasin courant, du plus grand écart au plus petit. */
+    @Transactional(readOnly = true)
+    public List<EcartStockDTO> findEcartsARegulariser() {
+        Integer magasinId = getUser().getMagasin().getId();
+        return stockProduitRepository.findEcartsARegulariser(magasinId).stream()
+            .map(e -> new EcartStockDTO(e.getProduitId(), e.getLibelle(), e.getCodeCip(), e.getStock(), e.getQuantiteDue(),
+                -(e.getStock() + e.getQuantiteDue())))
+            .toList();
+    }
+
+    /** Écart d'inventaire constaté à la vente : ajustement d'entrée écrit et clôturé d'office. */
+    public Ajustement regulariserALaVente(StockProduit stockProduit, int quantite, String commentaire) {
+        Ajust ajust = new Ajust();
+        ajust.setUser(getUser());
+        ajust.setDateMtv(LocalDateTime.now());
+        ajust.setCommentaire(commentaire);
+        ajust.setStatut(AjustementStatut.CLOSED);
+        ajust = ajustRepository.save(ajust);
+
+        Ajustement ajustement = new Ajustement();
+        ajustement.setAjust(ajust);
+        ajustement.setMotifAjustement(motifAjustementRepository.findFirstByLibelle(MOTIF_REGULARISATION_VENTE).orElse(null));
+        ajustement.setStockProduit(stockProduit);
+        ajustement.setDateMtv(LocalDateTime.now());
+        ajustement.setQtyMvt(quantite);
+        ajustement.setType(AjustType.AJUSTEMENT_IN);
+
+        // Pas de saveItems : il remet les UG à zéro, et la vente qui suit en consomme.
+        int qtyUg = Objects.requireNonNullElse(stockProduit.getQtyUG(), 0);
+        int stockAvant = stockProduit.getQtyStock() + qtyUg;
+        stockProduit.setQtyStock(stockProduit.getQtyStock() + quantite);
+        stockProduit.setQtyVirtual(stockProduit.getQtyStock());
+        stockProduit.setUpdatedAt(LocalDateTime.now());
+        // @Formula lue au chargement : sans ce rafraîchissement, la sortie de vente lirait l'ancien total.
+        stockProduit.setTotalStockQuantity(stockProduit.getQtyStock() + qtyUg);
+        ajustement.setStockBefore(stockAvant);
+        ajustement.setStockAfter(stockProduit.getTotalStockQuantity());
+        ajustement = ajustementRepository.save(ajustement);
+        stockProduitRepository.save(stockProduit);
+
+        Produit produit = stockProduit.getProduit();
+        lotService.adjustLots(produit, quantite);
+        lotStockLocationService.creditLastLot(produit, stockProduit.getStorage(), quantite);
+        inventoryTransactionService.save(ajustement);
+        logsService.create(
+            TransactionType.AJUSTEMENT_IN,
+            String.format("%s : %s %+d, stock %d -> %d", MOTIF_REGULARISATION_VENTE, produit.getLibelle(), quantite,
+                stockAvant, ajustement.getStockAfter()),
+            ajustement.getId().toString()
+        );
+        return ajustement;
     }
 
     private void saveItems(List<Ajustement> ajustements) {

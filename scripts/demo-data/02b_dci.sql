@@ -109,6 +109,14 @@ FROM (VALUES
   ) AS v(libelle)
 ON CONFLICT (libelle) DO NOTHING;
 
+-- Molécules des associations (03_produits.sql les rattache une à une), codées à part pour ne
+-- pas décaler la numérotation séquentielle ci-dessus.
+INSERT INTO dci (code, libelle)
+VALUES ('DCIA001', 'ACIDE CLAVULANIQUE'),
+       ('DCIA002', 'SALMETEROL'),
+       ('DCIA003', 'FLUTICASONE')
+ON CONFLICT (libelle) DO NOTHING;
+
 -- ---------------------------------------------------------------------------
 -- Contrôles immédiats
 -- ---------------------------------------------------------------------------

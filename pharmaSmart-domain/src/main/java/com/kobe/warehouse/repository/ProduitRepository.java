@@ -44,8 +44,9 @@ public interface ProduitRepository
     extends JpaRepository<Produit, Integer>, JpaSpecificationExecutor<Produit>,
     SpecificationBuilder, ProduitCustomRepository {
 
-    /** Nombre de produits rattachés à une substance active — garde-fou avant suppression. */
-    long countByDciId(Integer dciId);
+    /** Nombre de produits portant une substance active, seule ou en association — garde-fou avant suppression. */
+    @Query("SELECT COUNT(DISTINCT pd.produit.id) FROM ProduitDci pd WHERE pd.dci.id = :dciId")
+    long countByDciId(@Param("dciId") Integer dciId);
 
     /**
      * Combien de produits référencent encore ce référentiel.
@@ -80,7 +81,7 @@ public interface ProduitRepository
         SELECT p FROM Produit p
         LEFT JOIN FETCH p.famille
         LEFT JOIN FETCH p.fournisseurProduitPrincipal
-        WHERE p.dci.id = :dciId
+        WHERE EXISTS (SELECT 1 FROM ProduitDci pd WHERE pd.produit = p AND pd.dci.id = :dciId)
         ORDER BY p.libelle
         """
     )

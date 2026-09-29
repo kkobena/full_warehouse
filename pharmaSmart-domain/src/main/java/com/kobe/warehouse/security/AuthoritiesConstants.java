@@ -14,5 +14,8 @@ public final class AuthoritiesConstants {
 
     public static final String ANONYMOUS = "ROLE_ANONYMOUS";
 
+    /** Vendre en déclarant le stock machine faux : le client est servi, le stock régularisé. */
+    public static final String PR_REGULARISER_STOCK_VENTE = "pr-regulariser-stock-vente";
+
     private AuthoritiesConstants() {}
 }

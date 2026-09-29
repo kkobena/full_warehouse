@@ -35,7 +35,6 @@ public class SalesForecastResource {
      * retourné dans chaque {@link SalesForecastDTO} est réduit automatiquement.
      */
     @GetMapping
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<SalesForecastDTO>> getForecast(
         @RequestParam(defaultValue = "" + DEFAULT_MONTHS_AHEAD) Integer monthsAhead,
         @RequestParam(defaultValue = "LINEAR_REGRESSION") String method
@@ -50,7 +49,6 @@ public class SalesForecastResource {
      * annuel composé, précision MAPE, MAE en FCFA, saisonnalité.
      */
     @GetMapping("/summary")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ForecastSummaryDTO> getForecastSummary() {
         return ResponseEntity.ok(salesForecastService.getForecastSummary());
     }
@@ -60,7 +58,6 @@ public class SalesForecastResource {
      * Données historiques réelles + prévision sur monthsAhead mois à partir de endDate.
      */
     @GetMapping("/historical")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<SalesForecastDTO>> getHistoricalVsForecast(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
@@ -79,7 +76,7 @@ public class SalesForecastResource {
      * Retourne true si η² > 0.5 sur les 24 derniers mois.
      */
     @GetMapping("/seasonality")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+
     public ResponseEntity<Boolean> detectSeasonality() {
         return ResponseEntity.ok(salesForecastService.detectSeasonality());
     }

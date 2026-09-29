@@ -541,12 +541,12 @@
                                       inputId="f_gamme" placeholder="Sélectionner une gamme" />
                         </div>
                         <div class="form-field">
-                          <label for="f_dci">DCI — Dénomination Commune Internationale</label>
-                          <app-select-search [clearable]="true" [items]="dcis()"
-                                             [virtualScroll]="true" appendTo="body"
-                                             bindLabel="libelle" bindValue="id"
-                                             formControlName="dciId"
-                                             inputId="f_dci" placeholder="Ex : Amoxicilline" />
+                          <label for="f_dci">DCI — molécules (la première choisie est la principale)</label>
+                          <app-multi-select [clearable]="true" [items]="dcis()"
+                                            [virtualScroll]="true" appendTo="body"
+                                            bindLabel="libelle" bindValue="id"
+                                            formControlName="dciIds"
+                                            inputId="f_dci" placeholder="Ex : Amoxicilline, Acide clavulanique" />
                         </div>
                       </div>
                     </app-card>

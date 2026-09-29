@@ -72,7 +72,7 @@ Dépendances cibles :
   <artifactId>spring-ai-starter-model-ollama</artifactId>
 </dependency>
 <dependency>
-  <groupId>org.springframework.ai</groupId>
+  <groupId>org.springframework.ai</groupId>L
   <artifactId>spring-ai-starter-vector-store-pgvector</artifactId>
 </dependency>
 ```
@@ -237,7 +237,10 @@ multimodal ; le mobile Flutter (`mobile/`) fournirait la capture.
 (b) rien n'est jamais validé automatiquement ; (c) une clause contractuelle explicite décharge
 l'éditeur ; (d) idéalement, modèle exécuté localement.
 
-À traiter dans un plan dédié, **pas dans cette première vague**.
+À traiter dans un plan dédié, **pas dans cette première vague** : voir
+[PLAN-EXTRACTION-ORDONNANCE-OCR.md](PLAN-EXTRACTION-ORDONNANCE-OCR.md). Ce plan conclut que la
+lecture (Tika + Tess4J), le suivi et le contrôle des interactions se font **sans IA** ; le LLM n'y
+reste qu'une option facultative et locale de structuration des lignes, jamais pour le contrôle.
 
 ### 3.3 Écartés — et pourquoi
 
@@ -467,7 +470,8 @@ reste utile pour purger les surprises d'environnement :
 
 ### Étape 5 — UC-5
 
-Plan dédié. Ne pas démarrer avant un retour d'usage stabilisé sur les étapes 2 et 3.
+Plan dédié : [PLAN-EXTRACTION-ORDONNANCE-OCR.md](PLAN-EXTRACTION-ORDONNANCE-OCR.md). Il ne dépend
+pas du socle IA et peut avancer indépendamment des étapes 1 à 4.
 
 ---
 

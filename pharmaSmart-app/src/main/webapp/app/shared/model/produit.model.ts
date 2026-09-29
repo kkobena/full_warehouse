@@ -81,9 +81,12 @@ export interface IProduit {
   tableau?: ITableau;
   remiseCode?: string;
   etatProduit?: EtatProduit;
+  /** Molécule principale — calculée par le serveur depuis `dcis`. */
   dciId?: number;
-  /** Libellé de la molécule (DCI) — envoyé par le serveur, affiché sur la fiche. */
+  /** Libellés des molécules joints par « + » — calculés par le serveur, affichés sur la fiche. */
   dciLibelle?: string;
+  /** Molécules du produit, principale en tête ; en écriture, l'ordre de la liste fixe le rang. */
+  dcis?: IProduitDci[];
   stockReassort?: number;
   seuilMini?: number;
   stockMaxi?: number; // stock maxi rayon
@@ -173,6 +176,17 @@ export class Dci {
   id?: number;
   libelle?: string;
   code?: string;
+  statut?: StatutDci;
+}
+
+/** `COMPOSEE` : association saisie comme une seule DCI (« A/B »), à décomposer. */
+export type StatutDci = 'ACTIVE' | 'COMPOSEE' | 'ARCHIVEE';
+
+export interface IProduitDci {
+  dciId: number;
+  code?: string;
+  libelle?: string;
+  rang?: number;
 }
 
 export class ProduitFournisseurSearch {

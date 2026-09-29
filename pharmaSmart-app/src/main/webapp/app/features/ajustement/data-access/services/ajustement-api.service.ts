@@ -6,7 +6,7 @@ import { createRequestOptions } from '../../../../shared/util/request-util';
 import { IAjust } from '../../../../shared/model/ajust.model';
 import { IAjustement } from '../../../../shared/model/ajustement.model';
 import { IMotifAjustement } from '../../../../shared/model/motif-ajustement.model';
-import { ILotItem } from '../../models';
+import { IEcartStock, ILotItem } from '../../models';
 
 @Injectable({ providedIn: 'root' })
 export class AjustementApiService {
@@ -35,6 +35,11 @@ export class AjustementApiService {
 
   exportToPdf(id: number): Observable<Blob> {
     return this.http.get(`${this.ajustUrl}/pdf/${id}`, { responseType: 'blob' });
+  }
+
+  /** Négatifs non couverts par les avoirs ouverts : écarts machine/physique à régulariser. */
+  listEcartsARegulariser(): Observable<IEcartStock[]> {
+    return this.http.get<IEcartStock[]>(`${this.ajustUrl}/ecarts-a-regulariser`);
   }
 
   // ── Ajustement lines ─────────────────────────────────────────────────────

@@ -57,6 +57,14 @@
       <div class="pharma-toolbar-actions">
         <div class="pharma-button-group">
           <app-button
+            (clicked)="goToEcarts()"
+            [outlined]="true"
+            icon="pi pi-exclamation-circle"
+            label="Écarts à régulariser"
+            ngbTooltip="Stocks négatifs non couverts par les avoirs clients"
+            severity="warn"
+          />
+          <app-button
             (clicked)="goToNew()"
             [raised]="true"
             icon="pi pi-plus"

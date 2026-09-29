@@ -91,9 +91,12 @@ public class ProduitDTO {
     private Integer stockMaxi;
     private String remiseCode;
     private EtatProduit etatProduit;
+    // Transition : molécule principale et libellés joints, calculés depuis dcis.
     private Integer dciId;
     private String dciLibelle;
     private String dciCode;
+    /** Molécules, principale en tête ; null en écriture = non transmis (ancien client). */
+    private List<ProduitDciDTO> dcis;
     private String categorie;
     private ClasseCriticite classeCriticite;
     private Boolean estMedicamentEssentiel = false;
@@ -205,6 +208,15 @@ public class ProduitDTO {
 
     public ProduitDTO setDciCode(String dciCode) {
         this.dciCode = dciCode;
+        return this;
+    }
+
+    public List<ProduitDciDTO> getDcis() {
+        return dcis;
+    }
+
+    public ProduitDTO setDcis(List<ProduitDciDTO> dcis) {
+        this.dcis = dcis;
         return this;
     }
 

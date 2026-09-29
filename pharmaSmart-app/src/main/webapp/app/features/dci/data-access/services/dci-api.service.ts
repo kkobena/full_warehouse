@@ -3,7 +3,7 @@ import { inject, Injectable, Signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SERVER_API_URL } from '../../../../app.constants';
 import { IResponseDto } from '../../../../shared/util/response-dto';
-import { IDci, IDciProduit } from '../../models/dci.model';
+import { IDci, IDciProduit, ModeRattachementDci } from '../../models/dci.model';
 
 export interface DciQuery {
   page: number;
@@ -65,8 +65,9 @@ export class DciApiService {
    * <p>Rend le nombre de produits effectivement modifiés : une sélection peut vieillir entre
    * l'écran et l'envoi, et le compte rendu doit dire ce qui a réellement été fait.
    */
-  rattacherProduits(dciId: number, produitIds: number[]): Observable<HttpResponse<number>> {
+  rattacherProduits(dciId: number, produitIds: number[], mode: ModeRattachementDci = 'AJOUTER'): Observable<HttpResponse<number>> {
     return this.http.post<number>(`${this.resourceUrl}/${dciId}/produits`, produitIds, {
+      params: { mode },
       observe: 'response',
     });
   }

@@ -4,6 +4,8 @@ import static java.util.Objects.nonNull;
 
 import com.kobe.warehouse.domain.Dci;
 import com.kobe.warehouse.domain.Dci_;
+import com.kobe.warehouse.domain.ProduitDci;
+import com.kobe.warehouse.domain.ProduitDci_;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FamilleProduit_;
 import com.kobe.warehouse.domain.FormProduit;
@@ -328,7 +330,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
             String search = produitCriteria.getSearch().toUpperCase() + "%";
             SetJoin<Produit, FournisseurProduit> fp = root.joinSet(Produit_.FOURNISSEUR_PRODUITS,
                 JoinType.LEFT);
-            Join<Produit, Dci> dci = root.join(Produit_.dci, JoinType.LEFT);
+            // Toutes les molécules d'une association ; le distinct des requêtes appelantes évite les doublons.
+            Join<ProduitDci, Dci> dci = root.join(Produit_.produitDcis, JoinType.LEFT).join(ProduitDci_.dci, JoinType.LEFT);
             predicates.add(
                 cb.or(
                     cb.like(cb.upper(fp.get(FournisseurProduit_.codeEan)), search),
@@ -443,7 +446,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
         }
 
         if (Objects.nonNull(produitCriteria.getDciId())) {
-            predicates.add(cb.equal(root.get(Produit_.dci).get("id"), produitCriteria.getDciId()));
+            Join<ProduitDci, Dci> dciFiltre = root.join(Produit_.produitDcis, JoinType.INNER).join(ProduitDci_.dci, JoinType.INNER);
+            predicates.add(cb.equal(dciFiltre.get(Dci_.id), produitCriteria.getDciId()));
         }
         if (Objects.nonNull(produitCriteria.getCodeRemise())) {
             predicates.add(cb.equal(root.get(Produit_.codeRemise), produitCriteria.getCodeRemise()));

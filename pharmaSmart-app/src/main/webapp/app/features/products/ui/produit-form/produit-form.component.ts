@@ -34,6 +34,7 @@ import {
   KeyFilterDirective,
   SelectComponent,
   SelectSearchComponent,
+  MultiSelectComponent,
   SwitchComponent,
   ToolbarComponent,
 } from "app/shared/ui";
@@ -78,6 +79,7 @@ import {
     KeyFilterDirective,
     SelectComponent,
     SelectSearchComponent,
+    MultiSelectComponent,
     SwitchComponent,
     ToolbarComponent,
     ProduitFournisseursTabComponent,
@@ -136,7 +138,8 @@ export class ProduitFormComponent implements OnInit {
     laboratoireId: this.fb.control<number | null>(null),
     formeId: this.fb.control<number | null>(null),
     gammeId: this.fb.control<number | null>(null),
-    dciId: this.fb.control<number | null>(null),
+    /** Molécules dans l'ordre choisi : la première est la principale. */
+    dciIds: this.fb.control<number[]>([], {nonNullable: true}),
     codeEanLaboratoire: this.fb.control<string | null>(null),
 
     // ── Onglet 3 : Réglementation ─────────────────────────────────────────
@@ -453,7 +456,7 @@ export class ProduitFormComponent implements OnInit {
       laboratoireId: produit.laboratoireId ?? null,
       formeId: produit.formeId ?? null,
       gammeId: produit.gammeId ?? null,
-      dciId: produit.dciId ?? null,
+      dciIds: (produit.dcis ?? []).map(d => d.dciId),
       codeEanLaboratoire: produit.codeEanLaboratoire ?? null,
       statutLegal: produit.statutLegal ?? "SANS_LISTE",
       gestionLot: produit.gestionLot ?? true,
@@ -540,7 +543,7 @@ export class ProduitFormComponent implements OnInit {
       laboratoireId: v.laboratoireId ?? undefined,
       formeId: v.formeId ?? undefined,
       gammeId: v.gammeId ?? undefined,
-      dciId: v.dciId ?? undefined,
+      dcis: v.dciIds.map(dciId => ({dciId})),
       codeEanLaboratoire: v.codeEanLaboratoire ?? undefined,
       statutLegal: v.statutLegal ?? undefined,
       gestionLot: v.gestionLot ?? true,

@@ -159,7 +159,8 @@ final class ReglementServicesUnderTest {
             reglementGroupeSelectionFactureService,
             reglementGroupeFactureService,
             reglementFactureModeAllService,
-            reglementFactureSelectionneesService
+            reglementFactureSelectionneesService,
+            facturationRepository
         );
 
         this.reglementDataService = new ReglementDataServiceImpl(

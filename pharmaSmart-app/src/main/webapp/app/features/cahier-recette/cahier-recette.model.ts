@@ -296,10 +296,25 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Forcer une vente malgré un stock insuffisant',
             besoin: 'Ne pas renvoyer un client parce que le rayon est vide : il paie aujourd’hui ce qu’il emportera après le prochain réapprovisionnement, et l’officine garde trace de ce qu’elle lui doit.',
             fonctionnement:
-              'Le forçage ne fait pas sortir du stock qui n’existe pas : la quantité servie reste bornée au stock disponible, tandis que la quantité demandée est enregistrée telle quelle. L’écart entre les deux part en avoir client à la clôture : le client a payé, l’officine lui doit la marchandise et la lui remettra à la prochaine entrée en stock. Un client identifié est donc obligatoire pour encaisser, et l’option n’est proposée qu’aux utilisateurs disposant du privilège de forçage.',
+              'Quand la quantité saisie dépasse le stock, l’application demande ce qui se passe au comptoir. Avec « Le client sera livré plus tard », la quantité servie reste bornée au stock disponible et le manquant part en avoir client à la clôture, ce qui exige un client identifié. Le stock descend de toute la quantité demandée et peut devenir négatif : c’est la marchandise que l’officine doit au client.',
             prerequis: 'L’utilisateur dispose du privilège de forçage de stock ; le stock du produit ne couvre pas la quantité demandée, réserve comprise.',
-            etapes: ['Ajouter un produit en quantité supérieure au stock disponible', 'Confirmer le forçage de la vente'],
-            resultatAttendu: 'La ligne est ajoutée à la quantité demandée, la quantité servie reste bornée au stock réel, et l’écart part en avoir client à la clôture — laquelle exige un client identifié.',
+            etapes: ['Ajouter un produit en quantité supérieure au stock disponible', 'Choisir « Le client sera livré plus tard » dans la question posée'],
+            resultatAttendu: 'La quantité servie reste bornée au stock réel, l’écart part en avoir client à la clôture, et l’encaissement exige un client identifié.',
+          },
+          {
+            id: 'VTE-63',
+            titre: 'Vendre un produit présent en rayon malgré un stock affiché insuffisant',
+            besoin: 'Servir le client quand les boîtes sont bien en rayon mais que le stock affiché l’ignore (réception mal saisie, retour non enregistré), sans créer d’avoir fictif ni exiger de client.',
+            fonctionnement:
+              'Quand la quantité saisie dépasse le stock, l’utilisateur choisit « Le produit est en rayon, la machine se trompe ». Toute la quantité est servie, sans avoir, comme une vente ordinaire. À l’encaissement, un ajustement d’entrée au motif « Régularisation constatée à la vente » corrige le stock ; il est daté, attribué et visible dans l’historique des ajustements. L’option n’est proposée qu’aux utilisateurs disposant du privilège de régularisation.',
+            prerequis: 'L’utilisateur dispose du privilège de régularisation du stock à la vente ; le stock affiché du produit est inférieur à la quantité demandée.',
+            etapes: [
+              'Ajouter un produit en quantité supérieure au stock affiché',
+              'Choisir « Le produit est en rayon, la machine se trompe »',
+              'Encaisser la vente',
+              'Ouvrir l’historique des ajustements',
+            ],
+            resultatAttendu: 'Le client repart servi, sans avoir ni client obligatoire ; l’historique des ajustements montre une entrée au motif « Régularisation constatée à la vente ».',
           },
           {
             id: 'VTE-42',
@@ -702,7 +717,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Clôturer un avoir en servant le client',
             besoin: 'Permettre à un client de consommer un avoir sur un achat futur, plutôt que de lui rembourser en espèces.',
             fonctionnement:
-              "L'avoir ne s'impute pas sur un ticket : il se CLÔTURE, depuis l'onglet « Avoirs clients », au moment où le client repart avec ce qu'on lui devait. L'écran vérifie d'abord que le produit attendu est bien en stock — puis enregistre le montant utilisé : l'avoir passe à « soldé » s'il est consommé en totalité, ou conserve son reste s'il ne l'est qu'en partie.",
+              "L'avoir ne s'impute pas sur un ticket : il se CLÔTURE, depuis l'onglet « Avoirs clients », au moment où le client repart avec ce qu'on lui devait. Quand le produit est remis, l'écran vérifie que le stock couvre ce qui est dû ; quand l'avoir est remboursé, la quantité due revient en stock. Il enregistre ensuite le montant utilisé : l'avoir passe à « soldé » s'il est consommé en totalité, ou conserve son reste s'il ne l'est qu'en partie.",
             prerequis: 'Un avoir client ouvert existe, non expiré.',
             etapes: [
               "Retrouver l'avoir ouvert du client",
@@ -2419,15 +2434,31 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             besoin:
               'Rattacher à leur substance active les produits d’un catalogue repris d’un autre logiciel, qui arrive presque toujours sans DCI — sans elle, la substitution générique ne propose rien.',
             fonctionnement:
-              'Depuis la sélection multiple du catalogue, une fenêtre demande la substance à appliquer et rappelle les produits retenus. La DCI choisie remplace celle qu’ils portaient éventuellement, et l’opération se défait en réaffectant. Une fois validée, le nombre de produits rattachés est annoncé et la sélection est réinitialisée.',
+              'Depuis la sélection multiple du catalogue, une fenêtre demande la substance à appliquer et rappelle les produits retenus. Un produit peut porter plusieurs molécules : par défaut la DCI choisie s’ajoute aux leurs, « Remplacer » les réduit à elle seule. Une fois validée, le nombre de produits rattachés est annoncé et la sélection est réinitialisée.',
             prerequis: 'Au moins un produit sélectionné au catalogue ; la DCI existe déjà au référentiel.',
             etapes: [
               'Sélectionner plusieurs produits au catalogue',
-              'Lancer « Affecter une DCI » et choisir la substance',
+              'Lancer « Affecter une DCI », choisir la substance et le mode (ajouter ou remplacer)',
               'Valider et contrôler le nombre de produits rattachés',
             ],
             resultatAttendu:
-              'Tous les produits sélectionnés portent la DCI choisie, le nombre de rattachements est confirmé et la sélection est réinitialisée.',
+              'Tous les produits sélectionnés portent la DCI choisie, en plus de leurs molécules ou à leur place selon le mode, le nombre de rattachements est confirmé et la sélection est réinitialisée.',
+          },
+          {
+            id: 'REF-64',
+            titre: 'Décrire un produit associant plusieurs molécules',
+            besoin:
+              'Décrire fidèlement une association — AUGMENTIN, c’est de l’amoxicilline ET de l’acide clavulanique — pour la retrouver par chacune de ses molécules et préparer le contrôle des interactions.',
+            fonctionnement:
+              'Un produit porte une ou plusieurs molécules, dans un ordre : la première est la principale. Le catalogue filtré sur une molécule retrouve aussi les associations qui la contiennent. La synthèse du produit affiche ses molécules jointes par « + », et la fiche les présente dans leur ordre, modifiables.',
+            prerequis: 'Le produit est rattaché à ses molécules (fiche produit ou affectation en masse).',
+            etapes: [
+              'Filtrer le catalogue sur une molécule de l’association, par exemple l’acide clavulanique',
+              'Ouvrir la synthèse du produit',
+              'Ouvrir la fiche en modification, onglet « Classification »',
+            ],
+            resultatAttendu:
+              'Le produit est retrouvé par sa seconde molécule ; sa synthèse affiche « AMOXICILLINE + ACIDE CLAVULANIQUE » et sa fiche les deux molécules, principale en tête.',
           },
         ],
       },
@@ -2508,9 +2539,9 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             titre: 'Consulter les génériques équivalents d’un produit',
             besoin: 'Proposer une alternative générique moins chère ou disponible quand le produit princeps est en rupture.',
             fonctionnement:
-              'L’équivalence se fonde sur la DCI — la molécule — et non sur le nom commercial : DOLIPRANE, EFFERALGAN et PARACETAMOL GE partagent la même substance et se substituent donc l’un à l’autre. L’onglet « Génériques » du panneau de détail, à côté des rayons, affiche pour chaque équivalent son prix de vente, son stock disponible et la nature de l’équivalence — générique ou substitut thérapeutique.',
+              'L’onglet « Génériques » du panneau de détail, à côté des rayons, liste les équivalents enregistrés pour le produit — proposés par le grossiste ou issus d’une fusion de produits : DOLIPRANE, EFFERALGAN et PARACETAMOL GE partagent la même molécule et se substituent l’un à l’autre. Pour chaque équivalent, il affiche son prix de vente, son stock disponible et la nature de l’équivalence — générique ou substitut thérapeutique.',
             etapes: ['Retrouver le produit au catalogue', 'Ouvrir l’onglet "Génériques" du panneau de détail'],
-            resultatAttendu: 'Les produits listés partagent réellement la même DCI que le produit consulté.',
+            resultatAttendu: 'Les équivalents enregistrés pour le produit s’affichent avec leur prix, leur stock et la nature de l’équivalence.',
           },
           {
             id: 'REF-58',
@@ -3004,6 +3035,15 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             prerequis: 'La gestion des lots est activée et le produit possède au moins un lot enregistré.',
             etapes: ['Choisir l’emplacement, le motif et le produit', 'Saisir une quantité positive pour afficher le choix du lot', 'Sélectionner le lot à créditer en contrôlant son numéro et sa date de péremption', 'Ajouter la ligne puis clôturer l’ajustement', 'Pour une sortie, saisir une quantité négative et laisser l’application répartir automatiquement le débit en FEFO'],
             resultatAttendu: 'Le stock de l’emplacement et les quantités des lots restent synchronisés ; le lot sélectionné est crédité en entrée et les lots les plus proches de la péremption sont débités en priorité en sortie.',
+          },
+          {
+            id: 'STK-46',
+            titre: 'Repérer les écarts de stock à régulariser',
+            besoin: 'Savoir quels produits ont un stock négatif que les avoirs clients n’expliquent pas, pour les corriger avant qu’ils ne faussent les commandes et la valorisation.',
+            fonctionnement:
+              'Un stock négatif est normal tant qu’il correspond aux avoirs ouverts : c’est la marchandise due aux clients. La liste « Écarts à régulariser » ne retient que les produits dont le stock, réserve comprise, descend plus bas. Pour chacun, elle montre le stock, la quantité due aux avoirs et l’écart non expliqué, les plus grands en tête.',
+            etapes: ['Ouvrir l’historique des ajustements', 'Cliquer sur « Écarts à régulariser »', 'Corriger chaque écart par un nouvel ajustement ou à l’inventaire'],
+            resultatAttendu: 'Seuls les produits dont le stock négatif dépasse les avoirs ouverts apparaissent, avec l’écart à corriger.',
           },
         ],
       },
@@ -4702,8 +4742,8 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             id: 'HOME-09',
             titre: 'Consulter le classement des fournisseurs (montant, score, délai, qualité)',
             besoin: 'Identifier rapidement les fournisseurs les plus sollicités et évaluer leur fiabilité sans ouvrir le rapport de performance fournisseur dédié.',
-            fonctionnement: 'Les fournisseurs sont classés par montant d’achat (sur 30 jours ou 12 mois au choix) avec, pour chacun, un score de performance, un délai moyen de livraison et, en pied de bloc, un taux de conformité moyen et un délai moyen global.',
-            etapes: ['Ouvrir le tableau de bord Pharmacien', 'Basculer entre la vue 30 jours et 12 mois', 'Consulter le classement des fournisseurs'],
+            fonctionnement: 'Les fournisseurs sont classés par montant d’achat sur la période choisie en tête du tableau de bord avec, pour chacun, un score de performance, un délai moyen de livraison et, en pied de bloc, un taux de conformité moyen et un délai moyen sur douze mois.',
+            etapes: ['Ouvrir le tableau de bord Pharmacien', 'Choisir la période du tableau de bord, par exemple « Année »', 'Consulter le classement des fournisseurs'],
             resultatAttendu: 'Le classement, les scores et délais affichés correspondent aux commandes/réceptions réelles de la période choisie.',
           },
           {

@@ -4,5 +4,6 @@ public enum DashboardComponentKey {
     PHARMACIEN,
     CAISSIER,
     COMMANDE,
-    ROUTE// lien de redirection
+    ROUTE,// lien de redirection
+    CUSTOM // dashboard personnalisable : layoutConfig porte la grille de widgets
 }

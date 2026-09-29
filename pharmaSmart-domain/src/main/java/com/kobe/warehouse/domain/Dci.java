@@ -1,7 +1,10 @@
 package com.kobe.warehouse.domain;
 
+import com.kobe.warehouse.domain.enumeration.StatutDci;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -38,6 +41,11 @@ public class Dci implements Serializable {
     @Column(name = "libelle", nullable = false)
     private String libelle;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "statut", nullable = false, length = 10)
+    private StatutDci statut = StatutDci.ACTIVE;
+
     public Dci() {}
 
     public Integer getId() {
@@ -62,5 +70,13 @@ public class Dci implements Serializable {
 
     public void setLibelle(@NotNull String libelle) {
         this.libelle = libelle;
+    }
+
+    public StatutDci getStatut() {
+        return statut;
+    }
+
+    public void setStatut(StatutDci statut) {
+        this.statut = statut;
     }
 }

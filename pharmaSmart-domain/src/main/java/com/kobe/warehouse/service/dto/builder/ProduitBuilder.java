@@ -9,6 +9,7 @@ import com.kobe.warehouse.domain.GammeProduit;
 import com.kobe.warehouse.domain.Laboratoire;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.ProduitDci;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.StockProduit;
@@ -20,6 +21,7 @@ import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.ProduitDTO;
+import com.kobe.warehouse.service.dto.ProduitDciDTO;
 import com.kobe.warehouse.service.dto.RayonProduitDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.dto.TableauDTO;
@@ -27,10 +29,13 @@ import com.kobe.warehouse.service.utils.NumberUtil;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 import static java.util.Objects.nonNull;
@@ -67,7 +72,7 @@ public final class ProduitBuilder {
         produit.setFamille(parentProduit.getFamille());
         produit.setGamme(parentProduit.getGamme());
         produit.setForme(parentProduit.getForme());
-        produit.setDci(parentProduit.getDci());
+        produit.remplacerDcis(parentProduit.getDcis());
         produit.addStockProduit(stockProduitFromProduitDTO(rayonProduit.getRayon().getStorage(), produitDTO));
         produit.addFournisseurProduit(buildFournisseurProduitFromParent(parentProduit.getFournisseurProduitPrincipal(), produit));
         produit.setFournisseurProduitPrincipal(produit.getFournisseurProduits().iterator().next());
@@ -92,7 +97,6 @@ public final class ProduitBuilder {
         }
         produit.addFournisseurProduit(fournisseurProduitFromDTO(produitDTO));
         produit.setFournisseurProduitPrincipal(produit.getFournisseurProduits().iterator().next());
-        produit.setDci(dciFromId(produitDTO.getDciId()));
         return produit;
     }
 
@@ -130,6 +134,7 @@ public final class ProduitBuilder {
         produit.setFamille(familleProduitFromId(dto.getFamilleId()));
         produit.setGamme(gammeFromId(dto.getGammeId()));
         produit.setForme(formProduitFromId(dto.getFormeId()));
+        appliquerDcis(produit, dto);
         produit.setRemisable(Objects.requireNonNullElse(dto.getRemisable(), false))
             .setGestionLot(Objects.requireNonNullElse(dto.getGestionLot(), false))
             .setThermosensible(Objects.requireNonNullElse(dto.getThermosensible(), false))
@@ -170,10 +175,39 @@ public final class ProduitBuilder {
         }
     }
 
-    private static void updateDci(ProduitDTO produitDTO, Produit produit) {
-        Dci dci = produit.getDci();
-        if (dci != null) {
-            produitDTO.setDciId(dci.getId()).setDciLibelle(dci.getLibelle());
+    static void updateDci(ProduitDTO produitDTO, Produit produit) {
+        List<ProduitDciDTO> dcis = produit.getProduitDcis().stream()
+            .sorted(Comparator.comparingInt(ProduitDci::getRang))
+            .map(ProduitDciDTO::new)
+            .toList();
+        produitDTO.setDcis(dcis);
+        if (!dcis.isEmpty()) {
+            produitDTO
+                .setDciId(dcis.getFirst().dciId())
+                .setDciCode(dcis.getFirst().code())
+                .setDciLibelle(dcis.stream().map(ProduitDciDTO::libelle).collect(Collectors.joining(" + ")));
+        }
+    }
+
+    /**
+     * La liste {@code dcis} fait foi quand elle est transmise. Un client qui n'envoie que
+     * {@code dciId} ne connaît qu'une molécule : il ne remplace la liste que si le produit n'en a
+     * pas plus d'une, sinon il ne change que la principale.
+     */
+    static void appliquerDcis(Produit produit, ProduitDTO dto) {
+        if (dto.getDcis() != null) {
+            produit.remplacerDcis(dto.getDcis().stream().map(d -> dciFromId(d.dciId())).filter(Objects::nonNull).toList());
+            return;
+        }
+        List<Dci> actuelles = produit.getDcis();
+        if (actuelles.size() <= 1) {
+            Dci dci = dciFromId(dto.getDciId());
+            produit.remplacerDcis(dci == null ? List.of() : List.of(dci));
+        } else if (dto.getDciId() != null) {
+            List<Dci> reordonnees = new ArrayList<>();
+            reordonnees.add(dciFromId(dto.getDciId()));
+            actuelles.stream().filter(d -> !dto.getDciId().equals(d.getId())).forEach(reordonnees::add);
+            produit.remplacerDcis(reordonnees);
         }
     }
 

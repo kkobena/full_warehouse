@@ -5,7 +5,9 @@ const {
 } = require('./tsconfig.json');
 
 module.exports = {
-  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|dayjs/esm)'],
+  // gridstack est publié en ESM (.js) : sans transformation, tout test qui atteint la grille du
+  // dashboard (l'accueil l'importe) échoue à l'import.
+  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|dayjs/esm|gridstack/)'],
   // `__VERSION__` et `SERVER_API_URL` sont injectées à la compilation par le builder Angular.
   // Jest ne les connaît pas : sans elles, tout test montant un composant qui atteint un service
   // les utilisant échoue à l'import, avant même d'exécuter la moindre assertion.

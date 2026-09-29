@@ -32,27 +32,19 @@
           <app-skeleton height="160px" width="100%" />
         }
       }
+      @case ('CUSTOM') {
+        @defer (on immediate) {
+          <app-dashboard-view [layout]="resolvedLayout()!" />
+        } @loading {
+          <app-skeleton height="160px" width="100%" />
+        }
+      }
       @default {
-        <!--
-          DEFAULT ou componentKey inconnu :
-          - layoutConfig présent → GridStack personnalisé (TODO )
-          - sinon → DefaultDashboard
-        -->
-        @if (resolvedLayout()?.layoutConfig) {
-          <!-- TODO : <app-customizable-dashboard [layout]="resolvedLayout()"> -->
-          @defer (on immediate) {
-            <div class="container-fluid">
-              <app-home-base></app-home-base>
-            </div>
-          } @loading {
-            <app-skeleton height="160px" width="100%" />
-          }
-        } @else {
-          @defer (on immediate) {
-            <app-default-dashboard></app-default-dashboard>
-          } @loading {
-            <app-skeleton height="160px" width="100%" />
-          }
+        <!-- Aucun layout résolu ou componentKey inconnu -->
+        @defer (on immediate) {
+          <app-default-dashboard></app-default-dashboard>
+        } @loading {
+          <app-skeleton height="160px" width="100%" />
         }
       }
     }

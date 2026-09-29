@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.reglement.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -134,6 +135,36 @@ class ReglementGroupeFactureServiceIntegrationTest extends AbstractReglementInte
         assertThrows(PaymentAmountException.class, () -> services.reglementGroupeFactureService.doReglement(param));
         assertEquals(0, compter("SELECT count(*) FROM payment_transaction WHERE dtype = 'InvoicePayment'"));
         assertEquals(InvoiceStatut.NOT_PAID, em.find(FactureTiersPayant.class, fille.getId()).getStatut());
+    }
+
+    /** FAC-48 : le rapprochement envoie FACTURE_TOTAL même pour un groupe ; le registre doit le rerouter. */
+    @Test
+    @DisplayName("Un règlement « facture totale » d'une facture de groupe solde le groupe")
+    void factureTotaleDUnGroupe() throws Exception {
+        GroupeTiersPayant groupe = groupe("GROUPE RAPPROCHEMENT");
+        FactureTiersPayant fille = factureDe(groupe, "ADHERENT R", 40_000);
+        FactureTiersPayant factureGroupe = factureGroupe(groupe, List.of(fille));
+        viderLeCache();
+
+        ReglementParam param = parametre(factureGroupe, 40_000).setMode(ModeEditionReglement.FACTURE_TOTAL);
+        ResponseReglementDTO reponse = services.reglementRegistry.getService(param).doReglement(param);
+        viderLeCache();
+
+        assertTrue(reponse.total());
+        assertEquals(InvoiceStatut.PAID, em.find(FactureTiersPayant.class, factureGroupe.getId()).getStatut());
+        assertEquals(InvoiceStatut.PAID, em.find(FactureTiersPayant.class, fille.getId()).getStatut());
+        assertTrue(em.find(InvoicePayment.class, reponse.id()).isGrouped(), "réglé comme un groupe");
+    }
+
+    @Test
+    @DisplayName("Une facture individuelle en « facture totale » reste au service individuel")
+    void factureTotaleIndividuelle() {
+        FactureTiersPayant fille = factureDe(groupe("GROUPE ROUTAGE"), "ADHERENT S", 10_000);
+        viderLeCache();
+
+        ReglementParam param = parametre(fille, 10_000).setMode(ModeEditionReglement.FACTURE_TOTAL);
+
+        assertSame(services.reglementFactureModeAllService, services.reglementRegistry.getService(param));
     }
 
     private FactureTiersPayant factureDe(GroupeTiersPayant groupe, String nom, int montant) {

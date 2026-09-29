@@ -17,6 +17,14 @@ export const AJUSTEMENT_ROUTES: Routes = [
       ),
     data: { pageTitle: 'Nouvel ajustement' },
   },
+  {
+    path: 'ecarts',
+    loadComponent: () =>
+      import('./feature/ecarts-a-regulariser/ecarts-a-regulariser.component').then(
+        m => m.EcartsARegulariserComponent,
+      ),
+    data: { pageTitle: 'Écarts à régulariser' },
+  },
 ];
 
 export default AJUSTEMENT_ROUTES;

@@ -30,7 +30,8 @@ public enum TransactionType {
     RETRAIT_PERIME("Retrait de produit périmé", TransactionTypeGroup.PRODUIT),
     MODIFICATION_DATE_DE_VENTE("Modification de la de vente", TransactionTypeGroup.VENTE),
     MODIFICATION_INFO_CLIENT("Modification des informations du client", TransactionTypeGroup.VENTE),
-    MERGE_PRODUCT("Fusion de produits", TransactionTypeGroup.PRODUIT);
+    MERGE_PRODUCT("Fusion de produits", TransactionTypeGroup.PRODUIT),
+    AVOIR_SOLDE_SANS_PRODUIT("Avoir soldé sans remise du produit", TransactionTypeGroup.VENTE);
 
     private final String value;
     private final TransactionTypeGroup transactionTypeGroup;

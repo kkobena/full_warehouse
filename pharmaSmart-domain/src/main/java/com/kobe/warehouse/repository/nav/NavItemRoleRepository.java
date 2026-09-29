@@ -1,6 +1,7 @@
 package com.kobe.warehouse.repository.nav;
 
 import com.kobe.warehouse.domain.enumeration.NavTargetType;
+import com.kobe.warehouse.domain.nav.NavItem;
 import com.kobe.warehouse.domain.nav.NavItemRole;
 import java.util.List;
 import java.util.Optional;
@@ -35,5 +36,17 @@ public interface NavItemRoleRepository extends JpaRepository<NavItemRole, Intege
             """
     )
     Set<String> findExecutableCodesByRoles(Set<String> roleNames, NavTargetType targetType);
+
+    /** Items d'un type donné affichables par l'union des rôles donnés (widgets du dashboard). */
+    @Query(
+        """
+            SELECT DISTINCT r.navItem FROM NavItemRole r
+            WHERE r.roleName IN :roleNames
+              AND r.canDisplay = true
+              AND r.navItem.actif = true
+              AND r.navItem.targetType = :targetType
+            """
+    )
+    List<NavItem> findDisplayableItemsByRoles(Set<String> roleNames, NavTargetType targetType);
 }
 

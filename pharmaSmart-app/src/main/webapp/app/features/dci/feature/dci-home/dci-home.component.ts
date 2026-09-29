@@ -8,6 +8,7 @@ import { ErrorService } from "../../../../shared/error.service";
 import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constants";
 import {
   AppTableLazyLoadEvent,
+  BadgeComponent,
   ButtonComponent,
   DataTableComponent,
   IconFieldComponent,
@@ -42,6 +43,7 @@ import { DciImportComponent } from "../../ui/dci-import/dci-import.component";
     PageLayoutComponent,
     ToolbarComponent,
     ButtonComponent,
+    BadgeComponent,
     IconFieldComponent,
     DataTableComponent,
     SelectableRowDirective,

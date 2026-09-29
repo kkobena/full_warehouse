@@ -343,14 +343,14 @@ export class NavManagerComponent implements OnInit {
   }
 
   /** Filtre récursivement l'arbre selon les assignments courants (pour la prévisualisation).
-   *  ACTION et SECTION sont exclus : ils n'apparaissent pas dans la top navbar. */
+   *  ACTION, SECTION et WIDGET sont exclus : ils n'apparaissent pas dans la top navbar. */
   private filterTreeForPreview(
     nodes: INavNode[],
     assignments: Map<number, NavItemAssignment>
   ): INavNode[] {
     const result: INavNode[] = [];
     for (const node of nodes) {
-      if (node.targetType === "ACTION" || node.targetType === "SECTION") continue;
+      if (node.targetType === "ACTION" || node.targetType === "SECTION" || node.targetType === "WIDGET") continue;
       const a = assignments.get(node.id);
       if (a && !a.canDisplay) continue;
       const children = this.filterTreeForPreview(node.children ?? [], assignments);

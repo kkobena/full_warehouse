@@ -8,7 +8,7 @@ export interface INavNode {
   titreLong?: string;
   routerLink?: string;    // "/commande"
   badgeType?: 'RUPTURE' | 'PEREMPTION' | 'URGENT' | 'NONE';
-  targetType: 'ROUTE' | 'ACTION' | 'GROUP' | 'SECTION' | 'DIVIDER';
+  targetType: 'ROUTE' | 'ACTION' | 'GROUP' | 'SECTION' | 'DIVIDER' | 'WIDGET';
   ordre: number;
   children?: INavNode[];
   permissions?: INavPermissions;

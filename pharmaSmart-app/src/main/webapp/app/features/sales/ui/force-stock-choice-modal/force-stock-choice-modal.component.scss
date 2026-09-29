@@ -1,0 +1,12 @@
+@use 'app/shared/scss/modal-theme' as *;
+
+:host {
+  @include modal-theme;
+}
+
+.choice-hint {
+  display: block;
+  margin-top: 0.25rem;
+  padding-left: 0.25rem;
+  color: var(--bs-secondary-color);
+}

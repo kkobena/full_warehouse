@@ -85,7 +85,13 @@
         <ng-template #body let-dci>
           <tr [appSelectableRow]="dci">
             <td><span class="pharma-code">{{ dci.code }}</span></td>
-            <td><span class="pharma-entity-name">{{ dci.libelle }}</span></td>
+            <td>
+              <span class="pharma-entity-name">{{ dci.libelle }}</span>
+              @if (dci.statut === 'COMPOSEE') {
+                <app-badge class="ms-2" label="Association" severity="warn"
+                           ngbTooltip="Saisie comme une seule DCI : à décomposer en molécules" />
+              }
+            </td>
             <td style="text-align: right">
               <div class="btn-group">
                 <app-button

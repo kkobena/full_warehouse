@@ -32,7 +32,6 @@ public class SalesSummaryReportResource {
      * @return ResponseEntity with list of daily summaries
      */
     @GetMapping
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<DailySalesSummaryDTO>> getDailySalesSummary(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
@@ -48,7 +47,7 @@ public class SalesSummaryReportResource {
      * @return ResponseEntity with list of summaries grouped by sale type
      */
     @GetMapping("/by-date")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+
     public ResponseEntity<List<DailySalesSummaryDTO>> getDailySalesSummaryByDate(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
@@ -65,7 +64,7 @@ public class SalesSummaryReportResource {
      * @return ResponseEntity with list of daily summaries for that type
      */
     @GetMapping("/by-type")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+
     public ResponseEntity<List<DailySalesSummaryDTO>> getDailySalesSummaryByType(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,

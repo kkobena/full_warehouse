@@ -49,7 +49,8 @@ class ProcessUgTest {
         mock(RepartitionStockService.class),
         mock(LotStockLocationService.class),
         mock(AvoirClientDocumentService.class),
-        mock(DataMatrixParserService.class)
+        mock(DataMatrixParserService.class),
+        mock(com.kobe.warehouse.service.AjustementService.class)
     );
 
     @Test

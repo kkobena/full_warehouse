@@ -50,6 +50,7 @@ export enum Authority {
   // deux tables : les contrôles renvoyaient toujours faux, et l'autorisation par clé de
   // sécurité échouait systématiquement, sans message qui l'explique.
   PR_FORCE_STOCK = 'pr-force-stock',
+  PR_REGULARISER_STOCK_VENTE = 'pr-regulariser-stock-vente',
   PR_SHOW_STOCK = 'PR_SHOW_STOCK',
   PR_MODIFIER_PRIX = 'pr-modifier-prix',
   PR_MODIFICATION_VENTE = 'pr-modifier-vente',

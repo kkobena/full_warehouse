@@ -111,6 +111,15 @@ export class AuthorizationService {
     return this.hasAuthorityService.hasAuthorities(Authority.PR_FORCE_STOCK) || this.hasAuthorityService.hasAuthorities(Authority.ADMIN);
   }
 
+  /**
+   * Check if current user can declare the displayed stock wrong at sale time (inventory gap)
+   */
+  canRegulariserStock(): boolean {
+    return (
+      this.hasAuthorityService.hasAuthorities(Authority.PR_REGULARISER_STOCK_VENTE) || this.hasAuthorityService.hasAuthorities(Authority.ADMIN)
+    );
+  }
+
   canShowStock(): boolean {
     // return this.hasAuthorityService.hasAuthorities(Authority.PR_SHOW_STOCK);//TODO: a mettre en base de données
     return true;

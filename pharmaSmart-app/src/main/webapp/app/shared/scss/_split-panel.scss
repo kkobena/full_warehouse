@@ -1,9 +1,8 @@
 // Layout "liste / détail" (master-detail) partagé par les écrans de gestion (produits,
 // rayons, factures, comptes fournisseurs, différés...).
 //
-// Le fond du panneau détail est légèrement teinté (au lieu de blanc) pour le distinguer
-// visuellement de la liste : les deux colonnes étaient blanches, ce qui rendait la
-// séparation peu lisible.
+// Liste sur la surface blanche, détail sur un fond teinté (`detail-bg` du thème) : les
+// cartes blanches du détail s'en détachent. La barre d'onglets reste blanche.
 
 .split-container {
   display: flex;
@@ -17,7 +16,8 @@
   flex: 1;
   overflow: auto;
   transition: flex 0.2s ease;
-  border-right: 1px solid #e2e8f0;
+  background: var(--pharma-surface);
+  border-right: 1px solid var(--pharma-detail-border);
 }
 
 .split-container.panel-open .list-column {
@@ -29,11 +29,12 @@
   flex: 0 0 60%;
   max-width: 60%;
   overflow-y: auto;
-  // Teinte bleu-gris très légère dérivée de la couleur de marque (#5b89a6, cf. header/toolbar)
-  // plutôt qu'un gris neutre ou une couleur arbitraire : le panneau détail se distingue de la
-  // liste tout en restant cohérent avec l'identité visuelle de l'application.
-  background: #f5f8fa;
-  box-shadow: inset 1px 0 0 rgba(91, 137, 166, 0.05);
+  background: var(--pharma-detail-bg);
+
+  // Onglets rendus par le composant détail (autre encapsulation), d'où `::ng-deep`.
+  ::ng-deep .pharma-nav-tabs {
+    background: var(--pharma-surface);
+  }
 }
 
 @media (max-width: 992px) {
@@ -49,7 +50,7 @@
     }
 
     .list-column {
-      border-bottom: 1px solid #e2e8f0;
+      border-bottom: 1px solid var(--pharma-detail-border);
       max-height: 40%;
     }
 

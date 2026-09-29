@@ -21,6 +21,10 @@ $pharma-themes: (
     text-muted: #5b6778,
     field-border: #7c8ba1,
     accent: #047857,
+    kpi-bg: (#e0edfa, #f3f8fe),
+    kpi-border: #cfe0f3,
+    detail-bg: #eef3f8,
+    detail-border: #cbd5e1,
     accent-scale: (50: #ecfdf5, 100: #d1fae5, 200: #a7f3d0, 400: #34d399, 500: #10b981, 600: #059669, 700: #047857, 800: #065f46),
   ),
   'menthe': (
@@ -32,6 +36,10 @@ $pharma-themes: (
     text-muted: #5b6778,
     field-border: #7c8ba1,
     accent: #0f766e,
+    kpi-bg: (#e0edfa, #f3f8fe),
+    kpi-border: #cfe0f3,
+    detail-bg: #eef3f8,
+    detail-border: #cbd5e1,
     accent-scale: (50: #f0fdfa, 100: #ccfbf1, 200: #99f6e4, 400: #2dd4bf, 500: #14b8a6, 600: #0d9488, 700: #0f766e, 800: #115e59),
   ),
   'clair': (
@@ -43,6 +51,10 @@ $pharma-themes: (
     text-muted: #5b6778,
     field-border: #7c8ba1,
     accent: #047857,
+    kpi-bg: (#e0edfa, #f3f8fe),
+    kpi-border: #cfe0f3,
+    detail-bg: #eef3f8,
+    detail-border: #cbd5e1,
     accent-scale: (50: #ecfdf5, 100: #d1fae5, 200: #a7f3d0, 400: #34d399, 500: #10b981, 600: #059669, 700: #047857, 800: #065f46),
   ),
 );
@@ -58,6 +70,11 @@ $pharma-themes: (
   --pharma-text-muted: #{map-get($t, text-muted)};
   --pharma-field-border: #{map-get($t, field-border)};
   --pharma-accent: #{$accent};
+  --pharma-kpi-bg-start: #{nth(map-get($t, kpi-bg), 1)};
+  --pharma-kpi-bg-end: #{nth(map-get($t, kpi-bg), 2)};
+  --pharma-kpi-border: #{map-get($t, kpi-border)};
+  --pharma-detail-bg: #{map-get($t, detail-bg)};
+  --pharma-detail-border: #{map-get($t, detail-border)};
 
   // Bootstrap (lu à l'affichage) — `.text-muted` suit `--bs-secondary-color`.
   --bs-body-bg: #{map-get($t, surface)};

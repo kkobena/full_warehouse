@@ -2,18 +2,18 @@
 // STYLES GLOBAUX PARTAGÉS — .kpi-strip
 // ====================================
 
-$_ks-primary: #008cba;
-$_ks-success: #43ac6a;
-$_ks-danger:  #f04124;
-$_ks-warning: #e99002;
-$_ks-muted:   #5c6370;
-$_ks-border:  #e2e8f0;
+@import 'app/shared/scss/kpi-strip';
 
 .kpi-strip {
   display: flex;
   align-items: center;
-  background: #fff;
-  border: 1px solid $_ks-border;
+  // Teinte fixée par le thème (`kpi-bg` dans `_pharma-themes.scss`).
+  background: linear-gradient(135deg, var(--pharma-kpi-bg-start) 0%, var(--pharma-kpi-bg-end) 100%);
+  border: 1px solid var(--pharma-kpi-border);
+  // Sur ce fond, danger / success / warning (700) passent sous 4,5:1 : teintes 800.
+  --bs-danger-rgb: 185, 28, 28;
+  --bs-success-rgb: 22, 101, 52;
+  --bs-warning-rgb: 154, 52, 18;
   border-radius: 10px;
   padding: 0.35rem 0.75rem;
   margin-bottom: 0.5rem;
@@ -42,16 +42,10 @@ $_ks-border:  #e2e8f0;
     border-radius: 2px;
   }
 
-  &.primary-accent::before { background: $_ks-primary; }
-  &.success-accent::before { background: $_ks-success; }
-  &.danger-accent::before  { background: $_ks-danger; }
-  &.warning-accent::before { background: $_ks-warning; }
+  @include kpi-accent-bars;
 
   > .pi {
-    font-size: 1.05rem;
-    flex-shrink: 0;
-    width: 26px;
-    text-align: center;
+    @include kpi-icon-pastille;
   }
 }
 
@@ -96,6 +90,18 @@ $_ks-border:  #e2e8f0;
   color: $_ks-muted;
   line-height: 1.35;
   margin-top: 0.05rem;
+}
+
+// Évolution dans le sous-texte : vert si positive, rouge si négative. Passe par les
+// variables Bootstrap pour hériter des teintes foncées posées sur `.kpi-strip`.
+.evolution-positive {
+  color: rgb(var(--bs-success-rgb));
+  font-weight: 600;
+}
+
+.evolution-negative {
+  color: rgb(var(--bs-danger-rgb));
+  font-weight: 600;
 }
 
 .kpi-strip-divider {

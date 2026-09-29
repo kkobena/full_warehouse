@@ -1,9 +1,36 @@
 // ── KPI Strip — variables ──────────────────────────────────────────────────
+//
+// Accents alignés sur la palette Bootstrap (`_pharma-bootstrap-palette.scss`), tous ≥ 3:1
+// sur blanc. `primary` suit le thème.
 
-$_ks-primary: #008cba;
-$_ks-success: #43ac6a;
-$_ks-danger:  #f04124;
-$_ks-warning: #e99002;
-$_ks-muted:   #5c6370;
-$_ks-border:  #e2e8f0;
+$_ks-primary:   var(--bs-primary);
+$_ks-success:   #15803d;
+$_ks-danger:    #dc2626;
+$_ks-warning:   #c2410c;
+$_ks-info:      #0369a1;
+$_ks-secondary: #475569;
+$_ks-muted:     var(--bs-secondary-color);
+$_ks-border:    var(--bs-border-color);
 
+// Barre d'accent à gauche de l'item.
+@mixin kpi-accent-bars {
+  &.primary-accent::before   { background: $_ks-primary; }
+  &.success-accent::before   { background: $_ks-success; }
+  &.danger-accent::before    { background: $_ks-danger; }
+  &.warning-accent::before   { background: $_ks-warning; }
+  &.info-accent::before      { background: $_ks-info; }
+  &.secondary-accent::before { background: $_ks-secondary; }
+}
+
+// Pastille ronde derrière l'icône, teintée par la couleur de l'icône elle-même.
+@mixin kpi-icon-pastille {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  font-size: 0.95rem;
+  background-color: color-mix(in srgb, currentColor 14%, transparent);
+}

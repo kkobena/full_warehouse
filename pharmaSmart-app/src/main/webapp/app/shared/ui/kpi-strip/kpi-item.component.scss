@@ -30,10 +30,7 @@
   }
 
   > .pi {
-    font-size: 1.05rem;
-    flex-shrink: 0;
-    width: 26px;
-    text-align: center;
+    @include kpi-icon-pastille;
   }
 }
 
@@ -53,14 +50,13 @@
   background: $_ks-warning;
 }
 
-// `info` n'existe pas dans le partial (un seul usage dans l'application) : il reprend
-// la teinte de `primary`, comme le faisait le markup d'origine.
+// `:host(.x)` et non le mixin `kpi-accent-bars` : `&.x` ne cible pas l'hôte.
 :host(.info-accent)::before {
-  background: $_ks-primary;
+  background: $_ks-info;
 }
 
 :host(.secondary-accent)::before {
-  background: $_ks-muted;
+  background: $_ks-secondary;
 }
 
 // Reprend l'affordance des anciennes `.kpi-card-compact.clickable` (curseur + légère

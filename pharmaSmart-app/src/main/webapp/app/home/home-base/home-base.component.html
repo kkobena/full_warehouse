@@ -142,9 +142,11 @@
           <span class="kpi-strip-sub">
             {{ venteRecord()?.saleCount | number }} ventes
             @if (caEvolutionPct() !== null) {
-              · <i [class]="caEvolutionPct()! >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"
+              · <span [class]="caEvolutionPct()! >= 0 ? 'evolution-positive' : 'evolution-negative'">
+                <i [class]="caEvolutionPct()! >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"
                    aria-hidden="true"></i>
-              {{ caEvolutionPct() | number:'1.1-1' }}%
+                {{ caEvolutionPct() | number:'1.1-1' }}%
+              </span>
             }
           </span>
         </div>
@@ -165,8 +167,8 @@
 
       <div class="kpi-strip-divider"></div>
 
-      <div class="kpi-strip-item">
-        <i aria-hidden="true" class="pi pi-chart-line" style="color: var(--bs-success)"></i>
+    <!--  <div class="kpi-strip-item">
+        <i aria-hidden="true" class="pi pi-chart-line" style="color: var(&#45;&#45;bs-success)"></i>
         <div class="kpi-strip-body">
           <span class="kpi-strip-label">Marge de rentabilité
             <em class="kpi-strip-scope">12 mois glissants</em></span>
@@ -175,7 +177,7 @@
             % · {{ marge12Mois()?.totalProduits | number }} réf.</span>
         </div>
       </div>
-
+-->
       <div class="kpi-strip-divider"></div>
 
 
@@ -188,19 +190,23 @@
             vente(s) · annulée(s) {{ canceled()?.netAmount | number }}</span>
         </div>
       </div>
+      @if (assurance() && assurance()?.saleCount !== 0) {
 
-      <div class="kpi-strip-divider"></div>
+        <div class="kpi-strip-divider"></div>
 
-      <div class="kpi-strip-item">
-        <i aria-hidden="true" class="pi pi-id-card" style="color: var(--bs-primary)"></i>
-        <div class="kpi-strip-body">
-          <span class="kpi-strip-label">Ventes tiers payant</span>
-          <span class="kpi-strip-value">{{ assurance()?.netAmount | number }}</span>
-          <span class="kpi-strip-sub">{{ assurance()?.saleCount | number }}
-            vente(s) · part payeur {{ assurance()?.partTiersPayant | number }}</span>
+        <div class="kpi-strip-item">
+          <i aria-hidden="true" class="pi pi-id-card" style="color: var(--bs-primary)"></i>
+          <div class="kpi-strip-body">
+            <span class="kpi-strip-label">Ventes tiers payant</span>
+            <span class="kpi-strip-value">{{ assurance()?.netAmount | number }}</span>
+            <span class="kpi-strip-sub">{{ assurance()?.saleCount | number }}
+              vente(s) · part payeur {{ assurance()?.partTiersPayant | number }}</span>
+          </div>
         </div>
-      </div>
-      @if (venteDepot()?.saleCount != 0) {
+      }
+
+
+      @if (venteDepot() && venteDepot()?.saleCount !== 0) {
         <div class="kpi-strip-divider"></div>
 
         <div class="kpi-strip-item">

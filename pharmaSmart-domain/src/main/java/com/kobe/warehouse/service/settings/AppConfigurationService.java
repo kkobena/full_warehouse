@@ -629,6 +629,47 @@ public class AppConfigurationService {
             .orElse(0);
     }
 
+    /**
+     * Renouvellement exceptionnel d'un traitement chronique dont l'ordonnance a expiré (fiche client,
+     * lot 4). Désactivé par défaut : la règle vient du droit français et doit être validée par
+     * l'officine.
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_RENOUVELLEMENT_EXCEPTIONNEL_CACHE)
+    public boolean isRenouvellementExceptionnelEnabled() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_RENOUVELLEMENT_EXCEPTIONNEL)
+            .map(c -> "1".equals(c.getValue().trim()))
+            .orElse(false);
+    }
+
+    /** Durée maximale du renouvellement exceptionnel, en mois après l'expiration de l'ordonnance. */
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_RENOUVELLEMENT_EXCEPTIONNEL_MOIS_CACHE)
+    public int getRenouvellementExceptionnelMois() {
+        return entierPositif(EntityConstant.APP_RENOUVELLEMENT_EXCEPTIONNEL_MOIS, 3);
+    }
+
+    /** Jours avant l'échéance d'un traitement chronique à partir desquels le patient est à relancer. */
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_RAPPEL_RENOUVELLEMENT_JOURS_CACHE)
+    public int getRappelRenouvellementJours() {
+        return entierPositif(EntityConstant.APP_RAPPEL_RENOUVELLEMENT_JOURS, 5);
+    }
+
+    private int entierPositif(String nom, int defaut) {
+        return appConfigurationRepository
+            .findById(nom)
+            .map(c -> {
+                try {
+                    return Math.max(0, Integer.parseInt(c.getValue().trim()));
+                } catch (NumberFormatException e) {
+                    return defaut;
+                }
+            })
+            .orElse(defaut);
+    }
+
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_DELAI_VALIDITE_AVOIR_CACHE)
     public int getDelaiValiditeAvoir() {

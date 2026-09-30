@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.kobe.warehouse.service.customer.HistoriqueClientService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,13 +37,16 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     private final ClientTiersPayantRepository clientTiersPayantRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
     private final CustomerDataService customerDataService;
+    private final HistoriqueClientService historiqueClientService;
 
     public AssuredCustomerServiceImpl(
         AssuredCustomerRepository assuredCustomerRepository,
         ClientTiersPayantRepository clientTiersPayantRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        CustomerDataService customerDataService
+        CustomerDataService customerDataService,
+        HistoriqueClientService historiqueClientService
     ) {
+        this.historiqueClientService = historiqueClientService;
         this.assuredCustomerRepository = assuredCustomerRepository;
         this.clientTiersPayantRepository = clientTiersPayantRepository;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
@@ -164,6 +168,7 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
 
     @Override
     public void deleteCustomerById(Integer id) throws GenericError {
+        historiqueClientService.verifierSuppression(id);
         try {
             AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(id);
             List<AssuredCustomer> ayantDroits = assuredCustomerRepository.findAllByAssurePrincipalId(id);
@@ -172,7 +177,7 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
             // Écrit maintenant, pour que la violation de clé étrangère tombe dans ce catch et non au commit.
             assuredCustomerRepository.flush();
         } catch (Exception e) {
-            throw new GenericError("Impossible de supprimer ce client, Il existe des ventes qui lui sont ratachées ", "deleteCustomer");
+            throw new GenericError("Impossible de supprimer ce client : des données lui sont encore rattachées. Désactivez-le.", "deleteCustomer");
         }
     }
 

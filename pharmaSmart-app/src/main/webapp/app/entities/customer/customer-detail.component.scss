@@ -68,52 +68,6 @@
   margin-bottom: 0.1rem;
 }
 
-.invoice .invoice-items table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.invoice .invoice-items table tr {
-  border-bottom: 1px solid #dee2e6;
-  line-height: 0.5 !important;
-}
-
-invoice .invoice-items table th:first-child,
-.invoice .invoice-items table td:first-child {
-  text-align: left;
-}
-
-.invoice .invoice-items table th,
-.invoice .invoice-items table td {
-  padding: 1rem;
-  text-align: right;
-}
-
-.invoice .invoice-items table th {
-  font-weight: 700;
-}
-
-.invoice .invoice-items table th,
-.invoice .invoice-items table td {
-  padding: 1rem;
-  text-align: right;
-}
-
-.invoice .invoice-items table tr {
-  border-bottom: 1px solid #dee2e6;
-}
-
-.invoice .invoice-items table th:first-child,
-.invoice .invoice-items table td:first-child {
-  text-align: left;
-}
-
-invoice .invoice-items table th,
-.invoice .invoice-items table td {
-  padding: 1rem;
-  text-align: right;
-}
-
 .invoice .invoice-summary {
   display: -ms-flexbox;
   display: flex;
@@ -159,7 +113,13 @@ tr.active {
 
 .fiche-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+// Fiche affichée dans le panneau de détail de la liste des clients.
+.fiche-panel {
+  padding: 0.5rem;
 }
 
 .fiche-recherche {

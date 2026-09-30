@@ -1,0 +1,48 @@
+<div class="modal-header">
+  <h4 class="modal-title">Traitements chroniques à renouveler</h4>
+  <button (click)="activeModal.dismiss()" aria-label="Fermer" class="btn-close" type="button"></button>
+</div>
+
+<div class="modal-body">
+  <app-card>
+    @if (chargement()) {
+      <p class="text-muted mb-0"><i class="pi pi-spin pi-spinner me-2"></i>Recherche des traitements à échéance…</p>
+    } @else if (lignes().length === 0) {
+      <p class="text-muted mb-0">Aucun patient à relancer : tous les traitements suivis sont à jour.</p>
+    } @else {
+      <p class="text-muted small">Cliquez sur un patient pour ouvrir sa fiche.</p>
+      <app-data-table [value]="lignes()" [stripedRows]="true" size="small">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Patient</th>
+            <th>Téléphone</th>
+            <th>Traitement</th>
+            <th>Dernière délivrance</th>
+            <th>Échéance</th>
+            <th>Suivi</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-l>
+          <tr (click)="ouvrirFiche(l)" style="cursor: pointer">
+            <td>
+              <div class="pharma-entity-name">{{ l.customerNom }}</div>
+              <span class="pharma-code">{{ l.customerCode }}</span>
+            </td>
+            <td>{{ l.telephone || '—' }}</td>
+            <td>{{ libelle(l.traitement) }}</td>
+            <td>{{ l.traitement.derniereDelivrance | date: 'dd/MM/yyyy' }}</td>
+            <td>
+              {{ l.traitement.prochaineDelivrance | date: 'dd/MM/yyyy' }}
+              <span class="text-muted small">({{ echeance(l.traitement) }})</span>
+            </td>
+            <td><app-badge [label]="suivis[l.traitement.suivi].libelle" [severity]="suivis[l.traitement.suivi].severity" /></td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    }
+  </app-card>
+</div>
+
+<div class="modal-footer">
+  <app-button (clicked)="activeModal.dismiss()" label="Fermer" severity="secondary" />
+</div>

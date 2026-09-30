@@ -5,11 +5,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.UninsuredCustomer;
 import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.TypeAssure;
 import com.kobe.warehouse.repository.AssuredCustomerRepository;
 import com.kobe.warehouse.repository.ClientTiersPayantRepository;
 import com.kobe.warehouse.repository.CustomerRepository;
@@ -19,6 +21,7 @@ import com.kobe.warehouse.service.CustomerDataService;
 import com.kobe.warehouse.service.UninsuredCustomerService;
 import com.kobe.warehouse.service.customer.CustomerFicheService;
 import com.kobe.warehouse.service.customer.CustomerSyntheseDTO;
+import com.kobe.warehouse.service.customer.HistoriqueClientService;
 import com.kobe.warehouse.service.customer.ProduitDelivreDTO;
 import com.kobe.warehouse.service.reglement.differe.service.ReglementDiffereService;
 import com.kobe.warehouse.service.dashboard.integration.AbstractDashboardIntegrationTest;
@@ -26,6 +29,7 @@ import com.kobe.warehouse.service.dto.CustomerDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -115,13 +119,60 @@ class FicheClientIntegrationTest extends AbstractDashboardIntegrationTest {
     }
 
     @Test
-    @DisplayName("supprimer un client qui a des ventes est refusé par un message, et non par une erreur 500")
+    @DisplayName("supprimer un client qui a un historique est refusé : il se désactive (décision n° 5)")
     void suppressionRefusee() {
         UninsuredCustomer client = client(nom, "Mariam", "0700000007");
         venteDifferee(caisse, 3_000, 0, client, LocalDate.now());
-        UninsuredCustomerService service = new UninsuredCustomerService(IntegrationPostgresDatabase.bean(UninsuredCustomerRepository.class));
 
-        assertThatThrownBy(() -> service.deleteCustomerById(client.getId())).isInstanceOf(GenericError.class).hasMessageContaining("ventes");
+        assertThatThrownBy(() -> standards().deleteCustomerById(client.getId()))
+            .isInstanceOf(GenericError.class)
+            .hasMessageContaining("1 vente(s)")
+            .extracting("errorKey")
+            .isEqualTo(HistoriqueClientService.ERROR_KEY);
+    }
+
+    @Test
+    @DisplayName("un client sans historique se supprime")
+    void suppressionSansHistorique() {
+        UninsuredCustomer client = client(nom, "Mariam", "0700000008");
+
+        standards().deleteCustomerById(client.getId());
+        viderLeCache();
+
+        assertThat(em.find(UninsuredCustomer.class, client.getId())).isNull();
+    }
+
+    @Test
+    @DisplayName("un assuré principal dont un ayant droit a acheté ne se supprime pas : il l'emporterait")
+    void suppressionRefuseeParAyantDroit() {
+        AssuredCustomer principal = assure(nom, TypeAssure.PRINCIPAL, null);
+        AssuredCustomer ayantDroit = assure(nom, TypeAssure.AYANT_DROIT, principal);
+        venteComptant(caisse, 2_000).setCustomer(ayantDroit);
+        em.flush();
+
+        assertThatThrownBy(() -> new HistoriqueClientService(em).verifierSuppression(principal.getId()))
+            .isInstanceOf(GenericError.class)
+            .extracting("errorKey")
+            .isEqualTo(HistoriqueClientService.ERROR_KEY);
+    }
+
+    private UninsuredCustomerService standards() {
+        return new UninsuredCustomerService(IntegrationPostgresDatabase.bean(UninsuredCustomerRepository.class), new HistoriqueClientService(em));
+    }
+
+    private AssuredCustomer assure(String nom, TypeAssure type, AssuredCustomer principal) {
+        AssuredCustomer assure = new AssuredCustomer();
+        assure.setFirstName("Assuré");
+        assure.setLastName(nom);
+        assure.setCode(unique("ASS"));
+        assure.setTypeAssure(type);
+        assure.setAssurePrincipal(principal);
+        assure.setStatus(Status.ENABLE);
+        assure.setCreatedAt(LocalDateTime.now());
+        assure.setUpdatedAt(LocalDateTime.now());
+        em.persist(assure);
+        em.flush();
+        return assure;
     }
 
     // ── Lot 1 : fiche 360° ──

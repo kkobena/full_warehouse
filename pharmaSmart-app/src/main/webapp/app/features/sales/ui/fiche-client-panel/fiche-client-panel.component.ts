@@ -13,6 +13,8 @@ import {BadgeComponent, ButtonComponent, DataTableComponent, OffcanvasComponent}
 import {NotificationService} from 'app/shared/services/notification.service';
 import {IAvoirClientDocument} from 'app/shared/model/avoir-client-document.model';
 import {ProductSearchService} from '../../data-access/services/product-search.service';
+import {ITraitementChronique} from 'app/entities/customer/customer-fiche.model';
+import {A_RELANCER, echeanceTraitement, libelleTraitement, SUIVI_TRAITEMENT} from 'app/entities/customer/traitements-chroniques/suivi-traitement';
 
 interface FicheClient {
   customer: ICustomer | null;
@@ -20,6 +22,7 @@ interface FicheClient {
   credit: ISituationCredit | null;
   avoirs: IAvoirClientDocument[];
   produits: IProduitDelivre[];
+  traitements: ITraitementChronique[];
 }
 
 /**
@@ -52,6 +55,12 @@ export class FicheClientPanelComponent {
     const d = this.fiche()?.sante;
     return !!d?.grossesse && (!d.dateTerme || !IS_ISO_DATE_PAST(d.dateTerme));
   });
+  /** Traitements chroniques arrivés à échéance : à proposer avant la fin de la vente. */
+  protected readonly traitementsARenouveler = computed(() => (this.fiche()?.traitements ?? []).filter(t => A_RELANCER.includes(t.suivi)));
+  protected readonly suivis = SUIVI_TRAITEMENT;
+  protected readonly libelleTraitement = libelleTraitement;
+  protected readonly echeanceTraitement = echeanceTraitement;
+
   protected readonly creditDepasse = computed(() => {
     const c = this.fiche()?.credit;
     return !!c && c.limite > 0 && c.encours >= c.limite;
@@ -84,13 +93,26 @@ export class FicheClientPanelComponent {
 
   /** Le produit est recherché dans le catalogue de vente : prix et stock du jour, pas ceux de l'historique. */
   protected choisir(produit: IProduitDelivre): void {
-    this.productSearch.search(produit.libelle, 20).subscribe(resultats => {
-      const trouve = resultats.find(p => p.id === produit.produitId);
+    this.proposer(produit.produitId, produit.libelle);
+  }
+
+  /** Produit imposé s'il y en a un, sinon celui délivré la dernière fois. */
+  protected renouveler(traitement: ITraitementChronique): void {
+    const id = traitement.produitId ?? traitement.dernierProduitId;
+    const libelle = traitement.produitLibelle ?? traitement.dernierProduitLibelle;
+    if (id && libelle) {
+      this.proposer(id, libelle);
+    }
+  }
+
+  private proposer(produitId: number, libelle: string): void {
+    this.productSearch.search(libelle, 20).subscribe(resultats => {
+      const trouve = resultats.find(p => p.id === produitId);
       if (trouve) {
         this.fermer();
         this.redelivrer.emit(trouve);
       } else {
-        this.notificationService.error(`${produit.libelle} n'est plus disponible à la vente`);
+        this.notificationService.error(`${libelle} n'est plus disponible à la vente`);
       }
     });
   }
@@ -104,6 +126,7 @@ export class FicheClientPanelComponent {
       sante: this.lire(this.customerService.dossierSante(id)),
       credit: this.lire(this.customerService.situationCredit(id)),
       avoirs: this.lire(this.customerService.avoirsByCustomer(id)).pipe(map(a => a ?? [])),
+      traitements: this.lire(this.customerService.traitementsChroniques(id)).pipe(map(t => t ?? [])),
       produits: this.lire(
         this.customerService
           .produitsDelivres(id, {fromDate: DATE_FORMAT_ISO_DATE(ilYaUnAn), toDate: DATE_FORMAT_ISO_DATE(aujourdhui), page: 0, size: 10})

@@ -18,6 +18,8 @@ import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.UninsuredCustomer;
+import com.kobe.warehouse.domain.enumeration.CanalConsentement;
+import com.kobe.warehouse.repository.CustomerConsentementRepository;
 import com.kobe.warehouse.repository.CustomerRepository;
 import com.kobe.warehouse.repository.LimiteCreditDerogationRepository;
 import com.kobe.warehouse.repository.RelanceDiffereRepository;
@@ -29,6 +31,8 @@ import com.kobe.warehouse.security.navaccess.NavAccessService;
 import com.kobe.warehouse.service.SmsService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.UtilisationCleSecuriteService;
+import com.kobe.warehouse.service.customer.ConsentementDTO;
+import com.kobe.warehouse.service.customer.ConsentementService;
 import com.kobe.warehouse.service.customer.DerogationAuthorizer;
 import com.kobe.warehouse.service.customer.DerogationLimiteCreditDTO;
 import com.kobe.warehouse.service.customer.LimiteCreditService;
@@ -69,6 +73,7 @@ class CreditClientIntegrationTest extends AbstractDashboardIntegrationTest {
     private final SmsService sms = mock(SmsService.class);
     private LimiteCreditService limite;
     private RelanceDiffereService relance;
+    private ConsentementService consentements;
     private UninsuredCustomer client;
     private CashRegister caisse;
     private AppUser caissier;
@@ -104,7 +109,8 @@ class CreditClientIntegrationTest extends AbstractDashboardIntegrationTest {
             IntegrationPostgresDatabase.bean(RelanceDiffereRepository.class),
             sms,
             configuration,
-            authorizer
+            authorizer,
+            consentements = new ConsentementService(IntegrationPostgresDatabase.bean(CustomerConsentementRepository.class), em, authorizer)
         );
         when(configuration.getDevise()).thenReturn("FCFA");
 
@@ -207,6 +213,23 @@ class CreditClientIntegrationTest extends AbstractDashboardIntegrationTest {
         assertThatThrownBy(() -> relance.relancer(sansTelephone.getId())).isInstanceOf(GenericError.class).extracting("errorKey").isEqualTo("relanceSansTelephone");
         assertThatThrownBy(() -> relance.relancer(client.getId())).isInstanceOf(GenericError.class).extracting("errorKey").isEqualTo("relanceSansEncours");
         verify(sms, never()).sendSms(anyString(), anyString());
+    }
+
+    @Test
+    @DisplayName("un client qui a refusé les SMS n'est pas relancé ; son accord rétablit la relance")
+    void relanceSelonConsentement() {
+        venteDifferee(caisse, 5_000, 5_000, client, LocalDate.now());
+
+        consentements.enregistrer(client.getId(), CanalConsentement.SMS, false);
+        em.flush();
+        assertThatThrownBy(() -> relance.relancer(client.getId())).isInstanceOf(GenericError.class).extracting("errorKey").isEqualTo("relanceSmsRefuse");
+        verify(sms, never()).sendSms(anyString(), anyString());
+
+        consentements.enregistrer(client.getId(), CanalConsentement.SMS, true);
+        em.flush();
+        relance.relancer(client.getId());
+        verify(sms).sendSms(eq("0700000030"), anyString());
+        assertThat(consentements.historique(client.getId())).extracting(ConsentementDTO::accorde).containsExactly(true, false);
     }
 
     // ===== fixtures =====

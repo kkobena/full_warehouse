@@ -1,0 +1,129 @@
+<div class="modal-header">
+  <h4 class="modal-title">Fusionner {{ clients.length }} clients en doublon</h4>
+  <button (click)="cancel()" aria-label="Fermer" class="btn-close" type="button"></button>
+</div>
+
+<div class="modal-body">
+  <app-card [variant]="'form'">
+    <div class="form-grid-compact">
+
+      <div class="form-field form-field-full">
+        <span class="field-label">Choisir le client à conserver (cible)</span>
+
+        <app-data-table [value]="clients" dataKey="id" size="small" [stripedRows]="true">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th style="width: 90px">Conserver</th>
+              <th>Nom et prénom(s)</th>
+              <th>Catégorie</th>
+              <th>Code</th>
+              <th>Numéro assuré</th>
+              <th>Téléphone</th>
+              <th>Naissance</th>
+              <th class="text-end">Encours</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-client>
+            <tr [class.row-checked]="client.id === targetId()">
+              <td class="text-center">
+                <app-radio
+                  (ngModelChange)="targetId.set($event); onTargetChange()"
+                  [ngModel]="targetId()"
+                  [value]="client.id"
+                  name="targetId"
+                />
+              </td>
+              <td><div class="pharma-entity-name">{{ nom(client) }}</div></td>
+              <td>{{ client.categorie ?? '—' }}</td>
+              <td><span class="pharma-code">{{ client.code ?? '—' }}</span></td>
+              <td>{{ client.num || '—' }}</td>
+              <td>{{ client.phone || '—' }}</td>
+              <td>{{ (client.datNaiss | date: 'dd/MM/yyyy') ?? '—' }}</td>
+              <td class="text-end">{{ (client.encours ?? 0) | number }}</td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </div>
+
+      @if (loadingPreview()) {
+        <div class="form-field form-field-full">
+          <i class="pi pi-spin pi-spinner me-2"></i>Analyse des données à fusionner…
+        </div>
+      }
+
+      @if (targetId() === null) {
+        <div class="form-field form-field-full">
+          <span class="text-muted">Choisissez le client à conserver ci-dessus pour lancer l'analyse.</span>
+        </div>
+      }
+
+      @if (targetId() !== null && !loadingPreview() && !previewError()) {
+
+        @if (rejetEntries().length > 0) {
+          <div class="form-field form-field-full">
+            <div class="alert alert-warning">
+              <strong>Clients exclus de la fusion :</strong>
+              <ul class="mb-0">
+                @for (rejet of rejetEntries(); track rejet.id) {
+                  <li>{{ clientLibelle(rejet.id) }} — {{ rejet.raison }}</li>
+                }
+              </ul>
+              <span>Retirez-les de la sélection pour fusionner les autres.</span>
+            </div>
+          </div>
+        }
+
+        @if (entityCountEntries().length > 0) {
+          <div class="form-field form-field-full">
+            <span class="field-label">Données qui seront rattachées au client conservé</span>
+            <ul class="entity-counts-list">
+              @for (entry of entityCountEntries(); track entry.label) {
+                <li><span class="count-badge">{{ entry.count }}</span> {{ entry.label }}</li>
+              }
+            </ul>
+          </div>
+        }
+
+        @if (avertissements().length > 0) {
+          <div class="form-field form-field-full">
+            <div class="alert alert-info mb-0">
+              <ul class="mb-0">
+                @for (avertissement of avertissements(); track avertissement) {
+                  <li>{{ avertissement }}</li>
+                }
+              </ul>
+            </div>
+          </div>
+        }
+
+        @if (entityCountEntries().length === 0 && rejetEntries().length === 0 && sourceIds().length > 0) {
+          <div class="form-field form-field-full">
+            <span class="text-muted">Aucune donnée liée trouvée pour les clients sélectionnés.</span>
+          </div>
+        }
+      }
+
+    </div>
+  </app-card>
+</div>
+
+<div class="modal-footer">
+  <app-button
+    (clicked)="cancel()"
+    [raised]="true"
+    icon="pi pi-times"
+    label="Annuler"
+    severity="secondary"
+    type="button"
+  />
+  <app-button
+    (clicked)="confirm()"
+    [disabled]="!canConfirm()"
+    [loading]="isConfirming()"
+    [raised]="true"
+    icon="pi pi-check"
+    label="Confirmer la fusion"
+    severity="primary"
+    type="button"
+  />
+</div>

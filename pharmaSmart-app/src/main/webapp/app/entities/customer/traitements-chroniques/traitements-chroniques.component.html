@@ -1,0 +1,84 @@
+<app-card customClass="mt-3">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h6 class="mb-0">Traitements chroniques</h6>
+    @if (canEdit()) {
+      <app-button (clicked)="declarer()" [outlined]="true" icon="pi pi-plus" label="Déclarer" severity="info" size="small" />
+    }
+  </div>
+
+  @if (traitements().length > 0) {
+    <app-data-table [value]="traitements()" [stripedRows]="true" dataKey="id" size="small">
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>Traitement</th>
+          <th>Posologie</th>
+          <th class="text-end">Durée</th>
+          <th>Dernière délivrance</th>
+          <th>Échéance</th>
+          <th>Suivi</th>
+          <th>Ordonnance</th>
+          @if (canEdit()) {
+            <th></th>
+          }
+        </tr>
+      </ng-template>
+      <ng-template #body let-t>
+        <tr [class.text-muted]="!t.actif">
+          <td>
+            <div class="pharma-entity-name">{{ libelle(t) }}</div>
+            @if (t.produitLibelle) {
+              <app-badge label="Non substituable" severity="help" />
+            }
+          </td>
+          <td>{{ t.posologie || '—' }}</td>
+          <td class="text-end">{{ t.dureeJours }} j</td>
+          <td>{{ t.derniereDelivrance ? (t.derniereDelivrance | date: 'dd/MM/yyyy') : '—' }}</td>
+          <td>
+            @if (t.prochaineDelivrance) {
+              {{ t.prochaineDelivrance | date: 'dd/MM/yyyy' }}
+              <span class="text-muted small">({{ echeance(t) }})</span>
+            } @else {
+              —
+            }
+          </td>
+          <td><app-badge [label]="suivis[t.suivi].libelle" [severity]="suivis[t.suivi].severity" /></td>
+          <td>
+            @switch (t.ordonnance) {
+              @case ('VALIDE') {
+                <span>jusqu'au {{ t.dateFinOrdonnance | date: 'dd/MM/yyyy' }}</span>
+              }
+              @case ('EXPIREE') {
+                <span class="text-danger">expirée le {{ t.dateFinOrdonnance | date: 'dd/MM/yyyy' }}</span>
+                @if (t.renouvellementExceptionnelJusquau) {
+                  <div class="small text-success">
+                    Renouvellement exceptionnel possible jusqu'au {{ t.renouvellementExceptionnelJusquau | date: 'dd/MM/yyyy' }}, un mois à la fois
+                  </div>
+                } @else if (t.renouvellementExceptionnelMotif) {
+                  <div class="small text-muted">{{ t.renouvellementExceptionnelMotif }}</div>
+                }
+              }
+              @default {
+                <span class="text-muted">—</span>
+              }
+            }
+          </td>
+          @if (canEdit()) {
+            <td class="text-end text-nowrap">
+              <app-button (clicked)="modifier(t)" [rounded]="true" [text]="true" icon="pi pi-pencil" ngbTooltip="Modifier" severity="success" />
+              <app-button
+                (clicked)="basculer(t)"
+                [icon]="t.actif ? 'pi pi-pause' : 'pi pi-play'"
+                [ngbTooltip]="t.actif ? 'Arrêter le suivi' : 'Reprendre le suivi'"
+                [rounded]="true"
+                [text]="true"
+                severity="warn"
+              />
+            </td>
+          }
+        </tr>
+      </ng-template>
+    </app-data-table>
+  } @else {
+    <p class="text-muted mb-0">Aucun traitement chronique déclaré.</p>
+  }
+</app-card>

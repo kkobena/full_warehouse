@@ -5,6 +5,8 @@ import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.MailService;
 import com.kobe.warehouse.service.SmsService;
+import com.kobe.warehouse.domain.enumeration.CanalConsentement;
+import com.kobe.warehouse.service.customer.ConsentementService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.util.Locale;
 import java.util.Objects;
@@ -25,13 +27,16 @@ public class AvoirClientNotificationService {
     private final SmsService smsService;
     private final AppConfigurationService appConfigurationService;
     private final SpringTemplateEngine templateEngine;
+    private final ConsentementService consentementService;
 
     public AvoirClientNotificationService(
         MailService mailService,
         SmsService smsService,
         AppConfigurationService appConfigurationService,
-        SpringTemplateEngine templateEngine
+        SpringTemplateEngine templateEngine,
+        ConsentementService consentementService
     ) {
+        this.consentementService = consentementService;
         this.mailService = mailService;
         this.smsService = smsService;
         this.appConfigurationService = appConfigurationService;
@@ -51,12 +56,17 @@ public class AvoirClientNotificationService {
         }
         Magasin magasin = appConfigurationService.getMagasin();
 
-        if (appConfigurationService.isNotifAvoirEmailEnabled() && StringUtils.hasText(customer.getEmail())) {
+        if (appConfigurationService.isNotifAvoirEmailEnabled() && StringUtils.hasText(customer.getEmail()) && !refuse(customer, CanalConsentement.EMAIL)) {
             sendEmail(avoir, customer, magasin);// Brevo (ex-Sendinblue)
         }
-        if (appConfigurationService.isNotifAvoirSmsEnabled() && StringUtils.hasText(customer.getPhone())) {
+        if (appConfigurationService.isNotifAvoirSmsEnabled() && StringUtils.hasText(customer.getPhone()) && !refuse(customer, CanalConsentement.SMS)) {
             sendSms(avoir, customer, magasin);
         }
+    }
+
+    /** Le client a retiré son accord pour ce canal (fiche client, lot 4). */
+    private boolean refuse(Customer customer, CanalConsentement canal) {
+        return customer.getId() != null && consentementService.estRefuse(customer.getId(), canal);
     }
 
     private void sendEmail(AvoirClient avoir, Customer customer, Magasin magasin) {
@@ -83,7 +93,7 @@ public class AvoirClientNotificationService {
     private void sendSms(AvoirClient avoir, Customer customer, Magasin magasin) {
         String message = "Vos produits (avoir " + avoir.getReference()
             + ") sont disponibles à " + magasin.getName()
-            + ". Montant : " + avoir.getMontant() + " CFA.";
+            + ". Montant : " + avoir.getMontant() + " " + appConfigurationService.getDevise() + ".";
         smsService.sendSms(customer.getPhone(), message);
     }
 }

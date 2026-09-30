@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.UninsuredCustomer;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeAssure;
 import com.kobe.warehouse.repository.UninsuredCustomerRepository;
+import com.kobe.warehouse.service.customer.HistoriqueClientService;
 import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
 import com.kobe.warehouse.service.errors.CustomerAlreadyExistException;
 import com.kobe.warehouse.service.errors.GenericError;
@@ -26,9 +27,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class UninsuredCustomerService {
 
     private final UninsuredCustomerRepository uninsuredCustomerRepository;
+    private final HistoriqueClientService historiqueClientService;
 
-    public UninsuredCustomerService(UninsuredCustomerRepository uninsuredCustomerRepository) {
+    public UninsuredCustomerService(UninsuredCustomerRepository uninsuredCustomerRepository, HistoriqueClientService historiqueClientService) {
         this.uninsuredCustomerRepository = uninsuredCustomerRepository;
+        this.historiqueClientService = historiqueClientService;
     }
 
     public UninsuredCustomerDTO create(UninsuredCustomerDTO dto) throws CustomerAlreadyExistException {
@@ -105,12 +108,13 @@ public class UninsuredCustomerService {
     }
 
     public void deleteCustomerById(Integer id) throws GenericError {
+        historiqueClientService.verifierSuppression(id);
         try {
             uninsuredCustomerRepository.deleteById(id);
             // Écrit maintenant, pour que la violation de clé étrangère tombe dans ce catch et non au commit.
             uninsuredCustomerRepository.flush();
         } catch (Exception e) {
-            throw new GenericError("Impossible de supprimer ce client, Il existe des ventes qui lui sont ratachées ", "deleteCustomer");
+            throw new GenericError("Impossible de supprimer ce client : des données lui sont encore rattachées. Désactivez-le.", "deleteCustomer");
         }
     }
 }

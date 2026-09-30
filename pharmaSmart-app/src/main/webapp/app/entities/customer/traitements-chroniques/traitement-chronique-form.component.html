@@ -1,0 +1,70 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ traitement ? 'Modifier le traitement chronique' : 'Déclarer un traitement chronique' }}</h4>
+  <button (click)="activeModal.dismiss()" aria-label="Fermer" class="btn-close" type="button"></button>
+</div>
+
+<form (ngSubmit)="enregistrer()" [formGroup]="form">
+  <div class="modal-body">
+    <app-card [variant]="'form'">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Molécule (DCI)</label>
+          <app-select-search
+            (searched)="rechercherDci($event)"
+            [items]="dcis()"
+            [minSearchLength]="2"
+            [style]="{ width: '100%' }"
+            [typeahead]="dciTypeahead$"
+            appendTo="body"
+            bindLabel="libelle"
+            formControlName="dci"
+            placeholder="Metformine, lévothyroxine…"
+          />
+          <div class="form-text">Génériques et princeps de cette molécule renouvellent le traitement.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Produit imposé (non substituable)</label>
+          <app-select-search
+            (searched)="rechercherProduit($event)"
+            [items]="produits()"
+            [minSearchLength]="2"
+            [style]="{ width: '100%' }"
+            [typeahead]="produitTypeahead$"
+            appendTo="body"
+            bindLabel="libelle"
+            formControlName="produit"
+            placeholder="Facultatif"
+          />
+          <div class="form-text">Seul ce produit renouvellera alors le traitement.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Dosage</label>
+          <app-input formControlName="dosage" placeholder="850 mg" />
+        </div>
+        <div class="col-md-5">
+          <label class="form-label">Posologie</label>
+          <app-input formControlName="posologie" placeholder="1 comprimé matin et soir" />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Durée couverte par délivrance</label>
+          <app-input-number [min]="1" formControlName="dureeJours" suffix=" jours" />
+        </div>
+        <div class="col-md-6">
+          <pharma-date-picker formControlName="dateOrdonnance" id="dateOrdonnance" label="Date de l'ordonnance" />
+        </div>
+        <div class="col-md-6">
+          <pharma-date-picker formControlName="dateFinOrdonnance" id="dateFinOrdonnance" label="Fin de validité de l'ordonnance" />
+        </div>
+        <div class="col-12">
+          <label class="form-label">Note</label>
+          <textarea class="form-control" formControlName="note" rows="2"></textarea>
+        </div>
+      </div>
+    </app-card>
+  </div>
+
+  <div class="modal-footer">
+    <app-button (clicked)="activeModal.dismiss()" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
+    <app-button [disabled]="saving()" icon="pi pi-check" label="Enregistrer" severity="success" type="submit" />
+  </div>
+</form>

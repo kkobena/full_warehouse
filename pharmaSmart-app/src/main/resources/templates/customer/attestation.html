@@ -1,0 +1,86 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Attestation de dépenses</title>
+    <style th:replace="~{common/portrait_table}"></style>
+    <style>
+      .attestation-texte { padding: 6px 10px; font-size: 9.5px; line-height: 1.5; }
+      .vente-row td { background: #f0f4f8; font-weight: 600; }
+      .produit-row td { font-size: 8px; color: #444; }
+      .total-row td { background: #f0f4f8; font-weight: 700; border-top: 1.5px solid #5b89a6; }
+    </style>
+  </head>
+  <body>
+    <div class="invoice">
+      <div th:replace="~{common/commonheader}"></div>
+      <div class="attestation-texte">
+        Nous soussignés, <strong th:text="${magasin.fullName != null ? magasin.fullName : magasin.name}"></strong>, attestons que
+        <strong th:text="${attestation.client.nom}"></strong> (<span th:text="${attestation.client.code}"></span>) a effectué dans notre
+        officine, du <strong th:text="${#temporals.format(attestation.debut, 'dd/MM/yyyy')}"></strong> au
+        <strong th:text="${#temporals.format(attestation.fin, 'dd/MM/yyyy')}"></strong>, les achats détaillés ci-dessous, pour un montant
+        restant à sa charge de
+        <strong th:text="${#numbers.formatInteger(attestation.totalClient, 1, 'WHITESPACE')}"></strong>
+        <span th:text="${devise}"></span>.
+      </div>
+      <main>
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th class="text-left" style="width: 12%">DATE</th>
+              <th class="text-left" style="width: 40%">DÉSIGNATION</th>
+              <th class="text-right" style="width: 8%">QTÉ</th>
+              <th class="text-right" style="width: 14%">MONTANT</th>
+              <th class="text-right" style="width: 13%">TIERS PAYANT</th>
+              <th class="text-right" style="width: 13%">À CHARGE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <th:block th:each="d : ${attestation.depenses}">
+              <tr class="vente-row">
+                <td th:text="${#temporals.format(d.date, 'dd/MM/yyyy')}"></td>
+                <td class="text-left">
+                  Ticket <span th:text="${d.reference}"></span> — <span th:text="${d.beneficiaire}"></span>
+                </td>
+                <td></td>
+                <td class="qty" th:text="${#numbers.formatInteger(d.montant, 1, 'WHITESPACE')}"></td>
+                <td class="qty" th:text="${#numbers.formatInteger(d.partTiersPayant, 1, 'WHITESPACE')}"></td>
+                <td class="qty" th:text="${#numbers.formatInteger(d.partClient, 1, 'WHITESPACE')}"></td>
+              </tr>
+              <tr class="produit-row" th:each="p : ${d.produits}">
+                <td></td>
+                <td class="text-left" th:text="${p.libelle}"></td>
+                <td class="qty" th:text="${p.quantite}"></td>
+                <td class="qty" th:text="${#numbers.formatInteger(p.montant, 1, 'WHITESPACE')}"></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </th:block>
+            <tr th:if="${#lists.isEmpty(attestation.depenses)}">
+              <td colspan="6" class="text-center">Aucun achat sur la période</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="3" class="text-right">TOTAL (<span th:text="${devise}"></span>)</td>
+              <td class="qty" th:text="${#numbers.formatInteger(attestation.total, 1, 'WHITESPACE')}"></td>
+              <td class="qty" th:text="${#numbers.formatInteger(attestation.totalTiersPayant, 1, 'WHITESPACE')}"></td>
+              <td class="qty" th:text="${#numbers.formatInteger(attestation.totalClient, 1, 'WHITESPACE')}"></td>
+            </tr>
+          </tfoot>
+        </table>
+        <div style="margin-top: 20px; page-break-inside: avoid">
+          <table style="width: 100%; font-size: 8.5px">
+            <tr>
+              <td style="width: 55%">
+                Fait le <span th:text="${#temporals.format(dateEdition, 'dd/MM/yyyy')}"></span>, pour servir et valoir ce que de droit.
+              </td>
+              <td style="text-align: center">
+                <div style="border-top: 0.5px solid #333; margin-top: 35px; padding-top: 4px">Signature et cachet du pharmacien</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

@@ -89,6 +89,12 @@ public final class EntityConstant {
     public static final String APP_DELAI_RETOUR_CLIENT_CACHE = "APP_DELAI_RETOUR_CLIENT_CACHE";
     public static final String APP_LIMITE_CREDIT_CLIENT = "APP_LIMITE_CREDIT_CLIENT"; // Encours différé maximal par client (0 = aucune limite)
     public static final String APP_LIMITE_CREDIT_CLIENT_CACHE = "APP_LIMITE_CREDIT_CLIENT_CACHE";
+    public static final String APP_RENOUVELLEMENT_EXCEPTIONNEL = "APP_RENOUVELLEMENT_EXCEPTIONNEL"; // Renouvellement exceptionnel d'un traitement chronique après expiration de l'ordonnance (0/1)
+    public static final String APP_RENOUVELLEMENT_EXCEPTIONNEL_CACHE = "APP_RENOUVELLEMENT_EXCEPTIONNEL_CACHE";
+    public static final String APP_RENOUVELLEMENT_EXCEPTIONNEL_MOIS = "APP_RENOUVELLEMENT_EXCEPTIONNEL_MOIS"; // Durée maximale de ce renouvellement, en mois (défaut 3)
+    public static final String APP_RENOUVELLEMENT_EXCEPTIONNEL_MOIS_CACHE = "APP_RENOUVELLEMENT_EXCEPTIONNEL_MOIS_CACHE";
+    public static final String APP_RAPPEL_RENOUVELLEMENT_JOURS = "APP_RAPPEL_RENOUVELLEMENT_JOURS"; // Jours avant l'échéance d'un traitement chronique pour signaler le patient (défaut 5)
+    public static final String APP_RAPPEL_RENOUVELLEMENT_JOURS_CACHE = "APP_RAPPEL_RENOUVELLEMENT_JOURS_CACHE";
 
     // ─── Navigation dynamique ─────────────────────────────────────────────────
     /** Cache de l'arbre de navigation par utilisateur. Clé : login. */

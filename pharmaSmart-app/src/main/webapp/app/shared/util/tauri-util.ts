@@ -79,6 +79,9 @@ export const handleBlobForTauri = (blob: Blob, filename: string, type = 'pdf'): 
       case 'excel':
         void printExcel(base64Payload, filename);
         break;
+      case 'json':
+        void saveBase64ToFile(base64Payload, filename, 'json');
+        break;
       default:
         void printPdf(base64Payload, filename);
     }

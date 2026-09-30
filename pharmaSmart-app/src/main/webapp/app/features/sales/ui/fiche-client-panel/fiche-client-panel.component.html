@@ -60,6 +60,44 @@
       </app-data-table>
     }
 
+    <!-- Traitements chroniques arrivés à échéance -->
+    @if (traitementsARenouveler().length > 0) {
+      <h6 class="mb-2">Traitements à renouveler</h6>
+      <app-data-table [value]="traitementsARenouveler()" [stripedRows]="true" size="small" class="d-block mb-3">
+        <ng-template #header>
+          <tr>
+            <th>Traitement</th>
+            <th>Échéance</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-t>
+          <tr>
+            <td>
+              <span class="pharma-product-name">{{ libelleTraitement(t) }}</span>
+              @if (!t.produitLibelle && t.dernierProduitLibelle) {
+                <div class="text-muted small">Dernière fois : {{ t.dernierProduitLibelle }}</div>
+              }
+            </td>
+            <td>
+              <app-badge [label]="echeanceTraitement(t)" [severity]="suivis[t.suivi].severity" />
+              @if (t.renouvellementExceptionnelJusquau) {
+                <div class="small text-success">Ordonnance expirée : renouvellement exceptionnel possible</div>
+              } @else if (t.ordonnance === 'EXPIREE') {
+                <div class="small text-danger">Ordonnance expirée</div>
+              }
+            </td>
+            <td class="text-end">
+              @if (t.produitId || t.dernierProduitId) {
+                <app-button (clicked)="renouveler(t)" icon="pi pi-replay" severity="primary" size="small" [text]="true"
+                            label="Re-délivrer" ariaLabel="Re-délivrer ce traitement" />
+              }
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    }
+
     <!-- Dernières délivrances, avec re-délivrance -->
     <h6 class="mb-2">Dernières délivrances</h6>
     <app-data-table [value]="f.produits" [stripedRows]="true" size="small" emptyMessage="Aucune délivrance sur les douze derniers mois">

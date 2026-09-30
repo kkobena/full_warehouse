@@ -1,4 +1,4 @@
-<div class="pharma-smart-content p-1">
+<div [class.fiche-panel]="panelMode()" [class.p-1]="!panelMode()" [class.pharma-smart-content]="!panelMode()">
   @if (customer(); as client) {
     <!-- ── En-tête permanent : qui, quelle couverture, quelle situation ───────────────── -->
     <app-card>
@@ -68,12 +68,32 @@
               }
             </div>
           }
+          <!-- Traitements chroniques à renouveler : de quoi proposer la délivrance au comptoir -->
+          @if (traitementsARelancer().length > 0) {
+            <div class="d-flex flex-wrap gap-2 mt-2">
+              @for (t of traitementsARelancer(); track t.id) {
+                <app-badge [label]="suivis[t.suivi].libelle + ' : ' + libelleTraitement(t) + ' (' + echeanceTraitement(t) + ')'"
+                           [severity]="suivis[t.suivi].severity" icon="pi pi-replay" />
+              }
+            </div>
+          }
+          <div class="mt-2">
+            <app-consentements [canEdit]="canEditSante()" [customerId]="client.id!" />
+          </div>
         </div>
         <div class="fiche-actions">
           @if (canEdit()) {
             <app-button (clicked)="edit()" icon="pi pi-pencil" label="Modifier" severity="primary" />
           }
-          <app-button (clicked)="previousState()" icon="pi pi-arrow-left" label="Retour" severity="secondary" />
+          @if (canDonneesPersonnelles()) {
+            <app-button (clicked)="exporterDonnees()" icon="pi pi-download" label="Exporter ses données" severity="secondary" />
+            <app-button (clicked)="confirmerAnonymisation()" icon="pi pi-eraser" label="Effacer ses données" severity="danger" />
+          }
+          @if (panelMode()) {
+            <app-button (clicked)="closePanel.emit()" [text]="true" icon="pi pi-times" ngbTooltip="Fermer" severity="secondary" />
+          } @else {
+            <app-button (clicked)="previousState()" icon="pi pi-arrow-left" label="Retour" severity="secondary" />
+          }
         </div>
       </div>
 
@@ -128,6 +148,7 @@
                                   [ngModel]="toDate()" [style]="{ 'max-width': '180px' }"
                                   id="purchasesTo" label="Au" />
               <app-button (clicked)="searchSales()" icon="pi pi-search" label="Rechercher" severity="info" />
+              <app-button (clicked)="imprimerAttestation()" icon="pi pi-file-pdf" label="Attestation de dépenses" severity="secondary" />
             </div>
             <div class="row">
               <div class="col-4">
@@ -160,7 +181,6 @@
               </div>
               <div class="col-8">
                 <app-card>
-                  <jhi-alert-error></jhi-alert-error>
                   @if (saleSelected(); as vente) {
                     <div class="card" id="print-area">
                       <div class="card-body" id="invoice-content">
@@ -192,26 +212,24 @@
                             </div>
                           </div>
                           <div class="invoice-items">
-                            <table>
-                              <thead class="pharma-table-head">
-                              <tr>
-                                <th>Libellé</th>
-                                <th>Qté</th>
-                                <th>P.U.</th>
-                                <th>Montant</th>
-                              </tr>
-                              </thead>
-                              <tbody>
-                                @for (saleLine of selectedRowSaleLines(); track saleLine.id) {
-                                  <tr>
-                                    <td><span class="pharma-product-name">{{ saleLine.produitLibelle }}</span></td>
-                                    <td class="pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
-                                    <td class="pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
-                                    <td class="pharma-total">{{ saleLine.salesAmount | number }}</td>
-                                  </tr>
-                                }
-                              </tbody>
-                            </table>
+                            <app-data-table [value]="selectedRowSaleLines()" dataKey="id" size="small">
+                              <ng-template #header>
+                                <tr class="pharma-table-head">
+                                  <th>Libellé</th>
+                                  <th class="text-end">Qté</th>
+                                  <th class="text-end">P.U.</th>
+                                  <th class="text-end">Montant</th>
+                                </tr>
+                              </ng-template>
+                              <ng-template #body let-saleLine>
+                                <tr>
+                                  <td><span class="pharma-product-name">{{ saleLine.produitLibelle }}</span></td>
+                                  <td class="pharma-qty-value text-end">{{ saleLine.quantitySold | number }}</td>
+                                  <td class="pharma-price text-end">{{ saleLine.regularUnitPrice | number }}</td>
+                                  <td class="pharma-total text-end">{{ saleLine.salesAmount | number }}</td>
+                                </tr>
+                              </ng-template>
+                            </app-data-table>
                           </div>
                           <div class="invoice-summary">
                             <div></div>
@@ -296,7 +314,12 @@
             </a>
             <ng-template ngbNavContent>
               <app-card>
-                <h6 class="mb-2">Tiers payants</h6>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h6 class="mb-0">Tiers payants</h6>
+                  @if (canEdit() && peutAjouterTiersPayant()) {
+                    <app-button (clicked)="addTiersPayant()" [outlined]="true" icon="pi pi-plus" label="Ajouter" severity="info" size="small" />
+                  }
+                </div>
                 @if (tiersPayants().length > 0) {
                   <app-data-table [value]="tiersPayants()" [stripedRows]="true" size="small">
                     <ng-template #header>
@@ -311,6 +334,9 @@
                         <th class="text-end" title="Défini sur le tiers payant, commun à tous ses adhérents">Plafond vente (organisme)</th>
                         <th>Statut</th>
                         <th>Historique du taux</th>
+                        @if (canEdit()) {
+                          <th></th>
+                        }
                       </tr>
                     </ng-template>
                     <ng-template #body let-tp>
@@ -352,6 +378,16 @@
                             <span class="text-muted">—</span>
                           }
                         </td>
+                        @if (canEdit()) {
+                          <td class="text-end text-nowrap">
+                            <app-button (clicked)="editTiersPayant(tp)" [rounded]="true" [text]="true" icon="pi pi-pencil"
+                                        ngbTooltip="Modifier" severity="success" />
+                            @if (client.typeTiersPayant === 'ASSURANCE' && tiersPayants().length > 1) {
+                              <app-button (clicked)="removeTiersPayant(tp)" [rounded]="true" [text]="true" icon="pi pi-trash"
+                                          ngbTooltip="Supprimer" severity="danger" />
+                            }
+                          </td>
+                        }
                       </tr>
                     </ng-template>
                   </app-data-table>
@@ -359,7 +395,12 @@
                   <p class="text-muted">Aucun tiers payant.</p>
                 }
 
-                <h6 class="mb-2 mt-3">Ayants droit</h6>
+                <div class="d-flex justify-content-between align-items-center mb-2 mt-3">
+                  <h6 class="mb-0">Ayants droit</h6>
+                  @if (canEdit() && client.typeTiersPayant === 'ASSURANCE') {
+                    <app-button (clicked)="addAyantDroit()" [outlined]="true" icon="pi pi-plus" label="Ajouter" severity="info" size="small" />
+                  }
+                </div>
                 @if (client.ayantDroits?.length) {
                   <app-data-table [value]="client.ayantDroits ?? []" [stripedRows]="true" size="small">
                     <ng-template #header>
@@ -368,6 +409,9 @@
                         <th>N° ayant droit</th>
                         <th>Date de naissance</th>
                         <th>Sexe</th>
+                        @if (canEdit()) {
+                          <th></th>
+                        }
                       </tr>
                     </ng-template>
                     <ng-template #body let-ayantDroit>
@@ -376,6 +420,14 @@
                         <td>{{ ayantDroit.numAyantDroit }}</td>
                         <td>{{ ayantDroit.datNaiss | date: 'dd/MM/yyyy' }}</td>
                         <td>{{ ayantDroit.sexe }}</td>
+                        @if (canEdit()) {
+                          <td class="text-end text-nowrap">
+                            <app-button (clicked)="editAyantDroit(ayantDroit)" [rounded]="true" [text]="true" icon="pi pi-pencil"
+                                        ngbTooltip="Modifier" severity="success" />
+                            <app-button (clicked)="removeAyantDroit(ayantDroit)" [rounded]="true" [text]="true" icon="pi pi-trash"
+                                        ngbTooltip="Supprimer" severity="danger" />
+                          </td>
+                        }
                       </tr>
                     </ng-template>
                   </app-data-table>
@@ -398,6 +450,7 @@
           </a>
           <ng-template ngbNavContent>
             <app-dossier-sante-tab (saved)="dossierSante.set($event)" [canEdit]="canEditSante()" [customerId]="client.id!" />
+            <app-traitements-chroniques (changed)="traitements.set($event)" [canEdit]="canEditSante()" [customerId]="client.id!" />
           </ng-template>
         </ng-container>
 
@@ -412,6 +465,15 @@
           </a>
           <ng-template ngbNavContent>
             <app-card>
+              <div class="d-flex flex-wrap align-items-end gap-2 mb-3">
+                <pharma-date-picker (ngModelChange)="releveFrom.set($event)" [maxDate]="releveTo()"
+                                    [ngModel]="releveFrom()" [style]="{ 'max-width': '180px' }"
+                                    id="releveFrom" label="Relevé du" />
+                <pharma-date-picker (ngModelChange)="releveTo.set($event)" [minDate]="releveFrom()"
+                                    [ngModel]="releveTo()" [style]="{ 'max-width': '180px' }"
+                                    id="releveTo" label="Au" />
+                <app-button (clicked)="imprimerReleve()" icon="pi pi-file-pdf" label="Relevé de compte" severity="secondary" />
+              </div>
               @if (situationCredit(); as situation) {
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                   <div>

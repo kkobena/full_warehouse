@@ -9,7 +9,22 @@ import { IClientTiersPayant } from 'app/shared/model/client-tiers-payant.model';
 import { IAvoirClientDocument } from 'app/shared/model/avoir-client-document.model';
 import { ISales } from 'app/shared/model/sales.model';
 import { IDiffere, IReglementDiffere } from 'app/features/differes/data-access/models/differe.model';
-import { IAlerteSante, ICustomerSynthese, IDossierSante, IProduitDelivre, IRelanceDiffere, ISituationCredit } from './customer-fiche.model';
+import {
+  CanalConsentement,
+  IAlerteSante,
+  IConsentement,
+  ITraitementARenouveler,
+  ITraitementChronique,
+  ITraitementChroniqueSaisie,
+  ICustomerSynthese,
+  IDossierSante,
+  IDoublonClientGroupe,
+  IFusionClientApercu,
+  IFusionClientResult,
+  IProduitDelivre,
+  IRelanceDiffere,
+  ISituationCredit,
+} from './customer-fiche.model';
 
 type EntityResponseType = HttpResponse<ICustomer>;
 type EntityArrayResponseType = HttpResponse<ICustomer[]>;
@@ -177,6 +192,72 @@ export class CustomerService {
 
   relancerDifferes(customerId: number): Observable<IRelanceDiffere> {
     return this.http.post<IRelanceDiffere>(`${this.resourceUrl}/${customerId}/relances-differes`, null);
+  }
+
+  // ── Qualité du fichier et documents ──
+
+  relevePdf(customerId: number, fromDate: string, toDate: string): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/${customerId}/releve/pdf`, { params: { fromDate, toDate }, responseType: 'blob' });
+  }
+
+  attestationDepensesPdf(customerId: number, fromDate: string, toDate: string): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/${customerId}/attestation-depenses/pdf`, {
+      params: { fromDate, toDate },
+      responseType: 'blob',
+    });
+  }
+
+  doublons(): Observable<IDoublonClientGroupe[]> {
+    return this.http.get<IDoublonClientGroupe[]>(`${this.resourceUrl}/doublons`);
+  }
+
+  apercuFusion(targetId: number, sourceIds: number[]): Observable<IFusionClientApercu> {
+    return this.http.post<IFusionClientApercu>(`${this.resourceUrl}/fusion/apercu`, { targetId, sourceIds });
+  }
+
+  fusionner(targetId: number, sourceIds: number[]): Observable<IFusionClientResult> {
+    return this.http.post<IFusionClientResult>(`${this.resourceUrl}/fusion`, { targetId, sourceIds });
+  }
+
+  /** Tout ce que l'officine détient sur le client, en JSON (droit d'accès). */
+  donneesPersonnelles(customerId: number): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/${customerId}/donnees-personnelles`, { responseType: 'blob' });
+  }
+
+  /** Droit à l'effacement : anonymise la fiche, refusé tant qu'un différé reste dû. */
+  anonymiser(customerId: number): Observable<void> {
+    return this.http.post<void>(`${this.resourceUrl}/${customerId}/anonymisation`, null);
+  }
+
+  // ── Suivi et communication ──
+
+  traitementsChroniques(customerId: number): Observable<ITraitementChronique[]> {
+    return this.http.get<ITraitementChronique[]>(`${this.resourceUrl}/${customerId}/traitements-chroniques`);
+  }
+
+  declarerTraitement(customerId: number, saisie: ITraitementChroniqueSaisie): Observable<ITraitementChronique> {
+    return this.http.post<ITraitementChronique>(`${this.resourceUrl}/${customerId}/traitements-chroniques`, saisie);
+  }
+
+  /** Modifie ou arrête (`actif: false`) un traitement : il n'est jamais effacé. */
+  modifierTraitement(customerId: number, traitementId: number, saisie: ITraitementChroniqueSaisie): Observable<ITraitementChronique> {
+    return this.http.put<ITraitementChronique>(`${this.resourceUrl}/${customerId}/traitements-chroniques/${traitementId}`, saisie);
+  }
+
+  traitementsARenouveler(): Observable<ITraitementARenouveler[]> {
+    return this.http.get<ITraitementARenouveler[]>(`${this.resourceUrl}/traitements-a-renouveler`);
+  }
+
+  consentements(customerId: number): Observable<IConsentement[]> {
+    return this.http.get<IConsentement[]>(`${this.resourceUrl}/${customerId}/consentements`);
+  }
+
+  historiqueConsentements(customerId: number): Observable<IConsentement[]> {
+    return this.http.get<IConsentement[]>(`${this.resourceUrl}/${customerId}/consentements/historique`);
+  }
+
+  enregistrerConsentement(customerId: number, canal: CanalConsentement, accorde: boolean): Observable<IConsentement> {
+    return this.http.put<IConsentement>(`${this.resourceUrl}/${customerId}/consentements/${canal}`, null, { params: { accorde } });
   }
 
   avoirsByCustomer(customerId: number): Observable<IAvoirClientDocument[]> {

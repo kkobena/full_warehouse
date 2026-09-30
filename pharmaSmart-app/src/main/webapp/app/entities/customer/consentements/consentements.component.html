@@ -1,0 +1,25 @@
+<div class="d-flex flex-wrap align-items-center gap-3 small">
+  <span class="text-muted"><i class="pi pi-comments me-1"></i>Messages :</span>
+  @for (c of consentements(); track c.canal) {
+    <span class="d-inline-flex align-items-center gap-1" [ngbTooltip]="detail(c)" container="body">
+      <strong>{{ libelles[c.canal] }}</strong>
+      @if (c.accorde === true) {
+        <i class="pi pi-check-circle text-success"></i>
+      } @else if (c.accorde === false) {
+        <i class="pi pi-ban text-danger"></i>
+      } @else {
+        <i class="pi pi-question-circle text-muted"></i>
+      }
+      @if (canEdit()) {
+        @if (c.accorde !== true) {
+          <app-button (clicked)="enregistrer(c.canal, true)" [ariaLabel]="'Accord pour ' + libelles[c.canal]" [text]="true" icon="pi pi-check"
+                      severity="success" size="small" />
+        }
+        @if (c.accorde !== false) {
+          <app-button (clicked)="enregistrer(c.canal, false)" [ariaLabel]="'Refus pour ' + libelles[c.canal]" [text]="true" icon="pi pi-times"
+                      severity="danger" size="small" />
+        }
+      }
+    </span>
+  }
+</div>

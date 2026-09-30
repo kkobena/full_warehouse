@@ -171,12 +171,71 @@ habituel — pas une vérification version par version.
 > ouvre la fiche dans un nouvel onglet, pour qui a le droit `customer`. Aucun endpoint nouveau :
 > la lecture passe par les codes `ventes` / `nouvelle-vente` déjà ouverts sur `CustomerResource`.
 
-### Lot 4 — Suivi et communication (≈ 3 j)
+### Lot 4 — Suivi et communication (≈ 2 j) — **réalisé le 2026-09-30**
 
-- Traitements chroniques déclarés, rappel de renouvellement.
-- Consentement SMS / WhatsApp tracé ; notification « produit disponible » sur commande client.
+> Migration `V2.1.17` : `customer_traitement_chronique`, `customer_consentement`, paramètres
+> `APP_RENOUVELLEMENT_EXCEPTIONNEL` (0 par défaut), `APP_RENOUVELLEMENT_EXCEPTIONNEL_MOIS` (3) et
+> `APP_RAPPEL_RENOUVELLEMENT_JOURS` (5).
+>
+> - **Traitements chroniques** (onglet Santé) : déclarés par molécule, car la prescription se fait en
+>   DCI et la substitution par un générique est la règle ; un **produit imposé** restreint le
+>   traitement à lui seul (patient non substituable, médicaments à marge thérapeutique étroite).
+>   Arrêter un traitement le garde visible, sans rappel.
+> - **Suivi calculé à la lecture** : dernière délivrance au patient réel (l'ayant droit s'il y en a
+>   un), déconditionnés compris, plus la durée couverte → à jour, à renouveler (dans les
+>   `APP_RAPPEL_RENOUVELLEMENT_JOURS`), en retard, en rupture (plus d'un cycle manqué). Pastilles
+>   dans l'en-tête de la fiche, section « Traitements à renouveler » dans le panneau client de la
+>   vente avec « Re-délivrer » (produit imposé, sinon celui délivré la dernière fois), et liste
+>   « Renouvellements » des patients à relancer depuis la liste des clients.
+> - **Renouvellement exceptionnel** (repris de l'article L. 5125-23-1 du code de la santé publique
+>   français, désactivé par défaut) : ordonnance expirée d'au moins trois mois, hors stupéfiants et
+>   assimilés (statut légal `STUPEFIANTS` ou `PSO`), première délivrance dans le mois qui suit
+>   l'expiration ; la fiche indique jusqu'à quand, ou la condition qui manque. À valider par un
+>   pharmacien au regard de la réglementation ivoirienne avant de l'activer.
+> - **Consentement** SMS, WhatsApp et e-mail, historisé (qui, quand), dans l'en-tête de la fiche.
+>   Seul un **refus explicite** bloque un envoi : relance des différés et avis d'avoir disponible ;
+>   un client jamais interrogé reste joignable, sans quoi toutes les fiches existantes seraient
+>   coupées. Au passage, la devise de l'avis SMS d'avoir suit `APP_DEVISE` au lieu de « CFA ».
+>
+> Tests : `TraitementChroniqueIntegrationTest`, `CreditClientIntegrationTest` (relance et
+> consentement), `AvoirClientNotificationServiceTest`. **Reste** : aucun envoi réel tant que
+> `SmsService` n'a pas de fournisseur ; WhatsApp n'a pas de canal d'envoi.
 
-### Lot 5 — Qualité du fichier et documents (≈ 3 j)
+- Traitements chroniques déclarés **par molécule (DCI)**, avec un produit imposé en option
+  (médicament non substituable) ; rappel de renouvellement.
+- Consentement SMS / WhatsApp tracé.
+
+> « Produit disponible » : **déjà couvert** par le circuit des avoirs. Un produit en rupture à la
+> vente part en avoir ; à la clôture de l'avoir en mode retour produit,
+> `AvoirClientNotificationService` prévient le client par e-mail et par SMS, selon les paramètres
+> de l'officine. Le consentement tracé devra s'y appliquer. Le SMS passe par le même `SmsService`
+> que les relances, qui n'envoie encore rien (aucun fournisseur branché).
+
+### Lot 5 — Qualité du fichier et documents (≈ 3 j) — **réalisé le 2026-09-30**
+
+> Migration `V2.1.16` : `ACTION` `pr-fusion-client` et `pr-donnees-personnelles-client` (admin,
+> pharmacien), types de journal `MERGE_CUSTOMER` et `ANONYMISATION_CLIENT`.
+>
+> - **Fusion**, sur le modèle de la fusion produit : cases à cocher dans la liste des clients ;
+>   dès deux lignes cochées, la barre d'actions groupées propose « Fusionner », qui ouvre la
+>   comparaison des fiches — choix de la cible, analyse, confirmation. Ventes, ventes en tant qu'ayant droit,
+>   règlements de différés, avoirs, retours, ayants droit, dérogations et relances passent sur la
+>   fiche conservée ; un tiers payant d'un organisme déjà présent s'y fond (lignes de vente,
+>   consommation additionnée, validité la plus lointaine), un autre change de fiche à la première
+>   priorité libre (plus de quatre organismes : refus) ; allergies réunies, dossier santé fusionné,
+>   comptes carnet additionnés ; les champs vides de la cible sont complétés. Les sources sont
+>   **désactivées**, jamais supprimées. Aperçu obligatoire avant fusion.
+> - **Relevé de compte** (onglet Crédit) : solde de début, ventes différées au débit (ce qui
+>   restait dû à la vente), règlements au crédit, solde courant ; le solde à aujourd'hui est
+>   l'encours de la fiche. **Attestation de dépenses** (onglet Achats, sur la période choisie) :
+>   achats clôturés du client et de ses ayants droit, produits, part tiers payant et part à charge.
+> - **Export** des données (JSON : identité, ayants droit, tiers payants, dossier santé, achats,
+>   compte, relances) et **effacement** par anonymisation : identité, contacts, numéros d'assuré et
+>   dossier santé effacés, fiche désactivée ; les délivrances restent tracées. Refusé tant qu'un
+>   différé reste dû.
+>
+> Tests : `QualiteFichierClientIntegrationTest`. **Non traité** : les retours et avoirs ne
+> viennent pas en déduction de l'attestation ; `npm run e2e:droits` n'a pas été rejoué.
 
 - Détection des doublons (nom + téléphone + date de naissance), fusion sur le modèle de
   `ProduitMergeResource`.
@@ -197,5 +256,8 @@ de comptoir gardent l'accès.
 2. ~~Allergie : blocage ou avertissement~~ — **tranché par défaut au lot 2** : blocage levable par le droit `pr-forcer-alerte-sante` (admin, pharmacien) ou la clé d'un collègue qui le détient, avec motif tracé.
 3. ~~Limite de crédit~~ — **tranché au lot 3** : globale (paramètre de l'officine), blocage levable.
 4. ~~Canal de relance~~ — **tranché au lot 3** : SMS seul.
-5. **Suppression d'un client** qui a un historique : l'interdire au profit de la désactivation
-   (traçabilité des délivrances) ?
+5. ~~Suppression d'un client qui a un historique~~ — **tranché le 2026-09-30** : interdite au profit
+   de la désactivation (traçabilité des délivrances). `HistoriqueClientService` refuse la
+   suppression dès qu'il existe une vente (comme client ou comme ayant droit), un règlement de
+   différé, un avoir ou un retour, pour le client ou l'un de ses ayants droit ; la liste propose
+   alors de le désactiver. Seule une fiche sans historique — créée par erreur — se supprime.

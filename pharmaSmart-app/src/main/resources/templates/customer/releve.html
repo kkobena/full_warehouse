@@ -1,0 +1,77 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Relevé de compte</title>
+    <style th:replace="~{common/portrait_table}"></style>
+    <style>
+      .bloc-client { padding: 4px 10px 6px 10px; font-size: 9px; }
+      .solde-row td { background: #f0f4f8; font-weight: 700; }
+      .total-row td { background: #f0f4f8; font-weight: 700; border-top: 1.5px solid #5b89a6; }
+    </style>
+  </head>
+  <body>
+    <div class="invoice">
+      <div th:replace="~{common/commonheader}"></div>
+      <div class="bloc-client">
+        <table style="width: 100%">
+          <tr>
+            <td style="width: 60%">
+              <strong>Client :</strong> <span th:text="${releve.client.nom}"></span>
+              (<span th:text="${releve.client.code}"></span>)
+              <span th:if="${releve.client.telephone != null}"> — <span th:text="${releve.client.telephone}"></span></span>
+            </td>
+            <td style="text-align: right">
+              <strong>Édité le :</strong> <span th:text="${#temporals.format(dateEdition, 'dd/MM/yyyy')}"></span>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <main>
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th class="text-left" style="width: 12%">DATE</th>
+              <th class="text-left" style="width: 26%">OPÉRATION</th>
+              <th class="text-left" style="width: 17%">RÉFÉRENCE</th>
+              <th class="text-right" style="width: 15%">DÉBIT</th>
+              <th class="text-right" style="width: 15%">CRÉDIT</th>
+              <th class="text-right" style="width: 15%">SOLDE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="solde-row">
+              <td th:text="${#temporals.format(releve.debut, 'dd/MM/yyyy')}"></td>
+              <td colspan="4">Solde au début de la période</td>
+              <td class="qty" th:text="${#numbers.formatInteger(releve.soldeInitial, 1, 'WHITESPACE')}"></td>
+            </tr>
+            <tr th:each="l : ${releve.lignes}">
+              <td th:text="${#temporals.format(l.date, 'dd/MM/yyyy')}"></td>
+              <td class="text-left" th:text="${l.libelle}"></td>
+              <td class="text-left" th:text="${l.reference}"></td>
+              <td class="qty" th:text="${l.debit == 0 ? '' : #numbers.formatInteger(l.debit, 1, 'WHITESPACE')}"></td>
+              <td class="qty" th:text="${l.credit == 0 ? '' : #numbers.formatInteger(l.credit, 1, 'WHITESPACE')}"></td>
+              <td class="qty" th:text="${#numbers.formatInteger(l.solde, 1, 'WHITESPACE')}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(releve.lignes)}">
+              <td colspan="6" class="text-center">Aucun mouvement sur la période</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="3" class="text-right">Totaux de la période</td>
+              <td class="qty" th:text="${#numbers.formatInteger(releve.totalDebit, 1, 'WHITESPACE')}"></td>
+              <td class="qty" th:text="${#numbers.formatInteger(releve.totalCredit, 1, 'WHITESPACE')}"></td>
+              <td></td>
+            </tr>
+            <tr class="total-row">
+              <td colspan="5" class="text-right">
+                Solde au <span th:text="${#temporals.format(releve.fin, 'dd/MM/yyyy')}"></span> (<span th:text="${devise}"></span>)
+              </td>
+              <td class="qty" th:text="${#numbers.formatInteger(releve.soldeFinal, 1, 'WHITESPACE')}"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </main>
+    </div>
+  </body>
+</html>

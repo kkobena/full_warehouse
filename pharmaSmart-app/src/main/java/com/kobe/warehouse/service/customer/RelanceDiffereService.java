@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.customer;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.RelanceDiffere;
+import com.kobe.warehouse.domain.enumeration.CanalConsentement;
 import com.kobe.warehouse.repository.CustomerRepository;
 import com.kobe.warehouse.repository.RelanceDiffereRepository;
 import com.kobe.warehouse.repository.SalesRepository;
@@ -34,6 +35,7 @@ public class RelanceDiffereService {
     private final SmsService smsService;
     private final AppConfigurationService appConfigurationService;
     private final DerogationAuthorizer derogationAuthorizer;
+    private final ConsentementService consentementService;
 
     public RelanceDiffereService(
         CustomerRepository customerRepository,
@@ -41,8 +43,10 @@ public class RelanceDiffereService {
         RelanceDiffereRepository relanceRepository,
         SmsService smsService,
         AppConfigurationService appConfigurationService,
-        DerogationAuthorizer derogationAuthorizer
+        DerogationAuthorizer derogationAuthorizer,
+        ConsentementService consentementService
     ) {
+        this.consentementService = consentementService;
         this.customerRepository = customerRepository;
         this.salesRepository = salesRepository;
         this.relanceRepository = relanceRepository;
@@ -55,6 +59,9 @@ public class RelanceDiffereService {
         Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new GenericError("Client introuvable", "customerNotFound"));
         if (!StringUtils.hasText(customer.getPhone())) {
             throw new GenericError("Le client n'a pas de numéro de téléphone : relance impossible.", "relanceSansTelephone");
+        }
+        if (consentementService.estRefuse(customerId, CanalConsentement.SMS)) {
+            throw new GenericError("Le client a refusé les SMS : relance impossible.", "relanceSmsRefuse");
         }
         BigDecimal solde = salesRepository.getDiffereSoldeByCustomerId(customerId);
         int montant = solde == null ? 0 : solde.intValue();

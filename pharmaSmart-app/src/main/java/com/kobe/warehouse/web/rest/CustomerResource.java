@@ -5,7 +5,23 @@ import com.kobe.warehouse.service.CustomerDataService;
 import com.kobe.warehouse.service.ImportationCustomer;
 import com.kobe.warehouse.service.UninsuredCustomerService;
 import com.kobe.warehouse.service.customer.AlerteSanteDTO;
+import com.kobe.warehouse.domain.enumeration.CanalConsentement;
+import com.kobe.warehouse.service.customer.ConsentementDTO;
+import com.kobe.warehouse.service.customer.ConsentementService;
+import com.kobe.warehouse.service.customer.TraitementARenouvelerDTO;
+import com.kobe.warehouse.service.customer.TraitementChroniqueDTO;
+import com.kobe.warehouse.service.customer.TraitementChroniqueSaisieDTO;
+import com.kobe.warehouse.service.customer.TraitementChroniqueService;
+import com.kobe.warehouse.service.customer.CustomerDocumentService;
 import com.kobe.warehouse.service.customer.CustomerFicheService;
+import com.kobe.warehouse.service.customer.DonneesClientDTO;
+import com.kobe.warehouse.service.customer.DonneesPersonnellesClientService;
+import com.kobe.warehouse.service.customer.DoublonClientGroupeDTO;
+import com.kobe.warehouse.service.customer.FusionClientApercuDTO;
+import com.kobe.warehouse.service.customer.FusionClientRequestDTO;
+import com.kobe.warehouse.service.customer.FusionClientResultDTO;
+import com.kobe.warehouse.service.customer.FusionClientService;
+import org.springframework.http.MediaType;
 import com.kobe.warehouse.service.customer.DerogationAlerteSanteDTO;
 import com.kobe.warehouse.service.customer.DossierSanteDTO;
 import com.kobe.warehouse.service.customer.DossierSanteService;
@@ -72,6 +88,11 @@ public class CustomerResource {
     private final DossierSanteService dossierSanteService;
     private final LimiteCreditService limiteCreditService;
     private final RelanceDiffereService relanceDiffereService;
+    private final CustomerDocumentService customerDocumentService;
+    private final FusionClientService fusionClientService;
+    private final DonneesPersonnellesClientService donneesPersonnellesClientService;
+    private final TraitementChroniqueService traitementChroniqueService;
+    private final ConsentementService consentementService;
 
 
     @Value("${pharma-smart.clientApp.name}")
@@ -85,8 +106,18 @@ public class CustomerResource {
         CustomerFicheService customerFicheService,
         DossierSanteService dossierSanteService,
         LimiteCreditService limiteCreditService,
-        RelanceDiffereService relanceDiffereService
+        RelanceDiffereService relanceDiffereService,
+        CustomerDocumentService customerDocumentService,
+        FusionClientService fusionClientService,
+        DonneesPersonnellesClientService donneesPersonnellesClientService,
+        TraitementChroniqueService traitementChroniqueService,
+        ConsentementService consentementService
     ) {
+        this.traitementChroniqueService = traitementChroniqueService;
+        this.consentementService = consentementService;
+        this.customerDocumentService = customerDocumentService;
+        this.fusionClientService = fusionClientService;
+        this.donneesPersonnellesClientService = donneesPersonnellesClientService;
         this.limiteCreditService = limiteCreditService;
         this.relanceDiffereService = relanceDiffereService;
         this.customerFicheService = customerFicheService;
@@ -252,6 +283,105 @@ public class CustomerResource {
     @RequiresNavAccess(value = { "customer", "differes", "ventes", "nouvelle-vente", "nouvelle-prevente" }, action = NavAction.ACCESS)
     public ResponseEntity<RelanceDiffereDTO> relancerDifferes(@PathVariable Integer id) {
         return ResponseEntity.ok(relanceDiffereService.relancer(id));
+    }
+
+    // ── Suivi et communication (docs/PLAN-FICHE-CLIENT.md, lot 4) ──
+
+    @GetMapping("/customers/{id}/traitements-chroniques")
+    public ResponseEntity<List<TraitementChroniqueDTO>> getTraitementsChroniques(@PathVariable Integer id) {
+        return ResponseEntity.ok(traitementChroniqueService.traitements(id));
+    }
+
+    @PostMapping("/customers/{id}/traitements-chroniques")
+    @RequiresNavAccess(value = { "customer", "ventes", "nouvelle-vente", "nouvelle-prevente" }, action = NavAction.EDIT)
+    public ResponseEntity<TraitementChroniqueDTO> declarerTraitement(@PathVariable Integer id, @Valid @RequestBody TraitementChroniqueSaisieDTO saisie) {
+        return ResponseEntity.ok(traitementChroniqueService.declarer(id, saisie));
+    }
+
+    /** Modifie ou arrête ({@code actif = false}) un traitement : il n'est jamais effacé. */
+    @PutMapping("/customers/{id}/traitements-chroniques/{traitementId}")
+    public ResponseEntity<TraitementChroniqueDTO> modifierTraitement(
+        @PathVariable Integer id,
+        @PathVariable Integer traitementId,
+        @Valid @RequestBody TraitementChroniqueSaisieDTO saisie
+    ) {
+        return ResponseEntity.ok(traitementChroniqueService.modifier(id, traitementId, saisie));
+    }
+
+    /** Patients dont un traitement chronique arrive à échéance, est en retard ou interrompu. */
+    @GetMapping("/customers/traitements-a-renouveler")
+    public ResponseEntity<List<TraitementARenouvelerDTO>> getTraitementsARenouveler() {
+        return ResponseEntity.ok(traitementChroniqueService.aRenouveler());
+    }
+
+    @GetMapping("/customers/{id}/consentements")
+    public ResponseEntity<List<ConsentementDTO>> getConsentements(@PathVariable Integer id) {
+        return ResponseEntity.ok(consentementService.etat(id));
+    }
+
+    @GetMapping("/customers/{id}/consentements/historique")
+    public ResponseEntity<List<ConsentementDTO>> getHistoriqueConsentements(@PathVariable Integer id) {
+        return ResponseEntity.ok(consentementService.historique(id));
+    }
+
+    @PutMapping("/customers/{id}/consentements/{canal}")
+    public ResponseEntity<ConsentementDTO> enregistrerConsentement(
+        @PathVariable Integer id,
+        @PathVariable CanalConsentement canal,
+        @RequestParam boolean accorde
+    ) {
+        return ResponseEntity.ok(consentementService.enregistrer(id, canal, accorde));
+    }
+
+    // ── Qualité du fichier et documents (docs/PLAN-FICHE-CLIENT.md, lot 5) ──
+
+    @GetMapping(value = "/customers/{id}/releve/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> relevePdf(@PathVariable Integer id, @RequestParam LocalDate fromDate, @RequestParam LocalDate toDate) {
+        return pdf(customerDocumentService.relevePdf(id, fromDate, toDate), "releve-compte-" + id);
+    }
+
+    @GetMapping(value = "/customers/{id}/attestation-depenses/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> attestationPdf(@PathVariable Integer id, @RequestParam LocalDate fromDate, @RequestParam LocalDate toDate) {
+        return pdf(customerDocumentService.attestationPdf(id, fromDate, toDate), "attestation-depenses-" + id);
+    }
+
+    private static ResponseEntity<byte[]> pdf(byte[] contenu, String nom) {
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + nom + ".pdf").body(contenu);
+    }
+
+    @GetMapping("/customers/doublons")
+    @RequiresNavAccess(value = "pr-fusion-client", action = NavAction.EXECUTE)
+    public ResponseEntity<List<DoublonClientGroupeDTO>> getDoublons() {
+        return ResponseEntity.ok(fusionClientService.doublons());
+    }
+
+    @PostMapping("/customers/fusion/apercu")
+    @RequiresNavAccess(value = "pr-fusion-client", action = NavAction.EXECUTE)
+    public ResponseEntity<FusionClientApercuDTO> apercuFusion(@Valid @RequestBody FusionClientRequestDTO request) {
+        return ResponseEntity.ok(fusionClientService.apercu(request.targetId(), request.sourceIds()));
+    }
+
+    @PostMapping("/customers/fusion")
+    @RequiresNavAccess(value = "pr-fusion-client", action = NavAction.EXECUTE)
+    public ResponseEntity<FusionClientResultDTO> fusionner(@Valid @RequestBody FusionClientRequestDTO request) {
+        return ResponseEntity.ok(fusionClientService.fusionner(request));
+    }
+
+    /** Droit d'accès : tout ce que l'officine détient sur le client, en JSON. */
+    @GetMapping("/customers/{id}/donnees-personnelles")
+    @RequiresNavAccess(value = "pr-donnees-personnelles-client", action = NavAction.EXECUTE)
+    public ResponseEntity<DonneesClientDTO> exporterDonnees(@PathVariable Integer id) {
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=donnees-client-" + id + ".json")
+            .body(donneesPersonnellesClientService.exporter(id));
+    }
+
+    /** Droit à l'effacement : anonymise la fiche, l'historique des délivrances reste tracé. */
+    @PostMapping("/customers/{id}/anonymisation")
+    @RequiresNavAccess(value = "pr-donnees-personnelles-client", action = NavAction.EXECUTE)
+    public ResponseEntity<Void> anonymiser(@PathVariable Integer id) {
+        donneesPersonnellesClientService.anonymiser(id);
+        return ResponseEntity.noContent().build();
     }
 
     /** Désactive ({@code DISABLE}) ou réactive ({@code ENABLE}) un client, assuré comme standard. */

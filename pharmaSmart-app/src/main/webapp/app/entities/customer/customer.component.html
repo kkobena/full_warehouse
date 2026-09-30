@@ -1,4 +1,4 @@
-<div class="pharma-smart-content p-1">
+<div class="pharma-smart-content p-1 customer-home-layout">
   <app-toolbar icon="pi pi-users" title="Liste des clients">
 
     <ng-container ngProjectAs="[toolbarFilters]">
@@ -50,6 +50,9 @@
           <app-button (clicked)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher"
                       severity="info"></app-button>
 
+          <app-button (clicked)="openRenouvellements()" [raised]="true" icon="pi pi-replay" label="Renouvellements"
+                      ngbTooltip="Patients dont un traitement chronique arrive à échéance" severity="warn"></app-button>
+
           <!--
             L'action principale du bouton scindé n'était rattachée à rien : cliquer
             « Nouveau client » ne faisait rien, et seul le chevron menait quelque part. Elle
@@ -71,401 +74,196 @@
     </ng-container>
   </app-toolbar>
 
-  <div class="mt-3 mb-2">
-    @if (customers() && customers().length > 0) {
-      <app-data-table
-        (onLazyLoad)="lazyLoading($event)"
-        [lazy]="true"
-        [loading]="loading()"
-        [paginator]="true"
-        [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-        [rows]="itemsPerPage"
-        [showCurrentPageReport]="true"
-        [totalRecords]="totalItems()"
-        [value]="customers()"
-        class="p-datatable-sm p-datatable-striped"
-        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} client"
-        dataKey="id"
-      >
-        <ng-template #header>
-          <tr class="pharma-table-head">
-            <th style="width: 3%"></th>
-            <th style="width: 10%">Catégorie</th>
-            <th style="width: 30%">Nom et Prénom(s)</th>
-            <th style="width: 10%">Identifiant</th>
-            <th style="width: 12%">Numéro assuré</th>
-            <th style="width: 10%">Téléphone</th>
-            <th container="body" ngbTooltip="Reste dû sur les ventes différées" style="width: 10%">Encours</th>
+  <!-- Barre d'actions groupées -->
+  @if (hasSelection()) {
+    <div class="bulk-action-bar mt-2">
+      <span class="bulk-count">{{ selectedCustomers().length }} client(s) sélectionné(s)</span>
+      @if (canMerge() && selectedCustomers().length >= 2) {
+        <app-button
+          (clicked)="onBulkMerge()"
+          [outlined]="true"
+          icon="pi pi-sitemap"
+          label="Fusionner"
+          severity="info"
+          size="small"
+        />
+      }
+      <app-button
+        (clicked)="onClearSelection()"
+        [text]="true"
+        icon="pi pi-times"
+        ngbTooltip="Désélectionner tout"
+        severity="secondary"
+        size="small"
+      />
+    </div>
+  }
 
-            <th style="width: 15%"></th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-customer let-expanded="expanded">
-          <tr>
-            <td>
-              <app-button
-                [appRowToggler]="customer"
-                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                [rounded]="true"
-                [text]="true"
-                type="button"
-              />
-            </td>
-            <td>
-              <span class="pharma-badge pharma-badge-info">{{ customer.categorie }}</span>
-            </td>
-            <td>
-              <div class="pharma-entity-name">{{ customer.fullName }}</div>
-            </td>
-            <td>
-              <span class="pharma-code">{{ customer.code }}</span>
-            </td>
-            <td>{{ customer.num }}</td>
-            <td>{{ customer.phone }}</td>
-            <td class="text-right">
-              <span class="pharma-total">{{ customer.encours | number }}</span>
-            </td>
-            <td class="text-right">
-              <div class="btn-group">
-                <app-button
-                  [rounded]="true"
-                  [routerLink]="['/customer', customer.id, 'view']"
-                  [text]="true"
-                  icon="pi pi-eye"
-                  ngbTooltip="Voir détails"
-                  severity="info"
-                  type="submit"
-                >
-                </app-button>
+  <!-- Split panel -->
+  <div [class.panel-open]="panelOpen()" class="split-container">
 
-                @if (customer.categorie === 'ASSURE' && canEdit()) {
+    <!-- Colonne gauche : liste -->
+    <div class="list-column">
+      @if (customers() && customers().length > 0) {
+        <app-data-table
+          (onLazyLoad)="lazyLoading($event)"
+          [lazy]="true"
+          [loading]="loading()"
+          [paginator]="true"
+          [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+          [rows]="itemsPerPage"
+          [showCurrentPageReport]="true"
+          [totalRecords]="totalItems()"
+          [value]="customers()"
+          class="p-datatable-sm p-datatable-striped"
+          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} client"
+          dataKey="id"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th style="width: 36px; text-align: center">
+                <app-checkbox (ngModelChange)="toggleAll()" [ngModel]="allSelected()" ariaLabel="Tout sélectionner" />
+              </th>
+              <th style="width: 10%">Catégorie</th>
+              <th style="width: 30%">Nom et Prénom(s)</th>
+              @if (!panelOpen()) {
+                <th style="width: 10%">Identifiant</th>
+                <th style="width: 12%">Numéro assuré</th>
+                <th style="width: 10%">Téléphone</th>
+              }
+              <th container="body" ngbTooltip="Reste dû sur les ventes différées" style="width: 10%">Encours</th>
+
+              <th style="width: 15%"></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-customer>
+            <tr
+              (click)="onCustomerSelected(customer)"
+              [class.ligne-selected]="selectedCustomer()?.id === customer.id"
+              [class.row-checked]="isChecked(customer)"
+              style="cursor: pointer"
+            >
+              <td (click)="$event.stopPropagation()" class="text-center">
+                <app-checkbox (ngModelChange)="toggleCheckbox(customer)" [ariaLabel]="'Sélectionner ' + customer.fullName"
+                              [ngModel]="isChecked(customer)" />
+              </td>
+              <td>
+                <span class="pharma-badge pharma-badge-info">{{ customer.categorie }}</span>
+              </td>
+              <td>
+                <div class="pharma-entity-name">{{ customer.fullName }}</div>
+              </td>
+              @if (!panelOpen()) {
+                <td>
+                  <span class="pharma-code">{{ customer.code }}</span>
+                </td>
+                <td>{{ customer.num }}</td>
+                <td>{{ customer.phone }}</td>
+              }
+              <td class="text-right">
+                <span class="pharma-total">{{ customer.encours | number }}</span>
+              </td>
+              <td (click)="$event.stopPropagation()" class="text-right">
+                <div class="btn-group">
                   <app-button
-                    (clicked)="editAssureCustomer(customer)"
+                    (clicked)="onCustomerSelected(customer)"
                     [rounded]="true"
                     [text]="true"
-                    data-placement="left"
-                    icon="pi pi-pencil"
-                    ngbTooltip="Editer"
-                    severity="primary"
+                    icon="pi pi-eye"
+                    ngbTooltip="Voir la fiche"
+                    severity="info"
                     type="button"
                   >
                   </app-button>
-                  @if (customer.typeTiersPayant === 'ASSURANCE') {
+
+                  @if (customer.categorie === 'ASSURE' && canEdit()) {
                     <app-button
-                      (clicked)="addAyantDroit(customer)"
+                      (clicked)="editAssureCustomer(customer)"
                       [rounded]="true"
                       [text]="true"
                       data-placement="left"
-                      icon="pi pi-users"
-                      ngbTooltip="Ajouter un ayant droit"
-                      severity="contrast"
+                      icon="pi pi-pencil"
+                      ngbTooltip="Editer"
+                      severity="primary"
                       type="button"
                     >
                     </app-button>
                   }
-                }
 
-                @if (customer.categorie === 'STANDARD' && canEdit()) {
-                  <app-button
-                    (clicked)="editUninsuredCustomer(customer)"
-                    [rounded]="true"
-                    [text]="true"
-                    data-placement="left"
-                    icon="pi pi-pencil"
-                    ngbTooltip="Editer"
-                    severity="primary"
-                    type="button"
-                  >
-                  </app-button>
-                }
-
-                @if (canDelete()) {
-                  <app-button
-                    (clicked)="confirmRemove(customer)"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-trash"
-                    ngbTooltip="Supprimer"
-                    severity="danger"
-                    type="button"
-                  >
-                  </app-button>
-                }
-                @if (canEdit()) {
-                  @if (statutSelected() === 'DISABLE') {
+                  @if (customer.categorie === 'STANDARD' && canEdit()) {
                     <app-button
-                      (clicked)="confirmReactivation(customer)"
+                      (clicked)="editUninsuredCustomer(customer)"
                       [rounded]="true"
                       [text]="true"
-                      icon="pi pi-lock-open"
-                      ngbTooltip="Réactiver"
-                      severity="success"
-                      type="button"
-                    >
-                    </app-button>
-                  } @else {
-                    <app-button
-                      (clicked)="confirmDesactivation(customer)"
-                      [rounded]="true"
-                      [text]="true"
-                      icon="pi pi-lock"
-                      ngbTooltip="Désactiver"
-                      severity="warn"
+                      data-placement="left"
+                      icon="pi pi-pencil"
+                      ngbTooltip="Editer"
+                      severity="primary"
                       type="button"
                     >
                     </app-button>
                   }
-                }
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-        <ng-template #expandedrow let-customer>
-          <tr class="pharma-expanded-row">
-            <td colspan="8">
-              @if (customer.type === 'ASSURE') {
-                <div class="row pharma-smart">
-                  <div class="col-md-5 mb-3 mt-3">
-                    <app-card [variant]="'form'">
-                      <ng-template #title>
-                        <div class="card-title info-title">
-                          <i class="pi pi-info-circle mr-2"></i>
-                          INFORMATIONS COMPLEMENTAIRES DU CLIENT
-                        </div>
-                      </ng-template>
 
-                      <div class="grid">
-                        <div class="col-12">
-                          <div class="field">
-                            <label>Date de naissance</label>
-                            <span>{{
-                                customer?.datNaiss | date: 'dd/MM/yyyy'
-                              }}</span>
-                          </div>
-                          <div class="field">
-                            <label>Date de création</label>
-                            <span>{{
-                                customer?.createdAt | date: 'dd/MM/yyyy'
-                              }}</span>
-                          </div>
-
-                          <div class="field">
-                            <label>Date de modification</label>
-                            <span>{{
-                                customer?.updatedAt | date: 'dd/MM/yyyy'
-                              }}</span>
-                          </div>
-                          <div class="field">
-                            <label>Sexe</label>
-                            <span>{{ customer?.sexe }}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </app-card>
-                  </div>
-
-                  <div class="row col-md-7 mb-3 mt-3">
-                    @if (customer.typeTiersPayant === 'ASSURANCE') {
-                      <div class="mb-3">
-                        <app-card [variant]="'form'">
-                          <ng-template #title>
-                            <div class="card-title primary-title">
-                              <i class="pi pi-users mr-2"></i>
-                              AYANTS DROITS
-                            </div>
-                          </ng-template>
-                          <table class="table table-striped">
-                            <thead class="pharma-table-head">
-                            <tr>
-                              <th style="width: 40%">Nom et prenom(s)</th>
-                              <th style="width: 20%">N° Sécu</th>
-                              <th style="width: 17%">Date de naissance</th>
-                              <th style="width: 8%">Sexe</th>
-                              <th style="width: 15%; text-align: right">
-                                @if (canEdit()) {
-                                  <app-button
-                                    (clicked)="addAyantDroit(customer)"
-                                    [rounded]="true"
-                                    icon="pi pi-plus"
-                                    ngbTooltip="Ajouter un ayant droit"
-                                    severity="info"
-                                  ></app-button>
-                                }
-                              </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                              @for (ayantDroit of customer.ayantDroits; track ayantDroit?.id) {
-                                <tr>
-                                  <td>{{ ayantDroit?.fullName }}</td>
-                                  <td>{{ ayantDroit?.numAyantDroit }}</td>
-                                  <td>{{
-
-                                      ayantDroit?.datNaiss | date: 'dd/MM/yyyy'
-                                    }}
-                                  </td>
-                                  <td>{{ ayantDroit?.sexe }}</td>
-                                  <td class="text-right">
-                                    @if (canEdit()) {
-                                    <div class="btn-group">
-                                      <app-button
-                                        (clicked)="editAyantDroit(customer, ayantDroit)"
-                                        [rounded]="true"
-                                        [text]="true"
-                                        class="p-mb-3 mr-1"
-                                        icon="pi pi-pencil"
-                                        ngbTooltip="Editer"
-                                        severity="success"
-                                      ></app-button>
-                                      <app-button
-                                        (clicked)="confirmRemoveAyantDroit(ayantDroit)"
-                                        [rounded]="true"
-                                        [text]="true"
-                                        class="p-mb-3"
-                                        icon="pi pi-trash"
-                                        ngbTooltip="Supprimer"
-                                        severity="danger"
-                                      ></app-button>
-                                    </div>
-                                    }
-                                  </td>
-                                </tr>
-                              }
-                            </tbody>
-                          </table>
-                        </app-card>
-                      </div>
+                  @if (canDelete()) {
+                    <app-button
+                      (clicked)="confirmRemove(customer)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-trash"
+                      ngbTooltip="Supprimer"
+                      severity="danger"
+                      type="button"
+                    >
+                    </app-button>
+                  }
+                  @if (canEdit()) {
+                    @if (statutSelected() === 'DISABLE') {
+                      <app-button
+                        (clicked)="confirmReactivation(customer)"
+                        [rounded]="true"
+                        [text]="true"
+                        icon="pi pi-lock-open"
+                        ngbTooltip="Réactiver"
+                        severity="success"
+                        type="button"
+                      >
+                      </app-button>
+                    } @else {
+                      <app-button
+                        (clicked)="confirmDesactivation(customer)"
+                        [rounded]="true"
+                        [text]="true"
+                        icon="pi pi-lock"
+                        ngbTooltip="Désactiver"
+                        severity="warn"
+                        type="button"
+                      >
+                      </app-button>
                     }
-                    <div class="mb-3">
-                      <app-card [variant]="'form'">
-                        <ng-template #title>
-                          <div class="card-title secondary-title">
-                            <i class="pi pi-building mr-2"></i>
-                            TIERS PAYANTS
-                          </div>
-                        </ng-template>
-                        <table class="table table-striped">
-                          <thead class="pharma-table-head">
-                          <tr>
-                            <th style="width: 28%">Tiers-payant</th>
-                            <th style="width: 14%">N° Sécu</th>
-                            <th style="width: 7%">Taux</th>
-                            <th style="width: 8%">Priorité</th>
-                            <th container="body" ngbTooltip="Défini sur le tiers payant, commun à tous ses adhérents" style="width: 13%">Plafond conso. (organisme)</th>
-                            <th container="body" ngbTooltip="Défini sur le tiers payant, commun à tous ses adhérents" style="width: 13%">Plafond vente (organisme)</th>
-                            @if (canEdit() && displayTiersPayantAddBtn(customer)) {
-                              <th style="width: 11%; text-align: right">
-                                <app-button
-                                  (clicked)="onAddNewTiersPayant(customer)"
-                                  [rounded]="true"
-                                  icon="pi pi-plus"
-                                  ngbTooltip="Ajouter un tiers-payant"
-                                  severity="info"
-                                ></app-button>
-                              </th>
-                            }
-                          </tr>
-                          </thead>
-                          <tbody>
-                            @for (tierspayant of customer.tiersPayants; track tierspayant?.id; let i = $index) {
-                              <tr>
-                                <td>{{ tierspayant?.tiersPayantFullName }}</td>
-                                <td>{{ tierspayant?.num }}</td>
-                                <td>{{ tierspayant?.taux }}</td>
-                                <td>{{ tierspayant?.priorite }}</td>
-                                <td>{{
-                                    tierspayant?.plafondConso | number
-                                  }}
-                                </td>
-                                <td>{{
-
-                                    tierspayant?.plafondJournalier | number
-                                  }}
-                                </td>
-                                @if (canEdit()) {
-                                  <td class="text-right">
-                                    <div class="btn-group">
-                                      <app-button
-                                        (clicked)="onEditTiersPayant(customer, tierspayant)"
-                                        [rounded]="true"
-                                        [text]="true"
-                                        class="p-mb-3 mr-1"
-                                        icon="pi pi-pencil"
-                                        ngbTooltip="Editer les infos du tierspayant"
-                                        severity="success"
-                                      ></app-button>
-                                      @if (customer.typeTiersPayant === 'ASSURANCE'
-                                      && customer.tiersPayants.length > 1) {
-                                        <app-button
-                                          (clicked)="onRemoveTiersPayant(tierspayant)"
-                                          [rounded]="true"
-                                          [text]="true"
-                                          class="p-mb-3"
-                                          icon="pi pi-trash"
-                                          ngbTooltip="Supprimer"
-                                          severity="danger"
-                                        ></app-button>
-                                      }
-                                    </div>
-                                  </td>
-                                }
-                              </tr>
-                            }
-                          </tbody>
-                        </table>
-                      </app-card>
-                    </div>
-                  </div>
+                  }
                 </div>
-              } @else {
-                <div class="mb-3 mt-3 pharma-smart pharma-smart-content">
-                  <app-card [variant]="'form'">
-                    <ng-template #title>
-                      <div class="card-title info-title">
-                        <i class="pi pi-info-circle mr-2"></i>
-                        INFORMATIONS COMPLEMENTAIRES DU CLIENT
-                      </div>
-                    </ng-template>
+              </td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      } @else {
+        <div class="alert alert-warning mt-2">
+          <span>Aucune donnée trouvée</span>
+        </div>
+      }
+    </div>
 
-                    <div class="grid">
-                      <div class="col-12">
-                        <div class="field">
-                          <label>Date de naissance</label>
-                          <span>{{
-                              customer?.datNaiss | date: 'dd/MM/yyyy'
-                            }}</span>
-                        </div>
-                        <div class="field">
-                          <label>Date de création</label>
-                          <span>{{
-                              customer?.createdAt | date: 'dd/MM/yyyy'
-                            }}</span>
-                        </div>
-
-                        <div class="field">
-                          <label>Date de modification</label>
-                          <span>{{
-                              customer?.updatedAt | date: 'dd/MM/yyyy'
-                            }}</span>
-                        </div>
-                        <div class="field">
-                          <label>Sexe</label>
-                          <span>{{ customer?.sexe }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </app-card>
-                </div>
-              }
-            </td>
-          </tr>
-        </ng-template>
-      </app-data-table>
-    } @else {
-      <div class="alert alert-warning mt-2">
-        <span>Aucune donnée trouvée</span>
+    <!-- Colonne droite : fiche client -->
+    @if (panelOpen()) {
+      <div class="detail-column">
+        <app-customer-detail
+          (closePanel)="onClosePanel()"
+          (customerChanged)="loadPage()"
+          [customer]="selectedCustomer()!"
+        />
       </div>
     }
+
   </div>
 </div>
 

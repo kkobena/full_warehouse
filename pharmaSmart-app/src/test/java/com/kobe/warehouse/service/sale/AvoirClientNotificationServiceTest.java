@@ -13,8 +13,10 @@ import static org.mockito.Mockito.when;
 import com.kobe.warehouse.domain.AvoirClient;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.enumeration.CanalConsentement;
 import com.kobe.warehouse.service.MailService;
 import com.kobe.warehouse.service.SmsService;
+import com.kobe.warehouse.service.customer.ConsentementService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +38,8 @@ class AvoirClientNotificationServiceTest {
     private AppConfigurationService appConfigurationService;
     @Mock
     private SpringTemplateEngine templateEngine;
+    @Mock
+    private ConsentementService consentementService;
 
     private AvoirClientNotificationService service;
     private AvoirClient avoir;
@@ -45,7 +49,7 @@ class AvoirClientNotificationServiceTest {
     @BeforeEach
     void setUp() {
         service = new AvoirClientNotificationService(
-            mailService, smsService, appConfigurationService, templateEngine);
+            mailService, smsService, appConfigurationService, templateEngine, consentementService);
 
         customer = new Customer();
         customer.setFirstName("Alice");
@@ -79,6 +83,7 @@ class AvoirClientNotificationServiceTest {
         when(appConfigurationService.getMagasin()).thenReturn(magasin);
         when(appConfigurationService.isNotifAvoirEmailEnabled()).thenReturn(true);
         when(appConfigurationService.isNotifAvoirSmsEnabled()).thenReturn(true);
+        when(appConfigurationService.getDevise()).thenReturn("FCFA");
         when(templateEngine.process(eq("mail/avoir-produits-prets"), any(Context.class)))
             .thenReturn("<html>notification</html>");
 
@@ -98,7 +103,7 @@ class AvoirClientNotificationServiceTest {
             contains("avoir AV-2026-001"));
         verify(smsService).sendSms(
             eq("0700000000"),
-            contains("12500 CFA"));
+            contains("12500 FCFA"));
     }
 
     @Test
@@ -119,6 +124,7 @@ class AvoirClientNotificationServiceTest {
         when(appConfigurationService.getMagasin()).thenReturn(magasin);
         when(appConfigurationService.isNotifAvoirEmailEnabled()).thenReturn(true);
         when(appConfigurationService.isNotifAvoirSmsEnabled()).thenReturn(true);
+        when(appConfigurationService.getDevise()).thenReturn("FCFA");
         when(templateEngine.process(eq("mail/avoir-produits-prets"), any(Context.class)))
             .thenReturn("contenu");
         doThrow(new IllegalStateException("SMTP indisponible"))
@@ -128,5 +134,20 @@ class AvoirClientNotificationServiceTest {
 
         verify(smsService).sendSms(eq("0700000000"), contains("Pharmacie Centrale"));
     }
-}
 
+    @Test
+    void notifierProduitsDisponibles_SmsRefuse_NEnvoieQueLEmail() {
+        customer.setId(42);
+        when(appConfigurationService.getMagasin()).thenReturn(magasin);
+        when(appConfigurationService.isNotifAvoirEmailEnabled()).thenReturn(true);
+        when(appConfigurationService.isNotifAvoirSmsEnabled()).thenReturn(true);
+        when(consentementService.estRefuse(42, CanalConsentement.EMAIL)).thenReturn(false);
+        when(consentementService.estRefuse(42, CanalConsentement.SMS)).thenReturn(true);
+        when(templateEngine.process(eq("mail/avoir-produits-prets"), any(Context.class))).thenReturn("contenu");
+
+        service.notifierProduitsDisponibles(avoir);
+
+        verify(mailService).sendEmail(any(), any(), any(), anyBoolean(), anyBoolean());
+        verify(smsService, never()).sendSms(any(), any());
+    }
+}

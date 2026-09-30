@@ -62,6 +62,9 @@ public class CacheConfiguration {
                 buildCache(EntityConstant.APP_DELAI_RETOUR_CLIENT_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_DELAI_VALIDITE_AVOIR_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_LIMITE_CREDIT_CLIENT_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_RENOUVELLEMENT_EXCEPTIONNEL_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_RENOUVELLEMENT_EXCEPTIONNEL_MOIS_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_RAPPEL_RENOUVELLEMENT_JOURS_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
 
                 buildCache("dailySalesReport", 15, TimeUnit.MINUTES, 100),
                 buildCache("produits", 15, TimeUnit.MINUTES, 100),

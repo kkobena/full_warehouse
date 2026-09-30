@@ -5,18 +5,20 @@ import { finalize } from 'rxjs/operators';
 import { TauriPrinterService } from './tauri-printer.service';
 import { handleBlobForTauri } from '../util/tauri-util';
 
-export type DownloadFormat = 'pdf' | 'excel' | 'csv';
+export type DownloadFormat = 'pdf' | 'excel' | 'csv' | 'json';
 
 const MIME_TYPES: Record<DownloadFormat, string> = {
   pdf: 'application/pdf',
   excel: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   csv: 'text/csv',
+  json: 'application/json',
 };
 
 const FILE_EXTENSIONS: Record<DownloadFormat, string> = {
   pdf: 'pdf',
   excel: 'xlsx',
   csv: 'csv',
+  json: 'json',
 };
 
 /**

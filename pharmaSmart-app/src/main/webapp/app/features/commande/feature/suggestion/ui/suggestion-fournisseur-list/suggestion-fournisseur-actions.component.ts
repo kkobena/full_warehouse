@@ -7,7 +7,7 @@ import {
   NgbTooltip,
 } from '@ng-bootstrap/ng-bootstrap';
 import {FournisseurSuggestionSummary} from '../../data-access/suggestion-enrichie.model';
-import {COMPARAISON_DISPONIBILITE_ACTIVE} from "../../../pharmaml/pharmaml.constants";
+
 
 export type SuggestionFournisseurAction =
   | 'editer'
@@ -84,15 +84,13 @@ export class SuggestionFournisseurActionsComponent {
       action: 'commander',
       separatorBefore: f => f.statut === 'VALIDEE'
     },
-
-    ...(COMPARAISON_DISPONIBILITE_ACTIVE
-      ? [{
-        label: 'Vérifier la disponibilité',
-        icon: 'pi pi-search',
-        action: 'dispo' as const,
-        separatorBefore: true
-      }]
-      : []),
+    {
+      label: 'Vérifier la disponibilité',
+      icon: 'pi pi-search',
+      action: 'dispo' as const,
+      separatorBefore: true
+    }
+    ,
     {label: 'Export PDF', icon: 'pi pi-file-pdf', action: 'exportPdf', separatorBefore: true},
     {label: 'Export CSV', icon: 'pi pi-file-excel', action: 'exportCsv'},
     {label: 'Supprimer', icon: 'pi pi-trash', action: 'supprimer', separatorBefore: true},

@@ -11,7 +11,7 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 public class LigneN {
 
     @XmlAttribute(name = "Num_Ligne")
-    private String numLigne;
+    private int numLigne;
 
     @XmlAttribute(name = "Type_Codification")
     private String typeCodification;
@@ -20,7 +20,7 @@ public class LigneN {
     private String codeProduit;
 
     @XmlAttribute(name = "Quantite")
-    private String quantite;
+    private int quantite;
 
     @XmlAttribute(name = "Equivalent")
     private boolean equivalent;
@@ -31,11 +31,11 @@ public class LigneN {
     @XmlAttribute(name = "Reliquat")
     private boolean reliquat;
 
-    public String getNumLigne() {
+    public int getNumLigne() {
         return numLigne;
     }
 
-    public void setNumLigne(String numLigne) {
+    public void setNumLigne(int numLigne) {
         this.numLigne = numLigne;
     }
 
@@ -55,11 +55,11 @@ public class LigneN {
         this.codeProduit = codeProduit;
     }
 
-    public String getQuantite() {
+    public int getQuantite() {
         return quantite;
     }
 
-    public void setQuantite(String quantite) {
+    public void setQuantite(int quantite) {
         this.quantite = quantite;
     }
 

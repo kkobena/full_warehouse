@@ -1,12 +1,12 @@
-<div class="pharma-smart-content p-1">
+<div class="pharma-smart-content">
   <app-toolbar [code]="navCode()" icon="pi pi-shopping-cart" title="Achats dépôts">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
         <app-select
-          (selectionChange)="onSelectDepot()"
-          [ngModel]="selectedDepot()"
           (ngModelChange)="selectedDepot.set($event)"
+          (selectionChange)="onSelectDepot()"
           [items]="depotOptions()"
+          [ngModel]="selectedDepot()"
           [style]="{ 'min-width': '200px' }"
           appendTo="body"
           bindLabel="displayLabel"
@@ -149,60 +149,61 @@
                   @if (!elRow.salesLines) {
                     <app-skeleton height="120px" width="100%" />
                   } @else {
-                  <app-data-table
-                    [paginator]="true"
-                    [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-                    [rows]="10"
-                    [selectionMode]="'single'"
-                    [showCurrentPageReport]="true"
-                    [stripedRows]="true"
-                    [value]="elRow.salesLines"
-                    class="rowexpansion-table"
-                    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                    dataKey="id"
-                  >
-                    <ng-template #header>
-                      <tr class="pharma-table-head">
-                        <th style="width: 5%">#</th>
-                        <th style="width: 10%">CODE</th>
-                        <th style="width: 44%">LIBELLE</th>
-                        <th class="text-right" style="width: 8%">QTE.D</th>
-                        <th class="text-right" style="width: 8%">QTE.S</th>
-                        <th class="text-right" style="width: 9%">PU</th>
-                        <th class="text-right" style="width: 10%">TOTAL</th>
-                      </tr>
-                    </ng-template>
-                    <ng-template #body let-rowIndex="rowIndex" let-saleLine>
-                      <tr
-                        [ngClass]="{
+                    <app-data-table
+                      [paginator]="true"
+                      [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+                      [rows]="10"
+                      [selectionMode]="'single'"
+                      [showCurrentPageReport]="true"
+                      [stripedRows]="true"
+                      [value]="elRow.salesLines"
+                      class="rowexpansion-table"
+                      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                      dataKey="id"
+                    >
+                      <ng-template #header>
+                        <tr class="pharma-table-head">
+                          <th style="width: 5%">#</th>
+                          <th style="width: 10%">CODE</th>
+                          <th style="width: 44%">LIBELLE</th>
+                          <th class="text-right" style="width: 8%">QTE.D</th>
+                          <th class="text-right" style="width: 8%">QTE.S</th>
+                          <th class="text-right" style="width: 9%">PU</th>
+                          <th class="text-right" style="width: 10%">TOTAL</th>
+                        </tr>
+                      </ng-template>
+                      <ng-template #body let-rowIndex="rowIndex" let-saleLine>
+                        <tr
+                          [ngClass]="{
                             'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
                             'pharma-row-hover': true,
                           }"
-                      >
-                        <td style="text-align: left">
-                          <span class="pharma-row-number"> {{ rowIndex + 1 }}</span>
-                        </td>
-                        <td>
-                          <span class="pharma-code">{{ saleLine.code }}</span>
-                        </td>
-                        <td>
-                          <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
-                        </td>
-                        <td
-                          class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
-                        </td>
-                        <td
-                          class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
-                        </td>
-                        <td
-                          class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
-                        </td>
-                        <td class="pharma-total px-1" style="text-align: right; font-weight: bold">
-                          {{ saleLine.salesAmount | number }}
-                        </td>
-                      </tr>
-                    </ng-template>
-                  </app-data-table>
+                        >
+                          <td style="text-align: left">
+                            <span class="pharma-row-number"> {{ rowIndex + 1 }}</span>
+                          </td>
+                          <td>
+                            <span class="pharma-code">{{ saleLine.code }}</span>
+                          </td>
+                          <td>
+                            <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
+                          </td>
+                          <td
+                            class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
+                          </td>
+                          <td
+                            class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
+                          </td>
+                          <td
+                            class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
+                          </td>
+                          <td class="pharma-total px-1"
+                              style="text-align: right; font-weight: bold">
+                            {{ saleLine.salesAmount | number }}
+                          </td>
+                        </tr>
+                      </ng-template>
+                    </app-data-table>
                   }
                 </div>
               </div>

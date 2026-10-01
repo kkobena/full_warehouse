@@ -7,7 +7,7 @@ import {
   NgbTooltip,
 } from '@ng-bootstrap/ng-bootstrap';
 import {ICommande} from 'app/shared/model/commande.model';
-import {COMPARAISON_DISPONIBILITE_ACTIVE} from '../pharmaml/pharmaml.constants';
+
 
 export type CommandeRequestedAction =
   | 'editer'
@@ -85,7 +85,7 @@ export class CommandeRequestedActionsComponent {
       label: 'Comparer multi-grossistes',
       icon: 'pi pi-chart-bar',
       action: 'comparerGrossistes',
-      hidden: () => !COMPARAISON_DISPONIBILITE_ACTIVE,
+      hidden: c => !!c.hasBeenSubmittedToPharmaML,
     },
     {label: 'Export CSV', icon: 'pi pi-file-excel', action: 'exportCsv', separatorBefore: true},
     {label: 'Imprimer PDF', icon: 'pi pi-print', action: 'exportPdf'},

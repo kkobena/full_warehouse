@@ -28,12 +28,14 @@ import com.kobe.warehouse.service.pharmaml.dto.Retour;
 import com.kobe.warehouse.service.pharmaml.dto.enumeration.TypeCommande;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -44,7 +46,11 @@ import org.springframework.util.StringUtils;
 @Service
 public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilderService {
 
+    private final DateTimeFormatter REF_INFO_PRODUIT_MESSAGE = DateTimeFormatter.ofPattern(
+        "ddMMyyyyHmmss");
     private final AppConfigurationService appConfigurationService;
+    @Value("${pharma-ml-env}")
+    private String pharmaMlEnv;
 
     public PharmaMlPayloadBuilderServiceImpl(AppConfigurationService appConfigurationService) {
         this.appConfigurationService = appConfigurationService;
@@ -54,7 +60,7 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
     public CsrpEnveloppe buildCommandePayload(Commande commande, EnvoiParamsDTO params,
         Fournisseur fournisseur, String refMessage) {
         CsrpEnveloppe ce = new CsrpEnveloppe();
-        ce.setUsage(PharmaMlUtils.USAGE_VALUE);
+        ce.setUsage(pharmaMlEnv);
         ce.setVersionProtocole(PharmaMlUtils.VERSION_PROTOCLE_VALUE);
         ce.setVersionLogiciel(PharmaMlUtils.VERSION_LOGICIEL_VALUE);
         ce.setIdLogiciel(PharmaMlUtils.ID_LOGICIEL_VALUE);
@@ -69,13 +75,13 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
     public CsrpEnveloppe buildInfoPayload(Commande commande, Fournisseur fournisseur,
         String refMessage) {
         CsrpEnveloppe ce = new CsrpEnveloppe();
-        ce.setUsage(PharmaMlUtils.USAGE_VALUE);
+        ce.setUsage(pharmaMlEnv);
         ce.setVersionProtocole(PharmaMlUtils.VERSION_PROTOCLE_VALUE);
         ce.setVersionLogiciel(PharmaMlUtils.VERSION_LOGICIEL_VALUE);
         ce.setIdLogiciel(PharmaMlUtils.ID_LOGICIEL_VALUE);
         ce.setNatureAction(PharmaMlUtils.NATURE_ACTION_REQ_EMISSION);
         ce.setEntete(buildEntete(fournisseur, refMessage));
-        ce.setCorps(buildCorpsInfo(commande, fournisseur, refMessage));
+        ce.setCorps(buildCorpsInfo(commande, fournisseur));
         return ce;
     }
 
@@ -89,7 +95,7 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         ce.setIdLogiciel(PharmaMlUtils.ID_LOGICIEL_VALUE);
         ce.setNatureAction(PharmaMlUtils.NATURE_ACTION_REQ_EMISSION);
         ce.setEntete(buildEntete(fournisseur, refMessage));
-        ce.setCorps(buildCorpsInfoFromSuggestionLines(lignes, fournisseur, refMessage));
+        ce.setCorps(buildCorpsInfoFromSuggestionLines(lignes, fournisseur));
         return ce;
     }
 
@@ -125,14 +131,12 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
 
     private Partenaire buildEmetteur(Fournisseur fournisseur) {
         String code = StringUtils.hasLength(fournisseur.getCodeOfficePharmaMl())
-            ? fournisseur.getCodeOfficePharmaMl()
-            : PharmaMlUtils.CODE_VALUE;
+            ? fournisseur.getCodeOfficePharmaMl() : PharmaMlUtils.CODE_VALUE;
         Partenaire p = new Partenaire();
         p.setNature(PharmaMlUtils.NATURE_PARTENAIRE_VALUE_OF);
         p.setCode(code);
         p.setAdresse(this.appConfigurationService.getMagasin().getName());
-        p.setId(
-            fournisseur.getIdentifiantRepartiteur());
+        p.setId(fournisseur.getIdentifiantRepartiteur());
         return p;
     }
 
@@ -198,9 +202,9 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         EnvoiParamsDTO params) {
         com.kobe.warehouse.service.pharmaml.dto.Commande c = new com.kobe.warehouse.service.pharmaml.dto.Commande();
 
-        LocalDate dateLivraison = params.getDateLivraisonSouhaitee() != null
-            ? params.getDateLivraisonSouhaitee()
-            : LocalDate.now().plusDays(1);
+        LocalDate dateLivraison =
+            params.getDateLivraisonSouhaitee() != null ? params.getDateLivraisonSouhaitee()
+                : LocalDate.now().plusDays(1);
         c.setDateLivraison(dateLivraison.toString());
 
         String commentaire = params.getCommentaire();
@@ -220,46 +224,29 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
 
     private List<LigneN> buildCommandeLignes(Commande commande) {
         AtomicInteger count = new AtomicInteger(1);
-        return commande
-            .getOrderLines()
-            .stream()
-            .map(item -> {
-                LigneN ligne = new LigneN();
-                FournisseurProduit fournisseurProduit = item.getFournisseurProduit();
-
-                String numLigne = org.apache.commons.lang3.StringUtils.leftPad(
-                    count.getAndIncrement() + "", 4, '0');
-                String quantite = org.apache.commons.lang3.StringUtils.leftPad(
-                    item.getQuantityRequested() + "", 4, '0');
-                String cip = fournisseurProduit.getCodeCip();
-
-                ligne.setCodeProduit(cip);
-                ligne.setQuantite(quantite);
-                ligne.setNumLigne(numLigne);
-                ligne.setTypeCodification(typeCodification(cip));
-                ligne.setPartielle(false);
-                ligne.setReliquat(false);
-                ligne.setEquivalent(false);
-                return ligne;
-            })
-            .collect(Collectors.toList());
+        return commande.getOrderLines().stream().map(item -> {
+            LigneN ligne = new LigneN();
+            FournisseurProduit fournisseurProduit = item.getFournisseurProduit();
+            String cip = fournisseurProduit.getCodeCip();
+            ligne.setCodeProduit(cip);
+            ligne.setQuantite(item.getQuantityRequested());
+            ligne.setNumLigne(count.getAndIncrement());
+            ligne.setTypeCodification(typeCodification(cip));
+            ligne.setPartielle(false);
+            ligne.setReliquat(false);
+            ligne.setEquivalent(false);
+            return ligne;
+        }).collect(Collectors.toList());
     }
 
     private List<LigneInfoDemande> buildLigneInfoDemande(Commande commande) {
         AtomicInteger count = new AtomicInteger(1);
-        return commande
-            .getOrderLines()
-            .stream()
-            .map(item -> {
-                LigneInfoDemande ligne = new LigneInfoDemande();
-                FournisseurProduit fournisseurProduit = item.getFournisseurProduit();
-                String cip = fournisseurProduit.getCodeCip();
-                ligne.setCodeProduit(cip);
-                ligne.setQuantite(item.getQuantityRequested());
-                ligne.setTypeCodification(typeCodification(cip));
-                return ligne;
-            })
-            .collect(Collectors.toList());
+        return commande.getOrderLines().stream().map(item -> {
+            FournisseurProduit fournisseurProduit = item.getFournisseurProduit();
+            String cip = fournisseurProduit.getCodeCip();
+            return buildLigneInfoProduit(count.getAndIncrement(), cip, item.getQuantityRequested());
+
+        }).collect(Collectors.toList());
     }
 
     private Normale buildNormale(Commande commande) {
@@ -271,15 +258,11 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
 
     private Corps buildCorpsRetour(Commande commande, Fournisseur fournisseur,
         List<LigneRetourDTO> lignes) {
-        Retour retour = new Retour()
-            .setRefCdeOfficine(commande.getOrderReference())
-            .setRefBl(commande.getReceiptReference())
-            .setLignes(lignes.stream().map(dto -> {
+        Retour retour = new Retour().setRefCdeOfficine(commande.getOrderReference())
+            .setRefBl(commande.getReceiptReference()).setLignes(lignes.stream().map(dto -> {
                 String cip = dto.codeProduit();
-                return new LigneRetour()
-                    .setCodeProduit(cip)
-                    .setTypeCodification(typeCodification(cip))
-                    .setQuantite(dto.quantite())
+                return new LigneRetour().setCodeProduit(cip)
+                    .setTypeCodification(typeCodification(cip)).setQuantite(dto.quantite())
                     .setMotifRetour(dto.motifRetour());
             }).toList());
 
@@ -300,14 +283,9 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
     }
 
 
-    private Corps buildCorpsInfo(Commande commande, Fournisseur fournisseur, String refMessage) {
-        // ATTENTION : ce message est une ÉMISSION, pas une consultation. Le répartiteur
-        // (GESCOM 3.41.06) refuse aussi bien la nature d'action REQ_INFORMATION que le corps
-        // REQ_INFOS de la norme : chez lui, la seule façon d'obtenir une quantité par ligne
-        // est de passer commande et de lire les Quantite_livree de la REP_COMMANDE.
-        DemandeInfos demandeInfos = new DemandeInfos();
-        //  demandeInfos.setRefCdeClient(refMessage);
-        demandeInfos.setLignes(buildLigneInfoDemande(commande));
+    private Corps buildCorpsInfo(Commande commande, Fournisseur fournisseur) {
+
+        DemandeInfos demandeInfos = initDemandeInfos().setLignes(buildLigneInfoDemande(commande));
         MessageCorps mc = new MessageCorps();
         mc.setReqInfos(demandeInfos);
         MessageOfficine messageOfficine = new MessageOfficine();
@@ -318,39 +296,32 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
         return corps;
     }
 
+    private DemandeInfos initDemandeInfos() {
+        return new DemandeInfos().setRefReqInfoProduit(
+            REF_INFO_PRODUIT_MESSAGE.format(LocalDateTime.now()));
+    }
+
     private Corps buildCorpsInfoFromSuggestionLines(List<SuggestionLine> lignes,
-        Fournisseur fournisseur, String refMessage) {
+        Fournisseur fournisseur) {
         AtomicInteger count = new AtomicInteger(1);
-        Normale n = new Normale();
-        n.setLignes(lignes.stream().map(sl -> {
+        DemandeInfos demandeInfos = initDemandeInfos().setLignes(lignes.stream().map(sl -> {
             String cip = sl.getFournisseurProduit().getCodeCip();
-            LigneN ligne = new LigneN();
-            ligne.setNumLigne(
-                org.apache.commons.lang3.StringUtils.leftPad(count.getAndIncrement() + "", 4, '0'));
-            ligne.setCodeProduit(cip);
-            ligne.setTypeCodification(typeCodification(cip));
-            ligne.setQuantite(
-                org.apache.commons.lang3.StringUtils.leftPad(sl.getQuantity() + "", 4, '0'));
-            ligne.setPartielle(false);
-            ligne.setReliquat(false);
-            ligne.setEquivalent(false);
-            return ligne;
+            return buildLigneInfoProduit(count.getAndIncrement(), cip, sl.getQuantity());
         }).toList());
 
-        com.kobe.warehouse.service.pharmaml.dto.Commande c = new com.kobe.warehouse.service.pharmaml.dto.Commande();
-        c.setRefCdeClient(refMessage);
-        c.setNormale(n);
-
         MessageCorps mc = new MessageCorps();
-        mc.setCommande(c);
-
+        mc.setReqInfos(demandeInfos);
         MessageOfficine messageOfficine = new MessageOfficine();
         messageOfficine.setEntete(buildMessageEntete(fournisseur));
         messageOfficine.setCorps(mc);
-
         Corps corps = new Corps();
         corps.setMessageOfficine(messageOfficine);
         return corps;
+    }
+
+    private LigneInfoDemande buildLigneInfoProduit(int count, String code, int quantite) {
+        return new LigneInfoDemande().setNumLigne(count).setCodeProduit(code)
+            .setTypeCodification(typeCodification(code)).setQuantite(quantite);
     }
 
     private String typeCodification(String cip) {

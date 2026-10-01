@@ -1,16 +1,17 @@
-import { Component, computed, inject, signal, ChangeDetectionStrategy } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { BadgeComponent, ButtonComponent, DataTableComponent } from "../../../../../../shared/ui";
-import { IDispoGrossisteResult, IInfoProduit } from "../../../../../../shared/model/pharmaml.model";
-import { IFournisseur } from "../../../../../../shared/model/fournisseur.model";
-import { CommandeId } from "../../../../../../shared/model/abstract-commande.model";
-import { PharmamlApiService } from "../../../../data-access/pharmaml-api.service";
-import { NotificationService } from "../../../../../../shared/services/notification.service";
-import { ErrorService } from "../../../../../../shared/error.service";
-import { FournisseurSelectComponent } from "../../../../../partners/ui/fournisseur-select/fournisseur-select.component";
-import { DevisePipe } from "app/shared/utils/devise";
+import {ChangeDetectionStrategy, Component, computed, inject, signal} from "@angular/core";
+import {CommonModule} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {BadgeComponent, ButtonComponent, DataTableComponent} from "../../../../../../shared/ui";
+import {IDispoGrossisteResult, IInfoProduit} from "../../../../../../shared/model/pharmaml.model";
+import {IFournisseur} from "../../../../../../shared/model/fournisseur.model";
+import {CommandeId} from "../../../../../../shared/model/abstract-commande.model";
+import {PharmamlApiService} from "../../../../data-access/pharmaml-api.service";
+import {NotificationService} from "../../../../../../shared/services/notification.service";
+import {ErrorService} from "../../../../../../shared/error.service";
+import {
+  FournisseurSelectComponent
+} from "../../../../../partners/ui/fournisseur-select/fournisseur-select.component";
 
 export interface ComparaisonRow {
   codeProduit: string;
@@ -23,7 +24,7 @@ export interface ComparaisonRow {
   templateUrl: "./dispo-comparaison.component.html",
   styleUrls: ["./dispo-comparaison.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, FournisseurSelectComponent, DevisePipe]
+  imports: [CommonModule, FormsModule, BadgeComponent, ButtonComponent, DataTableComponent, FournisseurSelectComponent]
 })
 export class DispoComparaisonComponent {
   commandeId!: CommandeId;
@@ -40,14 +41,13 @@ export class DispoComparaisonComponent {
   readonly echecs = signal<number[]>([]);
 
   readonly hasResults = computed(() => this.rows().length > 0);
+  readonly colonnes = computed(() => this.selectedFournisseurs().filter(f => f.id != null));
   readonly libelleEchecs = computed(() =>
     this.colonnes()
       .filter(f => this.echecs().includes(f.id!))
       .map(f => f.libelle)
       .join(', '),
   );
-  readonly colonnes = computed(() => this.selectedFournisseurs().filter(f => f.id != null));
-
   private readonly activeModal = inject(NgbActiveModal);
   private readonly api = inject(PharmamlApiService);
   private readonly errorService = inject(ErrorService);
@@ -55,7 +55,9 @@ export class DispoComparaisonComponent {
 
   comparer(): void {
     const grossistes = this.colonnes();
-    if (grossistes.length === 0) return;
+    if (grossistes.length === 0) {
+      return;
+    }
 
     this.loading.set(true);
     this.rows.set([]);

@@ -5,5 +5,8 @@ public record InfoProduitDTO(
     String designation,
     int stockDisponible,
     int prixAchat,
-    boolean disponible
-) {}
+    boolean disponible,
+    String raisonIndispo
+) {
+
+}

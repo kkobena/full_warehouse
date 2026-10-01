@@ -1,10 +1,12 @@
 <div class="container-fluid">
-  <div class="pharma-smart-content p-2">
+  <div class="pharma-smart-content">
     <div class="depot-form-container">
-      <app-toolbar icon="pi pi-building" [title]="(isEditMode() ? 'Modifier' : 'Nouveau') + ' Dépôt'">
+      <app-toolbar [title]="(isEditMode() ? 'Modifier' : 'Nouveau') + ' Dépôt'"
+                   icon="pi pi-building">
         <ng-container ngProjectAs="[toolbarActions]">
           <div class="pharma-toolbar-actions">
-            <app-button (clicked)="cancel()" [text]="true" icon="pi pi-arrow-left" label="Retour" severity="secondary" />
+            <app-button (clicked)="cancel()" [text]="true" icon="pi pi-arrow-left" label="Retour"
+                        severity="secondary" />
           </div>
         </ng-container>
       </app-toolbar>
@@ -13,7 +15,7 @@
         <!-- Section 1: Champs Obligatoires -->
         <div class="card-grid-2col">
           <app-card [variant]="'form'" [withHeader]="true">
-            <div ngProjectAs="[cardHeader]" class="section-header section-header-required">
+            <div class="section-header section-header-required" ngProjectAs="[cardHeader]">
               <i class="pi pi-exclamation-circle"></i>
               <span>Champs Obligatoires</span>
             </div>
@@ -52,13 +54,13 @@
               <div class="form-field">
                 <label for="typeMagasin">Type de Magasin <span class="required">*</span></label>
                 <app-select
-                  [invalid]="formControls['typeMagasin'].invalid && formControls['typeMagasin'].touched"
                   [disabled]="true"
+                  [invalid]="formControls['typeMagasin'].invalid && formControls['typeMagasin'].touched"
                   [items]="typeMagasinOptions"
-                  formControlName="typeMagasin"
-                  inputId="typeMagasin"
                   bindLabel="label"
                   bindValue="value"
+                  formControlName="typeMagasin"
+                  inputId="typeMagasin"
                 />
                 @if (formControls['typeMagasin'].invalid && formControls['typeMagasin'].touched) {
                   <small class="form-text text-danger">Le type de magasin est obligatoire</small>
@@ -69,7 +71,7 @@
 
           <!-- Section 2: Informations de Contact -->
           <app-card [variant]="'form'" [withHeader]="true">
-            <div ngProjectAs="[cardHeader]" class="section-header">
+            <div class="section-header" ngProjectAs="[cardHeader]">
               <i class="pi pi-phone"></i>
               <span>Informations de Contact</span>
             </div>
@@ -77,11 +79,13 @@
             <div class="form-grid-compact">
               <div class="form-field">
                 <label for="managerLastName">Nom du Gérant</label>
-                <input class="form-control" formControlName="managerLastName" id="managerLastName" type="text" />
+                <input class="form-control" formControlName="managerLastName" id="managerLastName"
+                       type="text" />
               </div>
               <div class="form-field">
                 <label for="managerFirstName">Prénom(s) du Gérant</label>
-                <input class="form-control" formControlName="managerFirstName" id="managerFirstName" type="text" />
+                <input class="form-control" formControlName="managerFirstName" id="managerFirstName"
+                       type="text" />
               </div>
 
               <!-- Phone -->
@@ -108,7 +112,8 @@
               <!-- Address (Full Width) -->
               <div class="form-field form-field-full">
                 <label for="address">Adresse</label>
-                <textarea class="form-control" formControlName="address" id="address" rows="2"></textarea>
+                <textarea class="form-control" formControlName="address" id="address"
+                          rows="2"></textarea>
               </div>
             </div>
           </app-card>
@@ -117,7 +122,7 @@
         <div class="card-grid-2col mt-2">
           <!-- Section 3: Informations Administratives -->
           <app-card [variant]="'form'" [withHeader]="true">
-            <div ngProjectAs="[cardHeader]" class="section-header">
+            <div class="section-header" ngProjectAs="[cardHeader]">
               <i class="pi pi-file-edit"></i>
               <span>Informations Administratives</span>
             </div>
@@ -132,7 +137,8 @@
               <!-- Compte Contribuable -->
               <div class="form-field">
                 <label for="compteContribuable">Compte Contribuable</label>
-                <input class="form-control" formControlName="compteContribuable" id="compteContribuable" />
+                <input class="form-control" formControlName="compteContribuable"
+                       id="compteContribuable" />
               </div>
 
               <!-- Num Comptable -->
@@ -150,14 +156,15 @@
               <!-- Registre Imposition -->
               <div class="form-field form-field-2col">
                 <label for="registreImposition">Registre d'Imposition</label>
-                <input class="form-control" formControlName="registreImposition" id="registreImposition" />
+                <input class="form-control" formControlName="registreImposition"
+                       id="registreImposition" />
               </div>
             </div>
           </app-card>
 
           <!-- Section 4: Messages et Notes -->
           <app-card [variant]="'form'" [withHeader]="true">
-            <div ngProjectAs="[cardHeader]" class="section-header">
+            <div class="section-header" ngProjectAs="[cardHeader]">
               <i class="pi pi-comment"></i>
               <span>Messages et Notes</span>
             </div>
@@ -166,7 +173,8 @@
               <!-- Welcome Message -->
               <div class="form-field">
                 <label for="welcomeMessage">Message de Bienvenue</label>
-                <textarea class="form-control" formControlName="welcomeMessage" id="welcomeMessage" rows="2"></textarea>
+                <textarea class="form-control" formControlName="welcomeMessage" id="welcomeMessage"
+                          rows="2"></textarea>
               </div>
 
               <!-- Note -->
@@ -179,7 +187,8 @@
         </div>
 
         <div class="form-actions-compact">
-          <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
+          <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler"
+                      severity="secondary" type="button" />
           <app-button
             [disabled]="depotForm.invalid || isSaving()"
             [label]="isEditMode() ? 'Mettre à jour' : 'Créer'"

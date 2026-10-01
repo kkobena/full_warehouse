@@ -236,7 +236,7 @@ pharma-smart:
       desktop: 31536000 # 365 days
 
 
-
+pharma-ml-env: T # T=text, P=production
 port-com:
 legacy-url: http://localhost:9090/laborex
 mail:

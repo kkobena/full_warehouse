@@ -10,19 +10,19 @@
         <label class="form-label">Type de commande</label>
         <app-select
           (ngModelChange)="typeCommande.set($event)"
-          [ngModel]="typeCommande()"
-          class="w-100"
+          [clearable]="false"
           [items]="typeCommandeOptions"
+          [ngModel]="typeCommande()"
           bindLabel="label"
           bindValue="value"
-          [clearable]="false"
+          class="w-100"
         />
       </div>
 
-      <div class="form-field form-field-full">
+      <div class="">
         <pharma-date-picker
           (ngModelChange)="dateLivraison.set($event)"
-          [minDate]="minDate"
+          [labelPosition]="'top'" [minDate]="minDate"
           [ngModel]="dateLivraison()"
           id="dateLivraison"
           label="Date de livraison souhaitée"

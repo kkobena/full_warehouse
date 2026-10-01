@@ -19,7 +19,6 @@ import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.PharmaMlEnvoiRepository;
 import com.kobe.warehouse.repository.SubstitutRepository;
 import com.kobe.warehouse.repository.SubstitutionProposeeRepository;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.FournisseurProduitService;
 import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.ReferenceService;
@@ -37,6 +36,7 @@ import com.kobe.warehouse.service.pharmaml.dto.response.IndisponibiliteN;
 import com.kobe.warehouse.service.pharmaml.dto.response.LigneInfoReponse;
 import com.kobe.warehouse.service.pharmaml.dto.response.LigneNReponse;
 import com.kobe.warehouse.service.pharmaml.dto.response.MessageRepartiteur;
+import com.kobe.warehouse.service.pharmaml.dto.response.NonDispo;
 import com.kobe.warehouse.service.pharmaml.dto.response.NormaleReponse;
 import com.kobe.warehouse.service.pharmaml.dto.response.PrixN;
 import com.kobe.warehouse.service.pharmaml.dto.response.ProduitRemplacant;
@@ -45,6 +45,7 @@ import com.kobe.warehouse.service.pharmaml.dto.response.RepInfos;
 import com.kobe.warehouse.service.pharmaml.dto.response.enumeration.TypePrix;
 import com.kobe.warehouse.service.pharmaml.dto.response.enumeration.TypeRemplacement;
 import com.kobe.warehouse.service.rupture.service.RuptureService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.settings.FileStorageService;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import jakarta.xml.bind.JAXBContext;
@@ -67,6 +68,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,10 +157,11 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         PharmaMlEnvoi envoi,
         String fileName
     ) {
-        Fournisseur groupeFournisseur = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
+        Fournisseur groupeFournisseur =
+            fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
         String xmlPayload = serializePayload(payload);
         LOG.debug("PharmaML REQ_EMISSION : {}", xmlPayload);
-        saveXmlFile(payload, "C", fileName);
+        //  saveXmlFile(payload, "C", fileName);
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
             .uri(URI.create(groupeFournisseur.getUrlPharmaMl()))
@@ -204,7 +207,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
     @Override
     public void sendSimpleMessage(CsrpEnveloppe payload, Fournisseur fournisseur, String fileName,
         String actionName) {
-        Fournisseur groupeFournisseur = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
+        Fournisseur groupeFournisseur =
+            fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
         String xmlPayload = serializePayload(payload);
 
         if (fileName != null) {
@@ -239,12 +243,14 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
 
     @Override
     public List<InfoProduitDTO> sendInfoRequest(CsrpEnveloppe payload, Fournisseur fournisseur) {
-        Fournisseur groupeFournisseur = fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
+        Fournisseur groupeFournisseur =
+            fournisseur.getParent() != null ? fournisseur.getParent() : fournisseur;
         String xmlPayload = serializePayload(payload);
-        String refMessage = payload.getEntete() != null ? payload.getEntete().getRefMessage() : "SANSREF";
+        String refMessage =
+            payload.getEntete() != null ? payload.getEntete().getRefMessage() : "SANSREF";
         // Une interrogation laisse une trace comme un envoi : sans elle, une réponse vide
         // n'est pas diagnosticable après coup.
-        saveXmlFile(payload, "I", generateFileName(refMessage, groupeFournisseur.getLibelle()));
+        //  saveXmlFile(payload, "I", generateFileName(refMessage, groupeFournisseur.getLibelle()));
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
             .uri(URI.create(groupeFournisseur.getUrlPharmaMl()))
@@ -256,8 +262,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         try {
             HttpResponse<String> httpResponse = httpClient.send(httpRequest,
                 HttpResponse.BodyHandlers.ofString());
-            saveRawResponse(httpResponse.body(),
-                "RI_" + generateFileName(refMessage, groupeFournisseur.getLibelle()));
+           /* saveRawResponse(httpResponse.body(),
+                "RI_" + generateFileName(refMessage, groupeFournisseur.getLibelle()));*/
             return parseInfosResponse(httpResponse);
         } catch (IOException | InterruptedException e) {
             LOG.error("Erreur lors de la demande de disponibilité PharmaML", e);
@@ -320,7 +326,7 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
                 Unmarshaller unmarshaller = JAXB_RESPONSE_CONTEXT.createUnmarshaller();
                 CsrpEnveloppeResponse response = (CsrpEnveloppeResponse) unmarshaller.unmarshal(
                     new StringReader(httpResponse.body()));
-                saveXmlFile(response, "R", fileName);
+                //  saveXmlFile(response, "R", fileName);
                 return traiterCommandeRepondue(commande, response, fournisseur);
             } catch (JAXBException ex) {
                 LOG.error("Erreur de parsing de la réponse XML", ex);
@@ -378,6 +384,7 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
 
         int itemSize = items.size();
         AtomicInteger montantCommande = new AtomicInteger();
+        AtomicInteger montantVenteOfficine = new AtomicInteger();
 
         for (LigneNReponse ligneNReponse : lignes) {
             items.stream()
@@ -392,6 +399,7 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
                             prisEncompte.incrementAndGet();
                             processOrderDetailResponse(orderLine, ligneNReponse);
                             montantCommande.addAndGet(computeOrderAmount(ligneNReponse));
+
                         } else {
                             OrderLine lineForRupture;
                             if (qteLivre > 0) {
@@ -407,6 +415,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
                             lignesRupture.put(lineForRupture,
                                 Pair.of(lineForRupture.getFournisseurProduit(), ligneNReponse));
                         }
+                        montantVenteOfficine.addAndGet(
+                            computeMontantVente(qteLivre, orderLine.getOrderUnitPrice()));
                         itemsToRemove.add(orderLine);
                     },
                     () -> LOG.error("Produit {} non trouvé dans la commande {}",
@@ -423,6 +433,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         if (prisEncompte.get() > 0) {
             commande.setFinalAmount(montantCommande.get());
             commande.setHtAmount(montantCommande.get());
+            commande.setGrossAmount(montantCommande.get());
+            commande.setOrderAmount(montantVenteOfficine.get());
             commande.setUpdatedAt(LocalDateTime.now());
             commande.setHasBeenSubmittedToPharmaML(true);
             commandeRepository.save(commande);
@@ -474,6 +486,10 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
             getPrixAchatPrixUni(ligneNReponse.getPrix()).key() + "");
     }
 
+    private int computeMontantVente(int quantite, int prix) {
+        return quantite * prix;
+    }
+
     private void createRupture(
         Map<OrderLine, Pair<FournisseurProduit, LigneNReponse>> lignesRupture,
         Commande commande,
@@ -506,38 +522,46 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         }
         String type = produitRemplacant.getTypeRemplacement();
 
-        String cipPropose = produitRemplacant.getCodeProduit();
-
         if (TypeRemplacement.EP.name().equals(type)) {
-            boolean modeAuto = AcceptationSubstitutionMode.AUTO == appConfigurationService.getAcceptationSubstitutionMode();
+            boolean modeAuto = AcceptationSubstitutionMode.AUTO
+                == appConfigurationService.getAcceptationSubstitutionMode();
             if (modeAuto) {
                 // Acceptation implicite : même traitement que EL/RL
-                FournisseurProduit fp = findOrCreateFournisseurProduit(produitRemplacant, ligneNReponse, fournisseur);
+                FournisseurProduit fp = findOrCreateFournisseurProduit(produitRemplacant,
+                    ligneNReponse, fournisseur);
                 if (fp != null) {
                     addRemplacement(ligneNReponse, origin.getQuantityRequested(), fp, commande);
-                    SubstitutionProposee trace = buildSubstitutionTrace(produitRemplacant, indisponibilite,
-                        type, origin, commande, fournisseur, origin.getQuantityRequested(), SubstitutionStatut.ACCEPTEE);
+                    SubstitutionProposee trace = buildSubstitutionTrace(produitRemplacant,
+                        indisponibilite,
+                        type, origin, commande, fournisseur, origin.getQuantityRequested(),
+                        SubstitutionStatut.ACCEPTEE);
                     substitutionProposeeRepository.save(trace);
-                    enregistrerSubstitutLocal(origin.getFournisseurProduit().getProduit(), fp.getProduit());
+                    enregistrerSubstitutLocal(origin.getFournisseurProduit().getProduit(),
+                        fp.getProduit());
                     return true;
                 }
             }
             // Mode MANUEL (ou fp introuvable en AUTO) : en attente de validation pharmacien
             SubstitutionProposee sub = buildSubstitutionTrace(produitRemplacant, indisponibilite,
-                type, origin, commande, fournisseur, origin.getQuantityRequested(), SubstitutionStatut.EN_ATTENTE);
+                type, origin, commande, fournisseur, origin.getQuantityRequested(),
+                SubstitutionStatut.EN_ATTENTE);
             substitutionProposeeRepository.save(sub);
             return true;
         }
 
         if (TypeRemplacement.EL.name().equals(type) || TypeRemplacement.RL.name().equals(type)) {
-            FournisseurProduit fp = findOrCreateFournisseurProduit(produitRemplacant, ligneNReponse, fournisseur);
+            FournisseurProduit fp = findOrCreateFournisseurProduit(produitRemplacant, ligneNReponse,
+                fournisseur);
             if (fp != null) {
                 addRemplacement(ligneNReponse, origin.getQuantityRequested(), fp, commande);
-                SubstitutionProposee trace = buildSubstitutionTrace(produitRemplacant, indisponibilite,
-                    type, origin, commande, fournisseur, ligneNReponse.getQuantiteLivree(), SubstitutionStatut.ACCEPTEE);
+                SubstitutionProposee trace = buildSubstitutionTrace(produitRemplacant,
+                    indisponibilite,
+                    type, origin, commande, fournisseur, ligneNReponse.getQuantiteLivree(),
+                    SubstitutionStatut.ACCEPTEE);
                 substitutionProposeeRepository.save(trace);
                 // EL/RL : toujours mémoriser la paire, quel que soit le mode
-                enregistrerSubstitutLocal(origin.getFournisseurProduit().getProduit(), fp.getProduit());
+                enregistrerSubstitutLocal(origin.getFournisseurProduit().getProduit(),
+                    fp.getProduit());
             }
         }
         return false;
@@ -546,8 +570,11 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
     private FournisseurProduit findOrCreateFournisseurProduit(ProduitRemplacant produitRemplacant,
         LigneNReponse ligneNReponse, Fournisseur fournisseur) {
         String cipPropose = produitRemplacant.getCodeProduit();
-        List<FournisseurProduit> fps = fournisseurProduitService.findByCodeCipOrProduitcodeEan(cipPropose);
-        if (fps.isEmpty()) return null;
+        List<FournisseurProduit> fps = fournisseurProduitService.findByCodeCipOrProduitcodeEan(
+            cipPropose);
+        if (fps.isEmpty()) {
+            return null;
+        }
         FournisseurProduit fp = fps.stream()
             .filter(p -> p.getCodeCip().equals(cipPropose))
             .findFirst()
@@ -584,7 +611,9 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
 
     private void enregistrerSubstitutLocal(Produit produit,
         Produit substitutProduit) {
-        if (substitutRepository.existsByProduitAndSubstitut(produit, substitutProduit)) return;
+        if (substitutRepository.existsByProduitAndSubstitut(produit, substitutProduit)) {
+            return;
+        }
         Substitut s = new Substitut();
         s.setProduit(produit);
         s.setSubstitut(substitutProduit);
@@ -607,8 +636,12 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         dto.setQuantityReceived(ligneNReponse.getQuantiteLivree());
         dto.setInitStock(0);
         OrderLine orderLine = this.orderLineService.buildOrderLine(dto, fournisseurProduit);
-        if (prixAchat > 0) orderLine.setOrderCostAmount(prixAchat);
-        if (prixUnit > 0) orderLine.setOrderUnitPrice(prixUnit);
+        if (prixAchat > 0) {
+            orderLine.setOrderCostAmount(prixAchat);
+        }
+        if (prixUnit > 0) {
+            orderLine.setOrderUnitPrice(prixUnit);
+        }
         orderLine.setUpdatedAt(LocalDateTime.now());
         orderLine.setUpdated(true);
         orderLine.setCommande(commande);
@@ -655,7 +688,9 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
 
     // ===================== Méthodes de parsing des réponses d'information =====================
 
-    /** Écrit la réponse telle que le répartiteur l'a renvoyée, sans passer par JAXB. */
+    /**
+     * Écrit la réponse telle que le répartiteur l'a renvoyée, sans passer par JAXB.
+     */
     private void saveRawResponse(String body, String fileName) {
         Path path = fileStorageService.getFilePharmamlStorageLocation()
             .resolve(fileName + ".xml");
@@ -671,8 +706,6 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         if (httpResponse.statusCode() != 200) {
             LOG.warn("REQ_INFORMATION: HTTP {} - réponse serveur: {}", httpResponse.statusCode(),
                 httpResponse.body());
-            // Un refus n'est pas une absence de stock : rendre une liste vide ferait passer
-            // le grossiste pour « tout en rupture » alors qu'il n'a rien répondu.
             throw new GenericError("Le grossiste a refusé la demande de disponibilité (HTTP "
                 + httpResponse.statusCode() + ")", "pharmaMlError");
         }
@@ -704,7 +737,7 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         int prixAchat = Integer.parseInt(prix.key() + "");
         int stock = ligne.getQuantiteLivree();
         return new InfoProduitDTO(ligne.getCodeProduit(), ligne.getDesignation(), stock, prixAchat,
-            stock > 0);
+            stock > 0, null);
     }
 
     private RepInfos getRepInfos(CsrpEnveloppeResponse response) {
@@ -732,12 +765,14 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
             com.kobe.warehouse.service.dto.Pair prix = getPrixAchatPrixUni(ligne.getPrix());
             prixAchat = Integer.parseInt(prix.key() + "");
         }
+        NonDispo nonDispo = ligne.getNonDispo();
         return new InfoProduitDTO(
             ligne.getCodeProduit(),
-            ligne.getDesignation(),
-            ligne.getStockDisponible(),
+            ligne.getDesignation(), 0,
+            // ligne.getStockDisponible(),//PharmaMl ne renvoie pas le stock dispo
             prixAchat,
-            ligne.getStockDisponible() > 0
+            Objects.nonNull(ligne.getDispo()), // Pharmal envoie un objet <DISPO />
+            Objects.nonNull(nonDispo) ? nonDispo.getRaison() : null
         );
     }
 }

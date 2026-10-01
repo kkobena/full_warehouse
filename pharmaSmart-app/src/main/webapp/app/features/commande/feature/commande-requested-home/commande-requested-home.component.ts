@@ -52,7 +52,7 @@ import {
   CommandeRequestedAction,
   CommandeRequestedActionsComponent
 } from './commande-requested-actions.component';
-import { DevisePipe } from 'app/shared/utils/devise';
+import {DevisePipe} from 'app/shared/utils/devise';
 
 @Component({
   selector: 'app-commande-requested-home',
@@ -71,7 +71,7 @@ import { DevisePipe } from 'app/shared/utils/devise';
     RowCheckboxComponent,
     SortableHeaderDirective,
     CommandeRequestedActionsComponent,
-   DevisePipe],
+    DevisePipe],
 })
 export class CommandeRequestedHomeComponent implements OnInit {
 
@@ -249,13 +249,13 @@ export class CommandeRequestedHomeComponent implements OnInit {
         } else if (result) {
           result.success
             ? this.notificationService.success(
-                `${result.successCount} / ${result.totalProduit} produits acceptés`,
-                'Envoi réussi',
-              )
+              `${result.successCount} / ${result.totalProduit} produits acceptés`,
+              'Envoi réussi',
+            )
             : this.notificationService.warning(
-                `${result.successCount} / ${result.totalProduit} produits acceptés`,
-                'Envoi partiel',
-              );
+              `${result.successCount} / ${result.totalProduit} produits acceptés`,
+              'Envoi partiel',
+            );
         }
         this.loadPage();
       },
@@ -275,7 +275,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
       return;
     }
     const ref = this.modalService.open(DispoComparaisonComponent, {
-      size: 'lg',
+      size: 'xl',
       backdrop: 'static',
       centered: true,
       scrollable: true,

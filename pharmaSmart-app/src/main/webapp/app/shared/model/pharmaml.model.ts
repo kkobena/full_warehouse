@@ -65,6 +65,7 @@ export interface IInfoProduit {
   stockDisponible: number;
   prixAchat: number;
   disponible: boolean;
+  raisonIndispo: string | null;
 }
 
 export interface IDispoGrossisteResult {

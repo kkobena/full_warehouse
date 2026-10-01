@@ -1864,7 +1864,6 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Une requête de disponibilité est envoyée via PharmaML pour un produit donné et la réponse (quantité disponible, délai) est retournée directement.',
             etapes: ['Depuis la commande, sélectionner un produit', 'Lancer "Demander disponibilité"'],
             resultatAttendu: 'La disponibilité annoncée par le grossiste s’affiche pour ce produit.',
-            hidden: true,
           },
           {
             id: 'ACH-35',
@@ -1873,13 +1872,7 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'Une requête de disponibilité multi-produits est envoyée en une fois ; la réponse consolidée indique la disponibilité de chaque produit, éventuellement comparée entre plusieurs grossistes.',
             etapes: ['Sélectionner plusieurs produits (ou toute la commande)', 'Lancer "Disponibilité multi"'],
             resultatAttendu: 'Le résultat affiche la disponibilité de chaque produit demandé, sans en oublier aucun.',
-            // Masqué : le répartiteur (GESCOM 3.41.06) ne connaît ni la nature d'action
-            // REQ_INFORMATION ni le corps REQ_INFOS de la norme. La seule requête qu'il
-            // accepte est une COMMANDE — « vérifier la disponibilité » reviendrait donc à
-            // commander. Les points d'entrée sont masqués dans l'application
-            // (COMPARAISON_DISPONIBILITE_ACTIVE) ; ce scénario le reste ici tant qu'aucun
-            // grossiste ne répond à une vraie demande d'information.
-            hidden: true,
+
           },
         ],
       },

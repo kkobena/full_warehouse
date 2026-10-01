@@ -9,7 +9,8 @@
 // ====================================
 .pharma-toolbar {
   background: $pharma-white;
-  border-radius: $pharma-radius;
+  border-top-left-radius: $pharma-radius;
+  border-top-right-radius: $pharma-radius;
   box-shadow: $pharma-shadow-md;
   padding: 0;
   margin-bottom: 0.5rem;

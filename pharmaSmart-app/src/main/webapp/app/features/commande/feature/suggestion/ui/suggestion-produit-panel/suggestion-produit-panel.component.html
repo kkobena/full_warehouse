@@ -7,88 +7,87 @@
 
       @if (canValider()) {
         <app-button
-          label="Valider"
+          (clicked)="validerRequest.emit()"
           icon="pi pi-check"
-          severity="success"
-          size="small"
+          label="Valider"
           ngbTooltip="Valider cette suggestion"
           placement="top"
-          (clicked)="validerRequest.emit()"
+          severity="success"
+          size="small"
         />
       }
 
-        <app-button
-          icon="pi pi-file-pdf"
-          severity="warn"
-          label="PDF"
-          size="small"
-          [loading]="exportingPdf()"
-          ngbTooltip="Exporter en PDF"
-          placement="top"
-          (clicked)="exportPdfRequest.emit()"
-        />
-        <app-button
-          icon="pi pi-file-excel"
-          severity="help"
-          label="CSV"
-          size="small"
-          [loading]="exportingCsv()"
-          ngbTooltip="Exporter en CSV"
-          placement="top"
-          (clicked)="exportCsvRequest.emit()"
-        />
-      <!-- Masqué : aucun grossiste ne répond à une demande d'information, et chez GESCOM
-           l'interrogation revient à passer commande (cf. COMPARAISON_DISPONIBILITE_ACTIVE). -->
-      @if (comparaisonDisponibiliteActive) {
-        <app-button
-          icon="pi pi-search"
-          label="Dispo PharmaML"
-          severity="info"
-          size="small"
-          ngbTooltip="Vérifier la disponibilité chez les grossistes"
-          placement="top"
-          (clicked)="dispoRequest.emit()"
-        />
-      }
+      <app-button
+        (clicked)="exportPdfRequest.emit()"
+        [loading]="exportingPdf()"
+        icon="pi pi-file-pdf"
+        label="PDF"
+        ngbTooltip="Exporter en PDF"
+        placement="top"
+        severity="warn"
+        size="small"
+      />
+      <app-button
+        (clicked)="exportCsvRequest.emit()"
+        [loading]="exportingCsv()"
+        icon="pi pi-file-excel"
+        label="CSV"
+        ngbTooltip="Exporter en CSV"
+        placement="top"
+        severity="help"
+        size="small"
+      />
+
+
+      <app-button
+        (clicked)="dispoRequest.emit()"
+        icon="pi pi-search"
+        label="Dispo PharmaML"
+        ngbTooltip="Vérifier la disponibilité chez les grossistes"
+        placement="top"
+        severity="info"
+        size="small"
+      />
+
       <!-- Le bouton de nettoyage est caché car la fonctionnalité n'est pas encore implémentée côté back-end -->
       <app-button
-        label="Nettoyer"
-        icon="pi pi-wrench"
-        severity="secondary"
+        (clicked)="sanitizeRequest.emit()"
         [hidden]="true"
-        size="small"
+        icon="pi pi-wrench"
+        label="Nettoyer"
         ngbTooltip="Supprimer les lignes invalides"
         placement="top"
-        (clicked)="sanitizeRequest.emit()"
+        severity="secondary"
+        size="small"
       />
       @if (urgenceFilter() === 'TOUS') {
         <app-button
-          label="Commander tout"
+          (clicked)="commander.emit()"
           icon="pi pi-shopping-cart"
-          severity="primary"
-          size="small"
+          label="Commander tout"
           ngbTooltip="Commander toutes les lignes de ce fournisseur"
           placement="top"
-          (clicked)="commander.emit()"
+          severity="primary"
+          size="small"
         />
       } @else {
         <app-button
+          (clicked)="onCommanderFiltre()"
           [label]="'Commander filtrés (' + nbFilteredLignes + ')'"
+          [ngbTooltip]="'Commander uniquement les ' + nbFilteredLignes + ' ligne(s) visibles'"
           icon="pi pi-shopping-cart"
+          placement="top"
           severity="primary"
           size="small"
-          [ngbTooltip]="'Commander uniquement les ' + nbFilteredLignes + ' ligne(s) visibles'"
-          placement="top"
-          (clicked)="onCommanderFiltre()"
         />
         <app-button
+          (clicked)="onSupprimerFiltrees()"
           [label]="'Supprimer filtrés (' + nbFilteredLignes + ')'"
+          [ngbTooltip]="'Retirer les ' + nbFilteredLignes + ' ligne(s) visibles de la suggestion'"
           icon="pi pi-trash"
+          placement="top"
           severity="danger"
           size="small"
-          [ngbTooltip]="'Retirer les ' + nbFilteredLignes + ' ligne(s) visibles de la suggestion'"
-          placement="top"
-          (clicked)="onSupprimerFiltrees()"
         />
       }
     </div>
@@ -101,28 +100,28 @@
         <div class="product-search-input">
           <app-commande-product-search
             #produitSearch
-            [autofocus]="false"
-            (productSelected)="onProduitSelected($event)"
             (productScanned)="onProduitSelected($event)"
+            (productSelected)="onProduitSelected($event)"
+            [autofocus]="false"
           />
         </div>
         <div class="quantity-input-wrapper">
           <div class="input-group">
             <input
               #quantityBox
-              [ngModel]="quantiteSaisie()" (ngModelChange)="quantiteSaisie.set($event)"
-              (keydown.enter)="onAjouter()"
+              (keydown.enter)="onAjouter()" (ngModelChange)="quantiteSaisie.set($event)"
+              [ngModel]="quantiteSaisie()"
               class="form-control"
+              min="1"
               placeholder="Qté"
-              type="number"
-              min="1" />
+              type="number" />
             <app-button
               (clicked)="onAjouter()"
               [disabled]="!produitEnCours()"
               icon="pi pi-plus"
-              severity="primary"
               ngbTooltip="Ajouter à la suggestion"
               placement="top"
+              severity="primary"
             />
           </div>
         </div>
@@ -137,7 +136,7 @@
             <i class="pi pi-tag"></i>
             {{ produitEnCours()!.regularUnitPrice | devise }}
           </span>
-          <span class="meta-item" [class.low-stock]="produitEnCours()!.totalQuantity < 10">
+          <span [class.low-stock]="produitEnCours()!.totalQuantity < 10" class="meta-item">
             <i class="pi pi-database"></i>
             Stock : {{ produitEnCours()!.totalQuantity | number }}
           </span>
@@ -157,20 +156,20 @@
       </span>
       <div class="d-flex gap-2">
         <app-button
-          label="Commander la sélection"
+          (clicked)="commanderSelection.emit()"
           icon="pi pi-shopping-cart"
+          label="Commander la sélection"
           severity="success"
           size="small"
-          (clicked)="commanderSelection.emit()"
         />
         <app-button
+          (clicked)="onSupprimerSelection()"
           icon="pi pi-trash"
           label="Supprimer"
-          severity="danger"
-          size="small"
           ngbTooltip="Retirer les produits sélectionnés de la suggestion"
           placement="top"
-          (clicked)="onSupprimerSelection()"
+          severity="danger"
+          size="small"
         />
       </div>
     </div>
@@ -182,38 +181,38 @@
     <!-- FILTER BAR — caption du tableau -->
     <div class="grid-caption">
       <input
-        type="text"
+        (input)="onSearchInput($any($event.target).value)"
+        [value]="searchText()"
         class="form-control grid-caption__search"
         placeholder="Rechercher (libellé, CIP)..."
-        [value]="searchText()"
-        (input)="onSearchInput($any($event.target).value)"
+        type="text"
       />
       <div class="d-flex gap-1">
         <app-button
+          (clicked)="setUrgenceFilter('TOUS')"
+          [severity]="urgenceFilter() === 'TOUS' ? 'primary' : 'secondary'"
           label="Tous"
           size="small"
-          [severity]="urgenceFilter() === 'TOUS' ? 'primary' : 'secondary'"
-          (clicked)="setUrgenceFilter('TOUS')"
         />
         <app-button
+          (clicked)="setUrgenceFilter('URGENT')"
+          [severity]="urgenceFilter() === 'URGENT' ? 'danger' : 'secondary'"
           label="Urgents"
           size="small"
-          [severity]="urgenceFilter() === 'URGENT' ? 'danger' : 'secondary'"
-          (clicked)="setUrgenceFilter('URGENT')"
         />
         <app-button
+          (clicked)="setUrgenceFilter('NORMAL')"
+          [severity]="urgenceFilter() === 'NORMAL' ? 'warn' : 'secondary'"
           label="Normaux"
           size="small"
-          [severity]="urgenceFilter() === 'NORMAL' ? 'warn' : 'secondary'"
-          (clicked)="setUrgenceFilter('NORMAL')"
         />
         <app-button
-          label="Couverts"
-          size="small"
+          (clicked)="setUrgenceFilter('OK')"
           [severity]="urgenceFilter() === 'OK' ? 'success' : 'secondary'"
+          label="Couverts"
           ngbTooltip="Produits avec un stock en couverture suffisante"
           placement="top"
-          (clicked)="setUrgenceFilter('OK')"
+          size="small"
         />
       </div>
       <span class="grid-caption__total ms-auto">{{ total() }} ligne(s)</span>
@@ -222,25 +221,25 @@
     <!-- GRILLE -->
     <div class="grid-body">
       <ag-grid-angular
-    [localeText]="localeFr"
-        [theme]="theme"
-        [columnDefs]="columnDefs"
-        [defaultColDef]="defaultColDef"
-        [rowSelection]="rowSelection"
-        [rowClassRules]="rowClassRules"
-        [getRowId]="getRowId"
+        (cellClicked)="onCellClicked($event)"
+        (cellValueChanged)="onCellValueChanged($event)"
+        (gridReady)="onGridReady($event)"
+        (selectionChanged)="onSelectionChanged()"
+        [animateRows]="false"
         [autoSizeStrategy]="autoSizeStrategy"
+        [columnDefs]="columnDefs"
+        [context]="gridContext"
+        [defaultColDef]="defaultColDef"
         [enableCellEditingOnBackspace]="true"
         [enterNavigatesVerticallyAfterEdit]="true"
-        [animateRows]="false"
+        [getRowId]="getRowId"
+        [localeText]="localeFr"
+        [rowClassRules]="rowClassRules"
+        [rowSelection]="rowSelection"
         [singleClickEdit]="true"
         [stopEditingWhenCellsLoseFocus]="true"
         [suppressScrollOnNewData]="true"
-        [context]="gridContext"
-        (gridReady)="onGridReady($event)"
-        (selectionChanged)="onSelectionChanged()"
-        (cellValueChanged)="onCellValueChanged($event)"
-        (cellClicked)="onCellClicked($event)"
+        [theme]="theme"
         style="width: 100%; height: 100%;"
       />
       @if (loading()) {
@@ -256,24 +255,24 @@
     @if (total() > rows()) {
       <div class="pagination-bar">
         <app-button
+          (clicked)="goToPage(page() - 1)"
+          [disabled]="page() === 0"
           icon="pi pi-angle-left"
+          ngbTooltip="Page précédente"
           severity="secondary"
           size="small"
-          [disabled]="page() === 0"
-          (clicked)="goToPage(page() - 1)"
-          ngbTooltip="Page précédente"
         />
         <span class="pagination-info">
         Page {{ page() + 1 }} / {{ totalPages() }}
           &nbsp;·&nbsp; {{ total() }} lignes
       </span>
         <app-button
+          (clicked)="goToPage(page() + 1)"
+          [disabled]="page() >= totalPages() - 1"
           icon="pi pi-angle-right"
+          ngbTooltip="Page suivante"
           severity="secondary"
           size="small"
-          [disabled]="page() >= totalPages() - 1"
-          (clicked)="goToPage(page() + 1)"
-          ngbTooltip="Page suivante"
         />
       </div>
     }

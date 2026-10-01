@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   inject,
   input,
   OnDestroy,
@@ -31,7 +30,7 @@ import {SubstitutionPharmamlComponent} from '../ui/substitution/substitution-pha
 import {PharmamlApiService} from '../../../data-access/pharmaml-api.service';
 import {NotificationService} from '../../../../../shared/services/notification.service';
 import {DispoComparaisonComponent} from '../ui/dispo-comparaison/dispo-comparaison.component';
-import {COMPARAISON_DISPONIBILITE_ACTIVE} from '../pharmaml.constants';
+
 
 const POLL_INTERVAL_MS = 5000;
 const TERMINAL_STATUTS: PharmaMlStatut[] = ['SUBMITTED', 'PARTIAL', 'REJECTED', 'ERROR'];
@@ -180,30 +179,17 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Masqué tant que le répartiteur ne sait pas répondre à une demande d'information :
-  // cf. COMPARAISON_DISPONIBILITE_ACTIVE.
   private readonly utilsMenuItems = (): AppSplitButtonItem[] =>
-    COMPARAISON_DISPONIBILITE_ACTIVE
-      ? [
-        {
-          label: 'Comparer multi-grossistes',
-          icon: 'pi pi-chart-bar',
-          command: () => this.ouvrirComparaison()
-        }
-      ]
-      : [];
 
-  /** Actions du SplitButton en mode REQUESTED */
-  readonly actionsRequested = computed<AppSplitButtonItem[]>(() => [
-    {label: 'Envoyer via PharmaML', icon: 'pi pi-send', command: () => this.openEnvoi()},
-    {label: 'Voir réponse', icon: 'pi pi-file', command: () => this.openReponse()},
-    ...this.utilsMenuItems(),
-  ]);
-  /** Actions du SplitButton en mode RECEIVED */
-  readonly actionsReceived = computed<AppSplitButtonItem[]>(() => [
-    {label: 'Voir réponse', icon: 'pi pi-file', command: () => this.openReponse()},
-    ...this.utilsMenuItems(),
-  ]);
+    [
+      {
+        label: 'Comparer multi-grossistes',
+        icon: 'pi pi-chart-bar',
+        command: () => this.ouvrirComparaison()
+      }
+    ]
+  ;
+
 
   private loadSubstitutions(): void {
     const id = this.commandeId();

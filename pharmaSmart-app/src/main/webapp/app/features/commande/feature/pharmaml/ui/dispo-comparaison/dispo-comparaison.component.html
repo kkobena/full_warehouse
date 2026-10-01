@@ -51,8 +51,8 @@
           <tr class="dc-subheader">
             <th></th>
             @for (f of colonnes(); track f.id) {
-              <th class="text-center">Dispo</th>
-              <th class="text-end">Stock</th>
+              <th class="text-center">Disponibilité</th>
+              <th class="text-center">Raion d'indisponibilité</th>
               <th class="text-end">PA</th>
             }
           </tr>
@@ -70,11 +70,28 @@
                   @if (info.disponible) {
                     <app-badge label="Disponible" severity="success" />
                   } @else {
-                    <app-badge label="Rupture" severity="danger" />
+                    <app-badge label="Indisponible" severity="danger" />
                   }
                 </td>
-                <td class="text-end dc-cell-num">{{ info.stockDisponible }}</td>
-                <td class="text-end dc-cell-num">{{ info.prixAchat | devise }}</td>
+
+                <td class="text-center">
+                  @if (info.disponible) {
+                    -
+                  } @else {
+                    {{ info.raisonIndispo }}
+                  }
+                </td>
+
+                <!--<td class="text-end dc-cell-num">{{ info.stockDisponible }}</td>-->
+                <td class="text-end pharma-price">
+                  @if (info.disponible) {
+                    {{ info.prixAchat }}
+                  } @else {
+                    -
+                  }
+
+
+                </td>
               } @else {
                 <td class="text-center text-muted dc-na" colspan="3">N/A</td>
               }
@@ -84,8 +101,6 @@
       </app-data-table>
     </div>
   } @else if (!loading() && comparaisonFaite()) {
-    <!-- Une interrogation sans résultat n'est pas la même chose qu'une interrogation
-         jamais lancée : le dire, sinon l'utilisateur reclique indéfiniment. -->
     <div class="dc-empty">
       <i class="pi pi-exclamation-triangle"></i>
       @if (libelleEchecs()) {

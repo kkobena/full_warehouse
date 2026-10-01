@@ -50,7 +50,6 @@ import {EnvoiPharmamlComponent, PharmamlHomeComponent, ReponsePharmamlComponent}
 import {
   DispoComparaisonComponent
 } from "../pharmaml/ui/dispo-comparaison/dispo-comparaison.component";
-import {COMPARAISON_DISPONIBILITE_ACTIVE} from "../pharmaml/pharmaml.constants";
 import {IPharmamlCommandeResponse} from "../../../../shared/model/pharmaml.model";
 import {
   CommandeProductSearchComponent
@@ -675,19 +674,18 @@ export class CommandeRequestedComponent implements OnInit {
     }
   }
 
-  // Masquée tant que le répartiteur ne sait pas répondre à une demande d'information :
-  // cf. COMPARAISON_DISPONIBILITE_ACTIVE.
+
   private comparaisonAction(): AppSplitButtonItem[] {
-    return COMPARAISON_DISPONIBILITE_ACTIVE
-      ? [
-          {
-            label: "Comparer multi-grossistes",
-            icon: "pi pi-chart-bar",
-            separatorBefore: true,
-            command: () => this.ouvrirComparaison()
-          }
-        ]
-      : [];
+
+    return [
+      {
+        label: "Comparer multi-grossistes",
+        icon: "pi pi-chart-bar",
+        separatorBefore: true,
+        command: () => this.ouvrirComparaison()
+      }
+    ];
+
   }
 
   private doCreateBon(): void {

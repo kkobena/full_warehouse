@@ -10,6 +10,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * @author koben
  */
 @XmlRootElement(name = "CSRP_ENVELOPPE", namespace = "urn:x-csrp:fr.csrp.protocole:enveloppe")
+//@XmlRootElement(name = "CSRP_ENVELOPPE", namespace = "urn:x-csrp:fr.csrp.protocole:enveloppe-v02")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CsrpEnveloppe {
 

@@ -8,9 +8,13 @@ public class PharmaMlUtils {
    */
     public static final String R = "R";
     /*
-  la lettre P indique le type de travail
+  la lettre P indique ENVIRONNEMENT DE PRODUCTION
    */
     public static final String P = "P";
+    /*
+    Environnement de test
+     */
+    public static final String T = "T";
     /*
   Type de commande
    */

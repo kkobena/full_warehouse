@@ -2,13 +2,16 @@
 
   <app-toolbar icon="pi pi-users" title="Utilisateurs">
     <ng-container ngProjectAs="[toolbarActions]">
-      <app-button
-        [raised]="true"
-        [routerLink]="['./new']"
-        icon="pi pi-plus"
-        label="Nouvel utilisateur"
-        severity="primary"
-      />
+      <div class="pharma-toolbar-actions py-1">
+        <app-button
+          [raised]="true"
+          [routerLink]="['./new']"
+          icon="pi pi-plus"
+          label="Nouvel utilisateur"
+          severity="primary"
+        />
+      </div>
+
     </ng-container>
   </app-toolbar>
 
@@ -94,8 +97,8 @@
               [rounded]="true"
               [routerLink]="['./', user.login, 'view']"
               [text]="true"
-              icon="pi pi-eye"
               ariaLabel="Voir"
+              icon="pi pi-eye"
               ngbTooltip="Voir"
               severity="info"
             />
@@ -103,8 +106,8 @@
               [rounded]="true"
               [routerLink]="['./', user.login, 'edit']"
               [text]="true"
-              icon="pi pi-pencil"
               ariaLabel="Modifier"
+              icon="pi pi-pencil"
               ngbTooltip="Modifier"
               severity="primary"
             />
@@ -114,9 +117,9 @@
                 [disabled]="currentAccount()?.login === user.login"
                 [rounded]="true"
                 [text]="true"
-                icon="pi pi-trash"
                 ariaLabel="Supprimer"
-              ngbTooltip="Supprimer"
+                icon="pi pi-trash"
+                ngbTooltip="Supprimer"
                 severity="danger"
               />
             }

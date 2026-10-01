@@ -76,6 +76,16 @@ export class ProduitDetailPanelComponent {
   /** Produit enrichi : données complètes si chargées, sinon données liste */
   protected richProduit = computed(() => this.fullProduit() ?? this.produit());
 
+  /** Badge du stock total, visible depuis tous les onglets : même règle que la synthèse. */
+  protected readonly stockBadgeClass = computed(() => {
+    const p = this.richProduit();
+    const qty = p.totalQuantity ?? 0;
+    const seuil = p.seuilMini ?? 0;
+    if (qty <= 0) return 'pharma-badge-danger';
+    if (seuil > 0 && qty < seuil) return 'pharma-badge-warning';
+    return 'pharma-badge-success';
+  });
+
   private readonly api = inject(ProductsApiService);
 
   /** Track produit ID to avoid resetting the active tab on same-produit refresh */

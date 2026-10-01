@@ -26,6 +26,9 @@ $theme-colors: map-merge(
 @import 'pharma-bootstrap-tweaks';
 // Thèmes (fond, texte, accent) — après Bootstrap pour ses mixins de bouton.
 @import 'pharma-themes';
+// Élévation et accent des cartes — ici plutôt que dans angular.json : `ng serve` ne relit pas
+// la liste des styles globaux sans redémarrage.
+@import 'surface-global';
 @import 'primeicons/primeicons.css';
 
 // Listes déroulantes riches (remplaceront p-select / p-multiselect / p-autocomplete).

@@ -8,6 +8,8 @@ import {
   BadgeComponent,
   ButtonComponent,
   DataTableComponent,
+  DetailGridComponent,
+  DetailSectionComponent,
   NavTabsComponent, AppBadgeSeverity } from "../../../../shared/ui";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { ErrorService } from "../../../../shared/error.service";
@@ -40,6 +42,8 @@ import { CommonModule } from "@angular/common";
     BadgeComponent,
     ButtonComponent,
     DataTableComponent,
+    DetailGridComponent,
+    DetailSectionComponent,
     NavTabsComponent,
     ReglementWorkspaceComponent,
     AvoirWorkspaceComponent

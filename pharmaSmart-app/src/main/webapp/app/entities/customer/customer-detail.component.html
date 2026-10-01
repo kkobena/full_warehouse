@@ -1,138 +1,173 @@
-<div [class.fiche-panel]="panelMode()" [class.p-1]="!panelMode()" [class.pharma-smart-content]="!panelMode()">
+<div class="detail-panel" [class.fiche-panel]="panelMode()" [class.p-1]="!panelMode()" [class.pharma-smart-content]="!panelMode()">
   @if (customer(); as client) {
-    <!-- ── En-tête permanent : qui, quelle couverture, quelle situation ───────────────── -->
-    <app-card>
-      <div class="fiche-entete">
-        <div class="fiche-identite">
-          <div class="d-flex align-items-center gap-2 flex-wrap">
-            <h4 class="mb-0">{{ client.fullName || client.firstName + ' ' + client.lastName }}</h4>
-            <app-badge [label]="client.categorie" severity="info" />
-            @if (client.tiersPayants?.length && client.typeTiersPayant && client.typeTiersPayant !== 'ASSURANCE') {
-              <app-badge [label]="client.typeTiersPayant" severity="secondary" />
-            }
-          </div>
-          <div class="fiche-infos text-muted">
-            @if (client.code) {
-              <span><i class="pi pi-id-card me-1"></i>{{ client.code }}</span>
-            }
-            @if (age() !== null) {
-              <span>
-                <i class="pi pi-calendar me-1"></i>{{ age() }} ans ({{ client.datNaiss | date: 'dd/MM/yyyy' }})
-              </span>
-            }
-            @if (client.sexe) {
-              <span>{{ client.sexe }}</span>
-            }
-            @if (client.phone) {
-              <span><i class="pi pi-phone me-1"></i>{{ client.phone }}</span>
-            }
-            @if (client.email) {
-              <span><i class="pi pi-envelope me-1"></i>{{ client.email }}</span>
-            }
-          </div>
-          <!-- Pastilles d'alerte : ce qu'on doit voir avant de délivrer -->
-          @if (dossierSante(); as sante) {
-            <div class="d-flex flex-wrap gap-2 mt-2">
-              @for (allergie of sante.allergies; track allergie.id) {
-                <app-badge [label]="'Allergie : ' + (allergie.dciLibelle ?? allergie.libelle)" icon="pi pi-exclamation-triangle"
-                           severity="danger" />
-              }
-              @if (grossesseEnCours()) {
-                <app-badge [label]="sante.dateTerme ? 'Enceinte (terme ' + (sante.dateTerme | date: 'dd/MM/yyyy') + ')' : 'Enceinte'"
-                           severity="help" />
-              }
-              @if (sante.allaitement) {
-                <app-badge label="Allaitement" severity="help" />
-              }
-              @for (pathologie of sante.pathologies; track pathologie) {
-                <app-badge [label]="pathologie" severity="info" />
-              }
-            </div>
+    <!-- ── En-tête : identité + actions, visible quel que soit l'onglet ───────────────── -->
+    <div class="panel-header">
+      <div class="panel-title-block">
+        <div class="panel-libelle">{{ client.fullName || client.firstName + ' ' + client.lastName }}</div>
+        <div class="panel-meta">
+          <app-badge [label]="client.categorie" severity="info" />
+          @if (client.tiersPayants?.length && client.typeTiersPayant && client.typeTiersPayant !== 'ASSURANCE') {
+            <app-badge [label]="client.typeTiersPayant" severity="secondary" />
           }
-          @if (couverturePrincipale(); as couverture) {
-            @for (tp of cartesExpirees(); track tp.id) {
-              <div class="mt-1">
-                <app-badge [label]="'Carte ' + tp.tiersPayantFullName + ' expirée le ' + (tp.dateFinValidite | date: 'dd/MM/yyyy')"
-                           icon="pi pi-exclamation-triangle" severity="danger" />
-              </div>
-            }
-            <div class="fiche-couverture">
-              <i class="pi pi-shield me-1"></i>
-              <strong>{{ couverture.tiersPayantFullName }}</strong>
-              — {{ couverture.taux }} %
-              @if (couverture.num) {
-                · n° {{ couverture.num }}
-              }
-              @if (tiersPayants().length > 1) {
-                <span class="text-muted"> · + {{ tiersPayants().length - 1 }} complémentaire(s)</span>
-              }
-            </div>
-          }
-          <!-- Traitements chroniques à renouveler : de quoi proposer la délivrance au comptoir -->
-          @if (traitementsARelancer().length > 0) {
-            <div class="d-flex flex-wrap gap-2 mt-2">
-              @for (t of traitementsARelancer(); track t.id) {
-                <app-badge [label]="suivis[t.suivi].libelle + ' : ' + libelleTraitement(t) + ' (' + echeanceTraitement(t) + ')'"
-                           [severity]="suivis[t.suivi].severity" icon="pi pi-replay" />
-              }
-            </div>
-          }
-          <div class="mt-2">
-            <app-consentements [canEdit]="canEditSante()" [customerId]="client.id!" />
-          </div>
-        </div>
-        <div class="fiche-actions">
-          @if (canEdit()) {
-            <app-button (clicked)="edit()" icon="pi pi-pencil" label="Modifier" severity="primary" />
-          }
-          @if (canDonneesPersonnelles()) {
-            <app-button (clicked)="exporterDonnees()" icon="pi pi-download" label="Exporter ses données" severity="secondary" />
-            <app-button (clicked)="confirmerAnonymisation()" icon="pi pi-eraser" label="Effacer ses données" severity="danger" />
-          }
-          @if (panelMode()) {
-            <app-button (clicked)="closePanel.emit()" [text]="true" icon="pi pi-times" ngbTooltip="Fermer" severity="secondary" />
-          } @else {
-            <app-button (clicked)="previousState()" icon="pi pi-arrow-left" label="Retour" severity="secondary" />
+          @if (client.code) {
+            <span class="pharma-code">{{ client.code }}</span>
           }
         </div>
       </div>
-
-      <app-kpi-strip [loading]="!synthese()" [skeletonCount]="4" stripClass="mt-3">
-        <app-kpi-item
-          (click)="voirCredit()"
-          [accent]="(synthese()?.encours ?? 0) > 0 ? 'danger' : 'success'"
-          [suffix]="devise"
-          [value]="synthese()?.encours | number"
-          class="clickable"
-          icon="pi pi-credit-card"
-          label="Encours (différés)"
-        />
-        <app-kpi-item
-          [accent]="soldeTotalAvoirs() > 0 ? 'success' : 'none'"
-          [suffix]="devise"
-          [value]="soldeTotalAvoirs() | number"
-          icon="pi pi-wallet"
-          label="Avoirs disponibles"
-        />
-        <app-kpi-item
-          [value]="synthese()?.derniereVisite ? (synthese()!.derniereVisite | date: 'dd/MM/yyyy') : '—'"
-          accent="info"
-          icon="pi pi-clock"
-          label="Dernière visite"
-        />
-        <app-kpi-item
-          [suffix]="devise"
-          [value]="synthese()?.montantAchats | number"
-          accent="primary"
-          icon="pi pi-shopping-cart"
-          label="Achats sur 12 mois ({{ synthese()?.nombreAchats ?? 0 }})"
-        />
-      </app-kpi-strip>
-    </app-card>
+      <div class="panel-actions">
+        @if (canEdit()) {
+          <app-button (clicked)="edit()" icon="pi pi-pencil" label="Modifier" severity="primary" size="small" [outlined]="true" />
+        }
+        @if (canDonneesPersonnelles()) {
+          <app-button (clicked)="exporterDonnees()" icon="pi pi-download" label="Exporter ses données" severity="info" size="small" [outlined]="true" />
+          <app-button (clicked)="confirmerAnonymisation()" icon="pi pi-eraser" label="Effacer ses données" severity="danger" size="small" [outlined]="true" [hidden]="true" />
+        }
+        @if (panelMode()) {
+          <app-button (clicked)="closePanel.emit()" [text]="true" icon="pi pi-times" ngbTooltip="Fermer" severity="secondary" size="small" />
+        } @else {
+          <app-button (clicked)="previousState()" icon="pi pi-arrow-left" label="Retour" severity="secondary" size="small" />
+        }
+      </div>
+    </div>
 
     <!-- ── Onglets ─────────────────────────────────────────────────────────────────────── -->
-    <app-nav-tabs [nav]="nav">
-      <div #nav="ngbNav" (activeIdChange)="onTabChange($event)" [(activeId)]="activeTab" class="nav pharma-nav-tabs" ngbNav>
+    <app-nav-tabs [nav]="nav" containerClass="flex-1-overflow">
+      <div #nav="ngbNav" [(activeId)]="activeTab" class="nav pharma-nav-tabs" ngbNav>
+        <!-- Synthèse : qui, quelle couverture, quelle situation — ce qui vivait dans l'en-tête permanent -->
+        <ng-container ngbNavItem="synthese">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-user"></i>
+            <span>Synthèse</span>
+          </a>
+          <ng-template ngbNavContent>
+            <app-detail-grid>
+              <!-- Identité + Consentements : même rangée, 6/6 -->
+              <div class="row w-100 gx-3">
+                <div class="col-6">
+                  <app-detail-section header="Identité" icon="pi pi-user" [accent]="'blue'" storageKey="customer.synthese.identite">
+                    <app-detail-field label="Âge" [value]="age()" format="nombre" unit="ans" />
+                    <app-detail-field label="Sexe" [value]="client.sexe" />
+                    <app-detail-field label="Téléphone" [value]="client.phone" />
+                    <app-detail-field label="Email" [value]="client.email" />
+                  </app-detail-section>
+                </div>
+                <div class="col-6">
+                  <app-detail-section header="Consentements" icon="pi pi-check-square" [accent]="'slate'" [layout]="'block'"
+                                      storageKey="customer.synthese.consentements">
+                    <app-consentements [canEdit]="canEditSante()" [customerId]="client.id!" />
+                  </app-detail-section>
+                </div>
+              </div>
+              <!-- Situation financière -->
+              <app-detail-section header="Situation financière" icon="pi pi-wallet" [accent]="'amber'"
+                                  [width]="'full'" [layout]="'fields'" [loading]="!synthese()" [skeletonRows]="4"
+                                  storageKey="customer.synthese.finances">
+                <app-detail-field label="Encours (différés)" hint="Cliquer pour voir le détail dans l'onglet Crédit"
+                                  [tone]="(synthese()?.encours ?? 0) > 0 ? 'danger' : 'success'">
+                  <span (click)="voirCredit()" class="clickable">{{ synthese()?.encours ?? 0 | number }} {{ devise }}</span>
+                </app-detail-field>
+                <!--<app-detail-field label="Avoirs disponibles" [value]="soldeTotalAvoirs()" format="montant"
+                                  [tone]="soldeTotalAvoirs() > 0 ? 'success' : 'none'" />-->
+                <app-detail-field label="Dernière visite" [value]="synthese()?.derniereVisite" format="date" />
+                <app-detail-field label="Achats sur 12 mois" hint="Nombre d'achats sur 12 mois"
+                                  [value]="synthese()?.montantAchats" format="montant"
+                                  [unit]="'(' + (synthese()?.nombreAchats ?? 0) + ' achat(s))'" />
+              </app-detail-section>
+              <!-- Couverture -->
+              @if (couverturePrincipale(); as couverture) {
+                <app-detail-section header="Couverture" icon="pi pi-shield" [accent]="'teal'"
+                                    [width]="'wide'" [layout]="'block'" storageKey="customer.synthese.couverture">
+                  @for (tp of cartesExpirees(); track tp.id) {
+                    <div class="mb-1">
+                      <app-badge [label]="'Carte ' + tp.tiersPayantFullName + ' expirée le ' + (tp.dateFinValidite | date: 'dd/MM/yyyy')"
+                                 icon="pi pi-exclamation-triangle" severity="danger" />
+                    </div>
+                  }
+                  <div class="fiche-couverture">
+                    <i class="pi pi-shield me-1"></i>
+                    <strong>{{ couverture.tiersPayantFullName }}</strong>
+                    — {{ couverture.taux }} %
+                    @if (couverture.num) {
+                      · n° {{ couverture.num }}
+                    }
+                    @if (tiersPayants().length > 1) {
+                      <span class="text-muted"> · + {{ tiersPayants().length - 1 }} complémentaire(s)</span>
+                    }
+                  </div>
+                </app-detail-section>
+              }
+              <!-- Pastilles d'alerte : ce qu'on doit voir avant de délivrer -->
+              @if (dossierSante(); as sante) {
+                <app-detail-section header="Alertes santé" icon="pi pi-heart"
+                                    [accent]="(sante.allergies?.length || grossesseEnCours()) ? 'danger' : 'slate'"
+                                    [width]="'wide'" [layout]="'block'" storageKey="customer.synthese.sante">
+                  <div class="d-flex flex-wrap gap-2">
+                    @for (allergie of sante.allergies; track allergie.id) {
+                      <app-badge [label]="'Allergie : ' + (allergie.dciLibelle ?? allergie.libelle)" icon="pi pi-exclamation-triangle"
+                                 severity="danger" />
+                    }
+                    @if (grossesseEnCours()) {
+                      <app-badge [label]="sante.dateTerme ? 'Enceinte (terme ' + (sante.dateTerme | date: 'dd/MM/yyyy') + ')' : 'Enceinte'"
+                                 severity="help" />
+                    }
+                    @if (sante.allaitement) {
+                      <app-badge label="Allaitement" severity="help" />
+                    }
+                    @for (pathologie of sante.pathologies; track pathologie) {
+                      <app-badge [label]="pathologie" severity="info" />
+                    }
+                    @if (!sante.allergies?.length && !grossesseEnCours() && !sante.allaitement && !sante.pathologies?.length) {
+                      <span class="text-muted small">Aucune alerte connue.</span>
+                    }
+                  </div>
+                </app-detail-section>
+              }
+              <!-- Ayants droit -->
+              @if (client.ayantDroits?.length) {
+                <app-detail-section header="Ayants droit" icon="pi pi-users" [accent]="'indigo'"
+                                    [width]="'wide'" [layout]="'block'" [count]="client.ayantDroits!.length"
+                                    storageKey="customer.synthese.ayants-droit">
+                  <app-data-table [value]="client.ayantDroits ?? []" size="small">
+                    <ng-template #header>
+                      <tr class="pharma-table-head">
+                        <th>Nom et prénom(s)</th>
+                        <th>N° ayant droit</th>
+                        <th>Date de naissance</th>
+                        <th>Sexe</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template #body let-ayantDroit>
+                      <tr>
+                        <td>{{ ayantDroit.fullName }}</td>
+                        <td>{{ ayantDroit.numAyantDroit }}</td>
+                        <td>{{ ayantDroit.datNaiss | date: 'dd/MM/yyyy' }}</td>
+                        <td>{{ ayantDroit.sexe }}</td>
+                      </tr>
+                    </ng-template>
+                  </app-data-table>
+                </app-detail-section>
+              }
+
+              <!-- Traitements chroniques à renouveler : de quoi proposer la délivrance au comptoir -->
+              @if (traitementsARelancer().length > 0) {
+                <app-detail-section header="Traitements à relancer" icon="pi pi-replay" [accent]="'warning'"
+                                    [width]="'wide'" [layout]="'block'" [count]="traitementsARelancer().length"
+                                    storageKey="customer.synthese.traitements">
+                  <div class="d-flex flex-wrap gap-2">
+                    @for (t of traitementsARelancer(); track t.id) {
+                      <app-badge [label]="suivis[t.suivi].libelle + ' : ' + libelleTraitement(t) + ' (' + echeanceTraitement(t) + ')'"
+                                 [severity]="suivis[t.suivi].severity" icon="pi pi-replay" />
+                    }
+                  </div>
+                </app-detail-section>
+              }
+
+
+            </app-detail-grid>
+          </ng-template>
+
+        </ng-container>
+
         <!-- Achats -->
         <ng-container ngbNavItem="achats">
           <a class="pharma-nav-tab-link" ngbNavLink>
@@ -140,116 +175,7 @@
             <span>Achats</span>
           </a>
           <ng-template ngbNavContent>
-            <div class="d-flex flex-wrap align-items-end gap-2 mb-2 mt-2">
-              <pharma-date-picker (ngModelChange)="fromDate.set($event)" [maxDate]="toDate()"
-                                  [ngModel]="fromDate()" [style]="{ 'max-width': '180px' }"
-                                  id="purchasesFrom" label="Du" />
-              <pharma-date-picker (ngModelChange)="toDate.set($event)" [minDate]="fromDate()"
-                                  [ngModel]="toDate()" [style]="{ 'max-width': '180px' }"
-                                  id="purchasesTo" label="Au" />
-              <app-button (clicked)="searchSales()" icon="pi pi-search" label="Rechercher" severity="info" />
-              <app-button (clicked)="imprimerAttestation()" icon="pi pi-file-pdf" label="Attestation de dépenses" severity="secondary" />
-            </div>
-            <div class="row">
-              <div class="col-4">
-                <app-card>
-                  @if (sales().length > 0) {
-                    <app-data-table [value]="sales()" [stripedRows]="true" size="small">
-                      <ng-template #header>
-                        <tr>
-                          <th scope="col">N° vente</th>
-                          <th scope="col">Date</th>
-                          <th class="text-end" scope="col">Montant</th>
-                        </tr>
-                      </ng-template>
-                      <ng-template #body let-sale>
-                        <tr (click)="clickRow(sale)" [class.active]="selectedRowIndex() === sale.id">
-                          <td>{{ sale.numberTransaction }}</td>
-                          <td>{{ sale.updatedAt | date: 'dd/MM/yyyy' }}</td>
-                          <td class="text-end pharma-total">{{ sale.salesAmount | number }}</td>
-                        </tr>
-                      </ng-template>
-                    </app-data-table>
-                    @if (totalSales() > pageSize) {
-                      <ngb-pagination (pageChange)="changePage($event)" [collectionSize]="totalSales()"
-                                      [maxSize]="3" [page]="page()" [pageSize]="pageSize" [rotate]="true" size="sm" />
-                    }
-                  } @else {
-                    <p class="text-muted mb-0">Aucun achat sur la période.</p>
-                  }
-                </app-card>
-              </div>
-              <div class="col-8">
-                <app-card>
-                  @if (saleSelected(); as vente) {
-                    <div class="card" id="print-area">
-                      <div class="card-body" id="invoice-content">
-                        <div class="invoice">
-                          <div class="invoice-header">
-                            @if (magasin()) {
-                              <div class="invoice-company">
-                                <div class="company-name">{{ magasin()?.name }}</div>
-                                @if (magasin()?.phone) {
-                                  <div>{{ magasin()?.phone }}</div>
-                                }
-                                @if (magasin()?.address) {
-                                  <div>{{ magasin()?.address }}</div>
-                                }
-                              </div>
-                            }
-                            <div class="invoice-details">
-                              <div class="invoice-label">DATE</div>
-                              <div class="invoice-value">{{ vente.updatedAt | date: 'dd/MM/yyyy' }}</div>
-                              <div class="invoice-label">FACTURE #</div>
-                              <div class="invoice-value">{{ vente.numberTransaction }}</div>
-                            </div>
-                          </div>
-                          <div class="invoice-to">
-                            <div class="bill-to">FACTURE DE</div>
-                            <div class="invoice-to-info">
-                              <div>{{ client.firstName + ' ' + client.lastName }}</div>
-                              <div>{{ client.phone }}</div>
-                            </div>
-                          </div>
-                          <div class="invoice-items">
-                            <app-data-table [value]="selectedRowSaleLines()" dataKey="id" size="small">
-                              <ng-template #header>
-                                <tr class="pharma-table-head">
-                                  <th>Libellé</th>
-                                  <th class="text-end">Qté</th>
-                                  <th class="text-end">P.U.</th>
-                                  <th class="text-end">Montant</th>
-                                </tr>
-                              </ng-template>
-                              <ng-template #body let-saleLine>
-                                <tr>
-                                  <td><span class="pharma-product-name">{{ saleLine.produitLibelle }}</span></td>
-                                  <td class="pharma-qty-value text-end">{{ saleLine.quantitySold | number }}</td>
-                                  <td class="pharma-price text-end">{{ saleLine.regularUnitPrice | number }}</td>
-                                  <td class="pharma-total text-end">{{ saleLine.salesAmount | number }}</td>
-                                </tr>
-                              </ng-template>
-                            </app-data-table>
-                          </div>
-                          <div class="invoice-summary">
-                            <div></div>
-                            <div class="invoice-details">
-                              <div class="invoice-label pharma-footer-label">TOTAL</div>
-                              <div class="invoice-value pharma-footer-total">{{ vente.salesAmount | number }}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="mt-2">
-                      <app-button (clicked)="print()" icon="pi pi-print" label="Imprimer" severity="warn" type="button" />
-                    </div>
-                  } @else {
-                    <p class="text-muted mb-0">Sélectionnez un achat pour en voir le détail.</p>
-                  }
-                </app-card>
-              </div>
-            </div>
+            <app-customer-achats-tab [customerCode]="client.code" [customerId]="client.id!" />
           </ng-template>
         </ng-container>
 
@@ -260,48 +186,7 @@
             <span>Produits délivrés</span>
           </a>
           <ng-template ngbNavContent>
-            <app-card>
-              <div class="d-flex flex-wrap align-items-end gap-2 mb-2">
-                <pharma-date-picker (ngModelChange)="produitsFrom.set($event)" [maxDate]="produitsTo()"
-                                    [ngModel]="produitsFrom()" [style]="{ 'max-width': '180px' }"
-                                    id="produitsFrom" label="Du" />
-                <pharma-date-picker (ngModelChange)="produitsTo.set($event)" [minDate]="produitsFrom()"
-                                    [ngModel]="produitsTo()" [style]="{ 'max-width': '180px' }"
-                                    id="produitsTo" label="Au" />
-                <input (keyup.enter)="searchProduits()" (ngModelChange)="produitsSearch.set($event)"
-                       [ngModel]="produitsSearch()" class="form-control fiche-recherche"
-                       placeholder="Rechercher un produit" type="text" />
-                <app-button (clicked)="searchProduits()" icon="pi pi-search" label="Rechercher" severity="info" />
-              </div>
-              @if (produits().length > 0) {
-                <app-data-table [value]="produits()" [stripedRows]="true" size="small">
-                  <ng-template #header>
-                    <tr>
-                      <th>Produit</th>
-                      <th class="text-end">Délivrances</th>
-                      <th class="text-end">Quantité</th>
-                      <th class="text-end">Montant</th>
-                      <th>Dernière délivrance</th>
-                    </tr>
-                  </ng-template>
-                  <ng-template #body let-produit>
-                    <tr>
-                      <td><span class="pharma-product-name">{{ produit.libelle }}</span></td>
-                      <td class="text-end">{{ produit.nombreDelivrances | number }}</td>
-                      <td class="text-end pharma-qty-value">{{ produit.quantite | number }}</td>
-                      <td class="text-end pharma-total">{{ produit.montant | number }} <span appDevise></span></td>
-                      <td>{{ produit.derniereDelivrance | date: 'dd/MM/yyyy' }}</td>
-                    </tr>
-                  </ng-template>
-                </app-data-table>
-                @if (totalProduits() > pageSize) {
-                  <ngb-pagination (pageChange)="changeProduitsPage($event)" [collectionSize]="totalProduits()"
-                                  [maxSize]="5" [page]="produitsPage()" [pageSize]="pageSize" [rotate]="true" size="sm" />
-                }
-              } @else {
-                <p class="text-muted mb-0">Aucun produit délivré sur la période.</p>
-              }
-            </app-card>
+            <app-customer-produits-tab [customerId]="client.id!" />
           </ng-template>
         </ng-container>
 
@@ -313,128 +198,7 @@
               <span>Couverture</span>
             </a>
             <ng-template ngbNavContent>
-              <app-card>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <h6 class="mb-0">Tiers payants</h6>
-                  @if (canEdit() && peutAjouterTiersPayant()) {
-                    <app-button (clicked)="addTiersPayant()" [outlined]="true" icon="pi pi-plus" label="Ajouter" severity="info" size="small" />
-                  }
-                </div>
-                @if (tiersPayants().length > 0) {
-                  <app-data-table [value]="tiersPayants()" [stripedRows]="true" size="small">
-                    <ng-template #header>
-                      <tr>
-                        <th>Organisme</th>
-                        <th>N° assuré</th>
-                        <th>Carte valable jusqu'au</th>
-                        <th>Rang</th>
-                        <th class="text-end">Taux</th>
-                        <th class="text-end" title="Défini sur le tiers payant, commun à tous ses adhérents">Plafond conso. (organisme)</th>
-                        <th class="text-end" title="Depuis la dernière facture définitive ; si le plafond est absolu, ce qui reste à régler">Consommation</th>
-                        <th class="text-end" title="Défini sur le tiers payant, commun à tous ses adhérents">Plafond vente (organisme)</th>
-                        <th>Statut</th>
-                        <th>Historique du taux</th>
-                        @if (canEdit()) {
-                          <th></th>
-                        }
-                      </tr>
-                    </ng-template>
-                    <ng-template #body let-tp>
-                      <tr>
-                        <td>{{ tp.tiersPayantFullName }}</td>
-                        <td>{{ tp.num }}</td>
-                        <td>
-                          @if (tp.dateFinValidite) {
-                            <span [class.fw-bold]="carteExpiree(tp.dateFinValidite)" [class.text-danger]="carteExpiree(tp.dateFinValidite)">
-                              {{ tp.dateFinValidite | date: 'dd/MM/yyyy' }}
-                              @if (carteExpiree(tp.dateFinValidite)) {
-                                <i class="pi pi-exclamation-triangle ms-1" title="Carte expirée"></i>
-                              }
-                            </span>
-                          } @else {
-                            <span class="text-muted">—</span>
-                          }
-                        </td>
-                        <td>{{ tp.categorie === 0 ? 'Principal' : 'Complémentaire ' + tp.categorie }}</td>
-                        <td class="text-end">{{ tp.taux }} %</td>
-                        <td class="text-end">{{ tp.plafondConso | number }}</td>
-                        <td class="text-end"
-                            [class.fw-bold]="tp.plafondConso && (tp.consommation ?? 0) >= tp.plafondConso"
-                            [class.text-danger]="tp.plafondConso && (tp.consommation ?? 0) >= tp.plafondConso">
-                          {{ tp.consommation ?? 0 | number }}
-                          @if (tp.plafondConso) {
-                            <span class="text-muted small">/ {{ tp.plafondConso | number }}</span>
-                          }
-                        </td>
-                        <td class="text-end">{{ tp.plafondJournalier | number }}</td>
-                        <td>
-                          <app-badge [label]="tp.statut === 'ACTIF' ? 'Actif' : tp.statut"
-                                     [severity]="tp.statut === 'ACTIF' ? 'success' : 'secondary'" />
-                        </td>
-                        <td class="small">
-                          @for (h of tp.tauxHistorique ?? []; track h.updatedAt; let premier = $first) {
-                            <div [class.text-muted]="!premier">{{ h.taux }} % depuis le {{ h.updatedAt | date: 'dd/MM/yyyy' }}</div>
-                          } @empty {
-                            <span class="text-muted">—</span>
-                          }
-                        </td>
-                        @if (canEdit()) {
-                          <td class="text-end text-nowrap">
-                            <app-button (clicked)="editTiersPayant(tp)" [rounded]="true" [text]="true" icon="pi pi-pencil"
-                                        ngbTooltip="Modifier" severity="success" />
-                            @if (client.typeTiersPayant === 'ASSURANCE' && tiersPayants().length > 1) {
-                              <app-button (clicked)="removeTiersPayant(tp)" [rounded]="true" [text]="true" icon="pi pi-trash"
-                                          ngbTooltip="Supprimer" severity="danger" />
-                            }
-                          </td>
-                        }
-                      </tr>
-                    </ng-template>
-                  </app-data-table>
-                } @else {
-                  <p class="text-muted">Aucun tiers payant.</p>
-                }
-
-                <div class="d-flex justify-content-between align-items-center mb-2 mt-3">
-                  <h6 class="mb-0">Ayants droit</h6>
-                  @if (canEdit() && client.typeTiersPayant === 'ASSURANCE') {
-                    <app-button (clicked)="addAyantDroit()" [outlined]="true" icon="pi pi-plus" label="Ajouter" severity="info" size="small" />
-                  }
-                </div>
-                @if (client.ayantDroits?.length) {
-                  <app-data-table [value]="client.ayantDroits ?? []" [stripedRows]="true" size="small">
-                    <ng-template #header>
-                      <tr>
-                        <th>Nom et prénom(s)</th>
-                        <th>N° ayant droit</th>
-                        <th>Date de naissance</th>
-                        <th>Sexe</th>
-                        @if (canEdit()) {
-                          <th></th>
-                        }
-                      </tr>
-                    </ng-template>
-                    <ng-template #body let-ayantDroit>
-                      <tr>
-                        <td>{{ ayantDroit.fullName }}</td>
-                        <td>{{ ayantDroit.numAyantDroit }}</td>
-                        <td>{{ ayantDroit.datNaiss | date: 'dd/MM/yyyy' }}</td>
-                        <td>{{ ayantDroit.sexe }}</td>
-                        @if (canEdit()) {
-                          <td class="text-end text-nowrap">
-                            <app-button (clicked)="editAyantDroit(ayantDroit)" [rounded]="true" [text]="true" icon="pi pi-pencil"
-                                        ngbTooltip="Modifier" severity="success" />
-                            <app-button (clicked)="removeAyantDroit(ayantDroit)" [rounded]="true" [text]="true" icon="pi pi-trash"
-                                        ngbTooltip="Supprimer" severity="danger" />
-                          </td>
-                        }
-                      </tr>
-                    </ng-template>
-                  </app-data-table>
-                } @else {
-                  <p class="text-muted mb-0">Aucun ayant droit.</p>
-                }
-              </app-card>
+              <app-customer-couverture-tab (changed)="reloadCustomer()" [canEdit]="canEdit()" [customer]="client" />
             </ng-template>
           </ng-container>
         }
@@ -464,122 +228,8 @@
             }
           </a>
           <ng-template ngbNavContent>
-            <app-card>
-              <div class="d-flex flex-wrap align-items-end gap-2 mb-3">
-                <pharma-date-picker (ngModelChange)="releveFrom.set($event)" [maxDate]="releveTo()"
-                                    [ngModel]="releveFrom()" [style]="{ 'max-width': '180px' }"
-                                    id="releveFrom" label="Relevé du" />
-                <pharma-date-picker (ngModelChange)="releveTo.set($event)" [minDate]="releveFrom()"
-                                    [ngModel]="releveTo()" [style]="{ 'max-width': '180px' }"
-                                    id="releveTo" label="Au" />
-                <app-button (clicked)="imprimerReleve()" icon="pi pi-file-pdf" label="Relevé de compte" severity="secondary" />
-              </div>
-              @if (situationCredit(); as situation) {
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                  <div>
-                    @if (situation.limite > 0) {
-                      <span class="text-muted">Limite de crédit de l'officine :</span>
-                      <strong>{{ situation.limite | number }} {{ devise }}</strong>
-                      <span class="ms-2" [class.text-danger]="situation.disponible === 0">
-                        — disponible : <strong>{{ situation.disponible | number }} {{ devise }}</strong>
-                      </span>
-                    } @else {
-                      <span class="text-muted">Aucune limite de crédit n'est fixée pour l'officine.</span>
-                    }
-                  </div>
-                  @if (situation.encours > 0 && client.phone) {
-                    <app-button (clicked)="relancer()" [disabled]="relanceEnCours()" icon="pi pi-send" label="Relancer par SMS" severity="warn" />
-                  }
-                </div>
-              }
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="mb-0">Ventes différées non soldées</h6>
-                @if (canOpenDifferes() && differe()) {
-                  <app-button [routerLink]="['/differes']" icon="pi pi-money-bill" label="Régler dans Différés" severity="success" />
-                }
-              </div>
-              @if (differe(); as d) {
-                <app-kpi-strip stripClass="mb-2">
-                  <app-kpi-item [suffix]="devise" [value]="d.saleAmount | number" accent="primary" label="Montant vendu" />
-                  <app-kpi-item [suffix]="devise" [value]="d.paidAmount | number" accent="success" label="Déjà payé" />
-                  <app-kpi-item [suffix]="devise" [value]="d.rest | number" accent="danger" label="Reste dû" />
-                </app-kpi-strip>
-                <app-data-table [value]="d.differeItems ?? []" [stripedRows]="true" size="small">
-                  <ng-template #header>
-                    <tr>
-                      <th>Référence</th>
-                      <th>Date</th>
-                      <th class="text-end">Montant</th>
-                      <th class="text-end">Payé</th>
-                      <th class="text-end">Reste</th>
-                    </tr>
-                  </ng-template>
-                  <ng-template #body let-item>
-                    <tr>
-                      <td><code>{{ item.reference }}</code></td>
-                      <td>{{ item.mvtDate | date: 'dd/MM/yyyy' }}</td>
-                      <td class="text-end">{{ item.amount | number }}</td>
-                      <td class="text-end">{{ item.paidAmount | number }}</td>
-                      <td class="text-end pharma-total">{{ item.restAmount | number }}</td>
-                    </tr>
-                  </ng-template>
-                </app-data-table>
-              } @else {
-                <p class="text-muted">Aucune vente différée en attente de règlement.</p>
-              }
-
-              <h6 class="mb-2 mt-3">Relances</h6>
-              @if (relances().length > 0) {
-                <app-data-table [value]="relances()" [stripedRows]="true" size="small">
-                  <ng-template #header>
-                    <tr>
-                      <th>Date</th>
-                      <th>Téléphone</th>
-                      <th class="text-end">Montant rappelé</th>
-                      <th>Envoyée par</th>
-                    </tr>
-                  </ng-template>
-                  <ng-template #body let-relance>
-                    <tr [title]="relance.message">
-                      <td>{{ relance.date | date: 'dd/MM/yyyy HH:mm' }}</td>
-                      <td>{{ relance.telephone }}</td>
-                      <td class="text-end">{{ relance.montant | number }}</td>
-                      <td>{{ relance.envoyePar }}</td>
-                    </tr>
-                  </ng-template>
-                </app-data-table>
-              } @else {
-                <p class="text-muted">Aucune relance envoyée.</p>
-              }
-
-              <h6 class="mb-2 mt-3">Règlements</h6>
-              @if (reglements().length > 0) {
-                <app-data-table [value]="lignesReglement()" [stripedRows]="true" size="small">
-                  <ng-template #header>
-                    <tr>
-                      <th>Date</th>
-                      <th>Mode</th>
-                      <th class="text-end">Attendu</th>
-                      <th class="text-end">Réglé</th>
-                    </tr>
-                  </ng-template>
-                  <ng-template #body let-item>
-                    <tr>
-                      <td>{{ item.mvtDate | date: 'dd/MM/yyyy HH:mm' }}</td>
-                      <td>{{ item.libelleMode }}</td>
-                      <td class="text-end">{{ item.expectedAmount | number }}</td>
-                      <td class="text-end pharma-total">{{ item.paidAmount | number }}</td>
-                    </tr>
-                  </ng-template>
-                </app-data-table>
-                @if (totalReglements() > pageSize) {
-                  <ngb-pagination (pageChange)="changeReglementsPage($event)" [collectionSize]="totalReglements()"
-                                  [maxSize]="5" [page]="reglementsPage()" [pageSize]="pageSize" [rotate]="true" size="sm" />
-                }
-              } @else {
-                <p class="text-muted mb-0">Aucun règlement enregistré.</p>
-              }
-            </app-card>
+            <app-customer-credit-tab [canOpenDifferes]="canOpenDifferes()" [customerCode]="client.code"
+                                     [customerId]="client.id!" [customerPhone]="client.phone" [devise]="devise" />
           </ng-template>
         </ng-container>
 
@@ -593,74 +243,7 @@
             }
           </a>
           <ng-template ngbNavContent>
-            @if (avoirsOuverts().length > 0) {
-              <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
-                <i class="pi pi-wallet"></i>
-                <strong>Solde disponible : {{ soldeTotalAvoirs() | number }} <span appDevise></span></strong>
-                <span class="ms-2 text-muted">({{ avoirsOuverts().length }}
-                  avoir{{ avoirsOuverts().length > 1 ? 's' : '' }} ouvert{{ avoirsOuverts().length > 1 ? 's' : '' }})</span>
-              </div>
-            }
-
-            @if (avoirs().length === 0) {
-              <p class="text-muted">Aucun avoir pour ce client.</p>
-            } @else {
-              <app-data-table [value]="avoirs()" [stripedRows]="true" size="small">
-                <ng-template #header>
-                  <tr>
-                    <th>Référence</th>
-                    <th>Produit</th>
-                    <th>Créé le</th>
-                    <th>Expiration</th>
-                    <th class="text-end">Montant</th>
-                    <th>Statut</th>
-                    <th></th>
-                  </tr>
-                </ng-template>
-                <ng-template #body let-avoir>
-                  <tr>
-                    <td><code>{{ avoir.reference }}</code></td>
-                    <td>{{ avoir.produitLibelle }}</td>
-                    <td>{{ avoir.createdAt | date: 'dd/MM/yyyy' }}</td>
-                    <td>
-                      @if (avoir.dateExpiration) {
-                        <span [class.fw-bold]="avoir.procheExpiration" [class.text-danger]="avoir.procheExpiration">
-                          {{ avoir.dateExpiration | date: 'dd/MM/yyyy' }}
-                          @if (avoir.procheExpiration) {
-                            <i class="pi pi-exclamation-triangle ms-1"></i>
-                          }
-                        </span>
-                      } @else {
-                        <span class="text-muted">—</span>
-                      }
-                    </td>
-                    <td class="text-end pharma-total">{{ avoir.montant | number }} <span appDevise></span></td>
-                    <td>
-                      @switch (avoir.statut) {
-                        @case ('OUVERT') {
-                          <span class="badge bg-success">Ouvert</span>
-                        }
-                        @case ('CLOTURE') {
-                          <span class="badge bg-secondary">Clôturé</span>
-                        }
-                        @case ('ANNULE') {
-                          <span class="badge bg-danger">Annulé</span>
-                        }
-                        @case ('EXPIRE') {
-                          <span class="badge bg-warning text-white">Expiré</span>
-                        }
-                      }
-                    </td>
-                    <td>
-                      @if (avoir.id) {
-                        <app-button (clicked)="openAvoirPdf(avoir.id)" [text]="true" icon="pi pi-file-pdf"
-                                    severity="secondary" size="small" title="Bon d'avoir PDF" />
-                      }
-                    </td>
-                  </tr>
-                </ng-template>
-              </app-data-table>
-            }
+            <app-customer-avoirs-tab [customerId]="client.id!" />
           </ng-template>
         </ng-container>
       </div>

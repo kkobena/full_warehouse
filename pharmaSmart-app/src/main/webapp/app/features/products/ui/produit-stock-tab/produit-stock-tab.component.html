@@ -6,69 +6,25 @@
     </div>
   </div>
 } @else {
-
-  <!-- ── CARTES RAYON + RÉSERVE ─────────────────────────────── -->
-  <div class="stock-cards-layout">
+  <app-detail-grid>
 
     <!-- Rayon (PRINCIPAL) -->
     @if (stockPrincipal(); as rayon) {
-      <div [class]="'stock-card ' + stockClass(rayon)">
-        <div class="stock-card-header">
-          <span class="stock-card-label">
-            <i class="pi pi-shopping-cart me-1"></i>Rayon
-          </span>
-          <span class="stock-card-name text-muted">{{ rayon.storageName ?? rayon.storageType }}</span>
-          <div class="stock-card-actions">
-            <app-button
-              icon="pi pi-pencil"
-              [text]="true"
-              size="small"
-              severity="secondary"
-              ngbTooltip="Modifier paramètres"
-              [disabled]="isDisabled()"
-              (clicked)="onEditStock(rayon)"
-            />
-          </div>
-        </div>
+      <app-detail-section header="Rayon" icon="pi pi-shopping-cart" [accent]="niveauAccent(rayon)"
+                          [layout]="'block'" storageKey="produit.stock.rayon">
+        <app-button
+          ngProjectAs="[sectionActions]"
+          icon="pi pi-pencil"
+          [text]="true"
+          [rounded]="true"
+          size="small"
+          severity="secondary"
+          ngbTooltip="Modifier paramètres"
+          [disabled]="isDisabled()"
+          (clicked)="onEditStock(rayon)"
+        />
+        <ng-container *ngTemplateOutlet="niveau; context: { $implicit: rayon }" />
 
-        <!-- Quantité principale -->
-        <div class="stock-qty-block">
-          <span class="stock-qty-value">{{ rayon.qtyStock ?? 0 | number }}</span>
-          <span class="stock-qty-unit">unités</span>
-          @if ((rayon.qtyUG ?? 0) > 0) {
-            <span class="stock-qty-ug">+ {{ rayon.qtyUG }} UG</span>
-          }
-        </div>
-
-        <!-- Barre de niveau -->
-        <div class="niveau-bar-track">
-          <div class="niveau-bar-fill" [style.width.%]="niveauPct(rayon)"></div>
-          @if (rayon.seuilMini) {
-            <div
-              class="niveau-seuil-marker"
-              [style.left.%]="rayon.stockMaxi ? (rayon.seuilMini / rayon.stockMaxi) * 100 : 50"
-              ngbTooltip="Seuil mini : {{ rayon.seuilMini }} u"
-            ></div>
-          }
-        </div>
-
-        <!-- Paramètres -->
-        <div class="stock-params">
-          <span class="param-item">
-            <span class="param-label">Seuil mini</span>
-            <span class="param-value">{{ rayon.seuilMini ?? '—' }}</span>
-          </span>
-          <span class="param-item">
-            <span class="param-label">Stock maxi</span>
-            <span class="param-value">{{ rayon.stockMaxi ?? '—' }}</span>
-          </span>
-          <span class="param-item">
-            <span class="param-label">Réassort</span>
-            <span class="param-value">{{ rayon.stockReassort ?? '—' }}</span>
-          </span>
-        </div>
-
-        <!-- Alerte sous seuil -->
         @if ((rayon.qtyStock ?? 0) > 0 && rayon.seuilMini && (rayon.qtyStock ?? 0) < rayon.seuilMini) {
           <div class="stock-alert">
             <i class="pi pi-exclamation-triangle me-1"></i>Stock sous seuil minimum
@@ -80,9 +36,8 @@
           </div>
         }
 
-        <!-- Actions transfert -->
-        <div class="stock-card-footer">
-          @if (canTransfertToReserve()) {
+        @if (canTransfertToReserve()) {
+          <div class="stock-card-footer">
             @if (stockReserve()) {
               <app-button
                 icon="pi pi-arrow-down"
@@ -105,73 +60,47 @@
                 [disabled]="isDisabled()"
                 (clicked)="onAddReserve()"
               />
+
+             <!-- @if (canAddReserve()) {
+                &nbsp;&nbsp;
+                <app-button
+                  icon="pi pi-plus"
+                  label="Créer stock réserve"
+                  size="small"
+                  severity="info"
+                  [outlined]="true"
+                  [disabled]="isDisabled()"
+                  (clicked)="onAddReserve()"
+                />
+              }-->
             }
-          }
-        </div>
-      </div>
+          </div>
+        }
+      </app-detail-section>
     }
 
-    <!-- Flèche centrale (si les 2 stocks existent) -->
     @if (stockPrincipal() && stockReserve()) {
-      <div class="stock-arrow">
-        <i class="pi pi-arrows-v"></i>
+      <div class="stock-arrow" aria-hidden="true">
+        <i class="pi pi-arrow-right-arrow-left"></i>
       </div>
     }
 
     <!-- Réserve (SAFETY_STOCK) -->
     @if (stockReserve(); as reserve) {
-      <div [class]="'stock-card ' + stockClass(reserve)">
-        <div class="stock-card-header">
-          <span class="stock-card-label">
-            <i class="pi pi-database me-1"></i>Réserve
-          </span>
-          <span class="stock-card-name text-muted">{{ reserve.storageName ?? reserve.storageType }}</span>
-          <div class="stock-card-actions">
-            <app-button
-              icon="pi pi-pencil"
-              [text]="true"
-              size="small"
-              severity="secondary"
-              ngbTooltip="Modifier paramètres"
-              [disabled]="isDisabled()"
-              (clicked)="onEditStock(reserve)"
-            />
-          </div>
-        </div>
-
-        <div class="stock-qty-block">
-          <span class="stock-qty-value">{{ reserve.qtyStock ?? 0 | number }}</span>
-          <span class="stock-qty-unit">unités</span>
-          @if ((reserve.qtyUG ?? 0) > 0) {
-            <span class="stock-qty-ug">+ {{ reserve.qtyUG }} UG</span>
-          }
-        </div>
-
-        <div class="niveau-bar-track">
-          <div class="niveau-bar-fill" [style.width.%]="niveauPct(reserve)"></div>
-          @if (reserve.seuilMini) {
-            <div
-              class="niveau-seuil-marker"
-              [style.left.%]="reserve.stockMaxi ? (reserve.seuilMini / reserve.stockMaxi) * 100 : 50"
-              ngbTooltip="Seuil mini : {{ reserve.seuilMini }} u"
-            ></div>
-          }
-        </div>
-
-        <div class="stock-params">
-          <span class="param-item">
-            <span class="param-label">Seuil mini</span>
-            <span class="param-value">{{ reserve.seuilMini ?? '—' }}</span>
-          </span>
-          <span class="param-item">
-            <span class="param-label">Stock maxi</span>
-            <span class="param-value">{{ reserve.stockMaxi ?? '—' }}</span>
-          </span>
-          <span class="param-item">
-            <span class="param-label">Réassort</span>
-            <span class="param-value">{{ reserve.stockReassort ?? '—' }}</span>
-          </span>
-        </div>
+      <app-detail-section header="Réserve" icon="pi pi-database" [accent]="niveauAccent(reserve)"
+                          [layout]="'block'" storageKey="produit.stock.reserve">
+        <app-button
+          ngProjectAs="[sectionActions]"
+          icon="pi pi-pencil"
+          [text]="true"
+          [rounded]="true"
+          size="small"
+          severity="secondary"
+          ngbTooltip="Modifier paramètres"
+          [disabled]="isDisabled()"
+          (clicked)="onEditStock(reserve)"
+        />
+        <ng-container *ngTemplateOutlet="niveau; context: { $implicit: reserve }" />
 
         @if ((reserve.qtyStock ?? 0) === 0) {
           <div class="stock-alert stock-alert-empty">
@@ -179,8 +108,8 @@
           </div>
         }
 
-        <div class="stock-card-footer">
-          @if (canTransfertToRayon()) {
+        @if (canTransfertToRayon()) {
+          <div class="stock-card-footer">
             <app-button
               icon="pi pi-arrow-up"
               label="Réapprovisionner rayon"
@@ -191,140 +120,130 @@
               [disabled]="isDisabled()"
               (clicked)="onTransfert(reserve)"
             />
-          }
-        </div>
-      </div>
-    }
-
-    <!-- Bouton ajout réserve si rayon seul -->
-    @if (canAddReserve()) {
-      <div class="stock-add-reserve">
-        <app-button
-          icon="pi pi-plus"
-          label="Créer stock réserve"
-          size="small"
-          severity="secondary"
-          [outlined]="true"
-          [disabled]="isDisabled()"
-          (clicked)="onAddReserve()"
-        />
-      </div>
-    }
-  </div>
-
-  <!-- ── INSIGHTS CMM / COUVERTURE CIBLE ─────────────────── -->
-  @if (cmm() > 0) {
-    <div class="stock-insights">
-      <div class="insight-title">
-        <i class="pi pi-calculator me-1"></i>Analyse CMM
-      </div>
-      <div class="insight-grid">
-
-        <div class="insight-item">
-          <span class="insight-label">CMM</span>
-          <span class="insight-value">{{ cmm() | number:'1.0-0' }} u/mois</span>
-        </div>
-
-        <div class="insight-item">
-          <span class="insight-label">Délai fournisseur</span>
-          <span class="insight-value">{{ delaiLivraison() }} j</span>
-        </div>
-
-        <div class="insight-item">
-          <span class="insight-label">Couverture actuelle</span>
-          <span class="insight-value" [class.insight-alert]="couvertureActuelle() !== null && couvertureActuelle()! < delaiLivraison()">
-            {{ couvertureActuelle() !== null ? (couvertureActuelle() + ' j') : '—' }}
-          </span>
-        </div>
-
-        @if (seuilCalcule() !== null) {
-          <div class="insight-item">
-            <span class="insight-label">Seuil recommandé</span>
-            <span class="insight-value insight-highlight">{{ seuilCalcule() }} u</span>
-            @if (seuilInsuffisant()) {
-              <span class="insight-warn" ngbTooltip="Le seuil mini paramétré ({{ stockPrincipal()?.seuilMini ?? 0 }} u) est inférieur au seuil recommandé ({{ seuilCalcule() }} u)">
-                <i class="pi pi-exclamation-triangle"></i> Seuil trop bas
-              </span>
-            }
           </div>
         }
+      </app-detail-section>
+    }
 
-      </div>
-    </div>
-  }
 
-  <!-- ── FEFO LOTS ────────────────────────────────────────── -->
-  @if (lotsFEFO().length > 0) {
-    <div class="fefo-section">
-      <div class="fefo-title">
-        <i class="pi pi-sort-amount-up me-1"></i>Lots
-        <span class="fefo-subtitle">(Premier expirant, premier sorti)</span>
-        @if (lotUrgent()) {
-          <span class="fefo-urgent-badge">
-            <i class="pi pi-exclamation-triangle me-1"></i>Lot urgent &lt; 3 mois
-          </span>
+
+    <!-- Analyse CMM / couverture cible -->
+    @if (cmm() > 0) {
+      <app-detail-section header="Analyse CMM" icon="pi pi-calculator" [accent]="'amber'"
+                          storageKey="produit.stock.cmm">
+        <app-detail-field label="CMM" [value]="cmm()" format="nombre" unit="u/mois" />
+        <app-detail-field label="Délai fournisseur" [value]="delaiLivraison()" format="nombre" unit="j" />
+        <app-detail-field label="Couverture actuelle" hint="Jours de vente couverts par le stock actuel"
+                          [value]="couvertureActuelle()" format="nombre" unit="j"
+                          [tone]="couvertureActuelle() !== null && couvertureActuelle()! < delaiLivraison() ? 'danger' : 'none'" />
+        @if (seuilCalcule() !== null) {
+          <app-detail-field label="Seuil recommandé" hint="Calculé sur la CMM et le délai fournisseur">
+            @if (seuilInsuffisant()) {
+              <span class="insight-warn"
+                    ngbTooltip="Le seuil mini paramétré ({{ stockPrincipal()?.seuilMini ?? 0 }} u) est inférieur au seuil recommandé ({{ seuilCalcule() }} u)"
+                    container="body">
+                <i class="pi pi-exclamation-triangle"></i>
+              </span>
+            }
+            {{ seuilCalcule() }} u
+          </app-detail-field>
         }
+      </app-detail-section>
+    }
+
+    <!-- Lots, premier expirant premier sorti -->
+    @if (lotsFEFO().length > 0) {
+      <app-detail-section header="Lots" icon="pi pi-sort-amount-up" [width]="'full'"
+                          [accent]="lotUrgent() ? 'danger' : 'violet'" [count]="lotsFEFO().length"
+                          storageKey="produit.stock.lots">
+        <span ngProjectAs="[sectionActions]" class="lots-actions">
+          @if (lotUrgent()) {
+            <span class="fefo-urgent-badge">
+              <i class="pi pi-exclamation-triangle me-1"></i>Lot urgent &lt; 3 mois
+            </span>
+          }
+          <app-button
+            icon="pi pi-plus"
+            label="Saisir un lot"
+            size="small"
+            severity="primary"
+            [outlined]="true"
+            [disabled]="isDisabled() || (produit().totalQuantity ?? 0) <= 0"
+            ngbTooltip="Saisir un nouveau lot hors commande"
+            placement="left"
+            (clicked)="onSaisirLot()"
+          />
+        </span>
+        <p class="fefo-subtitle">Premier expirant, premier sorti.</p>
+        <div class="fefo-table">
+          <div class="fefo-row fefo-head">
+            <span>N° Lot</span>
+            <span>Péremption</span>
+            <span class="text-end">Qté</span>
+            <span>État</span>
+          </div>
+          @for (lot of lotsFEFO(); track lot.id) {
+            <div [class]="'fefo-row ' + fefoClass(lot)">
+              <span class="fefo-num">{{ lot.numLot }}</span>
+              <span class="fefo-date">{{ lot.expiryDate | date : 'dd/MM/yyyy' }}</span>
+              <span class="fefo-qty text-end">{{ lot.currentQuantity }}</span>
+              <span>
+                @if ((lot.peremptionStatut?.days ?? 9999) <= 30) {
+                  <span class="fefo-badge fefo-badge-critical">Critique</span>
+                } @else if ((lot.peremptionStatut?.days ?? 9999) <= 90) {
+                  <span class="fefo-badge fefo-badge-warning">{{ lot.peremptionStatut?.mouths }} mois</span>
+                } @else {
+                  <span class="fefo-badge fefo-badge-ok">Valide</span>
+                }
+              </span>
+            </div>
+          }
+        </div>
+      </app-detail-section>
+    } @else if ((produit().totalQuantity ?? 0) > 0) {
+      <!-- Produit en stock mais sans lots enregistrés -->
+      <div class="fefo-no-lots">
+        <i class="pi pi-info-circle me-1"></i>
+        Aucun lot enregistré pour ce produit.
         <app-button
           icon="pi pi-plus"
           label="Saisir un lot"
           size="small"
           severity="primary"
           [outlined]="true"
-          [disabled]="isDisabled() || (produit().totalQuantity ?? 0) <= 0"
+          [disabled]="isDisabled()"
           ngbTooltip="Saisir un nouveau lot hors commande"
-          placement="left"
           (clicked)="onSaisirLot()"
         />
       </div>
-      <div class="fefo-table">
-        <div class="fefo-row fefo-head">
-          <span>N° Lot</span>
-          <span>Péremption</span>
-          <span class="text-end">Qté</span>
-          <span>État</span>
-        </div>
-        @for (lot of lotsFEFO(); track lot.id) {
-          <div [class]="'fefo-row ' + fefoClass(lot)">
-            <span class="fefo-num">{{ lot.numLot }}</span>
-            <span class="fefo-date">{{ lot.expiryDate | date : 'dd/MM/yyyy' }}</span>
-            <span class="fefo-qty text-end">{{ lot.currentQuantity }}</span>
-            <span>
-              @if ((lot.peremptionStatut?.days ?? 9999) <= 30) {
-                <span class="fefo-badge fefo-badge-critical">Critique</span>
-              } @else if ((lot.peremptionStatut?.days ?? 9999) <= 90) {
-                <span class="fefo-badge fefo-badge-warning">{{ lot.peremptionStatut?.mouths }} mois</span>
-              } @else {
-                <span class="fefo-badge fefo-badge-ok">OK</span>
-              }
-            </span>
-          </div>
-        }
-      </div>
-    </div>
-  } @else if ((produit().totalQuantity ?? 0) > 0) {
-    <!-- Produit en stock mais sans lots enregistrés -->
-    <div class="fefo-no-lots">
-      <i class="pi pi-info-circle me-1"></i>
-      Aucun lot enregistré pour ce produit.
-      <app-button
-        icon="pi pi-plus"
-        label="Saisir un lot"
-        size="small"
-        severity="primary"
-        [outlined]="true"
-        [disabled]="isDisabled()"
-        ngbTooltip="Saisir un nouveau lot hors commande"
-        (clicked)="onSaisirLot()"
-      />
-    </div>
-  }
+    }
+  </app-detail-grid>
+}
 
-  <!-- ── TOTAL ─────────────────────────────────────────────── -->
-  <div class="stock-total-bar">
-    <span class="text-muted" style="font-size:0.7rem">TOTAL STOCK</span>
-    <span class="stock-total-value">{{ produit().totalQuantity ?? 0 | number }} u</span>
-    @if ((produit().qtyReserve ?? 0) > 0) {
-      <span class="text-muted ms-3" style="font-size:0.75rem">dont {{ produit().qtyReserve }} en réserve</span>
+<!-- Quantité, jauge et paramètres : identiques pour le rayon et la réserve. -->
+<ng-template #niveau let-sp>
+  <div class="stock-card-name">{{ sp.storageName ?? sp.storageType }}</div>
+  <div class="stock-qty-block">
+    <span class="stock-qty-value">{{ sp.qtyStock ?? 0 | number }}</span>
+    <span class="stock-qty-unit">unités</span>
+    @if ((sp.qtyUG ?? 0) > 0) {
+      <span class="stock-qty-ug">+ {{ sp.qtyUG }} UG</span>
     }
   </div>
-}
+
+  <div [class]="'niveau-bar-track ' + stockClass(sp)">
+    <div class="niveau-bar-fill" [style.width.%]="niveauPct(sp)"></div>
+    @if (sp.seuilMini) {
+      <div
+        class="niveau-seuil-marker"
+        [style.left.%]="sp.stockMaxi ? (sp.seuilMini / sp.stockMaxi) * 100 : 50"
+        ngbTooltip="Seuil mini : {{ sp.seuilMini }} u"
+        container="body"
+      ></div>
+    }
+  </div>
+
+  <app-detail-field label="Seuil mini" [value]="sp.seuilMini" format="nombre" />
+  <app-detail-field label="Stock maxi" [value]="sp.stockMaxi" format="nombre" />
+  <app-detail-field label="Réassort" [value]="sp.stockReassort" format="nombre" />
+</ng-template>

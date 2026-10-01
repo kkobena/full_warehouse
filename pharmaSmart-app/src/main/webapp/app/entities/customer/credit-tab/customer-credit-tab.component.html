@@ -1,0 +1,113 @@
+<app-detail-grid>
+  <app-detail-section header="Relevé de compte" icon="pi pi-file-invoice" [accent]="'amber'" [width]="'full'"
+                      [layout]="'fields'" storageKey="customer.credit.releve">
+    <div ngProjectAs="[sectionActions]">
+      <app-button (clicked)="imprimerReleve()"  icon="pi pi-file-pdf"
+                  label="Relevé de compte PDF" severity="secondary" size="small" />
+      @if (situationCredit()?.encours > 0 && customerPhone()) {
+      &nbsp;<app-button (clicked)="relancer()" [disabled]="relanceEnCours()"
+                    icon="pi pi-send" label="Relancer par SMS" severity="info" size="small" />
+      }
+    </div>
+      <pharma-date-picker labelPosition="top" (ngModelChange)="releveFrom.set($event)" [maxDate]="releveTo()" label="Relevé du"
+                          [ngModel]="releveFrom()" [style]="{ 'max-width': '180px' }" id="releveFrom" />
+      <pharma-date-picker labelPosition="top" (ngModelChange)="releveTo.set($event)" [minDate]="releveFrom()" label="Au"
+                          [ngModel]="releveTo()" [style]="{ 'max-width': '180px' }" id="releveTo" />
+
+  </app-detail-section>
+
+  <app-detail-section header="Ventes différées non soldées" icon="pi pi-credit-card" [accent]="'danger'"
+                      [width]="'full'" [layout]="'block'" storageKey="customer.credit.differes">
+    @if (canOpenDifferes() && differe()) {
+      <!-- ── Doit afficher le formulaire de reglement differe ── -->
+      <app-button ngProjectAs="[sectionActions]" [routerLink]="['/differes']" icon="pi pi-money-bill"
+                  label="Régler dans Différés" severity="success" size="small" />
+    }
+    @if (differe(); as d) {
+      <div class="differe-kpis mb-2">
+        <app-detail-field label="Montant vendu" [value]="d.saleAmount" format="montant" [unit]="devise()" />
+        <app-detail-field label="Déjà payé" [value]="d.paidAmount" format="montant" [unit]="devise()" [tone]="'success'" />
+        <app-detail-field label="Reste dû" [value]="d.rest" format="montant" [unit]="devise()" [tone]="d.rest > 0 ? 'danger' : 'none'" />
+      </div>
+      <app-data-table [value]="d.differeItems ?? []" [stripedRows]="true" size="small">
+        <ng-template #header>
+          <tr>
+            <th>Référence</th>
+            <th>Date</th>
+            <th class="text-end">Montant</th>
+            <th class="text-end">Payé</th>
+            <th class="text-end">Reste</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-item>
+          <tr>
+            <td><code>{{ item.reference }}</code></td>
+            <td>{{ item.mvtDate | date: 'dd/MM/yyyy' }}</td>
+            <td class="text-end">{{ item.amount | number }}</td>
+            <td class="text-end">{{ item.paidAmount | number }}</td>
+            <td class="text-end pharma-total">{{ item.restAmount | number }}</td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    } @else {
+      <p class="text-muted mb-0">Aucune vente différée en attente de règlement.</p>
+    }
+  </app-detail-section>
+
+  <app-detail-section header="Relances" icon="pi pi-send" [accent]="'slate'" [width]="'wide'"
+                      [layout]="'block'" [count]="relances().length" storageKey="customer.credit.relances">
+    @if (relances().length > 0) {
+      <app-data-table [value]="relances()" [stripedRows]="true" size="small">
+        <ng-template #header>
+          <tr>
+            <th>Date</th>
+            <th>Téléphone</th>
+            <th class="text-end">Montant rappelé</th>
+            <th>Envoyée par</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-relance>
+          <tr [title]="relance.message">
+            <td>{{ relance.date | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ relance.telephone }}</td>
+            <td class="text-end">{{ relance.montant | number }}</td>
+            <td>{{ relance.envoyePar }}</td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    } @else {
+      <p class="text-muted mb-0">Aucune relance envoyée.</p>
+    }
+  </app-detail-section>
+
+  <app-detail-section header="Règlements" icon="pi pi-wallet" [accent]="'teal'" [width]="'wide'"
+                      [layout]="'block'" [count]="totalReglements()" storageKey="customer.credit.reglements">
+    @if (reglements().length > 0) {
+      <app-data-table [value]="lignesReglement()" [stripedRows]="true" size="small">
+        <ng-template #header>
+          <tr>
+            <th>Date</th>
+            <th>Mode</th>
+            <th class="text-end">Attendu</th>
+            <th class="text-end">Réglé</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-item>
+          <tr>
+            <td>{{ item.mvtDate | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ item.libelleMode }}</td>
+            <td class="text-end">{{ item.expectedAmount | number }}</td>
+            <td class="text-end pharma-total">{{ item.paidAmount | number }}</td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+      @if (totalReglements() > pageSize) {
+        <ngb-pagination (pageChange)="changeReglementsPage($event)" [collectionSize]="totalReglements()"
+                        [maxSize]="5" [page]="reglementsPage()" [pageSize]="pageSize" [rotate]="true" size="sm" />
+      }
+    } @else {
+      <p class="text-muted mb-0">Aucun règlement enregistré.</p>
+    }
+  </app-detail-section>
+</app-detail-grid>
+

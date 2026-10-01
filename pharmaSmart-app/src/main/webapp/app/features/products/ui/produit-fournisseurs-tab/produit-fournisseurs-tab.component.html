@@ -11,7 +11,9 @@
     size="small"
   />
 </div>
-
+<app-detail-grid>
+  <app-detail-section header="Fournisseurs" icon="pi pi-truck" [width]="'full'" [accent]="'slate'"
+                      [count]="produit().fournisseurProduits?.length" storageKey="produit.fournisseur.tab">
 <!-- Etat vide -->
 @if (!produit().fournisseurProduits || produit().fournisseurProduits!.length === 0) {
   <div class="pharma-empty-message">
@@ -81,3 +83,5 @@
     </ng-template>
   </app-data-table>
 }
+  </app-detail-section>
+</app-detail-grid>

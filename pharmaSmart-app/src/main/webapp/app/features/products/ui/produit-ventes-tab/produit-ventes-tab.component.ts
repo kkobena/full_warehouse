@@ -1,7 +1,7 @@
 import { afterNextRender, Component, effect, ElementRef, inject, Injector, input, OnDestroy, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AppTableLazyLoadEvent, ButtonComponent, DataTableComponent, PillSelectorComponent } from 'app/shared/ui';
+import { AppTableLazyLoadEvent, ButtonComponent, DataTableComponent, DetailGridComponent, DetailSectionComponent, PillSelectorComponent } from 'app/shared/ui';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ProduitStatService } from 'app/entities/produit/stat/produit-stat.service';
@@ -32,6 +32,8 @@ Chart.register(...registerables);
     PharmaDatePickerComponent,
     PillSelectorComponent,
     TranslatePipe,
+    DetailGridComponent,
+    DetailSectionComponent,
   ],
 })
 export class ProduitVentesTabComponent implements OnDestroy {

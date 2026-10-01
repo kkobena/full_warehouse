@@ -130,62 +130,73 @@
 
     @if (panelOpen()) {
       <div class="detail-column">
-        <app-card [withHeader]="true" class="d-block" header="Produits rattachés"
-                  icon="pi pi-box">
-          <div cardActions>
-            <app-button
-              (clicked)="fermerDetail()"
-              [iconOnly]="true"
-              [text]="true"
-              icon="pi pi-times"
-              label="Fermer"
-              severity="secondary"
-            />
+        <div class="detail-panel">
+          <!-- Header -->
+          <div class="panel-header">
+            <div class="panel-title-block">
+              <div class="panel-libelle">
+                <i class="pi pi-box me-1"></i>{{ selection()!.libelle }}
+              </div>
+              <div class="panel-meta">
+                @if (!chargementDetail()) {
+                  <span class="pharma-badge pharma-badge-info">{{ produits().length | number }} produit(s)</span>
+                }
+              </div>
+            </div>
+            <div class="panel-actions">
+              <app-button
+                (clicked)="fermerDetail()"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-times"
+                ngbTooltip="Fermer"
+                severity="secondary"
+                size="small"
+              />
+            </div>
           </div>
 
-          <p class="text-muted small">
-            <span class="pharma-badge">  {{ selection()!.libelle }}</span>&nbsp;&nbsp;
-            @if (!chargementDetail()) {
-              <span
-                class="pharma-badge pharma-badge-info">   {{ produits().length | number }}</span> produit(s)
-            }
-          </p>
+          <app-detail-grid>
+            <app-detail-section header="Produits rattachés" icon="pi pi-box" [accent]="'blue'" [width]="'full'"
+                                [layout]="'block'" [count]="produits().length" [loading]="chargementDetail()"
+                                [skeletonRows]="6" storageKey="dci.detail.produits">
+              <app-data-table
+                [loading]="chargementDetail()"
+                [scrollable]="true"
+                [value]="produits()"
+                emptyMessage="Aucun produit ne porte cette substance active."
+                scrollHeight="calc(100vh - 24rem)"
+                size="small"
+              >
+                <ng-template #header>
+                  <tr class="pharma-table-head">
+                    <th>Produit</th>
+                    <th style="width: 9rem">CIP</th>
+                    <th>Famille</th>
+                    <th class="text-end" style="width: 7rem">Prix</th>
 
-          <app-data-table
-            [loading]="chargementDetail()"
-            [scrollable]="true"
-            [value]="produits()"
-            emptyMessage="Aucun produit ne porte cette substance active."
-            scrollHeight="calc(100vh - 22rem)"
-            size="small"
-          >
-            <ng-template #header>
-              <tr class="pharma-table-head">
-                <th>Produit</th>
-                <th style="width: 9rem">CIP</th>
-                <th>Famille</th>
-                <th class="text-end" style="width: 7rem">Prix</th>
+                  </tr>
+                </ng-template>
 
-              </tr>
-            </ng-template>
+                <ng-template #body let-produit>
+                  <tr>
+                    <td><span class="pharma-entity-name">{{ produit.libelle }}</span></td>
+                    <td>
+                      @if (produit.codeCip) {
+                        <span class="pharma-code">{{ produit.codeCip }}</span>
+                      } @else {
+                        <span class="text-muted small">—</span>
+                      }
+                    </td>
+                    <td class="small text-muted">{{ produit.famille ?? '—' }}</td>
+                    <td class="text-end">{{ produit.prixVente | number: '1.0-0' }}</td>
 
-            <ng-template #body let-produit>
-              <tr>
-                <td><span class="pharma-entity-name">{{ produit.libelle }}</span></td>
-                <td>
-                  @if (produit.codeCip) {
-                    <span class="pharma-code">{{ produit.codeCip }}</span>
-                  } @else {
-                    <span class="text-muted small">—</span>
-                  }
-                </td>
-                <td class="small text-muted">{{ produit.famille ?? '—' }}</td>
-                <td class="text-end">{{ produit.prixVente | number: '1.0-0' }}</td>
-
-              </tr>
-            </ng-template>
-          </app-data-table>
-        </app-card>
+                  </tr>
+                </ng-template>
+              </app-data-table>
+            </app-detail-section>
+          </app-detail-grid>
+        </div>
       </div>
     }
   </div>

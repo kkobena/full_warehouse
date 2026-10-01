@@ -12,12 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Consentement du client aux messages, par canal (docs/PLAN-FICHE-CLIENT.md, lot 4). Chaque
- * changement est conservé : on sait qui l'a recueilli et quand.
- *
- * <p>Seul un refus explicite bloque un envoi. Les messages actuels (relance d'un différé, avoir
- * disponible) concernent une opération en cours du client ; les bloquer faute de réponse
- * couperait toutes les fiches existantes, jamais interrogées.
+ * Consentement du client aux messages, par canal.
  */
 @Service
 @Transactional

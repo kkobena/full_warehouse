@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, effect, inject, input, output, sign
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import { BadgeComponent, ButtonComponent, CardComponent, DataTableComponent } from 'app/shared/ui';
+import { BadgeComponent, ButtonComponent, DataTableComponent, DetailGridComponent, DetailSectionComponent } from 'app/shared/ui';
 import { ErrorService } from 'app/shared/error.service';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
@@ -12,12 +12,12 @@ import { ITraitementChronique } from '../customer-fiche.model';
 import { TraitementChroniqueFormComponent } from './traitement-chronique-form.component';
 import { echeanceTraitement, libelleTraitement, SUIVI_TRAITEMENT } from './suivi-traitement';
 
-/** Traitements chroniques du patient et leur échéance (docs/PLAN-FICHE-CLIENT.md, lot 4). */
+/** Traitements chroniques du patient et leur échéance . */
 @Component({
   selector: 'app-traitements-chroniques',
   templateUrl: './traitements-chroniques.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, NgbTooltip, BadgeComponent, ButtonComponent, CardComponent, DataTableComponent],
+  imports: [CommonModule, NgbTooltip, BadgeComponent, ButtonComponent, DataTableComponent, DetailGridComponent, DetailSectionComponent],
 })
 export class TraitementsChroniquesComponent {
   readonly customerId = input.required<number>();

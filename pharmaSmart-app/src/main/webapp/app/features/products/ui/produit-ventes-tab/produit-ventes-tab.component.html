@@ -1,154 +1,166 @@
-<div class="mvt-tab-container">
-
-  <!-- ── Raccourcis de période ─────────────────────────────── -->
-  <div class="mvt-period-shortcuts">
-    <span class="shortcuts-label">Période :</span>
-    <app-pill-selector
-      [items]="periodFilter.periodItems"
-      [ngModel]="periodFilter.activePeriod()"
-      (selectionChange)="periodFilter.applyShortcut($event)"
-    />
-  </div>
-
-  <!-- ── Filtres ────────────────────────────────────────────── -->
-  <div class="mvt-filters d-flex align-items-center gap-2 flex-wrap px-2 py-1 border-bottom">
-    <div style="max-width: 145px">
-      <pharma-date-picker
-        (selectionChange)="periodFilter.onFromDateChange($event)"
-        [(ngModel)]="periodFilter.fromDate"
-        [labelPosition]="'top'"
-        [maxDate]="periodFilter.toDate"
-        id="ventes-du"
-        label="{{ 'warehouseApp.labels.du' | translate }}"
-      />
-    </div>
-    <div style="max-width: 145px">
-      <pharma-date-picker
-        (selectionChange)="periodFilter.onToDateChange($event)"
-        [(ngModel)]="periodFilter.toDate"
-        [labelPosition]="'top'"
-        [minDate]="periodFilter.fromDate"
-        id="ventes-au"
-        label="{{ 'warehouseApp.labels.au' | translate }}"
-      />
-    </div>
-    <app-button
-      (clicked)="load()"
-      icon="pi pi-search"
-      label="Actualiser"
-      severity="info"
-      size="small"
-    />
-    @if (data().length > 0) {
-      <app-button
-        (clicked)="exportPdf()"
-        icon="pi pi-file-pdf"
-        label="PDF"
-        ngbTooltip="Exporter en PDF"
-        placement="top"
-        severity="warn"
-        size="small"
-      />
-      <app-button
-        (clicked)="toggleChart()"
-        [outlined]="!showChart()"
-        [severity]="showChart() ? 'primary' : 'secondary'"
-        icon="pi pi-chart-bar"
-        label="Graphique"
-        ngbTooltip="Afficher/masquer le graphique"
-        placement="top"
-        size="small"
-      />
-    }
-  </div>
-
-  <!-- ── Graphique ventes ───────────────────────────────────── -->
-  @if (showChart()) {
-    <div class="mvt-chart-container">
-      @if (loadingChart()) {
-        <div class="chart-loading"><i class="pi pi-spin pi-spinner me-2"></i>Chargement...</div>
-      } @else {
-        <canvas #ventesChart></canvas>
-      }
-    </div>
-  }
-
-  <!-- ── Tableau ventes ─────────────────────────────────────── -->
-  <app-data-table
-    (onLazyLoad)="onLazyLoad($event)"
-    [lazy]="true"
-    [loading]="loading()"
-    [paginator]="true"
-    [rowsPerPageOptions]="[10, 20, 30, 50]"
-    [rows]="itemsPerPage"
-    [scrollable]="true"
-    [showGridlines]="true"
-    [totalRecords]="totalItems()"
-    [value]="data()"
-    scrollHeight="calc(100vh - 420px)"
+<app-detail-grid>
+  <app-detail-section
+    header="Historique des ventes"
+    icon="pi pi-chart-line"
+    [accent]="'success'"
+    [width]="'full'"
+    [layout]="'block'"
+    [count]="totalItems()"
+    storageKey="produit.ventes.historique"
   >
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th>Date</th>
-        <th>Référence</th>
-        <th class="text-end">Prix unit.</th>
-        <th class="text-end">Quantité</th>
-        <th class="text-end">Montant TTC</th>
-        <th class="text-end">TVA</th>
-        <th class="text-end">HT</th>
-        <th class="text-end">Remise</th>
-        <th class="text-end">Net</th>
-        <th>Opérateur</th>
-      </tr>
-    </ng-template>
-
-    <ng-template #body let-v>
-      <tr>
-        <td>{{ v.mvtDate | date: 'dd/MM/yyyy HH:mm' }}</td>
-        <td>{{ v.reference }}</td>
-        <td class="text-end pharma-price">{{ v.prixUnitaire | number }}</td>
-        <td class="text-end pharma-qty-value">{{ v.quantite | number }}</td>
-        <td class="text-end pharma-price">{{ v.montantTtc | number }}</td>
-        <td class="text-end pharma-price">{{ v.montantTva | number }}</td>
-        <td class="text-end pharma-price">{{ v.montantHt | number }}</td>
-        <td class="text-end pharma-price">{{ v.montantRemise | number }}</td>
-        <td class="text-end pharma-price">{{ v.montantNet | number }}</td>
-        <td>{{ v.user }}</td>
-      </tr>
-    </ng-template>
-
-    <ng-template #footer>
-      @if (summary()) {
-        <tr class="pharma-table-footer">
-          <td colspan="3"><span class="pharma-footer-label">Totaux</span></td>
-          <td class="text-end"><span
-            class="pharma-footer-value">{{ summary()?.quantite | number }}</span></td>
-          <td class="text-end"><span
-            class="pharma-footer-value">{{ summary()?.montantTtc | number }}</span></td>
-          <td class="text-end"><span
-            class="pharma-footer-value">{{ summary()?.montantTva | number }}</span></td>
-          <td class="text-end"><span
-            class="pharma-footer-value">{{ summary()?.montantHt | number }}</span></td>
-          <td class="text-end"><span
-            class="pharma-footer-value">{{ summary()?.montantRemise | number }}</span></td>
-          <td class="text-end"><span
-            class="pharma-footer-value">{{ summary()?.montantNet | number }}</span></td>
-          <td></td>
-        </tr>
+    <div ngProjectAs="[sectionActions]" class="mvt-section-actions">
+      @if (data().length > 0) {
+        <app-button
+          (clicked)="exportPdf()"
+          [rounded]="true"
+          [text]="true"
+          icon="pi pi-file-pdf"
+          ngbTooltip="Exporter en PDF"
+          placement="left"
+          severity="warn"
+          size="small"
+        />
+        <app-button
+          (clicked)="toggleChart()"
+          [rounded]="true"
+          [severity]="showChart() ? 'primary' : 'secondary'"
+          [text]="true"
+          icon="pi pi-chart-bar"
+          ngbTooltip="Afficher/masquer le graphique"
+          placement="left"
+          size="small"
+        />
       }
-    </ng-template>
+    </div>
 
-    <ng-template #emptymessage>
-      <tr>
-        <td class="pharma-empty-message" colspan="10">
-          <div class="pharma-empty-content">
-            <i class="pi pi-inbox"></i>
-            <p>Aucune vente sur la période</p>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-  </app-data-table>
 
-</div>
+    <!-- ── Raccourcis de période ─────────────────────────────── -->
+    <div class="mvt-period-shortcuts">
+      <span class="shortcuts-label">Période :</span>
+      <app-pill-selector
+        [items]="periodFilter.periodItems"
+        [ngModel]="periodFilter.activePeriod()"
+        (selectionChange)="periodFilter.applyShortcut($event)"
+      />
+    </div>
 
+    <!-- ── Filtres ────────────────────────────────────────────── -->
+    <div class="mvt-filters d-flex align-items-center gap-2 flex-wrap">
+      <div style="max-width: 145px">
+        <pharma-date-picker
+          (selectionChange)="periodFilter.onFromDateChange($event)"
+          [(ngModel)]="periodFilter.fromDate"
+          [labelPosition]="'top'"
+          [maxDate]="periodFilter.toDate"
+          id="ventes-du"
+          label="{{ 'warehouseApp.labels.du' | translate }}"
+        />
+      </div>
+      <div style="max-width: 145px">
+        <pharma-date-picker
+          (selectionChange)="periodFilter.onToDateChange($event)"
+          [(ngModel)]="periodFilter.toDate"
+          [labelPosition]="'top'"
+          [minDate]="periodFilter.fromDate"
+          id="ventes-au"
+          label="{{ 'warehouseApp.labels.au' | translate }}"
+        />
+      </div>
+      <app-button
+        (clicked)="load()"
+        icon="pi pi-search"
+        label="Actualiser"
+        severity="info"
+        size="small"
+      />
+    </div>
+
+    <!-- ── Graphique ventes ───────────────────────────────────── -->
+    @if (showChart()) {
+      <div class="mvt-chart-container">
+        @if (loadingChart()) {
+          <div class="chart-loading"><i class="pi pi-spin pi-spinner me-2"></i>Chargement...</div>
+        } @else {
+          <canvas #ventesChart></canvas>
+        }
+      </div>
+    }
+
+    <!-- ── Tableau ventes ─────────────────────────────────────── -->
+    <app-data-table
+      (onLazyLoad)="onLazyLoad($event)"
+      [lazy]="true"
+      [loading]="loading()"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 20, 30, 50]"
+      [rows]="itemsPerPage"
+      [scrollable]="true"
+      [showGridlines]="true"
+      [totalRecords]="totalItems()"
+      [value]="data()"
+      scrollHeight="calc(100vh - 480px)"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>Date</th>
+          <th>Référence</th>
+          <th class="text-end">Prix unit.</th>
+          <th class="text-end">Quantité</th>
+          <th class="text-end">Montant TTC</th>
+          <th class="text-end">TVA</th>
+          <th class="text-end">HT</th>
+          <th class="text-end">Remise</th>
+          <th class="text-end">Net</th>
+          <th>Opérateur</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-v>
+        <tr>
+          <td>{{ v.mvtDate | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ v.reference }}</td>
+          <td class="text-end pharma-price">{{ v.prixUnitaire | number }}</td>
+          <td class="text-end pharma-qty-value">{{ v.quantite | number }}</td>
+          <td class="text-end pharma-price">{{ v.montantTtc | number }}</td>
+          <td class="text-end pharma-price">{{ v.montantTva | number }}</td>
+          <td class="text-end pharma-price">{{ v.montantHt | number }}</td>
+          <td class="text-end pharma-price">{{ v.montantRemise | number }}</td>
+          <td class="text-end pharma-price">{{ v.montantNet | number }}</td>
+          <td>{{ v.user }}</td>
+        </tr>
+      </ng-template>
+
+      <ng-template #footer>
+        @if (summary()) {
+          <tr class="pharma-table-footer">
+            <td colspan="3"><span class="pharma-footer-label">Totaux</span></td>
+            <td class="text-end"><span
+              class="pharma-footer-value">{{ summary()?.quantite | number }}</span></td>
+            <td class="text-end"><span
+              class="pharma-footer-value">{{ summary()?.montantTtc | number }}</span></td>
+            <td class="text-end"><span
+              class="pharma-footer-value">{{ summary()?.montantTva | number }}</span></td>
+            <td class="text-end"><span
+              class="pharma-footer-value">{{ summary()?.montantHt | number }}</span></td>
+            <td class="text-end"><span
+              class="pharma-footer-value">{{ summary()?.montantRemise | number }}</span></td>
+            <td class="text-end"><span
+              class="pharma-footer-value">{{ summary()?.montantNet | number }}</span></td>
+            <td></td>
+          </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td class="pharma-empty-message" colspan="10">
+            <div class="pharma-empty-content">
+              <i class="pi pi-inbox"></i>
+              <p>Aucune vente sur la période</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </app-detail-section>
+</app-detail-grid>

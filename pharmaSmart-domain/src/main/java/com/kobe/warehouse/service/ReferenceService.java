@@ -50,8 +50,9 @@ public class ReferenceService {
         return buildReference(TypeReference.REASSORT, this::formatWithDatePrefix);
     }
 
+    // Préfixe date obligatoire : le compteur repart à 1 chaque jour et avoir_client.reference est unique.
     public String buildNumAvoirClient() {
-        return buildReference(TypeReference.AVOIR_CLIENT, this::formatSimple);
+        return buildReference(TypeReference.AVOIR_CLIENT, this::formatWithDatePrefix);
     }
 
     public String buildNumRetourClient() {

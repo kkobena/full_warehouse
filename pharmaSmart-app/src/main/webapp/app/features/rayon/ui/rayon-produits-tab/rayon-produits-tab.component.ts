@@ -12,6 +12,8 @@ import {
   AppTableLazyLoadEvent,
   ButtonComponent,
   DataTableComponent,
+  DetailGridComponent,
+  DetailSectionComponent,
   HeaderCheckboxComponent,
   IconFieldComponent,
   RowCheckboxComponent,
@@ -31,6 +33,8 @@ interface ProduitInRayon extends IProduit {
   imports: [
     FormsModule,
     DataTableComponent,
+    DetailGridComponent,
+    DetailSectionComponent,
     ButtonComponent,
     NgbTooltip,
     SelectSearchComponent,

@@ -2,7 +2,13 @@ import {ChangeDetectionStrategy, Component, computed, inject, input, output} fro
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent, DataTableComponent, SwitchComponent} from 'app/shared/ui';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  DetailGridComponent,
+  DetailSectionComponent,
+  SwitchComponent
+} from "app/shared/ui";
 import {IProduit} from 'app/shared/model/produit.model';
 import {IFournisseurProduit} from 'app/shared/model/fournisseur-produit.model';
 import {ProduitService} from 'app/entities/produit/produit.service';
@@ -20,7 +26,7 @@ import {formatNumber} from 'app/shared/utils/format-utils';
   templateUrl: './produit-fournisseurs-tab.component.html',
   styleUrls: ['./produit-fournisseurs-tab.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, DataTableComponent, NgbTooltip, ButtonComponent, SwitchComponent],
+  imports: [CommonModule, FormsModule, DataTableComponent, NgbTooltip, ButtonComponent, SwitchComponent, DetailGridComponent, DetailSectionComponent]
 })
 export class ProduitFournisseursTabComponent {
   readonly produit = input.required<IProduit>();

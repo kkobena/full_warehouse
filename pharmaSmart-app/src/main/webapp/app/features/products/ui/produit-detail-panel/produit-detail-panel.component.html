@@ -20,6 +20,14 @@
         @if (produit().estProduitGarde) {
           <span class="badge-garde ms-1" ngbTooltip="Produit de garde officine">G</span>
         }
+        <span class="pharma-badge panel-stock-badge ms-2 {{ stockBadgeClass() }}" ngbTooltip="Stock total, rayon et réserve">
+          <i class="pi pi-box me-1"></i>Stock {{ richProduit().totalQuantity ?? 0 | number }} u
+        </span>
+        @if ((richProduit().qtyReserve ?? 0) > 0) {
+          <span class="pharma-badge panel-stock-badge pharma-badge-secondary">
+            <i class="pi pi-database me-1"></i>dont {{ richProduit().qtyReserve | number }} en réserve
+          </span>
+        }
       </div>
     </div>
     <div class="panel-actions">

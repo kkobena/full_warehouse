@@ -1,4 +1,4 @@
-<div class="pharma-smart-content p-1">
+<div class="pharma-smart-content">
 
   <!-- Toolbar -->
   <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-chart-bar"
@@ -265,59 +265,58 @@
           </div>
         </div>
 
-        <div class="recap-detail-solde-prev">
-          <span class="text-muted small">Report solde précédent :</span>
-          <span class="fw-semibold ms-2">{{ (selectedRow()?.soldePrecedent ?? 0) | number:'1.0-0' }}
-            <span appDevise></span></span>
-          @if ((selectedRow()?.soldePrecedent ?? 0) > 0) {
-            <span class="badge bg-warning text-white ms-2 small">Solde reporté</span>
-          }
-        </div>
-
         <div class="recap-detail-body">
-          <app-data-table
-            [scrollable]="true"
-            [size]="'small'"
-            [value]="detailLignes(selectedRow()!)"
-            scrollHeight="flex"
-          >
-            <ng-template #header>
-              <tr class="pharma-table-head">
-                <th>N° Facture</th>
-                <th>Date</th>
-                <th>Échéance</th>
-                <th class="text-end">Montant net</th>
-                <th class="text-end">Réglé</th>
-                <th class="text-end">Restant</th>
-                <th>Statut</th>
-              </tr>
-            </ng-template>
-            <ng-template #body let-ligne>
-              <tr>
-                <td class="fw-semibold small">{{ ligne.numFacture }}</td>
-                <td class="small">{{ ligne.invoiceDate | date: 'dd/MM/yyyy' }}</td>
-                <td class="small">{{ ligne.echeance | date: 'dd/MM/yyyy' }}</td>
-                <td class="text-end">{{ (ligne.montantNet ?? 0) | number:'1.0-0' }}</td>
-                <td class="text-end text-success">{{
-                    (ligne.montantRegle ?? 0) | number:'1.0-0'
-                  }}
-                </td>
-                <td class="text-end text-danger">{{ (ligne.restantDu ?? 0) | number:'1.0-0' }}</td>
-                <td>
-                  <span class="badge {{ statutClass(ligne.statut) }}">
-                    {{ statutLabel(ligne.statut) }}
-                  </span>
-                </td>
-              </tr>
-            </ng-template>
-            <ng-template #emptymessage>
-              <tr>
-                <td class="text-center text-muted py-3" colspan="7">
-                  <i class="pi pi-info-circle me-1"></i>Aucune facture sur cette période
-                </td>
-              </tr>
-            </ng-template>
-          </app-data-table>
+          <app-detail-grid>
+            <app-detail-section header="Factures" icon="pi pi-file-invoice" [accent]="'blue'" [width]="'full'"
+                                [layout]="'block'" [count]="detailLignes(selectedRow()!).length"
+                                storageKey="recapitulatif.detail.factures">
+              <app-detail-field label="Report solde précédent" [value]="selectedRow()?.soldePrecedent ?? 0"
+                                format="montant" [tone]="(selectedRow()?.soldePrecedent ?? 0) > 0 ? 'warning' : 'none'" />
+              <app-data-table
+                [scrollable]="true"
+                [size]="'small'"
+                [value]="detailLignes(selectedRow()!)"
+                scrollHeight="flex"
+              >
+                <ng-template #header>
+                  <tr class="pharma-table-head">
+                    <th>N° Facture</th>
+                    <th>Date</th>
+                    <th>Échéance</th>
+                    <th class="text-end">Montant net</th>
+                    <th class="text-end">Réglé</th>
+                    <th class="text-end">Restant</th>
+                    <th>Statut</th>
+                  </tr>
+                </ng-template>
+                <ng-template #body let-ligne>
+                  <tr>
+                    <td class="fw-semibold small">{{ ligne.numFacture }}</td>
+                    <td class="small">{{ ligne.invoiceDate | date: 'dd/MM/yyyy' }}</td>
+                    <td class="small">{{ ligne.echeance | date: 'dd/MM/yyyy' }}</td>
+                    <td class="text-end">{{ (ligne.montantNet ?? 0) | number:'1.0-0' }}</td>
+                    <td class="text-end text-success">{{
+                        (ligne.montantRegle ?? 0) | number:'1.0-0'
+                      }}
+                    </td>
+                    <td class="text-end text-danger">{{ (ligne.restantDu ?? 0) | number:'1.0-0' }}</td>
+                    <td>
+                      <span class="badge {{ statutClass(ligne.statut) }}">
+                        {{ statutLabel(ligne.statut) }}
+                      </span>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                  <tr>
+                    <td class="text-center text-muted py-3" colspan="7">
+                      <i class="pi pi-info-circle me-1"></i>Aucune facture sur cette période
+                    </td>
+                  </tr>
+                </ng-template>
+              </app-data-table>
+            </app-detail-section>
+          </app-detail-grid>
         </div>
       </div>
     }

@@ -85,8 +85,7 @@
               </a>
             </li>
           } @else {
-            <!-- Action sans cible de navigation : un <button>, pas un <a> sans href,
-                 qui serait hors du parcours clavier. -->
+
             <li [style.--nav-hue]="item.accent" class="nav-item">
               <button type="button" (click)="onLeafClick(item)" class="nav-link btn btn-link">
                 <ng-container [ngTemplateOutlet]="leafContent" [ngTemplateOutletContext]="{ $implicit: item }" />

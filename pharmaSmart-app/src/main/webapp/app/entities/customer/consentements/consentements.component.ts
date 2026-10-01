@@ -11,7 +11,7 @@ import { CanalConsentement, IConsentement } from '../customer-fiche.model';
 const LIBELLES: Record<CanalConsentement, string> = { SMS: 'SMS', WHATSAPP: 'WhatsApp', EMAIL: 'E-mail' };
 
 /**
- * Consentement du client aux messages, canal par canal (docs/PLAN-FICHE-CLIENT.md, lot 4). Un refus
+ * Consentement du client aux messages, canal par canal. Un refus
  * bloque la relance des différés et l'avis d'avoir disponible sur ce canal.
  */
 @Component({

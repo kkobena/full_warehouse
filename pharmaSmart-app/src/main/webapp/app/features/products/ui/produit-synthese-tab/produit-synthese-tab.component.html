@@ -1,329 +1,162 @@
-@if (loadingIndicateurs()) {
-  <div class="text-center py-4">
-    <i class="pi pi-spin pi-spinner me-2"></i>Chargement des indicateurs...
-  </div>
-} @else {
-  <div class="synthese-grid">
+<app-detail-grid>
 
-    <!-- Alerte péremption -->
-    @if (alertePeremption() === 'critical') {
-      <div class="peremption-alert peremption-critical">
-        <i class="pi pi-exclamation-triangle"></i>
-        <span>
-          Lot expirant dans &lt; 3 mois —
-          {{ lotLeProchePrime()?.expiryDate }}
-          (lot {{ lotLeProchePrime()?.numLot }}, qté {{ lotLeProchePrime()?.quantity }})
-        </span>
-      </div>
-    } @else if (alertePeremption() === 'warning') {
-      <div class="peremption-alert peremption-warning">
-        <i class="pi pi-clock"></i>
-        <span>
-          Péremption dans {{ lotLeProchePrime()?.peremptionStatut?.mouths }} mois —
-          {{ lotLeProchePrime()?.expiryDate }}
-          (lot {{ lotLeProchePrime()?.numLot }}, qté {{ lotLeProchePrime()?.quantity }})
-        </span>
-      </div>
+  <!-- Alerte péremption -->
+  @if (alertePeremption() === 'critical') {
+    <div class="peremption-alert peremption-critical">
+      <i class="pi pi-exclamation-triangle"></i>
+      <span>
+        Lot expirant dans &lt; 3 mois —
+        {{ lotLeProchePrime()?.expiryDate }}
+        (lot {{ lotLeProchePrime()?.numLot }}, qté {{ lotLeProchePrime()?.quantity }})
+      </span>
+    </div>
+  } @else if (alertePeremption() === 'warning') {
+    <div class="peremption-alert peremption-warning">
+      <i class="pi pi-clock"></i>
+      <span>
+        Péremption dans {{ lotLeProchePrime()?.peremptionStatut?.mouths }} mois —
+        {{ lotLeProchePrime()?.expiryDate }}
+        (lot {{ lotLeProchePrime()?.numLot }}, qté {{ lotLeProchePrime()?.quantity }})
+      </span>
+    </div>
+  }
+
+  <app-detail-section header="Indicateurs clés" icon="pi pi-chart-line" [accent]="'violet'" storageKey="produit.synthese.indicateurs"
+                      [loading]="loadingIndicateurs()" [skeletonRows]="6">
+    <app-detail-field label="Stock actuel" [value]="produit().totalQuantity ?? 0" format="nombre" unit="u" [tone]="stockTone()" />
+    <app-detail-field label="Seuil mini" [value]="produit().seuilMini" format="nombre" unit="u" />
+    <app-detail-field label="Jours de stock" hint="Jours avant rupture estimés sur la CMM"
+                      [value]="couvertureJours()" format="nombre" unit="j" [tone]="joursStockTone()" />
+    <app-detail-field label="CMM" hint="Consommation mensuelle moyenne sur 12 mois"
+                      [value]="indicateurs()?.cmm" format="nombre" [decimals]="1" unit="u/m" />
+    <app-detail-field label="Rotation" hint="Nombre de rotations stock / an"
+                      [value]="rotationAnnuelle()" format="nombre" [decimals]="1" unit="×/an" />
+    <app-detail-field label="Marge brute" [value]="tauxMarge()" format="nombre" unit="%" [tone]="'success'" />
+  </app-detail-section>
+
+  <app-detail-section header="Chiffre d'affaires" icon="pi pi-wallet" [accent]="'amber'" storageKey="produit.synthese.ca"
+                      [loading]="loadingIndicateurs()" [skeletonRows]="4">
+    <app-detail-field label="CA 30 jours" [value]="indicateurs()?.ca30Jours" format="montant" />
+    <app-detail-field label="CA 12 mois" [value]="indicateurs()?.ca12Mois" format="montant" />
+    <app-detail-field label="Qté 12 mois" [value]="indicateurs()?.qteVendue12Mois" format="nombre" unit="u" />
+    <app-detail-field label="Classe ABC">
+      <span class="classe-badge classe-{{ produit().classeCriticite?.toLowerCase() }}">
+        {{ produit().classeCriticite?.replace('_', '+') ?? '—' }}
+      </span>
+    </app-detail-field>
+    @if (indicateurs()?.rang != null) {
+      <app-detail-field label="Rang Pareto" [value]="'# ' + indicateurs()!.rang" />
     }
+    @if (indicateurs()?.frequenceMois != null) {
+      <app-detail-field label="Fréquence" hint="Nombre de mois distincts avec au moins 1 vente"
+                        [value]="indicateurs()!.frequenceMois + ' mois/12'" />
+    }
+  </app-detail-section>
 
-    <!-- Indicateurs clés -->
-    <div class="synthese-section">
-      <h6 class="section-title">Indicateurs clés</h6>
-      <div class="kpi-grid">
-        <div class="kpi-item">
-          <span class="kpi-label">Stock actuel</span>
-          <span [class]="stockClass()" class="kpi-value">
-            {{ produit().totalQuantity ?? 0 | number }} u
-          </span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label">Seuil mini</span>
-          <span class="kpi-value">{{ produit().seuilMini ?? '—' }} u</span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label"
-                ngbTooltip="Jours avant rupture estimés sur la CMM">Jours de stock</span>
-          <span [class]="joursStockClass()" class="kpi-value">
-            @if (couvertureJours() != null) {
-              {{ couvertureJours() }} j
-            } @else {
-              —
-            }
-          </span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label" ngbTooltip="Consommation mensuelle moyenne sur 12 mois">CMM</span>
-          <span class="kpi-value">
-            @if (indicateurs()?.cmm != null) {
-              {{ indicateurs()!.cmm | number: '1.1-1' }} u/m
-            } @else {
-              —
-            }
-          </span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label" ngbTooltip="Nombre de rotations stock / an">Rotation</span>
-          <span class="kpi-value">
-            @if (rotationAnnuelle() != null) {
-              {{ rotationAnnuelle() | number: '1.1-1' }} ×/an
-            } @else {
-              —
-            }
-          </span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label">Marge brute</span>
-          <span class="kpi-value" style="color: #5cb85c">
-            @if (tauxMarge() != null) {
-              {{ tauxMarge() }}%
-            } @else {
-              —
-            }
-          </span>
-        </div>
-      </div>
-    </div>
+  <app-detail-section header="Prix" icon="pi pi-tag" [accent]="'fuchsia'" storageKey="produit.synthese.prix">
+    <app-detail-field label="Prix achat" [value]="produit().costAmount" format="montant" />
+    <app-detail-field label="Prix vente" [value]="produit().regularUnitPrice" format="montant" />
+    <app-detail-field label="Marge absolue" [value]="margeAbsolue()" format="montant" [tone]="'success'" />
+    <app-detail-field label="TVA" [value]="produit().tvaTaux" />
+  </app-detail-section>
 
-    <!-- Chiffre d'affaires -->
-    <div class="synthese-section">
-      <h6 class="section-title">Chiffre d'affaires</h6>
-      <div class="kpi-grid">
-        <div class="kpi-item">
-          <span class="kpi-label">CA 30 jours</span>
-          <span class="kpi-value">{{ formatPrix(indicateurs()?.ca30Jours) }}</span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label">CA 12 mois</span>
-          <span class="kpi-value">{{ formatPrix(indicateurs()?.ca12Mois) }}</span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label">Qté 12 mois</span>
-          <span class="kpi-value">
-            @if (indicateurs()?.qteVendue12Mois != null) {
-              {{ indicateurs()!.qteVendue12Mois | number }} u
-            } @else {
-              —
-            }
-          </span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label">Classe ABC</span>
-          <span
-            class="kpi-value classe-badge classe-{{ produit().classeCriticite?.toLowerCase() }}">
-            {{ produit().classeCriticite?.replace('_', '+') ?? '—' }}
-          </span>
-        </div>
-        @if (indicateurs()?.rang != null) {
-          <div class="kpi-item">
-            <span class="kpi-label">Rang Pareto</span>
-            <span class="kpi-value"># {{ indicateurs()!.rang }}</span>
-          </div>
-        }
-        @if (indicateurs()?.frequenceMois != null) {
-          <div class="kpi-item">
-            <span class="kpi-label" ngbTooltip="Nombre de mois distincts avec au moins 1 vente">Fréquence</span>
-            <span class="kpi-value">{{ indicateurs()!.frequenceMois }} mois/12</span>
-          </div>
-        }
-      </div>
-    </div>
+  <!-- Les valeurs sont des libellés (DCI, famille, rayon) : la carte prend toute la largeur. -->
+  <app-detail-section header="Identification" icon="pi pi-id-card" [width]="'wide'" [variant]="'muted'" [accent]="'success'" storageKey="produit.synthese.identification">
+    <app-detail-field label="DCI" hint="Dénomination commune internationale : la ou les molécules, principale en tête"
+                      [value]="produit().dciLibelle" />
+    <app-detail-field label="Famille" [value]="produit().familleLibelle" />
+    <app-detail-field label="Forme" [value]="produit().formeLibelle" />
+    <app-detail-field label="Laboratoire" [value]="produit().laboratoireLibelle" />
+    <app-detail-field label="Rayon" [value]="produit().rayonLibelle" />
+    <app-detail-field label="Dernière vente" [value]="produit().lastDateOfSale" format="date" />
+    <app-detail-field label="Dernière commande" [value]="produit().lastOrderDate" format="date" />
+    <app-detail-field label="Suivi des lots"
+                      hint="Activer pour exiger la saisie de numéro de lot et de date de péremption à chaque réception de ce produit">
+      <app-switch
+        (ngModelChange)="onToggleGestionLot($event)"
+        ariaLabel="Suivi des lots"
+        [disabled]="!canEdit() || isDisabled() || gestionLotPending()"
+        [ngModel]="produit().gestionLot ?? true"
+        ngbTooltip="{{ (produit().gestionLot ?? false) ? 'Désactiver le suivi des lots' : 'Activer le suivi des lots' }}"
+        container="body"
+        placement="left"
+      />
+    </app-detail-field>
+  </app-detail-section>
 
-    <!-- Prix -->
-    <div class="synthese-section">
-      <h6 class="section-title">Prix</h6>
-      <div class="kpi-grid">
-        <div class="kpi-item">
-          <span class="kpi-label">Prix achat</span>
-          <span class="kpi-value">{{ formatPrix(produit().costAmount) }}</span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label">Prix vente</span>
-          <span class="kpi-value">{{ formatPrix(produit().regularUnitPrice) }}</span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label">Marge absolue</span>
-          <span class="kpi-value" style="color: #5cb85c">
-            @if (margeAbsolue() != null) {
-              {{ margeAbsolue() | number: '1.0-0' }} <span appDevise></span>
-            } @else {
-              —
-            }
-          </span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label">TVA</span>
-          <span class="kpi-value">{{ produit().tvaTaux ?? '—' }}</span>
-        </div>
-      </div>
-    </div>
+  <app-detail-section header="Réglementation" icon="pi pi-shield" [width]="'wide'" [variant]="'muted'" [accent]="'slate'" storageKey="produit.synthese.reglementation">
+    <app-detail-field label="Statut légal">
+      <app-badge
+        [icon]="statutLegalTag().icon"
+        [label]="statutLegalTag().label"
+        [severity]="statutLegalTag().severity"
+      />
+    </app-detail-field>
+    <app-detail-field label="Thermosensible" hint="Produit nécessitant une conservation au froid (chaîne du froid)">
+      <app-switch
+        (ngModelChange)="onToggleThermosensible($event)"
+        ariaLabel="Thermosensible"
+        [disabled]="!canEdit() || isDisabled() || thermosensiblePending()"
+        [ngModel]="produit().thermosensible ?? false"
+        ngbTooltip="{{ (produit().thermosensible ?? false) ? 'Désactiver le flag thermosensible' : 'Activer le flag thermosensible' }}"
+        container="body"
+        placement="left"
+      />
+    </app-detail-field>
+    <app-detail-field label="Médicament essentiel" hint="Inscrit sur la liste des médicaments essentiels (OMS / liste nationale)">
+      <app-switch
+        (ngModelChange)="onToggleMedicamentEssentiel($event)"
+        ariaLabel="Médicament essentiel"
+        [disabled]="!canEdit() || isDisabled() || medicamentEssentielPending()"
+        [ngModel]="produit().estMedicamentEssentiel ?? false"
+        ngbTooltip="{{ (produit().estMedicamentEssentiel ?? false) ? 'Retirer de la liste des médicaments essentiels' : 'Marquer comme médicament essentiel' }}"
+        container="body"
+        placement="left"
+      />
+    </app-detail-field>
+    <app-detail-field label="Produit de garde" hint="Produit disponible lors des services de garde et d'urgence">
+      <app-switch
+        (ngModelChange)="onToggleProduitGarde($event)"
+        ariaLabel="Produit de garde"
+        [disabled]="!canEdit() || isDisabled() || produitGardePending()"
+        [ngModel]="produit().estProduitGarde ?? false"
+        ngbTooltip="{{ (produit().estProduitGarde ?? false) ? 'Retirer des produits de garde' : 'Marquer comme produit de garde' }}"
+        container="body"
+        placement="left"
+      />
+    </app-detail-field>
+    <app-detail-field label="Classification personnalisée"
+                      hint="La classe ABC de ce produit a été saisie manuellement et ne sera pas recalculée automatiquement">
+      <app-switch
+        (ngModelChange)="onToggleClassificationOverridden($event)"
+        ariaLabel="Classification personnalisée"
+        [disabled]="!canEdit() || isDisabled() || classificationOverriddenPending()"
+        [ngModel]="produit().isClassificationOverridden ?? false"
+        ngbTooltip="{{ (produit().isClassificationOverridden ?? false) ? 'Réactiver le calcul automatique de la classe ABC' : 'Figer la classe ABC manuellement' }}"
+        container="body"
+        placement="left"
+      />
+    </app-detail-field>
+  </app-detail-section>
 
-    <!-- Identification : molécule, classement, dates. Les valeurs y sont des LIBELLÉS, pas
-         des nombres — famille thérapeutique, rayon, DCI — et c'est pourquoi cette carte prend
-         toute la largeur là où les autres se partagent une rangée. -->
-    <div class="synthese-section synthese-section-wide">
-      <h6 class="section-title">Identification</h6>
-      <div class="kpi-grid">
-        <div class="kpi-item">
-          <span class="kpi-label" ngbTooltip="Dénomination commune internationale : la ou les molécules, principale en tête">DCI</span>
-          <span [title]="produit().dciLibelle ?? ''" class="kpi-value">{{ produit().dciLibelle ?? '—' }}</span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label">Famille</span>
-          <span [title]="produit().familleLibelle ?? ''" class="kpi-value">{{ produit().familleLibelle ?? '—' }}</span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label">Forme</span>
-          <span [title]="produit().formeLibelle ?? ''" class="kpi-value">{{ produit().formeLibelle ?? '—' }}</span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label">Laboratoire</span>
-          <span [title]="produit().laboratoireLibelle ?? ''" class="kpi-value">{{ produit().laboratoireLibelle ?? '—' }}</span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label">Rayon</span>
-          <span [title]="produit().rayonLibelle ?? ''" class="kpi-value">{{ produit().rayonLibelle ?? '—' }}</span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label">Dernière vente</span>
-          <span class="kpi-value">{{ formatDate(produit().lastDateOfSale) }}</span>
-        </div>
-        <div class="kpi-item">
-          <span class="kpi-label">Dernière commande</span>
-          <span class="kpi-value">{{ formatDate(produit().lastOrderDate) }}</span>
-        </div>
-        <div class="kpi-item kpi-item--toggle">
-          <span class="kpi-label">
-            Suivi des lots
-            <i
-              class="pi pi-info-circle ms-1"
-              ngbTooltip="Activer pour exiger la saisie de numéro de lot et de date de péremption à chaque réception de ce produit"
-              placement="top"
-              style="font-size: 0.7rem; color: #6b7280; cursor: help"
-            ></i>
-          </span>
-          <app-switch
-            (ngModelChange)="onToggleGestionLot($event)"
-            ariaLabel="Suivi des lots"
-            [disabled]="!canEdit() || isDisabled() || gestionLotPending()"
-            [ngModel]="produit().gestionLot ?? true"
-            ngbTooltip="{{ (produit().gestionLot ?? false) ? 'Désactiver le suivi des lots' : 'Activer le suivi des lots' }}"
-            placement="left"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- Réglementation -->
-    <div class="synthese-section">
-      <h6 class="section-title">Réglementation</h6>
-      <div class="kpi-grid">
-        <div class="kpi-item">
-          <span class="kpi-label">Statut légal</span>
-          <app-badge
-            [icon]="statutLegalTag().icon"
-            [label]="statutLegalTag().label"
-            [severity]="statutLegalTag().severity"
-          />
-        </div>
-        <div class="kpi-item kpi-item--toggle">
-          <span class="kpi-label">
-            Thermosensible
-            <i
-              class="pi pi-info-circle ms-1"
-              ngbTooltip="Produit nécessitant une conservation au froid (chaîne du froid)"
-              placement="top"
-              style="font-size: 0.7rem; color: #6b7280; cursor: help"
-            ></i>
-          </span>
-          <app-switch
-            (ngModelChange)="onToggleThermosensible($event)"
-            ariaLabel="Thermosensible"
-            [disabled]="!canEdit() || isDisabled() || thermosensiblePending()"
-            [ngModel]="produit().thermosensible ?? false"
-            ngbTooltip="{{ (produit().thermosensible ?? false) ? 'Désactiver le flag thermosensible' : 'Activer le flag thermosensible' }}"
-            placement="left"
-          />
-        </div>
-        <div class="kpi-item kpi-item--toggle">
-          <span class="kpi-label">
-            Médicament essentiel
-            <i
-              class="pi pi-info-circle ms-1"
-              ngbTooltip="Inscrit sur la liste des médicaments essentiels (OMS / liste nationale)"
-              placement="top"
-              style="font-size: 0.7rem; color: #6b7280; cursor: help"
-            ></i>
-          </span>
-          <app-switch
-            (ngModelChange)="onToggleMedicamentEssentiel($event)"
-            ariaLabel="Médicament essentiel"
-            [disabled]="!canEdit() || isDisabled() || medicamentEssentielPending()"
-            [ngModel]="produit().estMedicamentEssentiel ?? false"
-            ngbTooltip="{{ (produit().estMedicamentEssentiel ?? false) ? 'Retirer de la liste des médicaments essentiels' : 'Marquer comme médicament essentiel' }}"
-            placement="left"
-          />
-        </div>
-        <div class="kpi-item kpi-item--toggle">
-          <span class="kpi-label">
-            Produit de garde
-            <i
-              class="pi pi-info-circle ms-1"
-              ngbTooltip="Produit disponible lors des services de garde et d'urgence"
-              placement="top"
-              style="font-size: 0.7rem; color: #6b7280; cursor: help"
-            ></i>
-          </span>
-          <app-switch
-            (ngModelChange)="onToggleProduitGarde($event)"
-            ariaLabel="Produit de garde"
-            [disabled]="!canEdit() || isDisabled() || produitGardePending()"
-            [ngModel]="produit().estProduitGarde ?? false"
-            ngbTooltip="{{ (produit().estProduitGarde ?? false) ? 'Retirer des produits de garde' : 'Marquer comme produit de garde' }}"
-            placement="left"
-          />
-        </div>
-        <div class="kpi-item kpi-item--toggle">
-          <span class="kpi-label">
-            Classification personnalisée
-            <i
-              class="pi pi-info-circle ms-1"
-              ngbTooltip="La classe ABC de ce produit a été saisie manuellement et ne sera pas recalculée automatiquement"
-              placement="top"
-              style="font-size: 0.7rem; color: #6b7280; cursor: help"
-            ></i>
-          </span>
-          <app-switch
-            (ngModelChange)="onToggleClassificationOverridden($event)"
-            ariaLabel="Classification personnalisée"
-            [disabled]="!canEdit() || isDisabled() || classificationOverriddenPending()"
-            [ngModel]="produit().isClassificationOverridden ?? false"
-            ngbTooltip="{{ (produit().isClassificationOverridden ?? false) ? 'Réactiver le calcul automatique de la classe ABC' : 'Figer la classe ABC manuellement' }}"
-            placement="left"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- Prix de référence assurance -->
-    <div class="synthese-section synthese-section-full">
-      <div class="section-title-row">
-        <h6 class="section-title">Tarifs assurance</h6>
-        <app-button
-          (clicked)="onAddPrix()"
-          [disabled]="isDisabled()"
-          [outlined]="true"
-          icon="pi pi-plus"
-          label="Ajouter"
-          severity="primary"
-          size="small"
-        />
-      </div>
-      @if (prixReferences().length === 0) {
-        <p class="text-muted small mb-0">Aucun tarifs assurance configuré.</p>
-      } @else {
-        <table class="table table-sm table-hover table-striped mb-0">
-          <thead class="pharma-table-head">
-          <tr>
+  <app-detail-section header="Tarifs assurance" icon="pi pi-percentage" [width]="'full'" [accent]="'fuchsia'"
+                      [count]="prixReferences().length" storageKey="produit.synthese.tarifs">
+    <app-button
+      ngProjectAs="[sectionActions]"
+      (clicked)="onAddPrix()"
+      [disabled]="isDisabled()"
+      [outlined]="true"
+      icon="pi pi-plus"
+      label="Ajouter"
+      severity="primary"
+      size="small"
+    />
+    @if (prixReferences().length === 0) {
+      <p class="text-muted small mb-0">Aucun tarif assurance configuré.</p>
+    } @else {
+      <app-data-table [value]="prixReferences()">
+        <ng-template #header>
+          <tr class="pharma-table-head">
             <th>Tiers payant</th>
             <th>Option</th>
             <th class="text-end">Prix réf.</th>
@@ -331,71 +164,68 @@
             <th>Statut</th>
             <th></th>
           </tr>
-          </thead>
-          <tbody>
-            @for (prix of prixReferences(); track prix.id) {
-              <tr>
-                <td>{{ prix.tiersPayantName }}</td>
-                <td>{{ prix.typeLibelle }}</td>
-                <td class="text-end">
-                  @if (prix.price != null) {
-                    {{ prix.price | number }}
-                  } @else {
-                    —
-                  }
-                </td>
-                <td class="text-end">
-                  @if (prix.rate != null) {
-                    {{ prix.rate }}%
-                  } @else {
-                    —
-                  }
-                </td>
-                <td>
-                  @if (prix.enabled) {
-                    <span class="badge bg-success">Actif</span>
-                  } @else {
-                    <span class="badge bg-secondary">Inactif</span>
-                  }
-                </td>
-                <td class="text-end text-nowrap">
-                  <app-button
-                    (clicked)="onEditPrix(prix)"
-                    [disabled]="isDisabled()"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-pencil"
-                    ngbTooltip="Modifier"
-                    severity="primary"
-                    size="small"
-                  />
-                  <app-button
-                    (clicked)="onTogglePrix(prix)"
-                    [disabled]="isDisabled()"
-                    [icon]="prix.enabled ? 'pi pi-ban' : 'pi pi-check'"
-                    [ngbTooltip]="prix.enabled ? 'Désactiver' : 'Activer'"
-                    [rounded]="true"
-                    [severity]="prix.enabled ? 'contrast' : 'info'"
-                    [text]="true"
-                    size="small"
-                  />
-                  <app-button
-                    (clicked)="onDeletePrix(prix)"
-                    [disabled]="isDisabled()"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-trash"
-                    ngbTooltip="Supprimer"
-                    severity="danger"
-                    size="small"
-                  />
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      }
-    </div>
+        </ng-template>
+        <ng-template #body let-prix>
+          <tr>
+            <td>{{ prix.tiersPayantName }}</td>
+            <td>{{ prix.typeLibelle }}</td>
+            <td class="text-end">
+              @if (prix.price != null) {
+                {{ prix.price | number }}
+              } @else {
+                —
+              }
+            </td>
+            <td class="text-end">
+              @if (prix.rate != null) {
+                {{ prix.rate }}%
+              } @else {
+                —
+              }
+            </td>
+            <td>
+              @if (prix.enabled) {
+                <span class="badge bg-success">Actif</span>
+              } @else {
+                <span class="badge bg-secondary">Inactif</span>
+              }
+            </td>
+            <td class="text-end text-nowrap">
+              <app-button
+                (clicked)="onEditPrix(prix)"
+                [disabled]="isDisabled()"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-pencil"
+                ngbTooltip="Modifier"
+                severity="primary"
+                size="small"
+              />
+              <app-button
+                (clicked)="onTogglePrix(prix)"
+                [disabled]="isDisabled()"
+                [icon]="prix.enabled ? 'pi pi-ban' : 'pi pi-check'"
+                [ngbTooltip]="prix.enabled ? 'Désactiver' : 'Activer'"
+                [rounded]="true"
+                [severity]="prix.enabled ? 'contrast' : 'info'"
+                [text]="true"
+                size="small"
+              />
+              <app-button
+                (clicked)="onDeletePrix(prix)"
+                [disabled]="isDisabled()"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-trash"
+                ngbTooltip="Supprimer"
+                severity="danger"
+                size="small"
+              />
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    }
+  </app-detail-section>
 
-  </div>
-}
+</app-detail-grid>

@@ -35,10 +35,6 @@
 
       @if (factureGroupees) {
         <app-float-label inputId="fhGroupe" label="Groupe TP">
-          <!--
-            p-autocomplete multiple + completeMethod devient un app-multi-select alimenté
-            par (searched) : ng-select émet le terme saisi, la recherche reste serveur.
-          -->
           <app-multi-select
             (searched)="searchGroupTiersPayant($event)"
             (ngModelChange)="selectedGroupeTiersPayants.set($event)"

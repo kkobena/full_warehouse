@@ -60,7 +60,7 @@
       font-size: 0.9rem;
 
       i {
-        font-size: 1.125rem;
+        font-size: 1.25rem;
       }
     }
   }
@@ -99,7 +99,11 @@
       font-size: 0.9rem;
 
       i {
-        font-size: 1rem;
+        font-size: 1.25rem;
+        // Largeur fixe : les glyphes pi n'ont pas tous la même, les libellés s'aligneraient mal.
+        width: 1.25em;
+        text-align: center;
+        flex-shrink: 0;
         color: var(--section-hue, #{$pharma-primary});
         transition: transform 0.2s ease;
       }
@@ -204,7 +208,7 @@
       font-size: 0.85rem;
 
       i {
-        font-size: 1rem;
+        font-size: 1.125rem;
       }
     }
 
@@ -217,7 +221,7 @@
         gap: 0.5rem;
 
         i {
-          font-size: 0.9rem;
+          font-size: 1.125rem;
         }
 
         .link-arrow {

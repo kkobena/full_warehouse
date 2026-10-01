@@ -1,347 +1,360 @@
-<div class="mvt-tab-container">
-
-  <!-- ── Raccourcis de période ───────────────────────────────── -->
-  <div class="mvt-period-shortcuts">
-    <span class="shortcuts-label">Période :</span>
-    <app-pill-selector
-      [items]="periodFilter.periodItems"
-      [ngModel]="periodFilter.activePeriod()"
-      (selectionChange)="periodFilter.applyShortcut($event)"
-    />
-  </div>
-
-  <!-- ── Filtres : dates + emplacement + type de mouvement ─────── -->
-  <div class="mvt-filters d-flex align-items-center gap-2 flex-wrap px-2 py-1 border-bottom">
-    <div style="max-width: 145px">
-      <pharma-date-picker
-        (selectionChange)="periodFilter.onFromDateChange($event)"
-        [(ngModel)]="periodFilter.fromDate"
-        [labelPosition]="'top'"
-        [maxDate]="periodFilter.toDate"
-        id="mvt-du"
-        label="{{ 'warehouseApp.labels.du' | translate }}"
-      />
-    </div>
-    <div style="max-width: 145px">
-      <pharma-date-picker
-        (selectionChange)="periodFilter.onToDateChange($event)"
-        [(ngModel)]="periodFilter.toDate"
-        [labelPosition]="'top'"
-        [minDate]="periodFilter.fromDate"
-        id="mvt-au"
-        label="{{ 'warehouseApp.labels.au' | translate }}"
-      />
-    </div>
-
-    @if (hasMultipleStorages()) {
-      <app-select
-        [ngModel]="selectedStorage()" (ngModelChange)="selectedStorage.set($event)"
-        [clearable]="true"
-        [items]="productStorages()"
-        [style]="{ 'min-width': '170px' }"
-        appendTo="body"
-        bindLabel="name"
-        placeholder="Tous les emplacements"
-      />
-    }
-
-    <!-- Filtre multi-types de mouvement (visibilité colonnes + filtre serveur) -->
-    <app-multi-select
-      (selectionChange)="onTypesChange($any($event))"
-      [ngModel]="selectedTypes()" (ngModelChange)="selectedTypes.set($event)"
-      [clearable]="true"
-      [items]="MOVEMENT_TYPE_OPTIONS"
-      [style]="{ 'min-width': '210px' }"
-      appendTo="body"
-      bindLabel="label"
-      bindValue="value"
-      ngbTooltip="Filtrer les colonnes par type(s) de mouvement"
-      placeholder="Tous les types"
-      placement="auto"
-    />
-
-    <app-button
-      (clicked)="load()"
-      icon="pi pi-search"
-      label="Actualiser"
-      severity="info"
-      size="small"
-    />
-    @if (entites().length > 0) {
-      <app-button
-        (clicked)="exportPdf()"
-        icon="pi pi-file-pdf"
-        label="PDF"
-        ngbTooltip="Exporter en PDF"
-        placement="auto"
-        severity="warn"
-        size="small"
-      />
-      <app-button
-        (clicked)="exportExcel()"
-        [loading]="exporting()"
-        icon="pi pi-file-excel"
-        label="Excel"
-        ngbTooltip="Exporter en Excel (.xlsx)"
-        placement="auto"
-        severity="success"
-        size="small"
-      />
-      <app-button
-        (clicked)="toggleChart()"
-        [outlined]="!showChart()"
-        [severity]="showChart() ? 'primary' : 'secondary'"
-        icon="pi pi-chart-line"
-        label="Graphique"
-        ngbTooltip="Afficher/masquer le graphique d'évolution du stock"
-        placement="auto"
-        size="small"
-      />
-    }
-  </div>
-
-  <!-- ── Graphique évolution stock ─────────────────────────── -->
-  @if (showChart() && entites().length > 0) {
-    <div class="mvt-chart-container">
-      <canvas #stockChart></canvas>
-    </div>
-  }
-
-  <!-- ── Tableau mouvements ─────────────────────────────────── -->
-  <app-data-table
-    [loading]="loading()"
-    [scrollable]="true"
-    [showGridlines]="true"
-    [value]="entites()"
-    scrollHeight="calc(100vh - 400px)"
+<app-detail-grid>
+  <app-detail-section
+    header="Historique des mouvements"
+    icon="pi pi-chart-line"
+    [accent]="'blue'"
+    [width]="'full'"
+    [layout]="'block'"
+    [count]="entites().length"
+    storageKey="produit.mouvements.historique"
   >
-    <ng-template #header>
-      <!-- Ligne 1 : en-têtes de groupes -->
-      <tr class="pharma-table-head">
-        <th rowspan="2">Date</th>
-        <th class="text-end" rowspan="2" title="Stock au début de la journée">
-          Qté init
-        </th>
-        @if (outColspan > 0) {
-          <th [attr.colspan]="outColspan" class="text-center">Sorties</th>
-        }
-        @if (inColspan > 0) {
-          <th [attr.colspan]="inColspan" class="text-center">Entrées</th>
-        }
-        <th class="text-end" rowspan="2"
-            title="Quantité comptée lors du dernier inventaire">Qté inv.
-        </th>
-        <th class="text-end" rowspan="2"
-            title="Écart entre stock théorique et inventaire physique">Écart
-        </th>
-        <th class="text-end" rowspan="2" title="Stock en fin de journée">Stock
-          final
-        </th>
-      </tr>
-      <!-- Ligne 2 : colonnes détaillées -->
-      <tr class="pharma-table-head">
-        @if (isFieldVisible('saleQuantity')) {
-          <th class="text-end" title="Quantité vendue (comptant + tiers-payant)">Vente
-          </th>
-        }
-        @if (isFieldVisible('retourFournisseurQuantity')) {
-          <th class="text-end" title="Quantité retournée au fournisseur">Ret.
-            four.
-          </th>
-        }
-        @if (isFieldVisible('perimeQuantity')) {
-          <th class="text-end" title="Quantité retirée pour péremption">
-            Périmée
-          </th>
-        }
-        @if (isFieldVisible('ajustementNegatifQuantity')) {
-          <th class="text-end" title="Ajustement négatif de stock">Ajust.−
-          </th>
-        }
-        @if (isFieldVisible('deconNegatifQuantity')) {
-          <th class="text-end" title="Déconditionnement sortant (boîte → unités)">Décon.−
-          </th>
-        }
-        @if (isFieldVisible('mouvementStockOut')) {
-          <th class="text-end" title="Déplacement de stock sortant (vers réserve)">Transf.↓
-          </th>
-        }
-        @if (isFieldVisible('deleveryQuantity')) {
-          <th class="text-end" title="Entrée en stock (réception fournisseur)">Entrée
-          </th>
-        }
-        @if (isFieldVisible('ajustementPositifQuantity')) {
-          <th class="text-end" title="Ajustement positif de stock">Ajust.+
-          </th>
-        }
-        @if (isFieldVisible('deconPositifQuantity')) {
-          <th class="text-end" title="Déconditionnement entrant (retour en boîte)">Décon.+
-          </th>
-        }
-        @if (isFieldVisible('canceledQuantity')) {
-          <th class="text-end" title="Vente annulée — quantité remise en stock">Annulée
-          </th>
-        }
-        @if (isFieldVisible('mouvementStockIn')) {
-          <th class="text-end" title="Déplacement de stock entrant (depuis rayon)">Transf.↑
-          </th>
-        }
-        @if (hasDepot() && isFieldVisible('retourDepot')) {
-          <th class="text-end" title="Retour depuis le dépôt">Ret. dépôt</th>
-        }
-      </tr>
-    </ng-template>
-
-    <ng-template #body let-row>
-      <tr [class]="rowClass(row)">
-        <td>{{ row.mvtDate | date: 'dd/MM/yyyy' }}</td>
-        <td class="text-end"><span class="pharma-qty-value">{{ row.initStock | number }}</span></td>
-        @if (isFieldVisible('saleQuantity')) {
-          <td class="text-end"><span [class.mvt-qty-zero]="!row.saleQuantity">{{
-              qty(row.saleQuantity)
-            }}</span></td>
-        }
-        @if (isFieldVisible('retourFournisseurQuantity')) {
-          <td class="text-end"><span [class.mvt-qty-zero]="!row.retourFournisseurQuantity">{{
-              qty(row.retourFournisseurQuantity)
-            }}</span></td>
-        }
-        @if (isFieldVisible('perimeQuantity')) {
-          <td class="text-end"><span [class.mvt-qty-zero]="!row.perimeQuantity">{{
-              qty(row.perimeQuantity)
-            }}</span></td>
-        }
-        @if (isFieldVisible('ajustementNegatifQuantity')) {
-          <td class="text-end"><span [class.mvt-qty-zero]="!row.ajustementNegatifQuantity">{{
-              qty(row.ajustementNegatifQuantity)
-            }}</span></td>
-        }
-        @if (isFieldVisible('deconNegatifQuantity')) {
-          <td class="text-end"><span [class.mvt-qty-zero]="!row.deconNegatifQuantity">{{
-              qty(row.deconNegatifQuantity)
-            }}</span></td>
-        }
-        @if (isFieldVisible('mouvementStockOut')) {
-          <td class="text-end"><span [class.mvt-qty-zero]="!row.mouvementStockOut">{{
-              qty(row.mouvementStockOut)
-            }}</span></td>
-        }
-        @if (isFieldVisible('deleveryQuantity')) {
-          <td class="text-end"><span [class.mvt-qty-zero]="!row.deleveryQuantity">{{
-              qty(row.deleveryQuantity)
-            }}</span></td>
-        }
-        @if (isFieldVisible('ajustementPositifQuantity')) {
-          <td class="text-end"><span [class.mvt-qty-zero]="!row.ajustementPositifQuantity">{{
-              qty(row.ajustementPositifQuantity)
-            }}</span></td>
-        }
-        @if (isFieldVisible('deconPositifQuantity')) {
-          <td class="text-end"><span [class.mvt-qty-zero]="!row.deconPositifQuantity">{{
-              qty(row.deconPositifQuantity)
-            }}</span></td>
-        }
-        @if (isFieldVisible('canceledQuantity')) {
-          <td class="text-end text-danger"><span
-            [class.mvt-qty-zero]="!row.canceledQuantity">{{ qty(row.canceledQuantity) }}</span></td>
-        }
-        @if (isFieldVisible('mouvementStockIn')) {
-          <td class="text-end"><span [class.mvt-qty-zero]="!row.mouvementStockIn">{{
-              qty(row.mouvementStockIn)
-            }}</span></td>
-        }
-        @if (hasDepot() && isFieldVisible('retourDepot')) {
-          <td class="text-end"><span [class.mvt-qty-zero]="!row.retourDepot">{{
-              qty(row.retourDepot)
-            }}</span></td>
-        }
-        <td class="text-end"><span [class.mvt-qty-zero]="!row.storeInventoryQuantity">{{
-            qty(row.storeInventoryQuantity)
-          }}</span></td>
-        <td class="text-end"><span [class.mvt-qty-zero]="!row.inventoryGap">{{
-            qty(row.inventoryGap)
-          }}</span></td>
-        <!-- Stock final + indicateur tendance -->
-        <td class="text-end mvt-stock-final-cell">
-          <span class="pharma-total">{{ row.afterStock | number }}</span>
-          @if ((row.afterStock ?? 0) > (row.initStock ?? 0)) {
-            <i class="pi pi-arrow-up mvt-trend-up ms-1" ngbTooltip="Stock en hausse"
-               placement="left"></i>
-          } @else if ((row.afterStock ?? 0) < (row.initStock ?? 0)) {
-            <i class="pi pi-arrow-down mvt-trend-down ms-1" ngbTooltip="Stock en baisse"
-               placement="left"></i>
-          }
-        </td>
-      </tr>
-    </ng-template>
-
-    <ng-template #footer>
+    <div ngProjectAs="[sectionActions]" class="mvt-section-actions">
       @if (entites().length > 0) {
-        <tr class="pharma-table-footer">
-          <td colspan="2"><span class="pharma-footer-label">Totaux</span></td>
+        <app-button
+          (clicked)="exportPdf()"
+          [rounded]="true"
+          [text]="true"
+          icon="pi pi-file-pdf"
+          ngbTooltip="Exporter en PDF"
+          placement="left"
+          severity="warn"
+          size="small"
+        />
+        <app-button
+          (clicked)="exportExcel()"
+          [loading]="exporting()"
+          [rounded]="true"
+          [text]="true"
+          icon="pi pi-file-excel"
+          ngbTooltip="Exporter en Excel (.xlsx)"
+          placement="left"
+          severity="success"
+          size="small"
+        />
+        <app-button
+          (clicked)="toggleChart()"
+          [rounded]="true"
+          [severity]="showChart() ? 'primary' : 'secondary'"
+          [text]="true"
+          icon="pi pi-chart-line"
+          ngbTooltip="Afficher/masquer le graphique d'évolution du stock"
+          placement="left"
+          size="small"
+        />
+      }
+    </div>
+
+    <!-- ── Raccourcis de période ───────────────────────────────── -->
+    <div class="mvt-period-shortcuts">
+      <span class="shortcuts-label">Période :</span>
+      <app-pill-selector
+        [items]="periodFilter.periodItems"
+        [ngModel]="periodFilter.activePeriod()"
+        (selectionChange)="periodFilter.applyShortcut($event)"
+      />
+    </div>
+
+    <!-- ── Filtres : dates + emplacement + type de mouvement ─────── -->
+    <div class="mvt-filters d-flex align-items-center gap-2 flex-wrap">
+      <div style="max-width: 145px">
+        <pharma-date-picker
+          (selectionChange)="periodFilter.onFromDateChange($event)"
+          [(ngModel)]="periodFilter.fromDate"
+          [labelPosition]="'top'"
+          [maxDate]="periodFilter.toDate"
+          id="mvt-du"
+          label="{{ 'warehouseApp.labels.du' | translate }}"
+        />
+      </div>
+      <div style="max-width: 145px">
+        <pharma-date-picker
+          (selectionChange)="periodFilter.onToDateChange($event)"
+          [(ngModel)]="periodFilter.toDate"
+          [labelPosition]="'top'"
+          [minDate]="periodFilter.fromDate"
+          id="mvt-au"
+          label="{{ 'warehouseApp.labels.au' | translate }}"
+        />
+      </div>
+
+      @if (hasMultipleStorages()) {
+        <app-select
+          [ngModel]="selectedStorage()" (ngModelChange)="selectedStorage.set($event)"
+          [clearable]="true"
+          [items]="productStorages()"
+          [style]="{ 'min-width': '170px' }"
+          appendTo="body"
+          bindLabel="name"
+          placeholder="Tous les emplacements"
+        />
+      }
+
+      <!-- Filtre multi-types de mouvement (visibilité colonnes + filtre serveur) -->
+      <app-multi-select
+        (selectionChange)="onTypesChange($any($event))"
+        [ngModel]="selectedTypes()" (ngModelChange)="selectedTypes.set($event)"
+        [clearable]="true"
+        [items]="MOVEMENT_TYPE_OPTIONS"
+        [style]="{ 'min-width': '210px' }"
+        appendTo="body"
+        bindLabel="label"
+        bindValue="value"
+        ngbTooltip="Filtrer les colonnes par type(s) de mouvement"
+        placeholder="Tous les types"
+        placement="auto"
+      />
+
+      <app-button
+        (clicked)="load()"
+        icon="pi pi-search"
+        label="Actualiser"
+        severity="info"
+        size="small"
+      />
+    </div>
+
+    <!-- ── Graphique évolution stock ─────────────────────────── -->
+    @if (showChart() && entites().length > 0) {
+      <div class="mvt-chart-container">
+        <canvas #stockChart></canvas>
+      </div>
+    }
+
+    <!-- ── Tableau mouvements ─────────────────────────────────── -->
+    <app-data-table
+      [loading]="loading()"
+      [scrollable]="true"
+      [showGridlines]="true"
+      [value]="entites()"
+      scrollHeight="calc(100vh - 480px)"
+    >
+      <ng-template #header>
+        <!-- Ligne 1 : en-têtes de groupes -->
+        <tr class="pharma-table-head">
+          <th rowspan="2">Date</th>
+          <th class="text-end" rowspan="2" title="Stock au début de la journée">
+            Qté init
+          </th>
+          @if (outColspan > 0) {
+            <th [attr.colspan]="outColspan" class="text-center">Sorties</th>
+          }
+          @if (inColspan > 0) {
+            <th [attr.colspan]="inColspan" class="text-center">Entrées</th>
+          }
+          <th class="text-end" rowspan="2"
+              title="Quantité comptée lors du dernier inventaire">Qté inv.
+          </th>
+          <th class="text-end" rowspan="2"
+              title="Écart entre stock théorique et inventaire physique">Écart
+          </th>
+          <th class="text-end" rowspan="2" title="Stock en fin de journée">Stock
+            final
+          </th>
+        </tr>
+        <!-- Ligne 2 : colonnes détaillées -->
+        <tr class="pharma-table-head">
           @if (isFieldVisible('saleQuantity')) {
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ saleQuantity() | number }}</span></td>
+            <th class="text-end" title="Quantité vendue (comptant + tiers-payant)">Vente
+            </th>
           }
           @if (isFieldVisible('retourFournisseurQuantity')) {
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ retourFournisseurQuantity() | number }}</span></td>
+            <th class="text-end" title="Quantité retournée au fournisseur">Ret.
+              four.
+            </th>
           }
           @if (isFieldVisible('perimeQuantity')) {
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ perimeQuantity() | number }}</span></td>
+            <th class="text-end" title="Quantité retirée pour péremption">
+              Périmée
+            </th>
           }
           @if (isFieldVisible('ajustementNegatifQuantity')) {
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ ajustementNegatifQuantity() | number }}</span></td>
+            <th class="text-end" title="Ajustement négatif de stock">Ajust.−
+            </th>
           }
           @if (isFieldVisible('deconNegatifQuantity')) {
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ deconNegatifQuantity() | number }}</span></td>
+            <th class="text-end" title="Déconditionnement sortant (boîte → unités)">Décon.−
+            </th>
           }
           @if (isFieldVisible('mouvementStockOut')) {
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ mouvementStockOut() | number }}</span></td>
+            <th class="text-end" title="Déplacement de stock sortant (vers réserve)">Transf.↓
+            </th>
           }
           @if (isFieldVisible('deleveryQuantity')) {
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ deleveryQuantity() | number }}</span></td>
+            <th class="text-end" title="Entrée en stock (réception fournisseur)">Entrée
+            </th>
           }
           @if (isFieldVisible('ajustementPositifQuantity')) {
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ ajustementPositifQuantity() | number }}</span></td>
+            <th class="text-end" title="Ajustement positif de stock">Ajust.+
+            </th>
           }
           @if (isFieldVisible('deconPositifQuantity')) {
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ deconPositifQuantity() | number }}</span></td>
+            <th class="text-end" title="Déconditionnement entrant (retour en boîte)">Décon.+
+            </th>
+          }
+          @if (isFieldVisible('canceledQuantity')) {
+            <th class="text-end" title="Vente annulée — quantité remise en stock">Annulée
+            </th>
+          }
+          @if (isFieldVisible('mouvementStockIn')) {
+            <th class="text-end" title="Déplacement de stock entrant (depuis rayon)">Transf.↑
+            </th>
+          }
+          @if (hasDepot() && isFieldVisible('retourDepot')) {
+            <th class="text-end" title="Retour depuis le dépôt">Ret. dépôt</th>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-row>
+        <tr [class]="rowClass(row)">
+          <td>{{ row.mvtDate | date: 'dd/MM/yyyy' }}</td>
+          <td class="text-end"><span class="pharma-qty-value">{{ row.initStock | number }}</span></td>
+          @if (isFieldVisible('saleQuantity')) {
+            <td class="text-end"><span [class.mvt-qty-zero]="!row.saleQuantity">{{
+                qty(row.saleQuantity)
+              }}</span></td>
+          }
+          @if (isFieldVisible('retourFournisseurQuantity')) {
+            <td class="text-end"><span [class.mvt-qty-zero]="!row.retourFournisseurQuantity">{{
+                qty(row.retourFournisseurQuantity)
+              }}</span></td>
+          }
+          @if (isFieldVisible('perimeQuantity')) {
+            <td class="text-end"><span [class.mvt-qty-zero]="!row.perimeQuantity">{{
+                qty(row.perimeQuantity)
+              }}</span></td>
+          }
+          @if (isFieldVisible('ajustementNegatifQuantity')) {
+            <td class="text-end"><span [class.mvt-qty-zero]="!row.ajustementNegatifQuantity">{{
+                qty(row.ajustementNegatifQuantity)
+              }}</span></td>
+          }
+          @if (isFieldVisible('deconNegatifQuantity')) {
+            <td class="text-end"><span [class.mvt-qty-zero]="!row.deconNegatifQuantity">{{
+                qty(row.deconNegatifQuantity)
+              }}</span></td>
+          }
+          @if (isFieldVisible('mouvementStockOut')) {
+            <td class="text-end"><span [class.mvt-qty-zero]="!row.mouvementStockOut">{{
+                qty(row.mouvementStockOut)
+              }}</span></td>
+          }
+          @if (isFieldVisible('deleveryQuantity')) {
+            <td class="text-end"><span [class.mvt-qty-zero]="!row.deleveryQuantity">{{
+                qty(row.deleveryQuantity)
+              }}</span></td>
+          }
+          @if (isFieldVisible('ajustementPositifQuantity')) {
+            <td class="text-end"><span [class.mvt-qty-zero]="!row.ajustementPositifQuantity">{{
+                qty(row.ajustementPositifQuantity)
+              }}</span></td>
+          }
+          @if (isFieldVisible('deconPositifQuantity')) {
+            <td class="text-end"><span [class.mvt-qty-zero]="!row.deconPositifQuantity">{{
+                qty(row.deconPositifQuantity)
+              }}</span></td>
           }
           @if (isFieldVisible('canceledQuantity')) {
             <td class="text-end text-danger"><span
-              class="pharma-footer-value">{{ canceledQuantity() | number }}</span></td>
+              [class.mvt-qty-zero]="!row.canceledQuantity">{{ qty(row.canceledQuantity) }}</span></td>
           }
           @if (isFieldVisible('mouvementStockIn')) {
-            <td class="text-end"><span
-              class="pharma-footer-value">{{ mouvementStockIn() | number }}</span></td>
+            <td class="text-end"><span [class.mvt-qty-zero]="!row.mouvementStockIn">{{
+                qty(row.mouvementStockIn)
+              }}</span></td>
           }
           @if (hasDepot() && isFieldVisible('retourDepot')) {
-            <td class="text-end"><span class="pharma-footer-value">{{ retourDepot() | number }}</span>
-            </td>
+            <td class="text-end"><span [class.mvt-qty-zero]="!row.retourDepot">{{
+                qty(row.retourDepot)
+              }}</span></td>
           }
-          <td colspan="3"></td>
+          <td class="text-end"><span [class.mvt-qty-zero]="!row.storeInventoryQuantity">{{
+              qty(row.storeInventoryQuantity)
+            }}</span></td>
+          <td class="text-end"><span [class.mvt-qty-zero]="!row.inventoryGap">{{
+              qty(row.inventoryGap)
+            }}</span></td>
+          <!-- Stock final + indicateur tendance -->
+          <td class="text-end mvt-stock-final-cell">
+            <span class="pharma-total">{{ row.afterStock | number }}</span>
+            @if ((row.afterStock ?? 0) > (row.initStock ?? 0)) {
+              <i class="pi pi-arrow-up mvt-trend-up ms-1" ngbTooltip="Stock en hausse"
+                 placement="left"></i>
+            } @else if ((row.afterStock ?? 0) < (row.initStock ?? 0)) {
+              <i class="pi pi-arrow-down mvt-trend-down ms-1" ngbTooltip="Stock en baisse"
+                 placement="left"></i>
+            }
+          </td>
         </tr>
-      }
-    </ng-template>
+      </ng-template>
 
-    <ng-template #emptymessage>
-      <tr>
-        <td [attr.colspan]="totalColspan" class="pharma-empty-message">
-          <div class="pharma-empty-content">
-            <i class="pi pi-inbox"></i>
-            <p>Aucun mouvement sur la période</p>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-  </app-data-table>
+      <ng-template #footer>
+        @if (entites().length > 0) {
+          <tr class="pharma-table-footer">
+            <td colspan="2"><span class="pharma-footer-label">Totaux</span></td>
+            @if (isFieldVisible('saleQuantity')) {
+              <td class="text-end"><span
+                class="pharma-footer-value">{{ saleQuantity() | number }}</span></td>
+            }
+            @if (isFieldVisible('retourFournisseurQuantity')) {
+              <td class="text-end"><span
+                class="pharma-footer-value">{{ retourFournisseurQuantity() | number }}</span></td>
+            }
+            @if (isFieldVisible('perimeQuantity')) {
+              <td class="text-end"><span
+                class="pharma-footer-value">{{ perimeQuantity() | number }}</span></td>
+            }
+            @if (isFieldVisible('ajustementNegatifQuantity')) {
+              <td class="text-end"><span
+                class="pharma-footer-value">{{ ajustementNegatifQuantity() | number }}</span></td>
+            }
+            @if (isFieldVisible('deconNegatifQuantity')) {
+              <td class="text-end"><span
+                class="pharma-footer-value">{{ deconNegatifQuantity() | number }}</span></td>
+            }
+            @if (isFieldVisible('mouvementStockOut')) {
+              <td class="text-end"><span
+                class="pharma-footer-value">{{ mouvementStockOut() | number }}</span></td>
+            }
+            @if (isFieldVisible('deleveryQuantity')) {
+              <td class="text-end"><span
+                class="pharma-footer-value">{{ deleveryQuantity() | number }}</span></td>
+            }
+            @if (isFieldVisible('ajustementPositifQuantity')) {
+              <td class="text-end"><span
+                class="pharma-footer-value">{{ ajustementPositifQuantity() | number }}</span></td>
+            }
+            @if (isFieldVisible('deconPositifQuantity')) {
+              <td class="text-end"><span
+                class="pharma-footer-value">{{ deconPositifQuantity() | number }}</span></td>
+            }
+            @if (isFieldVisible('canceledQuantity')) {
+              <td class="text-end text-danger"><span
+                class="pharma-footer-value">{{ canceledQuantity() | number }}</span></td>
+            }
+            @if (isFieldVisible('mouvementStockIn')) {
+              <td class="text-end"><span
+                class="pharma-footer-value">{{ mouvementStockIn() | number }}</span></td>
+            }
+            @if (hasDepot() && isFieldVisible('retourDepot')) {
+              <td class="text-end"><span class="pharma-footer-value">{{ retourDepot() | number }}</span>
+              </td>
+            }
+            <td colspan="3"></td>
+          </tr>
+        }
+      </ng-template>
 
-</div>
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="totalColspan" class="pharma-empty-message">
+            <div class="pharma-empty-content">
+              <i class="pi pi-inbox"></i>
+              <p>Aucun mouvement sur la période</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </app-detail-section>
+</app-detail-grid>

@@ -9,11 +9,6 @@ import { AppTableColumn, AppTableHost, AppTableLazyLoadEvent } from './table.typ
 
 /**
  * Tableau du Design System — remplace `p-table`. Rend une `<table>` Bootstrap 5.
- *
- * L'API reprend délibérément le vocabulaire de `p-table` (`value`, `paginator`, `rows`,
- * `lazy`, `dataKey`, templates `#header` / `#body` / `#emptymessage`…) pour que la
- * substitution sur les ~144 écrans concernés se limite au nom de la balise.
- *
  * **Deux modes.** En client-side (défaut), la table trie et pagine elle-même le tableau
  * `value`. En `lazy`, elle n'affiche que ce qu'on lui donne et signale ses besoins via
  * `(onLazyLoad)` — c'est au parent de recharger.
@@ -45,11 +40,6 @@ import { AppTableColumn, AppTableHost, AppTableLazyLoadEvent } from './table.typ
   providers: [{ provide: AppTableHost, useExisting: DataTableComponent }],
   templateUrl: './data-table.component.html',
   styleUrl: './data-table.component.scss',
-  // `#header`/`#body`/`#groupheader`… sont déclarés dans le template de l'écran appelant,
-  // pas dans celui-ci : rendus via `ngTemplateOutlet`, leurs éléments portent l'attribut de
-  // scoping du composant appelant, pas celui de `DataTableComponent`. Sous encapsulation
-  // Emulated, les règles ci-dessous (`.app-sortable`, `.app-frozen-column`, colonne figée,
-  // en-tête collant…) ne les atteindraient donc jamais. Même choix que `pharma-date-picker`.
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

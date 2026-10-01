@@ -37,11 +37,14 @@ import {
   AppTableLazyLoadEvent,
   BadgeComponent,
   ButtonComponent,
-  CardComponent,
   DataTableComponent,
+  DetailGridComponent,
+  DetailSectionComponent,
   FloatLabelComponent,
   IconFieldComponent,
   InputNumberComponent,
+  KpiItemComponent,
+  KpiStripComponent,
   SelectComponent,
   ToolbarComponent, AppBadgeSeverity } from "../../../../shared/ui";
 import {
@@ -61,6 +64,8 @@ import { currencySymbol } from 'app/shared/utils/format-utils';
     NgbNavModule,
     ButtonComponent,
     DataTableComponent,
+    DetailGridComponent,
+    DetailSectionComponent,
     ToolbarComponent,
     BadgeComponent,
     InputNumberComponent,
@@ -69,7 +74,8 @@ import { currencySymbol } from 'app/shared/utils/format-utils';
     IconFieldComponent,
     PharmaDatePickerComponent,
     NgbTooltip,
-    CardComponent
+    KpiItemComponent,
+    KpiStripComponent
   ],
   templateUrl: "./comptes-fournisseurs.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,

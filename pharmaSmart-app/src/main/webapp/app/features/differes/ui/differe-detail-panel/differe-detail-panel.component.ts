@@ -2,7 +2,7 @@ import { Component, DestroyRef, computed, effect, inject, input, signal, ChangeD
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
 import { NgbNavModule, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonComponent, DataTableComponent, NavTabsComponent } from "../../../../shared/ui";
+import { ButtonComponent, DataTableComponent, DetailGridComponent, DetailSectionComponent, NavTabsComponent } from "../../../../shared/ui";
 
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../../../shared/services/notification.service";
@@ -24,12 +24,14 @@ import { CommonModule } from "@angular/common";
 import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: "app-differe-detail-panel",
-  imports: [DeviseDirective, 
+  imports: [DeviseDirective,
     CommonModule,
     NgbNavModule,
     NgbTooltip,
     ButtonComponent,
     DataTableComponent,
+    DetailGridComponent,
+    DetailSectionComponent,
     NavTabsComponent,
     ReglementDiffereFormComponent
   ],

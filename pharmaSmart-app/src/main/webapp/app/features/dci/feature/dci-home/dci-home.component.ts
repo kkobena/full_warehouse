@@ -11,6 +11,8 @@ import {
   BadgeComponent,
   ButtonComponent,
   DataTableComponent,
+  DetailGridComponent,
+  DetailSectionComponent,
   IconFieldComponent,
   ToolbarComponent
 } from "../../../../shared/ui";
@@ -19,7 +21,6 @@ import { PageLayoutComponent } from "../../../../shared/ui/page-layout/page-layo
 import { DciApiService, DciQuery } from "../../data-access/services/dci-api.service";
 import { IDci, IDciProduit } from "../../models/dci.model";
 import { AppBadgeSeverity } from "../../../../shared/ui/badge/badge.component";
-import { CardComponent } from "../../../../shared/ui/card/card.component";
 import { HintComponent } from "../../../../shared/ui/hint/hint.component";
 import { SelectableRowDirective } from "../../../../shared/ui/data-table/selectable-row.directive";
 import { DciFormComponent } from "../../ui/dci-form/dci-form.component";
@@ -46,8 +47,9 @@ import { DciImportComponent } from "../../ui/dci-import/dci-import.component";
     BadgeComponent,
     IconFieldComponent,
     DataTableComponent,
+    DetailGridComponent,
+    DetailSectionComponent,
     SelectableRowDirective,
-    CardComponent,
     HintComponent,
     DecimalPipe
   ]

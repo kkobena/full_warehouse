@@ -1,3 +1,8 @@
+
+
+<app-detail-grid>
+  <app-detail-section header="Déconditionnés" icon="pi pi-box" [width]="'full'" [accent]="'orange'"
+                      [count]="details?.length" storageKey="produit.deconditions.tab">
 <app-data-table
   [value]="details"
 >
@@ -33,3 +38,4 @@
     </tr>
   </ng-template>
 </app-data-table>
+  </app-detail-section></app-detail-grid>

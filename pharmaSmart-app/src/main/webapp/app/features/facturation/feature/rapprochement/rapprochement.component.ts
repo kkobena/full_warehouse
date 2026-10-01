@@ -34,6 +34,8 @@ import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import {
   ButtonComponent,
   DataTableComponent,
+  DetailGridComponent,
+  DetailSectionComponent,
   FloatLabelComponent,
   MultiSelectComponent,
   ToolbarComponent, RowTogglerDirective } from "../../../../shared/ui";
@@ -46,13 +48,15 @@ interface IStatutOption {
 
 @Component({
   selector: "app-rapprochement",
-  imports: [RowTogglerDirective, 
+  imports: [RowTogglerDirective,
     HintComponent,
     FormsModule,
     DecimalPipe,
     RapprochementKpiBannerComponent,
     ButtonComponent,
     DataTableComponent,
+    DetailGridComponent,
+    DetailSectionComponent,
     FloatLabelComponent,
     MultiSelectComponent,
     ToolbarComponent,

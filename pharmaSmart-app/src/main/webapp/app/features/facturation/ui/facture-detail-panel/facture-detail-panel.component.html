@@ -84,40 +84,38 @@
             <span>Détail</span>
           </a>
           <ng-template ngbNavContent>
-            @if (loadingItems()) {
-              <div class="d-flex justify-content-center p-4">
-                <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Chargement…</span>
-              </div>
-              </div>
-            } @else {
-              <app-data-table [stripedRows]="true" [value]="factureItems()" [paginator]="true"
-                       [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [size]="'small'">
-                <ng-template #header>
-                  <tr class="pharma-table-head">
-                    <th>N° Bon</th>
-                    <th>Assuré</th>
-                    <th>Matricule</th>
-                    <th class="text-right">Montant</th>
-                    <th class="text-right">Réglé</th>
-                  </tr>
-                </ng-template>
-                <ng-template #body let-item>
-                  <tr>
-                    <td><span class="pharma-code">{{ item.numBon }}</span></td>
-                    <td><span class="pharma-entity-name">{{ item.customer?.fullName }}</span></td>
-                    <td><span class="pharma-badge pharma-badge-info">{{ item.matricule }}</span></td>
-                    <td class="text-right"><span class="pharma-price">{{ item.montantVente | number }}</span></td>
-                    <td class="text-right"><span class="pharma-price">{{ item.montantRegle | number }}</span></td>
-                  </tr>
-                </ng-template>
-                <ng-template #emptymessage>
-                  <tr>
-                    <td colspan="5" class="text-center p-3 text-muted">Aucun dossier</td>
-                  </tr>
-                </ng-template>
-              </app-data-table>
-            }
+            <app-detail-grid>
+              <app-detail-section header="Dossiers de la facture" icon="pi pi-list" [accent]="'blue'"
+                                  [width]="'full'" [layout]="'block'" [count]="factureItems().length"
+                                  [loading]="loadingItems()" [skeletonRows]="5" storageKey="facture.detail.dossiers">
+                <app-data-table [stripedRows]="true" [value]="factureItems()" [paginator]="true"
+                         [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [size]="'small'">
+                  <ng-template #header>
+                    <tr class="pharma-table-head">
+                      <th>N° Bon</th>
+                      <th>Assuré</th>
+                      <th>Matricule</th>
+                      <th class="text-right">Montant</th>
+                      <th class="text-right">Réglé</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template #body let-item>
+                    <tr>
+                      <td><span class="pharma-code">{{ item.numBon }}</span></td>
+                      <td><span class="pharma-entity-name">{{ item.customer?.fullName }}</span></td>
+                      <td><span class="pharma-badge pharma-badge-info">{{ item.matricule }}</span></td>
+                      <td class="text-right"><span class="pharma-price">{{ item.montantVente | number }}</span></td>
+                      <td class="text-right"><span class="pharma-price">{{ item.montantRegle | number }}</span></td>
+                    </tr>
+                  </ng-template>
+                  <ng-template #emptymessage>
+                    <tr>
+                      <td colspan="5" class="text-center p-3 text-muted">Aucun dossier</td>
+                    </tr>
+                  </ng-template>
+                </app-data-table>
+              </app-detail-section>
+            </app-detail-grid>
           </ng-template>
         </ng-container>
 
@@ -129,10 +127,16 @@
               <span>Régler</span>
             </a>
             <ng-template ngbNavContent>
+              <app-detail-grid>
+                <app-detail-section header="Régler" icon="pi pi-money-bill" [accent]="'success'"
+                                    [width]="'full'" [layout]="'block'"
+                                     storageKey="facture.regler">
               <app-reglement-workspace
                 [mode]="isGroupe ? 'GROUPE' : 'INDIVIDUEL'"
                 [dossierFactureProjection]="dossierFactureProjection()"
                 [reglementFactureDossiers]="reglementDossiers()" />
+              </app-detail-section>
+              </app-detail-grid>
             </ng-template>
           </ng-container>
         }
@@ -146,47 +150,45 @@
             <span>Versements</span>
           </a>
           <ng-template ngbNavContent>
-            @if (loadingReglements()) {
-              <div class="d-flex justify-content-center p-4">
-                <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Chargement…</span>
-              </div>
-              </div>
-            } @else {
-              <app-data-table [stripedRows]="true" [value]="reglements()" [paginator]="true"
-                       [rows]="10" [size]="'small'">
-                <ng-template #header>
-                  <tr class="pharma-table-head">
-                    <th>Date</th>
-                    <th>Mode</th>
-                    <th class="text-right">Versé</th>
-                    <th class="text-right">Restant</th>
-                    <th>Opérateur</th>
-                  </tr>
-                </ng-template>
-                <ng-template #body let-r>
-                  <tr>
-                    <td>{{ r.created }}</td>
-                    <td><span class="pharma-badge pharma-badge-info">{{ r.paymentMode }}</span></td>
-                    <td class="text-right"><span class="pharma-total">{{ r.paidAmount }}</span></td>
-                    <td class="text-right"><span class="pharma-price">{{ r.montantRestant }}</span></td>
-                    <td>{{ r.user }}</td>
-                  </tr>
-                </ng-template>
-                <ng-template #emptymessage>
-                  <tr>
-                    <td colspan="5" class="text-center p-3 text-muted">Aucun versement enregistré</td>
-                  </tr>
-                </ng-template>
-              </app-data-table>
-            }
+            <app-detail-grid>
+              <app-detail-section header="Versements" icon="pi pi-history" [accent]="'teal'"
+                                  [width]="'full'" [layout]="'block'" [count]="reglements().length"
+                                  [loading]="loadingReglements()" [skeletonRows]="5" storageKey="facture.versements">
+                <app-data-table [stripedRows]="true" [value]="reglements()" [paginator]="true"
+                         [rows]="10" [size]="'small'">
+                  <ng-template #header>
+                    <tr class="pharma-table-head">
+                      <th>Date</th>
+                      <th>Mode</th>
+                      <th class="text-right">Versé</th>
+                      <th class="text-right">Restant</th>
+                      <th>Opérateur</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template #body let-r>
+                    <tr>
+                      <td>{{ r.created }}</td>
+                      <td><span class="pharma-badge pharma-badge-info">{{ r.paymentMode }}</span></td>
+                      <td class="text-right"><span class="pharma-total">{{ r.paidAmount }}</span></td>
+                      <td class="text-right"><span class="pharma-price">{{ r.montantRestant }}</span></td>
+                      <td>{{ r.user }}</td>
+                    </tr>
+                  </ng-template>
+                  <ng-template #emptymessage>
+                    <tr>
+                      <td colspan="5" class="text-center p-3 text-muted">Aucun versement enregistré</td>
+                    </tr>
+                  </ng-template>
+                </app-data-table>
+              </app-detail-section>
+            </app-detail-grid>
           </ng-template>
         </ng-container>
         <!-- Onglet Avoirs (factures réglées ou partiellement réglées) -->
         @if (facture().statut === 'PAID' || facture().statut === 'PARTIALLY_PAID') {
           <ng-container ngbNavItem="avoirs">
             <a class="pharma-nav-tab-link" ngbNavLink>
-              <i class="pi pi-file-minus"></i>
+              <i class="pi pi-wallet"></i>
               <span>Avoirs TP</span>
             </a>
             <ng-template ngbNavContent>

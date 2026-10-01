@@ -1,10 +1,10 @@
 @import 'app/shared/scss/table-common';
 
+// Carte, en-tête, élévation et liseré : `app-detail-section`. Ne restent ici que la jauge,
+// les lots et ce qui n'existe que sur cet onglet.
+
 // ── Variables alignées sur la charte Pharma-Smart ────────────
 $pharma-primary:       #5b89a6;   // bleu acier
-$pharma-primary-light: #e8f4f8;   // fond bleu clair
-$pharma-primary-mid:   #b0cfe0;   // bordure bleu
-$pharma-accent:        #00a86b;   // vert menthe (succès)
 $pharma-warning:       #e99002;   // ambre
 $pharma-warning-bg:    #fffbeb;
 $pharma-warning-bd:    #f5c842;
@@ -19,101 +19,32 @@ $gray-600:             #4b5563;
 $text-muted:           #6b7280;
 $pharma-dark:          #374151;
 
-// ── Layout ──────────────────────────────────────────────────
-.stock-cards-layout {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 1rem;
-  flex-wrap: wrap;
+// ── Entre rayon et réserve ───────────────────────────────────
+.stock-arrow,
+.stock-add-reserve {
+  flex: 0 0 auto;
+  align-self: center;
 }
 
 .stock-arrow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: 2.5rem;
   color: $text-muted;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
-.stock-add-reserve {
-  display: flex;
-  align-items: center;
-  padding-top: 2rem;
-}
-
-// ── Carte stock ──────────────────────────────────────────────
-.stock-card {
-  flex: 1;
-  min-width: 200px;
-  max-width: 280px;
-  border: 1px solid $pharma-border;
-  border-radius: 8px;
-  padding: 0.875rem;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  transition: border-color 0.2s, background 0.2s;
-
-  // OK → bleu acier (couleur primaire du projet)
-  &.niveau-ok {
-    border-color: $pharma-primary-mid;
-    background: $pharma-primary-light;
-  }
-
-  // Warning → ambre (couleur warning du projet)
-  &.niveau-warning {
-    border-color: $pharma-warning-bd;
-    background: $pharma-warning-bg;
-  }
-
-  // Danger → rouge (couleur danger du projet)
-  &.niveau-danger {
-    border-color: $pharma-danger-bd;
-    background: $pharma-danger-bg;
-  }
-
-  // Empty → gris neutre
-  &.niveau-empty {
-    border-color: $gray-300;
-    background: $gray-50;
-    opacity: 0.9;
-  }
-}
-
-.stock-card-header {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.stock-card-label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: $text-muted;
-}
-
+// ── Contenu des cartes rayon / réserve ───────────────────────
 .stock-card-name {
-  flex: 1;
   font-size: 0.7rem;
+  color: $text-muted;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.stock-card-actions {
-  margin-left: auto;
-}
-
-// ── Quantité principale ──────────────────────────────────────
 .stock-qty-block {
   display: flex;
   align-items: baseline;
   gap: 0.3rem;
+  margin: 0.25rem 0 0.4rem;
 }
 
 .stock-qty-value {
@@ -137,26 +68,26 @@ $pharma-dark:          #374151;
   margin-left: 0.2rem;
 }
 
-// ── Barre de niveau ──────────────────────────────────────────
+// ── Jauge ────────────────────────────────────────────────────
 .niveau-bar-track {
   position: relative;
   height: 6px;
+  margin-bottom: 0.5rem;
   background: $gray-200;
   border-radius: 3px;
-  overflow: visible;
 }
 
 .niveau-bar-fill {
   height: 100%;
-  background: $pharma-primary;       // bleu acier (état normal)
+  background: $pharma-primary;
   border-radius: 3px;
   transition: width 0.3s ease;
   min-width: 2px;
 }
 
-:host ::ng-deep .niveau-danger  .niveau-bar-fill { background: $pharma-danger; }
-:host ::ng-deep .niveau-warning .niveau-bar-fill { background: $pharma-warning; }
-:host ::ng-deep .niveau-empty   .niveau-bar-fill { background: $gray-400; }
+.niveau-danger  .niveau-bar-fill { background: $pharma-danger; }
+.niveau-warning .niveau-bar-fill { background: $pharma-warning; }
+.niveau-empty   .niveau-bar-fill { background: $gray-400; }
 
 .niveau-seuil-marker {
   position: absolute;
@@ -168,34 +99,9 @@ $pharma-dark:          #374151;
   cursor: default;
 }
 
-// ── Paramètres ───────────────────────────────────────────────
-.stock-params {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.param-item {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.param-label {
-  font-size: 0.6rem;
-  color: $text-muted;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.param-value {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: $pharma-dark;
-}
-
 // ── Alerte ───────────────────────────────────────────────────
 .stock-alert {
+  margin-top: 0.5rem;
   font-size: 0.7rem;
   font-weight: 600;
   color: darken($pharma-danger, 10%);
@@ -211,114 +117,36 @@ $pharma-dark:          #374151;
   }
 }
 
-// ── Footer carte ─────────────────────────────────────────────
 .stock-card-footer {
-  margin-top: 0.25rem;
+  margin-top: 0.5rem;
   display: flex;
   justify-content: flex-end;
 }
 
-// ── Insights CMM ─────────────────────────────────────────────
-.stock-insights {
-  margin: 0 1rem 0.5rem;
-  padding: 0.625rem 0.75rem;
-  background: $pharma-primary-light;
-  border: 1px solid $pharma-primary-mid;
-  border-radius: 6px;
-}
-
-.insight-title {
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: $pharma-primary;
-  margin-bottom: 0.5rem;
-}
-
-.insight-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1.25rem;
-}
-
-.insight-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.insight-label {
-  font-size: 0.6rem;
-  color: $text-muted;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.insight-value {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: $pharma-dark;
-
-  &.insight-alert {
-    color: $pharma-danger;
-    font-weight: 700;
-  }
-}
-
-.insight-highlight {
-  color: $pharma-primary;
-}
-
+// ── Analyse CMM ──────────────────────────────────────────────
 .insight-warn {
-  font-size: 0.65rem;
+  margin-right: 0.3rem;
   color: $pharma-warning;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 3px;
   cursor: default;
 }
 
-// ── FEFO Lots ─────────────────────────────────────────────────
-.fefo-section {
-  margin: 0 1rem 0.5rem;
-  border: 1px solid $pharma-border;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.fefo-title {
+// ── Lots ─────────────────────────────────────────────────────
+.lots-actions {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: $text-muted;
-  padding: 0.4rem 0.75rem;
-  background: $gray-50;
-  border-bottom: 1px solid $pharma-border;
-
-  // Le bouton "Saisir un lot" est poussé à droite via margin-left auto sur l'avant-dernier élément
-  // (.fefo-urgent-badge ou .fefo-subtitle prennent le margin-left: auto)
-  app-button {
-    margin-left: auto;
-    flex-shrink: 0;
-  }
+  gap: 0.5rem;
 }
 
 .fefo-subtitle {
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 0.6rem;
+  margin: 0 0 0.4rem;
+  font-size: 0.68rem;
+  color: $text-muted;
 }
 
 .fefo-urgent-badge {
   font-size: 0.6rem;
   font-weight: 700;
+  text-transform: uppercase;
   color: $pharma-danger;
   background: $pharma-danger-bg;
   border: 1px solid $pharma-danger-bd;
@@ -329,6 +157,9 @@ $pharma-dark:          #374151;
 .fefo-table {
   display: flex;
   flex-direction: column;
+  border: 1px solid $pharma-border;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .fefo-row {
@@ -387,32 +218,16 @@ $pharma-dark:          #374151;
   }
 }
 
-// ── Pas de lots (produit en stock sans lot enregistré) ───────
+// Produit en stock sans lot enregistré : pleine largeur, comme une alerte.
 .fefo-no-lots {
+  flex: 1 1 100%;
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin: 0 1rem 0.5rem;
   padding: 0.5rem 0.75rem;
   background: $pharma-warning-bg;
   border: 1px solid $pharma-warning-bd;
   border-radius: 6px;
   font-size: 0.75rem;
-  color: $pharma-dark;
-}
-
-
-// ── Barre totaux ─────────────────────────────────────────────
-.stock-total-bar {  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-top: 1px solid $pharma-border;
-  background: $gray-50;
-}
-
-.stock-total-value {
-  font-size: 1rem;
-  font-weight: 700;
   color: $pharma-dark;
 }

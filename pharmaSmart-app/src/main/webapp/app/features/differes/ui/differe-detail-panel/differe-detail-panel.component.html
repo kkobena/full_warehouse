@@ -37,32 +37,38 @@
             <span>Détail</span>
           </a>
           <ng-template ngbNavContent>
-            <app-data-table [value]="differe().differeItems ?? []" [stripedRows]="true"
-                     [paginator]="true" [rows]="10" [size]="'small'">
-              <ng-template #header>
-                <tr class="pharma-table-head">
-                  <th>Référence</th>
-                  <th>Date</th>
-                  <th class="text-right">Montant</th>
-                  <th class="text-right">Payé</th>
-                  <th class="text-right">Restant</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-item>
-                <tr>
-                  <td><span class="pharma-code">{{ item.reference }}</span></td>
-                  <td>{{ item.mvtDate | date: 'dd/MM/yyyy' }}</td>
-                  <td class="text-right"><span class="pharma-price">{{ item.amount | number }}</span></td>
-                  <td class="text-right"><span class="pharma-price">{{ item.paidAmount | number }}</span></td>
-                  <td class="text-right">
-                    <span [class.pharma-total]="(item.restAmount ?? 0) > 0">{{ item.restAmount | number }}</span>
-                  </td>
-                </tr>
-              </ng-template>
-              <ng-template #emptymessage>
-                <tr><td colspan="5" class="text-center p-3 text-muted">Aucun article</td></tr>
-              </ng-template>
-            </app-data-table>
+            <app-detail-grid>
+              <app-detail-section header="Articles différés" icon="pi pi-list" [accent]="'blue'"
+                                  [width]="'full'" [layout]="'block'" [count]="(differe().differeItems ?? []).length"
+                                  storageKey="differe.detail.articles">
+                <app-data-table [value]="differe().differeItems ?? []" [stripedRows]="true"
+                         [paginator]="true" [rows]="10" [size]="'small'">
+                  <ng-template #header>
+                    <tr class="pharma-table-head">
+                      <th>Référence</th>
+                      <th>Date</th>
+                      <th class="text-right">Montant</th>
+                      <th class="text-right">Payé</th>
+                      <th class="text-right">Restant</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template #body let-item>
+                    <tr>
+                      <td><span class="pharma-code">{{ item.reference }}</span></td>
+                      <td>{{ item.mvtDate | date: 'dd/MM/yyyy' }}</td>
+                      <td class="text-right"><span class="pharma-price">{{ item.amount | number }}</span></td>
+                      <td class="text-right"><span class="pharma-price">{{ item.paidAmount | number }}</span></td>
+                      <td class="text-right">
+                        <span [class.pharma-total]="(item.restAmount ?? 0) > 0">{{ item.restAmount | number }}</span>
+                      </td>
+                    </tr>
+                  </ng-template>
+                  <ng-template #emptymessage>
+                    <tr><td colspan="5" class="text-center p-3 text-muted">Aucun article</td></tr>
+                  </ng-template>
+                </app-data-table>
+              </app-detail-section>
+            </app-detail-grid>
           </ng-template>
         </ng-container>
 
@@ -74,13 +80,16 @@
               <span>Régler</span>
             </a>
             <ng-template ngbNavContent>
-              <div class="regler-panel">
-                <app-reglement-differe-form
-                  [differe]="differe()"
-                  [isSaving]="isSaving()"
-                  (reglementParams)="onSaveReglement($event)"
-                  (rendu)="onMonnaieChange($event)" />
-              </div>
+              <app-detail-grid>
+                <app-detail-section header="Règlement" icon="pi pi-money-bill" [accent]="'success'"
+                                    [width]="'full'" [layout]="'block'" storageKey="differe.detail.reglement">
+                  <app-reglement-differe-form
+                    [differe]="differe()"
+                    [isSaving]="isSaving()"
+                    (reglementParams)="onSaveReglement($event)"
+                    (rendu)="onMonnaieChange($event)" />
+                </app-detail-section>
+              </app-detail-grid>
             </ng-template>
           </ng-container>
         }
@@ -92,36 +101,35 @@
             <span>Historique</span>
           </a>
           <ng-template ngbNavContent>
-            @if (loadingReglements()) {
-              <div class="d-flex justify-content-center p-4">
-                <div class="spinner-border text-primary" role="status" style="width: 40px; height: 40px">
-                  <span class="visually-hidden">Chargement…</span>
-                </div>
-              </div>
-            } @else {
-              <app-data-table [value]="versements()" [stripedRows]="true"
-                       [paginator]="true" [rows]="10" [size]="'small'">
-                <ng-template #header>
-                  <tr class="pharma-table-head">
-                    <th>Date</th>
-                    <th>Mode</th>
-                    <th class="text-right">Versé</th>
-                    <th>Opérateur</th>
-                  </tr>
-                </ng-template>
-                <ng-template #body let-v>
-                  <tr>
-                    <td class="small">{{ v.mvtDate | date: 'dd/MM/yyyy' }}</td>
-                    <td><span class="pharma-badge pharma-badge-info">{{ v.libelleMode ?? '—' }}</span></td>
-                    <td class="text-right"><span class="pharma-total">{{ v.montantVerse | number }}</span></td>
-                    <td class="small text-muted">{{ v.user ?? '—' }}</td>
-                  </tr>
-                </ng-template>
-                <ng-template #emptymessage>
-                  <tr><td colspan="4" class="text-center p-3 text-muted">Aucun versement</td></tr>
-                </ng-template>
-              </app-data-table>
-            }
+            <app-detail-grid>
+              <app-detail-section header="Historique des versements" icon="pi pi-history" [accent]="'teal'"
+                                  [width]="'full'" [layout]="'block'" [count]="versements().length"
+                                  [loading]="loadingReglements()" [skeletonRows]="5"
+                                  storageKey="differe.detail.historique">
+                <app-data-table [value]="versements()" [stripedRows]="true"
+                         [paginator]="true" [rows]="10" [size]="'small'">
+                  <ng-template #header>
+                    <tr class="pharma-table-head">
+                      <th>Date</th>
+                      <th>Mode</th>
+                      <th class="text-right">Versé</th>
+                      <th>Opérateur</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template #body let-v>
+                    <tr>
+                      <td class="small">{{ v.mvtDate | date: 'dd/MM/yyyy' }}</td>
+                      <td><span class="pharma-badge pharma-badge-info">{{ v.libelleMode ?? '—' }}</span></td>
+                      <td class="text-right"><span class="pharma-total">{{ v.montantVerse | number }}</span></td>
+                      <td class="small text-muted">{{ v.user ?? '—' }}</td>
+                    </tr>
+                  </ng-template>
+                  <ng-template #emptymessage>
+                    <tr><td colspan="4" class="text-center p-3 text-muted">Aucun versement</td></tr>
+                  </ng-template>
+                </app-data-table>
+              </app-detail-section>
+            </app-detail-grid>
           </ng-template>
         </ng-container>
       </div>

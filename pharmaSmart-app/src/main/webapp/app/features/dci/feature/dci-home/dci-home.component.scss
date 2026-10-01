@@ -1,5 +1,13 @@
 @use 'app/shared/scss/split-panel' as *;
 @use 'app/shared/scss/table-common' as *;
+@use 'app/shared/scss/panel-header' as *;
+
+.detail-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
 
 .pharma-code {
   font-size: 0.82rem;

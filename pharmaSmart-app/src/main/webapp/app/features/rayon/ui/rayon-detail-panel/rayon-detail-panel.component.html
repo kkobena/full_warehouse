@@ -67,7 +67,7 @@
   </div>
 
   <!-- Onglets ngbNav -->
-  <div class="pharma-nav-tabs-container flex-1-overflow">
+  <app-nav-tabs [nav]="nav" containerClass="flex-1-overflow">
     <div
       #nav="ngbNav"
       [activeId]="activeTab()"
@@ -91,42 +91,24 @@
           <span>Paramètres</span>
         </a>
         <ng-template ngbNavContent>
-          <div class="params-view">
-            <div class="params-grid">
-              <div class="param-item">
-                <span class="param-label">Emplacement</span>
-                <span class="param-value">{{ rayon().storageLibelle ?? rayon().storageType }}</span>
-              </div>
-              <div class="param-item">
-                <span class="param-label">Code</span>
-                <span class="param-value pharma-code">{{ rayon().code }}</span>
-              </div>
-              <div class="param-item">
-                <span class="param-label">Type de zone</span>
-                <span class="param-value">
-                  @if (rayon().typeZone) {
-                    <app-badge [label]="rayon().typeZone!" [severity]="typeZoneSev(rayon().typeZone)" />
-                  } @else {
-                    <span class="text-muted">—</span>
-                  }
-                </span>
-              </div>
-              <div class="param-item">
-                <span class="param-label">Position</span>
-                <span class="param-value">{{ rayon().position ?? '—' }}</span>
-              </div>
-              <div class="param-item">
-                <span class="param-label">Exclure</span>
-                <span class="param-value">{{ rayon().exclude ? 'Oui' : 'Non' }}</span>
-              </div>
-            </div>
-          </div>
+          <app-detail-grid>
+            <app-detail-section header="Paramètres du rayon" icon="pi pi-cog" [accent]="'slate'"
+                                [width]="'wide'" storageKey="rayon.detail.parametres">
+              <app-detail-field label="Emplacement" [value]="rayon().storageLibelle ?? rayon().storageType" />
+              <app-detail-field label="Code" [value]="rayon().code" />
+              <app-detail-field label="Type de zone">
+                @if (rayon().typeZone) {
+                  <app-badge [label]="rayon().typeZone!" [severity]="typeZoneSev(rayon().typeZone)" />
+                } @else {
+                  <span class="text-muted">—</span>
+                }
+              </app-detail-field>
+              <app-detail-field label="Position" [value]="rayon().position" />
+              <app-detail-field label="Exclure" [value]="rayon().exclude ? 'Oui' : 'Non'" />
+            </app-detail-section>
+          </app-detail-grid>
         </ng-template>
       </ng-container>
     </div>
-
-    <div class="pharma-nav-tabs-outlet">
-      <div [ngbNavOutlet]="nav"></div>
-    </div>
-  </div>
+  </app-nav-tabs>
 </div>

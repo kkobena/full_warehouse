@@ -10,7 +10,7 @@ import {
 import { CommonModule } from "@angular/common";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
-import { BadgeComponent, DataTableComponent } from "app/shared/ui";
+import { BadgeComponent, DataTableComponent, DetailGridComponent, DetailSectionComponent } from "app/shared/ui";
 import { IProduit } from "app/shared/model/produit.model";
 import { ISubstitut } from "app/shared/model/substitut.model";
 import { ProductsApiService } from "../../data-access/services/products-api.service";
@@ -28,7 +28,7 @@ import { DevisePipe } from "app/shared/utils/devise";
   selector: "app-produit-generiques-tab",
   templateUrl: "./produit-generiques-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DataTableComponent, BadgeComponent, DevisePipe]
+  imports: [CommonModule, DataTableComponent, BadgeComponent, DevisePipe, DetailGridComponent, DetailSectionComponent]
 })
 export class ProduitGeneriquesTabComponent {
   readonly produit = input.required<IProduit>();

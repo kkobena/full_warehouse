@@ -18,10 +18,12 @@ import {
 import { RecapitulatifApiService } from "../../data-access/services/recapitulatif-api.service";
 import { RecapitulatifKpiBannerComponent } from "../../ui/recapitulatif-kpi-banner/recapitulatif-kpi-banner.component";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
-import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   ButtonComponent,
   DataTableComponent,
+  DetailFieldComponent,
+  DetailGridComponent,
+  DetailSectionComponent,
   FloatLabelComponent,
   MultiSelectComponent,
   SelectComponent,
@@ -45,7 +47,7 @@ interface IAnneeOption {
 
 @Component({
   selector: "app-recapitulatif",
-  imports: [DeviseDirective, 
+  imports: [
     HintComponent,
     FormsModule,
     DecimalPipe,
@@ -53,6 +55,9 @@ interface IAnneeOption {
     DatePipe,
     ButtonComponent,
     DataTableComponent,
+    DetailFieldComponent,
+    DetailGridComponent,
+    DetailSectionComponent,
     FloatLabelComponent,
     MultiSelectComponent,
     SelectComponent,

@@ -1,7 +1,13 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input, output} from '@angular/core';
 import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent} from '../../../../shared/ui';
-import {IProduit} from '../../../../shared/model/produit.model';
+import {
+  AppSurfaceAccent,
+  ButtonComponent,
+  DetailFieldComponent,
+  DetailGridComponent,
+  DetailSectionComponent
+} from '../../../../shared/ui';
+import {IProduit} from "../../../../shared/model";
 import {IRayonProduit} from '../../../../shared/model/rayon-produit.model';
 import {
   RayonProduitApiService
@@ -18,7 +24,7 @@ import {ErrorService} from '../../../../shared/error.service';
   templateUrl: './produit-rayons-tab.component.html',
   styleUrl: './produit-rayons-tab.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, NgbTooltip],
+  imports: [ButtonComponent, NgbTooltip, DetailGridComponent, DetailSectionComponent, DetailFieldComponent],
 })
 export class ProduitRayonsTabComponent {
   readonly produit = input.required<IProduit>();
@@ -34,6 +40,11 @@ export class ProduitRayonsTabComponent {
 
   protected get assignments(): IRayonProduit[] {
     return this.produit().rayonProduits ?? [];
+  }
+
+  /** Liseré de la carte : vert pour un emplacement assigné, ambre pour "sans emplacement". */
+  protected accentFor(rp: IRayonProduit): AppSurfaceAccent {
+    return rp.codeRayon === 'SANS' ? 'warning' : 'blue';
   }
 
   protected onDeplacer(assignment: IRayonProduit): void {

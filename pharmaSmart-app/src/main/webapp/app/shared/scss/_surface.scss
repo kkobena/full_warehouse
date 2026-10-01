@@ -1,0 +1,63 @@
+// Surfaces — cartes, sections, panneaux posés sur un fond.
+//
+// Source unique de l'élévation et de l'accent : les composants incluent ces mixins, le markup
+// brut emploie les classes de `content/scss/surface-global.scss`, qui les incluent aussi.
+// Les valeurs vivent dans des variables CSS (`--pharma-elevation-*`, `--surface-accent`) :
+// un thème peut les redéfinir sans recompiler les composants.
+
+// Teintes d'accent : celles des familles d'icônes (`icon-colors-global.scss`), pour qu'une
+// section « Prix » porte la couleur de son icône `pi-tag`.
+$pharma-surface-accents: (
+  'emerald', 'blue', 'amber', 'violet', 'rose', 'teal', 'orange', 'indigo', 'cyan', 'fuchsia', 'slate',
+  'success', 'danger', 'warning', 'info'
+);
+
+// raised : carte blanche surélevée, pour ce qu'on vient consulter.
+// muted  : carte blanche à plat, pour l'information de référence.
+// Toujours blanche : un fond teinté se confondait avec celui du panneau (`--pharma-detail-bg`),
+// et le titre avec lui.
+@mixin pharma-surface($variant: raised) {
+  border-radius: var(--pharma-surface-radius);
+  border: 1px solid var(--pharma-surface-border);
+
+  @if $variant == muted {
+    background: var(--pharma-surface);
+    // Sans ombre, c'est le trait qui détache la carte du panneau.
+    border-color: var(--pharma-detail-border);
+    box-shadow: var(--pharma-elevation-0);
+
+    // Neutralise le survol de `raised` quand les deux classes se cumulent.
+    &:hover {
+      box-shadow: var(--pharma-elevation-0);
+    }
+  } @else {
+    background: var(--pharma-surface);
+    box-shadow: var(--pharma-elevation-1);
+    transition: box-shadow 0.2s ease;
+
+    // Relief accru, sans déplacement : la carte n'est pas cliquable en entier.
+    &:hover {
+      box-shadow: var(--pharma-elevation-2);
+    }
+  }
+}
+
+// Liseré haut à la couleur de l'accent. Sans accent défini, rien ne change.
+@mixin pharma-surface-accent-bar {
+  border-top: 3px solid var(--surface-accent, var(--pharma-surface-border));
+}
+
+// En-tête sur le blanc de la carte, séparé du contenu par un filet. Pas de teinte : proche
+// du fond du panneau, elle effaçait la limite de la carte et noyait le titre.
+@mixin pharma-surface-header {
+  background: transparent;
+  border-bottom: 1px solid var(--pharma-surface-border);
+}
+
+@mixin pharma-surface-accent-classes {
+  @each $hue in $pharma-surface-accents {
+    .pharma-accent-#{$hue} {
+      --surface-accent: var(--icon-#{$hue});
+    }
+  }
+}

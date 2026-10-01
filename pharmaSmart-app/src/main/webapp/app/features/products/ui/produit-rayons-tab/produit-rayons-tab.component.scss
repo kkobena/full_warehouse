@@ -1,74 +1,12 @@
-.prt-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 0.75rem;
-}
+@import 'app/shared/scss/table-common';
+
+$gray-50: #f9fafb;
 
 .prt-toolbar {
   display: flex;
   justify-content: flex-end;
+  padding: 0.5rem 0.75rem;
+
+
 }
 
-.prt-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 2rem;
-  color: var(--bs-secondary-color);
-  font-size: 0.875rem;
-  i { font-size: 1.5rem; }
-}
-
-.prt-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.prt-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--bs-border-color);
-  background: var(--bs-body-bg);
-
-  &.prt-sans {
-    background: var(--p-yellow-50, #fefce8);
-    border-color: var(--p-yellow-200, #fde68a);
-  }
-}
-
-.prt-item-storage {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.8rem;
-  color: var(--bs-secondary-color);
-  min-width: 140px;
-}
-
-.prt-item-rayon {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.prt-libelle {
-  font-size: 0.875rem;
-}
-
-.prt-sans-badge {
-  font-size: 0.8rem;
-  color: var(--p-yellow-700, #a16207);
-  font-style: italic;
-}
-
-.prt-item-actions {
-  display: flex;
-  gap: 0.25rem;
-}

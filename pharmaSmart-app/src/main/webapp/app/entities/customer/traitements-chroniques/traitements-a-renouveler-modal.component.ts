@@ -16,6 +16,7 @@ import { echeanceTraitement, libelleTraitement, SUIVI_TRAITEMENT } from './suivi
 @Component({
   selector: 'app-traitements-a-renouveler-modal',
   templateUrl: './traitements-a-renouveler-modal.component.html',
+  styleUrls: ['./traitements-a-renouveler-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, BadgeComponent, ButtonComponent, CardComponent, DataTableComponent],
 })

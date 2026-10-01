@@ -8,14 +8,24 @@ import { CloneRayonProduitsFormComponent } from '../clone-rayon-produits-form/cl
 import { InventoryCreateModalComponent } from '../../../../features/inventory/ui/inventory-create-modal/inventory-create-modal.component';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { IResponseDto } from '../../../../shared/util/response-dto';
-import { BadgeComponent, ButtonComponent, AppBadgeSeverity } from '../../../../shared/ui';
+import { BadgeComponent, ButtonComponent, DetailFieldComponent, DetailGridComponent, DetailSectionComponent, NavTabsComponent, AppBadgeSeverity } from '../../../../shared/ui';
 
 @Component({
   selector: 'app-rayon-detail-panel',
   templateUrl: './rayon-detail-panel.component.html',
   styleUrl: './rayon-detail-panel.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgbNavModule, ButtonComponent, BadgeComponent, NgbTooltip, RayonProduitsTabComponent],
+  imports: [
+    NgbNavModule,
+    ButtonComponent,
+    BadgeComponent,
+    NgbTooltip,
+    NavTabsComponent,
+    DetailGridComponent,
+    DetailSectionComponent,
+    DetailFieldComponent,
+    RayonProduitsTabComponent,
+  ],
 })
 export class RayonDetailPanelComponent {
   readonly rayon = input.required<IRayon>();

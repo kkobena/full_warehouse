@@ -8,7 +8,7 @@ import {Subject} from 'rxjs';
 import {SERVER_API_URL} from 'app/app.constants';
 import {ISO_TO_NGB_DATE, NGB_DATE_TO_ISO} from 'app/shared/util/warehouse-util';
 import {IDci} from 'app/features/dci/models/dci.model';
-import {BadgeComponent, ButtonComponent, CardComponent, InputComponent, InputNumberComponent, SelectSearchComponent, SwitchComponent} from '../../../shared/ui';
+import {BadgeComponent, ButtonComponent, DetailFieldComponent, DetailGridComponent, DetailSectionComponent, InputComponent, InputNumberComponent, SelectSearchComponent, SwitchComponent} from '../../../shared/ui';
 import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
 import {NotificationService} from '../../../shared/services/notification.service';
 import {CustomerService} from '../customer.service';
@@ -38,7 +38,9 @@ import {IAllergie, IDossierSante} from '../customer-fiche.model';
     ReactiveFormsModule,
     BadgeComponent,
     ButtonComponent,
-    CardComponent,
+    DetailFieldComponent,
+    DetailGridComponent,
+    DetailSectionComponent,
     InputComponent,
     InputNumberComponent,
     SelectSearchComponent,
@@ -84,7 +86,7 @@ export class DossierSanteTabComponent implements OnInit {
       .subscribe(dossier => this.dossier.set(dossier));
   }
 
-  protected get allergies(): FormArray<FormGroup> {
+  protected get allergies(): FormArray {
     return this.form.controls.allergies;
   }
 

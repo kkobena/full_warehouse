@@ -1,0 +1,46 @@
+<app-detail-grid>
+  <app-detail-section header="Produits délivrés" icon="pi pi-box" [accent]="'blue'" [width]="'full'"
+                      [layout]="'block'" [count]="totalProduits()" storageKey="customer.produits.historique">
+    <div class="d-flex flex-wrap align-items-end gap-2 mb-2">
+      <pharma-date-picker (ngModelChange)="produitsFrom.set($event)" [maxDate]="produitsTo()"
+                          [ngModel]="produitsFrom()" [style]="{ 'max-width': '180px' }"
+                          id="produitsFrom" label="Du" />
+      <pharma-date-picker (ngModelChange)="produitsTo.set($event)" [minDate]="produitsFrom()"
+                          [ngModel]="produitsTo()" [style]="{ 'max-width': '180px' }"
+                          id="produitsTo" label="Au" />
+      <input (keyup.enter)="searchProduits()" (ngModelChange)="produitsSearch.set($event)"
+             [ngModel]="produitsSearch()" class="form-control fiche-recherche"
+             placeholder="Rechercher un produit" type="text" />
+      <app-button (clicked)="searchProduits()" icon="pi pi-search" label="Rechercher" severity="info" size="small" />
+    </div>
+    @if (produits().length > 0) {
+      <app-data-table [value]="produits()" [stripedRows]="true" size="small">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Produit</th>
+            <th class="text-end">Délivrances</th>
+            <th class="text-end">Quantité</th>
+            <th class="text-end">Montant</th>
+            <th class="text-center ">Dernière délivrance</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-produit>
+          <tr>
+            <td><span class="pharma-product-name">{{ produit.libelle }}</span></td>
+            <td class="text-end">{{ produit.nombreDelivrances | number }}</td>
+            <td class="text-end pharma-qty-value">{{ produit.quantite | number }}</td>
+            <td class="text-end pharma-total">{{ produit.montant | number }} </td>
+            <td class="text-center ">{{ produit.derniereDelivrance | date: 'dd/MM/yyyy' }}</td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+      @if (totalProduits() > pageSize) {
+        <ngb-pagination (pageChange)="changeProduitsPage($event)" [collectionSize]="totalProduits()"
+                        [maxSize]="5" [page]="produitsPage()" [pageSize]="pageSize" [rotate]="true" size="sm" />
+      }
+    } @else {
+      <p class="text-muted mb-0">Aucun produit délivré sur la période.</p>
+    }
+  </app-detail-section>
+</app-detail-grid>
+

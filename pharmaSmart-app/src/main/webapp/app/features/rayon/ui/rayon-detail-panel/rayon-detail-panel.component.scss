@@ -84,31 +84,3 @@
   }
 }
 
-.params-view {
-  padding: 1rem;
-}
-
-.params-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem 1.5rem;
-}
-
-.param-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.param-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: $pharma-text-light;
-}
-
-.param-value {
-  font-size: 0.875rem;
-  color: $pharma-text;
-}

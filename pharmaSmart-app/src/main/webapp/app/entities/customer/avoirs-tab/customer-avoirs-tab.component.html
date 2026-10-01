@@ -1,0 +1,74 @@
+<app-detail-grid>
+  <app-detail-section header="Avoirs" icon="pi pi-wallet" [accent]="avoirsOuverts().length > 0 ? 'success' : 'slate'"
+                      [width]="'full'" [layout]="'block'" [count]="avoirs().length" storageKey="customer.avoirs.liste">
+    @if (avoirsOuverts().length > 0) {
+      <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
+        <i class="pi pi-wallet"></i>
+        <strong>Solde disponible : {{ soldeTotalAvoirs() | number }} <span appDevise></span></strong>
+        <span class="ms-2 text-muted">({{ avoirsOuverts().length }}
+          avoir{{ avoirsOuverts().length > 1 ? 's' : '' }} ouvert{{ avoirsOuverts().length > 1 ? 's' : '' }})</span>
+      </div>
+    }
+
+    @if (avoirs().length === 0) {
+      <p class="text-muted">Aucun avoir pour ce client.</p>
+    } @else {
+      <app-data-table [value]="avoirs()" [stripedRows]="true" size="small">
+        <ng-template #header>
+          <tr>
+            <th>Référence</th>
+            <th>Produit</th>
+            <th>Créé le</th>
+            <th>Expiration</th>
+            <th class="text-end">Montant</th>
+            <th>Statut</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-avoir>
+          <tr>
+            <td><code>{{ avoir.reference }}</code></td>
+            <td>{{ avoir.produitLibelle }}</td>
+            <td>{{ avoir.createdAt | date: 'dd/MM/yyyy' }}</td>
+            <td>
+              @if (avoir.dateExpiration) {
+                <span [class.fw-bold]="avoir.procheExpiration" [class.text-danger]="avoir.procheExpiration">
+                  {{ avoir.dateExpiration | date: 'dd/MM/yyyy' }}
+                  @if (avoir.procheExpiration) {
+                    <i class="pi pi-exclamation-triangle ms-1"></i>
+                  }
+                </span>
+              } @else {
+                <span class="text-muted">—</span>
+              }
+            </td>
+            <td class="text-end pharma-total">{{ avoir.montant | number }} <span appDevise></span></td>
+            <td>
+              @switch (avoir.statut) {
+                @case ('OUVERT') {
+                  <span class="badge bg-success">Ouvert</span>
+                }
+                @case ('CLOTURE') {
+                  <span class="badge bg-secondary">Clôturé</span>
+                }
+                @case ('ANNULE') {
+                  <span class="badge bg-danger">Annulé</span>
+                }
+                @case ('EXPIRE') {
+                  <span class="badge bg-warning text-white">Expiré</span>
+                }
+              }
+            </td>
+            <td>
+              @if (avoir.id) {
+                <app-button (clicked)="openAvoirPdf(avoir.id)" [text]="true" icon="pi pi-file-pdf"
+                            severity="secondary" size="small" title="Bon d'avoir PDF" />
+              }
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    }
+  </app-detail-section>
+</app-detail-grid>
+

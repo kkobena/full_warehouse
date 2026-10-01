@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Subject } from 'rxjs';
-import { SERVER_API_URL } from 'app/app.constants';
 import { IDci } from 'app/features/dci/models/dci.model';
+import { DciApiService } from 'app/features/dci/data-access/services/dci-api.service';
+import { ProduitService } from 'app/entities/produit/produit.service';
 import { IProduit } from 'app/shared/model/produit.model';
 import { ButtonComponent, CardComponent, InputComponent, InputNumberComponent, SelectSearchComponent } from 'app/shared/ui';
 import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
@@ -22,6 +23,7 @@ import { ITraitementChronique, ITraitementChroniqueSaisie } from '../customer-fi
 @Component({
   selector: 'app-traitement-chronique-form',
   templateUrl: './traitement-chronique-form.component.html',
+  styleUrls: ['./traitement-chronique-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
@@ -47,7 +49,8 @@ export class TraitementChroniqueFormComponent implements OnInit {
 
   protected readonly activeModal = inject(NgbActiveModal);
   private readonly fb = inject(FormBuilder);
-  private readonly http = inject(HttpClient);
+  private readonly dciApiService = inject(DciApiService);
+  private readonly produitService = inject(ProduitService);
   private readonly customerService = inject(CustomerService);
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
@@ -85,15 +88,13 @@ export class TraitementChroniqueFormComponent implements OnInit {
   }
 
   protected rechercherDci(search: string): void {
-    this.http
-      .get<IDci[]>(`${SERVER_API_URL}api/dci`, { params: { page: 0, size: 20, search: search ?? '' } })
-      .subscribe(dcis => this.dcis.set(dcis));
+    this.dciApiService.search(search ?? '').subscribe(dcis => this.dcis.set(dcis));
   }
 
   protected rechercherProduit(search: string): void {
-    this.http
-      .get<IProduit[]>(`${SERVER_API_URL}api/produits/lite`, { params: { page: 0, size: 20, search: search ?? '' } })
-      .subscribe(produits => this.produits.set(produits));
+    this.produitService
+      .queryLite({ page: 0, size: 20, search: search ?? '' })
+      .subscribe(res => this.produits.set(res.body ?? []));
   }
 
   protected enregistrer(): void {

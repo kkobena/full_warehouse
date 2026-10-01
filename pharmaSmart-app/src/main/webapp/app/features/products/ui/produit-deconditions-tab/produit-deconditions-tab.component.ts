@@ -1,6 +1,6 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DataTableComponent } from 'app/shared/ui';
+import { DataTableComponent, DetailGridComponent, DetailSectionComponent } from "app/shared/ui";
 import { IProduit } from 'app/shared/model/produit.model';
 import { DevisePipe } from "app/shared/utils/devise";
 
@@ -9,7 +9,7 @@ import { DevisePipe } from "app/shared/utils/devise";
   templateUrl: './produit-deconditions-tab.component.html',
   styleUrls: ['./produit-deconditions-tab.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DataTableComponent, DevisePipe],
+  imports: [CommonModule, DataTableComponent, DevisePipe, DetailGridComponent, DetailSectionComponent]
 })
 export class ProduitDeconditionsTabComponent {
   readonly produit = input.required<IProduit>();

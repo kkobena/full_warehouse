@@ -1,85 +1,7 @@
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-nav-tabs';
+@import 'app/shared/scss/split-panel';
 
-.table tr:hover {
-  cursor: pointer;
-}
-
-.invoice {
-  padding: 0.5rem;
-}
-
-.invoice .invoice-header {
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-}
-
-.invoice .invoice-to {
-  margin-top: 0rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid #dee2e6;
-}
-
-.invoice .invoice-items {
-  margin-top: 0.5rem;
-  padding-top: 0;
-}
-
-.invoice .invoice-company .company-name {
-  font-weight: 700;
-  font-size: 1.2rem;
-}
-
-.bill-to {
-  font-weight: 700;
-}
-
-.invoice .invoice-company div {
-  margin-bottom: 0.1rem;
-}
-
-.invoice .invoice-title {
-  font-size: 1rem;
-  margin-bottom: 1rem;
-  text-align: right;
-}
-
-.invoice .invoice-details {
-  width: 15rem;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-}
-
-.invoice .invoice-details .invoice-label {
-  text-align: left;
-  font-weight: 700;
-}
-
-.invoice .invoice-details .invoice-value {
-  text-align: right;
-}
-
-.invoice .invoice-details > div {
-  width: 50%;
-  margin-bottom: 0.1rem;
-}
-
-.invoice .invoice-summary {
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  margin-top: 0;
-  padding-top: 0.5rem;
-}
-
-tr.active {
-  background-color: #95caf9 !important;
-}
 
 .master {
   height: 100%;
@@ -91,40 +13,81 @@ tr.active {
   justify-content: space-between;
 }
 
-// ── En-tête de la fiche 360° ──
-.fiche-entete {
+// ── Panneau de détail : en-tête fixe + onglets ──
+.detail-panel {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.panel-header {
+  display: flex;
   align-items: flex-start;
-  gap: 1rem;
+  justify-content: space-between;
+  padding: 0.875rem 1rem 0.5rem;
+  border-bottom: 1px solid $pharma-border;
+  background: var(--surface-ground, #f8f9fa);
+  gap: 0.5rem;
+  flex-shrink: 0;
   flex-wrap: wrap;
 }
 
-.fiche-infos {
+.panel-title-block {
+  flex: 1;
+  min-width: 0;
+}
+
+.panel-libelle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $pharma-text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.panel-meta {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 0.25rem 1.25rem;
-  margin-top: 0.35rem;
+  gap: 0.4rem;
+  margin-top: 4px;
 }
 
+.panel-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.flex-1-overflow {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  .pharma-nav-tabs-outlet {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
+// ── Onglet Synthèse : habillage spécifique aux fields app-detail-section ──
 .fiche-couverture {
   margin-top: 0.35rem;
 }
 
-.fiche-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
 
 // Fiche affichée dans le panneau de détail de la liste des clients.
 .fiche-panel {
   padding: 0.5rem;
 }
 
-.fiche-recherche {
-  max-width: 260px;
-}
 
 .clickable {
   cursor: pointer;

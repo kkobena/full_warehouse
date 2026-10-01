@@ -5,7 +5,7 @@
 }
 
 .navbar-title {
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   font-weight: 600;
 }
 
@@ -40,21 +40,21 @@
 
   // CSS variables Bootstrap 5 — style barre d'application desktop
   --bs-navbar-padding-y: 0;
-  --bs-nav-link-padding-y: 0.3rem;
-  --bs-nav-link-font-size: 0.84rem;
+  --bs-nav-link-padding-y: 0.5rem;
+  --bs-nav-link-font-size: 0.95rem;
 
   .navbar-brand {
-    padding-top: 0.3rem;
-    padding-bottom: 0.3rem;
-    font-size: 0.84rem;
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+    font-size: 0.95rem;
   }
 
   // Liens + boutons dropdown
   .nav-link,
   button.nav-link {
-    padding-top: 0.3rem;
-    padding-bottom: 0.3rem;
-    font-size: 0.84rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    font-size: 0.95rem;
     line-height: 1.35;
     font-weight: 400;
   }
@@ -85,7 +85,12 @@
   }
 
   .ng-fa-icon {
-    margin-right: 0.18em;
+    margin-right: 0.3em;
+  }
+
+  // Le chevron garde sa taille réduite, posée plus haut.
+  .nav-link fa-icon:not(.nav-caret) {
+    font-size: 1.15em;
   }
 
   .navbar-toggler {
@@ -101,8 +106,8 @@
 Logo styles — taille desktop
 ========================================================================== */
 .logo-img {
-  height: 22px;
-  width: 22px;
+  height: 28px;
+  width: 28px;
   display: inline-block;
   vertical-align: middle;
   background: url('../../../content/images/logo.png') no-repeat center center;
@@ -131,11 +136,11 @@ Badge d'alerte dans la navbar (péremptions et autres alertes)
 ========================================================================== */
 
 .navbar-badge {
-  font-size: 0.55rem;
-  min-width: 14px;
-  height: 14px;
-  padding: 0 3px;
-  line-height: 14px;
+  font-size: 0.62rem;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  line-height: 16px;
   vertical-align: middle;
 }
 

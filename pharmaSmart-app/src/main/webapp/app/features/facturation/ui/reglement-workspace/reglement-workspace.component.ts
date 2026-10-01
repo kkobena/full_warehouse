@@ -97,10 +97,6 @@ export class ReglementWorkspaceComponent {
   );
 
   protected reglementFormComponent = viewChild(ReglementFormComponent);
-  /**
-   * Ligne dont le montant est en cours de saisie — remplace la bascule que
-   * `pEditableColumn` / `p-celleditor` assuraient. `null` = aucune cellule ouverte.
-   */
   protected readonly editingId = signal<number | null>(null);
   private readonly destroyRef = inject(DestroyRef);
   private readonly confirmDialog = inject(NgbConfirmDialogService);

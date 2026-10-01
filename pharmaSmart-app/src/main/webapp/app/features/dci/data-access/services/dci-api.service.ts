@@ -54,6 +54,11 @@ export class DciApiService {
     return brut ? Number(brut) : ref.value().length;
   }
 
+  /** Recherche ponctuelle, pour les listes déroulantes à saisie. */
+  search(search: string, size = 20): Observable<IDci[]> {
+    return this.http.get<IDci[]>(this.resourceUrl, { params: { page: 0, size, search } });
+  }
+
   /** Produits portant cette DCI. Alimente le panneau de détail. */
   produits(dciId: number): Observable<IDciProduit[]> {
     return this.http.get<IDciProduit[]>(`${this.resourceUrl}/${dciId}/produits`);

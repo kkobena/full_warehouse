@@ -1,0 +1,18 @@
+// Mise en avant des 3 montants du différé, en remplacement de l'ancien app-kpi-strip.
+.differe-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.25rem 1rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  background: var(--pharma-surface-muted, #f8f9fa);
+
+  app-detail-field {
+    border-bottom: 0;
+  }
+
+  ::ng-deep app-detail-field .detail-field-value {
+    font-size: 1rem;
+  }
+}
+

@@ -1,0 +1,128 @@
+@import 'app/shared/scss/surface';
+
+// Base 300 px mais élastique : trois cartes sur un panneau large, une seule sur un écran étroit.
+:host {
+  @include pharma-surface(raised);
+  display: block;
+  flex: 1 1 300px;
+  min-width: 0;
+}
+
+:host(.detail-section--muted) {
+  @include pharma-surface(muted);
+}
+
+:host(.detail-section--accent) {
+  @include pharma-surface-accent-bar;
+}
+
+:host(.detail-section--wide),
+:host(.detail-section--full) {
+  flex-basis: 100%;
+}
+
+// Pas d'overflow: hidden sur la carte, il couperait les infobulles : l'en-tête reprend
+// lui-même l'arrondi du haut.
+.detail-section-header {
+  @include pharma-surface-header;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: calc(var(--pharma-surface-radius) - 1px) calc(var(--pharma-surface-radius) - 1px) 0 0;
+}
+
+:host(.detail-section--accent) .detail-section-header {
+  border-radius: 0;
+}
+
+// Section repliée : l'en-tête est toute la carte, le filet du bas n'a plus rien à séparer.
+.detail-section-header:last-child {
+  border-bottom: 0;
+}
+
+.detail-section-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  padding: 0.1rem 0;
+  border: 0;
+  background: none;
+  color: #0f172a;
+  text-align: left;
+
+  &:not(:disabled) {
+    cursor: pointer;
+  }
+
+  &:disabled {
+    color: inherit;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  > .pi:not(.detail-section-chevron) {
+    font-size: 0.9rem;
+    color: var(--surface-accent, var(--bs-primary));
+  }
+}
+
+.detail-section-title {
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-section-count {
+  min-width: 1.1rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-accent, var(--pharma-text-muted)) 14%, var(--pharma-surface));
+  font-size: 0.65rem;
+  font-weight: 600;
+  line-height: 1.1rem;
+  text-align: center;
+}
+
+.detail-section-chevron {
+  font-size: 0.65rem;
+  color: var(--pharma-text-muted);
+  transition: transform 0.2s ease;
+
+  [aria-expanded='false'] > & {
+    transform: rotate(-90deg);
+  }
+}
+
+.detail-section-body {
+  padding: 0.5rem 0.7rem 0.6rem;
+}
+
+// Deux colonnes dans une carte de 300 px, davantage quand elle s'élargit.
+.detail-section-body--fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.15rem 0.75rem;
+}
+
+// Les libellés longs (DCI, laboratoire) tronqueraient dans des colonnes de 160 px.
+//
+// Dans une colonne de 300 px et plus, libellé à gauche et valeur à droite obligeaient l'œil à
+// traverser la carte : la valeur se cale juste après un libellé de largeur fixe. Transmis par
+// variables CSS, que `app-detail-field` lit, plutôt que par `::ng-deep`.
+:host(.detail-section--wide) {
+  --detail-field-justify: flex-start;
+  --detail-field-label-basis: 9.5rem;
+  --detail-field-value-align: left;
+}
+
+:host(.detail-section--wide) .detail-section-body--fields {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}

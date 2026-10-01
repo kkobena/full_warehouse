@@ -1,0 +1,78 @@
+<app-detail-grid>
+  <div class="row w-100 gx-3">
+    <div class="col-6">
+      <app-detail-section header="Historique des achats" icon="pi pi-shopping-cart" [accent]="'blue'"
+                          [layout]="'block'" [count]="totalSales()" storageKey="customer.achats.historique">
+        <div ngProjectAs="[sectionActions]">
+          <app-button (clicked)="imprimerAttestation()"  icon="pi pi-file-pdf"
+                      label="Attestation de dépenses" severity="secondary" size="small" />
+        </div>
+        <div class="d-flex flex-wrap align-items-end gap-2 mb-2">
+          <pharma-date-picker labelPosition="top" (ngModelChange)="fromDate.set($event)" [maxDate]="toDate()"
+                              [ngModel]="fromDate()" [style]="{ 'max-width': '150px' }"
+                              id="purchasesFrom" label="Du" />
+          <pharma-date-picker labelPosition="top" (ngModelChange)="toDate.set($event)" [minDate]="fromDate()"
+                              [ngModel]="toDate()" [style]="{ 'max-width': '150px' }"
+                              id="purchasesTo" label="Au" />
+          <app-button (clicked)="searchSales()" icon="pi pi-search" label="Rechercher" severity="info" size="small" />
+        </div>
+        @if (sales().length > 0) {
+          <app-data-table [value]="sales()" [stripedRows]="true" size="small">
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th scope="col">N° vente</th>
+                <th scope="col">Date</th>
+                <th class="text-end" scope="col">Montant</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-sale>
+              <tr class="pharma-table-body" (click)="clickRow(sale)" [class.ligne-selected]="selectedRowIndex() === sale.id">
+                <td>{{ sale.numberTransaction }}</td>
+                <td>{{ sale.updatedAt | date: 'dd/MM/yyyy' }}</td>
+                <td class="text-end pharma-total">{{ sale.salesAmount | number }}</td>
+              </tr>
+            </ng-template>
+          </app-data-table>
+          @if (totalSales() > pageSize) {
+            <ngb-pagination (pageChange)="changePage($event)" [collectionSize]="totalSales()"
+                            [maxSize]="3" [page]="page()" [pageSize]="pageSize" [rotate]="true" size="sm" />
+          }
+        } @else {
+          <p class="text-muted mb-0">Aucun achat sur la période.</p>
+        }
+      </app-detail-section>
+    </div>
+    <div class="col-6">
+      <app-detail-section header="Détail de l'achat" icon="pi pi-receipt" [accent]="'teal'" [layout]="'block'"
+                          storageKey="customer.achats.detail">
+        <div ngProjectAs="[sectionActions]">
+          <app-button (clicked)="print()"  icon="pi pi-file-pdf"
+                      label="Imprimer" severity="secondary" size="small" />
+        </div>
+        @if (saleSelected()) {
+              <app-data-table [value]="selectedRowSaleLines()" dataKey="id" size="small">
+                <ng-template #header>
+                  <tr class="pharma-table-head">
+                    <th>Libellé</th>
+                    <th class="text-end">Qté</th>
+                    <th class="text-end">P.U.</th>
+                    <th class="text-end">Montant</th>
+                  </tr>
+                </ng-template>
+                <ng-template #body let-saleLine>
+                  <tr>
+                    <td><span class="pharma-product-name">{{ saleLine.produitLibelle }}</span></td>
+                    <td class="pharma-qty-value text-end">{{ saleLine.quantitySold | number }}</td>
+                    <td class="pharma-price text-end">{{ saleLine.regularUnitPrice | number }}</td>
+                    <td class="pharma-total text-end">{{ saleLine.salesAmount | number }}</td>
+                  </tr>
+                </ng-template>
+              </app-data-table>
+        } @else {
+          <p class="text-muted mb-0">Sélectionnez un achat pour en voir le détail.</p>
+        }
+      </app-detail-section>
+    </div>
+  </div>
+</app-detail-grid>
+

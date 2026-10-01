@@ -1,0 +1,51 @@
+// Libellé à gauche, valeur à droite, sur une seule ligne : empilés, ils doublaient la hauteur
+// de chaque champ.
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: var(--detail-field-justify, space-between);
+  gap: 0.5rem;
+  min-height: 1.5rem;
+  min-width: 0;
+  padding: 0.1rem 0;
+  border-bottom: 1px dotted rgba(0, 0, 0, 0.08);
+}
+
+.detail-field-label {
+  flex: 0 0 var(--detail-field-label-basis, auto);
+  font-size: 0.72rem;
+  color: #343a40;
+  white-space: nowrap;
+}
+
+.detail-field-hint {
+  margin-left: 0.25rem;
+  font-size: 0.7rem;
+  color: #6b7280;
+  cursor: help;
+}
+
+// La valeur cède la place au libellé plutôt que de le pousser hors de la carte.
+.detail-field-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: var(--detail-field-value-align, right);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #212529;
+
+  // Palette de app-kpi-strip, contraste ≥ 3:1 sur blanc.
+  &--success {
+    color: #15803d;
+  }
+
+  &--warning {
+    color: #c2410c;
+  }
+
+  &--danger {
+    color: #dc2626;
+  }
+}

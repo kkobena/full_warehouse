@@ -1,6 +1,12 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input, output} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {ButtonComponent} from "app/shared/ui";
+import {
+  AppSurfaceAccent,
+  ButtonComponent,
+  DetailFieldComponent,
+  DetailGridComponent,
+  DetailSectionComponent
+} from "app/shared/ui";
 import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 import {IProduit} from "app/shared/model/produit.model";
 import {IStockProduit} from "app/shared/model/stock-produit.model";
@@ -21,7 +27,7 @@ import {
   templateUrl: "./produit-stock-tab.component.html",
   styleUrls: ["./produit-stock-tab.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ButtonComponent, NgbTooltip]
+  imports: [CommonModule, ButtonComponent, NgbTooltip, DetailGridComponent, DetailSectionComponent, DetailFieldComponent]
 })
 export class ProduitStockTabComponent {
   readonly produit = input.required<IProduit>();
@@ -138,6 +144,22 @@ export class ProduitStockTabComponent {
       return qty > 0 ? 100 : 0;
     }
     return Math.min(100, Math.round((qty / max) * 100));
+  }
+
+  /** Liseré de la carte : le niveau de stock se lit avant le chiffre. */
+  protected niveauAccent(sp: IStockProduit | undefined): AppSurfaceAccent {
+    switch (this.stockClass(sp)) {
+      case "niveau-ok":
+        return "success";
+      case "niveau-warning":
+        return "warning";
+      case "niveau-danger":
+        return "danger";
+      case "niveau-empty":
+        return "slate";
+      default:
+        return "none";
+    }
   }
 
   /** Classe couleur selon rapport qty / seuilMini */

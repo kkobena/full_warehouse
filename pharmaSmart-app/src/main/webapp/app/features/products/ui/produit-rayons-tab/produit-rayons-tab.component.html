@@ -1,63 +1,73 @@
-<div class="prt-container">
-  <div class="prt-toolbar">
-    <app-button
-      (clicked)="onAjouterStockage()"
-      [disabled]="isDisabled()"
-      [outlined]="true"
-      [severity]="'primary'"
-      icon="pi pi-plus"
-      label="Ajouter à un autre stockage"
-      size="small"
-    />
-  </div>
-
-  @if (assignments.length === 0) {
-    <div class="prt-empty">
-      <i class="pi pi-map-marker-slash"></i>
-      <span>Ce produit n'a aucun emplacement assigné</span>
-    </div>
-  } @else {
-    <div class="prt-list">
-      @for (rp of assignments; track rp.id) {
-        <div [class.prt-sans]="rp.codeRayon === 'SANS'" class="prt-item">
-          <div class="prt-item-storage">
-            <i class="pi pi-warehouse"></i>
-            <span>{{ rp.libelleStorage }}</span>
-            <span class="text-muted">{{ rp.storageType }}</span>
-          </div>
-          <div class="prt-item-rayon">
-            @if (rp.codeRayon === 'SANS') {
-              <span class="prt-sans-badge">Sans emplacement</span>
-            } @else {
-              <span class="pharma-code">{{ rp.codeRayon }}</span>
-              <span class="prt-libelle">{{ rp.libelleRayon }}</span>
-            }
-          </div>
-          <div class="prt-item-actions">
-            @if (rp.codeRayon === 'SANS') {
-              <app-button
-                (clicked)="onDeplacer(rp)"
-                [disabled]="isDisabled()"
-                [rounded]="true" [text]="true" icon="pi pi-map-marker"
-                ariaLabel="Assigner un emplacement dans ce stockage"
-                ngbTooltip="Assigner un emplacement dans ce stockage"
-                severity="warn"
-                size="small"
-              />
-            } @else {
-              <app-button
-                (clicked)="onDeplacer(rp)"
-                [disabled]="isDisabled()"
-                [rounded]="true" [text]="true" icon="pi pi-arrows-h"
-                ariaLabel="Déplacer vers un autre emplacement"
-                ngbTooltip="Déplacer vers un autre emplacement"
-                severity="info"
-                size="small"
-              />
-            }
-          </div>
-        </div>
-      }
-    </div>
-  }
+<!-- Toolbar -->
+<div class="prt-toolbar">
+  <app-button
+    (clicked)="onAjouterStockage()"
+    [disabled]="isDisabled()"
+    [outlined]="true"
+    [severity]="'primary'"
+    icon="pi pi-plus"
+    label="Ajouter à un autre stockage"
+    size="small"
+  />
 </div>
+
+<!-- Etat vide -->
+@if (assignments.length === 0) {
+  <div class="pharma-empty-message">
+    <div class="pharma-empty-content">
+      <i class="pi pi-map-marker-slash"></i>
+      <p>Aucun emplacement assigné</p>
+      <small>Cliquez sur "Ajouter à un autre stockage" pour en associer un</small>
+    </div>
+  </div>
+} @else {
+  <app-detail-grid>
+    @for (rp of assignments; track rp.id) {
+      <app-detail-section
+        [header]="rp.libelleStorage"
+        icon="pi pi-warehouse"
+        [accent]="accentFor(rp)"
+        [storageKey]="'produit.rayons.' + rp.id"
+      >
+        @if (rp.codeRayon === 'SANS') {
+          <app-button
+            ngProjectAs="[sectionActions]"
+            icon="pi pi-map-marker"
+            [text]="true"
+            [rounded]="true"
+            size="small"
+            severity="warn"
+            ngbTooltip="Assigner un emplacement dans ce stockage"
+            [disabled]="isDisabled()"
+            (clicked)="onDeplacer(rp)"
+          />
+        } @else {
+          <app-button
+            ngProjectAs="[sectionActions]"
+            icon="pi pi-arrows-h"
+            [text]="true"
+            [rounded]="true"
+            size="small"
+            severity="secondary"
+            ngbTooltip="Déplacer vers un autre emplacement"
+            [disabled]="isDisabled()"
+            (clicked)="onDeplacer(rp)"
+          />
+        }
+
+        <app-detail-field label="Type de stockage" [value]="rp.storageType" />
+
+        @if (rp.codeRayon === 'SANS') {
+          <app-detail-field label="Emplacement">
+            <span class="pharma-badge pharma-badge-warning">
+              <i class="pi pi-exclamation-triangle me-1"></i>Sans emplacement
+            </span>
+          </app-detail-field>
+        } @else {
+          <app-detail-field label="Code rayon" [value]="rp.codeRayon" />
+          <app-detail-field label="Libellé rayon" [value]="rp.libelleRayon" />
+        }
+      </app-detail-section>
+    }
+  </app-detail-grid>
+}

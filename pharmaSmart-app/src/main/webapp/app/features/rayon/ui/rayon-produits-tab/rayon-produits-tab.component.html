@@ -1,132 +1,132 @@
-<div class="rpt-header" xmlns="http://www.w3.org/1999/html">
-  <div class="rpt-header__count">
-    <span>Produits</span>
-    <span class="pharma-badge pharma-badge-success">{{ totalItems() }}</span>
-  </div>
-  <div class="rpt-header__search">
-    <app-select-search (ngModelChange)="selectedProduit.set($event)"
-                       (searched)="onComplete($event)"
-                       (selectionChange)="onProduitSelected($event)"
-                       [items]="searchSuggestions()"
-                       [ngModel]="selectedProduit()"
-                       [optionTemplate]="produitOption"
-                       appendTo="body"
-                       bindLabel="libelle"
-                       placeholder="Rechercher et affecter un produit..."
-    />
-    <ng-template #produitOption let-p>
-      <div class="d-flex gap-2 align-items-center">
-        <span class="pharma-code">{{ p.codeCip }}</span>
-        <span>{{ p.libelle }}</span>
-      </div>
-    </ng-template>
-  </div>
-</div>
+<app-detail-grid>
+  <app-detail-section header="Produits du rayon" icon="pi pi-box" [accent]="'blue'" [width]="'full'"
+                      [layout]="'block'" [count]="totalItems()" [loading]="loading()" [skeletonRows]="6"
+                      storageKey="rayon.produits.tab">
+    <div class="rpt-assign-bar">
+      <app-select-search (ngModelChange)="selectedProduit.set($event)"
+                         (searched)="onComplete($event)"
+                         (selectionChange)="onProduitSelected($event)"
+                         [items]="searchSuggestions()"
+                         [ngModel]="selectedProduit()"
+                         [optionTemplate]="produitOption"
+                         appendTo="body"
+                         bindLabel="libelle"
+                         placeholder="Rechercher et affecter un produit..."
+      />
+      <ng-template #produitOption let-p>
+        <div class="d-flex gap-2 align-items-center">
+          <span class="pharma-code">{{ p.codeCip }}</span>
+          <span>{{ p.libelle }}</span>
+        </div>
+      </ng-template>
+    </div>
 
-<div class="rpt-table-wrap">
-  <app-data-table
-    (onLazyLoad)="onLazyLoad($event)"
-    (selectionChange)="selectedProduits.set($any($event))"
-    [lazy]="true"
-    [loading]="loading()"
-    [paginator]="true"
-    [rowsPerPageOptions]="[10,15,20,30,50,100]"
-    [rows]="rows()"
-    [selection]="selectedProduits()"
-    [totalRecords]="totalItems()"
-    [value]="produits()"
-    class="p-datatable-sm" dataKey="id"
-    selectionMode="multiple"
-  >
-    <ng-template #caption>
-      <div class="rpt-caption">
-        <app-icon-field [overlay]="true" icon="pi pi-search">
-          <input
-            (input)="onFilterChange($any($event.target).value)"
-            class="form-control"
-            placeholder="Filtrer par code CIP ou libellé..."
-            type="text"
-          />
-        </app-icon-field>
-        @if (selectedProduits().length > 0) {
-          <app-button
-            (clicked)="onMoveSelected()"
-            [label]="'Déplacer (' + selectedProduits().length + ')'"
-            icon="pi pi-arrows-h"
-            severity="info"
-            size="small"
-          />
-        }
-      </div>
-    </ng-template>
-
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th style="width: 3rem; text-align: center">
-          <app-header-checkbox />
-        </th>
-        <th style="width: 14%">Code CIP</th>
-        <th>Libellé</th>
-        <th style="width: 10%; text-align: right">Stock total</th>
-        <th style="width: 7rem; text-align: center">Actions</th>
-      </tr>
-    </ng-template>
-
-    <ng-template #body let-produit>
-      <tr>
-        <td style="text-align: center">
-          <app-row-checkbox [row]="produit" />
-        </td>
-        <td><span class="pharma-code">{{ produit.codeCip }}</span></td>
-        <td>
-          <div class="rpt-libelle-cell">
-            <span class="pharma-entity-name">{{ produit.libelle }}</span>
-            @if (produit.otherStorageLabels?.length) {
-              <i [ngbTooltip]="'Aussi dans : ' + produit.otherStorageLabels!.join(', ')"
-                 class="pi pi-warehouse rpt-multi-storage-icon"></i>
+    <div class="rpt-table-wrap">
+      <app-data-table
+        (onLazyLoad)="onLazyLoad($event)"
+        (selectionChange)="selectedProduits.set($any($event))"
+        [lazy]="true"
+        [loading]="loading()"
+        [paginator]="true"
+        [rowsPerPageOptions]="[10,15,20,30,50,100]"
+        [rows]="rows()"
+        [selection]="selectedProduits()"
+        [totalRecords]="totalItems()"
+        [value]="produits()"
+        class="p-datatable-sm" dataKey="id"
+        selectionMode="multiple"
+      >
+        <ng-template #caption>
+          <div class="rpt-caption">
+            <app-icon-field [overlay]="true" icon="pi pi-search">
+              <input
+                (input)="onFilterChange($any($event.target).value)"
+                class="form-control"
+                placeholder="Filtrer par code CIP ou libellé..."
+                type="text"
+              />
+            </app-icon-field>
+            @if (selectedProduits().length > 0) {
+              <app-button
+                (clicked)="onMoveSelected()"
+                [label]="'Déplacer (' + selectedProduits().length + ')'"
+                icon="pi pi-arrows-h"
+                severity="info"
+                size="small"
+              />
             }
           </div>
-        </td>
-        <td style="text-align: right"><span class="pharma-qty-value">{{
-            produit.totalQuantity ?? 0
-          }}</span></td>
-        <td style="text-align: center">
-          <div class="d-flex justify-content-center gap-1">
-            @if (rayon().code === 'SANS') {
-              <app-button
-                (clicked)="onMove(produit)"
-                [rounded]="true" [text]="true" icon="pi pi-arrows-h"
-                ngbTooltip="Assigner à un emplacement réel"
-                placement="left"
-                severity="info"
-              />
-            } @else {
-              <app-button
-                (clicked)="onClone(produit)"
-                [rounded]="true" [text]="true" icon="pi pi-copy"
-                ngbTooltip="Cloner vers un autre stockage"
-                placement="left"
-                severity="info"
-              />
-              @if (produit.rayonProduitId) {
-                <app-button
-                  (clicked)="onRetirer(produit)"
-                  [rounded]="true" [text]="true" icon="pi pi-times"
-                  ngbTooltip="Retirer du rayon (choisir un remplacement)"
-                  placement="left"
-                  severity="danger"
-                />
-              }
-            }
-          </div>
-        </td>
-      </tr>
-    </ng-template>
+        </ng-template>
 
-    <ng-template #emptymessage>
-      <tr>
-        <td class="text-center text-muted py-3" colspan="5">Aucun produit dans ce rayon</td>
-      </tr>
-    </ng-template>
-  </app-data-table>
-</div>
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th style="width: 3rem; text-align: center">
+              <app-header-checkbox />
+            </th>
+            <th style="width: 14%">Code CIP</th>
+            <th>Libellé</th>
+            <th style="width: 10%; text-align: right">Stock total</th>
+            <th style="width: 7rem; text-align: center">Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template #body let-produit>
+          <tr>
+            <td style="text-align: center">
+              <app-row-checkbox [row]="produit" />
+            </td>
+            <td><span class="pharma-code">{{ produit.codeCip }}</span></td>
+            <td>
+              <div class="rpt-libelle-cell">
+                <span class="pharma-entity-name">{{ produit.libelle }}</span>
+                @if (produit.otherStorageLabels?.length) {
+                  <i [ngbTooltip]="'Aussi dans : ' + produit.otherStorageLabels!.join(', ')"
+                     class="pi pi-warehouse rpt-multi-storage-icon"></i>
+                }
+              </div>
+            </td>
+            <td style="text-align: right"><span class="pharma-qty-value">{{
+                produit.totalQuantity ?? 0
+              }}</span></td>
+            <td style="text-align: center">
+              <div class="d-flex justify-content-center gap-1">
+                @if (rayon().code === 'SANS') {
+                  <app-button
+                    (clicked)="onMove(produit)"
+                    [rounded]="true" [text]="true" icon="pi pi-arrows-h"
+                    ngbTooltip="Assigner à un emplacement réel"
+                    placement="left"
+                    severity="info"
+                  />
+                } @else {
+                  <app-button
+                    (clicked)="onClone(produit)"
+                    [rounded]="true" [text]="true" icon="pi pi-copy"
+                    ngbTooltip="Cloner vers un autre stockage"
+                    placement="left"
+                    severity="info"
+                  />
+                  @if (produit.rayonProduitId) {
+                    <app-button
+                      (clicked)="onRetirer(produit)"
+                      [rounded]="true" [text]="true" icon="pi pi-times"
+                      ngbTooltip="Retirer du rayon (choisir un remplacement)"
+                      placement="left"
+                      severity="danger"
+                    />
+                  }
+                }
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template #emptymessage>
+          <tr>
+            <td class="text-center text-muted py-3" colspan="5">Aucun produit dans ce rayon</td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </div>
+  </app-detail-section>
+</app-detail-grid>

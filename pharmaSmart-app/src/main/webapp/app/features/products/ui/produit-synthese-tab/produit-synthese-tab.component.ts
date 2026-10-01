@@ -2,7 +2,16 @@ import { Component, computed, effect, inject, input, output, signal, ChangeDetec
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import { BadgeComponent, ButtonComponent, SwitchComponent } from 'app/shared/ui';
+import {
+  AppDetailFieldTone,
+  BadgeComponent,
+  ButtonComponent,
+  DataTableComponent,
+  DetailFieldComponent,
+  DetailGridComponent,
+  DetailSectionComponent,
+  SwitchComponent,
+} from 'app/shared/ui';
 import { IProduit } from 'app/shared/model/produit.model';
 import { IProduitIndicateurs } from '../../models/produit-indicateurs.model';
 import { ILotPeremption, ILotProduit, ProductsApiService } from "../../data-access/services/products-api.service";
@@ -13,14 +22,23 @@ import { NgbConfirmDialogService } from '../../../../shared/dialog/ngb-confirm-d
 import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
 import { NotificationService } from '../../../../shared/services/notification.service';
 
-import { formatCurrencyWithUnit } from 'app/shared/utils/format-utils';
-import { DeviseDirective } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-produit-synthese-tab',
   templateUrl: './produit-synthese-tab.component.html',
   styleUrls: ['./produit-synthese-tab.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, CommonModule, FormsModule, NgbTooltip, ButtonComponent, BadgeComponent, SwitchComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgbTooltip,
+    ButtonComponent,
+    BadgeComponent,
+    SwitchComponent,
+    DataTableComponent,
+    DetailGridComponent,
+    DetailSectionComponent,
+    DetailFieldComponent,
+  ],
 })
 export class ProduitSyntheseTabComponent {
   readonly produit = input.required<IProduit>();
@@ -96,20 +114,20 @@ export class ProduitSyntheseTabComponent {
   });
 
   /** Couleur du stock actuel : danger si rupture, warning si sous seuil, success sinon */
-  protected readonly stockClass = computed(() => {
+  protected readonly stockTone = computed((): AppDetailFieldTone => {
     const qty = this.produit().totalQuantity ?? 0;
     const seuil = this.produit().seuilMini ?? 0;
-    if (qty <= 0) return 'kpi-danger';
-    if (seuil > 0 && qty < seuil) return 'kpi-warning';
-    return 'kpi-success';
+    if (qty <= 0) return 'danger';
+    if (seuil > 0 && qty < seuil) return 'warning';
+    return 'success';
   });
 
-  protected readonly joursStockClass = computed(() => {
+  protected readonly joursStockTone = computed((): AppDetailFieldTone => {
     const jours = this.couvertureJours();
-    if (jours == null) return '';
-    if (jours < 7) return 'kpi-danger';
-    if (jours < 30) return 'kpi-warning';
-    return 'kpi-success';
+    if (jours == null) return 'none';
+    if (jours < 7) return 'danger';
+    if (jours < 30) return 'warning';
+    return 'success';
   });
 
   /** Lot avec la date de péremption la plus proche */
@@ -191,16 +209,6 @@ export class ProduitSyntheseTabComponent {
         this.notificationService.error('Impossible de modifier le paramètre', 'Erreur');
       },
     });
-  }
-
-  protected formatPrix(montant?: number | null): string {
-    if (montant == null) return '—';
-    return formatCurrencyWithUnit(montant);
-  }
-
-  protected formatDate(date?: any): string {
-    if (!date) return '—';
-    return new Date(date).toLocaleDateString('fr-FR');
   }
 
   protected onAddPrix(): void {

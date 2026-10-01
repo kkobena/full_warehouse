@@ -53,12 +53,7 @@
           <app-button (clicked)="openRenouvellements()" [raised]="true" icon="pi pi-replay" label="Renouvellements"
                       ngbTooltip="Patients dont un traitement chronique arrive à échéance" severity="warn"></app-button>
 
-          <!--
-            L'action principale du bouton scindé n'était rattachée à rien : cliquer
-            « Nouveau client » ne faisait rien, et seul le chevron menait quelque part. Elle
-            crée un ASSURÉ, de loin le cas courant ; le menu garde les trois types, qui
-            n'ouvrent pas le même formulaire.
-          -->
+
           @if (canCreate()) {
             <app-split-button
               (clicked)="addAssureCustomer('ASSURANCE')"

@@ -163,6 +163,21 @@ n'apparaît qu'à la compilation du composant, donc pas au build tant que rien n
 | `app-file-upload` | ✅ `<input type="file">` |
 | `app-data-table` | ✅ Bootstrap + `NgbPagination` |
 | `app-toast-host` | ✅ `NgbToast` |
+| `app-detail-grid` / `app-detail-section` / `app-detail-field` | ✅ panneaux de détail : sections repliables (état mémorisé via `storageKey`), `—` et formats gérés par le champ ; `accent` / `variant` |
+
+## Surfaces : élévation et accent
+
+Base commune à toute carte posée sur un fond. Une seule source, trois points d'entrée :
+
+- **Jetons** (`content/scss/surface-global.scss`) : `--pharma-elevation-0…3`, `--pharma-surface-radius`,
+  `--pharma-surface-border`, et `--surface-accent` posé par les classes `.pharma-accent-<teinte>`
+- **Mixins** (`app/shared/scss/_surface.scss`) pour un composant : `pharma-surface(raised|muted)`,
+  `pharma-surface-accent-bar`, `pharma-surface-header`
+- **Classes** pour le markup brut : `.pharma-surface`, `.pharma-surface--muted`, `.pharma-accent-amber`…
+
+Les teintes sont celles des familles d'icônes (`AppSurfaceAccent`) : une section s'accorde à son
+icône (`pi-wallet` → `amber`, `pi-tag` → `fuchsia`, `pi-chart-line` → `violet`). `raised` pour ce
+qu'on vient consulter, `muted` pour l'information de référence.
 | `app-card` | ⚠ wrappe encore PrimeNG — à supprimer (Bootstrap natif suffit) |
 | `app-modal` | ⚠ à ajuster (`NgbModal`) |
 

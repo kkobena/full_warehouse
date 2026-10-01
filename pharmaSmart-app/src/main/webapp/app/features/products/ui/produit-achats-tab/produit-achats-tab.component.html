@@ -1,139 +1,150 @@
-<div class="mvt-tab-container">
-
-  <!-- ── Raccourcis de période ─────────────────────────────── -->
-  <div class="mvt-period-shortcuts">
-    <span class="shortcuts-label">Période :</span>
-    <app-pill-selector
-      (selectionChange)="periodFilter.applyShortcut($event)"
-      [items]="periodFilter.periodItems"
-      [ngModel]="periodFilter.activePeriod()"
-    />
-  </div>
-
-  <!-- ── Filtres ────────────────────────────────────────────── -->
-  <div class="mvt-filters d-flex align-items-center gap-2 flex-wrap px-2 py-1 border-bottom">
-    <div style="max-width: 145px">
-      <pharma-date-picker
-        (selectionChange)="periodFilter.onFromDateChange($event)"
-        [(ngModel)]="periodFilter.fromDate"
-        [labelPosition]="'top'"
-        [maxDate]="periodFilter.toDate"
-        id="achats-du"
-        label="{{ 'warehouseApp.labels.du' | translate }}"
-      />
-    </div>
-    <div style="max-width: 145px">
-      <pharma-date-picker
-        (selectionChange)="periodFilter.onToDateChange($event)"
-        [(ngModel)]="periodFilter.toDate"
-        [labelPosition]="'top'"
-        [minDate]="periodFilter.fromDate"
-        id="achats-au"
-        label="{{ 'warehouseApp.labels.au' | translate }}"
-      />
-    </div>
-    <app-button
-      (clicked)="load()"
-      icon="pi pi-search"
-      label="Actualiser"
-      severity="info"
-      size="small"
-    />
-    @if (data().length > 0) {
-      <app-button
-        (clicked)="exportPdf()"
-        icon="pi pi-file-pdf"
-        label="PDF"
-        ngbTooltip="Exporter en PDF"
-        placement="top"
-        severity="warn"
-        size="small"
-      />
-      <app-button
-        (clicked)="toggleChart()"
-        [outlined]="!showChart()"
-        [severity]="showChart() ? 'primary' : 'secondary'"
-        icon="pi pi-chart-bar"
-        label="Graphique"
-        ngbTooltip="Afficher/masquer le graphique"
-        placement="top"
-        size="small"
-      />
-    }
-  </div>
-
-  <!-- ── Graphique achats ───────────────────────────────────── -->
-  @if (showChart()) {
-    <div class="mvt-chart-container">
-      @if (loadingChart()) {
-        <div class="chart-loading"><i class="pi pi-spin pi-spinner me-2"></i>Chargement...</div>
-      } @else {
-        <canvas #achatsChart></canvas>
-      }
-    </div>
-  }
-
-  <!-- ── Tableau achats ─────────────────────────────────────── -->
-  <app-data-table
-    (onLazyLoad)="onLazyLoad($event)"
-    [lazy]="true"
-    [loading]="loading()"
-    [paginator]="true"
-    [rowsPerPageOptions]="[10, 20, 30, 50]"
-    [rows]="itemsPerPage"
-    [scrollable]="true"
-    [showGridlines]="true"
-    [totalRecords]="totalItems()"
-    [value]="data()"
-    scrollHeight="calc(100vh - 420px)"
+<app-detail-grid>
+  <app-detail-section
+    header="Historique des achats"
+    icon="pi pi-chart-line"
+    [accent]="'blue'"
+    [width]="'full'"
+    [layout]="'block'"
+    [count]="totalItems()"
+    storageKey="produit.achats.historique"
   >
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th>Date</th>
-        <th>Référence</th>
-        <th class="text-end">Quantité</th>
-        <th class="text-end">Prix achat</th>
-        <th class="text-end">Montant achat</th>
-        <th>Opérateur</th>
-      </tr>
-    </ng-template>
-
-    <ng-template #body let-a>
-      <tr>
-        <td>{{ a.mvtDate | date: 'dd/MM/yyyy HH:mm' }}</td>
-        <td>{{ a.reference }}</td>
-        <td class="text-end pharma-qty-value">{{ a.quantite | number }}</td>
-        <td class="text-end pharma-price">{{ a.prixAchat | number }}</td>
-        <td class="text-end pharma-price">{{ a.montantAchat | number }}</td>
-        <td>{{ a.user }}</td>
-      </tr>
-    </ng-template>
-
-    <ng-template #footer>
-      @if (summary()) {
-        <tr class="pharma-table-footer">
-          <td colspan="2"><span class="pharma-footer-label">Totaux</span></td>
-          <td class="text-end"><span
-            class="pharma-footer-value">{{ summary()?.quantite | number }}</span></td>
-          <td></td>
-          <td class="text-end"><span
-            class="pharma-footer-value">{{ summary()?.montantAchat | number }}</span></td>
-          <td></td>
-        </tr>
+    <div ngProjectAs="[sectionActions]" class="mvt-section-actions">
+      @if (data().length > 0) {
+        <app-button
+          (clicked)="exportPdf()"
+          [rounded]="true"
+          [text]="true"
+          icon="pi pi-file-pdf"
+          ngbTooltip="Exporter en PDF"
+          placement="left"
+          severity="warn"
+          size="small"
+        />
+        <app-button
+          (clicked)="toggleChart()"
+          [rounded]="true"
+          [severity]="showChart() ? 'primary' : 'secondary'"
+          [text]="true"
+          icon="pi pi-chart-bar"
+          ngbTooltip="Afficher/masquer le graphique"
+          placement="left"
+          size="small"
+        />
       }
-    </ng-template>
+    </div>
 
-    <ng-template #emptymessage>
-      <tr>
-        <td class="pharma-empty-message" colspan="6">
-          <div class="pharma-empty-content">
-            <i class="pi pi-inbox"></i>
-            <p>Aucun achat sur la période</p>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-  </app-data-table>
+    <!-- ── Raccourcis de période ─────────────────────────────── -->
+    <div class="mvt-period-shortcuts">
+      <span class="shortcuts-label">Période :</span>
+      <app-pill-selector
+        (selectionChange)="periodFilter.applyShortcut($event)"
+        [items]="periodFilter.periodItems"
+        [ngModel]="periodFilter.activePeriod()"
+      />
+    </div>
 
-</div>
+    <!-- ── Filtres ────────────────────────────────────────────── -->
+    <div class="mvt-filters d-flex align-items-center gap-2 flex-wrap">
+      <div style="max-width: 145px">
+        <pharma-date-picker
+          (selectionChange)="periodFilter.onFromDateChange($event)"
+          [(ngModel)]="periodFilter.fromDate"
+          [labelPosition]="'top'"
+          [maxDate]="periodFilter.toDate"
+          id="achats-du"
+          label="{{ 'warehouseApp.labels.du' | translate }}"
+        />
+      </div>
+      <div style="max-width: 145px">
+        <pharma-date-picker
+          (selectionChange)="periodFilter.onToDateChange($event)"
+          [(ngModel)]="periodFilter.toDate"
+          [labelPosition]="'top'"
+          [minDate]="periodFilter.fromDate"
+          id="achats-au"
+          label="{{ 'warehouseApp.labels.au' | translate }}"
+        />
+      </div>
+      <app-button
+        (clicked)="load()"
+        icon="pi pi-search"
+        label="Actualiser"
+        severity="info"
+        size="small"
+      />
+    </div>
 
+    <!-- ── Graphique achats ───────────────────────────────────── -->
+    @if (showChart()) {
+      <div class="mvt-chart-container">
+        @if (loadingChart()) {
+          <div class="chart-loading"><i class="pi pi-spin pi-spinner me-2"></i>Chargement...</div>
+        } @else {
+          <canvas #achatsChart></canvas>
+        }
+      </div>
+    }
+
+    <!-- ── Tableau achats ─────────────────────────────────────── -->
+    <app-data-table
+      (onLazyLoad)="onLazyLoad($event)"
+      [lazy]="true"
+      [loading]="loading()"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 20, 30, 50]"
+      [rows]="itemsPerPage"
+      [scrollable]="true"
+      [showGridlines]="true"
+      [totalRecords]="totalItems()"
+      [value]="data()"
+      scrollHeight="calc(100vh - 480px)"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>Date</th>
+          <th>Référence</th>
+          <th class="text-end">Quantité</th>
+          <th class="text-end">Prix achat</th>
+          <th class="text-end">Montant achat</th>
+          <th>Opérateur</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-a>
+        <tr>
+          <td>{{ a.mvtDate | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ a.reference }}</td>
+          <td class="text-end pharma-qty-value">{{ a.quantite | number }}</td>
+          <td class="text-end pharma-price">{{ a.prixAchat | number }}</td>
+          <td class="text-end pharma-price">{{ a.montantAchat | number }}</td>
+          <td>{{ a.user }}</td>
+        </tr>
+      </ng-template>
+
+      <ng-template #footer>
+        @if (summary()) {
+          <tr class="pharma-table-footer">
+            <td colspan="2"><span class="pharma-footer-label">Totaux</span></td>
+            <td class="text-end"><span
+              class="pharma-footer-value">{{ summary()?.quantite | number }}</span></td>
+            <td></td>
+            <td class="text-end"><span
+              class="pharma-footer-value">{{ summary()?.montantAchat | number }}</span></td>
+            <td></td>
+          </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td class="pharma-empty-message" colspan="6">
+            <div class="pharma-empty-content">
+              <i class="pi pi-inbox"></i>
+              <p>Aucun achat sur la période</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </app-detail-section>
+</app-detail-grid>

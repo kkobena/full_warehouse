@@ -53,6 +53,13 @@ export const ISO_TO_NGB_DATE = (iso: string | null | undefined): NgbDateStruct |
   return { year, month, day };
 };
 
+/** Aujourd'hui décalé de `mois` mois (positif ou négatif), au format `pharma-date-picker`. */
+export const NGB_DATE_OFFSET_MONTHS = (mois: number): NgbDateStruct => {
+  const d = new Date();
+  d.setMonth(d.getMonth() + mois);
+  return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+};
+
 /** Une date `YYYY-MM-DD` antérieure à aujourd'hui (carte d'assuré expirée…). */
 export const IS_ISO_DATE_PAST = (iso: string | null | undefined): boolean =>
   !!iso && iso.slice(0, 10) < NGB_DATE_TO_ISO(TODAY_NGB_DATE())!;

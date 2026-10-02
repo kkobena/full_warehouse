@@ -4,12 +4,12 @@ import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { RemiseRfaApiService } from '../../data-access/services/remise-rfa-api.service';
 import { IRemiseRfaFournisseur, IAvoirFournisseur } from '../../data-access/models';
 import { formatCurrency } from 'app/shared/utils/format-utils';
-import { BadgeComponent, ButtonComponent, DataTableComponent, ToolbarComponent } from '../../../../shared/ui';
+import { BadgeComponent, ButtonComponent, DataTableComponent, NavTabsComponent, ToolbarComponent } from '../../../../shared/ui';
 
 import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
 @Component({
   selector: 'app-remises-rfa',
-  imports: [DeviseDirective, DevisePipe, CommonModule, ButtonComponent, DataTableComponent, ToolbarComponent, BadgeComponent, NgbNavModule],
+  imports: [DeviseDirective, DevisePipe, CommonModule, ButtonComponent, DataTableComponent, ToolbarComponent, BadgeComponent, NgbNavModule, NavTabsComponent],
   templateUrl: './remises-rfa.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './remises-rfa.component.scss',

@@ -44,7 +44,7 @@
 </app-toolbar>
 
 <!-- Tabs -->
-<div class="pharma-nav-tabs-container">
+<app-nav-tabs [nav]="nav">
   <div
     #nav="ngbNav"
     (navChange)="onTabChange($event)"
@@ -302,10 +302,7 @@
       </ng-template>
     </ng-container>
   </div>
-  <div class="pharma-nav-tabs-outlet">
-    <div [ngbNavOutlet]="nav"></div>
-  </div>
-</div>
+</app-nav-tabs>
 
 <!-- Advanced Filters Drawer -->
 <app-offcanvas [(visible)]="filtersDrawerVisible" position="right" width="580px">

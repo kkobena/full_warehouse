@@ -27,6 +27,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         "com.kobe.warehouse.service.settings",
         "com.kobe.warehouse.service.stock",
         "com.kobe.warehouse.service.classification",
+        "com.kobe.warehouse.service.referentiel",
         "com.kobe.warehouse.config",
         "com.kobe.warehouse.batch"
     },

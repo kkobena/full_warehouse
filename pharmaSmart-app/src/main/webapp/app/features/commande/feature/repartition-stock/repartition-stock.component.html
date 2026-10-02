@@ -76,7 +76,7 @@
     </ng-container>
   </app-toolbar>
 
-  <div class="pharma-nav-tabs-container">
+  <app-nav-tabs [nav]="nav">
     <div
       #nav="ngbNav"
       (navChange)="onTabChange($event)"
@@ -132,8 +132,5 @@
         </ng-template>
       </ng-container>
     </div>
-    <div class="pharma-nav-tabs-outlet">
-      <div [ngbNavOutlet]="nav"></div>
-    </div>
-  </div>
+  </app-nav-tabs>
 </div>

@@ -1391,3 +1391,11 @@ table tfoot tr td {
 .pharma-smart-content {
   border-radius: 8px
 }
+
+// Sur le fond de la page, la barre d'onglets se confondrait avec le thème : elle prend la même
+// surface que dans un panneau de détail (cf. `.detail-column` de _split-panel.scss), où cette règle
+// est donc sans effet visible. Valable pour tout `app-nav-tabs`, qu'il soit ou non sous
+// `.pharma-smart-content` (les rapports l'ont à la racine de leur gabarit).
+app-nav-tabs .pharma-nav-tabs {
+  background: var(--pharma-surface);
+}

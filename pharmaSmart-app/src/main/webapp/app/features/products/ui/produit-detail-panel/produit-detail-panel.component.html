@@ -60,7 +60,7 @@
   }
 
   <!-- Onglets ngbNav -->
-  <div class="pharma-nav-tabs-container flex-1-overflow">
+  <app-nav-tabs [nav]="nav" class="flex-1-overflow">
     <div
       #nav="ngbNav"
       (activeIdChange)="onTabChange($event)"
@@ -190,8 +190,5 @@
         </ng-container>
       }
     </div>
-    <div class="pharma-nav-tabs-outlet">
-      <div [ngbNavOutlet]="nav"></div>
-    </div>
-  </div>
+  </app-nav-tabs>
 </div>

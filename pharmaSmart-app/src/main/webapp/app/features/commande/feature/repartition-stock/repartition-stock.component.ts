@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
 import { NgbDateStruct, NgbNavModule, NgbNav, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonComponent, IconFieldComponent, SelectComponent, ToolbarComponent } from 'app/shared/ui';
+import { ButtonComponent, IconFieldComponent, SelectComponent, ToolbarComponent, NavTabsComponent } from 'app/shared/ui';
 import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
 import { APPEND_TO } from 'app/shared/constants/pagination.constants';
 import { NGB_DATE_TO_ISO, TODAY_NGB_DATE } from 'app/shared/util/warehouse-util';
@@ -31,7 +31,7 @@ import { AppManualRepartitionComponent } from './ui/manual-repartition/manual-re
     PharmaDatePickerComponent,
     SelectComponent,
     RouterModule,
-    NgbNavModule,
+    NgbNavModule, NavTabsComponent,
     NgbTooltip,
     AppRepartitionListComponent,
     AppSuggestionReassortComponent,

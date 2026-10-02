@@ -93,13 +93,22 @@
   }
 }
 
-.flex-1-overflow {
+// Les onglets sont rendus par app-nav-tabs : le conteneur et l'outlet appartiennent à son gabarit,
+// que l'encapsulation de ce composant n'atteint pas sans ::ng-deep.
+app-nav-tabs.flex-1-overflow {
   flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 
-  .pharma-nav-tabs-outlet {
+  ::ng-deep .pharma-nav-tabs-container {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  ::ng-deep .pharma-nav-tabs-outlet {
     flex: 1;
     overflow-y: auto;
   }

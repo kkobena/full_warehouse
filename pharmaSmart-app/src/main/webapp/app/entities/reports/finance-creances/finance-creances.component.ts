@@ -1,5 +1,6 @@
 import { Component, inject, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
+import { NavTabsComponent } from 'app/shared/ui';
 import { AbilityService } from 'app/core/auth/ability.service';
 import VieillissementCreancesComponent from '../vieillissement-creances/vieillissement-creances.component';
 import ConcentrationPayersComponent from '../concentration-payers/concentration-payers.component';
@@ -9,7 +10,7 @@ type Periode = 'quarter' | 'year';
 
 @Component({
   selector: 'app-finance-creances',
-  imports: [NgbNavModule, VieillissementCreancesComponent, ConcentrationPayersComponent],
+  imports: [NgbNavModule, NavTabsComponent, VieillissementCreancesComponent, ConcentrationPayersComponent],
   templateUrl: './finance-creances.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./finance-creances.component.scss'],

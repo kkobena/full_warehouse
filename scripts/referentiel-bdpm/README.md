@@ -46,3 +46,55 @@ Tous les CSV sont en UTF-8 (avec BOM, pour Excel), séparateur `;`.
 
 Source : Base de données publique des médicaments — https://base-donnees-publique.medicaments.gouv.fr (réutilisation
 libre, sous réserve de citer la source et de ne pas altérer les données).
+
+## Chargement en base (tables `ref_*`)
+
+Le CSV `sortie-gpc/referentiel_bdpm.csv` alimente les tables créées par la migration Flyway
+`V2.1.19__referentiel_medicament_bdpm.sql` : `ref_specialite`, `ref_specialite_composition`,
+`ref_substance`, `ref_dci`, `ref_groupe_generique`, `ref_specialite_rcp` et la vue `v_ref_substitut`.
+
+```bash
+python generer_sql.py                 # régénère scripts/sql/01 … 06 depuis le CSV
+cd ../sql
+psql -U pharma_smart -d <base> -v ON_ERROR_STOP=1 -f run_all.sql
+```
+
+`07_lier_dci.sql` relie `ref_dci` aux DCI du catalogue par libellé normalisé (`ref_normaliser`) et
+liste les cas ambigus ; `99_verification.sql` donne les comptes. Les fichiers `01` à `06` sont
+générés : ne pas les modifier à la main.
+
+## Rapprochement produit ↔ référentiel
+
+La migration `V2.1.20__rapprochement_produit_referentiel.sql` ajoute la table `produit_ref_specialite`
+(une proposition par produit : spécialité, statut `SUR` / `A_VERIFIER` / `PAR_DCI` / `NON_TROUVE`, score,
+motif, décision) et trois fonctions PostgreSQL qui font tout le calcul, en une requête ensembliste :
+
+| Fonction | Rôle |
+|---|---|
+| `ref_rapprocher_produits(ids, forcer)` | Propose une spécialité par produit : nom (exact, puis approché par trigramme), molécule (DCI du produit ou lue en tête de libellé), dosage et forme lus dans le libellé. `forcer = FALSE` : produits sans proposition ; `TRUE` : recalcule aussi les `EN_ATTENTE`. |
+| `ref_lier_dci(ids)` | Relie `ref_dci` aux DCI du catalogue par libellé normalisé. |
+| `ref_rapprocher_apres_nouvelles_dci(ids)` | Lie, puis recalcule les produits dont le libellé commence par la DCI. |
+
+Déclenchement : étape `rapprocherReferentielStep` du pipeline de nuit (produits nouveaux), job
+`recalculReferentielJob` (à la demande, après rechargement du référentiel), et événement `DcisAjouteesEvent`
+publié par `DciServiceImpl` à la création ou à l'import de DCI (traité après le commit, hors requête).
+
+Rien n'est appliqué au produit sans validation : `RapprochementProduitService.valider` fixe la décision et,
+si le produit n'a aucune DCI, lui donne celles de la spécialité retenue.
+
+### Acceptation automatique et dissociation
+
+`ref_automatiser_rapprochement` enchaîne le rapprochement et `ref_appliquer_rapprochements` : les propositions
+`SUR` et `PAR_DCI` passent en décision `AUTO` ; un produit **sans DCI** reçoit celles de la spécialité
+(`produit_dci`, rang 1 = première molécule, `produit.dci_id` alignée), un produit déjà doté de DCI n'est pas
+modifié. Si une molécule n'est pas encore reliée au catalogue, la proposition reste en attente et est reprise
+dès l'import de la DCI manquante. Il reste à relire : `A_VERIFIER` et les `PAR_DCI` incomplets
+(`GET /api/referentiel-medicament/rapprochements`, `POST .../valider|rejeter|reinitialiser`).
+
+Retirer une DCI d'un produit (fiche produit, rattachement en lot, fusion) déclenche `produit_dci_dissociation` :
+si cette DCI appartient à la spécialité retenue, le rapprochement passe à `REJETE` et n'est plus jamais
+recalculé ni réappliqué. `reinitialiser` supprime la proposition pour que le produit redevienne candidat.
+
+Au comptoir : `GET /api/referentiel-medicament/produits/{id}` donne spécialité, molécules et dosages, RCP
+(indications, posologie, contre-indications) et substituts du catalogue (même groupe générique) — seulement
+pour un rapprochement de confiance (`AUTO` ou `VALIDE`).

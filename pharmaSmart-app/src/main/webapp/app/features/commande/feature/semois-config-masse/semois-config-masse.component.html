@@ -8,7 +8,7 @@
   </app-toolbar>
 
   <!-- Tabs pour les différentes stratégies -->
-  <div class="pharma-nav-tabs-container mt-3">
+  <app-nav-tabs containerClass="mt-3">
     <div #nav="ngbNav" [(activeId)]="activeTab" class="nav pharma-nav-tabs" ngbNav orientation="horizontal">
       <!-- Onglet 1: Classification Automatique ABC -->
       <ng-container ngbNavItem="classification-abc">
@@ -340,5 +340,5 @@
 
     <!-- Tab content -->
     <div [ngbNavOutlet]="nav" class="pharma-nav-tab-content mt-3"></div>
-  </div>
+  </app-nav-tabs>
 </div>

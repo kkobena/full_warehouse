@@ -17,7 +17,7 @@ import {
   OffcanvasComponent,
   SelectComponent,
   SplitButtonComponent,
-  ToolbarComponent
+  ToolbarComponent, NavTabsComponent
 } from '../../../shared/ui';
 import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
 import {NGB_DATE_TO_ISO} from '../../../shared/util/warehouse-util';
@@ -54,7 +54,7 @@ import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
   imports: [DeviseDirective, 
     CommonModule,
     FormsModule,
-    NgbNavModule,
+    NgbNavModule, NavTabsComponent,
     BadgeComponent,
     ButtonComponent,
     CheckboxComponent,

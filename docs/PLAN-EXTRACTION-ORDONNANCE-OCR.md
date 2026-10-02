@@ -320,7 +320,3 @@ les caisses ; alertes massivement ignorées.
 
 ---
 
-## Annexe — Documents liés
-
-- [PLAN-INTEGRATION-SPRING-AI.md](PLAN-INTEGRATION-SPRING-AI.md) — UC-5, règles de dégradation, licence
-- [PLAN-GESTION-LICENCE.md](PLAN-GESTION-LICENCE.md) — mécanisme `Feature`

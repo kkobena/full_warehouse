@@ -33,7 +33,7 @@ class DciProduitIntegrationTest extends AbstractStockIntegrationTest {
 
     @BeforeEach
     void services() {
-        dciService = new DciServiceImpl(IntegrationPostgresDatabase.bean(DciRepository.class), services.produitRepository);
+        dciService = new DciServiceImpl(IntegrationPostgresDatabase.bean(DciRepository.class), services.produitRepository, event -> {});
         catalogue = new CustomizedProductRepository(
             services.stockProduitRepository,
             services.produitRepository,

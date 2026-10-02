@@ -8,7 +8,7 @@
   </div>
 }
 
-<div class="pharma-smart-content p-1">
+<div class="pharma-smart-content">
   <app-toolbar [code]="navCode()" icon="pi pi-shield" title="Liste des tiers payants">
     <ng-container ngProjectAs="[toolbarFilters]">
 
@@ -53,12 +53,6 @@
           severity="help"
         />
 
-        <!--
-          L'action principale du bouton scindé n'était rattachée à rien : cliquer « Nouveau
-          tiers payant » ne faisait rien du tout, et seul le chevron menait quelque part. Elle
-          crée un organisme d'ASSURANCE, de loin le cas courant ; le menu garde les trois
-          catégories, qui n'ouvrent pas le même formulaire.
-        -->
         <app-split-button
           (clicked)="addTiersPayantAssurance()"
           [items]="tiersPayantSplitbuttons()"

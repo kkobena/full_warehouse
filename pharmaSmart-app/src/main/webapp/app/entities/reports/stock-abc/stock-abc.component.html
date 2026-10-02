@@ -1,12 +1,4 @@
-<!--
-  `app-toolbar` et non un `<div class="pharma-toolbar">` recopié : les emplacements
-  `ngProjectAs="[toolbarFilters]"` et `[toolbarActions]` ne projettent QUE dans un composant
-  qui les déclare. Posés dans un div ordinaire, ils étaient inertes — filtres et actions se
-  rendaient à la suite, hors de la structure attendue — et le titre restait un `<span>`, donc
-  invisible pour la navigation par en-têtes.
 
-  Le titre et l'icône suivent l'onglet actif : la barre nomme ce qu'on regarde.
--->
 <app-toolbar [icon]="active() === 'pareto' ? 'pi pi-chart-pie' : 'pi pi-sync'"
              [title]="active() === 'pareto' ? 'Analyse ABC Pareto (5 classes)' : 'Rotation du Stock (Analyse ABC)'">
   <ng-container ngProjectAs="[toolbarFilters]">
@@ -103,7 +95,7 @@
 </app-toolbar>
 
 <!-- Onglets -->
-<div class="pharma-nav-tabs-container">
+<app-nav-tabs [nav]="nav">
   <div
     #nav="ngbNav"
     (activeIdChange)="onActiveChange($event)"
@@ -133,9 +125,6 @@
     </ng-container>
   </div>
 
-  <div class="pharma-nav-tabs-outlet">
-    <div [ngbNavOutlet]="nav"></div>
-  </div>
-</div>
+</app-nav-tabs>
 
 

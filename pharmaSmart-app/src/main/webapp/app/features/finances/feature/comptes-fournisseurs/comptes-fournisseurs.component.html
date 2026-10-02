@@ -185,7 +185,7 @@
             </div>
 
             <!-- Onglets ngbNav -->
-            <div class="pharma-nav-tabs-container flex-1-overflow">
+            <app-nav-tabs [nav]="nav" containerClass="flex-1-overflow">
               <div #nav="ngbNav" (activeIdChange)="onTabChange($event)" [activeId]="activeTab()"
                    class="nav pharma-nav-tabs" ngbNav orientation="horizontal">
 
@@ -393,11 +393,7 @@
 
 
               </div>
-
-              <div class="pharma-nav-tabs-outlet">
-                <div [ngbNavOutlet]="nav"></div>
-              </div>
-            </div>
+            </app-nav-tabs>
 
           </div>
         }

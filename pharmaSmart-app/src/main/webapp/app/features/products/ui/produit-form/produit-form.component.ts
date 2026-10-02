@@ -4,6 +4,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {forkJoin} from "rxjs";
 
 import {Dci, IProduit, Produit} from "app/shared/model/produit.model";
+import {IProduitReferentiel} from "app/shared/model/produit-referentiel.model";
 import {ProduitService} from "app/entities/produit/produit.service";
 import {TypeProduit} from "app/shared/model/enumerations/type-produit.model";
 import {IFournisseur} from "app/shared/model/fournisseur.model";
@@ -28,6 +29,7 @@ import {DciService} from "app/entities/dci/dci.service";
 import {TiersPayantService} from "app/entities/tiers-payant/tierspayant.service";
 import {NgbModal, NgbNavModule, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 import {
+  BadgeComponent,
   ButtonComponent,
   CardComponent,
   DataTableComponent,
@@ -36,7 +38,7 @@ import {
   SelectSearchComponent,
   MultiSelectComponent,
   SwitchComponent,
-  ToolbarComponent,
+  ToolbarComponent, NavTabsComponent
 } from "app/shared/ui";
 import {CommonModule, NgClass} from "@angular/common";
 import {STATUT_LEGAL_OPTIONS} from "app/shared/model/enumerations/statut-legal.model";
@@ -72,7 +74,7 @@ import {
   imports: [DeviseDirective, 
     CommonModule,
     ReactiveFormsModule,
-    NgbNavModule,
+    NgbNavModule, NavTabsComponent,
     NgClass,
     ButtonComponent,
     DataTableComponent,
@@ -86,7 +88,8 @@ import {
     ProduitFournisseursCreationComponent,
     ProduitPrixCreationComponent,
     NgbTooltip,
-    CardComponent
+    CardComponent,
+    BadgeComponent
   ]
 })
 export class ProduitFormComponent implements OnInit {
@@ -98,6 +101,8 @@ export class ProduitFormComponent implements OnInit {
   protected readonly activeTab = signal("essentiel");
   /** Produit courant (signal) — alimenté après chargement, rechargé après refresh */
   protected readonly currentProduit = signal<IProduit | null>(null);
+  /** Rapprochement avec le référentiel médicament ; alimente le badge « DCI posée automatiquement ». */
+  protected readonly referentiel = signal<IProduitReferentiel | null>(null);
   // Listes de référence
   protected readonly formeProduits = signal<IFormProduit[]>([]);
   protected readonly familleProduits = signal<IFamilleProduit[]>([]);
@@ -433,11 +438,24 @@ export class ProduitFormComponent implements OnInit {
     });
   }
 
+  /** Le badge est une aide : son échec ne doit jamais gêner la saisie de la fiche. */
+  private chargerReferentiel(produitId?: number): void {
+    this.referentiel.set(null);
+    if (!produitId) {
+      return;
+    }
+    this.dciService.chargerReferentielProduit(produitId).subscribe({
+      next: referentiel => this.referentiel.set(referentiel),
+      error: () => this.referentiel.set(null)
+    });
+  }
+
   private updateForm(produit: IProduit): void {
     /** Retourne null si la valeur est 0, null ou undefined — évite l'affichage de "0" dans les inputs numériques */
     const nz = (v: number | null | undefined): number | null => (v == null || v === 0 ? null : v);
 
     this.currentProduit.set(produit);
+    this.chargerReferentiel(produit.id);
     this.editForm.patchValue({
       id: produit.id ?? null,
       codeCip: produit.codeCip ?? null,

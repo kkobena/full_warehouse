@@ -30,6 +30,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  *   <li>refreshViewsStep — vues matérialisées fraîches avant recalcul</li>
  *   <li>classifyChunkStep — classification ABC-Pareto (chunk-oriented, depuis ClassificationJobConfig)</li>
  *   <li>recalculateSemoisChunkStep — VMM + stock-objectif (chunk-oriented, depuis SemoisCalculationJobConfig)</li>
+ *   <li>rapprocherReferentielStep — propositions de rapprochement des produits nouveaux (référentiel BDPM)</li>
  *   <li>avoirExpirationStep — expiration avoirs échus</li>
  * </ol>
  */
@@ -47,6 +48,7 @@ public class NightlyPipelineJobConfig {
         Step recalculateSemoisChunkStep,
         Step creerSuggestionsStep,
         Step nettoyerSuggestionsStep,
+        Step rapprocherReferentielStep,
         Step avoirExpirationStep
     ) {
         return new JobBuilder("nightlyPipelineJob", jobRepository)
@@ -58,6 +60,7 @@ public class NightlyPipelineJobConfig {
             .next(recalculateSemoisChunkStep)
             .next(creerSuggestionsStep)
             .next(nettoyerSuggestionsStep)
+            .next(rapprocherReferentielStep)
             .next(avoirExpirationStep)
             .build();
     }

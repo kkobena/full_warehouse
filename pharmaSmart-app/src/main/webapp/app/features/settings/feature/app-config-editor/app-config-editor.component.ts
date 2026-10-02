@@ -7,7 +7,7 @@ import { NavigationService } from 'app/core/config/navigation.service';
 import { BackendManagerService } from 'app/shared/services/backend-manager.service';
 import { AppSettingsService } from 'app/core/config/app-settings.service';
 import { Authority } from 'app/config/authority.constants';
-import { ButtonComponent, PasswordComponent, ToolbarComponent } from '../../../../shared/ui';
+import { ButtonComponent, PasswordComponent, ToolbarComponent, NavTabsComponent } from '../../../../shared/ui';
 
 export interface AppConfigDto {
   server_port: number;
@@ -37,7 +37,7 @@ export interface AppConfigDto {
   templateUrl: './app-config-editor.component.html',
   styleUrls: ['./app-config-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, ButtonComponent, PasswordComponent, NgbNavModule, ToolbarComponent]
+  imports: [ReactiveFormsModule, ButtonComponent, PasswordComponent, NgbNavModule, NavTabsComponent, ToolbarComponent]
 })
 export class AppConfigEditorComponent implements OnInit {
   readonly loading = signal(true);

@@ -64,7 +64,7 @@ public class AvoirClientNotificationService {
         }
     }
 
-    /** Le client a retiré son accord pour ce canal (fiche client, lot 4). */
+    /** Le client a retiré son accord pour ce canal */
     private boolean refuse(Customer customer, CanalConsentement canal) {
         return customer.getId() != null && consentementService.estRefuse(customer.getId(), canal);
     }

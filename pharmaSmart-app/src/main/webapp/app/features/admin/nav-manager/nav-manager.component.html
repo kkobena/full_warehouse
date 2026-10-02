@@ -8,7 +8,7 @@
   </div>
 
   <!-- Onglets ngbNav -->
-  <div class="pharma-nav-tabs-container">
+  <app-nav-tabs [nav]="nav">
     <div
       #nav="ngbNav"
       (activeIdChange)="onTabChange($event)"
@@ -430,10 +430,7 @@
       </ng-container>
     </div>
 
-    <div class="pharma-nav-tabs-outlet">
-      <div [ngbNavOutlet]="nav"></div>
-    </div>
-  </div>
+  </app-nav-tabs>
 </div>
 
 

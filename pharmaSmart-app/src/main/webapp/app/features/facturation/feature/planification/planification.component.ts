@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonComponent } from '../../../../shared/ui';
+import { ButtonComponent, NavTabsComponent } from '../../../../shared/ui';
 
 import { PlanificationStateService } from './planification-state.service';
 import { PlanifTabFacturesComponent, PlanifTabFneComponent } from './ui';
@@ -8,7 +8,7 @@ import { PlanifTabFacturesComponent, PlanifTabFneComponent } from './ui';
 @Component({
   selector: 'app-planification',
   providers: [PlanificationStateService],
-  imports: [ButtonComponent, NgbNavModule, PlanifTabFacturesComponent, PlanifTabFneComponent],
+  imports: [ButtonComponent, NgbNavModule, NavTabsComponent, PlanifTabFacturesComponent, PlanifTabFneComponent],
   templateUrl: './planification.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './planification.component.scss',

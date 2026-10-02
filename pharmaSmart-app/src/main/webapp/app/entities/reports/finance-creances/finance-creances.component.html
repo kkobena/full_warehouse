@@ -47,7 +47,7 @@
   </div>
 
   <!-- Onglets -->
-  <div class="pharma-nav-tabs-container">
+  <app-nav-tabs [nav]="nav">
     <div
       #nav="ngbNav"
       [activeId]="active()"
@@ -81,9 +81,6 @@
       }
     </div>
 
-    <div class="pharma-nav-tabs-outlet">
-      <div [ngbNavOutlet]="nav"></div>
-    </div>
-  </div>
+  </app-nav-tabs>
 
 </div>

@@ -45,6 +45,7 @@ import {
   InputNumberComponent,
   KpiItemComponent,
   KpiStripComponent,
+  NavTabsComponent,
   SelectComponent,
   ToolbarComponent, AppBadgeSeverity } from "../../../../shared/ui";
 import {
@@ -67,6 +68,7 @@ import { currencySymbol } from 'app/shared/utils/format-utils';
     DetailGridComponent,
     DetailSectionComponent,
     ToolbarComponent,
+    NavTabsComponent,
     BadgeComponent,
     InputNumberComponent,
     FloatLabelComponent,

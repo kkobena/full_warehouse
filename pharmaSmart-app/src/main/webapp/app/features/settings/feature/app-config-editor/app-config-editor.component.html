@@ -58,7 +58,7 @@
     } @else {
       <form [formGroup]="form" autocomplete="off" class="ace-form" novalidate>
 
-        <div class="pharma-nav-tabs-container">
+        <app-nav-tabs [nav]="nav">
 
           <div
             #nav="ngbNav"
@@ -314,11 +314,7 @@
 
           </div>
 
-          <div class="pharma-nav-tabs-outlet">
-            <div [ngbNavOutlet]="nav"></div>
-          </div>
-
-        </div>
+        </app-nav-tabs>
 
       </form>
     }

@@ -86,7 +86,7 @@
   }
 
   <!-- ═══════════════════════ ONGLETS PRINCIPAUX ═══════════════════════ -->
-  <div class="pharma-nav-tabs-container planif-main-tabs">
+  <app-nav-tabs containerClass="mt-2">
     <div
       #mainNav="ngbNav"
       (activeIdChange)="onMainTabChange($event)"
@@ -132,6 +132,6 @@
     <div class="pharma-nav-tabs-outlet planif-outlet">
       <div [ngbNavOutlet]="mainNav"></div>
     </div>
-  </div>
+  </app-nav-tabs>
 </div>
 

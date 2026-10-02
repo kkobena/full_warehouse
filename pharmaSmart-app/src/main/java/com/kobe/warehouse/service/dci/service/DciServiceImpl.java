@@ -10,6 +10,7 @@ import com.kobe.warehouse.service.dci.dto.DciDTO;
 import com.kobe.warehouse.service.dci.dto.DciProduitDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.referentiel.DcisAjouteesEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +25,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -49,10 +51,16 @@ public class DciServiceImpl implements DciService {
 
     private final DciRepository dciRepository;
     private final ProduitRepository produitRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public DciServiceImpl(DciRepository dciRepository, ProduitRepository produitRepository) {
+    public DciServiceImpl(
+        DciRepository dciRepository,
+        ProduitRepository produitRepository,
+        ApplicationEventPublisher eventPublisher
+    ) {
         this.dciRepository = dciRepository;
         this.produitRepository = produitRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -80,7 +88,10 @@ public class DciServiceImpl implements DciService {
         dci.setLibelle(exigerLibelle(dto));
         verifierUnicite(dci.getLibelle(), dto.getCode(), null);
         dci.setCode(resolveCode(dto.getCode(), dci.getLibelle(), null));
-        return new DciDTO(this.dciRepository.save(dci));
+        Dci cree = this.dciRepository.save(dci);
+        // Traité après le commit : lien au référentiel médicament et rapprochement des produits.
+        this.eventPublisher.publishEvent(new DcisAjouteesEvent(List.of(cree.getId())));
+        return new DciDTO(cree);
     }
 
     @Override
@@ -173,6 +184,7 @@ public class DciServiceImpl implements DciService {
         AtomicInteger importes = new AtomicInteger(0);
         AtomicInteger rejetes = new AtomicInteger(0);
         AtomicInteger total = new AtomicInteger(0);
+        List<Integer> idsImportes = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(
             new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
@@ -214,6 +226,7 @@ public class DciServiceImpl implements DciService {
                     dci.setCode(resolveCode(code, libelle, null));
 
                     this.dciRepository.saveAndFlush(dci);
+                    idsImportes.add(dci.getId());
                     importes.incrementAndGet();
                 } catch (Exception e) {
                     LOG.warn("Ligne {} rejetée à l'import DCI : {}", total.get(), e.getMessage());
@@ -223,6 +236,11 @@ public class DciServiceImpl implements DciService {
         } catch (IOException e) {
             LOG.error("Lecture du fichier d'import DCI impossible", e);
             return new ResponseDTO().success(false).message("Fichier illisible.");
+        }
+
+        // Un seul événement pour tout le fichier : un seul rapprochement après le commit.
+        if (!idsImportes.isEmpty()) {
+            this.eventPublisher.publishEvent(new DcisAjouteesEvent(idsImportes));
         }
 
         return new ResponseDTO()

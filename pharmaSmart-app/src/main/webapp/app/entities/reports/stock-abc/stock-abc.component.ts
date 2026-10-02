@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, signal, ViewChild} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {NgbNavModule} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent, SelectComponent} from '../../../shared/ui';
+import {ButtonComponent, SelectComponent, NavTabsComponent} from '../../../shared/ui';
 import {ClassePareto} from 'app/shared/model/report/classe-pareto.enum';
 import {CategorieABC} from 'app/shared/model/report/stock-rotation.model';
 import ABCParetoComponent from '../abc-pareto/abc-pareto.component';
@@ -11,7 +11,7 @@ import { ToolbarComponent } from 'app/shared/ui';
 @Component({
   selector: 'app-stock-abc',
   imports: [
-    NgbNavModule, ABCParetoComponent, StockRotationComponent, FormsModule,
+    NgbNavModule, NavTabsComponent, ABCParetoComponent, StockRotationComponent, FormsModule,
     SelectComponent, ButtonComponent, ToolbarComponent,
   ],
   templateUrl: './stock-abc.component.html',

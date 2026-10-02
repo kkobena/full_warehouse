@@ -144,12 +144,14 @@
 
 
         <!-- Onglet Versements -->
+
         <ng-container ngbNavItem="versements">
           <a class="pharma-nav-tab-link" ngbNavLink>
             <i class="pi pi-history"></i>
             <span>Versements</span>
           </a>
           <ng-template ngbNavContent>
+            <!-- à deplacer dans un composant dedié -->
             <app-detail-grid>
               <app-detail-section header="Versements" icon="pi pi-history" [accent]="'teal'"
                                   [width]="'full'" [layout]="'block'" [count]="reglements().length"

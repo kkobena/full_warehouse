@@ -22,7 +22,7 @@
           <input formControlName="id" type="hidden" />
 
 
-          <div class="pharma-nav-tabs-container">
+          <app-nav-tabs [nav]="nav">
             <div #nav="ngbNav" (activeIdChange)="onTabChange($event)" [activeId]="activeTab()"
                  class="nav pharma-nav-tabs" ngbNav>
 
@@ -542,6 +542,14 @@
                         </div>
                         <div class="form-field">
                           <label for="f_dci">DCI — molécules (la première choisie est la principale)</label>
+                          @if (referentiel(); as ref) {
+                            @if (ref.decision === 'AUTO' && ref.dciPoseeAutomatiquement) {
+                              <div class="mb-1" data-testid="badge-dci-auto">
+                                <app-badge icon="pi pi-bolt" label="DCI posée automatiquement" severity="info"
+                                           [ngbTooltip]="'Rapprochée du référentiel médicament : ' + (ref.specialite?.libelle ?? '') + '. Retirez la DCI ci-dessous si elle est erronée : le rapprochement sera rejeté et ne sera plus réappliqué.'" />
+                              </div>
+                            }
+                          }
                           <app-multi-select [clearable]="true" [items]="dcis()"
                                             [virtualScroll]="true" appendTo="body"
                                             bindLabel="libelle" bindValue="id"
@@ -649,10 +657,7 @@
 
             </div><!-- /pharma-nav-tabs -->
 
-            <div class="pharma-nav-tabs-outlet">
-              <div [ngbNavOutlet]="nav"></div>
-            </div>
-          </div><!-- /pharma-nav-tabs-container -->
+          </app-nav-tabs><!-- /app-nav-tabs -->
 
           <!-- Barre d'actions sticky -->
           <div class="form-actions-compact">

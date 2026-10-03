@@ -64,8 +64,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -212,7 +212,9 @@ public class SaleDataService {
         };
     }
 
-    /** Achats clôturés d'un client, du plus récent au plus ancien. */
+    /**
+     * Achats clôturés d'un client, du plus récent au plus ancien.
+     */
     public Page<SaleDTO> customerPurchases(Integer customerId, LocalDate fromDate,
                                            LocalDate toDate, Pageable pageable) {
         Specification<Sales> specification = Specification.where(
@@ -282,9 +284,7 @@ public class SaleDataService {
         return storageService.getUser();
     }
 
-    public List<SaleDTO> allPrevente(String query, String type, Integer userId,
-                                     Set<SalesStatut> statuts,
-                                     LocalDate fromDate, LocalDate toDate, boolean excludeDepot) {
+    public List<SaleDTO> allPrevente(String query, String type, Integer userId, Set<SalesStatut> statuts, LocalDate fromDate, LocalDate toDate, boolean excludeDepot) {
         if (!StringUtils.hasLength(type) || type.equals(EntityConstant.TOUT)) {
             return allPreventes(query, userId, statuts, fromDate, toDate, excludeDepot);
         }
@@ -295,8 +295,7 @@ public class SaleDataService {
         }
     }
 
-    public List<SaleDTO> allPreventeVNO(String query, Integer userId, Set<SalesStatut> statuts,
-                                        LocalDate fromDate, LocalDate toDate) {
+    public List<SaleDTO> allPreventeVNO(String query, Integer userId, Set<SalesStatut> statuts, LocalDate fromDate, LocalDate toDate) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
         Root<Sales> root = cq.from(Sales.class);
@@ -309,8 +308,7 @@ public class SaleDataService {
         return q.getResultList().stream().map(this::buildSaleDTO).toList();
     }
 
-    public List<SaleDTO> allPreventes(String query, Integer userId, Set<SalesStatut> statuts,
-                                      LocalDate fromDate, LocalDate toDate, boolean excludeDepot) {
+    public List<SaleDTO> allPreventes(String query, Integer userId, Set<SalesStatut> statuts, LocalDate fromDate, LocalDate toDate, boolean excludeDepot) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
         Root<Sales> root = cq.from(Sales.class);
@@ -322,8 +320,7 @@ public class SaleDataService {
         return q.getResultList().stream().map(this::buildSaleDTO).toList();
     }
 
-    public List<SaleDTO> allPreventeVO(String query, Integer userId, Set<SalesStatut> statuts,
-                                       LocalDate fromDate, LocalDate toDate, boolean excludeDepot) {
+    public List<SaleDTO> allPreventeVO(String query, Integer userId, Set<SalesStatut> statuts, LocalDate fromDate, LocalDate toDate, boolean excludeDepot) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
         Root<Sales> root = cq.from(Sales.class);
@@ -370,6 +367,11 @@ public class SaleDataService {
         if (excludeDepot) {
             predicates.add(cb.notEqual(root.type(), VenteDepot.class));
         }
+        // Une vente assurance (VO) sans client rattaché fait échouer l'affichage côté front, qui lit les
+        // informations de l'assuré : on ne la renvoie pas.
+        predicates.add(
+            cb.or(cb.notEqual(root.type(), ThirdPartySales.class), cb.isNotNull(root.get(Sales_.customer)))
+        );
     }
 
     public Page<DepotExtensionSaleDTO> fetchVenteDepot(
@@ -448,11 +450,11 @@ public class SaleDataService {
         return em
             .createQuery(
                 """
-                SELECT sl.sales.id, sl.sales.saleDate, COUNT(sl)
-                FROM SalesLine sl
-                WHERE sl.sales IN :ventes
-                GROUP BY sl.sales.id, sl.sales.saleDate
-                """,
+                    SELECT sl.sales.id, sl.sales.saleDate, COUNT(sl)
+                    FROM SalesLine sl
+                    WHERE sl.sales IN :ventes
+                    GROUP BY sl.sales.id, sl.sales.saleDate
+                    """,
                 Object[].class
             )
             .setParameter("ventes", ventes)
@@ -821,12 +823,15 @@ public class SaleDataService {
                 break;
             }
         }
-        if (StringUtils.isEmpty(numBon) && !tpsLines.isEmpty()) {
+        if (!StringUtils.hasText(numBon) && !tpsLines.isEmpty()) {
             numBon = tpsLines.getFirst().getNumBon();
         }
         AssuredCustomer assuredCustomer = (AssuredCustomer) thirdPartySales.getCustomer();
+        if (assuredCustomer == null) {
+            return null;
+        }
         AssuredCustomerDTO customer = new AssuredCustomerDTO(assuredCustomer);
-        if (StringUtils.isEmpty(num)) {
+        if (!StringUtils.hasText(num)) {
             Set<ClientTiersPayant> clientTiersPayants = assuredCustomer.getClientTiersPayants();
             if (!CollectionUtils.isEmpty(clientTiersPayants)) {
                 Optional<ClientTiersPayant> clientTiersPayantOpt = clientTiersPayants.stream()

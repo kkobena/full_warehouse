@@ -4,6 +4,7 @@
 
 @import '../../../../shared/scss/pharma-nav';
 @import 'app/shared/scss/table-common';
+@import '../../shared/styles/comptoir-style';
 
 // ====================================
 // VARIABLES
@@ -80,8 +81,8 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
     &:focus {
-      border-color: $pharma-primary;
-      box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
+      border-color: var(--p-form-field-focus-border-color, #{$pharma-primary});
+      box-shadow: var(--pharma-focus-ring, 0 0 0 3px rgba(91, 137, 166, 0.1));
       background: $pharma-white;
       outline: none;
     }
@@ -263,9 +264,10 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 // Total
+// Vert foncé : le `#5cb85c` d'origine ne faisait que 2,5:1 sur blanc (1,9:1 sur la ligne sélectionnée).
 .pharma-total {
   font-weight: 700;
-  color: $pharma-success;
+  color: #1b5e20;
   font-size: 14px;
 }
 
@@ -284,8 +286,8 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   font-size: 13px;
 
   &:focus {
-    border-color: $pharma-success;
-    box-shadow: 0 0 0 3px rgba(92, 184, 92, 0.2);
+    border-color: var(--p-form-field-focus-border-color, #{$pharma-success});
+    box-shadow: var(--pharma-focus-ring, 0 0 0 3px rgba(92, 184, 92, 0.2));
   }
 }
 
@@ -317,7 +319,7 @@ td.text-right app-editable-cell {
 // FOOTER DU TABLEAU
 // ====================================
 .pharma-footer-label {
-  color: $pharma-primary;
+  color: #3f6178; // le bleu `#5b89a6` d'origine ne faisait que 3,8:1
 
   i {
     font-size: 13px;
@@ -339,7 +341,7 @@ td.text-right app-editable-cell {
 
 .pharma-footer-total {
   font-weight: 700;
-  color: $pharma-success;
+  color: #1b5e20;
   font-size: 15px;
 }
 
@@ -833,5 +835,101 @@ td.text-right app-editable-cell {
 
   .lots-reste {
     font-weight: 600;
+  }
+}
+
+// ============================================
+// STYLES DU COMPTOIR — « Remise » suit l'accent du type de vente
+// ============================================
+// Le panier est une carte : bordure, rayon et ombre du style.
+@include comptoir-cartes {
+  .product-list-container {
+    border: 1px solid var(--comptoir-border);
+    border-radius: var(--comptoir-radius);
+    box-shadow: var(--comptoir-shadow-card);
+  }
+}
+
+@include comptoir-accent {
+  .pharma-remise-section ::ng-deep .btn-outline-primary {
+    @include comptoir-bouton-contour-accent;
+  }
+}
+
+// ============================================
+// DÉFAUTS VISIBLES CORRIGÉS (docs/PLAN-STYLES-COMPTOIR.md)
+// ============================================
+
+// PU : l'ancre muette du détail de prix (atteinte par Espace) est sortie du flux ; en ligne, elle gonflait la
+// cellule et remontait le prix par rapport au reste de la ligne.
+.pu-cell {
+  position: relative;
+
+  .prix-anchor--muet {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+// Case « non remboursé » : `.form-check` de Bootstrap lui ajoutait marge basse, retrait gauche et flottement,
+// d'où une case à côté de l'axe de la ligne.
+.product-list-container td app-checkbox {
+  display: flex;
+  justify-content: center;
+
+  ::ng-deep .form-check {
+    display: flex;
+    justify-content: center;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  ::ng-deep .form-check-input {
+    float: none;
+    // 24 px : le minimum WCAG 2.5.8 ; une case plus grande dominerait la ligne.
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: 0;
+  }
+}
+
+// Cibles tactiles : « Supprimer », « Autres actions » et « Remise » à 44 px. La marge négative laisse la zone cliquable
+// déborder sur les 2 px de padding de la ligne, qui reste à 46 px au lieu de 50.
+:host ::ng-deep .btn-action {
+  min-width: 44px;
+  min-height: 44px;
+  margin-block: -2px;
+}
+
+.pharma-remise-section ::ng-deep .btn {
+  min-height: 44px;
+}
+
+// ============================================
+// CONTRASTES MESURÉS PAR AXE EN SITUATION (docs/PLAN-STYLES-COMPTOIR.md, §4.2)
+// Le vert `#5cb85c` du TOTAL de ligne et du total du pied ne fait que 2,5:1 sur blanc (1,9:1 sur la ligne
+// sélectionnée) ; le bleu `#5b89a6` du libellé « TOTAUX » 3,8:1. Dans les styles à cartes, texte foncé : l'accent
+// assombri quand il y en a un, un vert et le texte courant du thème sinon.
+// ============================================
+@include comptoir-cartes {
+  .pharma-total,
+  .pharma-footer-total {
+    color: #1b5e20;
+  }
+
+  .pharma-footer-label,
+  .pharma-footer-label span {
+    color: var(--pharma-text);
+  }
+}
+
+@include comptoir-accent {
+  .pharma-total,
+  .pharma-footer-total,
+  .pharma-footer-label,
+  .pharma-footer-label span {
+    color: var(--comptoir-accent-dark);
   }
 }

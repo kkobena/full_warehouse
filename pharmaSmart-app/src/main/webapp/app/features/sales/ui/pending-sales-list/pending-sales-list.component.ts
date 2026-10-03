@@ -1,15 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  OnInit,
-  output,
-  signal
-} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, output, signal } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import {
   AppBadgeSeverity,
   BadgeComponent,
@@ -18,12 +10,12 @@ import {
   IconFieldComponent,
   RowTogglerDirective,
   SelectComponent
-} from '../../../../shared/ui';
-import {ISales, SalesStatut} from '../../../../shared/model';
-import {SalesFacade} from '../../data-access/facades/sales.facade';
-import {UserVendeurService} from '../../../../entities/sales/service/user-vendeur.service';
-import { DevisePipe } from 'app/shared/utils/devise';
-import { libelleNatureVente } from 'app/shared/constants/type-vente.constants';
+} from "../../../../shared/ui";
+import { ISales, SalesStatut } from "../../../../shared/model";
+import { SalesFacade } from "../../data-access/facades/sales.facade";
+import { UserVendeurService } from "../../../../entities/sales/service/user-vendeur.service";
+import { DevisePipe } from "app/shared/utils/devise";
+import { libelleNatureVente } from "app/shared/constants/type-vente.constants";
 
 /**
  * PendingSalesListComponent
@@ -44,9 +36,9 @@ import { libelleNatureVente } from 'app/shared/constants/type-vente.constants';
  * />
  */
 @Component({
-  selector: 'app-pending-sales-list',
-  templateUrl: './pending-sales-list.component.html',
-  styleUrls: ['./pending-sales-list.component.scss'],
+  selector: "app-pending-sales-list",
+  templateUrl: "./pending-sales-list.component.html",
+  styleUrls: ["./pending-sales-list.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
@@ -59,7 +51,7 @@ import { libelleNatureVente } from 'app/shared/constants/type-vente.constants';
     BadgeComponent,
     RowTogglerDirective,
 
-   DevisePipe],
+    DevisePipe]
 })
 export class PendingSalesListComponent implements OnInit {
   // ===== Services =====
@@ -77,7 +69,7 @@ export class PendingSalesListComponent implements OnInit {
 
   // ===== Local State Signals =====
   readonly selectedSale = signal<ISales | null>(null);
-  readonly searchTerm = signal<string>('');
+  readonly searchTerm = signal<string>("");
   readonly sellerFilter = signal<number | null>(null);
   readonly sellers = this.userVendeurService.vendeurs;
 
@@ -87,7 +79,7 @@ export class PendingSalesListComponent implements OnInit {
   });
 
   readonly totalAmount = computed(() => {
-    return this.filteredSales().reduce((sum, sale) => sum + (sale.salesAmount || 0), 0);
+    return this.filteredSales().reduce((sum, sale) => sum + (sale?.salesAmount || 0), 0);
   });
 
   readonly totalCount = computed(() => this.filteredSales().length);
@@ -95,11 +87,7 @@ export class PendingSalesListComponent implements OnInit {
   // ===== Lifecycle =====
 
   ngOnInit(): void {
-    // Filtrer par défaut sur le CAISSIER — l'utilisateur connecté — et non sur le vendeur
-    // choisi à l'écran. Les deux diffèrent dès qu'on encaisse pour quelqu'un d'autre, et le
-    // compteur du bouton « En attente » compte, lui, les ventes du caissier : filtrer ici sur
-    // le vendeur affichait un badge à 1 au-dessus d'une liste vide, sans rien pour expliquer
-    // l'écart. Le filtre par vendeur reste disponible au-dessus de la liste.
+
     const caissier = this.facade.cashier();
     if (caissier) {
       this.sellerFilter.set(caissier.id);
@@ -152,23 +140,23 @@ export class PendingSalesListComponent implements OnInit {
 
   getSaleTypeSeverity(type: string): AppBadgeSeverity {
     switch (type) {
-      case 'COMPTANT':
-        return 'success';
-      case 'ASSURANCE':
-        return 'info';
-      case 'CARNET':
-        return 'warn';
+      case "COMPTANT":
+        return "success";
+      case "ASSURANCE":
+        return "info";
+      case "CARNET":
+        return "warn";
       default:
-        return 'secondary';
+        return "secondary";
     }
   }
 
   getRowClass(sale: ISales): string {
-    return this.selectedSale()?.id === sale.id ? 'selected-row' : '';
+    return this.selectedSale()?.id === sale.id ? "selected-row" : "";
   }
 
   private buildParameters(): any {
-    const params: any = {statut: [SalesStatut.ACTIVE]};
+    const params: any = { statut: [SalesStatut.ACTIVE] };
 
     const sellerId = this.sellerFilter();
     if (sellerId) {

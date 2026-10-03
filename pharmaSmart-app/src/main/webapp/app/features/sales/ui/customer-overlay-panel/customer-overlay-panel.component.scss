@@ -61,9 +61,12 @@ $border-radius-sm: 6px;
 
     .add-customer-btn,
     .remove-customer-btn {
+      // Cible tactile de 44 px sans faire grossir le bandeau : la marge négative laisse la hauteur de la carte à celle
+      // des anciens boutons de 36 px, la zone cliquable déborde sur le liseré.
       ::ng-deep .btn {
-        width: 36px;
-        height: 36px;
+        width: 44px;
+        height: 44px;
+        margin-block: -4px;
       }
     }
 
@@ -199,7 +202,8 @@ $border-radius-sm: 6px;
 
   i {
     font-size: 1.125rem;
-    color: $gray-400;
+    // gray-400 ne faisait que 2,5:1 sur blanc (seuil 3:1 pour une icône porteuse de sens).
+    color: $gray-600;
   }
 
   &:hover {

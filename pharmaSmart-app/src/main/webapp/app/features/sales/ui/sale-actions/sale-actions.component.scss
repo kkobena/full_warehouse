@@ -1,5 +1,7 @@
 
 
+@import '../../shared/styles/comptoir-style';
+
 // ============================================
 // SALE ACTIONS - Boutons d'action
 // ============================================
@@ -9,5 +11,27 @@
   justify-content: center;
   align-items: center;
   width: 100%;
+
+  // Cible tactile : 38 → 44 px de haut.
+  ::ng-deep .btn {
+    min-height: 44px;
+  }
 }
 
+// ============================================
+// STYLES DU COMPTOIR (docs/PLAN-STYLES-COMPTOIR.md)
+// L'action principale (valider, enregistrer) suit l'accent du type de vente. « Annuler » reste rouge :
+// sa couleur dit qu'il détruit quelque chose, pas dans quel type de vente on est. « En attente » reste neutre.
+// ============================================
+@include comptoir-accent {
+  .sale-actions-container ::ng-deep .btn-success,
+  .sale-actions-container ::ng-deep .btn-info {
+    @include comptoir-bouton-accent;
+  }
+
+  // Prévente : « Enregistrer » et « Passer en vente » ne doivent pas avoir la même couleur. L'enregistrement
+  // garde le plein ; le passage en vente, qui engage davantage, se démarque par un contour d'accent.
+  .sale-actions-container ::ng-deep .btn-passer-en-vente {
+    @include comptoir-bouton-contour-accent;
+  }
+}

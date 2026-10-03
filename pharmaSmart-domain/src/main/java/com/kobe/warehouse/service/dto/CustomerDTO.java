@@ -45,6 +45,9 @@ public class CustomerDTO {
 
     public CustomerDTO(Customer customer) {
         super();
+        if (customer == null) {
+            return;
+        }
         this.firstName = customer.getFirstName();
         this.lastName = customer.getLastName();
         this.phone = customer.getPhone();

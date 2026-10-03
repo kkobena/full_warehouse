@@ -87,6 +87,13 @@ export default defineConfig({
       use: { storageState: FICHIER_SESSION },
     },
     {
+      // Contraste (axe) et daltonisme des styles du comptoir — docs/PLAN-STYLES-COMPTOIR.md §4. Lecture seule.
+      name: 'a11y',
+      testDir: join(RACINE, 'e2e', 'a11y'),
+      dependencies: ['authentification'],
+      use: { storageState: FICHIER_SESSION },
+    },
+    {
       name: 'droits',
       testDir: join(RACINE, 'e2e', 'droits'),
     },

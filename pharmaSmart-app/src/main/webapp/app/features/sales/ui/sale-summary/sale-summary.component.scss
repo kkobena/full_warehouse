@@ -1,3 +1,5 @@
+@import '../../shared/styles/comptoir-style';
+
 // ============================================
 // SALE SUMMARY COMPONENT STYLES
 // Matches amount-computing design
@@ -535,6 +537,73 @@ $border-radius-sm: 6px;
 
     i {
       font-size: 0.875rem;
+    }
+  }
+}
+
+// ============================================
+// STYLES DU COMPTOIR (docs/PLAN-STYLES-COMPTOIR.md)
+// ============================================
+
+// La carte (bordure, rayon, ombre) englobe le résumé ET les actions : elle est posée par l'écran de vente sur
+// `.amounts-summary > .grid` (`_sales-common.scss`). « À ENCAISSER » perd son vert vif, sa bordure de 3 px, son
+// ombre pulsée et sa police à chasse fixe en 900 : il se détache par la taille, une bordure de 2 px et
+// l'élévation, pas par la saturation.
+@include comptoir-cartes {
+  .amount-to-pay {
+    animation: none;
+    background: var(--pharma-surface-alt);
+    border: 2px solid #94a3b8;
+    border-radius: var(--comptoir-radius);
+    box-shadow: var(--comptoir-shadow-key);
+
+    &:hover {
+      box-shadow: var(--comptoir-shadow-key);
+      transform: none;
+    }
+
+    .amount-label,
+    .amount-to-pay-value {
+      color: var(--pharma-text);
+      text-shadow: none;
+    }
+
+    .amount-to-pay-value {
+      font-family: inherit;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+  }
+}
+
+@include comptoir-accent {
+  .amount-total {
+    background: var(--comptoir-accent-tint);
+    border-color: var(--comptoir-accent);
+
+    .amount-label,
+    .amount-value {
+      color: var(--comptoir-accent-dark);
+    }
+
+    .amount-label::before {
+      background: var(--comptoir-accent);
+    }
+  }
+
+  // Sobre : teinte très claire, bordure et texte d'accent foncé — ni aplat ni vert vif.
+  .amount-to-pay {
+    background: var(--comptoir-accent-tint);
+    border-color: var(--comptoir-accent);
+
+    .amount-label,
+    .amount-to-pay-value {
+      color: var(--comptoir-accent-dark);
+    }
+
+    &:hover {
+      border-color: var(--comptoir-accent-dark);
     }
   }
 }

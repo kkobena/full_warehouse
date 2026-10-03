@@ -1,4 +1,5 @@
-﻿import {
+﻿import { listerDestinations } from './sales-home-destinations';
+import {
   AfterViewInit,
   Component,
   computed,
@@ -16,6 +17,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { fournirInfobullesEnHaut } from '../../shared/infobulles-en-haut';
+import { HauteurEcranVenteDirective } from '../../shared/hauteur-ecran-vente.directive';
 import { NgbNav, NgbNavChangeEvent, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavOutlet, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonComponent, OffcanvasComponent, SelectSearchComponent } from '../../../../shared/ui';
 import { SaleCreationComponent } from '../sale-creation/sale-creation.component';
@@ -55,10 +58,15 @@ import { AbilityService } from '../../../../core/auth/ability.service';
   styleUrls: ['./sales-home.component.scss'],
   host: {
     '(window:keydown)': 'handleGlobalKeyboardEvent($event)',
+    // Accent du type de vente (styles du comptoir) : posé sur l'hôte pour que les panneaux latéraux, qui sont
+    // hors de `.pharma-sales-layout`, en héritent aussi — voir content/scss/_comptoir-sales.scss.
+    '[attr.data-comptoir-mode]': 'comptoirMode()',
+    '[attr.data-comptoir-doc]': "isPresaleMode() || isDevisMode() ? 'true' : null",
   },
-  providers: [ScanOrchestratorService, SalesScannerService],
+  providers: [ScanOrchestratorService, SalesScannerService, fournirInfobullesEnHaut()],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    HauteurEcranVenteDirective,
     FicheClientPanelComponent,
     CommonModule,
     FormsModule,
@@ -95,6 +103,12 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   protected saleDevis = viewChild<SaleDevisComponent>(SaleDevisComponent);
   protected active = signal('comptant');
   protected sidebarCollapsed = signal(false);
+  /**
+   * Types de vente en rangée au-dessus de la zone de travail plutôt qu'en colonne à gauche : iPad Pro 13 (1376 px),
+   * Surface Pro 10 (1440), Nest Hub Max (1280), portables 1366. La colonne y prend 240 px sur des écrans déjà étroits.
+   */
+  private readonly largeurNavHorizontale = window.matchMedia('(max-width: 1440px)');
+  protected readonly navHorizontale = signal(this.largeurNavHorizontale.matches);
   // Thème devis: 'purple' | 'teal' | 'indigo' (temporaire pour test)
   protected devisTheme = signal<'purple' | 'teal' | 'indigo'>('teal');
   protected userSeller = signal<IUser | null>(null);
@@ -131,7 +145,33 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   // ── Abilities : types de vente conditionnés par privilège d'action ─────
   protected readonly canSaleAssurance = this.ability.canSignal('execute', 'pr-sale-assurance');
   protected readonly canSaleCarnet = this.ability.canSignal('execute', 'pr-sale-carnet');
+  // Navigation du bandeau : mêmes habilitations que les routes (`sales.routes.ts`) ; le proforma n'a pas de
+  // sujet propre sur sa route, son menu est l'entrée `ventes.devis`.
+  private readonly canComptoir = this.ability.canSignal('execute', 'nouvelle-vente');
+  private readonly canPrevente = this.ability.canSignal('access', 'nouvelle-prevente');
+  private readonly canProformaAcces = this.ability.canSignal('access', 'ventes.devis');
+  private readonly canProformaMenu = this.ability.canSignal('display', 'ventes.devis');
+  /** Destinations du bandeau ; vide quand il n'y a nulle part où aller. */
+  protected readonly destinations = computed(() =>
+    listerDestinations(
+      {
+        comptoir: this.canComptoir(),
+        prevente: this.canPrevente(),
+        proforma: this.canProformaAcces() || this.canProformaMenu(),
+      },
+      this.isDevisMode() ? 'proforma' : this.isPresaleMode() ? 'prevente' : 'comptoir',
+    ),
+  );
   private isPresaleFromRoute = signal(false);
+  /**
+   * Type de vente courant, pour l'accent des styles du comptoir (docs/PLAN-STYLES-COMPTOIR.md). La prévente
+   * et le proforma suivent la même logique que la vente — la couleur suit le type — avec leur propre palette
+   * (`data-comptoir-doc`) ; le libellé et l'icône du bandeau disent de quel document il s'agit.
+   */
+  protected comptoirMode = computed<'comptant' | 'assurance' | 'carnet'>(() => {
+    const type = this.active();
+    return type === 'assurance' || type === 'carnet' ? type : 'comptant';
+  });
   protected isPresaleMode = computed(() => this.isPresale() || this.isPresaleFromRoute());
   private isDevisFromRoute = signal(false);
   protected isDevisMode = computed(() => this.isDevis() || this.isDevisFromRoute());
@@ -151,6 +191,9 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   private static readonly SCAN_SEARCH_TIMEOUT_MS = 3000;
 
   constructor() {
+    const changerNav = (e: MediaQueryListEvent): void => this.navHorizontale.set(e.matches);
+    this.largeurNavHorizontale.addEventListener('change', changerNav);
+    inject(DestroyRef).onDestroy(() => this.largeurNavHorizontale.removeEventListener('change', changerNav));
     this.showStock.set(this.authorizationService.canShowStock());
     this.salesFacade.resetCurrentSale();
     // Auto-disable button when no product selected
@@ -438,6 +481,11 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
 
   protected toggleSidebar(): void {
     this.sidebarCollapsed.update(collapsed => !collapsed);
+  }
+
+  /** Change d'écran de vente. La vente en cours reste d'abord à terminer ou à mettre en attente (bouton désactivé). */
+  protected allerVers(url: string): void {
+    void this.router.navigateByUrl(url);
   }
 
   protected previousState(): void {

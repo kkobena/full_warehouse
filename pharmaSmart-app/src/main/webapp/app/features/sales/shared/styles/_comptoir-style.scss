@@ -1,0 +1,82 @@
+// ============================================
+// STYLES DU COMPTOIR — sélecteurs partagés
+// Jetons `--comptoir-*` : content/scss/_comptoir-styles.scss. Plan : docs/PLAN-STYLES-COMPTOIR.md.
+// Le style « Billetage » est le seul (décision du 2026-10-03) : ces blocs s'appliquent toujours.
+// ============================================
+
+// `:host-context(:root)` plutôt qu'aucun préfixe : il garde à ces règles la spécificité qu'elles avaient quand
+// elles dépendaient d'un attribut sur `<html>`, et passe donc toujours devant les règles de base du composant.
+
+// Relief : bordure, rayon et ombre des cartes.
+@mixin comptoir-cartes {
+  :host-context(:root) {
+    @content;
+  }
+}
+
+// Accent par type de vente. `--comptoir-accent*` est posé par `sales-home` (hôte et `.pharma-sales-layout`) et
+// descend jusqu'ici par héritage.
+@mixin comptoir-accent {
+  :host-context(:root) {
+    @content;
+  }
+}
+
+// Bouton plein à l'accent du type de vente (blanc dessus ≥ 4,5:1, mesuré : comptoir-contraste.spec.ts).
+// À poser sur un `.btn` Bootstrap : il ne fait que redéfinir ses variables.
+@mixin comptoir-bouton-accent {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--comptoir-accent);
+  --bs-btn-border-color: var(--comptoir-accent);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--comptoir-accent-dark);
+  --bs-btn-hover-border-color: var(--comptoir-accent-dark);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--comptoir-accent-dark);
+  --bs-btn-active-border-color: var(--comptoir-accent-dark);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: var(--comptoir-accent);
+  --bs-btn-disabled-border-color: var(--comptoir-accent);
+
+  // Les `.btn-success` et `.btn-info` du projet posent leur couleur et leur bordure en dur, sans passer par les
+  // variables Bootstrap : les variables ci-dessus ne suffisent pas, il faut aussi poser les propriétés.
+  color: #fff;
+  background-color: var(--comptoir-accent);
+  border-color: var(--comptoir-accent);
+
+  &:hover:not(:disabled),
+  &:focus-visible,
+  &:active:not(:disabled) {
+    color: #fff;
+    background-color: var(--comptoir-accent-dark);
+    border-color: var(--comptoir-accent-dark);
+  }
+}
+
+// Bouton contour : contour et texte d'accent, teinte claire au survol.
+@mixin comptoir-bouton-contour-accent {
+  --bs-btn-color: var(--comptoir-accent-dark);
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: color-mix(in srgb, var(--comptoir-accent) 55%, white);
+  --bs-btn-hover-color: var(--comptoir-accent-dark);
+  --bs-btn-hover-bg: var(--comptoir-accent-tint);
+  --bs-btn-hover-border-color: var(--comptoir-accent);
+  --bs-btn-active-color: var(--comptoir-accent-dark);
+  --bs-btn-active-bg: var(--comptoir-accent-tint);
+  --bs-btn-active-border-color: var(--comptoir-accent);
+  --bs-btn-disabled-color: var(--comptoir-accent-dark);
+  --bs-btn-disabled-border-color: color-mix(in srgb, var(--comptoir-accent) 30%, white);
+
+  // Voir `comptoir-bouton-accent` : couleur et bordure posées en dur par le projet sur `.btn-success` / `.btn-info`.
+  color: var(--comptoir-accent-dark);
+  background-color: transparent;
+  border-color: color-mix(in srgb, var(--comptoir-accent) 55%, white);
+
+  &:hover:not(:disabled),
+  &:focus-visible,
+  &:active:not(:disabled) {
+    color: var(--comptoir-accent-dark);
+    background-color: var(--comptoir-accent-tint);
+    border-color: var(--comptoir-accent);
+  }
+}

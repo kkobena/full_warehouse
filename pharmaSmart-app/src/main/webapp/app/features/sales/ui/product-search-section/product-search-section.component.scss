@@ -27,7 +27,7 @@
 
     ::ng-deep .btn {
       height: 100%;
-      min-width: 2.25rem;
+      min-width: 2.75rem;
       padding-inline: 0.5rem;
     }
   }
@@ -43,4 +43,34 @@
 
 .product-search-section.sans-marge-haute {
   margin-top: 0;
+}
+
+// ============================================
+// STYLES DU COMPTOIR — le ✓ d'ajout suit l'accent du type de vente
+// ============================================
+@include comptoir-accent {
+  .quantite-saisie ::ng-deep .btn-primary {
+    @include comptoir-bouton-accent;
+  }
+}
+
+// ============================================
+// DÉFAUTS VISIBLES CORRIGÉS
+// ============================================
+// Le ✓ désactivé était presque invisible (opacité Bootstrap de 0,65 sur une teinte déjà claire).
+// Saisie de la quantité : champ et boutons − / + / ✓ portés de 42 à 44 px de haut (cible tactile).
+.quantite-saisie {
+  ::ng-deep .btn {
+    --bs-btn-disabled-opacity: 0.8;
+  }
+
+  ::ng-deep .form-control,
+  ::ng-deep .app-input-number-btn,
+  ::ng-deep .btn {
+    min-height: 44px;
+  }
+
+  ::ng-deep .app-input-number-btn {
+    min-width: 44px;
+  }
 }

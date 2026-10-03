@@ -20,7 +20,8 @@
 }
 
 <!-- Interface principale Point de Vente -->
-<div class="pharma-sales-layout">
+<div appHauteurEcranVente [attr.data-comptoir-doc]="isPresaleMode() || isDevisMode() ? 'true' : null" [attr.data-comptoir-mode]="comptoirMode()"
+     class="pharma-sales-layout">
   <!-- HEADER TOOLBAR - Actions principales -->
   <div [class.normal-mode]="!isPresaleMode() && !isDevisMode()" [class.presale-mode]="isPresaleMode()" [ngClass]="devisThemeClass()"
        class="pharma-sales-header">
@@ -42,8 +43,12 @@
             <i class="pi pi-file-edit presale-icon"></i>
           } @else if (isPresaleMode()) {
             <i class="pi pi-bookmark presale-icon"></i>
+          } @else if (active() === 'assurance') {
+            <i class="pi pi-shield presale-icon"></i>
+          } @else if (active() === 'carnet') {
+            <i class="pi pi-book presale-icon"></i>
           } @else {
-            <i class="pi pi-shopping-cart presale-icon"></i>
+            <i class="pi pi-wallet presale-icon"></i>
           }
           @if (isDevisMode()) {
             Proforma
@@ -106,6 +111,24 @@
     </div>
 
     <div class="header-actions">
+      <!-- Navigation entre comptoir, pré-vente et proforma — seulement ce que l'habilitation autorise -->
+      @if (destinations().length > 0) {
+        <nav aria-label="Aller à" class="destinations-vente">
+          @for (d of destinations(); track d.id) {
+            <app-button
+              (clicked)="allerVers(d.url)"
+              [disabled]="salesFacade.currentSale() !== null"
+              [icon]="d.icone"
+              [label]="d.libelle"
+              [ngbTooltip]="salesFacade.currentSale() !== null ? 'Terminez ou mettez en attente la vente en cours' : d.libelle"
+              [outlined]="true"
+              container="body"
+              severity="info"
+              size="small" />
+          }
+        </nav>
+      }
+
       <!-- Customer panel (seulement pour COMPTANT avec vente en cours) -->
       @let showCustomerPanel = active() === 'comptant' && salesFacade.currentSale()
         && !isDevisMode();
@@ -152,9 +175,10 @@
   <!-- MAIN CONTENT AREA -->
   <div class="pharma-sales-body">
     <!-- LEFT SIDEBAR - Navigation par type de vente -->
-    <div [class.collapsed]="sidebarCollapsed()" [class.presale-mode]="isPresaleMode()"
-         [ngClass]="devisThemeClass()" class="sales-sidebar pharma-nav-sidebar">
+    <div [class.collapsed]="sidebarCollapsed() && !navHorizontale()" [class.nav-horizontale]="navHorizontale()"
+         [class.presale-mode]="isPresaleMode()" [ngClass]="devisThemeClass()" class="sales-sidebar pharma-nav-sidebar">
       <div class="sidebar-card pharma-nav-sidebar-card">
+        @if (!navHorizontale()) {
         <div class="sidebar-header pharma-nav-sidebar-header">
           @if (!sidebarCollapsed()) {
             <i
@@ -181,16 +205,18 @@
           >
           </app-button>
         </div>
+        }
 
-        <div [class.hidden]="sidebarCollapsed()" class="sale-types-nav pharma-nav-sidebar-content">
-          <!-- Navigation verticale avec NgbNav -->
+        <div [class.hidden]="sidebarCollapsed() && !navHorizontale()" class="sale-types-nav pharma-nav-sidebar-content">
+          <!-- Navigation avec NgbNav : en colonne, ou en rangée sur les écrans de 1440 px et moins -->
           <div
             #nav="ngbNav"
             (navChange)="onNavChange($event)"
             [(activeId)]="active"
-            class="nav flex-column nav-pills"
+            [class.flex-column]="!navHorizontale()"
+            [orientation]="navHorizontale() ? 'horizontal' : 'vertical'"
+            class="nav nav-pills"
             ngbNav
-            orientation="vertical"
           >
             <!-- Tab COMPTANT -->
             <ng-container ngbNavItem="comptant">
@@ -288,48 +314,7 @@
   </div>
 </div>
 
-<!-- Sélecteur de thème DEVIS (temporaire pour test) -->
-@if (showTheme()) {
-  <div class="devis-theme-selector">
-    <div class="selector-title">Thème Devis</div>
-    <div class="theme-options">
-      <button
-        (click)="devisTheme.set('purple')"
-        [class.active]="devisTheme() === 'purple'"
-        class="theme-btn purple"
-        title="Violet/Purple">
-        <i class="pi pi-check"></i>
-      </button>
-      <button
-        (click)="devisTheme.set('teal')"
-        [class.active]="devisTheme() === 'teal'"
-        class="theme-btn teal"
-        title="Teal/Sarcelle">
-        <i class="pi pi-check"></i>
-      </button>
-      <button
-        (click)="devisTheme.set('indigo')"
-        [class.active]="devisTheme() === 'indigo'"
-        class="theme-btn indigo"
-        title="Indigo">
-        <i class="pi pi-check"></i>
-      </button>
-    </div>
-    <div class="theme-label">
-      @switch (devisTheme()) {
-        @case ('purple') {
-          Violet
-        }
-        @case ('teal') {
-          Sarcelle
-        }
-        @case ('indigo') {
-          Indigo
-        }
-      }
-    </div>
-  </div>
-}
+
 
 <app-fiche-client-panel [customerId]="ficheClient.customerId()" [(visible)]="ficheClient.visible"
                         (redelivrer)="ficheClient.redelivrer$.next($event)" />

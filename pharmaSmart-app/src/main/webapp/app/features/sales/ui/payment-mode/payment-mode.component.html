@@ -3,7 +3,7 @@
     <div
       [ngClass]="
         amountToBePaid() > 0
-          ? 'col-md-7 col-xl-7 col-lg-7 col-sm-12 mt-2'
+          ? (troisModes() ? 'col-12 mt-2' : 'col-md-7 col-xl-7 col-lg-7 col-sm-12 mt-2')
           : 'col-md-10 col-xl-10 col-lg-10 col-sm-12 mt-2'
       "
     >
@@ -29,7 +29,7 @@
             <div class="row ws-mode-reglement" style="margin-top: 0.25rem">
               @for (entry of selectedModes(); track entry.mode.code) {
                 <div
-                  [ngClass]="isSmallScreen() ? 'col-md-12 col-sm-12' : 'col-md-6 col-lg-6 col-xl-6'">
+                  [ngClass]="isSmallScreen() ? 'col-md-12 col-sm-12' : (troisModes() ? 'col-md-4 col-lg-4 col-xl-4' : 'col-md-6 col-lg-6 col-xl-6')">
                   <div class="input-group">
                     <span class="input-group-text" style="padding: 0">
                       <span [class]="modeChipClasses(entry.mode)">
@@ -118,7 +118,7 @@
     </div>
 
     @if (needsBankFields() || isDiffere()) {
-      <div class="col-md-5 col-xl-5 col-lg-5 col-sm-12 mt-2">
+      <div [ngClass]="troisModes() ? 'col-12 mt-2' : 'col-md-5 col-xl-5 col-lg-5 col-sm-12 mt-2'">
         <div class="additional-info-card">
           <div class="additional-info-header">
             <div class="header-content">

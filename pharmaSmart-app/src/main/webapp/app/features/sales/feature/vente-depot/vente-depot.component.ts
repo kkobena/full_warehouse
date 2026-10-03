@@ -1,10 +1,12 @@
-import {Component, computed, DestroyRef, effect, inject, OnInit, signal, viewChild, ChangeDetectionStrategy} from '@angular/core';
+import {AfterViewInit, Component, computed, DestroyRef, effect, inject, OnInit, signal, viewChild, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {take} from 'rxjs/operators';
 
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {fournirInfobullesEnHaut} from '../../shared/infobulles-en-haut';
+import {HauteurEcranVenteDirective} from '../../shared/hauteur-ecran-vente.directive';
 import {ButtonComponent, SelectSearchComponent} from '../../../../shared/ui';
 import {NgxSpinnerComponent, NgxSpinnerService} from 'ngx-spinner';
 
@@ -43,7 +45,9 @@ import {ErrorService} from '../../../../shared/error.service';
   host: {
     '(window:keydown)': 'handleKeyboardEvent($event)',
   },
+  providers: [fournirInfobullesEnHaut()],
   imports: [
+    HauteurEcranVenteDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -59,12 +63,13 @@ import {ErrorService} from '../../../../shared/error.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './vente-depot.component.scss',
 })
-export class VenteDepotComponent implements OnInit, ProductSearchHost {
+export class VenteDepotComponent implements OnInit, AfterViewInit, ProductSearchHost {
   // ── Confirm Dialog ──────────────────────────────────────────
   private readonly confirmDialog = inject(NgbConfirmDialogService);
 
 
   productSearchComponent = viewChild<ProductSearchSectionComponent>('produitbox');
+  private readonly depotBox = viewChild<SelectSearchComponent>('depotBox');
 
   readonly quantityComponent = computed(() => {
     const section = this.productSearchComponent();
@@ -190,6 +195,11 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
   }
 
   // ── Lifecycle ─────────────────────────────────────────────────
+
+  /** Le dépôt est le premier geste : le curseur y est dès le chargement (la recherche produit est grisée sans dépôt). */
+  ngAfterViewInit(): void {
+    setTimeout(() => this.depotBox()?.focus());
+  }
 
   ngOnInit(): void {
     this.facade.resetForNewSession();

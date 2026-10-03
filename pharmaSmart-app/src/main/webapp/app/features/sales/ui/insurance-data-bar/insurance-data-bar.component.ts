@@ -46,6 +46,8 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
   readonly customer = input<ICustomer | null>(null);
   readonly tiersPayants = input<IClientTiersPayant[]>([]);
   readonly saleType = input<string>('ASSURANCE');
+  /** Au moins un produit au panier : la recherche client se range alors derrière « Changer d'assuré ». */
+  readonly hasLines = input<boolean>(false);
   readonly ayantDroit = input<ICustomer | null>(null);
 
   // Outputs
@@ -61,6 +63,12 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
   readonly focusProductSearch = output<void>();
 
   protected readonly search = signal<string>('');
+  /** Assuré pour lequel la recherche a été rouverte à la demande ; un autre assuré la referme d'elle-même. */
+  private readonly rechercheRouverteId = signal<number | null>(null);
+  protected readonly showSearch = computed(() => {
+    const client = this.customer();
+    return !client || !this.hasLines() || this.rechercheRouverteId() === (client.id ?? null);
+  });
   /** Carte d'assuré dont la date de fin est passée : à signaler avant de servir. */
   protected readonly carteExpiree = IS_ISO_DATE_PAST;
   protected selectedTiersPayants: WritableSignal<IClientTiersPayant[]> = signal<IClientTiersPayant[]>([]);
@@ -181,6 +189,19 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
       this.focusAndSelectBonInput(currentIndex + 1);
     } else {
       // C'est le dernier bon, focus sur la recherche produit
+      this.focusProductSearch.emit();
+    }
+  }
+
+  protected ouvrirRecherche(): void {
+    this.rechercheRouverteId.set(this.customer()?.id ?? null);
+    // Le champ n'existe qu'après le rendu qui suit le signal.
+    setTimeout(() => this.searchInput()?.nativeElement.focus(), 0);
+  }
+
+  protected fermerRecherche(): void {
+    if (this.customer()) {
+      this.rechercheRouverteId.set(null);
       this.focusProductSearch.emit();
     }
   }

@@ -29,6 +29,9 @@ $theme-colors: map-merge(
 // Élévation et accent des cartes — ici plutôt que dans angular.json : `ng serve` ne relit pas
 // la liste des styles globaux sans redémarrage.
 @import 'surface-global';
+// Styles de l'espace de travail du comptoir (jetons seulement, essais en cours).
+@import 'comptoir-styles';
+@import 'comptoir-sales';
 @import 'primeicons/primeicons.css';
 
 // Listes déroulantes riches (remplaceront p-select / p-multiselect / p-autocomplete).

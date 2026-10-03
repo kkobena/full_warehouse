@@ -95,6 +95,9 @@ public class AssuredCustomerDTO extends CustomerDTO {
 
     public AssuredCustomerDTO(AssuredCustomer customer) {
         super(customer);
+        if (customer==null) {
+            return;
+        }
         this.num = customer.getNumAyantDroit();
         this.numAyantDroit = customer.getNumAyantDroit();
         this.datNaiss = customer.getDatNaiss();

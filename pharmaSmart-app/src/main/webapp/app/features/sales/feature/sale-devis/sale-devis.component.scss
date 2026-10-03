@@ -58,8 +58,8 @@
 
       &:enabled:focus,
       &:focus {
-        border-color: $pharma-primary !important;
-        box-shadow: 0 0 0 3px rgba($pharma-primary, 0.1) !important;
+        border-color: var(--p-form-field-focus-border-color, #{$pharma-primary}) !important;
+        box-shadow: var(--pharma-focus-ring, 0 0 0 3px rgba($pharma-primary, 0.1)) !important;
         outline: none !important;
       }
 

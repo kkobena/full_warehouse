@@ -1,3 +1,5 @@
+@import '../../shared/styles/comptoir-style';
+
 /* ============================================
    CARD MODES DE PAIEMENT - Couleurs douces
    ============================================ */
@@ -61,6 +63,30 @@
 /* Ensure full width for the row */
 .ws-mode-reglement {
   width: 100%;
+}
+
+// Toujours à l'écran : sur un écran de moins de 800 px de haut (portable, 24 pouces à 125 %), les lignes du panier
+// poussent le règlement sous la zone visible. Collé au bas de la zone de travail qui défile, il reste là ; quand le
+// panier est court, il retrouve sa place naturelle sous le panier.
+:host {
+  display: block;
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  // L'hôte prend toute la largeur de la rangée : transparent et sans clic, pour ne pas masquer les boutons de la
+  // colonne de droite (Finaliser, En attente, Annuler). Seules les cartes sont pleines.
+  pointer-events: none;
+}
+
+:host .payment-modes-card,
+:host .additional-info-card {
+  pointer-events: auto;
+  background: var(--pharma-surface, #fff);
+}
+
+// Le bloc se colle au panier : `mt-2` (8 px, `!important`) ramené à 4 px.
+:host .row > [class*='col-'].mt-2 {
+  margin-top: 0.25rem !important;
 }
 
 /* Toggle Options */
@@ -133,7 +159,9 @@
   align-items: center;
   justify-content: center;
   gap: 2px;
-  width: 150px;
+  // 100 px : assez pour « VIREMENT » ou deux lignes (« ORANGE / MONEY ») ; à 150 px, la pastille mangeait la place du montant,
+  // surtout à trois modes côte à côte.
+  width: 100px;
   height: 50px;
   padding: 0 6px;
   /* Couleur par défaut pour tout mode sans modificateur dédié */
@@ -159,8 +187,8 @@
 
 /* Couleurs de marque par code de mode (suffixe = code en minuscules) */
 .mode-chip--cash { background: #2e7d32; }
-.mode-chip--om { background: #ff7900; }
-.mode-chip--wave { background: #00a8e0; }
+.mode-chip--om { background: #ff7900; color: #212529; } /* blanc sur orange : 2,6:1 ; texte foncé : 5,9:1 */
+.mode-chip--wave { background: #00a8e0; color: #212529; } /* blanc sur cyan : 2,7:1 ; texte foncé : 5,6:1 */
 .mode-chip--mtn { background: #ffcc00; color: #212529; }
 .mode-chip--moov { background: #005baa; }
 .mode-chip--cb { background: #1a3c6e; }
@@ -190,8 +218,8 @@
 }
 
 ::ng-deep .ws-mode-reglement input.payment-mode-input:focus {
-  border-color: #5b89a6;
-  box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
+  border-color: var(--p-form-field-focus-border-color, #5b89a6);
+  box-shadow: var(--pharma-focus-ring, 0 0 0 3px rgba(91, 137, 166, 0.1));
 }
 
 /* Boutons d'action de ligne (ajouter / supprimer / remplacer) et leur wrapper dropdown */
@@ -371,3 +399,68 @@
 ::ng-deep .payment-mode-menu .mode-item-icon--cb { color: #1a3c6e; }
 ::ng-deep .payment-mode-menu .mode-item-icon--ch { color: #6c757d; }
 ::ng-deep .payment-mode-menu .mode-item-icon--virement { color: #0f766e; }
+
+// ============================================
+// STYLES DU COMPTOIR (docs/PLAN-STYLES-COMPTOIR.md)
+// ============================================
+
+@include comptoir-cartes {
+  .payment-modes-card,
+  .additional-info-card {
+    border: 1px solid var(--comptoir-border);
+    border-radius: var(--comptoir-radius);
+    box-shadow: var(--comptoir-shadow-card);
+  }
+}
+
+@include comptoir-accent {
+  .payment-modes-header,
+  .additional-info-header {
+    background: var(--comptoir-accent-tint);
+    border-bottom: 2px solid var(--comptoir-accent);
+    color: var(--comptoir-accent-dark);
+
+    h3,
+    i {
+      color: var(--comptoir-accent-dark);
+    }
+  }
+}
+
+// Pastilles des modes de règlement : la couleur de marque (orange Orange Money, bleu Wave, jaune MTN…)
+// reste l'identifiant du moyen de paiement, mais en liseré et en teinte très claire plutôt qu'en aplat
+// saturé. Texte = la couleur de marque assombrie de moitié : ≥ 5,2:1 sur la teinte, pour les huit modes.
+$comptoir-couleurs-modes: (
+  cash: #2e7d32,
+  om: #ff7900,
+  wave: #00a8e0,
+  mtn: #ffcc00,
+  moov: #005baa,
+  cb: #1a3c6e,
+  ch: #6c757d,
+  virement: #0f766e,
+);
+
+@include comptoir-cartes {
+  .mode-chip {
+    --chip: #495057;
+    background: color-mix(in srgb, var(--chip) 14%, white);
+    color: color-mix(in srgb, var(--chip) 50%, black);
+    box-shadow: inset 4px 0 0 var(--chip);
+  }
+
+  @each $code, $couleur in $comptoir-couleurs-modes {
+    .mode-chip--#{$code} {
+      --chip: #{$couleur};
+    }
+  }
+}
+
+// Le bouton « Changer de mode » était jaune plein ; en accent il devient un contour discret.
+// Les pastilles des modes (espèces, Orange Money, Wave…) gardent leurs couleurs : elles identifient la
+// marque du moyen de paiement, pas le type de vente.
+@include comptoir-accent {
+  .payment-action-btn.btn-warning {
+    @include comptoir-bouton-contour-accent;
+  }
+}

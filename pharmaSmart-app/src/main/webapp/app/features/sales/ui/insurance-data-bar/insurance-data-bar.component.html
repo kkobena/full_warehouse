@@ -1,12 +1,15 @@
 <!-- Modern Assurance Data Component -->
 <div class="assurance-data-wrapper">
-  <!-- Search Section - Toujours visible pour permettre changement de client -->
-  <div class="search-section">
-    <app-icon-field icon="pi pi-search()" [overlay]="true" class="search-input-wrapper">
-      <input #searchInput (keydown.enter)="load()" [ngModel]="search()" (ngModelChange)="search.set($event)" autocomplete="off" class="form-control search-input"
-             placeholder="Rechercher un client assuré..." type="text"/>
-    </app-icon-field>
-  </div>
+  <!-- Recherche client : visible tant qu'il n'y a pas de client ou de produit au panier ; ensuite, à la demande
+       (bouton « Changer d'assuré ») pour libérer la hauteur de l'écran -->
+  @if (showSearch()) {
+    <div class="search-section">
+      <app-icon-field icon="pi pi-search()" [overlay]="true" class="search-input-wrapper">
+        <input #searchInput (keydown.enter)="load()" (keydown.escape)="fermerRecherche()" [ngModel]="search()" (ngModelChange)="search.set($event)" autocomplete="off" class="form-control search-input"
+               placeholder="Rechercher un client assuré..." type="text"/>
+      </app-icon-field>
+    </div>
+  }
 
   <!-- Customer Information Cards -->
   @if (customer()) {
@@ -20,9 +23,13 @@
               <span>Assuré</span>
             </div>
             <div class="btn-group" role="group">
+              @if (!showSearch()) {
+                <app-button (clicked)="ouvrirRecherche()" ariaLabel="Changer d'assuré" ngbTooltip="Changer d'assuré"
+                            icon="pi pi-search" severity="secondary" size="small" [rounded]="true" [text]="true" />
+              }
               <app-button (clicked)="voirFiche()" ariaLabel="Voir la fiche client" ngbTooltip="Voir la fiche client (Alt+V)"
-                          icon="pi pi-id-card" severity="primary" size="small" [rounded]="true" [text]="true" />
-            <app-button (clicked)="editAssuredCustomer()" ariaLabel="Modifier les infos du client"
+                          icon="pi pi-id-card" severity="primary" size="small" [rounded]="true" [text]="true" placement="top" />
+            <app-button (clicked)="editAssuredCustomer()" ariaLabel="Modifier les infos du client"  placement="top"
                       ngbTooltip="Modifier les infos du client" icon="pi pi-user-edit"
                       severity="info" size="small" [rounded]="true"/>
             </div>

@@ -141,6 +141,11 @@ export class SelectSearchComponent extends SelectBase<unknown> {
     this.ngSelectRef().close();
   }
 
+  /** Donne le focus au champ — pour l'écran qui doit placer le curseur au chargement. */
+  focus(): void {
+    this.ngSelectRef().focus();
+  }
+
   /** Panneau d'options actuellement ouvert. */
   isOpen(): boolean {
     return this.ngSelectRef().isOpen();

@@ -159,3 +159,13 @@ $pharma-themes: (
 body {
   background-color: var(--pharma-app-bg);
 }
+
+// Infobulles (`ngbTooltip`) : Bootstrap les peint en noir (`--bs-emphasis-color`), étranger à tout thème. Elles
+// prennent un ardoise très foncé teinté de 25 % de l'accent du thème : de la couleur, mais peu saturée (un accent
+// assombri seul était trop vif). Blanc dessus ≥ 7:1 pour les trois thèmes (vérifié dans
+// `comptoir-contraste.spec.ts`). La flèche lit la même variable.
+.tooltip {
+  --bs-tooltip-bg: color-mix(in srgb, var(--pharma-accent) 25%, #1e293b);
+  --bs-tooltip-color: #fff;
+  --bs-tooltip-opacity: 1;
+}

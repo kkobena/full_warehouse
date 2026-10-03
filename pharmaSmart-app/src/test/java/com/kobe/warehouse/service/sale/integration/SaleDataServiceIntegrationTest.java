@@ -8,6 +8,7 @@ import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Sales;
+import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.UninsuredCustomer;
@@ -22,6 +23,7 @@ import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import com.kobe.warehouse.domain.enumeration.TypePrescription;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
@@ -279,6 +281,59 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
 
         assertEquals(1, preventes.size());
         assertEquals(SalesStatut.PROCESSING, preventes.getFirst().getStatut());
+    }
+
+    @Test
+    @DisplayName("Une prévente assurance sans client rattaché n'est pas renvoyée : le front lit les informations de l'assuré")
+    void preventeAssuranceSansClientNonRenvoyee() {
+        Produit produit = produitEnStock("SANS CLIENT", 700, 400, 0, 100);
+        venteEnCours(produit, 1).setStatut(SalesStatut.PROCESSING);
+        ThirdPartySales sansClient = new ThirdPartySales();
+        sansClient.setSaleDate(AUJOURD_HUI);
+        sansClient.setId(services.saleIdGeneratorService.nextId());
+        sansClient.setNumberTransaction("IT" + sansClient.getId().getId());
+        sansClient.setStatut(SalesStatut.PROCESSING);
+        sansClient.setPaymentStatus(PaymentStatus.IMPAYE);
+        sansClient.setNatureVente(NatureVente.ASSURANCE);
+        sansClient.setOrigineVente(OrigineVente.DIRECT);
+        sansClient.setTypePrescription(TypePrescription.PRESCRIPTION);
+        sansClient.setCreatedAt(LocalDateTime.now());
+        sansClient.setUpdatedAt(LocalDateTime.now());
+        sansClient.setEffectiveUpdateDate(LocalDateTime.now());
+        sansClient.setAmountToBeTakenIntoAccount(0);
+        sansClient.setUser(caissier);
+        sansClient.setSeller(caissier);
+        sansClient.setCaissier(caissier);
+        sansClient.setMagasin(magasin);
+        em.persist(sansClient);
+        ajouterLigne(sansClient, produit, 1, 1);
+        em.flush();
+        viderLeCache();
+
+        for (String type : new String[] { null, "VO" }) {
+            List<SaleDTO> preventes = services.saleDataService.allPrevente(
+                null,
+                type,
+                null,
+                Set.of(SalesStatut.PROCESSING),
+                HIER,
+                AUJOURD_HUI,
+                true
+            );
+
+            assertTrue(preventes.stream().allMatch(java.util.Objects::nonNull), "aucun élément nul dans la liste (type " + type + ")");
+            assertTrue(
+                preventes.stream().noneMatch(v -> sansClient.getNumberTransaction().equals(v.getNumberTransaction())),
+                "la prévente assurance sans client ne doit pas remonter (type " + type + ")"
+            );
+        }
+        assertEquals(
+            1,
+            services.saleDataService
+                .allPrevente(null, null, null, Set.of(SalesStatut.PROCESSING), HIER, AUJOURD_HUI, true)
+                .size(),
+            "la prévente comptant, elle, remonte"
+        );
     }
 
     @Test

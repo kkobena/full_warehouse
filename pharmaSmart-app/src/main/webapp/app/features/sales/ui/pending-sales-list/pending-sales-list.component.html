@@ -121,7 +121,7 @@
             <span class="item-count">{{ sale.salesLines?.length || 0 }}</span>
           </td>
           <td class="text-right">
-            <span class="sale-amount">{{ sale.salesAmount | devise }}</span>
+            <span class="sale-amount">{{ sale.salesAmount | number }}</span>
           </td>
           <td>
             <div class="customer-name">

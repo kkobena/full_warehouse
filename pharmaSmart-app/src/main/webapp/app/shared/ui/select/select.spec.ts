@@ -44,6 +44,17 @@ describe('SelectSearchComponent', () => {
     expect(select.bindValue()).toBe('id');
   });
 
+  it('donne le focus au champ, pour un écran qui place le curseur au chargement', () => {
+    fixture.componentRef.setInput('inputId', 'depot');
+    fixture.autoDetectChanges();
+    document.body.appendChild(fixture.nativeElement);
+
+    component.focus();
+
+    expect(document.activeElement?.id).toBe('depot');
+    fixture.nativeElement.remove();
+  });
+
   it('reste en sélection simple', () => {
     expect(ngSelect().multiple()).toBe(false);
   });

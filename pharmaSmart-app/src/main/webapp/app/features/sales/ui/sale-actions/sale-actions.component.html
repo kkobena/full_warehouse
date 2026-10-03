@@ -33,6 +33,7 @@
 
         <app-button
           (clicked)="onSaveAsPresale()"
+          [buttonClass]="isPresale() ? 'btn-passer-en-vente' : ''"
           [disabled]=" isSaving()"
           [icon]="getSaveButtonIcon()"
           [loading]="isSaving()"
@@ -97,6 +98,7 @@
         } @else {
           <app-button
             (clicked)="onSaveAsPresale()"
+          [buttonClass]="isPresale() ? 'btn-passer-en-vente' : ''"
             [disabled]="isSaving()"
             [icon]="getSaveButtonIcon()"
             [label]="getSaveButtonLabel()"

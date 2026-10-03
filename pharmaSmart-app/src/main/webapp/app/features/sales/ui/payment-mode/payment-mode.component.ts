@@ -63,7 +63,7 @@ const CHANGE_TOLERANCE_THRESHOLD = 5;
 export class PaymentModeComponent {
   // ===== Inputs =====
   readonly amountToBePaid = input.required<number>();
-  readonly maxPaymentModes = input<number>(2);
+  readonly maxPaymentModes = input<number>(3);
   readonly showBankFields = input<boolean>(true);
   readonly isDiffere = input<boolean>(false); // Vente différée nécessite commentaire obligatoire
   readonly saleType = input<string>('COMPTANT');
@@ -76,6 +76,8 @@ export class PaymentModeComponent {
   readonly validationError = output<string>();
   // ===== State Signals =====
   readonly selectedModes = signal<PaymentModeEntry[]>([]);
+  /** Trois lignes côte à côte : la carte prend toute la largeur, chaque ligne un tiers. */
+  protected readonly troisModes = computed(() => this.selectedModes().length >= 3);
   readonly isShowAddBtn = signal<boolean>(false);
   readonly comment = signal<string>('');
   readonly bankReference = signal<string>('');
@@ -268,15 +270,15 @@ export class PaymentModeComponent {
           : m,
       );
 
-      // Répartition automatique quand le nombre max de modes est atteint : le reste
-      // à payer est reversé sur l'autre ligne (celle qu'on n'est pas en train de saisir).
-      //
-      // HYPOTHÈSE MÉTIER : maxPaymentModes = 2, « l'autre ligne » est donc unique.
-      // Si le maximum passe un jour à 3+, cette répartition est à généraliser.
+      // Répartition automatique quand le nombre max de modes est atteint : le reste à payer est reversé sur la
+      // dernière ligne qu'on n'est pas en train de saisir. À deux lignes, c'est « l'autre » ; à trois, la
+      // dernière (ou l'avant-dernière quand c'est la dernière qu'on saisit).
       if (updated.length >= this.maxPaymentModes()) {
-        const other = updated.find(m => m.mode.code !== entry.mode.code);
-        if (other) {
-          updated = this.redistributeTo(updated, other);
+        const saisie = modes.indexOf(entry);
+        const dernier = updated.length - 1;
+        const solde = updated[dernier !== saisie ? dernier : dernier - 1];
+        if (solde) {
+          updated = this.redistributeTo(updated, solde);
         }
       }
 

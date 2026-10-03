@@ -1,3 +1,4 @@
+@import '../../shared/styles/comptoir-style';
 @import 'app/shared/scss/table-common';
 .pending-sales-container {
   height: 100%;
@@ -272,8 +273,8 @@
 
         .empty-subtext {
           font-size: 0.875rem;
-          color: var(--text-color-secondary);
-          opacity: 0.7;
+          color: var(--pharma-text-muted, #5b6778);
+          opacity: 1; // l'opacité de 0,7 ramenait le gris à 4,3:1
         }
       }
     }
@@ -332,5 +333,37 @@
     .table-wrapper {
       overflow: visible;
     }
+  }
+}
+
+// ============================================
+// STYLES DU COMPTOIR (docs/PLAN-STYLES-COMPTOIR.md) — l'accent vient de l'hôte `app-sales-home`
+// ============================================
+@include comptoir-accent {
+  .pending-sales-container {
+    background: var(--pharma-surface);
+
+    .summary-bar {
+      background: var(--comptoir-accent-tint);
+      border: 1px solid color-mix(in srgb, var(--comptoir-accent) 35%, white);
+
+      .summary-item i {
+        color: var(--comptoir-accent);
+      }
+
+      .summary-label,
+      .summary-value {
+        color: var(--comptoir-accent-dark);
+      }
+    }
+  }
+}
+
+// « Les ventes mises en attente apparaîtront ici » : gris atténué par une opacité, 4,3:1 mesuré par axe.
+@include comptoir-cartes {
+  // `!important` : la règle d'origine est imbriquée plus profondément, donc plus spécifique.
+  .empty-subtext {
+    color: var(--pharma-text-muted) !important;
+    opacity: 1 !important;
   }
 }

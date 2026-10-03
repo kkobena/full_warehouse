@@ -12,6 +12,7 @@
     (tiersPayantsChanged)="onTiersPayantsChanged($event)"
     [ayantDroit]="null"
     [customer]="selectedCustomer()"
+    [hasLines]="(currentSale()?.salesLines?.length ?? 0) > 0"
     [saleType]="'CARNET'"
     [tiersPayants]="currentSale()?.tiersPayants || []">
   </app-insurance-data-bar>
@@ -101,7 +102,6 @@
       (validationError)="onPaymentError($event)"
       [amountToBePaid]="currentSale()!.amountToBePaid || 0"
       [isDiffere]="isDiffere()"
-      [maxPaymentModes]="2"
     />
   }
 } @else {

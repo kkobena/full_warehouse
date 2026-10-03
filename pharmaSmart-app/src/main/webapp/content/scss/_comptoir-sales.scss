@@ -1,0 +1,128 @@
+// ====================================
+// PHARMA SMART - STYLES DU COMPTOIR : ce qu'une règle de composant ne peut pas atteindre
+// ====================================
+//
+// Plan : docs/PLAN-STYLES-COMPTOIR.md. `actuel` n'est visé par aucune règle.
+//
+// L'en-tête des tableaux est posé par `.pharma-table-head th` dans `table-common-global.scss`, en
+// `!important`, pour toute l'application. Seule une règle globale, elle aussi `!important` et plus
+// spécifique, peut le teinter — et uniquement sous l'écran de vente, pour ne rien déborder ailleurs.
+// Sobre : fond très clair teinté, texte d'accent foncé et filet d'accent dessous — pas d'aplat saturé.
+
+:root app-sales-home .pharma-table-head th,
+:root app-vente-depot .pharma-table-head th {
+  background: var(--comptoir-accent-tint) !important;
+  color: var(--comptoir-accent-dark) !important;
+  border-bottom: 2px solid var(--comptoir-accent) !important;
+  border-right: none !important;
+}
+
+// ====================================
+// REPÈRE DU CURSEUR — tous les styles, y compris « actuel »
+// ====================================
+//
+// Le champ qui a le focus se voit mieux : l'anneau de focus (Bootstrap `$input-focus-box-shadow`, ng-select
+// et barres d'outils lisent tous `--pharma-focus-ring`) est un halo plus net — 30 % au lieu de 15 %, sur 4 px —
+// sans anneau plein supplémentaire sur la bordure. La couleur de la bordure est
+// celle du champ focalisé (`--p-form-field-focus-border-color`) : l'accent du type de vente dans les styles
+// à accent, le primaire du thème sinon. C'est la bordure, pas le halo, qui porte le contraste de focus : l'accent
+// sur blanc dépasse 3:1 (WCAG 1.4.11, 2.4.11) ; le halo à 30 % seul n'y suffirait pas.
+//
+// Posé sur `.pharma-sales-layout` et non sur `app-sales-home` : la variable se résout là où elle est
+// déclarée, et l'accent est défini sur cet élément.
+app-sales-home .pharma-sales-layout,
+app-vente-depot .pharma-sales-layout {
+  --pharma-focus-ring: 0 0 0 0.25rem color-mix(in srgb, var(--p-form-field-focus-border-color) 30%, transparent);
+}
+
+:root app-sales-home .pharma-sales-layout,
+:root app-vente-depot .pharma-sales-layout {
+  --p-form-field-focus-border-color: var(--comptoir-accent);
+}
+
+// Un ng-select dont la liste est ouverte perd son anneau (le thème par défaut de ng-select reprend la main) :
+// c'est pourtant à ce moment qu'on saisit. L'anneau et la bordure restent donc posés tant que le champ est
+// focalisé ou ouvert.
+// `:hover` aussi : le thème par défaut annule l'ombre d'un champ ouvert dès que la souris le survole — soit
+// presque toujours, puisqu'on vient de cliquer dedans.
+app-sales-home .ng-select.ng-select-focused > .ng-select-container,
+app-sales-home .ng-select.ng-select-focused > .ng-select-container:hover,
+app-sales-home .ng-select.ng-select-opened > .ng-select-container,
+app-sales-home .ng-select.ng-select-opened > .ng-select-container:hover,
+app-vente-depot .ng-select.ng-select-focused > .ng-select-container,
+app-vente-depot .ng-select.ng-select-focused > .ng-select-container:hover,
+app-vente-depot .ng-select.ng-select-opened > .ng-select-container,
+app-vente-depot .ng-select.ng-select-opened > .ng-select-container:hover {
+  border-color: var(--p-form-field-focus-border-color);
+  box-shadow: var(--pharma-focus-ring);
+}
+
+// ====================================
+// PANNEAUX LATÉRAUX DE LA VENTE : ventes en attente, fiche client
+// ====================================
+//
+// Ils sont rendus par `app-offcanvas`, dans `app-sales-home` mais hors de `.pharma-sales-layout` : l'accent
+// y arrive par héritage depuis l'hôte (`data-comptoir-mode`, `data-comptoir-doc`, posés par `sales-home`).
+// Mêmes dérivés que `sales-home.component.scss` : 78 % vers le noir, 14 % vers le blanc.
+
+:root app-sales-home {
+  --comptoir-accent: var(--comptoir-accent-comptant);
+  --comptoir-accent-dark: color-mix(in srgb, var(--comptoir-accent) 78%, black);
+  --comptoir-accent-tint: color-mix(in srgb, var(--comptoir-accent) 14%, white);
+
+  &[data-comptoir-mode='assurance'] {
+    --comptoir-accent: var(--comptoir-accent-assurance);
+  }
+
+  &[data-comptoir-mode='carnet'] {
+    --comptoir-accent: var(--comptoir-accent-carnet);
+  }
+
+  &[data-comptoir-doc='true'] {
+    --comptoir-accent: var(--comptoir-doc-accent-comptant);
+
+    &[data-comptoir-mode='assurance'] {
+      --comptoir-accent: var(--comptoir-doc-accent-assurance);
+    }
+
+    &[data-comptoir-mode='carnet'] {
+      --comptoir-accent: var(--comptoir-doc-accent-carnet);
+    }
+  }
+
+  // Le panneau : en-tête sobre (teinte très claire, filet d'accent), icône et titre à l'accent.
+  app-offcanvas .offcanvas-header {
+    background: var(--comptoir-accent-tint);
+    border-bottom: 2px solid var(--comptoir-accent);
+    color: var(--comptoir-accent-dark);
+
+    .text-primary,
+    .drawer-subtitle {
+      color: var(--comptoir-accent-dark) !important;
+    }
+
+    .pi {
+      color: var(--comptoir-accent);
+    }
+  }
+
+  // Boutons d'action « texte » de la fiche client (renouveler, redélivrer…).
+  app-fiche-client-panel .btn-link.text-primary {
+    color: var(--comptoir-accent-dark) !important;
+  }
+}
+
+:root app-sales-home app-offcanvas .offcanvas {
+  border-color: var(--comptoir-border);
+  box-shadow: var(--comptoir-shadow-key);
+
+  // Cible tactile du bouton « Fermer » : 32 → 44 px, l'icône garde sa taille.
+  .btn-close {
+    box-sizing: border-box;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background-position: center;
+    background-size: 1rem;
+  }
+}

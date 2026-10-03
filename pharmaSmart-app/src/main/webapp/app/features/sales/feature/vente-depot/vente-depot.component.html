@@ -1,5 +1,5 @@
 <!-- Interface vente dépôt -->
-<div class="pharma-sales-layout">
+<div appHauteurEcranVente class="pharma-sales-layout" data-comptoir-mode="depot">
 
   <!-- HEADER TOOLBAR -->
   <div class="pharma-sales-header">
@@ -15,7 +15,10 @@
       />
 
       <div class="page-title">
-        <h1>Ventes dépôts</h1>
+        <h1>
+          <i class="pi pi-building presale-icon"></i>
+          Ventes dépôts
+        </h1>
       </div>
 
       <!-- Sélection vendeur -->
@@ -52,6 +55,7 @@
           [style]="{ 'min-width': '250px' }"
           appendTo="body"
           bindLabel="name"
+          #depotBox
           class="pharma-select-modern"
           inputId="depotSelect"
           placeholder="Sélectionner un dépôt"
@@ -106,7 +110,10 @@
         (onKeyEnter)="onSaveKeyDown($event)"
         (productScanned)="onProductScanned($event)"
         (productSelected)="onProductSelected($event)"
-        [autofocus]="true"
+        [autofocus]="false"
+        [customerRequiredMessage]="'Sélectionnez un dépôt avant d\'ajouter un produit'"
+        [hasCustomer]="!!facade.selectedDepot()"
+        [requiresCustomer]="true"
         [saleType]="'COMPTANT'"
         [selectedProduct]="facade.selectedProduct()"
         [showStock]="true"

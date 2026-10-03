@@ -24,7 +24,8 @@ $border-radius-lg: $pharma-radius-lg;
 .pharma-sales-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  // Place restante sous la barre de navigation (HauteurEcranVenteDirective) ; 100vh la dépassait de 52 à 67 px.
+  height: var(--hauteur-ecran-vente, 100vh);
   background: $gray-50;
   overflow: hidden;
 }
@@ -342,8 +343,10 @@ $devis-indigo-light: #e8eaf6;
   color: darken($pharma-warning, 30%);
   white-space: nowrap;
 
-  i {
+  i.pi {
     font-size: 0.875rem;
+    // L'ambre global de l'icône (#d97706) ne fait que 2,97:1 sur ce fond ; elle reprend la couleur du texte (≈ 6:1).
+    color: inherit;
   }
 
   span {
@@ -355,6 +358,12 @@ $devis-indigo-light: #e8eaf6;
 .back-button {
   color: $gray-600 !important;
   transition: all 0.2s ease;
+
+  // Cible tactile : 44 px (le bandeau ne grossit pas, le bloc titre fait déjà cette hauteur).
+  ::ng-deep .btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
 
   &:hover {
     color: $pharma-primary !important;
@@ -412,8 +421,23 @@ $devis-indigo-light: #e8eaf6;
   }
 
   .pending-sales-btn {
+    min-height: 44px;
+
     ::ng-deep .app-btn-label {
       font-size: 0.875rem;
+    }
+
+    // Désactivé (vente en cours) : Bootstrap passe tout à 65 % d'opacité, et le compteur rouge tombait à 2,1:1.
+    // On garde l'état éteint par une teinte neutre pleine, lisible à 4,5:1.
+    &:disabled {
+      --bs-btn-disabled-opacity: 1;
+      --bs-btn-disabled-color: var(--pharma-text-muted);
+      --bs-btn-disabled-border-color: var(--pharma-text-muted);
+
+      .badge {
+        background-color: var(--pharma-text-muted) !important;
+        color: #fff !important;
+      }
     }
   }
 }
@@ -428,7 +452,7 @@ $devis-indigo-light: #e8eaf6;
   overflow-y: auto;
   overflow-x: hidden;
   gap: 0.75rem;
-  padding: 0.75rem;
+  padding: 0.5rem 0;
   min-height: 0;
   scroll-behavior: smooth;
 
@@ -506,6 +530,11 @@ $devis-indigo-light: #e8eaf6;
 
   .sidebar-toggle-btn {
     margin-left: auto;
+
+    ::ng-deep .btn {
+      min-width: 44px;
+      min-height: 44px;
+    }
   }
 }
 
@@ -660,6 +689,7 @@ $devis-indigo-light: #e8eaf6;
   min-height: 0;
   min-width: 0;
   overflow: visible;
+
 }
 
 /* ========================================
@@ -930,6 +960,12 @@ $devis-indigo-light: #e8eaf6;
 }
 
 
+// Le sélecteur de vendeur est posé sur le fond teinté du bandeau : la bordure de champ du thème (#7c8ba1) n'y fait que
+// 2,9:1 ; assombrie de 30 %, elle passe les 3:1 exigés pour un contrôle.
+.pharma-sales-header .header-select-wrapper ::ng-deep .ng-select .ng-select-container {
+  border-color: color-mix(in srgb, var(--pharma-field-border) 70%, #000);
+}
+
 .pharma-select-modern {
   border-radius: $border-radius;
   border-color: $gray-300;
@@ -941,8 +977,8 @@ $devis-indigo-light: #e8eaf6;
 
   &:focus,
   &.p-focus {
-    border-color: $pharma-primary;
-    box-shadow: 0 0 0 0.2rem rgba($pharma-primary, 0.25);
+    border-color: var(--p-form-field-focus-border-color, #{$pharma-primary});
+    box-shadow: var(--pharma-focus-ring, 0 0 0 0.2rem rgba($pharma-primary, 0.25));
   }
 }
 
@@ -966,6 +1002,56 @@ $devis-indigo-light: #e8eaf6;
 @media (max-width: 1200px) {
   .pharma-sales-body {
     flex-direction: column;
+  }
+}
+
+// Types de vente en rangée (voir `navHorizontale` dans le composant) : la zone de travail gagne les 240 px de la colonne,
+// et le sous-titre comme la flèche, utiles seulement en colonne, disparaissent. Les onglets restent des cibles de 44 px.
+@media (max-width: 1440px) {
+  .pharma-sales-body {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .sales-sidebar.nav-horizontale {
+    width: 100%;
+    min-width: 0;
+    flex: 0 0 auto;
+
+    .sidebar-card {
+      height: auto;
+    }
+
+    .nav {
+      flex-direction: row;
+      flex-wrap: nowrap;
+      gap: 0.5rem;
+      padding: 0.375rem 0.5rem;
+    }
+
+    .pharma-nav-vertical-link {
+      min-height: 44px;
+      margin-bottom: 0;
+      padding: 0.375rem 1.25rem;
+      justify-content: center;
+      border-left: 0;
+      border-bottom: 3px solid transparent;
+
+      .sale-tab-subtitle,
+      .link-arrow {
+        display: none;
+      }
+
+      .sale-tab-content {
+        flex: 0 1 auto;
+      }
+    }
+  }
+
+  // Le soulignement de l'onglet actif prend la couleur du type de vente, comme le filet à gauche en colonne.
+  :host-context(:root) .sales-sidebar.nav-horizontale .pharma-nav-vertical-link.active {
+    border-left-color: transparent;
+    border-bottom-color: var(--comptoir-accent);
   }
 }
 
@@ -1047,6 +1133,88 @@ $devis-indigo-light: #e8eaf6;
 
     &:not(.collapsed) {
       width: 200px;
+    }
+  }
+}
+
+// ============================================
+// BANDEAU À 1440 PX ET MOINS (Surface Pro 10, iPad Pro 13, Nest Hub Max, portables 1366)
+// À la création d'une vente comptant, le panneau client (400 px) s'ajoute à droite : le bloc de droite faisait 788 px et le
+// titre à gauche passait sur 2 à 4 lignes, le sélecteur de vendeur débordant. Les libellés « Vendeur », « Pré-vente »,
+// « Proforma » et « En attente » passent en icône seule (le texte reste pour les lecteurs d'écran), le sélecteur se réduit,
+// le titre ne passe plus à la ligne, et le panneau client prend la place qui reste. Ni marge, ni padding, ni bordure ajoutés.
+// ============================================
+@mixin libelle-visuellement-cache {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 1440px) {
+  .pharma-sales-header {
+    .page-title {
+      flex-shrink: 0;
+
+      h1 {
+        white-space: nowrap;
+      }
+    }
+
+    .header-label span {
+      @include libelle-visuellement-cache;
+    }
+
+    // Largeur posée en ligne par le gabarit (`[style]`) : `!important` pour la ramener.
+    .header-select-wrapper app-select-search {
+      width: 160px !important;
+    }
+
+    .destinations-vente ::ng-deep .app-btn-label,
+    .pending-sales-btn .app-btn-label {
+      @include libelle-visuellement-cache;
+    }
+
+    .destinations-vente ::ng-deep .btn {
+      min-width: 44px;
+    }
+
+    // Le bloc de droite peut maintenant rétrécir, et c'est le panneau client qui absorbe : son contenu se tronque déjà.
+    .header-actions {
+      flex: 0 1 auto;
+      min-width: 0;
+
+      // `width` et pas seulement `flex-basis` : le bloc de droite se dimensionne sur son contenu, qui ignore la base.
+      .header-customer-wrapper {
+        width: 280px;
+        min-width: 0;
+        max-width: 400px;
+        flex: 0 1 280px;
+      }
+    }
+  }
+}
+
+// Sous 1100 px (iPad Pro 13 et Surface Pro 10 en portrait) : le sous-titre (« Gestion des ventes assurance ») ne tient plus
+// à côté du titre, et le sélecteur de vendeur comme le panneau client se resserrent encore.
+@media (max-width: 1100px) {
+  .pharma-sales-header {
+    .page-title .subtitle {
+      display: none;
+    }
+
+    .header-select-wrapper app-select-search {
+      width: 130px !important;
+    }
+
+    .header-actions .header-customer-wrapper {
+      width: 220px;
+      flex-basis: 220px;
     }
   }
 }
@@ -1270,5 +1438,157 @@ $devis-indigo-light: #e8eaf6;
 @media (max-width: 992px) {
   .content-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+
+// ============================================
+// STYLES DU COMPTOIR (docs/PLAN-STYLES-COMPTOIR.md)
+// Jetons `--comptoir-*` : content/scss/_comptoir-styles.scss. `actuel` ne déclare aucun jeton ET n'est
+// visé par aucune règle ci-dessous : l'écran reste celui d'aujourd'hui.
+// ============================================
+
+// --- Cartes (variantes cartes, accent, billetage) : relief par bordure et ombre ---
+:host-context(:root) {
+  // Le bandeau (`.pharma-sales-header`) garde sa forme : ni rayon, ni marge, ni padding ajoutés.
+  .sales-sidebar .sidebar-card {
+    overflow: hidden;
+    border: 1px solid var(--comptoir-border);
+    border-radius: var(--comptoir-radius);
+    background: var(--pharma-surface);
+    box-shadow: var(--comptoir-shadow-card);
+  }
+
+  .sale-content-area {
+    // Les cartes du contenu (recherche, panier, règlement, montants) ont une bordure : sans cet
+    // espace elles touchaient les bords de leur conteneur.
+    padding: 0.5rem;
+    border-color: var(--comptoir-border);
+    border-radius: var(--comptoir-radius);
+    box-shadow: var(--comptoir-shadow-card);
+  }
+}
+
+// --- Accent par type de vente (variantes accent, billetage) ---
+:host-context(:root) {
+  .pharma-sales-layout {
+    --comptoir-accent: var(--comptoir-accent-comptant);
+
+    &[data-comptoir-mode='assurance'] {
+      --comptoir-accent: var(--comptoir-accent-assurance);
+    }
+
+    &[data-comptoir-mode='carnet'] {
+      --comptoir-accent: var(--comptoir-accent-carnet);
+    }
+
+    // Prévente et proforma : même logique par type, autre palette.
+    &[data-comptoir-doc='true'] {
+      --comptoir-accent: var(--comptoir-doc-accent-comptant);
+
+      &[data-comptoir-mode='assurance'] {
+        --comptoir-accent: var(--comptoir-doc-accent-assurance);
+      }
+
+      &[data-comptoir-mode='carnet'] {
+        --comptoir-accent: var(--comptoir-doc-accent-carnet);
+      }
+    }
+
+    // Dérivés : le blanc tient sur l'accent (charte, ≥ 4,5:1) et sur sa version assombrie.
+    --comptoir-accent-dark: color-mix(in srgb, var(--comptoir-accent) 78%, black);
+    --comptoir-accent-tint: color-mix(in srgb, var(--comptoir-accent) 14%, white);
+
+    // La ligne sélectionnée du panier lit ces jetons (table-common-global.scss, `tr.ligne-selected`),
+    // au repos comme au survol et pour le liseré.
+    --pharma-row-selected-bg: var(--comptoir-accent-tint);
+    --pharma-row-selected-hover-bg: color-mix(in srgb, var(--comptoir-accent) 18%, white);
+    --pharma-row-selected-fg: var(--comptoir-accent-dark);
+    --pharma-row-selected-accent: var(--comptoir-accent);
+  }
+
+  // `&&` : l'emporte sur les teintes propres à la prévente, au devis et à la vente ordinaire.
+  .pharma-sales-header.pharma-sales-header {
+    background: linear-gradient(135deg, var(--comptoir-accent-tint) 0%, var(--pharma-surface) 100%);
+    border-bottom-color: var(--comptoir-accent);
+
+    .page-title h1 {
+      color: var(--comptoir-accent-dark);
+    }
+
+    .presale-icon {
+      color: var(--comptoir-accent);
+    }
+
+    .subtitle {
+      color: var(--comptoir-accent-dark) !important;
+    }
+  }
+
+  // Pas d'aplat saturé : l'accent ne tient que dans un filet, une icône et la teinte très claire.
+  .sales-sidebar .pharma-nav-sidebar-header {
+    background: var(--comptoir-accent-tint);
+    border-bottom: 2px solid var(--comptoir-accent);
+    color: var(--comptoir-accent-dark);
+
+    .sidebar-toggle-btn {
+      color: var(--comptoir-accent-dark);
+    }
+  }
+
+  .sales-sidebar .pharma-nav-sidebar-content .pharma-nav-vertical-link {
+    i.sale-tab-icon {
+      color: var(--comptoir-accent);
+    }
+
+    &.active {
+      background: var(--comptoir-accent-tint);
+      // Les thèmes propres au mode (carnet, prévente…) posent leur bordure : elle suit l'accent.
+      border-color: color-mix(in srgb, var(--comptoir-accent) 35%, white);
+      border-left-color: var(--comptoir-accent);
+      color: var(--comptoir-accent-dark);
+
+      i.sale-tab-icon,
+      .link-arrow {
+        color: var(--comptoir-accent);
+      }
+
+      // Le sous-titre est blanc par défaut sur l'onglet actif : illisible sur fond clair.
+      .sale-tab-label,
+      .sale-tab-subtitle {
+        color: var(--comptoir-accent-dark);
+      }
+    }
+  }
+}
+
+
+// ============================================
+// NAVIGATION DU BANDEAU (comptoir, pré-vente, proforma)
+// `display: contents` : les boutons rejoignent directement la rangée `.header-actions` et son espacement
+// existant ; aucune marge ni aucun padding n'est ajouté au bandeau.
+// ============================================
+.destinations-vente {
+  display: contents;
+
+  // Cible tactile : 28 → 44 px de haut.
+  ::ng-deep .btn {
+    min-height: 44px;
+  }
+}
+
+// Accent du type de vente en cours (variantes accent et billetage) : contour et texte d'accent, teinte au survol.
+:host-context(:root) {
+  .destinations-vente ::ng-deep .btn {
+    --bs-btn-color: var(--comptoir-accent-dark);
+    --bs-btn-border-color: color-mix(in srgb, var(--comptoir-accent) 45%, white);
+    --bs-btn-hover-color: var(--comptoir-accent-dark);
+    --bs-btn-hover-bg: var(--comptoir-accent-tint);
+    --bs-btn-hover-border-color: var(--comptoir-accent);
+    --bs-btn-active-color: var(--comptoir-accent-dark);
+    --bs-btn-active-bg: var(--comptoir-accent-tint);
+    --bs-btn-active-border-color: var(--comptoir-accent);
+    --bs-btn-disabled-color: var(--comptoir-accent-dark);
+    --bs-btn-disabled-border-color: color-mix(in srgb, var(--comptoir-accent) 25%, white);
   }
 }

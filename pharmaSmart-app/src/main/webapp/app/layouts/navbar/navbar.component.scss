@@ -164,7 +164,7 @@ Badge d'alerte dans la navbar (péremptions et autres alertes)
 // LARGEUR : le menu a besoin de 1618 px au naturel, 1370 px avec libellés sur deux lignes — il débordait de la fenêtre
 // (et la page défilait à l'horizontale) à 1440 px et moins : portables 1366, iPad Pro 13, Surface Pro 10, Nest Hub Max.
 //  - 1500 px et au-delà : inchangé ;
-//  - de 1200 à 1500 px : resserré (marges et police réduites, version masquée) ; sous 1300 px, davantage, sans les
+//  - de 1200 à 1500 px : resserré (marges et police réduites, version masquée) ; sous 1360 px, davantage, sans les
 //    flèches : il tient alors dès 1200 px (mesuré : 1238 px au plus serré avec les marges de 0,4 rem) ;
 //  - sous 1200 px : replié derrière le bouton (`navbar-expand-xl`) ; il s'ouvrait dès 768 px alors que le bouton restait
 //    affiché jusqu'à 992 px (`d-lg-none`).
@@ -186,7 +186,20 @@ Badge d'alerte dans la navbar (péremptions et autres alertes)
   }
 }
 
-@media (min-width: 1200px) and (max-width: 1300px) {
+// Portables 1366 : les libellés sur deux lignes finissaient à 1369 px, 3 px de trop.
+@media (min-width: 1361px) and (max-width: 1400px) {
+  .navbar {
+    --bs-navbar-nav-link-padding-x: 0.3rem;
+
+    .nav-link,
+    button.nav-link {
+      padding-left: 0.3rem;
+      padding-right: 0.3rem;
+    }
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1360px) {
   .navbar {
     --bs-navbar-nav-link-padding-x: 0.25rem;
 

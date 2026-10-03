@@ -21,4 +21,10 @@
  /* margin-top: 1rem;
   padding-top: 1rem;*/
   border-top: 2px solid #e0e0e0;
+  // Collée au bas de la zone qui défile : le règlement reste à l'écran même avec un long panier. C'est la rangée qui se
+  // colle, pas `app-payment-mode` : sa colonne a exactement sa hauteur et ne lui laisse aucune marge pour se déplacer.
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  background: var(--pharma-surface, #fff);
 }

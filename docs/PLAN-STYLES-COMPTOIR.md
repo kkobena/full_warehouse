@@ -209,11 +209,15 @@ Mesurée sur un panier de 5 lignes (assurance, assuré choisi), aux tailles CSS 
 - **Menu principal de l'application qui débordait de la fenêtre à 1440 px et moins** (`navbar-collapse` de 1300 px, `scrollWidth` 1502 dans
   une fenêtre de 1366 : la page défilait à l'horizontale). Il a besoin de 1618 px au naturel, 1370 px avec libellés sur deux lignes.
   Trois paliers dans `layouts/navbar` : au-dessus de 1500 px, inchangé ; de 1200 à 1500 px, resserré (marges 0,35 rem, police 0,88 rem,
-  version masquée) ; de 1200 à 1300 px, encore plus (0,25 rem, 0,85 rem, sans les flèches) ; sous 1200 px, replié derrière le bouton
+  version masquée) ; de 1200 à 1360 px, encore plus (0,25 rem, 0,85 rem, sans les flèches ; 0,3 rem de 1361 à 1400 px) ; sous 1200 px, replié derrière le bouton
   hamburger (`navbar-expand-xl`). Le gabarit s'ouvrait dès 768 px (`navbar-expand-md`) alors que le bouton restait affiché jusqu'à 992 px
   (`d-lg-none`) : les deux sont alignés sur 1200 px. Mesuré de 1920 à 960 px : plus aucun débordement horizontal ; le sous-menu s'ouvre
   depuis la liste repliée.
 - **Champ de quantité** : avec les boutons −, + et ✓ à 44 px, il n'affichait plus que « Quanti » ; la zone passe de 210 à 250 px.
+- **Test de tailles d'écran joué en entier sur une démo réinitialisée** (`comptoir-responsive.spec.ts`, 8 tailles, 5,4 min) : 8 réussites. Deux
+  défauts trouvés en route et corrigés : le règlement du **comptant** ne se collait pas en bas (sa rangée `.payment-section` fait exactement sa
+  hauteur : c'est elle qui se colle maintenant, pas `app-payment-mode`), et la hauteur de la zone de vente n'était pas recalculée quand la barre
+  de navigation grandissait après le chargement (la directive observe maintenant tout ce qui précède la zone).
 - **Pastille de mode de règlement** (`mode-chip`) réduite de 150 à 100 px : plus de place pour le montant, surtout à trois modes.
 
 **Reste à voir** : en portrait à 960 px, le titre du bandeau passe sur trois lignes (le bandeau garde sa forme, non touché) ;

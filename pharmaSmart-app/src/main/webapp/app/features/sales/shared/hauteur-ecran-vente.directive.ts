@@ -14,9 +14,16 @@ export class HauteurEcranVenteDirective {
   constructor() {
     afterNextRender(() => {
       this.ajuster();
-      // Largeur de la fenêtre changée : les menus de la barre se replient ou se déplient, donc le haut de la zone bouge.
+      // Le haut de la zone bouge quand la fenêtre change de largeur (les menus se replient), mais aussi quand ce qui la précède
+      // change de hauteur sans que la fenêtre bouge : les entrées du menu arrivent après le chargement et la barre passe de
+      // 44 à 55 px. On observe donc la fenêtre et chaque élément qui précède la zone (barre, bandeau de licence, titre).
       const observateur = new ResizeObserver(() => this.ajuster());
       observateur.observe(document.documentElement);
+      for (let n: HTMLElement | null = this.hote; n && n !== document.body; n = n.parentElement) {
+        for (let s = n.previousElementSibling; s; s = s.previousElementSibling) {
+          observateur.observe(s);
+        }
+      }
       inject(DestroyRef).onDestroy(() => observateur.disconnect());
     });
   }

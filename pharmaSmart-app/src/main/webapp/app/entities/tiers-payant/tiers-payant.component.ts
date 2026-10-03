@@ -21,6 +21,10 @@ import {ITEMS_PER_PAGE} from "../../shared/constants/pagination.constants";
 import {ITiersPayant} from "../../shared/model";
 import {Router, RouterModule} from "@angular/router";
 import {FormTiersPayantComponent} from "./form-tiers-payant/form-tiers-payant.component";
+import {
+  RechercherTiersPayantComponent,
+  ResultatRechercheTiersPayant
+} from "./rechercher-tiers-payant/rechercher-tiers-payant.component";
 import {ErrorService} from "../../shared/error.service";
 
 import {FormsModule} from "@angular/forms";
@@ -165,48 +169,43 @@ export class TiersPayantComponent implements OnInit {
   }
 
   addTiersPayantAssurance(): void {
-    showCommonModal(
-      this.modalService,
-      FormTiersPayantComponent,
-      {
-        entity: null,
-        categorie: "ASSURANCE",
-        title: "FORMULAIRE DE CREATION DE TIERS-PAYANT ASSURANCE"
-      },
-      () => {
-        this.loadPage();
-      },
-      "xl",
-      "modal-dialog-70"
-    );
+    this.rechercherAvantCreation("ASSURANCE", "FORMULAIRE DE CREATION DE TIERS-PAYANT ASSURANCE");
   }
 
   addCarnet(): void {
-    showCommonModal(
-      this.modalService,
-      FormTiersPayantComponent,
-      {
-        entity: null,
-        categorie: "CARNET",
-        title: "FORMULAIRE DE CREATION DE TIERS-PAYANT CARNET"
-      },
-      () => {
-        this.loadPage();
-      },
-      "xl",
-      "modal-dialog-70"
-    );
+    this.rechercherAvantCreation("CARNET", "FORMULAIRE DE CREATION DE TIERS-PAYANT CARNET");
   }
 
   addDepot(): void {
+    this.rechercherAvantCreation("DEPOT", "FORMULAIRE DE CREATION DE COMME DEPOT");
+  }
+
+  /**
+   * Chercher avant de créer : le contrôle de doublon du serveur est exact, il ne voit pas
+   * « Mutuelle Fraternité » face à « MUTUELLE FRATERNITE ». Un organisme existant choisi s'ouvre en
+   * modification ; sinon, on passe au formulaire de création.
+   */
+  private rechercherAvantCreation(categorie: string, titre: string): void {
+    showCommonModal(
+      this.modalService,
+      RechercherTiersPayantComponent,
+      {categorie, title: titre.replace("FORMULAIRE DE CREATION", "RECHERCHE AVANT CREATION")},
+      (resultat: ResultatRechercheTiersPayant) => {
+        if (resultat?.existant) {
+          this.editTiersPayant(resultat.existant);
+        } else {
+          this.ouvrirFormulaireCreation(categorie, titre);
+        }
+      },
+      "lg"
+    );
+  }
+
+  private ouvrirFormulaireCreation(categorie: string, titre: string): void {
     showCommonModal(
       this.modalService,
       FormTiersPayantComponent,
-      {
-        entity: null,
-        categorie: "DEPOT",
-        title: "FORMULAIRE DE CREATION DE COMME DEPOT"
-      },
+      {entity: null, categorie, title: titre},
       () => {
         this.loadPage();
       },

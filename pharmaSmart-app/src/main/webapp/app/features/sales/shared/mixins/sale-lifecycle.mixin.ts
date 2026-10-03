@@ -1,7 +1,8 @@
-import {DestroyRef} from '@angular/core';
+import {DestroyRef, inject} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {SalesFacade} from '../../data-access/facades/sales.facade';
 import {ProductHandling} from './product-handling.mixin';
+import {PanierFocusService} from '../../data-access/services/panier-focus.service';
 
 /**
  * Contexte pour le mixin de cycle de vie des ventes
@@ -44,6 +45,8 @@ export interface SaleLifecycleContext {
  */
 export function createSaleLifecycle(context: SaleLifecycleContext) {
   const {facade, destroyRef, productHandling, resetForNewSale} = context;
+  // Appelé dans l'initialiseur de champ du composant : le contexte d'injection est disponible.
+  const panierFocus = inject(PanierFocusService);
 
   /**
    * Initialise toutes les souscriptions communes du cycle de vie
@@ -61,6 +64,11 @@ export function createSaleLifecycle(context: SaleLifecycleContext) {
     });
 
     facade.lineUpdatedSuccess$.pipe(takeUntilDestroyed(destroyRef)).subscribe(() => {
+      // Une correction faite au clavier dans la grille (↑/↓, +/-, Ctrl+↑/↓) reste dans la grille ;
+      // toute autre validation ramène, comme toujours, le focus sur la recherche produit.
+      if (panierFocus.consommer()) {
+        return;
+      }
       productHandling.focusProductSearch();
     });
 

@@ -13,6 +13,11 @@ import org.springframework.stereotype.Repository;
 public interface AssuredCustomerRepository extends JpaRepository<AssuredCustomer, Integer>, JpaSpecificationExecutor<AssuredCustomer> {
     List<AssuredCustomer> findAllByAssurePrincipalId(Integer asssureId);
 
+    List<AssuredCustomer> findAllByFirstNameIgnoreCaseAndLastNameIgnoreCase(String firstName, String lastName);
+
+    /** Ayants droit portant déjà ces nom, prénom et numéro assuré. */
+    List<AssuredCustomer> findAllByFirstNameIgnoreCaseAndLastNameIgnoreCaseAndNumAyantDroit(String firstName, String lastName, String numAyantDroit);
+
     default Specification<AssuredCustomer> specialisationQueryString(String queryValue) {
         return (root, query, cb) ->
             cb.or(

@@ -18,6 +18,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -149,6 +151,12 @@ public class TiersPayant implements Serializable, HasConsommation {
     @Pattern(regexp = "^[a-zA-Z0-9]*$")
     @Column(name = "ncc", length = 100)
     private String ncc; //Identifiant contribuable
+
+    /** Taux de prise en charge standard de l'organisme, suggéré à la saisie d'un assuré ; nul si l'organisme n'en a pas. */
+    @Min(0)
+    @Max(100)
+    @Column(name = "taux_couverture_defaut")
+    private Integer tauxCouvertureDefaut;
 
     @ColumnDefault("30")
     @Column(name = "delai_reglement")
@@ -430,6 +438,15 @@ public class TiersPayant implements Serializable, HasConsommation {
     @Override
     public String toString() {
         return "TiersPayant{" + "fullName='" + fullName + '\'' + ", id=" + id + ", name='" + name + '\'' + '}';
+    }
+
+    public Integer getTauxCouvertureDefaut() {
+        return tauxCouvertureDefaut;
+    }
+
+    public TiersPayant setTauxCouvertureDefaut(Integer tauxCouvertureDefaut) {
+        this.tauxCouvertureDefaut = tauxCouvertureDefaut;
+        return this;
     }
 
     public String getNcc() {

@@ -97,6 +97,7 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
         );
         if (isNull(output)) {
             thirdPartySales.setPartTiersPayant(0);
+            thirdPartySales.setMontantNonRembourse(0);
             thirdPartySales.setPartAssure(0);
             thirdPartySales.setAmountToBePaid(0);
             return null;
@@ -104,6 +105,9 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
 
         int totalPatientShare = output.getTotalPatientShare().intValue();
         thirdPartySales.setPartTiersPayant(output.getTotalTiersPayant().intValue());
+        thirdPartySales.setMontantNonRembourse(
+            thirdPartySales.getSalesLines().stream().filter(SalesLine::isNonRembourse).mapToInt(SalesLine::getSalesAmount).sum()
+        );
         thirdPartySales.setPartAssure(totalPatientShare);
         thirdPartySales.setAmountToBePaid(saleAmountCalculator.roundedAmount(totalPatientShare));
 
@@ -256,6 +260,7 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
                 si.setSalesLineId(sl.getId().getId());
                 si.setTotalSalesAmount(BigDecimal.valueOf(sl.getSalesAmount()));
                 si.setQuantity(sl.getQuantityRequested());
+                si.setNonRembourse(sl.isNonRembourse());
                 si.setRegularUnitPrice(BigDecimal.valueOf(sl.getRegularUnitPrice()));
 
                 // Extract TVA rate from product

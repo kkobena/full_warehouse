@@ -7,3 +7,22 @@
 }
 
 
+
+// Quand une section est absente, les autres occupent toute la largeur. Les grilles globales
+// (`.card-grid-2col`, `.card-grid-3col`) ont un nombre de colonnes fixe : ces modificateurs le
+// ramènent au nombre de sections réellement affichées. Les points de rupture sont répétés, car un
+// sélecteur du composant l'emporterait sinon sur l'empilement des écrans étroits.
+.card-grid-2col.une-colonne {
+  grid-template-columns: 1fr;
+}
+
+.card-grid-3col.deux-colonnes {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 992px) {
+  .card-grid-2col.une-colonne,
+  .card-grid-3col.deux-colonnes {
+    grid-template-columns: 1fr;
+  }
+}

@@ -49,6 +49,9 @@ public interface ThirdPartySaleService {
 
     SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) throws PlafondVenteException;
 
+    /** Marque ou démarque une ligne « non remboursée » (part tiers payant nulle sur cette ligne). */
+    SaleLineDTO updateItemNonRembourse(SaleLineDTO saleLineDTO) throws PlafondVenteException;
+
     void cancelSale(SaleId id, String cancelComment) throws CashRegisterException;
 
     ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto) throws PlafondVenteException;

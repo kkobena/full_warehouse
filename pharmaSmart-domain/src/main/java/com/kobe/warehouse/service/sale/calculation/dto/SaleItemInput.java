@@ -14,6 +14,15 @@ public class SaleItemInput {
     private List<TiersPayantPrixInput> prixAssurances = new ArrayList<>();
     private BigDecimal totalSalesAmount;
     private int tvaRate = 0; // TVA rate in percentage (e.g., 5, 10, 20)
+    private boolean nonRembourse;
+
+    public boolean isNonRembourse() {
+        return nonRembourse;
+    }
+
+    public void setNonRembourse(boolean nonRembourse) {
+        this.nonRembourse = nonRembourse;
+    }
 
     public Long getSalesLineId() {
         return salesLineId;

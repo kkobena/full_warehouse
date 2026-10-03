@@ -221,6 +221,28 @@ export class SaleProductFacade {
     });
   }
 
+  /** Recalcule la vente après un changement de tarif négocié : la mise à jour d'une ligne déclenche le recalcul serveur. */
+  recalculerLigne(lineId: number): void {
+    const line = this.store.currentSale()?.salesLines?.find(l => l.id === lineId);
+    if (line) {
+      this.updateLineNonRembourse(lineId, !!line.nonRembourse);
+    }
+  }
+
+  updateLineNonRembourse(lineId: number, nonRembourse: boolean): void {
+    const currentSale = this.store.currentSale();
+    const line = currentSale?.salesLines?.find(l => l.id === lineId);
+    if (!currentSale?.saleId || !line) {
+      return;
+    }
+
+    this.executeAndReloadSale(
+      this.apiService.updateItemNonRembourse({...line, nonRembourse, saleCompositeId: currentSale.saleId}),
+      currentSale.saleId,
+      {errorMessage: 'Erreur lors de la mise à jour du remboursement de la ligne'},
+    );
+  }
+
   applyLineDiscount(lineId: number, discountAmount: number): void {
     const currentSale = this.store.currentSale();
     if (!currentSale?.salesLines || !currentSale.saleId) {

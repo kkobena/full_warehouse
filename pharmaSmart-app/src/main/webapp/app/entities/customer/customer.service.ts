@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared/util/request-util';
+import { createRequestOption, createRequestOptions } from 'app/shared/util/request-util';
 import { ICustomer } from 'app/shared/model/customer.model';
 import { IClientTiersPayant } from 'app/shared/model/client-tiers-payant.model';
 import { IAvoirClientDocument } from 'app/shared/model/avoir-client-document.model';
@@ -26,6 +26,26 @@ import {
   ISituationCredit,
 } from './customer-fiche.model';
 
+/** Contrôle anticipé de la saisie d'un assuré (GET /api/customers/assured/controle). */
+export interface IControleAssure {
+  numeroDejaUtilise: boolean;
+  /** Dossier qui porte déjà ce numéro pour cet organisme. */
+  titulaireDuNumero?: string | null;
+  /** Un client porte déjà ces nom, prénom ET numéro de matricule : la saisie est bloquée. */
+  dossierExistant: boolean;
+  titulaireDuDossier?: string | null;
+  /** Dossiers de même nom et prénom : avertissement, jamais blocage. */
+  homonymes: string[];
+}
+
+/** Contrôle anticipé de la création d'un client comptant (GET /api/customers/uninsured/controle). */
+export interface IControleClient {
+  /** Un client porte déjà ces nom, prénom ET téléphone : la création est bloquée. */
+  clientExistant?: ICustomer | null;
+  /** Clients voisins : avertissement. `motif` : « même téléphone », « même nom » ou « nom proche ». */
+  proches: { client: ICustomer; motif: string }[];
+}
+
 type EntityResponseType = HttpResponse<ICustomer>;
 type EntityArrayResponseType = HttpResponse<ICustomer[]>;
 
@@ -40,6 +60,16 @@ export class CustomerService {
 
   update(customer: ICustomer): Observable<EntityResponseType> {
     return this.http.put<ICustomer>(this.resourceUrl + '/assured', customer, { observe: 'response' });
+  }
+
+  /** Client identique et clients voisins d'un client comptant en cours de saisie — avant tout enregistrement. */
+  controlerClientComptant(req: { phone?: string; firstName?: string; lastName?: string; excludeId?: number }): Observable<IControleClient> {
+    return this.http.get<IControleClient>(this.resourceUrl + '/uninsured/controle', { params: createRequestOptions(req) });
+  }
+
+  /** Numéro de carte déjà utilisé pour cet organisme, et homonymes — avant tout enregistrement. */
+  controlerAssure(req: { tiersPayantId?: number; num?: string; firstName?: string; lastName?: string; excludeId?: number }): Observable<IControleAssure> {
+    return this.http.get<IControleAssure>(this.resourceUrl + '/assured/controle', { params: createRequestOptions(req) });
   }
 
   find(id: number): Observable<EntityResponseType> {

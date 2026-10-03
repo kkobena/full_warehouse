@@ -13,6 +13,13 @@
 >   continu à côté du champ recherche — pas une liste mélangée au dropdown de l'autocomplete. Voir
 >   la note au §2.5 ci-dessous.
 
+## État d'implémentation (2026-10-03)
+
+**Fait** : boutons − / + de quantité (§2.1) ; alerte de stock avant l'ajout (§2.2) ; « client requis »
+signalé dès la recherche (§2.3) ; sélection automatique d'un CIP/EAN exact et unique (§2.4) ; forme, DCI,
+dosage, P/G, « Stup » et « Péremption » dans le dropdown (§2.6, migration V2.1.22) ; erreur réseau signalée
+(§2.7). Produits fréquents : traité dans l'autre plan (§2.5).
+
 ## Le problème en une phrase
 
 La recherche produit est le point d'entrée de **chaque** ligne du panier, sur 5 écrans de vente

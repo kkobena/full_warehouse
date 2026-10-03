@@ -3,6 +3,20 @@
 > Fichier analysé : `pharmaSmart-app/src/main/webapp/app/features/sales/ui/product-list/`
 > (`product-list.component.html` / `.ts` / `.scss`)
 
+## État d'implémentation (2026-10-03)
+
+**Fait** : raccourcis clavier du panier (lot 1) ; menu « Autres actions » avec détail du prix, ajout d'une
+unité et exclusion du remboursement (lot 2, sans « Dupliquer » ni « Forcer stock ») ; prix négocié en
+sous-titre et popover par tiers payant (lot 3) ; fusion des colonnes Qté (lot 4) ; badges générique /
+stupéfiant / péremption proche dans le libellé, via `GET /api/sales/produits-signaux` ; clavier du popover de
+remise (lot 5) ; tableau compact ; pagination au-delà de `seuilPagination` lignes ; filtre par libellé ;
+colonne « NR » (vente assurance uniquement) qui exclut une ligne de la prise en charge — colonne
+`sales_line.non_rembourse`, calcul `TiersPayantCalculationService`, et un second ticket pour ces lignes
+(règlements et TVA répartis entre les deux tickets).
+
+**Reste** : « Forcer stock » par ligne (règle de gestion : le forçage reste réactif à l'erreur de stock, avec
+motif et autorisation) ; badge « stock faible / dernière boîte » ; historique d'une ligne.
+
 ## Le problème en une phrase
 
 Le panier est la grille la plus regardée et la plus manipulée de toute la vente au comptoir — et

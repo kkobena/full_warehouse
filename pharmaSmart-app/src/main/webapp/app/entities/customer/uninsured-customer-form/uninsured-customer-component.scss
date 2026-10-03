@@ -4,3 +4,22 @@
 :host {
   @include modal-theme;
 }
+
+// Les champs sont des `app-form-field` (leur propre encapsulation, d'où ::ng-deep). Ils portent déjà
+// leur marge basse : la grille `form-grid-compact` espace déjà ses cellules, on évite le double espacement.
+:host ::ng-deep app-form-field .form-field {
+  margin-bottom: 0;
+}
+
+// La grille globale `.form-grid-compact` n'a qu'une colonne : nom + prénom puis téléphone + e-mail
+// se placent côte à côte. Les écrans étroits retrouvent l'empilement (le sélecteur du composant
+// l'emporterait sinon sur la règle globale des petits écrans).
+.form-grid-compact.deux-colonnes {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 768px) {
+  .form-grid-compact.deux-colonnes {
+    grid-template-columns: 1fr;
+  }
+}

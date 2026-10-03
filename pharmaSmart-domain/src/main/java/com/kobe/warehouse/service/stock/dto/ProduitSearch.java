@@ -20,8 +20,42 @@ public record ProduitSearch(
     List<ProduitFournisseurSearch> fournisseurs,
 
     List<ProduitRayonSearch> rayons,
-    List<ProduitStockSearch> stocks
+    List<ProduitStockSearch> stocks,
+    /** Forme galénique (« Comprimés »…), pour reconnaître le bon produit dans la liste de résultats. */
+    String forme,
+    /** Molécules, jointes par « + » (association). */
+    String dci,
+    /** Dosages des molécules, dans le même ordre que {@code dci}. */
+    String dosage,
+    /** PRINCEPS ou GENERIQUE…, d'après le rapprochement avec le référentiel médicament ; nul sinon. */
+    String typegenerique,
+    /** Statut légal (SANS_LISTE, LISTE_I, LISTE_II, STUPEFIANTS, PSO). */
+    String statutlegal,
+    /** Lot en stock le plus proche de sa péremption, s'il est périmé ou proche de l'être (seuil APP_EXPIRY_ALERT_DAYS_BEFORE). */
+    String peremptionlot,
+    /** Date de péremption de ce lot (AAAA-MM-JJ) : seul un lot porte une date. */
+    String peremptiondate
 ) {
+
+    @JsonProperty("statutLegal")
+    public String statutLegal() {
+        return statutlegal;
+    }
+
+    @JsonProperty("peremptionLot")
+    public String peremptionLot() {
+        return peremptionlot;
+    }
+
+    @JsonProperty("peremptionDate")
+    public String peremptionDate() {
+        return peremptiondate;
+    }
+
+    @JsonProperty("typeGenerique")
+    public String typeGenerique() {
+        return typegenerique;
+    }
 
     /**
      * Stock rayon (PRINCIPAL) uniquement : qty_stock + qty_ug. Cohérent avec

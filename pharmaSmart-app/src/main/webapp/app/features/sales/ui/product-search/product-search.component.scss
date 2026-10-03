@@ -95,3 +95,28 @@
 .stockless {
   color: #adb5bd !important;
 }
+
+// Identité du produit sous son libellé : DCI, dosage, forme, et P / G (princeps / générique).
+.product-identite {
+  display: block;
+  color: #6c757d;
+  font-size: 0.72rem;
+  line-height: 1.1;
+}
+
+.statut-generique {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0 0.3rem;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.3;
+  background: #e3f2e6;
+  color: #2d7a3e;
+
+  &.statut-princeps {
+    background: #e8eef5;
+    color: #34506b;
+  }
+}

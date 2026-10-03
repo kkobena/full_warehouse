@@ -1,4 +1,4 @@
-<div class="product-list-container">
+<div (keydown)="onGridKeydown($event)" [ngClass]="'product-list--' + saleType().toLowerCase()" class="product-list-container" tabindex="-1">
   <!-- Caption avec recherche et remise -->
   <div class="pharma-table-header-compact">
     <!-- Recherche produit -->
@@ -26,28 +26,37 @@
             <i class="pi pi-percentage"></i>
             <span class="remise-label">Remise:</span>
             <strong class="remise-value">{{ getRemiseTaux() }}</strong>
+            <!--
+              L'infobulle est sur une enveloppe, PAS sur le bouton : `triggers` est une entrée commune à
+              ngbTooltip et ngbPopover. Posée sur le même élément, « triggers="hover" » faisait aussi
+              ouvrir le popover au survol et le refermait dès que la souris le quittait.
+            -->
+            <span #tipEdit="ngbTooltip" class="d-inline-flex" ngbTooltip="Modifier la remise" placement="bottom" triggers="hover">
+              <app-button
+                #editRemisePopover="ngbPopover"
+                (clicked)="openEditRemisePopover(); tipEdit.close()"
+                (shown)="focaliserPremiereRemise()"
+                [ngbPopover]="remisePopoverContent"
+                [rounded]="true"
+                [text]="true"
+                ariaLabel="Modifier la remise"
+                container="body"
+                icon="pi pi-pencil"
+                placement="bottom"
+                popoverClass="remise-popover"
+                severity="info"
+                size="small"
+              />
+            </span>
             <app-button
-              #editRemisePopover="ngbPopover"
-              (clicked)="openEditRemisePopover()"
-              [ngbPopover]="remisePopoverContent"
-              [rounded]="true"
-              [text]="true"
-              ariaLabel="Modifier la remise"
-              container="body"
-              icon="pi pi-pencil"
-              ngbTooltip="Modifier la remise"
-              placement="bottom"
-              popoverClass="remise-popover"
-              severity="info"
-              size="small"
-            />
-            <app-button
-              (clicked)="onRemoveRemise()"
+              #tipSupp="ngbTooltip"
+              (clicked)="onRemoveRemise(); tipSupp.close()"
               [rounded]="true"
               [text]="true"
               ariaLabel="Supprimer la remise"
               icon="pi pi-times"
               ngbTooltip="Supprimer la remise"
+              triggers="hover"
               severity="danger"
               size="small"
             />
@@ -56,20 +65,22 @@
 
         <!-- Bouton ajouter remise (visible uniquement quand aucune remise appliquée) -->
         @if (!currentRemise() && remises()?.length > 0) {
-          <app-button
-            #addRemisePopover="ngbPopover"
-            (clicked)="openAddRemisePopover()"
-            [ngbPopover]="remisePopoverContent"
-            [outlined]="true"
-            container="body"
-            icon="pi pi-percentage"
-            label="Remise"
-            ngbTooltip="Ajouter une remise"
-            placement="bottom"
-            popoverClass="remise-popover"
-            severity="primary"
-            size="small"
-          />
+          <span #tipAjout="ngbTooltip" class="d-inline-flex" ngbTooltip="Ajouter une remise" placement="bottom" triggers="hover">
+            <app-button
+              #addRemisePopover="ngbPopover"
+              (clicked)="openAddRemisePopover(); tipAjout.close()"
+              (shown)="focaliserPremiereRemise()"
+              [ngbPopover]="remisePopoverContent"
+              [outlined]="true"
+              container="body"
+              icon="pi pi-percentage"
+              label="Remise"
+              placement="bottom"
+              popoverClass="remise-popover"
+              severity="primary"
+              size="small"
+            />
+          </span>
         }
 
         <!-- Contenu du popover de sélection de remise -->
@@ -79,9 +90,14 @@
               <i class="pi pi-percentage"></i>
               <span>{{ isEditMode() ? 'Modifier la remise' : 'Choisir une remise' }}</span>
             </div>
-            <div class="remise-popover-list">
+            <div aria-label="Remises disponibles" class="remise-popover-list" role="listbox">
               @for (remise of availableRemises(); track remise.id) {
-                <div (click)="onPopoverRemiseSelect(remise)" class="remise-popover-item">
+                <div
+                  (click)="onPopoverRemiseSelect(remise)"
+                  (keydown)="onRemiseKeydown($event, remise)"
+                  class="remise-popover-item"
+                  role="option"
+                  tabindex="0">
                   <div class="remise-item-icon">
                     <i class="pi pi-tag"></i>
                   </div>
@@ -106,11 +122,15 @@
   <app-data-table
     #produitTable
     [globalFilterFields]="['produitCode', 'produitLibelle']"
-    [paginator]="true"
+    (firstChange)="first.set($event)"
+    (rowsChange)="rows.set($event)"
+    [first]="first()"
+    [rows]="rows()"
+    [paginator]="paginationVisible()"
     [rowsPerPageOptions]="[5, 10, 20, 50]"
-    [rows]="10"
     [showCurrentPageReport]="true"
-    [value]="salesLines()"
+    [size]="'small'"
+    [value]="lignesAffichees()"
     currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
     dataKey="id">
     <ng-template #header>
@@ -118,21 +138,26 @@
         <th style="width: 15px; text-align: center; padding: 6px 5px">#</th>
         <th>CODE</th>
         <th>LIBELLÉ</th>
-        <th style="width: 110px; text-align: center">QTÉ.D</th>
-        <th style="width: 110px; text-align: center">QTÉ.S</th>
-        <th style="width: 110px; text-align: right">PU</th>
+        <th style="width: 130px; text-align: center" title="Quantité servie / demandée (une seule valeur quand elles sont égales)">QTÉ</th>
+        <th style="width: 130px; text-align: right">PU</th>
         <th style="width: 130px; text-align: right">TOTAL</th>
+        @if (nonRembourseDisponible()) {
+          <th style="width: 56px; text-align: center" title="Non remboursé : le patient règle cette ligne en totalité">NR</th>
+        }
         @if (isEditable()) {
-          <th style="width: 50px; text-align: center"></th>
+          <th style="width: 96px; text-align: center"></th>
         }
       </tr>
     </ng-template>
     <ng-template #body let-line let-rowIndex="rowIndex">
       <tr
-        (click)="onSelectLine(line)"
+        (click)="onRowClick(line, $event)"
         [attr.data-line-id]="line.id"
+        [attr.aria-selected]="isLineSelected(line)"
+        tabindex="-1"
         [ngClass]="{
           'pharma-row-warning': line.quantitySold < line.quantityRequested,
+          'ligne-non-remboursee': line.nonRembourse,
           'ligne-selected': isLineSelected(line)
         }">
         <!-- # -->
@@ -142,57 +167,100 @@
 
         <!-- CODE -->
         <td>
-          <span class="pharma-code">{{ line.code }}</span>
+          {{ line.code }}
         </td>
 
         <!-- LIBELLÉ -->
         <td>
-          <div class="pharma-product-name">{{ line.produitLibelle }}</div>
+          <div class="pharma-product-name">
+            {{ line.produitLibelle }}
+            <!-- Sans lot attribué (pas encore servie, ou sans gestion de lots) : le lot en stock proche de sa péremption -->
+            <app-produit-badges
+              [peremptionDate]="line.lots?.length ? null : signaux().get(line.produitId)?.peremptionDate"
+              [peremptionLot]="line.lots?.length ? null : signaux().get(line.produitId)?.peremptionLot"
+              [seuilMini]="signaux().get(line.produitId)?.seuilMini"
+              [statutLegal]="signaux().get(line.produitId)?.statutLegal"
+              [stockRestant]="signaux().get(line.produitId)?.stockRestant"
+              [typeGenerique]="signaux().get(line.produitId)?.typeGenerique" />
+          </div>
+          @if (line.lots?.length) {
+            @let lots = lotsAffiches(line);
+            <div [ngbTooltip]="lots.infobulle" class="lots-ligne" container="body" placement="bottom-start">
+              <i class="pi pi-tags"></i>
+              @for (lot of lots.visibles; track lot.numLot) {
+                <span [class.lot-perime]="lot.urgence === 'perime'" [class.lot-proche]="lot.urgence === 'proche'">
+                  {{ lot.numLot }}@if (lots.plusieurs) { ({{ lot.quantity }}) }@if (lot.mois) { · {{ lot.mois }} }
+                </span>
+              }
+              @if (lots.reste > 0) {
+                <span class="lots-reste">+{{ lots.reste }}</span>
+              }
+            </div>
+          }
         </td>
 
-        <!-- QTÉ.D - Éditable au click -->
+        <!-- QTÉ : une seule valeur quand demandée = servie ; sinon « servie / demandée », avec alerte -->
         <td class="text-center">
-          <app-editable-cell>
-            <ng-template #input>
-              <input
-                (keydown.enter)="onQuantityRequestedChange(line, $any($event.target).value)"
-                [value]="line.quantityRequested"
-                class="form-control form-control-sm pharma-input-qty"
-                min="1"
-                type="number" />
-            </ng-template>
-            <ng-template #output>
-              <span class="pharma-qty-value">{{ line.quantityRequested | number }}</span>
-            </ng-template>
-          </app-editable-cell>
+          @if (quantitesEgales(line)) {
+            <app-editable-cell data-col="qty">
+              <ng-template #input>
+                <input
+                  (keydown.enter)="onQuantityRequestedChange(line, $any($event.target).value)"
+                  [value]="line.quantityRequested"
+                  class="form-control form-control-sm pharma-input-qty"
+                  data-col="qty"
+                  min="1"
+                  type="number" />
+              </ng-template>
+              <ng-template #output>
+                <span class="pharma-qty-value">{{ line.quantitySold | number }}</span>
+              </ng-template>
+            </app-editable-cell>
+          } @else {
+            <div class="qty-double" ngbTooltip="Servie / demandée : le stock ne couvre pas la demande">
+              <app-editable-cell data-col="qs">
+                <ng-template #input>
+                  <input
+                    (keydown.enter)="onQuantitySoldChange(line, $any($event.target).value)"
+                    [value]="line.quantitySold"
+                    class="form-control form-control-sm pharma-input-qty"
+                    data-col="qs"
+                    min="0"
+                    type="number" />
+                </ng-template>
+                <ng-template #output>
+                  <span [class.qty-insuffisante]="line.quantitySold < line.quantityRequested" class="pharma-qty-value">{{ line.quantitySold | number }}</span>
+                </ng-template>
+              </app-editable-cell>
+              <span aria-hidden="true" class="qty-sep">/</span>
+              <app-editable-cell data-col="qd">
+                <ng-template #input>
+                  <input
+                    (keydown.enter)="onQuantityRequestedChange(line, $any($event.target).value)"
+                    [value]="line.quantityRequested"
+                    class="form-control form-control-sm pharma-input-qty"
+                    data-col="qd"
+                    min="1"
+                    type="number" />
+                </ng-template>
+                <ng-template #output>
+                  <span class="pharma-qty-value">{{ line.quantityRequested | number }}</span>
+                </ng-template>
+              </app-editable-cell>
+            </div>
+          }
         </td>
 
-        <!-- QTÉ.S - Éditable au click -->
-        <td class="text-center">
-          <app-editable-cell>
-            <ng-template #input>
-              <input
-                (keydown.enter)="onQuantitySoldChange(line, $any($event.target).value)"
-                [value]="line.quantitySold"
-                class="form-control form-control-sm pharma-input-qty"
-                min="0"
-                type="number" />
-            </ng-template>
-            <ng-template #output>
-              <span class="pharma-qty-value">{{ line.quantitySold | number }}</span>
-            </ng-template>
-          </app-editable-cell>
-        </td>
-
-        <!-- PU - Éditable si autorisé -->
-        @if (canEditPrice()) {
-          <td class="text-right">
-            <app-editable-cell>
+        <!-- PU : prix public, avec le prix négocié en sous-titre quand il en diffère (assurance, carnet) -->
+        <td class="text-right pu-cell">
+          @if (canEditPrice()) {
+            <app-editable-cell data-col="pu">
               <ng-template #input>
                 <input
                   (keydown.enter)="onPriceChange(line, $any($event.target).value)"
                   [value]="line.regularUnitPrice"
                   class="form-control form-control-sm pharma-input-price"
+                  data-col="pu"
                   min="0"
                   type="number" />
               </ng-template>
@@ -200,38 +268,121 @@
                 <span class="pharma-price">{{ line.regularUnitPrice | number }}</span>
               </ng-template>
             </app-editable-cell>
-          </td>
-        } @else {
-          <td style="text-align: right">
+          } @else {
             <span class="pharma-price">{{ line.regularUnitPrice | number }}</span>
-          </td>
-        }
+          }
+          @if (prixNegocie(line); as negocie) {
+            <button
+              (click)="$event.stopPropagation()"
+              [attr.aria-label]="'Prix négocié ' + negocie + ' : voir le détail'"
+              [class.prix-negocie-bas]="negocie < line.regularUnitPrice"
+              [class.prix-negocie-haut]="negocie > line.regularUnitPrice"
+              [ngbPopover]="prixDetail"
+              [popoverContext]="{ $implicit: line }"
+              class="prix-sous-titre prix-anchor"
+              container="body"
+              placement="left"
+              popoverClass="prix-popover"
+              triggers="click"
+              type="button">
+              nég. {{ negocie | number }}
+            </button>
+          } @else if (aDesTauxNegocies(line)) {
+            <button
+              (click)="$event.stopPropagation()"
+              [ngbPopover]="prixDetail"
+              [popoverContext]="{ $implicit: line }"
+              aria-label="Taux négociés : voir le détail"
+              class="prix-sous-titre prix-anchor prix-taux"
+              container="body"
+              placement="left"
+              popoverClass="prix-popover"
+              triggers="click"
+              type="button">
+              taux nég.
+            </button>
+          } @else {
+            <span
+              [ngbPopover]="prixDetail"
+              [popoverContext]="{ $implicit: line }"
+              class="prix-anchor prix-anchor--muet"
+              container="body"
+              placement="left"
+              popoverClass="prix-popover"
+              triggers="click"></span>
+          }
+        </td>
 
         <!-- TOTAL -->
         <td style="text-align: right">
           <span class="pharma-total">{{ line.salesAmount | number }}</span>
         </td>
 
-        <!-- ACTIONS -->
+        <!-- NON REMBOURSÉ : le patient règle la ligne en totalité (ventes à tiers payant) -->
+        @if (nonRembourseDisponible()) {
+          <td (click)="$event.stopPropagation()" class="text-center">
+            <app-checkbox
+              (ngModelChange)="basculerNonRembourse(line, $event)"
+              [disabled]="!isEditable()"
+              [ngModel]="!!line.nonRembourse"
+              ariaLabel="Ligne non remboursée" />
+          </td>
+        }
 
-        <td style="text-align: center">
-          <app-button
-            (clicked)="onRemoveLine(line); $event.stopPropagation()"
-            [rounded]="true"
-            [text]="true"
-            ariaLabel="Supprimer"
-            icon="pi pi-trash"
-            ngbTooltip="Supprimer"
-            severity="danger"
-            size="small"
-          />
+        <!-- ACTIONS : supprimer reste seul et visible ; le reste est sous « ⋮ » -->
+        <td class="actions-cell">
+          <div class="actions-ligne">
+            <app-button
+              #tipLigne="ngbTooltip"
+              (clicked)="onRemoveLine(line); tipLigne.close(); $event.stopPropagation()"
+              [rounded]="true"
+              [text]="true"
+              ariaLabel="Supprimer"
+              buttonClass="btn-action"
+              icon="pi pi-trash"
+              ngbTooltip="Supprimer (Suppr)"
+              triggers="hover"
+              severity="danger"
+            />
+            <div class="d-inline-block" container="body" ngbDropdown placement="bottom-end">
+              <app-button
+                #tipPlus="ngbTooltip"
+                (click)="tipPlus.close()"
+                [rounded]="true"
+                [text]="true"
+                ariaLabel="Autres actions sur la ligne"
+                buttonClass="btn-action"
+                icon="pi pi-ellipsis-v"
+                ngbDropdownToggle
+                ngbTooltip="Autres actions"
+                triggers="hover"
+                severity="secondary"
+              />
+              <div ngbDropdownMenu>
+                <button (click)="ouvrirDetailPrix(line.id)" ngbDropdownItem type="button">
+                  <i class="pi pi-eye me-2"></i>Détail du prix <kbd class="ms-2">Espace</kbd>
+                </button>
+                @if (nonRembourseDisponible()) {
+                  <button (click)="ajouterPrixNegocie(line)" ngbDropdownItem type="button">
+                    <i class="pi pi-tag me-2"></i>Ajouter un prix négocié
+                  </button>
+                  <button (click)="basculerNonRembourse(line, !line.nonRembourse)" ngbDropdownItem type="button">
+                    <i class="pi pi-ban me-2"></i>{{ line.nonRembourse ? 'Rembourser à nouveau' : 'Exclure du remboursement' }}
+                  </button>
+                }
+                <button (click)="ajouterUneUnite(line)" ngbDropdownItem type="button">
+                  <i class="pi pi-plus-circle me-2"></i>Ajouter une unité <kbd class="ms-2">Ctrl+D</kbd>
+                </button>
+              </div>
+            </div>
+          </div>
         </td>
 
       </tr>
     </ng-template>
     <ng-template #emptymessage>
       <tr>
-        <td [attr.colspan]="isEditable() ? 8 : 7" class="text-center text-muted p-4">
+        <td [attr.colspan]="nombreColonnes()" class="text-center text-muted p-4">
           <i class="pi pi-shopping-cart" style="font-size: 2rem"></i>
           <p class="mt-2">Aucun produit dans la vente</p>
         </td>
@@ -245,15 +396,18 @@
             <span>TOTAUX</span>
           </td>
           <td class="text-center">
-            <span class="pharma-footer-value">{{ getTotalQuantityRequested() | number }}</span>
-          </td>
-          <td class="text-center">
             <span class="pharma-footer-value">{{ getTotalQuantitySold() | number }}</span>
+            @if (getTotalQuantitySold() !== getTotalQuantityRequested()) {
+              <span class="pharma-footer-value"> / {{ getTotalQuantityRequested() | number }}</span>
+            }
           </td>
           <td></td>
           <td class="text-right">
             <span class="pharma-footer-total">{{ getTotalAmount() | number }}</span>
           </td>
+          @if (nonRembourseDisponible()) {
+            <td></td>
+          }
           @if (isEditable()) {
             <td></td>
           }
@@ -261,4 +415,37 @@
       }
     </ng-template>
   </app-data-table>
+
+  <!-- Détail du prix d'une ligne : prix public, remise, prix négocié et taux par tiers payant -->
+  <ng-template #prixDetail let-line>
+    <div aria-label="Détail du prix" class="prix-popover-content" role="dialog">
+      <div class="prix-popover-titre">{{ line.produitLibelle }}</div>
+      <dl class="prix-popover-liste">
+        <div><dt>Prix public</dt><dd>{{ line.regularUnitPrice | number }}</dd></div>
+        @if (line.discountAmount) {
+          <div><dt>Remise sur la ligne</dt><dd>- {{ line.discountAmount | number }}</dd></div>
+        }
+        @if (prixNegocie(line); as negocie) {
+          <div><dt>Prix négocié (base de calcul)</dt><dd [class.prix-negocie-bas]="negocie < line.regularUnitPrice" [class.prix-negocie-haut]="negocie > line.regularUnitPrice">{{ negocie | number }}</dd></div>
+        }
+        @if (line.netUnitPrice) {
+          <div><dt>Net unitaire</dt><dd>{{ line.netUnitPrice | number }}</dd></div>
+        }
+      </dl>
+      @if (saleType() !== 'COMPTANT' && detailTiersPayants(line).length > 0) {
+        <div class="prix-popover-sous-titre">Prise en charge</div>
+        <dl class="prix-popover-liste">
+          @for (tp of detailTiersPayants(line); track tp.nom) {
+            <div>
+              <dt>{{ tp.nom }}</dt>
+              <dd>
+                @if (tp.taux !== null) { {{ tp.taux }} % }
+                @if (tp.negocie) { <span class="badge bg-info ms-1">négocié</span> }
+              </dd>
+            </div>
+          }
+        </dl>
+      }
+    </div>
+  </ng-template>
 </div>

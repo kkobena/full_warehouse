@@ -60,7 +60,7 @@
                 <div class="form-field">
                   <label>Numéro de sécurité <span class="required">*</span></label>
                   <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control"
-                         formControlName="num" />
+                         [attr.data-ligne-num]="i" formControlName="num" />
                 </div>
 
                 <!-- Taux -->
@@ -68,6 +68,9 @@
                   <label>Taux (%) <span class="required">*</span></label>
                   <input [appKeyFilter]="'int'" autocomplete="off" class="form-control"
                          formControlName="taux" />
+                  @if (tauxSuggeres()[i] !== undefined && tiersPayant.get('taux')?.value === tauxSuggeres()[i]) {
+                    <small class="form-text text-muted" data-testid="indice-taux-organisme">Taux standard de l'organisme : {{ tauxSuggeres()[i] }} % — modifiable</small>
+                  }
                 </div>
 
                 <!-- Ordre -->

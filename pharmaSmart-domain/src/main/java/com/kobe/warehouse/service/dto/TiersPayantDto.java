@@ -6,6 +6,8 @@ import com.kobe.warehouse.domain.enumeration.OrdreTrisFacture;
 import com.kobe.warehouse.domain.enumeration.Periodicite;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -51,6 +53,11 @@ public class TiersPayantDto implements Serializable {
     private Integer plafondConsoClient;
     private Integer delaiReglement;
     private String ncc;
+
+    @Min(0)
+    @Max(100)
+    private Integer tauxCouvertureDefaut;
+
     private  Periodicite periodiciteFactureDefinitive;
     private  Periodicite periodiciteFactureProvisoire;
     private boolean inclureFacturationAutoDefinitive ;
@@ -386,6 +393,15 @@ public class TiersPayantDto implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public Integer getTauxCouvertureDefaut() {
+        return tauxCouvertureDefaut;
+    }
+
+    public TiersPayantDto setTauxCouvertureDefaut(Integer tauxCouvertureDefaut) {
+        this.tauxCouvertureDefaut = tauxCouvertureDefaut;
+        return this;
     }
 
     public String getNcc() {

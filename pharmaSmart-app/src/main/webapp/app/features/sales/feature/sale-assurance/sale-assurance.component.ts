@@ -491,6 +491,18 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     // Focus géré via souscription à lineUpdatedSuccess$
   }
 
+  onPrixNegocieAjoute(line: ISalesLine): void {
+    if (line.id) {
+      this.facade.recalculerLigne(line.id);
+    }
+  }
+
+  onLineNonRembourseChanged(event: { line: ISalesLine; nonRembourse: boolean }): void {
+    if (event.line.id) {
+      this.facade.updateLineNonRembourse(event.line.id, event.nonRembourse);
+    }
+  }
+
   onLineRemoved(line: ISalesLine): void {
     if (line && line.id) {
       this.facade.removeSalesLine(line.id);

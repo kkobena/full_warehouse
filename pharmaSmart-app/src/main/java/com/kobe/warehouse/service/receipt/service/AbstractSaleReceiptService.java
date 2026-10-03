@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.receipt.service;
 
+import com.kobe.warehouse.domain.LotSold;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
 import com.kobe.warehouse.service.dto.PaymentDTO;
@@ -27,6 +28,8 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
     private final AppConfigurationService appConfigurationService;
 
+    private static final DateTimeFormatter PEREMPTION_FORMAT = DateTimeFormatter.ofPattern("MM/yyyy");
+
     protected AbstractSaleReceiptService(AppConfigurationService appConfigurationService) {
         super(appConfigurationService);
         this.appConfigurationService = appConfigurationService;
@@ -45,6 +48,20 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         return 0;
     }
 
+    /** Règlements et TVA de CE ticket ; ceux de la vente par défaut. */
+    protected List<PaymentDTO> getReglementsTicket() {
+        return getSale().getPayments();
+    }
+
+    protected List<TvaEmbeded> getTvaTicket() {
+        return getSale().getTvaEmbededs();
+    }
+
+    /** Montant des lignes imprimées sur un autre ticket : à retirer des totaux de celui-ci. */
+    protected int getMontantHorsTicket() {
+        return 0;
+    }
+
     protected List<HeaderFooterItem> getOperateurInfos() {
         SaleDTO sale = getSale();
         Font font = PLAIN_FONT;
@@ -59,6 +76,21 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         return headerItems;
     }
 
+    /** Lots prélevés, une chaîne par lot : numéro, quantité si plusieurs lots, péremption au mois. */
+    protected static List<String> formaterLots(SaleLineDTO saleLineDTO) {
+        List<LotSold> lots = saleLineDTO.getLots();
+        if (lots == null || lots.isEmpty()) {
+            return List.of();
+        }
+        return lots
+            .stream()
+            .map(lot ->
+                "Lot " + lot.numLot() + (lots.size() > 1 ? " (" + lot.quantity() + ")" : "")
+                    + (lot.expiryDate() != null ? " exp. " + lot.expiryDate().format(PEREMPTION_FORMAT) : "")
+            )
+            .toList();
+    }
+
     protected SaleReceiptItem fromSaleLine(SaleLineDTO saleLineDTO) {
         CashSaleReceiptItem item = new CashSaleReceiptItem();
         int productNameWidth = getProductNameWidth();
@@ -69,6 +101,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         item.setQuantity(NumberUtil.formatToString(saleLineDTO.getQuantityRequested()));
         item.setUnitPrice(NumberUtil.formatToString(saleLineDTO.getRegularUnitPrice()));
         item.setTotalPrice(NumberUtil.formatToString(saleLineDTO.getSalesAmount()));
+        item.setLots(formaterLots(saleLineDTO));
 
         return item;
     }
@@ -142,6 +175,9 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
                         escPosPrintLine(out,
                             String.format("%-3s %-24s %8s %10s", quantity, productName, unitPrice,
                                 totalPrice));
+                        for (String lot : item.getLots()) {
+                            escPosPrintLine(out, "    " + truncateString(lot, 44));
+                        }
                     }
 
                     escPosPrintSeparator(out, 48);
@@ -210,7 +246,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         // Summary section
         escPosSetBold(out, true);
         escPosPrintLine(out, String.format("%-37s %10s", MONTANT_TTC,
-            NumberUtil.formatToString(sale.getSalesAmount())));
+            NumberUtil.formatToString(sale.getSalesAmount() - getMontantHorsTicket())));
         escPosSetBold(out, false);
 
         // Avoir section (if any)
@@ -237,13 +273,13 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         escPosSetTextSize(out, 2, 1); // Double width
         escPosPrintLine(out, String.format("%-13s %10s", TOTAL_A_PAYER,
             NumberUtil.formatToString(
-                ServiceUtil.arrondirAuMultipleDe5(sale.getAmountToBePaid()))));
+                ServiceUtil.arrondirAuMultipleDe5(sale.getAmountToBePaid() - getMontantHorsTicket()))));
         escPosSetTextSize(out, 1, 1); // Normal size
         escPosSetBold(out, false);
         escPosFeedLines(out, 1);
 
         // Payment section
-        if (!CollectionUtils.isEmpty(sale.getPayments())) {
+        if (!CollectionUtils.isEmpty(getReglementsTicket())) {
             escPosSetBold(out, true);
             escPosSetAlignment(out, EscPosAlignment.CENTER);
             escPosPrintLine(out, REGLEMENT);
@@ -252,11 +288,11 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
             escPosFeedLines(out, 1);
             int monnaie = 0;
             String amount;
-            for (PaymentDTO payment : sale.getPayments()) {
+            for (PaymentDTO payment : getReglementsTicket()) {
                 PaymentModeDTO paymentMode = payment.getPaymentMode();
                 String libelle = paymentMode.getLibelle();
                 if (paymentMode.getCode().equals(ModePaimentCode.CASH.name())) {
-                    monnaie = payment.getMontantVerse() - sale.getNetAmount();
+                    monnaie = payment.getMontantVerse() - (sale.getNetAmount() - getMontantHorsTicket());
                     amount = NumberUtil.formatToString(payment.getMontantVerse());
                 } else {
                     amount = NumberUtil.formatToString(payment.getPaidAmount());
@@ -294,7 +330,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         }
 
         // Tax details (if any)
-        if (!CollectionUtils.isEmpty(sale.getTvaEmbededs())) {
+        if (!CollectionUtils.isEmpty(getTvaTicket())) {
             escPosSetBold(out, true);
             escPosSetAlignment(out, EscPosAlignment.CENTER);
             escPosPrintLine(out, TVA);
@@ -302,7 +338,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
             escPosSetBold(out, false);
             escPosFeedLines(out, 1);
 
-            for (TvaEmbeded tva : sale.getTvaEmbededs()) {
+            for (TvaEmbeded tva : getTvaTicket()) {
                 escPosPrintLine(out, String.format("%-37s %10s", "TVA " + tva.getTva() + "%",
                     NumberUtil.formatToString(tva.getAmount())));
             }

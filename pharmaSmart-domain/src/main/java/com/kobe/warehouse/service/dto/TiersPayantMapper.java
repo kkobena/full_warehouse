@@ -22,6 +22,7 @@ public interface TiersPayantMapper {
             .setName(tiersPayant.getName())
             .setFullName(tiersPayant.getFullName())
             .setNcc(tiersPayant.getNcc())
+            .setTauxCouvertureDefaut(tiersPayant.getTauxCouvertureDefaut())
             .setAdresse(tiersPayant.getAdresse())
             .setCategorie(tiersPayant.getCategorie())
             .setStatut(tiersPayant.getStatut())
@@ -87,6 +88,7 @@ public interface TiersPayantMapper {
     private TiersPayant mapDtoToEntity(TiersPayantDto dto, TiersPayant entity) {
         entity
             .setNcc(dto.getNcc())
+            .setTauxCouvertureDefaut(dto.getTauxCouvertureDefaut())
             .setName(dto.getName())
             .setFullName(dto.getFullName())
             .setAdresse(dto.getAdresse())

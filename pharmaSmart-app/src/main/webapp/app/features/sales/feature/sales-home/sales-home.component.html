@@ -22,7 +22,7 @@
 <!-- Interface principale Point de Vente -->
 <div class="pharma-sales-layout">
   <!-- HEADER TOOLBAR - Actions principales -->
-  <div [class.presale-mode]="isPresaleMode()" [ngClass]="devisThemeClass()"
+  <div [class.normal-mode]="!isPresaleMode() && !isDevisMode()" [class.presale-mode]="isPresaleMode()" [ngClass]="devisThemeClass()"
        class="pharma-sales-header">
     <div class="header-left">
       <!-- Bouton retour -->

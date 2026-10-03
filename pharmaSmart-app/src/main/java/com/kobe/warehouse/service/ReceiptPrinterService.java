@@ -6,6 +6,7 @@ import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.receipt.service.AssuranceSaleReceiptService;
 import com.kobe.warehouse.service.receipt.service.CashSaleReceiptService;
+import com.kobe.warehouse.service.receipt.service.TicketNonRembourseBuilder;
 import com.kobe.warehouse.service.receipt.service.VenteDepotReceiptService;
 import java.io.IOException;
 import javax.print.PrintService;
@@ -38,6 +39,9 @@ public class ReceiptPrinterService {
 
     public void printVoSale(ThirdPartySaleDTO thirdPartySale, boolean isEdit) {
         this.assuranceSaleReceiptService.printReceipt(null, thirdPartySale, isEdit);
+        TicketNonRembourseBuilder
+            .construire(thirdPartySale)
+            .ifPresent(ticket -> this.cashSaleReceiptService.printReceipt(null, ticket, true, TicketNonRembourseBuilder.TITRE));
     }
 
     private PrintService findPrintService() {
@@ -53,7 +57,19 @@ public class ReceiptPrinterService {
     }
 
     public byte[] generateEscPosReceipt(ThirdPartySaleDTO thirdPartySale, boolean isEdit) throws IOException {
-        return this.assuranceSaleReceiptService.generateEscPosReceiptForTauri(thirdPartySale, isEdit);
+        byte[] ticketAssurance = this.assuranceSaleReceiptService.generateEscPosReceiptForTauri(thirdPartySale, isEdit);
+        var ticketNonRembourse = TicketNonRembourseBuilder.construire(thirdPartySale);
+        if (ticketNonRembourse.isEmpty()) {
+            return ticketAssurance;
+        }
+        byte[] second = this.cashSaleReceiptService.generateEscPosReceiptForTauri(
+            ticketNonRembourse.get(),
+            true,
+            TicketNonRembourseBuilder.TITRE
+        );
+        byte[] tout = java.util.Arrays.copyOf(ticketAssurance, ticketAssurance.length + second.length);
+        System.arraycopy(second, 0, tout, ticketAssurance.length, second.length);
+        return tout;
     }
 
     public byte[] generateEscPosReceipt(DepotExtensionSaleDTO depotExtensionSaleDTO, boolean isEdit) throws IOException {

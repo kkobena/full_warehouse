@@ -112,6 +112,15 @@ public class SalesManagerImpl implements SalesManager {
 
     @Override
     @Transactional(noRollbackFor = {PlafondVenteException.class})
+    public SaleLineDTO updateItemNonRembourse(SaleLineDTO saleLineDTO, Sales sales) {
+        SalesLine salesLine = getOneSalesLine(saleLineDTO);
+        salesLine.setNonRembourse(saleLineDTO.isNonRembourse());
+        finalizeSaleUpdate(sales);
+        return new SaleLineDTO(salesLine);
+    }
+
+    @Override
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO addOrUpdateSaleLine(SaleLineDTO dto, Sales sales) {
         Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleCompositeId(), dto.getProduitId());
         int storageId = storageService.getDefaultConnectedUserMainStorage().getId();

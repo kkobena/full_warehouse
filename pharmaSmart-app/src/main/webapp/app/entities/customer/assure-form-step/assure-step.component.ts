@@ -4,6 +4,7 @@ import TranslateDirective from '../../../shared/language/translate.directive';
 import {Customer, ICustomer} from '../../../shared/model/customer.model';
 import {IClientTiersPayant, ITiersPayant} from '../../../shared/model';
 import {TiersPayantService} from '../../tiers-payant/tierspayant.service';
+import {CustomerService} from '../customer.service';
 import {HttpResponse} from '@angular/common/http';
 import {AssureFormStepService} from './assure-form-step.service';
 import {CommonService} from './common.service';
@@ -14,7 +15,7 @@ import {showCommonModal} from '../../sales/selling-home/sale-helper';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {FormTiersPayantComponent} from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
 import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {finalize, takeUntil} from 'rxjs/operators';
 import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
 import {ISO_TO_NGB_DATE, NGB_DATE_TO_ISO} from '../../../shared/util/warehouse-util';
 import {
@@ -64,6 +65,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
   commonService = inject(CommonService);
   assureFormStepService = inject(AssureFormStepService);
   firstName = viewChild.required<ElementRef>('firstName');
+  private readonly numInput = viewChild<ElementRef>('numInput');
   complementaireStepComponent = viewChild<ComplementaireStepComponent>('complementaireStep');
   fb = inject(UntypedFormBuilder);
   editForm = this.fb.group({
@@ -72,7 +74,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
     lastName: [null, [Validators.required]],
     tiersPayantId: [null, [Validators.required]],
     taux: [null, [Validators.required, Validators.min(0), Validators.max(100)]],
-    num: [null, [Validators.required]],
+    num: [null, [Validators.required, (c: any) => this.erreurNumeroUtilise(c)]],
     dateFinValidite: [null],
     phone: [],
     email: [],
@@ -82,6 +84,15 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
     remiseId: [],
   });
   readonly tiersPayantService = inject(TiersPayantService);
+  private readonly customerService = inject(CustomerService);
+  /** Recherche d'organisme en cours : sans retour visuel, la saisie paraît bloquée. */
+  protected readonly chargementTiersPayants = signal(false);
+  /** Dossiers de même nom et prénom : un avertissement, jamais un blocage. */
+  protected readonly homonymes = signal<string[]>([]);
+  /** Dernier numéro refusé par le contrôle anticipé (organisme, numéro, dossier en cause). */
+  private refusNumero: { tiersPayantId: number; num: string; titulaire: string } | null = null;
+  /** Dernier trio nom, prénom, matricule refusé : un client identique existe déjà. */
+  private refusIdentite: { firstName: string; lastName: string; num: string; titulaire: string } | null = null;
   readonly modalService = inject(NgbModal);
   private destroy$ = new Subject<void>();
 
@@ -104,12 +115,59 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
     this.focusAndInitComplementaire(this.firstName().nativeElement, this.assureFormStepService.assure());
   }
 
+  /**
+   * Contrôle anticipé, à la sortie des champs nom, prénom et numéro : le numéro de carte déjà utilisé
+   * pour cet organisme (avec le nom du dossier en cause) et les homonymes sont signalés AVANT d'avoir
+   * rempli le reste du formulaire, plutôt qu'au rejet de l'enregistrement.
+   */
+  protected controlerSaisie(): void {
+    const valeur = this.editForm.value;
+    const tiersPayantId = valeur.tiersPayantId?.id;
+    const num = (valeur.num ?? '').toString().trim();
+    const firstName = (valeur.firstName ?? '').toString().trim();
+    const lastName = (valeur.lastName ?? '').toString().trim();
+    if (!(tiersPayantId && num) && !(firstName && lastName)) {
+      return;
+    }
+    this.customerService
+      .controlerAssure({tiersPayantId, num, firstName, lastName, excludeId: valeur.id ?? undefined})
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: controle => {
+          this.homonymes.set(controle.homonymes ?? []);
+          this.refusNumero = controle.numeroDejaUtilise ? {tiersPayantId, num, titulaire: controle.titulaireDuNumero ?? ''} : null;
+          this.refusIdentite = controle.dossierExistant ? {firstName, lastName, num, titulaire: controle.titulaireDuDossier ?? ''} : null;
+          this.editForm.get('num')?.updateValueAndValidity();
+        },
+        // Le contrôle est une aide : son échec ne doit jamais empêcher la saisie (le serveur contrôle à l'enregistrement).
+        error: () => this.homonymes.set([])
+      });
+  }
+
+  private erreurNumeroUtilise(champ: any): {numeroUtilise?: string; dossierExistant?: string} | null {
+    const num = (champ.value ?? '').toString().trim();
+    const refus = this.refusNumero;
+    const tiersPayantId = champ.parent?.get('tiersPayantId')?.value?.id;
+    const erreurs: {numeroUtilise?: string; dossierExistant?: string} = {};
+    if (refus && refus.tiersPayantId === tiersPayantId && refus.num === num) {
+      erreurs.numeroUtilise = refus.titulaire;
+    }
+    const identite = this.refusIdentite;
+    const nom = (champ.parent?.get('firstName')?.value ?? '').toString().trim();
+    const prenom = (champ.parent?.get('lastName')?.value ?? '').toString().trim();
+    if (identite && identite.num === num && identite.firstName.toLowerCase() === nom.toLowerCase() && identite.lastName.toLowerCase() === prenom.toLowerCase()) {
+      erreurs.dossierExistant = identite.titulaire;
+    }
+    return Object.keys(erreurs).length > 0 ? erreurs : null;
+  }
+
   searchTiersPayant(query: string): void {
     this.loadTiersPayants(query);
   }
 
   loadTiersPayants(search?: string): void {
     const query: string = search || '';
+    this.chargementTiersPayants.set(true);
 
     this.tiersPayantService
       .query({
@@ -118,7 +176,10 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
         type: this.commonService.categorie(),
         search: query,
       })
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        finalize(() => this.chargementTiersPayants.set(false)),
+        takeUntil(this.destroy$)
+      )
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         const alreadyAddedIds = this.tiersPayantAlreadyAdded().map(tp => tp.tiersPayantId ?? tp.tiersPayant?.id);
         this.tiersPayants.set(res.body.filter(tp => !alreadyAddedIds.includes(tp.id)));
@@ -140,7 +201,30 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       this.tiersPayant = tiersPayant;
       this.commonService.setCategorieTiersPayant(this.tiersPayant.categorie);
       this.addToAlreadyAdded(tiersPayant);
+      this.suggererTaux(tiersPayant);
+      this.controlerSaisie();
+      this.focaliserNumero();
     }
+  }
+
+  /** Taux standard proposé quand l'organisme en a un ET que le champ est vide : une valeur déjà saisie n'est jamais écrasée. */
+  protected tauxSuggere = signal<number | null>(null);
+
+  private suggererTaux(tiersPayant: ITiersPayant): void {
+    const taux = tiersPayant.tauxCouvertureDefaut;
+    const champ = this.editForm.get('taux');
+    if (taux != null && champ && (champ.value === null || champ.value === '')) {
+      champ.patchValue(taux);
+      this.tauxSuggere.set(taux);
+    } else {
+      this.tauxSuggere.set(null);
+    }
+  }
+
+  /** Le numéro de carte se saisit juste après l'organisme : le curseur s'y place sans passer par la souris. */
+  private focaliserNumero(): void {
+    // Après la fermeture de la liste de recherche, qui reprend le focus au moment de la sélection.
+    setTimeout(() => this.numInput()?.nativeElement.focus());
   }
 
   private addToAlreadyAdded(tiersPayant: ITiersPayant): void {
@@ -179,12 +263,14 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
         entity: null,
         categorie: this.assureFormStepService.typeAssure(),
         title: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
+        modeExpress: true,
       },
       (resp: ITiersPayant) => {
         if (resp) {
           this.tiersPayants().push(resp);
           this.editForm.patchValue({tiersPayantId: resp});
           this.addToAlreadyAdded(resp);
+          this.focaliserNumero();
         }
       },
       'xl',

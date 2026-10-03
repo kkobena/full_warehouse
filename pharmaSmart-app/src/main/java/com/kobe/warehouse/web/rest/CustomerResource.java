@@ -34,6 +34,7 @@ import com.kobe.warehouse.service.customer.CustomerSyntheseDTO;
 import com.kobe.warehouse.service.customer.ProduitDelivreDTO;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereDTO;
 import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereWrapperDTO;
+import com.kobe.warehouse.service.dto.ControleClientDTO;
 import com.kobe.warehouse.service.dto.CustomerDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
@@ -184,6 +185,20 @@ public class CustomerResource {
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
+    }
+
+    /**
+     * Contrôle anticipé de la création d'un client comptant : le client identique qui la bloquerait
+     * (avec de quoi le sélectionner) et les clients voisins à signaler. Appelé avant l'enregistrement.
+     */
+    @GetMapping("/customers/uninsured/controle")
+    public ResponseEntity<ControleClientDTO> controlerUninsuredCustomer(
+        @RequestParam(value = "phone", required = false) String phone,
+        @RequestParam(value = "firstName", required = false) String firstName,
+        @RequestParam(value = "lastName", required = false) String lastName,
+        @RequestParam(value = "excludeId", required = false) Integer excludeId
+    ) {
+        return ResponseEntity.ok(uninsuredCustomerService.controler(phone, firstName, lastName, excludeId));
     }
 
     @GetMapping("/customers/uninsured")

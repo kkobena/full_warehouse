@@ -74,6 +74,27 @@ class TiersPayantCalculationServiceTest {
     }
 
     @Test
+    void testCalculate_withLigneNonRembourse_tiersPayantNePrendRienEnCharge() {
+        CalculationInput input = createBasicInput(1000, NatureVente.ASSURANCE);
+        SaleItemInput remboursee = input.getSaleItems().getFirst();
+
+        SaleItemInput nonRemboursee = new SaleItemInput();
+        nonRemboursee.setSalesLineId(2L);
+        nonRemboursee.setRegularUnitPrice(new BigDecimal("500"));
+        nonRemboursee.setQuantity(1);
+        nonRemboursee.setTotalSalesAmount(new BigDecimal("500"));
+        nonRemboursee.setNonRembourse(true);
+        input.setSaleItems(List.of(remboursee, nonRemboursee));
+        input.setTotalSalesAmount(new BigDecimal("1500"));
+        input.setTiersPayants(Collections.singletonList(createTiersPayant(1, 0.8f, PrioriteTiersPayant.R0)));
+
+        CalculationResult result = serviceV2.calculate(input);
+
+        assertEquals(new BigDecimal("800"), result.getTotalTiersPayant(), "80 % de la seule ligne remboursée");
+        assertEquals(new BigDecimal("700"), result.getTotalPatientShare(), "200 de ticket modérateur + 500 de ligne non remboursée");
+    }
+
+    @Test
     void testCalculate_withDiscount_appliedCorrectly() {
         CalculationInput input = createBasicInput(1000, NatureVente.ASSURANCE);
 

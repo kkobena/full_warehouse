@@ -40,8 +40,8 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 .pharma-table-header-compact {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 6px 10px;
+  gap: 10px;
+  padding: 4px 8px;
   background: linear-gradient(to bottom, #f8f9fa, #ffffff);
   border-bottom: 2px solid #e9ecef;
   flex-wrap: wrap;
@@ -66,8 +66,8 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
   .pharma-search-input {
     width: 100%;
-    height: 42px;
-    padding: 10px 12px 10px 38px;
+    height: 32px;
+    padding: 4px 10px 4px 34px;
     border: 1px solid $pharma-border;
     border-radius: 8px;
     font-size: 14px;
@@ -97,7 +97,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 // ====================================
 .pharma-divider {
   width: 1px;
-  height: 40px;
+  height: 26px;
   background: linear-gradient(to bottom, transparent, #dee2e6, transparent);
   flex-shrink: 0;
 }
@@ -116,8 +116,8 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 .pharma-remise-info {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
+  gap: 6px;
+  padding: 2px 10px;
   background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
   border: 1px solid #ffb300;
   border-radius: 8px;
@@ -213,14 +213,14 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 24px;
-  height: 24px;
+  min-width: 20px;
+  height: 20px;
   background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
   border-radius: 50%;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 11px;
   color: #495057;
-  padding: 0 6px;
+  padding: 0 5px;
 }
 
 // Code produit
@@ -228,8 +228,8 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   font-family: 'Courier New', monospace;
   font-weight: 600;
   color: $pharma-primary;
-  font-size: 13px;
-  padding: 4px 4px;
+  font-size: 12px;
+  padding: 0 4px;
   background: #e3f2fd;
   border-radius: 3px;
   display: inline-block;
@@ -237,9 +237,9 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
 // Nom du produit
 .pharma-product-name {
-  font-size: 14px;
+  font-size: 13px;
   color: $pharma-text;
-  line-height: 1.4;
+  line-height: 1.2;
   font-weight: 500;
 }
 
@@ -247,21 +247,26 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 .pharma-qty-value {
   font-weight: 600;
   color: $pharma-primary;
-  font-size: 14px;
+  font-size: 13px;
+}
+
+// Quantité servie inférieure à la demandée : le stock n'a pas couvert la demande
+.pharma-qty-value.qty-insuffisante {
+  color: #dc3545;
 }
 
 // Prix
 .pharma-price {
   font-weight: 600;
   color: #495057;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 // Total
 .pharma-total {
   font-weight: 700;
   color: $pharma-success;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 // ====================================
@@ -269,13 +274,14 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 // ====================================
 .pharma-input-qty,
 .pharma-input-price {
-  width: 90px !important;
+  width: 80px !important;
+  height: 26px;
   text-align: center;
   border: 2px solid $pharma-primary;
   border-radius: $pharma-radius;
   font-weight: 600;
-  padding: 6px;
-  font-size: 14px;
+  padding: 0 6px;
+  font-size: 13px;
 
   &:focus {
     border-color: $pharma-success;
@@ -314,13 +320,13 @@ td.text-right app-editable-cell {
   color: $pharma-primary;
 
   i {
-    font-size: 16px;
-    margin-right: 8px;
+    font-size: 13px;
+    margin-right: 4px;
   }
 
   span {
     font-weight: 700;
-    font-size: 14px;
+    font-size: 12px;
     text-transform: uppercase;
   }
 }
@@ -328,13 +334,13 @@ td.text-right app-editable-cell {
 .pharma-footer-value {
   font-weight: 700;
   color: $pharma-primary;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .pharma-footer-total {
   font-weight: 700;
   color: $pharma-success;
-  font-size: 18px;
+  font-size: 15px;
 }
 
 // ====================================
@@ -560,5 +566,272 @@ td.text-right app-editable-cell {
 
   ::ng-deep app-button {
     display: none;
+  }
+}
+
+// ====================================
+// CORRECTION AU CLAVIER, QUANTITÉS, PRIX NÉGOCIÉ, ACTIONS
+// ====================================
+
+// La ligne qui a le focus clavier se voit : on pilote le panier sans souris.
+.pharma-table tbody tr:focus-visible,
+.product-list-container tr[data-line-id]:focus-visible {
+  outline: 2px solid var(--p-primary-color, #{$pharma-primary});
+  outline-offset: -2px;
+}
+
+.product-list-container:focus {
+  outline: none;
+}
+
+// Quantités servie / demandée côte à côte, seulement quand elles diffèrent.
+.qty-double {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: $pharma-danger;
+
+  .qty-sep {
+    color: $pharma-text-light;
+  }
+
+  .pharma-qty-value {
+    font-weight: 700;
+  }
+}
+
+// Prix négocié, en sous-titre du PU : vert quand il est plus bas que le prix public, orange sinon.
+.pu-cell {
+  .prix-sous-titre {
+    display: block;
+    margin: 0 0 0 auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-size: 0.7rem;
+    line-height: 1.1;
+    cursor: pointer;
+    text-decoration: underline dotted;
+    color: $pharma-text-light;
+  }
+
+  .prix-negocie-bas {
+    color: $pharma-success;
+  }
+
+  .prix-negocie-haut {
+    color: #c77700;
+  }
+
+  .prix-taux {
+    color: $pharma-info;
+  }
+
+  // Ancre du détail de prix quand il n'y a rien à afficher en sous-titre : sans taille, atteinte par Espace.
+  .prix-anchor--muet {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+}
+
+.prix-negocie-bas {
+  color: $pharma-success;
+}
+
+.prix-negocie-haut {
+  color: #c77700;
+}
+
+.prix-popover-content {
+  min-width: 260px;
+}
+
+.prix-popover-titre {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.prix-popover-sous-titre {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: $pharma-text-light;
+}
+
+.prix-popover-liste {
+  margin: 0;
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 2px 0;
+  }
+
+  dt {
+    font-weight: 400;
+    color: $pharma-text-light;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+// Actions : cibles de 40 px minimum, pour l'écran tactile du comptoir.
+.actions-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.actions-ligne {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+:host ::ng-deep .btn-action {
+  min-width: 30px;
+  min-height: 30px;
+  padding: 0;
+}
+
+// Popover de remise au clavier : l'élément qui a le focus est visible.
+.remise-popover-item:focus-visible {
+  outline: 2px solid $pharma-primary;
+  outline-offset: -2px;
+  background: rgba($pharma-primary, 0.08);
+}
+
+// Un accent discret par type de vente : en assurance et carnet, l'œil est attendu sur le prix négocié.
+.product-list--assurance .pharma-table-header-compact {
+  border-bottom-color: $pharma-primary;
+}
+
+.product-list--carnet .pharma-table-header-compact {
+  border-bottom-color: $pharma-info;
+}
+
+// ====================================
+// RETOUCHES : chevron, détail de prix, touches du menu
+// ====================================
+
+// Le bouton « ⋮ » ouvre un menu : le chevron que Bootstrap ajoute à `.dropdown-toggle` le doublait.
+.actions-ligne .dropdown-toggle::after {
+  display: none;
+}
+
+// Le contenu du popover de détail de prix ne colle plus à ses bords.
+.prix-popover-content {
+  padding: 0.25rem 0.75rem 0.5rem 0.5rem;
+}
+
+// Touches du menu d'actions : un rappel discret, pas un bloc noir.
+.dropdown-item kbd {
+  margin-left: 0.75rem;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background: #f1f3f5;
+  color: #495057;
+  box-shadow: none;
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.dropdown-item:hover kbd,
+.dropdown-item:focus kbd {
+  background: #ffffff;
+  border-color: #adb5bd;
+}
+
+
+// ====================================
+// TABLEAU COMPACT
+// Les éléments ci-dessous viennent de CE gabarit (lignes, titres, pied) : ils portent son encapsulation.
+// Les règles `.pharma-table …` plus haut ne visent aucun élément — la classe n'existe pas — d'où ce bloc.
+// ====================================
+.product-list-container {
+  tr[data-line-id] > td {
+    padding: 2px 8px;
+    vertical-align: middle;
+    line-height: 1.2;
+  }
+
+  .pharma-table-head th {
+    padding: 4px 8px;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  // Pied : une seule ligne fine de totaux.
+  .pharma-table-footer td {
+    padding: 2px 8px;
+    line-height: 1.2;
+  }
+
+  .pharma-table-footer {
+    border-top: 1px solid #dee2e6;
+  }
+}
+
+// Section pagination : toujours visible, mais sur une ligne fine (compteur, pages, lignes par page).
+// Elle appartient à app-data-table (autre encapsulation), d'où ::ng-deep.
+.product-list-container ::ng-deep .app-table__paginator {
+  padding: 2px 8px;
+  gap: 8px;
+  font-size: 12px;
+
+  .pagination {
+    margin: 0;
+  }
+
+  .page-link {
+    padding: 1px 8px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .app-table__page-size {
+    min-width: 64px;
+  }
+}
+
+// Ligne exclue du remboursement : le patient la règle en totalité
+.product-list-container tr.ligne-non-remboursee > td {
+  background: #fff8e8;
+}
+
+.product-list-container tr.ligne-non-remboursee .pharma-product-name {
+  font-style: italic;
+}
+
+// Lots prélevés, sous le libellé
+.product-list-container .lots-ligne {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  font-size: 11px;
+  line-height: 1.2;
+  color: #6c757d;
+  white-space: pre-line;
+
+  .lot-proche {
+    color: #8a5a00;
+    font-weight: 600;
+  }
+
+  .lot-perime {
+    color: #b02a37;
+    font-weight: 600;
+  }
+
+  .lots-reste {
+    font-weight: 600;
   }
 }

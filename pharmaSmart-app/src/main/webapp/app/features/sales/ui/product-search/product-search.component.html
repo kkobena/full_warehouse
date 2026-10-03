@@ -25,6 +25,12 @@
       </span>
       <span [class.stockless]="item.totalQuantity <= 0" class="product-name">
         {{ item.libelle }}
+        <app-produit-badges [peremptionDate]="item.peremptionDate" [peremptionLot]="item.peremptionLot" [statutLegal]="item.statutLegal" [typeGenerique]="item.typeGenerique" />
+        @if (item.dci || item.forme) {
+          <small class="product-identite">
+            {{ item.dci }}@if (item.dosage) { {{ item.dosage }} }@if (item.forme) { · {{ item.forme }} }
+          </small>
+        }
       </span>
       <span class="product-item-right">
       <span

@@ -1,5 +1,9 @@
 <div class="modal-header">
-  <h4 class="modal-title">{{ title }}</h4>
+  <h4 class="modal-title">{{ title }}
+    @if (libelleCategorie) {
+      <app-badge [label]="libelleCategorie" severity="info" class="ms-2 align-middle" data-testid="categorie-tiers-payant" />
+    }
+  </h4>
   <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">&times;</button>
 </div>
 
@@ -8,7 +12,8 @@
     <input formControlName="id" id="id" name="id" type="hidden" />
 
     <!-- Two Column Layout: Champs Obligatoires and Informations Générales -->
-    <div class="card-grid-2col">
+    <!-- En création express, la section « Informations générales » est absente : « Champs obligatoires » prend toute la largeur. -->
+    <div [class.une-colonne]="modeExpress" class="card-grid-2col">
       <!-- Section 1: Champs Obligatoires -->
       <app-card [variant]="'form'" [withHeader]="true">
         <div ngProjectAs="[cardHeader]" class="section-header section-header-required">
@@ -73,7 +78,7 @@
 
           <!-- Email -->
           <div class="form-field form-field-full">
-            <label for="email">Email <span class="required">*</span></label>
+            <label for="email">Email</label>
             <input
               [class.ng-invalid]="editForm.get('email')?.invalid && editForm.get('email')?.touched"
               autocomplete="off"
@@ -83,9 +88,6 @@
               type="email"
             />
             @if (editForm.get('email')?.invalid && editForm.get('email')?.touched) {
-              @if (editForm.get('email')?.errors?.required) {
-                <small class="form-text text-danger">Ce champ est obligatoire</small>
-              }
               @if (editForm.get('email')?.errors?.email) {
                 <small class="form-text text-danger">Adresse email invalide</small>
               }
@@ -95,6 +97,7 @@
       </app-card>
 
       <!-- Section 2: Informations Générales -->
+      @if (!modeExpress) {
       <app-card [variant]="'form'" [withHeader]="true">
         <div ngProjectAs="[cardHeader]" class="section-header">
           <i class="pi pi-info-circle"></i>
@@ -107,12 +110,16 @@
             <label for="ncc">Identifiant contribuable</label>
             <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control" formControlName="ncc"
                    id="ncc" />
+            <small class="form-text text-muted">Numéro de compte contribuable : identifiant fiscal unique de l'organisme (lettres et chiffres).</small>
           </div>
 
           <!-- Groupe tiers-payant -->
           <div class="form-field form-field-full">
             <label for="groupeTiersPayantId">Groupe tiers-payant</label>
-            <app-select
+            <app-select-search
+              (searched)="rechercherGroupes($event)"
+              [typeahead]="saisieGroupe$"
+              [openWhenEmpty]="true"
               appendTo="body"
               [clearable]="false"
               [items]="groupeTiersPayants()"
@@ -120,7 +127,7 @@
               bindValue="id"
               formControlName="groupeTiersPayantId"
               inputId="groupeTiersPayantId"
-              placeholder="Sélectionner un groupe"
+              placeholder="Taper pour rechercher un groupe"
             />
           </div>
 
@@ -129,13 +136,24 @@
             <label for="codeOrganisme">Code organisme</label>
             <input [appKeyFilter]="'alphanum'" autocomplete="off" class="form-control"
                    formControlName="codeOrganisme" id="codeOrganisme" />
+            <small class="form-text text-muted">Code attribué à l'organisme (lettres et chiffres), distinct de l'identifiant contribuable.</small>
           </div>
         </div>
       </app-card>
+      }
     </div>
 
+    @if (modeExpress) {
+      <p class="text-muted small mt-2 mb-0" data-testid="aide-mode-express">
+        <i class="pi pi-info-circle me-1"></i>
+        Le paramétrage de la facturation, des plafonds et des remises se complète ensuite depuis la gestion des tiers payants.
+      </p>
+    }
+
+    @if (!modeExpress) {
     <!-- Three Column Layout: Paramètres de Facturation, Plafonds et Remises, and Plafonds Clients -->
-    <div class="card-grid-3col mt-2">
+    <!-- « Plafonds Clients » n'existe que pour ASSURANCE : sans elle, les deux autres sections se partagent la largeur. -->
+    <div [class.deux-colonnes]="categorie !== 'ASSURANCE'" class="card-grid-3col mt-2">
       <!-- Section 3: Paramètres de Facturation -->
       <app-card [variant]="'form'" [withHeader]="true">
         <div ngProjectAs="[cardHeader]" class="section-header">
@@ -147,19 +165,19 @@
           <!-- Délai de règlement -->
           <div class="form-field form-field-full">
             <label for="delaiReglement">Délai de règlement (jours)</label>
-            <app-input-number [min]="0" formControlName="delaiReglement" inputId="delaiReglement" />
+            <app-input-number [min]="0" suffix=" jours" formControlName="delaiReglement" inputId="delaiReglement" />
           </div>
 
           <!-- Nombre maxi de bordereau -->
           <div class="form-field form-field-full">
             <label for="nbreBordereaux">Nombre maxi de bordereau par facture</label>
-            <app-input-number formControlName="nbreBordereaux" inputId="nbreBordereaux" />
+            <app-input-number [min]="1" formControlName="nbreBordereaux" inputId="nbreBordereaux" />
           </div>
 
           <!-- Montant maxi par facture -->
           <div class="form-field form-field-full">
             <label for="montantMaxParFcture">Montant maxi par facture</label>
-            <app-input-number formControlName="montantMaxParFcture" inputId="montantMaxParFcture" />
+            <app-input-number [min]="0" [suffix]="devise" formControlName="montantMaxParFcture" inputId="montantMaxParFcture" />
           </div>
 
           <!-- Modèle de facture -->
@@ -268,13 +286,26 @@
           <!-- Remise forfaitaire -->
           <div class="form-field form-field-full">
             <label for="remiseForfaitaire">Remise forfaitaire</label>
-            <app-input-number formControlName="remiseForfaitaire" inputId="remiseForfaitaire" />
+            <app-input-number [min]="0" [suffix]="devise" formControlName="remiseForfaitaire" inputId="remiseForfaitaire" />
           </div>
+
+          @if (categorie !== 'DEPOT') {
+            <!-- Taux de couverture par défaut : suggéré à la saisie d'un assuré, jamais imposé -->
+            <div class="form-field form-field-full">
+              <label for="tauxCouvertureDefaut">Taux de couverture par défaut</label>
+              <app-input-number [min]="0" [max]="100" suffix=" %" formControlName="tauxCouvertureDefaut"
+                                inputId="tauxCouvertureDefaut" />
+              <small class="form-text text-muted">Proposé à la création d'un assuré de cet organisme ; modifiable pour un cas particulier.</small>
+              @if (editForm.get('tauxCouvertureDefaut')?.invalid) {
+                <small class="form-text text-danger">Le taux doit être entre 0 et 100</small>
+              }
+            </div>
+          }
 
           <!-- Plafond consommation -->
           <div class="form-field form-field-full">
             <label for="plafondConso">Plafond consommation</label>
-            <app-input-number formControlName="plafondConso" inputId="plafondConso" />
+            <app-input-number [min]="0" [suffix]="devise" formControlName="plafondConso" inputId="plafondConso" />
           </div>
 
           <!-- Plafond absolu -->
@@ -297,14 +328,14 @@
             <!-- Plafond de vente des clients -->
             <div class="form-field form-field-full">
               <label for="plafondJournalierClient">Plafond de vente des clients</label>
-              <app-input-number formControlName="plafondJournalierClient"
+              <app-input-number [min]="0" [suffix]="devise" formControlName="plafondJournalierClient"
                                 inputId="plafondJournalierClient" />
             </div>
 
             <!-- Plafond consommation des clients -->
             <div class="form-field form-field-full">
               <label for="plafondConsoClient">Plafond consommation des clients</label>
-              <app-input-number formControlName="plafondConsoClient" inputId="plafondConsoClient" />
+              <app-input-number [min]="0" [suffix]="devise" formControlName="plafondConsoClient" inputId="plafondConsoClient" />
             </div>
 
             <!-- Plafond absolu client -->
@@ -316,6 +347,7 @@
         </app-card>
       }
     </div>
+    }
   </div>
 
   <div class="form-actions-compact">

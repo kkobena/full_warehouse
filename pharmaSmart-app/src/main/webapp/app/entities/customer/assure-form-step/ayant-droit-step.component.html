@@ -1,108 +1,103 @@
 <form [formGroup]="editForm" name="editForm">
-  <input formControlName="id" id="id" name="id" type="hidden" />
-
-  <!-- Two Column Layout for Main Sections -->
-  <div class="card-grid-2col">
-    <!-- Section 1: Champs Obligatoires -->
-    <app-card [variant]="'form'" [withHeader]="true">
-      <div ngProjectAs="[cardHeader]" class="section-header section-header-required">
-          <i class="pi pi-exclamation-circle"></i>
-          <span>Champs Obligatoires</span>
-        </div>
-
-      <div class="form-grid-compact">
-        <!-- Nom -->
-        <div class="form-field form-field-full">
-          <label for="field_firstName">Nom <span class="required">*</span></label>
-          <input
-            #firstName
-            id="field_firstName"
-            formControlName="firstName"
-            class="form-control"
-            autocomplete="off"
-            [class.ng-invalid]="editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched"
-          />
-          @if (editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched) {
-            @if (editForm.get('firstName')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+  <div formArrayName="ayantDroits">
+    @for (ligne of lignes.controls; track ligne; let i = $index) {
+      <div [formGroupName]="i" class="mb-2" [attr.data-testid]="'ayant-droit-' + i">
+        <app-card [variant]="'form'" [withHeader]="true">
+          <div ngProjectAs="[cardHeader]" class="section-header d-flex align-items-center justify-content-between w-100">
+            <span><i class="pi pi-user me-2"></i>{{ libelleLigne(i) }}</span>
+            @if (lignes.length > 1 || ligne.dirty) {
+              <app-button (clicked)="supprimer(i)" [rounded]="true" [text]="true" icon="pi pi-trash"
+                          severity="danger" size="small" type="button" aria-label="Retirer cet ayant droit" />
             }
-          }
-        </div>
-
-        <!-- Prénom(s) -->
-        <div class="form-field form-field-full">
-          <label for="field_lastName">Prénom(s) <span class="required">*</span></label>
-          <input
-            id="field_lastName"
-            formControlName="lastName"
-            class="form-control"
-            autocomplete="off"
-            [class.ng-invalid]="editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched"
-          />
-          @if (editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched) {
-            @if (editForm.get('lastName')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
-            }
-          }
-        </div>
-
-        <!-- Numéro assuré -->
-        <div class="form-field form-field-full">
-          <label for="field_numAyantDroit">Numéro assuré <span class="required">*</span></label>
-          <input
-            [appKeyFilter]="'alphanum'"
-            id="field_numAyantDroit"
-            formControlName="numAyantDroit"
-            class="form-control"
-            autocomplete="off"
-            [class.ng-invalid]="editForm.get('numAyantDroit')?.invalid && editForm.get('numAyantDroit')?.touched"
-          />
-          @if (editForm.get('numAyantDroit')?.invalid && editForm.get('numAyantDroit')?.touched) {
-            @if (editForm.get('numAyantDroit')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
-            }
-          }
-        </div>
-      </div>
-    </app-card>
-
-    <!-- Section 2: Informations Complémentaires -->
-    <app-card [variant]="'form'" [withHeader]="true">
-      <div ngProjectAs="[cardHeader]" class="section-header">
-          <i class="pi pi-user"></i>
-          <span>Informations Complémentaires</span>
-        </div>
-
-      <div class="form-grid-compact">
-        <!-- Date de naissance -->
-        <div class="form-field form-field-full">
-          @let datNaiss = editForm.get('datNaiss');
-          <label for="field_datNaiss">Date de naissance</label>
-          <input
-            jhiDateNaiss
-            id="field_datNaiss"
-            formControlName="datNaiss"
-            placeholder="jj/mm/aaaa"
-            class="form-control"
-            [class.ng-invalid]="datNaiss?.invalid && datNaiss?.touched"
-          />
-          @if (datNaiss?.invalid && datNaiss?.touched) {
-            @let errors = datNaiss?.errors;
-            @if (errors?.invalidDate || errors?.outOfRange) {
-              <small class="form-text text-danger">Veuillez saisir une date valide</small>
-            }
-          }
-        </div>
-
-        <!-- Sexe -->
-        <div class="form-field form-field-full">
-          <label>Sexe</label>
-          <div class="radio-group">
-            <app-radio formControlName="sexe" name="sexe" [value]="'M'" [inline]="true" label="Masculin" />
-            <app-radio formControlName="sexe" name="sexe" [value]="'F'" [inline]="true" label="Feminin" />
           </div>
-        </div>
+
+          <div class="card-grid-2col">
+            <div class="form-grid-compact">
+              <!-- Nom -->
+              <div class="form-field form-field-full">
+                <label [for]="'field_firstName_' + i">Nom <span class="required">*</span></label>
+                <input
+                  [id]="'field_firstName_' + i"
+                  formControlName="firstName"
+                  class="form-control"
+                  autocomplete="off"
+                  [class.ng-invalid]="ligne.get('firstName')?.invalid && ligne.get('firstName')?.touched"
+                />
+                @if (ligne.get('firstName')?.invalid && ligne.get('firstName')?.touched) {
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+                }
+              </div>
+
+              <!-- Prénom(s) -->
+              <div class="form-field form-field-full">
+                <label [for]="'field_lastName_' + i">Prénom(s) <span class="required">*</span></label>
+                <input
+                  [id]="'field_lastName_' + i"
+                  formControlName="lastName"
+                  class="form-control"
+                  autocomplete="off"
+                  [class.ng-invalid]="ligne.get('lastName')?.invalid && ligne.get('lastName')?.touched"
+                />
+                @if (ligne.get('lastName')?.invalid && ligne.get('lastName')?.touched) {
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+                }
+              </div>
+
+              <!-- Numéro assuré -->
+              <div class="form-field form-field-full">
+                <label [for]="'field_numAyantDroit_' + i">Numéro assuré <span class="required">*</span></label>
+                <input
+                  [appKeyFilter]="'alphanum'"
+                  [id]="'field_numAyantDroit_' + i"
+                  formControlName="numAyantDroit"
+                  class="form-control"
+                  autocomplete="off"
+                  [class.ng-invalid]="ligne.get('numAyantDroit')?.invalid && ligne.get('numAyantDroit')?.touched"
+                />
+                @if (ligne.get('numAyantDroit')?.invalid && ligne.get('numAyantDroit')?.touched) {
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+                }
+              </div>
+            </div>
+
+            <div class="form-grid-compact">
+              <!-- Date de naissance -->
+              <div class="form-field form-field-full">
+                @let datNaiss = ligne.get('datNaiss');
+                <label [for]="'field_datNaiss_' + i">Date de naissance</label>
+                <input
+                  jhiDateNaiss
+                  [id]="'field_datNaiss_' + i"
+                  formControlName="datNaiss"
+                  placeholder="jj/mm/aaaa"
+                  class="form-control"
+                  [class.ng-invalid]="datNaiss?.invalid && datNaiss?.touched"
+                />
+                @if (datNaiss?.invalid && datNaiss?.touched) {
+                  @let errors = datNaiss?.errors;
+                  @if (errors?.invalidDate || errors?.outOfRange) {
+                    <small class="form-text text-danger">Veuillez saisir une date valide</small>
+                  }
+                }
+              </div>
+
+              <!-- Sexe -->
+              <div class="form-field form-field-full">
+                <label>Sexe</label>
+                <div class="radio-group">
+                  <app-radio formControlName="sexe" [name]="'sexe_' + i" [value]="'M'" [inline]="true" label="Masculin" />
+                  <app-radio formControlName="sexe" [name]="'sexe_' + i" [value]="'F'" [inline]="true" label="Féminin" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </app-card>
       </div>
-    </app-card>
+    }
+  </div>
+
+  <div class="d-flex justify-content-start mt-2">
+    <app-button (clicked)="ajouter()" icon="pi pi-plus" label="Ajouter un ayant droit" severity="secondary"
+                size="small" type="button" data-testid="ajouter-ayant-droit" />
   </div>
 </form>

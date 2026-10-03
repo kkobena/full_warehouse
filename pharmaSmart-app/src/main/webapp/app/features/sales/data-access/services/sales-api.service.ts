@@ -277,6 +277,13 @@ export class SalesApiService {
     );
   }
 
+  /** Marque ou démarque une ligne « non remboursée » (ventes assurance et carnet) ; le serveur recalcule la vente. */
+  updateItemNonRembourse(salesLine: ISalesLine): Observable<ISalesLine> {
+    return this.http
+      .put<ISalesLine>(`${this.resourceUrl}/update-item/non-rembourse/assurance`, salesLine, {observe: 'response'})
+      .pipe(map(res => res.body!));
+  }
+
   /**
    * Update item price
    * Backend recalculates all amounts

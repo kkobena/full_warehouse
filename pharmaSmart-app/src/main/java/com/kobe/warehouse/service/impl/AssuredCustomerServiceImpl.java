@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
+import com.kobe.warehouse.domain.enumeration.TypeAssure;
 import com.kobe.warehouse.repository.AssuredCustomerRepository;
 import com.kobe.warehouse.repository.ClientTiersPayantRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
@@ -13,6 +14,7 @@ import com.kobe.warehouse.service.AssuredCustomerService;
 import com.kobe.warehouse.service.CustomerDataService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
+import com.kobe.warehouse.service.dto.ControleAssureDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.InvalidPhoneNumberException;
 import java.util.Collections;
@@ -58,6 +60,8 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
         if (StringUtils.hasText(dto.getPhone()) && !Util.isValidPhoneNumber(dto.getPhone())) {
             throw new InvalidPhoneNumberException();
         }
+        verifierNumerosDeCarte(dto, null);
+        verifierAbsenceDeDossierIdentique(dto, null);
         AssuredCustomer assuredCustomer = fromDto(dto);
         ayantDroitsFromDto(dto.getAyantDroits(), assuredCustomer);
         clientTiersPayantFromDto(dto.getTiersPayants(), assuredCustomer);
@@ -69,6 +73,8 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
         if (StringUtils.hasText(dto.getPhone()) && !Util.isValidPhoneNumber(dto.getPhone())) {
             throw new InvalidPhoneNumberException();
         }
+        verifierNumerosDeCarte(dto, dto.getId());
+        verifierAbsenceDeDossierIdentique(dto, dto.getId());
         AssuredCustomer assuredCustomer = fromDto(dto, assuredCustomerRepository.getReferenceById(dto.getId()));
         List<ClientTiersPayant> clientTiersPayants = clientTiersPayantRepository.findAllByAssuredCustomerId(assuredCustomer.getId());
         clientTiersPayants
@@ -183,6 +189,7 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
 
     @Override
     public AssuredCustomer addTiersPayant(ClientTiersPayantDTO dto) throws GenericError {
+        verifierNumeroDeCarte(dto.getTiersPayantId(), dto.getNum(), dto.getCustomerId());
         AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(dto.getCustomerId());
         ClientTiersPayant clientTiersPayant = getClientTiersPayantFromDto(dto);
         clientTiersPayant.setAssuredCustomer(assuredCustomer);
@@ -193,6 +200,11 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     @Override
     public AssuredCustomer updateTiersPayant(ClientTiersPayantDTO dto) throws GenericError {
         ClientTiersPayant clientTiersPayant = clientTiersPayantRepository.getReferenceById(dto.getId());
+        verifierNumeroDeCarte(
+            clientTiersPayant.getTiersPayant().getId(),
+            dto.getNum(),
+            clientTiersPayant.getAssuredCustomer().getId()
+        );
 
         clientTiersPayant.setTaux(dto.getTaux());
         clientTiersPayant.setNum(dto.getNum());
@@ -223,6 +235,109 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     @Override
     public Page<AssuredCustomerDTO> fetch(String query, TiersPayantCategorie typeTiersPayant, Pageable pageable) {
         return customerDataService.loadAllAsuredCustomers(query, typeTiersPayant, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ControleAssureDTO controlerAssure(Integer tiersPayantId, String num, String firstName, String lastName, Integer idClientExclu) {
+        String titulaire = null;
+        if (tiersPayantId != null && StringUtils.hasText(num)) {
+            titulaire = clientTiersPayantRepository
+                .findFirstByTiersPayantIdAndNum(tiersPayantId, num.trim())
+                .filter(c -> !Objects.equals(idClientExclu, c.getAssuredCustomer().getId()))
+                .map(c -> nomComplet(c.getAssuredCustomer()))
+                .orElse(null);
+        }
+        List<String> homonymes = StringUtils.hasText(firstName) && StringUtils.hasText(lastName)
+            ? assuredCustomerRepository
+                .findAllByFirstNameIgnoreCaseAndLastNameIgnoreCase(firstName.trim(), lastName.trim())
+                .stream()
+                .filter(a -> a.getTypeAssure() != TypeAssure.AYANT_DROIT)
+                .filter(a -> !Objects.equals(idClientExclu, a.getId()))
+                .limit(5)
+                .map(this::nomComplet)
+                .toList()
+            : List.of();
+        String dossierIdentique = trouverDossierIdentique(firstName, lastName, num, idClientExclu);
+        return new ControleAssureDTO(titulaire != null, titulaire, dossierIdentique != null, dossierIdentique, homonymes);
+    }
+
+    /**
+     * Refuse un numéro de carte déjà attribué, pour le même organisme, à un autre dossier. La base
+     * l'interdit déjà ; ce contrôle remplace l'erreur de contrainte, illisible pour un caissier, par
+     * le nom du dossier en cause.
+     */
+    private void verifierNumerosDeCarte(AssuredCustomerDTO dto, Integer idClientExclu) {
+        verifierNumeroDeCarte(dto.getTiersPayantId(), dto.getNum(), idClientExclu);
+        if (dto.getTiersPayants() != null) {
+            dto.getTiersPayants().forEach(c -> verifierNumeroDeCarte(c.getTiersPayantId(), c.getNum(), idClientExclu));
+        }
+    }
+
+    /**
+     * Un client portant les mêmes nom, prénom ET numéro de matricule qu'un dossier existant est bloqué,
+     * quel que soit l'organisme : c'est la même personne ressaisie. Les ayants droit sont soumis à la
+     * même règle avec leur numéro assuré. (Deux homonymes de matricules différents restent permis.)
+     */
+    private void verifierAbsenceDeDossierIdentique(AssuredCustomerDTO dto, Integer idClientExclu) {
+        String existant = trouverDossierIdentique(dto.getFirstName(), dto.getLastName(), dto.getNum(), idClientExclu);
+        if (existant != null) {
+            throw new GenericError(
+                "Un client avec ces nom, prénom et numéro de matricule existe déjà (%s)".formatted(existant),
+                "clientExistant"
+            );
+        }
+        if (dto.getAyantDroits() != null) {
+            dto
+                .getAyantDroits()
+                .stream()
+                .filter(a -> StringUtils.hasText(a.getFirstName()) && StringUtils.hasText(a.getLastName()) && StringUtils.hasText(a.getNumAyantDroit()))
+                .forEach(a ->
+                    assuredCustomerRepository
+                        .findAllByFirstNameIgnoreCaseAndLastNameIgnoreCaseAndNumAyantDroit(a.getFirstName().trim(), a.getLastName().trim(), a.getNumAyantDroit().trim())
+                        .stream()
+                        .filter(e -> e.getTypeAssure() == TypeAssure.AYANT_DROIT)
+                        .filter(e -> e.getAssurePrincipal() == null || !Objects.equals(idClientExclu, e.getAssurePrincipal().getId()))
+                        .findFirst()
+                        .ifPresent(e -> {
+                            throw new GenericError(
+                                "Un ayant droit avec ces nom, prénom et numéro assuré existe déjà (%s)".formatted(nomComplet(e)),
+                                "ayantDroitExistant"
+                            );
+                        })
+                );
+        }
+    }
+
+    private String trouverDossierIdentique(String firstName, String lastName, String num, Integer idClientExclu) {
+        if (!StringUtils.hasText(firstName) || !StringUtils.hasText(lastName) || !StringUtils.hasText(num)) {
+            return null;
+        }
+        return clientTiersPayantRepository
+            .findDossiersIdentiques(firstName.trim(), lastName.trim(), num.trim(), idClientExclu == null ? -1 : idClientExclu)
+            .stream()
+            .findFirst()
+            .map(c -> nomComplet(c.getAssuredCustomer()))
+            .orElse(null);
+    }
+
+    private void verifierNumeroDeCarte(Integer tiersPayantId, String num, Integer idClientExclu) {
+        if (tiersPayantId == null || !StringUtils.hasText(num)) {
+            return;
+        }
+        clientTiersPayantRepository
+            .findFirstByTiersPayantIdAndNum(tiersPayantId, num.trim())
+            .filter(c -> !Objects.equals(idClientExclu, c.getAssuredCustomer().getId()))
+            .ifPresent(c -> {
+                throw new GenericError(
+                    "Le numéro de carte « %s » est déjà utilisé par %s pour cet organisme".formatted(num.trim(), nomComplet(c.getAssuredCustomer())),
+                    "numeroCarteExistant"
+                );
+            });
+    }
+
+    private String nomComplet(AssuredCustomer client) {
+        return (client.getFirstName() + " " + client.getLastName()).trim();
     }
 
     private void canModifyTiersPayant(Integer id) throws GenericError {

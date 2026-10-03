@@ -10,6 +10,7 @@ import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.domain.enumeration.TypeAssure;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
+import com.kobe.warehouse.service.dto.ControleAssureDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.InvalidPhoneNumberException;
 import java.time.LocalDateTime;
@@ -110,6 +111,9 @@ public interface AssuredCustomerService {
     }
 
     AssuredCustomer createFromDto(AssuredCustomerDTO dto) throws InvalidPhoneNumberException;
+
+    /** Contrôle anticipé : numéro de carte déjà utilisé pour cet organisme, et homonymes. */
+    ControleAssureDTO controlerAssure(Integer tiersPayantId, String num, String firstName, String lastName, Integer idClientExclu);
 
     AssuredCustomer updateFromDto(AssuredCustomerDTO dto) throws InvalidPhoneNumberException;
 

@@ -26,6 +26,9 @@ public interface TiersPayantRepository extends JpaRepository<TiersPayant, Intege
 
     Optional<TiersPayant> findOneByNameOrFullName(String name, String fullName);
 
+    /** Identifiant contribuable (NCC) : insensible à la casse, comme le contrôle de doublon sur le nom. */
+    Optional<TiersPayant> findFirstByNccIgnoreCase(String ncc);
+
     List<TiersPayant> findAllByGroupeTiersPayantId(Integer groupeTiersPayantId);
 
     // ── Facturation DÉFINITIVE ────────────────────────────────────────────────

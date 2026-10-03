@@ -59,24 +59,7 @@ public class TiersPayantServiceImpl implements TiersPayantService, CommonStatSer
 
     @Override
     public TiersPayantDto createFromDto(TiersPayantDto dto) throws GenericError {
-        if (StringUtils.isNotEmpty(dto.getCodeOrganisme())) {
-            Optional<TiersPayant> tiersPayantOp = tiersPayantRepository.findOneByNameOrFullNameOrCodeOrganisme(
-                dto.getName(),
-                dto.getFullName(),
-                dto.getCodeOrganisme()
-            );
-            if (tiersPayantOp.isPresent()) {
-                throw new GenericError(
-                    "Il existe dejà  un tiers-payant avec soit avec le même nom ou le code orgasisme",
-                    "tiersPayantExistant"
-                );
-            }
-        } else {
-            Optional<TiersPayant> tiersPayantOp = tiersPayantRepository.findOneByNameOrFullName(dto.getName(), dto.getFullName());
-            if (tiersPayantOp.isPresent()) {
-                throw new GenericError("Il existe dejà  un tiers-payant avec soit avec le même nom ", "tiersPayantExistant");
-            }
-        }
+        verifierAbsenceDeDoublon(dto, null);
 
         TiersPayant tiersPayant = entityFromDto(dto, new TiersPayant().setCreated(LocalDateTime.now()));
         tiersPayant.setUser(storageService.getUser());
@@ -87,28 +70,41 @@ public class TiersPayantServiceImpl implements TiersPayantService, CommonStatSer
     @Override
     public TiersPayantDto updateFromDto(TiersPayantDto dto) throws GenericError {
         TiersPayant tiersPayant = tiersPayantRepository.getReferenceById(dto.getId());
-        if (StringUtils.isNotEmpty(dto.getCodeOrganisme())) {
-            Optional<TiersPayant> tiersPayantOp = tiersPayantRepository.findOneByNameOrFullNameOrCodeOrganisme(
-                dto.getName(),
-                dto.getFullName(),
-                dto.getCodeOrganisme()
-            );
-            if (tiersPayantOp.isPresent() && !Objects.equals(tiersPayant.getId(), tiersPayantOp.get().getId())) {
-                throw new GenericError(
-                    "Il existe dejà  un tiers-payant avec soit avec le même nom ou le code orgasisme",
-                    "tiersPayantExistant"
-                );
-            }
-        } else {
-            Optional<TiersPayant> tiersPayantOp = tiersPayantRepository.findOneByNameOrFullName(dto.getName(), dto.getFullName());
-            if (tiersPayantOp.isPresent() && !Objects.equals(tiersPayant.getId(), tiersPayantOp.get().getId())) {
-                throw new GenericError("Il existe dejà  un tiers-payant avec soit avec le même nom ", "tiersPayantExistant");
-            }
-        }
+        verifierAbsenceDeDoublon(dto, tiersPayant.getId());
 
         tiersPayant = entityFromDto(dto, tiersPayant);
         tiersPayant.setUser(storageService.getUser());
         return fromEntity(tiersPayantRepository.save(tiersPayant));
+    }
+
+    /**
+     * Refuse un organisme déjà connu : même nom ou nom long, même code organisme, ou même
+     * identifiant contribuable (NCC) — ce dernier attrape un organisme ressaisi sous un nom
+     * légèrement différent, ce que le contrôle sur le nom ne voit pas.
+     *
+     * @param idAExclure l'organisme en cours de modification, {@code null} en création
+     */
+    private void verifierAbsenceDeDoublon(TiersPayantDto dto, Integer idAExclure) {
+        Optional<TiersPayant> parNom = StringUtils.isNotEmpty(dto.getCodeOrganisme())
+            ? tiersPayantRepository.findOneByNameOrFullNameOrCodeOrganisme(dto.getName(), dto.getFullName(), dto.getCodeOrganisme())
+            : tiersPayantRepository.findOneByNameOrFullName(dto.getName(), dto.getFullName());
+        if (parNom.isPresent() && !Objects.equals(idAExclure, parNom.get().getId())) {
+            throw new GenericError(
+                StringUtils.isNotEmpty(dto.getCodeOrganisme())
+                    ? "Il existe déjà un tiers-payant avec le même nom ou le même code organisme"
+                    : "Il existe déjà un tiers-payant avec le même nom",
+                "tiersPayantExistant"
+            );
+        }
+        if (StringUtils.isNotBlank(dto.getNcc())) {
+            Optional<TiersPayant> parNcc = tiersPayantRepository.findFirstByNccIgnoreCase(dto.getNcc().trim());
+            if (parNcc.isPresent() && !Objects.equals(idAExclure, parNcc.get().getId())) {
+                throw new GenericError(
+                    "Il existe déjà un tiers-payant avec le même identifiant contribuable (" + parNcc.get().getName() + ")",
+                    "tiersPayantExistant"
+                );
+            }
+        }
     }
 
     @Override

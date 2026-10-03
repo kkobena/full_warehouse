@@ -1,101 +1,211 @@
-
 <div class="modal-header">
   <h4 class="modal-title">{{ title }}</h4>
-  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button"></button>
+  <button (click)="cancel()" aria-label="Fermer" class="btn-close" data-dismiss="modal" type="button"></button>
 </div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate>
   <div class="modal-body">
-    <div [hidden]="true" class="form-group">
-      <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-    </div>
+    <input formControlName="id" id="id" name="id" readonly type="hidden" />
 
     <app-card [variant]="'form'" [withHeader]="true">
-      <div ngProjectAs="[cardHeader]" class="section-header section-header-required">
-          <i class="pi pi-exclamation-circle"></i>
-          <span>Champs Obligatoires</span>
-        </div>
-      <div class="form-grid-compact">
-        <div class="form-field form-field-full">
-          <label for="field_firstName">Nom<span class="required">*</span></label>
+      <div ngProjectAs="[cardHeader]" class="section-header">
+        <i class="pi pi-user"></i>
+        <span>Identité et contact</span>
+      </div>
+
+      <!-- Deux colonnes : nom + prénom, puis téléphone + e-mail -->
+      <div class="form-grid-compact deux-colonnes">
+        <app-form-field [error]="erreur('firstName')" [required]="true" fieldId="firstName" label="Nom">
           <input
             #firstName
+            [attr.aria-describedby]="describedBy('firstName')"
+            [attr.aria-invalid]="erreur('firstName') ? 'true' : null"
             autocomplete="off"
-            formControlName="firstName"
-            id="field_firstName"
-            name="firstName"
             class="form-control"
+            formControlName="firstName"
+            id="firstName"
+            maxlength="100"
+            name="firstName"
             type="text"
           />
-          @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)) {
-            <div>
-              @if (editForm.get('firstName')?.errors?.required) {
-                <small class="form-text text-danger" > Ce champ est requis. </small>
-              }
-            </div>
-          }
-        </div>
+        </app-form-field>
 
-        <div class="form-field form-field-full">
-          <label for="field_lastName">Prénom(s)<span class="required">*</span></label>
-          <input autocomplete="off" formControlName="lastName" id="field_lastName" name="lastName" class="form-control" type="text" />
-          @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)) {
-            <div>
-              @if (editForm.get('lastName')?.errors?.required) {
-                <small class="form-text text-danger" > Ce champ est requis. </small>
-              }
-            </div>
-          }
-        </div>
-
-        <div class="form-field form-field-full">
-          <label for="field_phone">Téléphone<span class="required">*</span></label>
+        <app-form-field [error]="erreur('lastName')" [required]="true" fieldId="lastName" label="Prénom(s)">
           <input
+            [attr.aria-describedby]="describedBy('lastName')"
+            [attr.aria-invalid]="erreur('lastName') ? 'true' : null"
+            autocomplete="off"
+            class="form-control"
+            formControlName="lastName"
+            id="lastName"
+            maxlength="100"
+            name="lastName"
+            type="text"
+          />
+        </app-form-field>
+
+        <app-form-field
+          [error]="erreur('phone')"
+          fieldId="phone"
+          hint="Facultatif. Numéro étranger : commencez par + et l'indicatif (ex. +223…)."
+          label="Téléphone"
+        >
+          <input
+            [appKeyFilter]="phoneFilter"
+            [attr.aria-describedby]="describedBy('phone', 'aide')"
+            [attr.aria-invalid]="erreur('phone') ? 'true' : null"
             autocomplete="off"
             class="form-control"
             formControlName="phone"
-            id="field_phone"
+            id="phone"
+            inputmode="tel"
+            maxlength="15"
             name="phone"
-            [appKeyFilter]="'int'"
             type="text"
           />
+        </app-form-field>
 
-          @if (editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get('phone')!.touched)) {
-            <div>
-              @if (editForm.get('phone')?.errors?.required) {
-                <small class="form-text text-danger" > Ce champ est requis. </small>
-              }
+        <app-form-field [error]="erreur('email')" fieldId="email" label="E-mail">
+          <input
+            [attr.aria-describedby]="describedBy('email')"
+            [attr.aria-invalid]="erreur('email') ? 'true' : null"
+            autocomplete="off"
+            class="form-control"
+            formControlName="email"
+            id="email"
+            maxlength="100"
+            name="email"
+            type="email"
+          />
+        </app-form-field>
+
+        <!-- Contrôle anticipé : le client identique bloque, les voisins avertissent -->
+        @if (controle(); as ctrl) {
+          @if (ctrl.clientExistant; as existant) {
+            <div class="form-field form-field-full">
+              <div class="alert alert-danger d-flex align-items-center justify-content-between gap-2 py-2 mb-0" data-testid="client-existant" role="alert">
+                <span>
+                  <i class="pi pi-exclamation-circle me-1"></i>
+                  Un client existe déjà avec ces nom, prénom et téléphone : <strong>{{ existant.firstName }} {{ existant.lastName }}</strong>
+                  @if (existant.phone) {
+                    ({{ existant.phone }})
+                  }
+                </span>
+                @if (modeCreation) {
+                  <app-button (clicked)="selectionner(existant)" icon="pi pi-check" label="Sélectionner ce client" severity="danger" size="small" type="button" />
+                }
+              </div>
             </div>
           }
-        </div>
-      </div>
-    </app-card>
-    <app-card [variant]="'form'" class="mt-2" [withHeader]="true">
-      <div ngProjectAs="[cardHeader]" class="section-header">
-          <i class="pi pi-info-circle"></i>
-          <span>Informations Complémentaires</span>
-        </div>
-      <div class="form-grid-compact">
+          @if (ctrl.proches.length > 0) {
+            <div class="form-field form-field-full">
+              <div class="alert alert-warning py-2 mb-0" data-testid="clients-proches" role="status">
+                <div class="mb-1"><i class="pi pi-exclamation-triangle me-1"></i>Clients voisins — est-ce la même personne ?</div>
+                @for (proche of ctrl.proches; track proche.client.id) {
+                  <div class="d-flex align-items-center justify-content-between gap-2">
+                    <span>
+                      {{ proche.client.firstName }} {{ proche.client.lastName }}
+                      @if (proche.client.phone) {
+                        — {{ proche.client.phone }}
+                      }
+                      <small class="text-muted">({{ proche.motif }})</small>
+                    </span>
+                    @if (modeCreation) {
+                      <app-button (clicked)="selectionner(proche.client)" [text]="true" label="Sélectionner" severity="warn" size="small" type="button" />
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        }
+
+        <!-- Informations complémentaires, repliées : rien à saisir pour un client de passage -->
         <div class="form-field form-field-full">
-          <label for="field_email">E-mail</label>
-          <input autocomplete="off" class="form-control" formControlName="email" id="field_email" name="email" type="email" />
+          <div>
+            <app-button
+              (clicked)="complementsOuverts.set(!complementsOuverts())"
+              [attr.aria-expanded]="complementsOuverts()"
+              [icon]="complementsOuverts() ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              [outlined]="true"
+              data-testid="complements"
+              label="Informations complémentaires (naissance, sexe)"
+              severity="info"
+              size="small"
+              type="button"
+            />
+          </div>
         </div>
+        @if (complementsOuverts()) {
+          <app-form-field [error]="erreur('datNaiss')" fieldId="datNaiss" label="Date de naissance">
+            <input
+              [attr.aria-describedby]="describedBy('datNaiss')"
+              [attr.aria-invalid]="erreur('datNaiss') ? 'true' : null"
+              autocomplete="off"
+              class="form-control"
+              formControlName="datNaiss"
+              id="datNaiss"
+              jhiDateNaiss
+              placeholder="jj/mm/aaaa"
+            />
+          </app-form-field>
+
+          <app-form-field fieldId="sexe" label="Sexe">
+            <div aria-label="Sexe" class="radio-group" id="sexe" role="radiogroup">
+              <app-radio [inline]="true" [value]="'M'" formControlName="sexe" label="Masculin" name="sexe" />
+              <app-radio [inline]="true" [value]="'F'" formControlName="sexe" label="Féminin" name="sexe" />
+            </div>
+          </app-form-field>
+        }
+
+        <!-- Consentement : demandé là où le contact est saisi, jamais coché d'office -->
+        @if (modeCreation && (editForm.get('phone')?.value || editForm.get('email')?.value)) {
+          <div class="form-field form-field-full" data-testid="consentements">
+            <div class="d-flex flex-wrap gap-3">
+              @if (editForm.get('phone')?.value && editForm.get('phone')?.valid) {
+                <app-checkbox formControlName="consentementSms" label="Autoriser les SMS et rappels" />
+              }
+              @if (editForm.get('email')?.value && editForm.get('email')?.valid) {
+                <app-checkbox formControlName="consentementEmail" label="Autoriser les e-mails" />
+              }
+            </div>
+          </div>
+        }
+
+        @if (modeCreation) {
+          <div class="form-field form-field-full">
+            <div>
+              <app-button
+                (clicked)="basculerVersAssure()"
+                [outlined]="true"
+                data-testid="basculer-assure"
+                icon="pi pi-id-card"
+                label="Ce client est assuré"
+                severity="info"
+                size="small"
+                type="button"
+              />
+            </div>
+          </div>
+        }
       </div>
     </app-card>
   </div>
 
   <div class="form-actions-compact">
+    <small class="text-muted align-self-center me-auto">Entrée : enregistrer · Échap : annuler</small>
     <app-button
       (clicked)="cancel()"
+      [disabled]="isSaving()"
       [raised]="true"
-      class="mr-2"
       icon="pi pi-times"
       label="Annuler"
       severity="secondary"
       type="button"
     ></app-button>
     <app-button
-      [disabled]="editForm.invalid || isSaving() || !isValid"
+      [disabled]="editForm.invalid || isSaving() || !!controle()?.clientExistant"
+      [loading]="isSaving()"
       [raised]="true"
       icon="pi pi-check"
       label="Enregistrer"

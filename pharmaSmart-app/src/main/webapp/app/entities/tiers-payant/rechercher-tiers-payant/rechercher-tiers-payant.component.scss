@@ -1,0 +1,6 @@
+@use '../../../shared/scss/modal-theme' as *;
+
+// Même habillage de fenêtre que le formulaire tiers payant (en-tête dégradé, pied de page grisé).
+:host {
+  @include modal-theme;
+}

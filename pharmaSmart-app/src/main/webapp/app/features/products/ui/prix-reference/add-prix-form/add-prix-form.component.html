@@ -76,7 +76,7 @@
           <label class="form-label form-label-sm" for="price">
             Prix de référence <span class="text-danger">*</span>
           </label>
-          <app-input-number formControlName="price" inputId="price"/>
+          <app-input-number #prixSaisie formControlName="price" inputId="price"/>
           @let price = editForm.get('price');
           @if (price!.invalid && price!.touched) {
             <small class="text-danger">Obligatoire</small>

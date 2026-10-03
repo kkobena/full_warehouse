@@ -4,6 +4,7 @@ package com.kobe.warehouse.service.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.LotSold;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
@@ -11,6 +12,7 @@ import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.enumeration.MotifForcageStock;
 import com.kobe.warehouse.service.sale.calculation.dto.Rate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -70,6 +72,9 @@ public class SaleLineDTO {
     private Integer quantiyAvoir;
 
     private Integer calculationBasePrice;
+    private boolean nonRembourse;
+    /** Lots réellement prélevés pour cette ligne (numéro, quantité, péremption) ; vide sans gestion de lots. */
+    private List<LotSold> lots = new ArrayList<>();
     private Integer montantTvaUg = 0;
     private Integer quantityUg;
     private Integer amountToBeTakenIntoAccount;
@@ -115,6 +120,8 @@ public class SaleLineDTO {
         quantiyAvoir = salesLine.getQuantityAvoir();
         calculationBasePrice = salesLine.getCalculationBasePrice();
         rates = salesLine.getRates();
+        nonRembourse = salesLine.isNonRembourse();
+        lots = new ArrayList<>(salesLine.getLots());
         codeScan = salesLine.getCodeScan();
     }
 
@@ -133,6 +140,22 @@ public class SaleLineDTO {
 
     public void setSaleCompositeId(SaleId saleCompositeId) {
         this.saleCompositeId = saleCompositeId;
+    }
+
+    public List<LotSold> getLots() {
+        return lots;
+    }
+
+    public void setLots(List<LotSold> lots) {
+        this.lots = lots;
+    }
+
+    public boolean isNonRembourse() {
+        return nonRembourse;
+    }
+
+    public void setNonRembourse(boolean nonRembourse) {
+        this.nonRembourse = nonRembourse;
     }
 
     public List<Rate> getRates() {

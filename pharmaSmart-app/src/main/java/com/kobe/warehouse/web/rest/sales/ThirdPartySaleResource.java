@@ -146,6 +146,12 @@ public class ThirdPartySaleResource {
             .body(result);
     }
 
+    @PutMapping("/sales/update-item/non-rembourse/assurance")
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    public ResponseEntity<SaleLineDTO> updateItemNonRembourse(@Valid @RequestBody SaleLineDTO saleLineDTO) {
+        return ResponseEntity.accepted().body(saleService.updateItemNonRembourse(saleLineDTO));
+    }
+
     @PutMapping("/sales/update-item/quantity-sold/assurance")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ResponseEntity<SaleLineDTO> updateItemQtySold(

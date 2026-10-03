@@ -19,6 +19,7 @@
             [class.ng-invalid]="editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched"
             autocomplete="off"
             class="form-control"
+            (blur)="controlerSaisie()"
             formControlName="firstName"
             id="field_firstName"
           />
@@ -37,6 +38,7 @@
             [class.ng-invalid]="editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched"
             autocomplete="off"
             class="form-control"
+            (blur)="controlerSaisie()"
             formControlName="lastName"
             id="field_lastName"
           />
@@ -47,6 +49,14 @@
             }
           }
         </div>
+        @if (homonymes().length > 0) {
+          <div class="form-field form-field-full">
+            <small class="form-text text-warning" data-testid="avertissement-homonymes">
+              <i class="pi pi-exclamation-triangle me-1"></i>
+              Un dossier de même nom existe déjà : {{ homonymes().join(', ') }}. Vérifiez qu'il ne s'agit pas de la même personne.
+            </small>
+          </div>
+        }
         <!-- Tiers Payant -->
         <div class="form-field form-field-full">
           <label for="tiersPayantId">Tiers payant <span class="required">*</span></label>
@@ -55,6 +65,7 @@
             [typeahead]="typeaheadSink$"
             (selectionChange)="onSelectTiersPayant($event)"
             [items]="tiersPayants()"
+            [loading]="chargementTiersPayants()"
             [minSearchLength]="minLength"
             appendTo="body"
             bindLabel="fullName"
@@ -77,9 +88,22 @@
             [class.ng-invalid]="editForm.get('num')?.invalid && editForm.get('num')?.touched"
             autocomplete="off"
             class="form-control"
+            (blur)="controlerSaisie()"
+            (keydown.enter)="$event.preventDefault(); tauxInput.focus()"
+            #numInput
             formControlName="num"
             id="field_num"
           />
+          @if (editForm.get('num')?.errors?.dossierExistant !== undefined) {
+            <small class="form-text text-danger" data-testid="dossier-deja-existant">
+              Un client avec ces nom, prénom et numéro existe déjà : {{ editForm.get('num')?.errors?.dossierExistant }}.
+            </small>
+          }
+          @if (editForm.get('num')?.errors?.numeroUtilise !== undefined) {
+            <small class="form-text text-danger" data-testid="numero-deja-utilise">
+              Ce numéro de carte est déjà utilisé par {{ editForm.get('num')?.errors?.numeroUtilise }} pour cet organisme.
+            </small>
+          }
           @if (editForm.get('num')?.invalid && editForm.get('num')?.touched) {
             @if (editForm.get('num')?.errors?.required) {
               <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce
@@ -99,6 +123,7 @@
             [class.ng-invalid]="editForm.get('taux')?.invalid && editForm.get('taux')?.touched"
             autocomplete="off"
             class="form-control"
+            #tauxInput
             formControlName="taux"
             id="field_taux"
           />
@@ -109,6 +134,9 @@
             @if (editForm.get('taux')?.errors?.min || editForm.get('taux')?.errors?.max) {
               <small class="form-text text-danger">Le taux doit être entre 0 et 100</small>
             }
+          }
+          @if (tauxSuggere() !== null && editForm.get('taux')?.value === tauxSuggere()) {
+            <small class="form-text text-muted" data-testid="indice-taux-organisme">Taux standard de l'organisme : {{ tauxSuggere() }} % — modifiable</small>
           }
         </div>
         <!-- Validité de la carte -->

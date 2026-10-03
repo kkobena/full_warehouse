@@ -1,4 +1,4 @@
-import {signal, AfterViewInit, Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import {signal, viewChild, AfterViewInit, Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { PrixReference } from "../model/prix-reference.model";
@@ -36,8 +36,15 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
   // Component Inputs
   produit: IProduit | null = null;
   tiersPayant: ITiersPayant | null = null;
+  /**
+   * Tiers payants de la vente en cours (ouverture depuis le panier) : seuls ceux-là sont proposés,
+   * au lieu de tout le référentiel. `tiersPayantId` est l'identifiant du tiers payant, pas du compte client.
+   */
+  tiersPayantsVente: { tiersPayantId?: number; tiersPayantFullName?: string; tiersPayantName?: string }[] | null = null;
   entity: PrixReference | null = null;
   isFromProduit = true;
+
+  private readonly prixSaisie = viewChild<InputNumberComponent>('prixSaisie');
 
   // Template accessible properties
   protected readonly isSaving = signal(false);
@@ -89,6 +96,16 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.subscribeToTypeChanges();
+    this.focaliserPrix();
+  }
+
+  /** Le champ prix n'existe que pour les options autres que « pourcentage » ; la modale reprend le focus à l'ouverture, d'où le report. */
+  private focaliserPrix(): void {
+    setTimeout(() => {
+      const champ = this.prixSaisie();
+      champ?.focus();
+      champ?.select();
+    });
   }
 
   cancel(): void {
@@ -165,7 +182,13 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
   }
 
   private loadInitialData(): void {
-    if (this.isFromProduit) {
+    if (this.isFromProduit && this.tiersPayantsVente?.length) {
+      const proposes = this.tiersPayantsVente.map(tp => ({id: tp.tiersPayantId, fullName: tp.tiersPayantFullName ?? tp.tiersPayantName}));
+      this.tiersPayants.set(proposes as never[]);
+      if (proposes.length === 1) {
+        this.editForm.get("tiersPayantId")?.setValue(proposes[0].id ?? null);
+      }
+    } else if (this.isFromProduit) {
       this.getTiersPayants();
     } else {
       this.getProduits();

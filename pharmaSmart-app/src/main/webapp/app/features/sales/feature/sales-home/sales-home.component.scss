@@ -76,6 +76,26 @@ $presale-color-light: lighten($pharma-info, 38%);
   }
 }
 
+// Header de la vente ordinaire (ni prévente ni devis) : même traitement que les autres modes, dans la couleur primaire
+$normal-color: $pharma-primary;
+$normal-color-dark: darken($pharma-primary, 12%);
+$normal-color-light: lighten($pharma-primary, 38%);
+
+.pharma-sales-header.normal-mode {
+  background: linear-gradient(135deg, lighten($normal-color, 42%) 0%, $normal-color-light 100%);
+  border-bottom-color: $normal-color;
+  border-bottom-width: 2px;
+
+  .page-title h1 {
+    color: $normal-color-dark;
+  }
+
+  .subtitle {
+    color: $normal-color !important;
+    font-weight: 500;
+  }
+}
+
 // Sidebar
 .sales-sidebar.presale-mode {
   .pharma-nav-sidebar-header {

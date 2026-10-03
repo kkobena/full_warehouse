@@ -4,6 +4,7 @@ import {
   Component,
   ElementRef,
   inject,
+  OnDestroy,
   OnInit,
   viewChild, signal } from "@angular/core";
 import {LowerCasePipe} from "@angular/common";
@@ -16,15 +17,19 @@ import {
 import {ITiersPayant, ModelFacture, TiersPayant} from "app/shared/model/tierspayant.model";
 import {IGroupeTiersPayant} from "app/shared/model/groupe-tierspayant.model";
 import {HttpResponse} from "@angular/common/http";
-import {Observable} from "rxjs";
+import {Observable, Subject, takeUntil} from "rxjs";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {NotificationService} from "../../../shared/services/notification.service";
+import {NgbConfirmDialogService} from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import {currencySymbol} from "app/shared/utils/format-utils";
 import {
+  BadgeComponent,
   ButtonComponent,
   CardComponent,
   InputNumberComponent,
   KeyFilterDirective,
   SelectComponent,
+  SelectSearchComponent,
   SwitchComponent
 } from "../../../shared/ui";
 
@@ -37,23 +42,38 @@ import {
     FormsModule,
     ReactiveFormsModule,
     LowerCasePipe,
+    BadgeComponent,
     ButtonComponent,
     CardComponent,
     InputNumberComponent,
     KeyFilterDirective,
     SelectComponent,
+    SelectSearchComponent,
     SwitchComponent
   ]
 })
-export class FormTiersPayantComponent implements OnInit, AfterViewInit {
+export class FormTiersPayantComponent implements OnInit, AfterViewInit, OnDestroy {
   entity?: ITiersPayant;
   title?: string;
   categorie?: string | null = null;
+  /**
+   * Création « à chaud » depuis une vente ou une fiche client : l'identité de l'organisme et rien de plus.
+   * Le paramétrage de la facturation et des plafonds se complète ensuite depuis la gestion des tiers payants.
+   */
+  modeExpress = false;
   protected fb = inject(UntypedFormBuilder);
   protected name = viewChild.required<ElementRef>("name");
   protected readonly isSaving = signal(false);
   protected isValid = true;
+  /** Unité affichée à côté des montants. */
+  protected readonly devise = " " + currencySymbol();
+  private readonly libellesCategorie: Record<string, string> = {ASSURANCE: "Assurance", CARNET: "Carnet", DEPOT: "Dépôt"};
   protected readonly groupeTiersPayants = signal<IGroupeTiersPayant[]>([]);
+  /** Sujet requis par `[typeahead]` ; les termes sont traités par `(searched)` (même montage que le formulaire assuré). */
+  protected readonly saisieGroupe$ = new Subject<string>();
+  private readonly destroy$ = new Subject<void>();
+  /** Groupe déjà rattaché à l'organisme : il doit rester dans la liste, sinon son libellé disparaît dès qu'une recherche l'écarte. */
+  private groupeCourant?: IGroupeTiersPayant;
   protected readonly modelFacture = signal<ModelFacture[]>([]);
   protected readonly periodicitesOptions = [
     {label: "Mensuel", value: "MENSUEL"},
@@ -65,8 +85,9 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     name: [null, [Validators.required]],
     fullName: [null, [Validators.required]],
     telephone: [null, [Validators.required]],
-    email: [null, [Validators.required, Validators.email]],
+    email: [null, [Validators.email]],
     ncc: [],
+    tauxCouvertureDefaut: [null, [Validators.min(0), Validators.max(100)]],
     groupeTiersPayantId: [],
     codeOrganisme: [],
     montantMaxParFcture: [],
@@ -90,15 +111,36 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   private readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
   private readonly activeModal = inject(NgbActiveModal);
   private readonly notificationService = inject(NotificationService);
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
 
   ngOnInit(): void {
+    this.saisieGroupe$.pipe(takeUntil(this.destroy$)).subscribe();
     if (this.entity) {
       this.updateForm(this.entity);
     }
     this.loadModelFacture();
     this.populate().then(r => {
-      this.groupeTiersPayants.set(r);
+      this.groupeTiersPayants.set(this.avecGroupeCourant(r));
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.saisieGroupe$.complete();
+  }
+
+  /** Recherche des groupes côté serveur : la liste complète ne se parcourt plus à l'œil quand les groupes se multiplient. */
+  protected rechercherGroupes(terme: string): void {
+    this.groupeTiersPayantService
+      .query({search: terme ?? ""})
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(res => this.groupeTiersPayants.set(this.avecGroupeCourant(res.body ?? [])));
+  }
+
+  private avecGroupeCourant(groupes: IGroupeTiersPayant[]): IGroupeTiersPayant[] {
+    const courant = this.groupeCourant;
+    return courant && !groupes.some(groupe => groupe.id === courant.id) ? [courant, ...groupes] : groupes;
   }
 
   ngAfterViewInit(): void {
@@ -117,8 +159,32 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /** Libellé de la catégorie, affiché en en-tête : c'est elle qui décide des sections présentes. */
+  protected get libelleCategorie(): string {
+    return this.libellesCategorie[this.categorie ?? ""] ?? "";
+  }
+
   cancel(): void {
     this.activeModal.dismiss();
+  }
+
+  /**
+   * Garde de fermeture (voir `showCommonModal`) : une saisie commencée ne part pas sur un Échap
+   * involontaire. Sans modification, on ferme sans rien demander.
+   */
+  confirmerFermeture(): boolean | Promise<boolean> {
+    if (!this.editForm.dirty || this.isSaving()) {
+      return true;
+    }
+    return new Promise<boolean>(resolve =>
+      this.confirmDialog.onConfirm(
+        () => resolve(true),
+        "Abandonner la saisie",
+        "Les informations saisies seront perdues. Fermer le formulaire ?",
+        undefined,
+        () => resolve(false)
+      )
+    );
   }
 
   save(): void {
@@ -149,6 +215,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   }
 
   private updateForm(tiersPayant: ITiersPayant): void {
+    this.groupeCourant = tiersPayant.groupeTiersPayant as IGroupeTiersPayant | undefined;
     this.editForm.patchValue({
       id: tiersPayant.id,
       name: tiersPayant.name,
@@ -157,6 +224,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       email: tiersPayant.email,
       groupeTiersPayantId: tiersPayant.groupeTiersPayant?.id,
       codeOrganisme: tiersPayant.codeOrganisme,
+      tauxCouvertureDefaut: tiersPayant.tauxCouvertureDefaut,
       montantMaxParFcture: tiersPayant.montantMaxParFcture,
       nbreBordereaux: tiersPayant.nbreBordereaux,
       remiseForfaitaire: tiersPayant.remiseForfaitaire,
@@ -200,6 +268,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       plafondJournalierClient: this.editForm.get(["plafondJournalierClient"]).value,
       plafondAbsoluClient: this.editForm.get(["plafondAbsoluClient"]).value,
       ncc: this.editForm.get(["ncc"]).value,
+      tauxCouvertureDefaut: this.editForm.get(["tauxCouvertureDefaut"]).value,
       delaiReglement: this.editForm.get(["delaiReglement"]).value,
       periodiciteFactureDefinitive: this.editForm.get(["periodiciteFactureDefinitive"]).value,
       inclureFacturationAutoDefinitive: this.editForm.get(["inclureFacturationAutoDefinitive"]).value,

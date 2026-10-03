@@ -32,6 +32,16 @@ export interface ISalesLine {
   codeScan?: string | null;
   saleLineId?: SaleLineId;
   saleCompositeId?: SaleId;
+  /**
+   * Taux de prise en charge négociés pour CETTE ligne, par tiers payant (`compteTiersPayantId` est
+   * l'identifiant du ClientTiersPayant de la vente ; `rate` est une fraction : 0,7 = 70 %). Absent pour
+   * un tiers payant au taux contractuel standard. Calculé côté serveur, simplement exposé ici.
+   */
+  /** Ligne exclue de la prise en charge : le patient la règle en totalité (ventes assurance et carnet). */
+  nonRembourse?: boolean;
+  /** Lots réellement prélevés pour la ligne (vides sans gestion de lots). `expiryDate` : AAAA-MM-JJ. */
+  lots?: { id: number; numLot: string; quantity: number; expiryDate?: string | null }[];
+  rates?: { compteTiersPayantId: number; rate: number }[];
 }
 
 export class SalesLine implements ISalesLine {

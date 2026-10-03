@@ -101,6 +101,10 @@ public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneab
     @Column(name = "calculation_base_price")
     private Integer calculationBasePrice;
 
+    /** Ligne exclue de la prise en charge : le patient la règle en totalité. */
+    @Column(name = "non_rembourse", nullable = false)
+    private boolean nonRembourse;
+
     @NotNull
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -454,6 +458,14 @@ public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneab
     public SalesLine sales(Sales sales) {
         this.sales = sales;
         return this;
+    }
+
+    public boolean isNonRembourse() {
+        return nonRembourse;
+    }
+
+    public void setNonRembourse(boolean nonRembourse) {
+        this.nonRembourse = nonRembourse;
     }
 
     public Integer getCalculationBasePrice() {

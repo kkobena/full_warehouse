@@ -230,4 +230,15 @@ export class ProduitSearch {
   regularUnitPrice: number;
   /** Couverture stock en jours (depuis v_stock_rotation / SEMOIS). Null si pas de vélocité calculée. */
   couvertureStockJours?: number;
+  /** Forme galénique, DCI et dosage : de quoi reconnaître le bon produit dans la liste de résultats. */
+  forme?: string | null;
+  dci?: string | null;
+  dosage?: string | null;
+  /** Statut générique d'après le référentiel médicament (rapprochement accepté ou validé) ; absent sinon. */
+  /** Statut légal (STUPEFIANTS…) et lot périmé ou proche de la péremption. */
+  statutLegal?: string | null;
+  /** Lot en stock le plus proche de sa péremption (périmé ou proche) et sa date AAAA-MM-JJ : seul un lot porte une date. */
+  peremptionLot?: string | null;
+  peremptionDate?: string | null;
+  typeGenerique?: 'PRINCEPS' | 'GENERIQUE' | 'GENERIQUE_SUBSTITUABLE' | 'GENERIQUE_COMPLEMENTARITE_POSOLOGIQUE' | null;
 }

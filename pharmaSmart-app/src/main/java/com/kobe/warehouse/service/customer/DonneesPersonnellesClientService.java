@@ -164,8 +164,8 @@ public class DonneesPersonnellesClientService {
             c.getLastName(),
             c.getPhone(),
             c.getEmail(),
-            a == null ? null : a.getDatNaiss(),
-            a == null ? null : a.getSexe(),
+            c.getDatNaiss(),
+            c.getSexe(),
             a == null ? null : a.getNumAyantDroit(),
             c.getStatus().name(),
             c.getCreatedAt()

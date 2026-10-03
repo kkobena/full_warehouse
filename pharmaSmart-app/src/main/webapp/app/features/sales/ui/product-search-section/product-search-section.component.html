@@ -1,4 +1,4 @@
-<div class="product-search-section">
+<div [class.sans-marge-haute]="sansMargeHaute()" class="product-search-section">
   <div class="search-section-header">
     <i class="pi pi-search"></i>
     <span>Recherche de produit</span>
@@ -10,6 +10,7 @@
       <app-product-search
         #produitbox
         [autofocus]="autofocus()"
+        [disabled]="rechercheBloquee()"
         [enableScanner]="false"
         (productSelected)="productSelected.emit($event)"
         (productScanned)="productScanned.emit($event)"
@@ -19,14 +20,41 @@
 
     <!-- Quantity Input -->
     <div class="quantity-input-wrapper">
-      <jhi-quantite-produt-saisie
-        #quantityBox
-        (addQuantite)="addQuantite.emit($event)"
-        [isValid]="quantityIsValid()"
-        [disabledButton]="quantityIsDisabled()"
-        [class.pharma-quantity-input]="saleType() === 'COMPTANT'">
-      </jhi-quantite-produt-saisie>
+      <div [class.pharma-quantity-input]="saleType() === 'COMPTANT'" class="quantite-saisie">
+        <app-input-number
+          #quantityBox
+          (keydown.enter)="ajouterQuantite()"
+          (ngModelChange)="quantite.set($event)"
+          [disabled]="!quantityIsValid()"
+          [inputClass]="depasseStock() ? 'border-warning' : ''"
+          [min]="1"
+          [ngModel]="quantite()"
+          [showButtons]="true"
+          ariaLabel="la quantité"
+          inputId="quantiteSaisie"
+          placeholder="Quantité" />
+        <app-button
+          (clicked)="ajouterQuantite()"
+          [disabled]="quantityIsDisabled()"
+          ariaLabel="Ajouter au panier"
+          icon="pi pi-check"
+          severity="primary" />
+      </div>
+      <!-- Avant l'ajout : la quantité tapée dépasse le stock rayon (le forçage reste possible à l'ajout) -->
+      @if (depasseStock()) {
+        <small class="stock-alerte" role="status">
+          <i aria-hidden="true" class="pi pi-exclamation-triangle"></i>
+          Stock rayon : {{ selectedProduct()?.totalQuantity }} — la quantité saisie le dépasse
+        </small>
+      }
     </div>
+
+    @if (rechercheBloquee()) {
+      <div class="client-requis" data-testid="client-requis" role="status">
+        <i aria-hidden="true" class="pi pi-user-plus"></i>
+        <span>{{ customerRequiredMessage() }}</span>
+      </div>
+    }
 
     <!-- Product Meta Information -->
     @if (selectedProduct()) {

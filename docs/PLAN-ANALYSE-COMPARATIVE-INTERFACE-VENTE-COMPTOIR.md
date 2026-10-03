@@ -5,17 +5,9 @@
 > Portée analysée : `pharmaSmart-app/src/main/webapp/app/features/sales/feature/sales-home` et ses
 > composants enfants (`sale-creation`, `sale-assurance`, `sale-carnet`, `sale-devis`, `ui/*`).
 > Plans liés (ne pas dupliquer) :
-> - [PLAN-AVOIR-RETOUR-CLIENT.md](PLAN-AVOIR-RETOUR-CLIENT.md) — avoir/retour client, classification
->   légale produit.
-> - [PLAN-VENTE-SUR-STOCK-ERRONE.md](PLAN-VENTE-SUR-STOCK-ERRONE.md) — forçage de stock, écart
->   d'inventaire vs rupture.
 > - [PLAN-EXTRACTION-ORDONNANCE-OCR.md](PLAN-EXTRACTION-ORDONNANCE-OCR.md) — lecture d'ordonnance,
 >   interactions médicamenteuses, contre-indications (le contrôle de sécurité clinique est traité
 >   **là-bas**, pas ici).
-> - [PLAN-PRODUIT-DCI-N-N.md](PLAN-PRODUIT-DCI-N-N.md) — relation produit ↔ DCI, prérequis d'une
->   substitution générique fiable (§4 ci-dessous).
-> - [PLAN-VERROU-REGLEMENT.md](PLAN-VERROU-REGLEMENT.md) — verrouillage au règlement.
-> - [PLAN-SCAN-RECEPTION.md](PLAN-SCAN-RECEPTION.md) — scan côté réception (hors comptoir vente).
 > - [PLAN-UX-PANIER-PRODUITS-COMPTOIR.md](PLAN-UX-PANIER-PRODUITS-COMPTOIR.md) — ergonomie détaillée
 >   de la grille du panier (`ui/product-list`) : raccourcis clavier, colonne actions, affichage des
 >   prix négociés par tiers payant.
@@ -212,7 +204,7 @@ fiable qu'en métropole), une coupure réseau bloque intégralement le comptoir.
 
 1. **Phase 1 — minimal :** détecter la perte réseau (`navigator.onLine` + ping périodique léger) et
    afficher un bandeau d'alerte explicite au lieu de messages d'erreur HTTP bruts (« Erreur de
-   recherche produit ») — déjà un progrès pour le diagnostic du caissier.
+   recherche produit ») — déjà un progrès pour le diagnostic du caissier.(A ne pas faire pour )
 2. **Phase 2 — cache produit local :** l'app desktop (Tauri) a accès à un stockage local ; mettre en
    cache la table produits/prix/stock du jour (déjà interrogée en lecture) pour permettre une
    recherche + ajout de ligne hors-ligne, avec synchronisation différée de la vente à la reconnexion

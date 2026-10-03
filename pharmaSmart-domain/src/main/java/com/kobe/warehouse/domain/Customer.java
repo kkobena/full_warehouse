@@ -20,6 +20,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -67,6 +68,13 @@ public class Customer implements Serializable {
     @Email
     @Column(name = "email", length = 100)
     private String email;
+
+    /** Facultative : sert au dossier santé (alertes d'âge, grossesse). Portée par tous les clients, assurés ou non. */
+    @Column(name = "dat_naiss")
+    private LocalDate datNaiss;
+
+    @Column(name = "sexe")
+    private String sexe;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -126,6 +134,22 @@ public class Customer implements Serializable {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public LocalDate getDatNaiss() {
+        return datNaiss;
+    }
+
+    public void setDatNaiss(LocalDate datNaiss) {
+        this.datNaiss = datNaiss;
+    }
+
+    public String getSexe() {
+        return sexe;
+    }
+
+    public void setSexe(String sexe) {
+        this.sexe = sexe;
     }
 
     public @Email String getEmail() {

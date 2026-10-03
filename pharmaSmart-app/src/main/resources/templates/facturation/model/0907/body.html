@@ -17,7 +17,7 @@
       <td th:text="${detail.clientTiersPayant.num}"></td>
       <td th:text="${#temporals.format(detail.created, 'dd/MM/yyyy')}"></td>
       <td class="text-center" th:text="${detail.numBon}"></td>
-      <td class="unit" th:text="${#numbers.formatInteger(detail.sale.salesAmount,3,'WHITESPACE')}"></td>
+      <td class="unit" th:text="${#numbers.formatInteger(detail.sale.montantVenteRembourse,3,'WHITESPACE')}"></td>
       <td class="unit" th:text="${#numbers.formatInteger(detail.montant,3,'WHITESPACE')}"></td>
     </tr>
   </tbody>

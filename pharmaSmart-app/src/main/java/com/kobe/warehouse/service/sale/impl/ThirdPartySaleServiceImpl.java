@@ -242,6 +242,11 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
+    public SaleLineDTO updateItemNonRembourse(SaleLineDTO saleLineDTO) throws PlafondVenteException {
+        return salesManager.updateItemNonRembourse(saleLineDTO, findById(saleLineDTO.getSaleCompositeId()));
+    }
+
+    @Override
     public void cancelSale(SaleId id, String cancelComment) throws CashRegisterException {
         AppUser user = storageService.getUser();
         thirdPartySaleRepository.findByIdAndSaleDate(id.getId(), id.getSaleDate())

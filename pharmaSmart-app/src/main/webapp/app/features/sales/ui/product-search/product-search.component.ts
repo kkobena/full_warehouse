@@ -26,6 +26,8 @@ import { GlobalScannerService } from "../../../../shared/global-scanner.service"
 import { CommonModule } from "@angular/common";
 import { SalesScannerService } from "../../data-access/services/sales-scanner.service";
 import { FloatLabelComponent, SelectSearchComponent } from "../../../../shared/ui";
+import { NotificationService } from "../../../../shared/services/notification.service";
+import {ProduitBadgesComponent} from '../produit-badges/produit-badges.component';
 
 /**
  * Composant de recherche produit avec scanner intégré
@@ -42,7 +44,7 @@ import { FloatLabelComponent, SelectSearchComponent } from "../../../../shared/u
   templateUrl: "./product-search.component.html",
   styleUrls: ["./product-search.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SelectSearchComponent, FormsModule, FloatLabelComponent, TranslatePipe, CommonModule]
+  imports: [SelectSearchComponent, FormsModule, FloatLabelComponent, TranslatePipe, CommonModule, ProduitBadgesComponent]
 })
 export class ProductSearchComponent implements OnInit, OnDestroy {
   // ViewChild
@@ -68,6 +70,9 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   // State
   produits = signal<ProduitSearch[]>([]);
   selectProduit = signal<ProduitSearch | null>(null);
+  /** Vrai quand la dernière recherche manuelle a échoué (réseau, serveur) : un état différent d'« aucun résultat ». */
+  erreurRecherche = signal(false);
+  private derniereAlerteRecherche = 0;
   private _produitSelected = signal<ProduitSearch | null>(null);
 
   // Constants
@@ -80,6 +85,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   private readonly globalScanner = inject(GlobalScannerService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
+  private readonly notificationService = inject(NotificationService);
   /**
    * SalesScannerService fourni par SalesHomeComponent (parent dans la hiérarchie DI).
    * null si le composant est utilisé hors du contexte vente.
@@ -466,16 +472,71 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
       )
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        catchError(err => {
-          return of({ body: [] });
+        catchError(() => {
+          // « Aucun résultat » est un état normal ; une panne API n'en est pas un : on la dit.
+          this.signalerErreurRecherche();
+          return of(null);
         })
       )
       .subscribe(res => {
+        if (res === null) {
+          this.produits.set([]);
+          this.selectProduit.set(null);
+          return;
+        }
+        this.erreurRecherche.set(false);
         const result = res.body || [];
         this.produits.set(result);
-        // Ne pas auto-sélectionner : laisser l'utilisateur choisir dans le dropdown
-        // (évite les sélections involontaires pendant la saisie manuelle)
-        this.selectProduit.set(null);
+        // Sélection automatique SEULEMENT quand le texte est un code exact et unique (voir ci-dessous) ;
+        // pour un libellé, l'utilisateur choisit dans le dropdown (évite les sélections involontaires).
+        const exact = this.correspondanceExacte(search, result);
+        if (exact) {
+          this.selectionnerAutomatiquement(exact);
+        } else {
+          this.selectProduit.set(null);
+        }
       });
+  }
+
+  private signalerErreurRecherche(): void {
+    this.erreurRecherche.set(true);
+    // Une frappe lance une recherche par caractère : une alerte par tranche de 5 s suffit.
+    const maintenant = Date.now();
+    if (maintenant - this.derniereAlerteRecherche > 5000) {
+      this.derniereAlerteRecherche = maintenant;
+      this.notificationService.error('La recherche de produit a échoué : vérifiez la connexion au serveur.', 'Recherche impossible');
+    }
+  }
+
+  /**
+   * Un code CIP (ou EAN) tapé en entier et qui ne ramène qu'un produit est une réponse sans équivoque :
+   * inutile de faire ouvrir le dropdown. Jamais pendant un scan (son flux a son propre chemin) ni si
+   * l'utilisateur a continué à taper depuis.
+   */
+  private correspondanceExacte(recherche: string, resultat: ProduitSearch[]): ProduitSearch | null {
+    const terme = (recherche ?? "").trim();
+    if (this.isScanning() || resultat.length !== 1 || !/^\d{6,}$/.test(terme)) {
+      return null;
+    }
+    const saisi = this.produitboxEl()?.nativeElement.querySelector("input")?.value?.trim();
+    if (saisi !== terme) {
+      return null;
+    }
+    const produit = resultat[0];
+    const codes = [
+      produit.fournisseurProduit?.codeCip,
+      produit.fournisseurProduit?.codeEan,
+      produit.codeEanLabo,
+      ...(produit.fournisseurs ?? []).flatMap(f => [f.codeCip, f.codeEan])
+    ];
+    return codes.some(code => code === terme) ? produit : null;
+  }
+
+  private selectionnerAutomatiquement(produit: ProduitSearch): void {
+    this.produits.set([produit]);
+    this._produitSelected.set(produit);
+    this.selectProduit.set(produit);
+    this.produitboxCmp()?.close();
+    this.productSelected.emit(produit);
   }
 }

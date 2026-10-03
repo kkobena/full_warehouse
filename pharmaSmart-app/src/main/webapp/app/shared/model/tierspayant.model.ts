@@ -3,6 +3,8 @@ import { ICustomer } from './customer.model';
 
 export interface ITiersPayant {
   id?: number;
+  /** Taux de prise en charge standard de l'organisme, suggéré à la saisie d'un assuré. */
+  tauxCouvertureDefaut?: number | null;
   name?: string;
   fullName?: string;
   nbreBons?: number;
@@ -69,6 +71,7 @@ export class TiersPayant implements ITiersPayant {
     public groupeTiersPayantId?: number,
     public encours?: number,
     public customers?: ICustomer[],
+    public tauxCouvertureDefaut?: number | null,
   ) {}
 }
 

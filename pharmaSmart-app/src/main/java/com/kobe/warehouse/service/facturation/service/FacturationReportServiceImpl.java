@@ -125,7 +125,7 @@ public class FacturationReportServiceImpl extends CommonReportService implements
         int montantRemiseForfaitaire = 0;
         for (ThirdPartySaleLine partySaleLine : factureTiersPayant.getFacturesDetails()) {
             ThirdPartySales thirdPartySales = partySaleLine.getSale();
-            montantVente += thirdPartySales.getSalesAmount();
+            montantVente += thirdPartySales.getMontantVenteRembourse();
             montantAttendu += partySaleLine.getMontant();
             montantRemiseVente += Objects.requireNonNullElse(thirdPartySales.getDiscountAmount(), 0);
             montantRemiseForfaitaire += factureTiersPayant.getRemiseForfetaire();

@@ -52,6 +52,7 @@
         [saleType]="'CARNET'"
         [salesLines]="salesLines()"
         [selectedLineId]="selectedLineId()"
+        [tiersPayants]="currentSale()?.tiersPayants ?? []"
         [showRemiseSection]="true" />
     </div>
 

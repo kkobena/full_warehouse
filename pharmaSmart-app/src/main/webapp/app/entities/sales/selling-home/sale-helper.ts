@@ -3,7 +3,7 @@ import { IClientTiersPayant } from '../../../shared/model';
 import { TranslateService } from '@ngx-translate/core';
 import { ICustomer } from '../../../shared/model';
 import { ISales } from '../../../shared/model';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 export enum SaleType {
   COMPTANT = 'comptant',
@@ -80,11 +80,17 @@ export function showCommonModal<T>(
   modalDialogClass?: string,
   onDismiss?: (dismis: any) => void,
 ): void {
-  const modalRef = modalService.open(component, {
+  const modalRef: NgbModalRef = modalService.open(component, {
     backdrop: 'static',
     centered: true,
     size: size || 'lg',
     modalDialogClass,
+    // Un composant qui expose `confirmerFermeture()` peut retenir la fermeture (Échap, bouton Annuler) :
+    // une saisie longue ne se perd pas sur un geste involontaire. Les autres ne sont pas concernés.
+    beforeDismiss: () => {
+      const instance = modalRef.componentInstance as { confirmerFermeture?: () => boolean | Promise<boolean> };
+      return typeof instance?.confirmerFermeture === 'function' ? instance.confirmerFermeture() : true;
+    },
   });
 
   Object.assign(modalRef.componentInstance, componentInputs);

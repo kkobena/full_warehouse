@@ -21,6 +21,8 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CashSaleReceiptService.class);
     private CashSaleDTO cashSale;
+    /** Titre imprimé en tête d'un ticket particulier (ex. produits non remboursés) ; nul pour un ticket ordinaire. */
+    private String titre;
 
     public CashSaleReceiptService(AppConfigurationService appConfigurationService) {
         super(appConfigurationService);
@@ -51,7 +53,12 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
     }
 
     public void printReceipt(String hostName, CashSaleDTO sale, boolean isEdit) {
+        printReceipt(hostName, sale, isEdit, null);
+    }
+
+    public void printReceipt(String hostName, CashSaleDTO sale, boolean isEdit, String titre) {
         this.cashSale = sale;
+        this.titre = titre;
         try {
             printEscPosDirectByHost(hostName, isEdit);
         } catch (IOException | PrintException e) {
@@ -62,6 +69,9 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
     @Override
     public List<HeaderFooterItem> getHeaderItems() {
         List<HeaderFooterItem> headerItems = new ArrayList<>();
+        if (titre != null) {
+            headerItems.add(new HeaderFooterItem(titre, 1, PLAIN_FONT));
+        }
         if (cashSale.getCustomer() != null) {
             UninsuredCustomerDTO customer = (UninsuredCustomerDTO) cashSale.getCustomer();
             headerItems.add(
@@ -91,7 +101,13 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
 
     public byte[] generateEscPosReceiptForTauri(CashSaleDTO sale, boolean isEdit)
         throws IOException {
+        return generateEscPosReceiptForTauri(sale, isEdit, null);
+    }
+
+    public byte[] generateEscPosReceiptForTauri(CashSaleDTO sale, boolean isEdit, String titre)
+        throws IOException {
         this.cashSale = sale;
+        this.titre = titre;
         return generateEscPosReceipt(isEdit);
     }
 }

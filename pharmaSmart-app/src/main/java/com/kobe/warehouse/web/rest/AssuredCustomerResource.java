@@ -29,6 +29,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
+import com.kobe.warehouse.service.dto.ControleAssureDTO;
 import com.kobe.warehouse.security.navaccess.NavAccessExempt;
 
 @RestController
@@ -155,6 +156,21 @@ public class AssuredCustomerResource  {
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
+    /**
+     * Contrôle anticipé de la saisie : numéro de carte déjà utilisé pour cet organisme (avec le nom du
+     * dossier en cause) et homonymes. Appelé avant l'enregistrement, pour que le caissier tranche tôt.
+     */
+    @GetMapping("/customers/assured/controle")
+    public ResponseEntity<ControleAssureDTO> controlerAssure(
+        @RequestParam(value = "tiersPayantId", required = false) Integer tiersPayantId,
+        @RequestParam(value = "num", required = false) String num,
+        @RequestParam(value = "firstName", required = false) String firstName,
+        @RequestParam(value = "lastName", required = false) String lastName,
+        @RequestParam(value = "excludeId", required = false) Integer excludeId
+    ) {
+        return ResponseEntity.ok(assuredCustomerService.controlerAssure(tiersPayantId, num, firstName, lastName, excludeId));
+    }
+
     @GetMapping("/customers/tiers-payants/{id}")
     @NavAccessExempt("lecture du fichier clients et de leurs tiers payants, nécessaire à la vente assurance (et aux applications mobiles)")
     public ResponseEntity<List<ClientTiersPayantDTO>> getAssuredTiersPayants(@PathVariable("id") Integer id) {

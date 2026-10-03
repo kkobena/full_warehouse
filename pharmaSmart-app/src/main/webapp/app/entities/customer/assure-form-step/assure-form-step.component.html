@@ -9,6 +9,7 @@
     <div
       #stepNav="ngbNav"
       (activeIdChange)="activeStep.set($event)"
+      (navChange)="onNavChange($event)"
       [activeId]="activeStep()"
       class="nav pharma-nav-tabs"
       ngbNav
@@ -17,6 +18,9 @@
         <a class="pharma-nav-tab-link" ngbNavLink>
           <i class="pi pi-user"></i>
           <span>Infos Assuré</span>
+          @if (assureValide()) {
+            <i class="pi pi-check-circle text-success ms-1" title="Informations complètes" data-testid="assure-complet"></i>
+          }
         </a>
         <ng-template ngbNavContent>
           <jhi-assure-step #assureStep></jhi-assure-step>
@@ -24,7 +28,7 @@
       </ng-container>
 
       @if (!assureFormStepService.isEdition() && typeAssure === 'ASSURANCE') {
-        <ng-container [disabled]="!assureStepComponent()?.editForm?.valid" [ngbNavItem]="2">
+        <ng-container [ngbNavItem]="2">
           <a class="pharma-nav-tab-link" ngbNavLink>
             <i class="pi pi-users"></i>
             <span>Infos Ayant-droit</span>
@@ -39,26 +43,31 @@
 </div>
 
 <div class="form-actions-compact">
+  <!--
+    Toujours présent, vide quand tout est complet : ni l'apparition du message ni le retour à la ligne
+    ne déplacent les boutons. Une seule ligne, tronquée au besoin.
+    « Enregistrer » est toujours le bouton le plus à droite, à l'étape 1 comme à l'étape 2.
+  -->
+  <small class="text-muted align-self-center me-auto text-truncate flex-grow-1" data-testid="raison-enregistrement"
+         style="min-width: 0">{{ raisonEnregistrementImpossible() }}&nbsp;</small>
   @if (activeStep() === 1) {
     <app-button (clicked)="cancel()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary"
                 type="button"></app-button>
-    @if (assureStepComponent()?.editForm.valid) {
-      <app-button
-        (clicked)="save()"
-        [disabled]="isSaving()"
-        [loading]="isSaving()"
-        icon="pi pi-check"
-        label="Enregistrer"
-        severity="primary"
-        type="button"
-      >
+    @if (peutAllerAuxAyantsDroit()) {
+      <app-button (clicked)="onGoAyantDroit(2)" icon="pi pi-arrow-right" iconPos="right" label="Suivant"
+                  severity="info" type="button">
       </app-button>
-      @if (commonService.categorieTiersPayant() === 'ASSURANCE') {
-        <app-button (clicked)="onGoAyantDroit(2)" icon="pi pi-arrow-right" iconPos="right" label="Suivant"
-                    severity="info" type="button">
-        </app-button>
-      }
     }
+    <app-button
+      (clicked)="save()"
+      [disabled]="!peutEnregistrer()"
+      [loading]="isSaving()"
+      icon="pi pi-check"
+      label="Enregistrer"
+      severity="primary"
+      type="button"
+    >
+    </app-button>
   }
   @if (activeStep() === 2) {
     <app-button
@@ -70,17 +79,15 @@
       type="button"
     >
     </app-button>
-    @if (ayantDroitStepComponent()?.isValidForm()) {
-      <app-button
-        (clicked)="save()"
-        [disabled]="isSaving()"
-        [loading]="isSaving()"
-        icon="pi pi-check"
-        label="Enregistrer"
-        severity="primary"
-        type="button"
-      >
-      </app-button>
-    }
+    <app-button
+      (clicked)="save()"
+      [disabled]="!peutEnregistrer()"
+      [loading]="isSaving()"
+      icon="pi pi-check"
+      label="Enregistrer"
+      severity="primary"
+      type="button"
+    >
+    </app-button>
   }
 </div>

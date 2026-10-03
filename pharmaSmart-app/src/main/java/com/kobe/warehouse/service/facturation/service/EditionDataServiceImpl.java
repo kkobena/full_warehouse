@@ -453,7 +453,7 @@ public class EditionDataServiceImpl implements EditionDataService {
     }
 
     private DossierFactureDto fromThirdPartySaleLine(ThirdPartySaleLine thirdPartySaleLine) {
-        Sales sales = thirdPartySaleLine.getSale();
+        ThirdPartySales sales = thirdPartySaleLine.getSale();
         AssuredCustomer assuredCustomer = (AssuredCustomer) sales.getCustomer();
         return new DossierFactureDto()
             .setId(Objects.requireNonNull(thirdPartySaleLine.getId()).getId())
@@ -461,7 +461,7 @@ public class EditionDataServiceImpl implements EditionDataService {
             .setNumBon(thirdPartySaleLine.getNumBon())
             .setCreatedAt(sales.getUpdatedAt())
             .setMontantBon(thirdPartySaleLine.getMontant())
-            .setMontantVente(sales.getSalesAmount())
+            .setMontantVente(sales.getMontantVenteRembourse())
             .setAssuredCustomer(fromAssuredCustomer(assuredCustomer));
     }
 
@@ -584,7 +584,7 @@ public class EditionDataServiceImpl implements EditionDataService {
             //            if (sales.getNatureVente() == NatureVente.CARNET) {
             //                isCarnet = true;
             //            }
-            montantVente += sales.getSalesAmount();
+            montantVente += sales.getMontantVenteRembourse();
             factureDto.setMontant(Objects.requireNonNullElse(factureDto.getMontant(), 0)
                 + thirdPartySaleLine.getMontant());
             remiseVente += Objects.requireNonNullElse(sales.getDiscountAmount(), 0);
@@ -609,14 +609,14 @@ public class EditionDataServiceImpl implements EditionDataService {
     private FactureItemDto buildFromThirdPartySaleLine(ThirdPartySaleLine thirdPartySaleLine,
         ThirdPartySales sales) {
         FactureItemDto factureItemDto = new FactureItemDto();
-        factureItemDto.setMontantClient(Objects.requireNonNullElse(sales.getPartAssure(), 0));
+        factureItemDto.setMontantClient(sales.getPartAssureRembourse());
         factureItemDto.setTaux(thirdPartySaleLine.getTaux());
         factureItemDto.setSaleNumber(sales.getNumberTransaction());
         factureItemDto.setSaleId(Objects.requireNonNull(sales.getId()).getId());
         factureItemDto.setAssuranceSaleId(thirdPartySaleLine.getId());
         factureItemDto.setComppsiteSaleId(sales.getId());
         factureItemDto.setStatut(thirdPartySaleLine.getStatut());
-        factureItemDto.setMontantVente(sales.getSalesAmount());
+        factureItemDto.setMontantVente(sales.getMontantVenteRembourse());
         factureItemDto.setMontantRegle(
             Objects.requireNonNullElse(thirdPartySaleLine.getMontantRegle(), 0));
         factureItemDto.setMontant(thirdPartySaleLine.getMontant());

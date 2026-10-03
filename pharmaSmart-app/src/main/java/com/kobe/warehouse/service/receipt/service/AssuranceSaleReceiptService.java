@@ -5,6 +5,8 @@ import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.dto.TvaEmbeded;
+import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
 import com.kobe.warehouse.service.receipt.dto.AssuranceReceiptItem;
@@ -50,6 +52,9 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
     public List<AssuranceReceiptItem> getItems() {
         List<AssuranceReceiptItem> items = new ArrayList<>();
         for (SaleLineDTO line : thirdPartySale.getSalesLines()) {
+            if (line.isNonRembourse()) {
+                continue; // imprimées sur leur propre ticket
+            }
             items.add(fromSaleLine(line));
         }
 
@@ -68,6 +73,7 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
                 : produitName);
         item.setQuantity(NumberUtil.formatToString(saleLineDTO.getQuantityRequested()));
         item.setUnitPrice(NumberUtil.formatToString(saleLineDTO.getRegularUnitPrice()));
+        item.setLots(formaterLots(saleLineDTO));
 
         return item;
     }
@@ -131,7 +137,41 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
     }
 
     @Override
+    protected int getMontantHorsTicket() {
+        return TicketNonRembourseBuilder
+            .listerLignesNonRemboursees(thirdPartySale)
+            .stream()
+            .mapToInt(SaleLineDTO::getSalesAmount)
+            .sum();
+    }
+
+    @Override
+    protected List<PaymentDTO> getReglementsTicket() {
+        return TicketNonRembourseBuilder.repartirReglements(thirdPartySale.getPayments(), getMontantHorsTicket()).ticketAssurance();
+    }
+
+    @Override
+    protected List<TvaEmbeded> getTvaTicket() {
+        if (getMontantHorsTicket() == 0) {
+            return thirdPartySale.getTvaEmbededs();
+        }
+        return TicketNonRembourseBuilder.calculerTva(
+            thirdPartySale.getSalesLines().stream().filter(l -> !l.isNonRembourse()).toList()
+        );
+    }
+
+    @Override
     public List<HeaderFooterItem> getFooterItems() {
+        int montantNonRembourse = getMontantHorsTicket();
+        if (montantNonRembourse > 0) {
+            return List.of(
+                new HeaderFooterItem(
+                    "Dont non remboursés (ticket joint): " + NumberUtil.formatToString(montantNonRembourse),
+                    1,
+                    PLAIN_FONT
+                )
+            );
+        }
         return List.of();
     }
 

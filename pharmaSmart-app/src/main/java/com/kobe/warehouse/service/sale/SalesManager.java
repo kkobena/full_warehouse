@@ -24,6 +24,11 @@ public interface SalesManager {
     SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO, Sales sales) throws PlafondVenteException;
 
     /**
+     * Marque ou démarque une ligne « non remboursée » et recalcule la vente.
+     */
+    SaleLineDTO updateItemNonRembourse(SaleLineDTO saleLineDTO, Sales sales) throws PlafondVenteException;
+
+    /**
      * Adds or updates a sales line in a sale and updates the sale's totals and customer display.
      */
     SaleLineDTO addOrUpdateSaleLine(SaleLineDTO dto, Sales sales) throws StockException, DeconditionnementStockOut, PlafondVenteException;

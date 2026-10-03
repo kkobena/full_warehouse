@@ -8,18 +8,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 public class AssuredCustomer extends Customer {
-
-    @Column(name = "sexe")
-    private String sexe;
-
-    @Column(name = "dat_naiss")
-    private LocalDate datNaiss;
 
     @ManyToOne
     @JoinColumn(name = "assure_principal_id", referencedColumnName = "id")
@@ -75,21 +68,5 @@ public class AssuredCustomer extends Customer {
     public AssuredCustomer setNumAyantDroit(String numAyantDroit) {
         this.numAyantDroit = numAyantDroit;
         return this;
-    }
-
-    public String getSexe() {
-        return sexe;
-    }
-
-    public void setSexe(String sexe) {
-        this.sexe = sexe;
-    }
-
-    public LocalDate getDatNaiss() {
-        return datNaiss;
-    }
-
-    public void setDatNaiss(LocalDate datNaiss) {
-        this.datNaiss = datNaiss;
     }
 }

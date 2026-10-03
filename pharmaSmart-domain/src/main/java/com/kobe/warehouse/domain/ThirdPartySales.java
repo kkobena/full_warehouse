@@ -8,6 +8,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.annotations.ColumnDefault;
@@ -30,6 +31,10 @@ public class ThirdPartySales extends Sales implements Serializable {
 
     @Column(name = "part_tiers_payant", columnDefinition = "int default '0'")
     private Integer partTiersPayant = 0;
+
+    /** Total des lignes exclues de la prise en charge (colonne « NR » du panier). */
+    @Column(name = "montant_non_rembourse", nullable = false)
+    private int montantNonRembourse;
 
     @ColumnDefault("false")
     @Column(name = "has_price_option")
@@ -63,6 +68,25 @@ public class ThirdPartySales extends Sales implements Serializable {
     public ThirdPartySales setPartAssure(Integer partAssure) {
         this.partAssure = partAssure;
         return this;
+    }
+
+    public int getMontantNonRembourse() {
+        return montantNonRembourse;
+    }
+
+    public ThirdPartySales setMontantNonRembourse(int montantNonRembourse) {
+        this.montantNonRembourse = montantNonRembourse;
+        return this;
+    }
+
+    /** Montant de la vente sur lequel le tiers payant est sollicité : hors lignes non remboursées. */
+    public int getMontantVenteRembourse() {
+        return Objects.requireNonNullElse(getSalesAmount(), 0) - montantNonRembourse;
+    }
+
+    /** Part du patient sur la seule partie remboursable : ce que le tiers payant a besoin de voir sur la facture. */
+    public int getPartAssureRembourse() {
+        return Math.max(Objects.requireNonNullElse(partAssure, 0) - montantNonRembourse, 0);
     }
 
     public Integer getPartTiersPayant() {

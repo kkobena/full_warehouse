@@ -188,6 +188,12 @@ public class TiersPayantCalculationService {
         // Distribute amounts across third-parties
         BigDecimal totalPartTiersPayant = BigDecimal.ZERO;
 
+        // Ligne non remboursée : aucune part tiers payant, le patient règle la ligne entière
+        if (saleItem.isNonRembourse()) {
+            itemShare.setTotalReimbursedAmount(totalPartTiersPayant);
+            return itemShare;
+        }
+
         for (TiersPayantInput tiersPayantInput : sortedTiersPayants) {
             BigDecimal rate = BigDecimal.valueOf(tiersPayantInput.getTaux()).setScale(SCALE_RATE, ROUNDING_MODE);
 

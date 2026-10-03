@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, model, OnDestroy, signal } from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef, inject, model, OnDestroy, signal } from '@angular/core';
 import {FormArray, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
 import {HttpResponse} from '@angular/common/http';
 import {IClientTiersPayant, ICustomer, ITiersPayant} from '../../../shared/model';
@@ -125,7 +125,33 @@ export class ComplementaireStepComponent implements OnDestroy {
     } else if (tiersPayant) {
       this.tiersPayant = tiersPayant;
       this.addToAlreadyAdded(tiersPayant);
+      this.suggererTaux(tiersPayant, index);
+      this.focaliserNumero(index);
     }
+  }
+
+  /** Le numéro de carte se saisit juste après l'organisme : le curseur se place dans le champ de CETTE ligne. */
+  private focaliserNumero(index: number): void {
+    // Après la fermeture de la liste de recherche, qui reprend le focus au moment de la sélection.
+    setTimeout(() => this.hote.nativeElement.querySelector(`[data-ligne-num="${index}"]`)?.focus());
+  }
+
+  /** Taux standard par ligne de mutuelle : proposé seulement si le champ de CETTE ligne est vide. */
+  protected readonly tauxSuggeres = signal<Record<number, number>>({});
+
+  private readonly hote = inject(ElementRef);
+
+  private suggererTaux(tiersPayant: ITiersPayant, index: number): void {
+    const taux = tiersPayant.tauxCouvertureDefaut;
+    const champ = this.convertFormAsFormArray().at(index)?.get('taux');
+    const suggeres = {...this.tauxSuggeres()};
+    if (taux != null && champ && (champ.value === null || champ.value === '')) {
+      champ.patchValue(taux);
+      suggeres[index] = taux;
+    } else {
+      delete suggeres[index];
+    }
+    this.tauxSuggeres.set(suggeres);
   }
 
   addTiersPayantAssurance(index: number): void {
@@ -136,12 +162,14 @@ export class ComplementaireStepComponent implements OnDestroy {
         entity: null,
         categorie: this.assureFormStepService.typeAssure(),
         title: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
+        modeExpress: true,
       },
       (resp: ITiersPayant) => {
         if (resp) {
           this.tiersPayants().push(resp);
           this.convertFormAsFormArray().at(index).patchValue({tiersPayant: resp});
           this.addToAlreadyAdded(resp);
+          this.focaliserNumero(index);
         }
       },
       'xl',

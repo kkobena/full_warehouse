@@ -36,8 +36,8 @@ scenario('REF-62', async ({ etape, page }) => {
     await page.goto('/produits');
     await chercherAuCatalogue(page, `SIROP DOUBLON ${suffixe}`, cible);
     await expect(lignes).toHaveCount(2);
-    await lignes.nth(0).getByRole('checkbox').check();
-    await lignes.nth(1).getByRole('checkbox').check();
+    await lignes.nth(0).getByRole('checkbox', { name: /^Sélectionner/ }).check();
+    await lignes.nth(1).getByRole('checkbox', { name: /^Sélectionner/ }).check();
     await expect(page.locator('.bulk-action-bar')).toContainText('2 produit(s) sélectionné(s)');
   });
 
@@ -71,6 +71,9 @@ scenario('REF-62', async ({ etape, page }) => {
     // Le doublon est ARCHIVÉ, pas supprimé : il passe en veille, sa fiche et son historique
     // restent consultables, et la cible poursuit seule sa carrière au catalogue actif.
     await chercherAuCatalogue(page, `SIROP DOUBLON ${suffixe}`, cible);
+    // La fusion ouvre le détail de la fiche conservée, et la liste y masque Etat, Favori et Statut :
+    // on le referme pour relire le statut dans le tableau.
+    await page.locator('app-produit-detail-panel app-button[ngbtooltip="Fermer"] button').click();
     await expect(lignes.filter({ hasText: cible }).first()).toContainText('Actif');
     await expect(lignes.filter({ hasText: source }).first()).toContainText('Veille');
   });

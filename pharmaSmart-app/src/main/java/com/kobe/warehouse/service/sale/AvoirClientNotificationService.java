@@ -45,7 +45,8 @@ public class AvoirClientNotificationService {
 
     /**
      * Notifie le client que ses produits en avoir sont disponibles au comptoir.
-     * Appelé uniquement lors d'une clôture en mode RETOUR_PRODUIT.
+     * Appelé à la réception d'une commande qui contient les produits dus (AvoirClientDocumentService#linkCommandeToAvoirs),
+     * jamais à la clôture : on clôture quand le client est déjà au comptoir.
      * Exécuté de façon asynchrone pour ne pas bloquer la réponse HTTP.
      */
     @Async

@@ -1,0 +1,62 @@
+<div class="modal-header">
+  <h5 class="modal-title"><i aria-hidden="true" class="pi pi-star-fill me-2"></i>Favoris du comptoir</h5>
+  <button (click)="fermer()" aria-label="Fermer" class="btn-close" type="button"></button>
+</div>
+
+<div class="modal-body">
+  @if (chargement()) {
+    <p class="text-muted" role="status">Chargement…</p>
+  } @else {
+    <section aria-labelledby="titre-epingles">
+      <h6 id="titre-epingles">Dans la grille ({{ epingles().length }})</h6>
+      @if (epingles().length === 0) {
+        <p class="vide">Aucun produit n'est épinglé : la grille n'apparaît pas à l'écran de vente. Épinglez-en un parmi les suggestions ci-dessous,
+          ou depuis le menu d'un produit du catalogue.</p>
+      } @else {
+        <ol class="liste">
+          @for (produit of epingles(); track produit.id; let i = $index; let premier = $first; let dernier = $last) {
+            <li class="ligne">
+              <span class="rang">{{ i + 1 }}</span>
+              <span class="libelle">{{ produit.libelle }}</span>
+              <span class="prix">{{ produit.regularUnitPrice | devise }}</span>
+              <span class="actions">
+                <app-button (clicked)="monter(i)" [ariaLabel]="'Monter ' + produit.libelle" [disabled]="premier || occupe()" [text]="true" icon="pi pi-arrow-up"
+                            severity="secondary" />
+                <app-button (clicked)="descendre(i)" [ariaLabel]="'Descendre ' + produit.libelle" [disabled]="dernier || occupe()" [text]="true"
+                            icon="pi pi-arrow-down" severity="secondary" />
+                <app-button (clicked)="retirer(produit)" [ariaLabel]="'Retirer ' + produit.libelle" [disabled]="occupe()" [text]="true" icon="pi pi-times"
+                            severity="danger" />
+              </span>
+            </li>
+          }
+        </ol>
+      }
+    </section>
+
+    <section aria-labelledby="titre-suggestions" class="mt-4">
+      <h6 id="titre-suggestions">Suggérés d'après vos ventes</h6>
+      <p class="aide">Les produits sans ordonnance les plus vendus au comptoir ces 30 derniers jours. Rien n'est épinglé sans votre geste.</p>
+      @if (suggestions().length === 0) {
+        <p class="vide">Aucune suggestion : pas assez de ventes récentes au comptoir, ou tout est déjà épinglé.</p>
+      } @else {
+        <ul class="liste">
+          @for (suggestion of suggestions(); track suggestion.produit.id) {
+            <li class="ligne">
+              <span class="libelle">{{ suggestion.produit.libelle }}</span>
+              <span class="ventes">{{ suggestion.nbVentes }} vente{{ suggestion.nbVentes > 1 ? 's' : '' }}</span>
+              <span class="prix">{{ suggestion.produit.regularUnitPrice | devise }}</span>
+              <span class="actions">
+                <app-button (clicked)="epingler(suggestion)" [ariaLabel]="'Épingler ' + suggestion.produit.libelle" [disabled]="occupe()" [outlined]="true"
+                            icon="pi pi-star" label="Épingler" severity="primary" />
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+</div>
+
+<div class="modal-footer">
+  <app-button (clicked)="fermer()" icon="pi pi-check" label="Terminé" severity="primary" />
+</div>

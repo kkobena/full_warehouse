@@ -1,17 +1,19 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal, viewChild } from '@angular/core';
+import { FavoriEtoileComponent } from '../favori-etoile/favori-etoile.component';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ProductSearchComponent } from '../product-search/product-search.component';
 import { ButtonComponent, InputNumberComponent } from '../../../../shared/ui';
 import { ProduitSearch } from '../../../../shared/model';
 import { DevisePipe } from 'app/shared/utils/devise';
+import { SubstitutionComptoirService } from '../../data-access/services/substitution-comptoir.service';
 
 @Component({
   selector: 'app-product-search-section',
   templateUrl: './product-search-section.component.html',
   styleUrls: ['./product-search-section.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, ProductSearchComponent, InputNumberComponent, ButtonComponent, DevisePipe],
+  imports: [CommonModule, FormsModule, ProductSearchComponent, InputNumberComponent, ButtonComponent, DevisePipe, FavoriEtoileComponent],
 })
 export class ProductSearchSectionComponent {
   autofocus = input<boolean>(false);
@@ -40,6 +42,14 @@ export class ProductSearchSectionComponent {
     const stock = this.selectedProduct()?.totalQuantity ?? null;
     return stock != null && Number(this.quantite() ?? 0) > stock;
   });
+
+  /** Le produit choisi n'a plus rien au rayon : de quoi proposer un équivalent avant même de taper une quantité. */
+  protected readonly enRupture = computed(() => {
+    const produit = this.selectedProduct();
+    return !!produit && (produit.totalQuantity ?? 0) <= 0;
+  });
+
+  private readonly substitution = inject(SubstitutionComptoirService);
 
   /**
    * Un client est requis et manque : la recherche est grisée AVANT la frappe, avec la raison affichée,
@@ -82,6 +92,31 @@ export class ProductSearchSectionComponent {
 
   resetQuantity(qty: number): void {
     this.quantite.set(qty || null);
+  }
+
+  /**
+   * Ouvre les équivalents en stock du produit choisi ; celui qu'on retient prend sa place dans la recherche, avec la quantité déjà
+   * tapée. L'ajout au panier reste un geste à part (Entrée), comme pour tout produit sélectionné.
+   */
+  protected chercherEquivalents(): void {
+    const produit = this.selectedProduct();
+    if (!produit) {
+      return;
+    }
+    const quantite = this.quantite();
+    this.substitution
+      .choisir({ id: produit.id, libelle: produit.libelle, prixUnitaire: produit.regularUnitPrice, quantite })
+      .subscribe(choisi => {
+        if (!choisi) {
+          return;
+        }
+        this.afficherProduit(choisi);
+        this.productSelected.emit(choisi);
+        // L'écran remet la quantité à 1 à chaque sélection ; on la rétablit une fois sa remise à zéro passée.
+        if (quantite && quantite > 1) {
+          setTimeout(() => this.resetQuantity(quantite), 200);
+        }
+      });
   }
 
   protected ajouterQuantite(): void {

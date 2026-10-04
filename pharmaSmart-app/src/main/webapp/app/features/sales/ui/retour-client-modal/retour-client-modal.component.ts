@@ -1,3 +1,4 @@
+import { ModalDeplacableDirective } from 'app/shared/utils/modal-deplacable.directive';
 import { Component, computed, DestroyRef, inject, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -27,7 +28,7 @@ type RetourLine = ISaleLineForRetour & {
   templateUrl: "./retour-client-modal.component.html",
   styleUrl: "./retour-client-modal.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, ButtonComponent, SelectSearchComponent, InputNumberComponent, CheckboxComponent, CardComponent, DevisePipe],
+  imports: [ModalDeplacableDirective, CommonModule, FormsModule, ButtonComponent, SelectSearchComponent, InputNumberComponent, CheckboxComponent, CardComponent, DevisePipe],
 })
 export class RetourClientModalComponent {
   readonly activeModal = inject(NgbActiveModal);

@@ -1,9 +1,10 @@
 import {NgZone, signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {ISales, ISalesLine} from '../../../../shared/model';
+import {ISales, ISalesLine, ProduitSearch} from '../../../../shared/model';
 import {ForceStockChoiceModalComponent} from '../../ui/force-stock-choice-modal/force-stock-choice-modal.component';
-import {createForceStockHandling, ForceStockContext, StockErrorDetails} from './force-stock.mixin';
+import {of} from 'rxjs';
+import {createForceStockHandling, ForceStockContext, ForceStockHandlingContext, StockErrorDetails} from './force-stock.mixin';
 
 /** Lot 3 de PLAN-VENTE-SUR-STOCK-ERRONE : du choix du caissier à la ligne envoyée au serveur. */
 describe('createForceStockHandling — choix du motif de forçage', () => {
@@ -25,7 +26,7 @@ describe('createForceStockHandling — choix du motif de forçage', () => {
   const currentSale = signal<ISales | null>(null);
   const resetProductSelection = jest.fn();
 
-  function mixin() {
+  function mixin(supplement: Partial<ForceStockHandlingContext> = {}) {
     return TestBed.runInInjectionContext(() =>
       createForceStockHandling({
         facade: facade as never,
@@ -41,6 +42,7 @@ describe('createForceStockHandling — choix du motif de forçage', () => {
         operations,
         modalService: modalService as unknown as NgbModal,
         zone,
+        ...supplement,
       }),
     );
   }
@@ -72,7 +74,7 @@ describe('createForceStockHandling — choix du motif de forçage', () => {
     mixin().handleStockError({errorKey: 'stock', attemptedLine: ligne()});
 
     expect(modalService.open).toHaveBeenCalledWith(ForceStockChoiceModalComponent, expect.objectContaining({backdrop: 'static'}));
-    expect(instance).toEqual({produitLibelle: 'SPASFON', quantiteDemandee: 3, canRupture: true, canEcart: false});
+    expect(instance).toEqual({produitLibelle: 'SPASFON', quantiteDemandee: 3, canRupture: true, canEcart: false, canSubstituer: false});
   });
 
   it("envoie l'écart d'inventaire comme motif, forçage compris", async () => {
@@ -114,6 +116,56 @@ describe('createForceStockHandling — choix du motif de forçage', () => {
     expect(operations.addProduct).not.toHaveBeenCalled();
     expect(facade.clearError).toHaveBeenCalled();
     expect(resetProductSelection).toHaveBeenCalled();
+  });
+
+  describe('substitution : un équivalent à la place du produit en rupture', () => {
+    const equivalent = {id: 9, libelle: 'SPASFON LYOC', totalQuantity: 12, regularUnitPrice: 800} as ProduitSearch;
+    const ajouterSubstitut = jest.fn();
+    const substitution = {choisir: jest.fn()};
+
+    function avecSubstitution(): ReturnType<typeof mixin> {
+      return mixin({ajouterSubstitut, substitution: substitution as never});
+    }
+
+    it("n'offre l'option que si l'écran sait recevoir un équivalent et qu'on ajoute un produit", () => {
+      modaleRepond('RUPTURE_AVOIR');
+      mixin().handleStockError({errorKey: 'stock', attemptedLine: ligne()});
+      expect(instance.canSubstituer).toBe(false);
+
+      modaleRepond('RUPTURE_AVOIR');
+      avecSubstitution().handleStockError({errorKey: 'stock', attemptedLine: ligne()});
+      expect(instance.canSubstituer).toBe(true);
+
+      // Modifier la quantité d'une ligne existante n'est pas un ajout : pas d'équivalent à proposer.
+      modaleRepond('RUPTURE_AVOIR');
+      avecSubstitution().handleStockError({errorKey: 'stock', attemptedLine: {...ligne(), id: 5}, isFromTableCellEdit: true});
+      expect(instance.canSubstituer).toBe(false);
+    });
+
+    it("ajoute l'équivalent choisi avec la quantité demandée, sans rien forcer", async () => {
+      modaleRepond('SUBSTITUER');
+      substitution.choisir.mockReturnValue(of(equivalent));
+
+      avecSubstitution().handleStockError({errorKey: 'stock', attemptedLine: {...ligne(), regularUnitPrice: 650}});
+      await flush();
+
+      expect(substitution.choisir).toHaveBeenCalledWith({id: 1, libelle: 'SPASFON', prixUnitaire: 650, quantite: 3});
+      expect(ajouterSubstitut).toHaveBeenCalledWith(equivalent, 3);
+      expect(operations.createSale).not.toHaveBeenCalled();
+      expect(operations.addProduct).not.toHaveBeenCalled();
+      expect(facade.clearError).toHaveBeenCalled();
+    });
+
+    it("libère la sélection quand on ferme la liste des équivalents sans choisir", async () => {
+      modaleRepond('SUBSTITUER');
+      substitution.choisir.mockReturnValue(of(null));
+
+      avecSubstitution().handleStockError({errorKey: 'stock', attemptedLine: ligne()});
+      await flush();
+
+      expect(ajouterSubstitut).not.toHaveBeenCalled();
+      expect(resetProductSelection).toHaveBeenCalled();
+    });
   });
 
   it('le transfert depuis la réserve force sans motif : le serveur tranche', () => {

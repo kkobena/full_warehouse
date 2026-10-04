@@ -420,7 +420,8 @@ $devis-indigo-light: #e8eaf6;
     max-width: 600px;
   }
 
-  .pending-sales-btn {
+  .pending-sales-btn,
+  .apres-vente-btn {
     min-height: 44px;
 
     ::ng-deep .app-btn-label {
@@ -1176,7 +1177,8 @@ $devis-indigo-light: #e8eaf6;
     }
 
     .destinations-vente ::ng-deep .app-btn-label,
-    .pending-sales-btn .app-btn-label {
+    .pending-sales-btn .app-btn-label,
+    .apres-vente-btn .app-btn-label {
       @include libelle-visuellement-cache;
     }
 
@@ -1577,18 +1579,5 @@ $devis-indigo-light: #e8eaf6;
   }
 }
 
-// Accent du type de vente en cours (variantes accent et billetage) : contour et texte d'accent, teinte au survol.
-:host-context(:root) {
-  .destinations-vente ::ng-deep .btn {
-    --bs-btn-color: var(--comptoir-accent-dark);
-    --bs-btn-border-color: color-mix(in srgb, var(--comptoir-accent) 45%, white);
-    --bs-btn-hover-color: var(--comptoir-accent-dark);
-    --bs-btn-hover-bg: var(--comptoir-accent-tint);
-    --bs-btn-hover-border-color: var(--comptoir-accent);
-    --bs-btn-active-color: var(--comptoir-accent-dark);
-    --bs-btn-active-bg: var(--comptoir-accent-tint);
-    --bs-btn-active-border-color: var(--comptoir-accent);
-    --bs-btn-disabled-color: var(--comptoir-accent-dark);
-    --bs-btn-disabled-border-color: color-mix(in srgb, var(--comptoir-accent) 25%, white);
-  }
-}
+// Les boutons du bandeau alternent bleu et vert (Pré-vente, Proforma, Après-vente, En attente) : chacun se repère à sa couleur,
+// sans passer par l'accent du type de vente.

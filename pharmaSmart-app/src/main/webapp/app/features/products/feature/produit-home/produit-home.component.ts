@@ -56,6 +56,8 @@ import {
   ProduitDeconditionModalComponent
 } from "../../ui/decondition-modal/produit-decondition-modal.component";
 import {NotificationService} from "app/shared/services/notification.service";
+import {ProduitsFavorisApiService} from "../../data-access/services/produits-favoris-api.service";
+import {FavorisComptoirModalComponent} from "../../ui/favoris-comptoir-modal/favoris-comptoir-modal.component";
 import {ErrorService} from "app/shared/error.service";
 import {
   ListPrixReferenceComponent
@@ -163,9 +165,13 @@ export class ProduitHomeComponent implements OnInit {
   protected readonly canDelete = this.ability.canSignal("delete", "catalogue");
   protected readonly canMergeProduits = this.ability.canSignal("execute", "pr-fusion-produit");
   private readonly rayonProduitApi = inject(RayonProduitApiService);
+  private readonly favorisApi = inject(ProduitsFavorisApiService);
+  /** Identifiants des produits épinglés à la grille du comptoir (menu d'une ligne : ajouter ou retirer). */
+  protected readonly favorisIds = signal<ReadonlySet<number>>(new Set<number>());
 
   ngOnInit(): void {
     this.loadReferentiels();
+    this.loadFavoris();
 
     // Récupérer l'état de navigation (produit créé/modifié)
     const navState = history.state as { highlightId?: number; highlightCip?: string };
@@ -585,6 +591,51 @@ export class ProduitHomeComponent implements OnInit {
       centered: true
     });
     ref.componentInstance.produit = produit;
+  }
+
+  /** Gestion de la grille du comptoir ; à la fermeture, on relit les épingles pour que le menu des lignes soit juste. */
+  protected openFavoris(): void {
+    const ref = this.modalService.open(FavorisComptoirModalComponent, {size: "lg", centered: true, scrollable: true});
+    // Fermée par « Terminé », la croix ou Échap : dans les trois cas la liste a pu changer.
+    ref.result.then(() => this.loadFavoris(), () => this.loadFavoris());
+  }
+
+  private loadFavoris(): void {
+    this.favorisApi.lister().subscribe({
+      next: favoris => this.favorisIds.set(new Set(favoris.map(f => f.id))),
+      // Le menu proposera « Ajouter » partout : sans la liste, on ne sait pas ce qui l'est déjà.
+      error: () => this.favorisIds.set(new Set<number>()),
+    });
+  }
+
+  /**
+   * Case « Favori » d'une ligne. La case change tout de suite (l'ensemble des épinglés est mis à jour avant l'appel), et
+   * revient en arrière avec un message si le serveur refuse : c'est la valeur liée qui la fait repartir.
+   */
+  protected onFavoriChanged(event: { produit: IProduit; favori: boolean }): void {
+    const { produit, favori } = event;
+    if (produit.id == null) {
+      return;
+    }
+    const id = produit.id;
+    this.favorisIds.set(this.avecFavori(id, favori));
+    const appel = favori ? this.favorisApi.ajouter(id) : this.favorisApi.retirer(id);
+    appel.subscribe({
+      error: err => {
+        this.favorisIds.set(this.avecFavori(id, !favori));
+        this.notificationService.error(this.errorService.getErrorMessage(err), "Favoris du comptoir");
+      },
+    });
+  }
+
+  private avecFavori(id: number, favori: boolean): ReadonlySet<number> {
+    const suivants = new Set(this.favorisIds());
+    if (favori) {
+      suivants.add(id);
+    } else {
+      suivants.delete(id);
+    }
+    return suivants;
   }
 
   private openEtiquette(produit: IProduit): void {

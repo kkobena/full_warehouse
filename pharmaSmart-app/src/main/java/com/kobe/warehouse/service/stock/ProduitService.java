@@ -103,6 +103,12 @@ public interface ProduitService {
     List<ProduitSearch> searchProductsByStorage(@NotNull Integer storageId, String search,
         Pageable pageable);
 
+    /**
+     * Les produits d'une liste d'identifiants au format de la recherche (stock du magasin compris), dans l'ordre reçu.
+     * Un identifiant inconnu est ignoré.
+     */
+    List<ProduitSearch> findSearchByIds(List<Integer> ids, Integer magasinId);
+
     // saveDetail avec retour d'ID — voir déclaration en haut de l'interface
 
     void save(StockProduitDTO dto);

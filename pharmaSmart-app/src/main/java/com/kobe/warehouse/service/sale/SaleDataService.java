@@ -1,5 +1,8 @@
 package com.kobe.warehouse.service.sale;
 
+import jakarta.persistence.NoResultException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import com.kobe.warehouse.Util;
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppUser;
@@ -258,7 +261,12 @@ public class SaleDataService {
         }
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Sales> q = em.createQuery(cq);
-        return q.getSingleResult();
+        try {
+            return q.getSingleResult();
+        } catch (NoResultException e) {
+            // 404 explicite : l'écran peut alors dire que la vente n'existe plus (transformée, annulée) au lieu d'une erreur interne.
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Vente introuvable : " + id.getId() + " (" + id.getSaleDate() + ")");
+        }
     }
 
     private Optional<SaleDTO> fetch(SaleId id, boolean toEdit) {
@@ -888,22 +896,27 @@ public class SaleDataService {
         if (!StringUtils.hasLength(numBon) && !tpsLines.isEmpty()) {
             numBon = tpsLines.getFirst().getNumBon();
         }
+        // Une vente assurance peut n'avoir encore aucun assuré : c'est l'état juste après la transformation d'une vente comptant,
+        // avant que le caissier choisisse le client. La relire ne doit pas échouer (l'écran perdrait la nouvelle vente).
         AssuredCustomer assuredCustomer = (AssuredCustomer) thirdPartySales.getCustomer();
-        AssuredCustomerDTO customer = new AssuredCustomerDTO(assuredCustomer);
-        updateAssuranceInfo(customer, assuredCustomer);
-        if (!StringUtils.hasLength(num)) {
-            Set<ClientTiersPayant> clientTiersPayants = assuredCustomer.getClientTiersPayants();
-            if (!CollectionUtils.isEmpty(clientTiersPayants)) {
-                Optional<ClientTiersPayant> clientTiersPayantOpt = clientTiersPayants.stream()
-                    .filter(ctp -> ctp.getPriorite() == PrioriteTiersPayant.R0)
-                    .findFirst();
-                if (clientTiersPayantOpt.isPresent()) {
-                    num = clientTiersPayantOpt.get().getNum();
+        AssuredCustomerDTO customer = null;
+        if (assuredCustomer != null) {
+            customer = new AssuredCustomerDTO(assuredCustomer);
+            updateAssuranceInfo(customer, assuredCustomer);
+            if (!StringUtils.hasLength(num)) {
+                Set<ClientTiersPayant> clientTiersPayants = assuredCustomer.getClientTiersPayants();
+                if (!CollectionUtils.isEmpty(clientTiersPayants)) {
+                    Optional<ClientTiersPayant> clientTiersPayantOpt = clientTiersPayants.stream()
+                        .filter(ctp -> ctp.getPriorite() == PrioriteTiersPayant.R0)
+                        .findFirst();
+                    if (clientTiersPayantOpt.isPresent()) {
+                        num = clientTiersPayantOpt.get().getNum();
+                    }
                 }
             }
-        }
-        if (!StringUtils.hasLength(customer.getNum())) {
-            customer.setNum(num);
+            if (!StringUtils.hasLength(customer.getNum())) {
+                customer.setNum(num);
+            }
         }
 
         List<SaleLineDTO> salesLines = thirdPartySales.getSalesLines().stream()
@@ -915,7 +928,7 @@ public class SaleDataService {
             .toList();
         return ThirdPartySaleDTO.from(thirdPartySales)
             .customer(customer)
-            .customerId(customer.getId())
+            .customerId(customer != null ? customer.getId() : null)
             .salesLines(salesLines)
             .payments(payments)
             .thirdPartySaleLines(pair.getLeft())

@@ -70,6 +70,17 @@
     </ng-container>
 
     <ng-container ngProjectAs="[toolbarActions]">
+      @if (canEdit()) {
+        <app-button
+          (clicked)="openFavoris()"
+          [outlined]="true"
+          ariaLabel="Favoris du comptoir"
+          icon="pi pi-star"
+          label="Favoris"
+          ngbTooltip="Produits épinglés à la grille de la vente comptant"
+          severity="secondary"
+        />
+      }
       @if (canCreate()) {
         <app-button
           (clicked)="onNewProduit()"
@@ -167,6 +178,8 @@
         [canDelete]="canDelete()"
         [canEdit]="canEdit()"
         [clearSelectionTrigger]="clearSelectionTrigger()"
+        (favoriChanged)="onFavoriChanged($event)"
+        [favorisIds]="favorisIds()"
         [loading]="loading()"
         [produits]="produits()"
         [rows]="rows()"

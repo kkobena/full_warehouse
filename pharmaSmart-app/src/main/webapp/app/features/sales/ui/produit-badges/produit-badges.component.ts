@@ -23,7 +23,6 @@ export function joursAvant(date: string): number {
 /** Repères visibles d'un produit au comptoir : princeps/générique, stupéfiant, péremption proche. */
 @Component({
   selector: 'app-produit-badges',
-  standalone: true,
   imports: [NgbTooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -42,7 +41,7 @@ export function joursAvant(date: string): number {
     }
     @if (peremption(); as p) {
       <span [class.badge-perime]="p.perime" [ngbTooltip]="p.infobulle" class="badge-produit badge-peremption">
-        <i class="pi pi-clock"></i>Lot {{ peremptionLot() }} · {{ p.mois }}
+        <i class="pi pi-clock"></i>Lot {{ peremptionLot() }} · {{ p.jour }}
       </span>
     }
   `,
@@ -129,6 +128,6 @@ export class ProduitBadgesComponent {
     const jours = joursAvant(date);
     const perime = jours < 0;
     const quand = perime ? `périmé depuis ${-jours} j` : `périme dans ${jours} j`;
-    return {mois: formaterMoisPeremption(date), perime, infobulle: `Lot ${this.peremptionLot()} : ${formaterDatePeremption(date)} (${quand})`};
+    return {jour: formaterDatePeremption(date), perime, infobulle: `Lot ${this.peremptionLot()} : ${formaterDatePeremption(date)} (${quand})`};
   });
 }

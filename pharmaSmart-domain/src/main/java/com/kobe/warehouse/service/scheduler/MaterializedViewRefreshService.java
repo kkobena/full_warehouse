@@ -54,6 +54,7 @@ public class MaterializedViewRefreshService {
     private static final List<String> TIER2_VIEWS = List.of(
         "mv_dashboard_ca_product_families",
         "mv_monthly_top_products",
+        "mv_produits_frequents_comptoir",
         "mv_stock_valuation",
         "mv_stock_valuation_by_rayon"
     );

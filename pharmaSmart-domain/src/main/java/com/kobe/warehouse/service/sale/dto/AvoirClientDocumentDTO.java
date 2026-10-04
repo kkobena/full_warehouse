@@ -26,5 +26,7 @@ public record AvoirClientDocumentDTO(
     LocalDate dateExpiration,
     boolean procheExpiration,
     int montantUtilise,
-    int montantRestant
+    int montantRestant,
+    int quantiteRemise,
+    int quantiteRestante
 ) {}

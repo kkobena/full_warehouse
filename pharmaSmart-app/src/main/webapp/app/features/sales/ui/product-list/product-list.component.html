@@ -26,11 +26,7 @@
             <i class="pi pi-percentage"></i>
             <span class="remise-label">Remise:</span>
             <strong class="remise-value">{{ getRemiseTaux() }}</strong>
-            <!--
-              L'infobulle est sur une enveloppe, PAS sur le bouton : `triggers` est une entrée commune à
-              ngbTooltip et ngbPopover. Posée sur le même élément, « triggers="hover" » faisait aussi
-              ouvrir le popover au survol et le refermait dès que la souris le quittait.
-            -->
+
             <span #tipEdit="ngbTooltip" class="d-inline-flex" ngbTooltip="Modifier la remise" placement="bottom" triggers="hover">
               <app-button
                 #editRemisePopover="ngbPopover"
@@ -344,6 +340,7 @@
               triggers="hover"
               severity="danger"
             />
+            <app-favori-etoile [libelle]="line.produitLibelle ?? ''" [produitId]="line.produitId!" />
             <div class="d-inline-block" container="body" ngbDropdown placement="bottom-end">
               <app-button
                 #tipPlus="ngbTooltip"
@@ -372,6 +369,9 @@
                 }
                 <button (click)="ajouterUneUnite(line)" ngbDropdownItem type="button">
                   <i class="pi pi-plus-circle me-2"></i>Ajouter une unité <kbd class="ms-2">Ctrl+D</kbd>
+                </button>
+                <button (click)="equivalentsDemandes.emit(line)" ngbDropdownItem type="button">
+                  <i class="pi pi-sync me-2"></i>Équivalents…
                 </button>
               </div>
             </div>

@@ -184,6 +184,8 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     forceStockContext: this.forceStockContext,
     getConfirmDialog: () => this.confirmDialog,
     resetProductSelection: () => this.productHandling.resetProductSelection(),
+    // Équivalent choisi en cas de rupture : ajouté par le circuit ordinaire, avec la quantité demandée.
+    ajouterSubstitut: (produit, quantite) => this.productHandling.addProductToSale(produit, quantite),
     operations: {
       createSale: (line: ISalesLine) => this.facade.createCarnetSale(line),
       addProduct: (line: ISalesLine) => this.facade.onAddProduitCarnet(line),
@@ -498,6 +500,10 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       this.facade.updateLineQuantityRequested(data.line.id, data.newQty);
     }
     // Focus géré via souscription à lineUpdatedSuccess$
+  }
+
+  onEquivalentsDemandes(line: ISalesLine): void {
+    this.productHandling.proposerEquivalents(line);
   }
 
   onLineRemoved(line: ISalesLine): void {

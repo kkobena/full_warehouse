@@ -3,7 +3,10 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { MotifForcageStock } from '../../../../shared/model';
 import { ButtonComponent } from '../../../../shared/ui';
 
-/** Stock insuffisant : le caissier dit pourquoi il force. Ferme avec le motif, rejette sur « Annuler ». */
+/** Ce que ferme le modal : un motif de forçage, ou l'abandon du produit au profit d'un équivalent (aucun forçage). */
+export type ChoixStockInsuffisant = MotifForcageStock | 'SUBSTITUER';
+
+/** Stock insuffisant : le caissier dit pourquoi il force, ou passe à un équivalent. Ferme avec le choix, rejette sur « Annuler ». */
 @Component({
   selector: 'app-force-stock-choice-modal',
   template: `
@@ -53,6 +56,20 @@ import { ButtonComponent } from '../../../../shared/ui';
           </div>
         }
       </div>
+      @if (canSubstituer) {
+        <div class="mt-3" data-motif="SUBSTITUER">
+          <app-button
+            class="d-block"
+            buttonClass="w-100 text-start"
+            icon="pi pi-sync"
+            label="Proposer un équivalent disponible"
+            severity="secondary"
+            [outlined]="true"
+            (clicked)="choisir('SUBSTITUER')"
+          />
+          <small class="choice-hint">Générique ou substitut en stock, avec le prix comparé. Rien n'est forcé.</small>
+        </div>
+      }
     </div>
     <div class="modal-footer">
       <app-button data-action="annuler" icon="pi pi-times" label="Annuler" severity="secondary" [outlined]="true" (clicked)="annuler()" />
@@ -68,11 +85,13 @@ export class ForceStockChoiceModalComponent {
   quantiteDemandee?: number;
   canRupture = false;
   canEcart = false;
+  /** Un équivalent peut être proposé : ajout d'un produit (pas la modification d'une ligne) dont l'écran sait recevoir un substitut. */
+  canSubstituer = false;
 
   private readonly activeModal = inject(NgbActiveModal);
 
-  choisir(motif: MotifForcageStock): void {
-    this.activeModal.close(motif);
+  choisir(choix: ChoixStockInsuffisant): void {
+    this.activeModal.close(choix);
   }
 
   annuler(): void {

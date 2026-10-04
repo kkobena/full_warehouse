@@ -40,6 +40,8 @@ export interface IAvoirClientDocument {
   montant?: number;
   montantUtilise?: number;
   montantRestant?: number;
+  quantiteRemise?: number;
+  quantiteRestante?: number;
   dateExpiration?: string;
   procheExpiration?: boolean;
   commentaire?: string;
@@ -57,6 +59,8 @@ export interface CloturerAvoirRequest {
   modeCloture: ModeClotureAvoir;
   commentaire?: string;
   montantUtilise?: number;
+  /** Remise du produit : unités remises ; absent = toutes les unités restantes. */
+  quantiteRemise?: number;
 }
 
 @Injectable({ providedIn: 'root' })

@@ -1,0 +1,159 @@
+// Une seule rangée, pour ne pas prendre de hauteur à l'écran de vente : le défilement est horizontal.
+:host {
+  display: block;
+}
+
+.favoris {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid var(--comptoir-border, var(--pharma-border));
+  border-radius: var(--comptoir-radius, 8px);
+  background: var(--pharma-surface);
+  box-shadow: var(--comptoir-shadow-card, none);
+}
+
+.favoris-titre {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  flex: 0 0 auto;
+  min-width: 56px;
+  min-height: 52px;
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--comptoir-accent-dark, var(--pharma-text));
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.1;
+  cursor: pointer;
+
+  .favoris-entete,
+  .favoris-sous {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .pi-star-fill {
+    color: var(--comptoir-accent, var(--pharma-accent));
+    font-size: 0.9rem;
+  }
+
+  .favoris-nombre {
+    color: var(--pharma-text-muted);
+    font-weight: 500;
+  }
+
+  &:hover {
+    background: var(--comptoir-accent-tint, var(--pharma-surface-alt));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--comptoir-accent, var(--pharma-accent));
+    outline-offset: 2px;
+  }
+}
+
+// Replié, il ne reste qu'une ligne : l'entête et le compteur côte à côte, à la hauteur d'une cible tactile.
+.favoris--replie {
+  display: inline-flex;
+  padding: 0 0.5rem;
+
+  .favoris-titre {
+    flex-direction: row;
+    gap: 0.5rem;
+    min-height: 44px;
+  }
+}
+
+.favoris-tuiles {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 0.5rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0 0 2px;
+  overflow-x: auto;
+  list-style: none;
+}
+
+.tuile {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.125rem;
+  width: 150px;
+  min-height: 52px;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--comptoir-border, var(--pharma-border));
+  border-left: 3px solid var(--comptoir-accent, var(--pharma-accent));
+  border-radius: 6px;
+  background: var(--pharma-surface-alt);
+  color: var(--pharma-text);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--comptoir-accent-tint, var(--pharma-surface-alt));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--comptoir-accent, var(--pharma-accent));
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+}
+
+.tuile-libelle {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.tuile-pied {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem;
+}
+
+.tuile-prix {
+  color: var(--comptoir-accent-dark, var(--pharma-text));
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+// Un produit en rupture reste cliquable : l'ajout ouvre la proposition d'équivalents (rupture → substituts).
+.tuile--rupture {
+  border-left-color: var(--pharma-text-muted);
+  background: var(--pharma-surface);
+
+  .tuile-libelle {
+    color: var(--pharma-text-muted);
+  }
+}
+
+.tuile-etat {
+  padding: 0 0.3rem;
+  border-radius: 3px;
+  background: #fde7e9;
+  color: #b02a37;
+  font-size: 0.65rem;
+  font-weight: 700;
+}

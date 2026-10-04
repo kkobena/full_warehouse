@@ -94,6 +94,13 @@ export default defineConfig({
       use: { storageState: FICHIER_SESSION },
     },
     {
+      // Régressions de bugs corrigés : un test par bug, hors du cahier de recette (ils ne documentent pas un parcours métier).
+      name: 'regression',
+      testDir: join(RACINE, 'e2e', 'regression'),
+      dependencies: ['authentification'],
+      use: { storageState: FICHIER_SESSION },
+    },
+    {
       name: 'droits',
       testDir: join(RACINE, 'e2e', 'droits'),
     },

@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AvoirClient;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Customer;
+import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
@@ -13,15 +14,21 @@ import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.enumeration.AvoirClientStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.ModeClotureAvoir;
+import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.domain.AvoirClientUtilisation;
 import com.kobe.warehouse.repository.AvoirClientRepository;
 import com.kobe.warehouse.repository.AvoirClientUtilisationRepository;
+import com.kobe.warehouse.repository.PaymentModeRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.cash_register.CashRegisterService;
+import com.kobe.warehouse.service.dto.FinancialTransactionDTO;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.financiel_transaction.FinancialTransactionService;
 import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.sale.AvoirClientNotificationService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
@@ -33,6 +40,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -56,6 +65,9 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
     private final LotService lotService;
     private final LotStockLocationService lotStockLocationService;
     private final LogsService logsService;
+    private final CashRegisterService cashRegisterService;
+    private final FinancialTransactionService financialTransactionService;
+    private final PaymentModeRepository paymentModeRepository;
 
     public AvoirClientDocumentServiceImpl(
         AvoirClientRepository avoirClientRepository,
@@ -68,8 +80,14 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
         AvoirClientUtilisationRepository utilisationRepository,
         LotService lotService,
         LotStockLocationService lotStockLocationService,
-        LogsService logsService
+        LogsService logsService,
+        CashRegisterService cashRegisterService,
+        FinancialTransactionService financialTransactionService,
+        PaymentModeRepository paymentModeRepository
     ) {
+        this.cashRegisterService = cashRegisterService;
+        this.financialTransactionService = financialTransactionService;
+        this.paymentModeRepository = paymentModeRepository;
         this.logsService = logsService;
         this.lotService = lotService;
         this.lotStockLocationService = lotStockLocationService;
@@ -115,6 +133,26 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
 
         avoirs.forEach(a -> a.setCommande(commande));
         avoirClientRepository.saveAll(avoirs);
+        prevenirLesClients(avoirs);
+    }
+
+    /**
+     * Les produits dus sont arrivés : on prévient chaque client (e-mail, SMS selon la configuration et son consentement).
+     * Un avoir n'est lié qu'une fois à une commande, donc prévenu une seule fois. L'envoi attend la validation de la
+     * réception : une réception annulée ne doit rien annoncer.
+     */
+    private void prevenirLesClients(List<AvoirClient> avoirs) {
+        Runnable envoi = () -> avoirs.forEach(avoirClientNotificationService::notifierProduitsDisponibles);
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    envoi.run();
+                }
+            });
+        } else {
+            envoi.run();
+        }
     }
 
     @Override
@@ -126,7 +164,11 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
         }
         Produit produit = avoir.getProduit();
         boolean remiseProduit = produit != null && request.modeCloture() == ModeClotureAvoir.RETOUR_PRODUIT;
+        // Remise du produit : on parle d'unités, jamais de montant. Sans quantité, toutes les unités restantes sont remises ;
+        // avec une quantité, une remise partielle. Le montant imputé en découle.
+        int unitesRemises = 0;
         if (remiseProduit) {
+            unitesRemises = resoudreUnitesRemises(avoir, request);
             // La vente a déjà déduit la quantité due : un stock ≥ 0 signifie que toutes les dettes sont couvertes.
             Integer magasinId = storageService.getUser().getMagasin().getId();
             Integer stockTotal = stockProduitRepository.findTotalQuantityByMagasinIdIdAndProduitId(magasinId, produit.getId());
@@ -139,18 +181,31 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
             }
         }
         AppUser user = storageService.getUser();
-        int montantAUtiliser = resoudreMontantUtilise(avoir, request);
+        int montantAUtiliser = remiseProduit ? montantDesUnites(avoir, unitesRemises, request) : resoudreMontantUtilise(avoir, request);
+        // Contrôlé avant toute écriture : sans caisse ouverte, rien n'est modifié.
+        boolean remboursement = request.modeCloture() == ModeClotureAvoir.REMBOURSEMENT_ESPECES
+            || request.modeCloture() == ModeClotureAvoir.REMBOURSEMENT_CB;
+        if (remboursement) {
+            exigerCaisseOuverte(avoir, user);
+        }
         int nouveauMontantUtilise = avoir.getMontantUtilise() + montantAUtiliser;
 
         avoir.setMontantUtilise(nouveauMontantUtilise);
+        avoir.setQuantiteRemise(avoir.getQuantiteRemise() + unitesRemises);
         avoir.setModeCloture(request.modeCloture());
         avoir.setCommentaire(request.commentaire());
 
         utilisationRepository.save(new AvoirClientUtilisation()
             .setAvoirClient(avoir)
             .setMontantUtilise(montantAUtiliser)
-            .setCommentaire(request.commentaire())
+            .setCommentaire(commentaireUtilisation(request, unitesRemises))
             .setUtilisePar(user));
+
+        if (remiseProduit && unitesRemises > 0) {
+            // qty_stock a été débité à la vente, les lots non : les unités remises sortent maintenant, à chaque remise.
+            lotService.adjustLots(produit, -unitesRemises);
+            lotStockLocationService.debitFefo(produit, storageService.getDefaultConnectedUserMainStorage(), unitesRemises);
+        }
 
         boolean soldeEpuise = nouveauMontantUtilise >= avoir.getMontant();
         if (soldeEpuise) {
@@ -162,22 +217,18 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
                 sl.setQuantityAvoir(0);
                 salesLineRepository.save(sl);
             }
-            if (produit != null && avoir.getQuantite() > 0) {
-                if (remiseProduit) {
-                    // qty_stock a été débité à la vente, les lots non : ils sortent maintenant.
-                    lotService.adjustLots(produit, -avoir.getQuantite());
-                    lotStockLocationService.debitFefo(produit, storageService.getDefaultConnectedUserMainStorage(), avoir.getQuantite());
-                } else {
-                    recrediterStock(avoir, produit);
-                }
+            // Les unités jamais remises (avoir soldé en argent, ou reste d'une remise partielle) reviennent en stock.
+            int nonRemises = avoir.getQuantiteRestante();
+            if (produit != null && nonRemises > 0) {
+                recrediterStock(avoir, produit, nonRemises);
             }
         }
 
-        AvoirClient saved = avoirClientRepository.save(avoir);
-        if (request.modeCloture() == ModeClotureAvoir.RETOUR_PRODUIT && soldeEpuise) {
-            avoirClientNotificationService.notifierProduitsDisponibles(saved);
+        if (remboursement) {
+            enregistrerSortieDeCaisse(avoir, request, montantAUtiliser);
         }
-        return toDTO(saved);
+
+        return toDTO(avoirClientRepository.save(avoir));
     }
 
     @Override
@@ -198,15 +249,41 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
         ).map(this::toDTO);
     }
 
+    private void exigerCaisseOuverte(AvoirClient avoir, AppUser user) {
+        if (cashRegisterService.getOpiningCashRegisterByUser(user).isEmpty()) {
+            throw new GenericError(
+                "Aucune caisse ouverte : ouvrez votre caisse avant de rembourser l'avoir " + avoir.getReference()
+            );
+        }
+    }
+
+    /** Le remboursement, en espèces comme par CB, sort de la caisse : un mouvement SORTIE_CAISSE au mode de paiement choisi. */
+    private void enregistrerSortieDeCaisse(AvoirClient avoir, CloturerAvoirRequest request, int montant) {
+        ModePaimentCode code = request.modeCloture() == ModeClotureAvoir.REMBOURSEMENT_ESPECES ? ModePaimentCode.CASH : ModePaimentCode.CB;
+        PaymentMode mode = paymentModeRepository.findById(code.name())
+            .orElseThrow(() -> new GenericError("Mode de paiement introuvable : " + code));
+        String commentaire = "Remboursement avoir " + avoir.getReference();
+        if (request.commentaire() != null && !request.commentaire().isBlank()) {
+            commentaire += " — " + request.commentaire().strip();
+        }
+        financialTransactionService.create(
+            new FinancialTransactionDTO()
+                .setAmount(montant)
+                .setPaymentMode(mode)
+                .setTypeTransaction(TypeFinancialTransaction.SORTIE_CAISSE)
+                .setCommentaire(commentaire)
+        );
+    }
+
     /** Avoir soldé sans remise du produit : la quantité due, sortie à la vente, revient en stock. */
-    private void recrediterStock(AvoirClient avoir, Produit produit) {
+    private void recrediterStock(AvoirClient avoir, Produit produit, int quantite) {
         Storage storage = storageService.getDefaultConnectedUserMainStorage();
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), storage.getId());
         if (stockProduit == null) {
             return;
         }
         int stockAvant = stockProduit.getQtyStock();
-        stockProduit.setQtyStock(stockAvant + avoir.getQuantite());
+        stockProduit.setQtyStock(stockAvant + quantite);
         stockProduit.setQtyVirtual(stockProduit.getQtyStock());
         stockProduit.setUpdatedAt(LocalDateTime.now());
         stockProduitRepository.save(stockProduit);
@@ -214,11 +291,43 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
             TransactionType.AVOIR_SOLDE_SANS_PRODUIT,
             String.format(
                 "Avoir %s soldé (%s) : %d unité(s) de %s recréditée(s), stock %d -> %d",
-                avoir.getReference(), avoir.getModeCloture(), avoir.getQuantite(),
+                avoir.getReference(), avoir.getModeCloture(), quantite,
                 produit.getLibelle(), stockAvant, stockProduit.getQtyStock()
             ),
             avoir.getId().toString()
         );
+    }
+
+    /** Unités remises par cette clôture : toutes celles qui restent, ou la quantité demandée (1 à restantes). */
+    private int resoudreUnitesRemises(AvoirClient avoir, CloturerAvoirRequest request) {
+        if (request.montantUtilise() != null && request.montantUtilise() > 0) {
+            throw new GenericError("La remise du produit se compte en unités : indiquez une quantité, pas un montant");
+        }
+        int restantes = avoir.getQuantiteRestante();
+        Integer demandees = request.quantiteRemise();
+        if (demandees == null) {
+            return restantes;
+        }
+        if (demandees <= 0 || demandees > restantes) {
+            throw new GenericError("Quantité à remettre invalide : " + demandees + " (il reste " + restantes + " unité(s) à remettre)");
+        }
+        return demandees;
+    }
+
+    /** Montant imputé par une remise : les unités au prix de l'avoir, et tout le solde pour la dernière, sans écart d'arrondi. */
+    private int montantDesUnites(AvoirClient avoir, int unites, CloturerAvoirRequest request) {
+        if (request.quantiteRemise() == null || unites >= avoir.getQuantiteRestante() || avoir.getQuantite() <= 0) {
+            return avoir.getMontantRestant();
+        }
+        return Math.min(unites * (avoir.getMontant() / avoir.getQuantite()), avoir.getMontantRestant());
+    }
+
+    private String commentaireUtilisation(CloturerAvoirRequest request, int unitesRemises) {
+        if (unitesRemises <= 0) {
+            return request.commentaire();
+        }
+        String remise = unitesRemises + " unité(s) remise(s)";
+        return request.commentaire() == null || request.commentaire().isBlank() ? remise : remise + " — " + request.commentaire();
     }
 
     private int resoudreMontantUtilise(AvoirClient avoir, CloturerAvoirRequest request) {
@@ -251,7 +360,7 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
     private AvoirClientDocumentDTO toDTO(AvoirClient ac) {
         SalesLine sl = ac.getSalesLine();
         String numberTransaction = sl != null ? sl.getSales().getNumberTransaction() : null;
-        Long salesLineId = sl != null ? sl.getId().getId() : null;
+        Long salesLineId = sl != null ? Objects.requireNonNull(sl.getId()).getId() : null;
         LocalDate salesLineDate = sl != null ? sl.getSaleDate() : null;
 
         Produit produit = ac.getProduit();
@@ -297,7 +406,9 @@ public class AvoirClientDocumentServiceImpl implements AvoirClientDocumentServic
             dateExpiration,
             procheExpiration,
             ac.getMontantUtilise(),
-            ac.getMontantRestant()
+            ac.getMontantRestant(),
+            ac.getQuantiteRemise(),
+            ac.getQuantiteRestante()
         );
     }
 }

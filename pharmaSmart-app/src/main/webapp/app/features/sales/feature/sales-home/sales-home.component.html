@@ -123,7 +123,7 @@
               [ngbTooltip]="salesFacade.currentSale() !== null ? 'Terminez ou mettez en attente la vente en cours' : d.libelle"
               [outlined]="true"
               container="body"
-              severity="info"
+              [severity]="d.id === 'proforma' ? 'success' : 'info'"
               size="small" />
           }
         </nav>
@@ -140,13 +140,27 @@
       }
 
       <!-- Pending sales button (masqué en mode prévente et devis) -->
+      @if (canApresVente()) {
+        <button
+          (click)="openApresVente()"
+          aria-label="Après-vente : retour client, clôture d'avoir"
+          class="btn btn-sm btn-outline-info app-btn-normal d-inline-flex align-items-center justify-content-center gap-2 apres-vente-btn"
+          ngbTooltip="Retour client, clôture d'avoir"
+          placement="left"
+          type="button"
+        >
+          <i aria-hidden="true" class="app-btn-icon pi pi-replay"></i>
+          <span class="app-btn-label">Après-vente</span>
+        </button>
+      }
+
       @if (!isPresaleMode() && !isDevisMode()) {
 
         <button
           (click)="openPendingSales()"
           [disabled]="salesFacade.currentSale() !== null"
           aria-label="Voir les ventes en attente"
-          class="btn btn-sm btn-outline-info app-btn-normal d-inline-flex align-items-center justify-content-center gap-2 pending-sales-btn"
+          class="btn btn-sm btn-outline-success app-btn-normal d-inline-flex align-items-center justify-content-center gap-2 pending-sales-btn"
           ngbTooltip="Voir les ventes en attente"
           placement="left"
           type="button"

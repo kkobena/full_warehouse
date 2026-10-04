@@ -99,6 +99,8 @@ abstract class AbstractSaleIntegrationTest {
         lenient().when(services.storageService.getDefaultConnectedUserReserveStorage()).thenReturn(null);
         lenient().when(services.storageService.getConnectedUserMagasin()).thenReturn(magasin);
         lenient().when(services.cashRegisterService.getLastOpiningUserCashRegisterByUser(any())).thenReturn(caisse);
+        lenient().when(services.cashRegisterService.getOpiningCashRegisterByUser(any())).thenReturn(java.util.Optional.of(caisse));
+        lenient().when(services.userService.getUser()).thenReturn(caissier);
         lenient().when(services.appConfigurationService.getCancelSaleMaxDays()).thenReturn(30);
         lenient().when(services.appConfigurationService.getDelaiValiditeAvoir()).thenReturn(90);
         lenient().when(services.appConfigurationService.getDelaiRetourClient()).thenReturn(15);

@@ -19,7 +19,8 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { fournirInfobullesEnHaut } from '../../shared/infobulles-en-haut';
 import { HauteurEcranVenteDirective } from '../../shared/hauteur-ecran-vente.directive';
-import { NgbNav, NgbNavChangeEvent, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavOutlet, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbNav, NgbNavChangeEvent, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavOutlet, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ApresVenteModalComponent } from '../../ui/apres-vente-modal/apres-vente-modal.component';
 import { ButtonComponent, OffcanvasComponent, SelectSearchComponent } from '../../../../shared/ui';
 import { SaleCreationComponent } from '../sale-creation/sale-creation.component';
 import { SaleAssuranceComponent } from '../sale-assurance/sale-assurance.component';
@@ -142,6 +143,11 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   private scanAudio = inject(ScanAudioFeedbackService);
   private authorizationService = inject(AuthorizationService);
   private readonly ability = inject(AbilityService);
+  private readonly modalService = inject(NgbModal);
+  // L'après-vente n'a de sens qu'avec l'un des deux droits : retourner une vente ou clôturer un avoir.
+  private readonly peutRetourner = this.ability.canSignal('execute', 'ventes.retours-client.create');
+  private readonly peutCloturer = this.ability.canSignal('execute', 'ventes.avoirs.cloturer');
+  protected readonly canApresVente = computed(() => this.peutRetourner() || this.peutCloturer());
   // ── Abilities : types de vente conditionnés par privilège d'action ─────
   protected readonly canSaleAssurance = this.ability.canSignal('execute', 'pr-sale-assurance');
   protected readonly canSaleCarnet = this.ability.canSignal('execute', 'pr-sale-carnet');
@@ -490,6 +496,14 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
 
   protected previousState(): void {
     window.history.back();
+  }
+
+  /** Retour client ou clôture d'avoir sans quitter la vente : le panier en cours n'est pas touché. */
+  protected openApresVente(): void {
+    const ref = this.modalService.open(ApresVenteModalComponent, { centered: true, size: 'xl', scrollable: true });
+    // La fenêtre est rendue hors de `app-sales-home` : elle reçoit l'accent du type de vente en entrée.
+    ref.componentInstance.mode = this.comptoirMode();
+    ref.componentInstance.doc = this.isPresaleMode() || this.isDevisMode();
   }
 
   protected openPendingSales(): void {

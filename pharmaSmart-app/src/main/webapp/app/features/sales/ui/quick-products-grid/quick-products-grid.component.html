@@ -1,0 +1,43 @@
+@if (favoris().length > 0) {
+  <section [class.favoris--replie]="!ouvert()" aria-label="Produits favoris du comptoir" class="favoris">
+    <button
+      (click)="basculer()"
+      [attr.aria-expanded]="ouvert()"
+      aria-controls="favoris-tuiles"
+      class="favoris-titre"
+      type="button">
+      <span class="favoris-entete">
+        <i aria-hidden="true" class="pi pi-star-fill"></i>
+        <span class="favoris-libelle">Favoris</span>
+      </span>
+      <span class="favoris-sous">
+        <span class="favoris-nombre">{{ favoris().length }}</span>
+        <i [class.pi-chevron-down]="!ouvert()" [class.pi-chevron-up]="ouvert()" aria-hidden="true" class="pi"></i>
+      </span>
+    </button>
+
+    @if (ouvert()) {
+      <ul class="favoris-tuiles" id="favoris-tuiles">
+        @for (produit of favoris(); track produit.id) {
+          <li>
+            <button
+              (click)="choisir(produit)"
+              [attr.aria-label]="libelleAccessible(produit)"
+              [class.tuile--rupture]="enRupture(produit)"
+              [disabled]="disabled()"
+              class="tuile"
+              type="button">
+              <span class="tuile-libelle">{{ produit.libelle }}</span>
+              <span class="tuile-pied">
+                <span class="tuile-prix">{{ produit.regularUnitPrice | devise }}</span>
+                @if (enRupture(produit)) {
+                  <span class="tuile-etat">Rupture</span>
+                }
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+}

@@ -1,0 +1,94 @@
+@use '../../shared/styles/accent-modal' as accent;
+
+@include accent.accent-modal;
+
+.propositions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.proposition {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--pharma-border);
+  border-radius: 8px;
+  background: var(--pharma-surface);
+}
+
+.proposition-corps {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.proposition-titre {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.proposition-detail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  color: var(--pharma-text-muted);
+  font-size: 0.8rem;
+}
+
+.avis {
+  color: #8a5a00;
+  font-weight: 600;
+}
+
+.proposition-chiffres {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 7.5rem;
+  line-height: 1.25;
+}
+
+.prix {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.ecart {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+// Texte foncé sur fond clair : l'écart se lit sans dépendre de la couleur seule (signe − / + devant le montant).
+.moins-cher {
+  color: #1b5e20;
+}
+
+.plus-cher {
+  color: #991b1b;
+}
+
+.stock {
+  color: var(--pharma-text-muted);
+  font-size: 0.8rem;
+}
+
+.stock-juste {
+  color: #8a5a00;
+  font-weight: 600;
+}
+
+.aucun {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: var(--pharma-text-muted);
+}

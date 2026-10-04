@@ -346,7 +346,13 @@ export class SaleLifecycleFacade {
     this.apiService
       .transformSale(natureVente, currentSale.saleId)
       .pipe(
-        switchMap(saleId => this.apiService.findSale(saleId)),
+        // La transformation crée une nouvelle vente et supprime la vente comptant : on bascule
+        // aussitôt sur le nouvel identifiant, la relecture complète ensuite la vente.
+        tap(newSaleId => {
+          this.store.setCurrentSale({ ...currentSale, saleId: newSaleId, type: 'VO' });
+          this.store.setSaleType(natureVente);
+        }),
+        switchMap(newSaleId => this.apiService.findSale(newSaleId)),
         tap(sale => {
           this.store.setVoFromCashSale(true);
           this.store.setCurrentSale(sale);

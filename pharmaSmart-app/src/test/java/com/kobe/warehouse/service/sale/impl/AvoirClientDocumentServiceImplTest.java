@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,7 +27,14 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.UninsuredCustomer;
 import com.kobe.warehouse.domain.enumeration.AvoirClientStatut;
+import com.kobe.warehouse.domain.PaymentMode;
+import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.enumeration.ModeClotureAvoir;
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
+import com.kobe.warehouse.repository.PaymentModeRepository;
+import com.kobe.warehouse.service.cash_register.CashRegisterService;
+import com.kobe.warehouse.service.dto.FinancialTransactionDTO;
+import com.kobe.warehouse.service.financiel_transaction.FinancialTransactionService;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.stock.LotService;
@@ -70,6 +78,9 @@ class AvoirClientDocumentServiceImplTest {
     @Mock private LotService lotService;
     @Mock private LotStockLocationService lotStockLocationService;
     @Mock private LogsService logsService;
+    @Mock private CashRegisterService cashRegisterService;
+    @Mock private FinancialTransactionService financialTransactionService;
+    @Mock private PaymentModeRepository paymentModeRepository;
 
     private AvoirClientDocumentServiceImpl service;
     private AppUser user;
@@ -86,8 +97,12 @@ class AvoirClientDocumentServiceImplTest {
         service = new AvoirClientDocumentServiceImpl(
             repository, lineRepository, referenceService, storageService, stockRepository,
             notificationService, configurationService, utilisationRepository,
-            lotService, lotStockLocationService, logsService
+            lotService, lotStockLocationService, logsService,
+            cashRegisterService, financialTransactionService, paymentModeRepository
         );
+        // Par défaut une caisse est ouverte : seuls les tests de remboursement s'intéressent à l'autre cas.
+        lenient().when(cashRegisterService.getOpiningCashRegisterByUser(any())).thenReturn(Optional.of(new CashRegister()));
+        lenient().when(paymentModeRepository.findById(any())).thenReturn(Optional.of(new PaymentMode()));
     }
 
     @Test
@@ -145,6 +160,7 @@ class AvoirClientDocumentServiceImplTest {
 
         assertSame(commande, avoir.getCommande());
         verify(repository).saveAll(List.of(avoir));
+        verify(notificationService).notifierProduitsDisponibles(avoir);
     }
 
     @Test
@@ -155,6 +171,7 @@ class AvoirClientDocumentServiceImplTest {
         service.linkCommandeToAvoirs(commande);
 
         verify(commande, never()).getOrderLines();
+        verify(notificationService, never()).notifierProduitsDisponibles(any());
         verify(repository, never()).findAll(any(org.springframework.data.jpa.domain.Specification.class));
     }
 
@@ -199,8 +216,64 @@ class AvoirClientDocumentServiceImplTest {
         verify(notificationService, never()).notifierProduitsDisponibles(any());
     }
 
+    /** Remboursement en espèces ou par CB : une sortie de caisse au mode de paiement choisi, sur une caisse ouverte. */
+    @ParameterizedTest
+    @EnumSource(value = ModeClotureAvoir.class, names = {"REMBOURSEMENT_ESPECES", "REMBOURSEMENT_CB"})
+    void refundWritesACashOutflowAtTheChosenPaymentMode(ModeClotureAvoir mode) {
+        AvoirClient avoir = avoir().setProduit(null);
+        String code = mode == ModeClotureAvoir.REMBOURSEMENT_ESPECES ? "CASH" : "CB";
+        PaymentMode paymentMode = new PaymentMode();
+        paymentMode.setCode(code);
+        when(repository.findById(1)).thenReturn(Optional.of(avoir));
+        when(storageService.getUser()).thenReturn(user);
+        when(cashRegisterService.getOpiningCashRegisterByUser(user)).thenReturn(Optional.of(new CashRegister()));
+        when(paymentModeRepository.findById(code)).thenReturn(Optional.of(paymentMode));
+        when(repository.save(avoir)).thenReturn(avoir);
+
+        service.cloturerAvoir(1, new CloturerAvoirRequest(mode, "client pressé", 300));
+
+        ArgumentCaptor<FinancialTransactionDTO> captor = ArgumentCaptor.forClass(FinancialTransactionDTO.class);
+        verify(financialTransactionService).create(captor.capture());
+        FinancialTransactionDTO sortie = captor.getValue();
+        assertEquals(300, sortie.getAmount());
+        assertEquals(TypeFinancialTransaction.SORTIE_CAISSE, sortie.getTypeTransaction());
+        assertSame(paymentMode, sortie.getPaymentMode());
+        assertTrue(sortie.getCommentaire().contains(avoir.getReference()));
+        assertTrue(sortie.getCommentaire().contains("client pressé"));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = ModeClotureAvoir.class, names = {"REMBOURSEMENT_ESPECES", "REMBOURSEMENT_CB"})
+    void refundWithoutOpenCashRegisterChangesNothing(ModeClotureAvoir mode) {
+        AvoirClient avoir = avoir().setProduit(null);
+        when(repository.findById(1)).thenReturn(Optional.of(avoir));
+        when(storageService.getUser()).thenReturn(user);
+        when(cashRegisterService.getOpiningCashRegisterByUser(user)).thenReturn(Optional.empty());
+
+        assertThrows(GenericError.class, () -> service.cloturerAvoir(1, new CloturerAvoirRequest(mode, null, null)));
+
+        assertEquals(AvoirClientStatut.OUVERT, avoir.getStatut());
+        assertEquals(0, avoir.getMontantUtilise());
+        verify(utilisationRepository, never()).save(any());
+        verify(financialTransactionService, never()).create(any());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = ModeClotureAvoir.class, names = {"BON_AVOIR", "COMPENSATION_VENTE"})
+    void otherModesDoNotTouchTheCashRegister(ModeClotureAvoir mode) {
+        AvoirClient avoir = avoir().setProduit(null);
+        when(repository.findById(1)).thenReturn(Optional.of(avoir));
+        when(storageService.getUser()).thenReturn(user);
+        when(repository.save(avoir)).thenReturn(avoir);
+
+        service.cloturerAvoir(1, new CloturerAvoirRequest(mode, null, null));
+
+        verify(cashRegisterService, never()).getOpiningCashRegisterByUser(any());
+        verify(financialTransactionService, never()).create(any());
+    }
+
     @Test
-    void fullyClosesCreditResetsSaleLineAndNotifiesForProductReturn() {
+    void fullyClosesCreditResetsSaleLineWithoutNotifyingTheCustomer() {
         AvoirClient avoir = avoir();
         avoir.setMontantUtilise(200);
         SalesLine line = avoir.getSalesLine();
@@ -217,7 +290,8 @@ class AvoirClientDocumentServiceImplTest {
         assertEquals(0, line.getQuantityAvoir());
         assertSame(user, avoir.getClosedBy());
         verify(lineRepository).save(line);
-        verify(notificationService).notifierProduitsDisponibles(avoir);
+        // Le client est au comptoir : il est prévenu à la réception de la commande, pas à la clôture.
+        verify(notificationService, never()).notifierProduitsDisponibles(any());
     }
 
     /** Bugs 2 et 3 du plan PLAN-VENTE-SUR-STOCK-ERRONE. */
@@ -315,18 +389,86 @@ class AvoirClientDocumentServiceImplTest {
     }
 
     @Test
-    void partialProductHandOverDebitsNoLotBeforeSettlement() {
+    void refusesAnAmountForAProductHandOver() {
         AvoirClient avoir = avoir();
+        when(repository.findById(1)).thenReturn(Optional.of(avoir));
+
+        assertThrows(GenericError.class, () -> service.cloturerAvoir(1,
+            new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, 300)));
+
+        assertEquals(AvoirClientStatut.OUVERT, avoir.getStatut());
+        assertEquals(0, avoir.getMontantUtilise());
+        verify(lotService, never()).adjustLots(any(), org.mockito.ArgumentMatchers.anyInt());
+        verify(utilisationRepository, never()).save(any());
+    }
+
+    /** Avoir de 4 unités à 500 : chaque remise sort ses unités des lots tout de suite et impute leur prix. */
+    @Test
+    void partialHandOverInUnitsDebitsOnlyTheHandedUnits() {
+        AvoirClient avoir = avoir().setQuantite(4).setMontant(2_000);
         when(repository.findById(1)).thenReturn(Optional.of(avoir));
         when(storageService.getUser()).thenReturn(user);
         when(stockRepository.findTotalQuantityByMagasinIdIdAndProduitId(2, 100)).thenReturn(5);
         when(repository.save(avoir)).thenReturn(avoir);
 
-        service.cloturerAvoir(1, new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, 300));
+        AvoirClientDocumentDTO result = service.cloturerAvoir(1,
+            new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null, 1));
 
-        assertEquals(AvoirClientStatut.OUVERT, avoir.getStatut());
+        assertEquals(AvoirClientStatut.OUVERT, result.statut());
+        assertEquals(500, result.montantUtilise());
+        assertEquals(1, result.quantiteRemise());
+        assertEquals(3, result.quantiteRestante());
+        verify(lotService).adjustLots(any(), org.mockito.ArgumentMatchers.eq(-1));
+        verify(lotStockLocationService).debitFefo(any(), any(), org.mockito.ArgumentMatchers.eq(1));
+        verify(stockRepository, never()).save(any());
+    }
+
+    @Test
+    void lastHandOverSettlesTheCreditAndCreditsNothingBackToStock() {
+        AvoirClient avoir = avoir().setQuantite(4).setMontant(2_000).setQuantiteRemise(3).setMontantUtilise(1_500);
+        when(repository.findById(1)).thenReturn(Optional.of(avoir));
+        when(storageService.getUser()).thenReturn(user);
+        when(stockRepository.findTotalQuantityByMagasinIdIdAndProduitId(2, 100)).thenReturn(0);
+        when(repository.save(avoir)).thenReturn(avoir);
+
+        AvoirClientDocumentDTO result = service.cloturerAvoir(1,
+            new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null));
+
+        assertEquals(AvoirClientStatut.CLOTURE, result.statut());
+        assertEquals(2_000, result.montantUtilise(), "la dernière remise prend tout le solde");
+        assertEquals(0, result.quantiteRestante());
+        verify(lotService).adjustLots(any(), org.mockito.ArgumentMatchers.eq(-1));
+        verify(stockRepository, never()).save(any());
+    }
+
+    @Test
+    void refusesMoreUnitsThanRemain() {
+        AvoirClient avoir = avoir().setQuantite(4).setMontant(2_000).setQuantiteRemise(1).setMontantUtilise(500);
+        when(repository.findById(1)).thenReturn(Optional.of(avoir));
+
+        assertThrows(GenericError.class, () -> service.cloturerAvoir(1,
+            new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null, 4)));
+        assertThrows(GenericError.class, () -> service.cloturerAvoir(1,
+            new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null, 0)));
+
+        assertEquals(1, avoir.getQuantiteRemise());
         verify(lotService, never()).adjustLots(any(), org.mockito.ArgumentMatchers.anyInt());
-        verify(lotStockLocationService, never()).debitFefo(any(), any(), org.mockito.ArgumentMatchers.anyInt());
+    }
+
+    /** Une unité a déjà été remise : solder le reste en argent ne recrédite que les trois autres. */
+    @Test
+    void settlingInMoneyAfterAPartialHandOverCreditsOnlyTheUnhandedUnits() {
+        AvoirClient avoir = avoir().setQuantite(4).setMontant(2_000).setQuantiteRemise(1).setMontantUtilise(500);
+        StockProduit stock = stockRayon(-3);
+        when(repository.findById(1)).thenReturn(Optional.of(avoir));
+        when(storageService.getUser()).thenReturn(user);
+        when(repository.save(avoir)).thenReturn(avoir);
+
+        AvoirClientDocumentDTO result = service.cloturerAvoir(1,
+            new CloturerAvoirRequest(ModeClotureAvoir.BON_AVOIR, null, null));
+
+        assertEquals(AvoirClientStatut.CLOTURE, result.statut());
+        assertEquals(0, stock.getQtyStock(), "3 unités recréditées, pas les 4 de l'avoir");
     }
 
     @Test

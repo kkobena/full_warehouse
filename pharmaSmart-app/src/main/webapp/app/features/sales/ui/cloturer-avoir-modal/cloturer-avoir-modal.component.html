@@ -1,4 +1,4 @@
-<div class="modal-header">
+<div appModalDeplacable class="modal-header">
   <h5 class="modal-title">
     <i class="pi pi-check-circle me-2"></i>
     Clôturer l'avoir
@@ -75,6 +75,7 @@
   </div>
 
   <!-- Option utilisation partielle -->
+  @if (!estRemiseProduit()) {
   <div class="form-check form-switch mb-3">
     <input class="form-check-input" type="checkbox" id="partialUsageCheck"
            [ngModel]="isPartialUsage()"
@@ -83,8 +84,9 @@
       Utilisation partielle de l'avoir
     </label>
   </div>
+  }
 
-  @if (isPartialUsage()) {
+  @if (isPartialUsage() && !estRemiseProduit()) {
     <div class="mb-3">
       <label class="form-label fw-semibold">
         Montant à utiliser <span class="text-danger">*</span>
@@ -107,7 +109,7 @@
     </label>
     <app-select
       [ngModel]="modeCloture()"
-      (ngModelChange)="modeCloture.set($event)"
+      (ngModelChange)="choisirMode($event)"
       [items]="modeClotureOptions"
       bindLabel="label"
       bindValue="value"
@@ -121,6 +123,19 @@
       </div>
     }
   </div>
+
+  @if (estRemiseProduit()) {
+    <div class="mb-3">
+      <app-radio name="remise" [value]="'tout'" [label]="'Tout remettre (' + quantiteRestante() + ' unité(s))'" [ngModel]="remise()" (ngModelChange)="remise.set($event)" />
+      @if (quantiteRestante() > 1) {
+        <app-radio name="remise" [value]="'partie'" label="Remettre une partie" [ngModel]="remise()" (ngModelChange)="remise.set($event)" />
+      }
+      @if (remise() === 'partie') {
+        <app-input-number [ngModel]="quantiteRemise()" (ngModelChange)="quantiteRemise.set($event)" [min]="1" [max]="quantiteRestante()" suffix=" unité(s)" placeholder="Unités remises…" />
+        <div class="text-muted small mt-1">Montant imputé : {{ montantEffectif() | number:'1.0-0' }} <span appDevise></span></div>
+      }
+    </div>
+  }
 
   <!-- Commentaire -->
   <div class="mb-2">

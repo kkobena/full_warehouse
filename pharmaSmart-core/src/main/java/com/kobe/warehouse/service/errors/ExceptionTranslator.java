@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.errors;
 
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.license.LicenseViolationException;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.LockTimeoutException;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.PessimisticLockException;
@@ -128,6 +129,23 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
      * n'est pas intercepté par {@code auth-expired.interceptor.ts} côté Angular : répondre 401
      * déconnecterait l'utilisateur, qui ne pourrait plus atteindre l'écran de renouvellement.
      */
+    /**
+     * Un identifiant qui ne désigne plus rien (vente transformée ou annulée pendant qu'un écran la tenait encore) : 404 explicite.
+     * `getReferenceById` rend un proxy sans interroger la base ; l'exception n'éclate qu'au premier accès à un champ, loin de
+     * l'appel fautif, et sortait en 500 « erreur interne » — comme si le serveur était en panne.
+     */
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Object> handleEntityNotFound(EntityNotFoundException ex) {
+        LOG.warn("Élément introuvable (404) : {}", ex.getMessage());
+        Custom pd = new Custom(HttpStatus.NOT_FOUND.value());
+        String detail = "Élément introuvable : il a peut-être été supprimé ou transformé. Rechargez l'écran.";
+        pd.setTitle("Introuvable");
+        pd.setDetail(detail);
+        pd.setMessage(detail);
+        pd.setErrorKey("entity.notfound");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(pd);
+    }
+
     @ExceptionHandler(LicenseViolationException.class)
     public ResponseEntity<Object> handleLicenseViolation(LicenseViolationException ex) {
         LOG.warn("Opération refusée pour cause de licence : {}", ex.getMessage());

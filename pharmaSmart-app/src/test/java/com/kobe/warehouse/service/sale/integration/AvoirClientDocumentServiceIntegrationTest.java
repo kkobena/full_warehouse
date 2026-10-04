@@ -10,10 +10,12 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.kobe.warehouse.domain.AvoirClient;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.DefaultPayment;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Logs;
 import com.kobe.warehouse.domain.OrderLine;
@@ -25,6 +27,7 @@ import com.kobe.warehouse.domain.enumeration.ModeClotureAvoir;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.PaimentStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
+import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.sale.dto.AvoirClientDocumentDTO;
@@ -32,6 +35,7 @@ import com.kobe.warehouse.service.sale.dto.CloturerAvoirRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -106,6 +110,62 @@ class AvoirClientDocumentServiceIntegrationTest extends AbstractSaleIntegrationT
         assertEquals(caissier.getId(), relu.getClosedBy().getId());
         assertEquals(0, em.find(SalesLine.class, ligne.getId()).getQuantityAvoir(), "la ligne d'origine ne doit plus rien");
         assertEquals(1, compter("SELECT count(*) FROM avoir_client_utilisation WHERE avoir_client_id = " + avoir.getId()));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = ModeClotureAvoir.class, names = {"REMBOURSEMENT_ESPECES", "REMBOURSEMENT_CB"})
+    @DisplayName("Un remboursement sort de la caisse ouverte, au mode de paiement choisi")
+    void remboursementSortDeLaCaisse(ModeClotureAvoir mode) {
+        Produit produit = produitEnStock("PERINDOPRIL-" + mode, 1_000, 600, 0, 20);
+        AvoirClient avoir = avoirOuvert(venteFermee(produit, 5, 2).getSalesLines().iterator().next());
+
+        services.avoirClientDocumentService.cloturerAvoir(avoir.getId(), new CloturerAvoirRequest(mode, "client pressé", 1_000));
+        em.flush();
+        viderLeCache();
+
+        List<DefaultPayment> sorties = em
+            .createQuery("select p from DefaultPayment p where p.typeFinancialTransaction = :t and p.commentaire like :c", DefaultPayment.class)
+            .setParameter("t", TypeFinancialTransaction.SORTIE_CAISSE)
+            .setParameter("c", "%" + avoir.getReference() + "%")
+            .getResultList();
+        assertEquals(1, sorties.size(), "un remboursement = un mouvement de caisse");
+        DefaultPayment sortie = sorties.getFirst();
+        assertEquals(1_000, sortie.getPaidAmount(), "la tranche remboursée, pas tout l'avoir");
+        assertTrue(sortie.isCredit(), "sens sortie : l'argent quitte le tiroir");
+        assertEquals(mode == ModeClotureAvoir.REMBOURSEMENT_ESPECES ? "CASH" : "CB", sortie.getPaymentMode().getCode());
+        assertEquals(caisse.getId(), sortie.getCashRegister().getId(), "rattaché à la caisse ouverte de l'utilisateur");
+        assertTrue(sortie.getCommentaire().contains("client pressé"));
+    }
+
+    @Test
+    @DisplayName("Sans caisse ouverte, le remboursement est refusé et l'avoir reste intact")
+    void remboursementSansCaisseOuverte() {
+        Produit produit = produitEnStock("VALSARTAN", 1_000, 600, 0, 20);
+        AvoirClient avoir = avoirOuvert(venteFermee(produit, 5, 2).getSalesLines().iterator().next());
+        when(services.cashRegisterService.getOpiningCashRegisterByUser(any())).thenReturn(Optional.empty());
+
+        assertThrows(GenericError.class, () -> services.avoirClientDocumentService.cloturerAvoir(
+            avoir.getId(), new CloturerAvoirRequest(ModeClotureAvoir.REMBOURSEMENT_ESPECES, null, null)));
+        viderLeCache();
+
+        AvoirClient relu = em.find(AvoirClient.class, avoir.getId());
+        assertEquals(AvoirClientStatut.OUVERT, relu.getStatut());
+        assertEquals(0, relu.getMontantUtilise());
+        assertEquals(0, compter("SELECT count(*) FROM avoir_client_utilisation WHERE avoir_client_id = " + avoir.getId()));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = ModeClotureAvoir.class, names = {"BON_AVOIR", "COMPENSATION_VENTE", "RETOUR_PRODUIT"})
+    @DisplayName("Les autres modes ne touchent pas à la caisse")
+    void autresModesSansMouvementDeCaisse(ModeClotureAvoir mode) {
+        Produit produit = produitEnStock("IRBESARTAN-" + mode, 1_000, 600, 0, 20);
+        AvoirClient avoir = avoirOuvert(venteFermee(produit, 5, 2).getSalesLines().iterator().next());
+
+        services.avoirClientDocumentService.cloturerAvoir(avoir.getId(), new CloturerAvoirRequest(mode, null, null));
+        em.flush();
+
+        assertEquals(0, em.createQuery("select count(p) from DefaultPayment p where p.commentaire like :c", Long.class)
+            .setParameter("c", "%" + avoir.getReference() + "%").getSingleResult());
     }
 
     @Test
@@ -269,6 +329,50 @@ class AvoirClientDocumentServiceIntegrationTest extends AbstractSaleIntegrationT
     }
 
     @Test
+    @DisplayName("Remise partielle en unités : chaque remise sort ses lots et impute son prix, la dernière solde")
+    void remisePartielleEnUnites() {
+        Produit produit = produitEnStock("SITAGLIPTINE", 1_000, 600, 0, 20);
+        AvoirClient avoir = avoirOuvert(venteFermee(produit, 5, 2).getSalesLines().iterator().next());
+
+        AvoirClientDocumentDTO premiere = services.avoirClientDocumentService.cloturerAvoir(
+            avoir.getId(), new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null, 1));
+        viderLeCache();
+
+        assertEquals(AvoirClientStatut.OUVERT, premiere.statut());
+        AvoirClient apresPremiere = em.find(AvoirClient.class, avoir.getId());
+        assertEquals(1, apresPremiere.getQuantiteRemise());
+        assertEquals(1_000, apresPremiere.getMontantUtilise(), "1 unité × 1 000");
+        verify(services.lotService).adjustLots(any(Produit.class), eq(-1));
+
+        AvoirClientDocumentDTO derniere = services.avoirClientDocumentService.cloturerAvoir(
+            avoir.getId(), new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, null, null));
+        viderLeCache();
+
+        assertEquals(AvoirClientStatut.CLOTURE, derniere.statut());
+        AvoirClient solde = em.find(AvoirClient.class, avoir.getId());
+        assertEquals(3, solde.getQuantiteRemise());
+        assertEquals(3_000, solde.getMontantUtilise());
+        verify(services.lotService).adjustLots(any(Produit.class), eq(-2));
+        assertEquals(20, stockRayon(produit), "rien n'est recrédité : toutes les unités ont été remises");
+    }
+
+    @Test
+    @DisplayName("Solder en argent après une remise partielle ne recrédite que les unités jamais remises")
+    void argentApresRemisePartielle() {
+        Produit produit = produitEnStock("DAPAGLIFLOZINE", 1_000, 600, 0, -3);
+        AvoirClient avoir = avoirOuvert(venteFermee(produit, 3, 0).getSalesLines().iterator().next());
+        em.createQuery("update AvoirClient a set a.quantiteRemise = 1, a.montantUtilise = 1000 where a.id = :id")
+            .setParameter("id", avoir.getId()).executeUpdate();
+        viderLeCache();
+
+        services.avoirClientDocumentService.cloturerAvoir(
+            avoir.getId(), new CloturerAvoirRequest(ModeClotureAvoir.BON_AVOIR, null, null));
+        viderLeCache();
+
+        assertEquals(-1, stockRayon(produit), "2 unités recréditées sur les 3 dues, la troisième a été remise");
+    }
+
+    @Test
     @DisplayName("Une remise refusée laisse l'avoir, ses utilisations et le stock intacts")
     void remiseRefuseeSansEffet() {
         Produit produit = produitEnStock("CARVEDILOL", 1_000, 600, 0, -1);
@@ -310,8 +414,8 @@ class AvoirClientDocumentServiceIntegrationTest extends AbstractSaleIntegrationT
     }
 
     @Test
-    @DisplayName("La clôture en retour produit prévient le client, une fois le solde épuisé")
-    void notificationEnRetourProduit() {
+    @DisplayName("La clôture en retour produit ne prévient pas le client : il est au comptoir")
+    void aucuneNotificationALaCloture() {
         Produit produit = produitEnStock("PANTOPRAZOLE", 1_000, 600, 0, 50);
         AvoirClient avoir = avoirOuvert(venteFermee(produit, 5, 2).getSalesLines().iterator().next());
 
@@ -320,7 +424,7 @@ class AvoirClientDocumentServiceIntegrationTest extends AbstractSaleIntegrationT
             new CloturerAvoirRequest(ModeClotureAvoir.RETOUR_PRODUIT, "produits arrivés", null)
         );
 
-        verify(services.avoirClientNotificationService).notifierProduitsDisponibles(any(AvoirClient.class));
+        verify(services.avoirClientNotificationService, never()).notifierProduitsDisponibles(any(AvoirClient.class));
     }
 
     @Test
@@ -382,6 +486,28 @@ class AvoirClientDocumentServiceIntegrationTest extends AbstractSaleIntegrationT
 
         assertNotNull(em.find(AvoirClient.class, avoirAttendu.getId()).getCommande(), "le produit commandé rattache son avoir");
         assertNull(em.find(AvoirClient.class, avoirAutre.getId()).getCommande(), "les autres avoirs restent en attente");
+    }
+
+    @Test
+    @DisplayName("À la réception, le client dont le produit arrive est prévenu, une fois la réception validée")
+    void notificationALaReception() {
+        Produit attendu = produitEnStock("ZOLPIDEM", 5_000, 3_000, 0, 50);
+        Produit autre = produitEnStock("ZOPICLONE", 4_000, 2_400, 0, 50);
+        AvoirClient avoirAttendu = avoirOuvert(venteFermee(attendu, 5, 2).getSalesLines().iterator().next());
+        avoirOuvert(venteFermee(autre, 3, 1).getSalesLines().iterator().next());
+        Commande commande = commandeDe(attendu);
+        viderLeCache();
+
+        services.avoirClientDocumentService.linkCommandeToAvoirs(em.find(Commande.class, commande.getId()));
+
+        // La transaction du test ne valide jamais : on rejoue à la main ce que le commit déclencherait.
+        verify(services.avoirClientNotificationService, never()).notifierProduitsDisponibles(any(AvoirClient.class));
+        org.springframework.transaction.support.TransactionSynchronizationManager.getSynchronizations()
+            .forEach(org.springframework.transaction.support.TransactionSynchronization::afterCommit);
+
+        ArgumentCaptor<AvoirClient> prevenus = ArgumentCaptor.forClass(AvoirClient.class);
+        verify(services.avoirClientNotificationService).notifierProduitsDisponibles(prevenus.capture());
+        assertEquals(avoirAttendu.getId(), prevenus.getValue().getId(), "seul l'avoir du produit reçu est annoncé");
     }
 
     // ===== outils =====

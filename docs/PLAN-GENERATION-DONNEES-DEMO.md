@@ -945,6 +945,7 @@ scripts/demo-data/
 ├── 14_facturation.sql            factures tiers-payant
 ├── 15_reference.sql              compteurs de numérotation par jour et par type
 ├── 16_mouvements.sql             inventory_transaction — historique des mouvements
+├── 17b_favoris.sql               grille de favoris du comptoir : 7 produits sans ordonnance les plus vendus + 1 en rupture
 ├── 99_verification.sql           assertions sur tous les invariants du §4
 └── run_all.sql                   enchaînement \i + arrêt au premier échec
 ```

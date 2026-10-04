@@ -221,6 +221,8 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     forceStockContext: this.forceStockContext,
     getConfirmDialog: () => this.confirmDialog,
     resetProductSelection: () => this.productHandling.resetProductSelection(),
+    // Équivalent choisi en cas de rupture : ajouté par le circuit ordinaire, avec la quantité demandée.
+    ajouterSubstitut: (produit, quantite) => this.productHandling.addProductToSale(produit, quantite),
     operations: {
       createSale: (line: ISalesLine) => this.facade.createAssuranceSale(line),
       addProduct: (line: ISalesLine) => this.facade.onAddProduitCarnet(line),
@@ -501,6 +503,10 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     if (event.line.id) {
       this.facade.updateLineNonRembourse(event.line.id, event.nonRembourse);
     }
+  }
+
+  onEquivalentsDemandes(line: ISalesLine): void {
+    this.productHandling.proposerEquivalents(line);
   }
 
   onLineRemoved(line: ISalesLine): void {

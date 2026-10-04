@@ -411,6 +411,27 @@ SELECT pg_temp.verif_vide('substituts', 'Type conforme à la contrainte CHECK', 
      WHERE type_substitut NOT IN ('GENERIQUE', 'THERAPEUTIQUE')
 $q$);
 
+-- ===========================================================================
+-- FAVORIS DU COMPTOIR
+-- ===========================================================================
+SELECT to_regclass('produit_favori') IS NOT NULL AS table_favoris \gset
+\if :table_favoris
+SELECT pg_temp.verif_compte('favoris', 'Produits favoris épinglés à la grille du comptoir', $q$
+    SELECT 1 FROM produit_favori
+$q$, 5);
+
+SELECT pg_temp.verif_vide('favoris', 'Favoris sans ordonnance et actifs', $q$
+    SELECT f.id FROM produit_favori f JOIN produit p ON p.id = f.produit_id
+     WHERE p.status <> 'ENABLE' OR p.statut_legal <> 'SANS_LISTE'
+$q$);
+
+SELECT pg_temp.verif_vide('favoris', 'Ordre de la grille sans doublon', $q$
+    SELECT magasin_id, ordre FROM produit_favori GROUP BY magasin_id, ordre HAVING count(*) > 1
+$q$);
+\else
+\echo '   favoris : table absente (migration V2.1.24 non appliquée), contrôles ignorés'
+\endif
+
 SELECT pg_temp.verif_vide('substituts', 'Aucune substitution réflexive', $q$
     SELECT id FROM substitut WHERE produit_id = substitut_id
 $q$);

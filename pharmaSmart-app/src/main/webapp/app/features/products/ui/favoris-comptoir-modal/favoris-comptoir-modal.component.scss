@@ -1,0 +1,55 @@
+.liste {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ligne {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 48px;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--pharma-border);
+  border-radius: 8px;
+  background: var(--pharma-surface);
+}
+
+.rang {
+  flex: 0 0 1.5rem;
+  color: var(--pharma-text-muted);
+  font-weight: 600;
+  text-align: right;
+}
+
+.libelle {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prix,
+.ventes {
+  flex: 0 0 auto;
+  color: var(--pharma-text-muted);
+  font-size: 0.85rem;
+}
+
+.actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.125rem;
+}
+
+.aide,
+.vide {
+  margin: 0 0 0.5rem;
+  color: var(--pharma-text-muted);
+  font-size: 0.85rem;
+}

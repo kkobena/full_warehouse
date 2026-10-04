@@ -106,6 +106,7 @@ final class SaleServicesUnderTest {
     // --- collaborateurs simulés, exposés pour être paramétrés par les tests ---
     final StorageService storageService = mock(StorageService.class);
     final CashRegisterService cashRegisterService = mock(CashRegisterService.class);
+    final com.kobe.warehouse.service.UserService userService = mock(com.kobe.warehouse.service.UserService.class);
     final CustomerDisplayService customerDisplayService = mock(CustomerDisplayService.class);
     final AppConfigurationService appConfigurationService = mock(AppConfigurationService.class);
     final UtilisationCleSecuriteService utilisationCleSecuriteService = mock(UtilisationCleSecuriteService.class);
@@ -125,6 +126,7 @@ final class SaleServicesUnderTest {
 
     // --- repositories réels ---
     final SalesRepository salesRepository;
+    final com.kobe.warehouse.service.financiel_transaction.FinancialTransactionService financialTransactionService;
     final SalesLineRepository salesLineRepository;
     final CashSaleRepository cashSaleRepository;
     final VenteDepotRepository venteDepotRepository;
@@ -199,6 +201,21 @@ final class SaleServicesUnderTest {
 
         this.stockUpdateService = new StockUpdateService(stockProduitRepository, logsService, suggestionReassortService);
 
+        // Réelle : la sortie de caisse d'un remboursement d'avoir est un mouvement écrit en base (DefaultPayment).
+        // Seuls l'édition de reçu et l'état PDF, que l'écriture n'appelle pas, sont simulés.
+        this.financialTransactionService = new com.kobe.warehouse.service.financiel_transaction.FinancialTransactionServiceImpl(
+            IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.PaymentTransactionRepository.class),
+            userService,
+            salesRepository,
+            cashRegisterService,
+            entityManager,
+            mock(com.kobe.warehouse.service.financiel_transaction.MvtCaisseReportReportService.class),
+            IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.DefaultTransactionRepository.class),
+            transactionIdGeneratorService,
+            mock(com.kobe.warehouse.service.receipt.service.MouvementCaisseReceiptService.class),
+            referenceService
+        );
+
         // L'avoir client est le premier effet de bord d'une vente servie en partie : on le garde
         // reel, c'est une ligne ecrite en base, pas un appel a verifier.
         this.avoirClientDocumentService = new AvoirClientDocumentServiceImpl(
@@ -212,7 +229,10 @@ final class SaleServicesUnderTest {
             avoirClientUtilisationRepository,
             lotService,
             lotStockLocationService,
-            logsService
+            logsService,
+            cashRegisterService,
+            financialTransactionService,
+            paymentModeRepository
         );
 
         // Réel : la régularisation d'un écart d'inventaire est un ajustement écrit en base.

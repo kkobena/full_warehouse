@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -528,6 +529,27 @@ public class ProduitServiceImpl implements ProduitService {
         }
     }
 
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProduitSearch> findSearchByIds(List<Integer> ids, Integer magasinId) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        Integer magasin = isNull(magasinId) ? storageService.getConnectedUserMagasin().getId() : magasinId;
+        String tableau = ids.stream().map(String::valueOf).collect(Collectors.joining(",", "{", "}"));
+        String jsonResult = produitRepository.searchProduitsByIdsJson(tableau, magasin);
+        if (jsonResult == null) {
+            return List.of();
+        }
+        try {
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            LOG.error(null, e);
+            return List.of();
+        }
+    }
 
     private void updateProduitItemQty(Produit produitParent, ProduitDTO dto) {
         if (nonNull(dto.getItemQty()) && dto.getItemQty() > 0 && !Objects.equals(dto.getItemQty(),

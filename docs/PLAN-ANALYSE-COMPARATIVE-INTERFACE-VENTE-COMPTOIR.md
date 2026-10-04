@@ -1,6 +1,7 @@
 # Analyse comparative — Interface de vente (comptoir) vs logiciels d'officine du marché
 
-> Statut : **analyse** — aucune ligne de code écrite.
+> Statut : **analyse, écarts n°1 et n°2 implémentés le 2026-10-03** (grille de favoris §3, substitution §4). Le tiroir-caisse (§5) et la fidélité (§8.5) ont
+> chacun leur plan dédié ; les autres écarts restent à faire.
 > Date : octobre 2026.
 > Portée analysée : `pharmaSmart-app/src/main/webapp/app/features/sales/feature/sales-home` et ses
 > composants enfants (`sale-creation`, `sale-assurance`, `sale-carnet`, `sale-devis`, `ui/*`).
@@ -97,6 +98,30 @@ possible chez les concurrents, et le plus lent ici.
 **Effort estimé : moyen.** Gain ergonomique élevé, risque faible (n'ajoute qu'un raccourci vers un
 pipeline existant).
 
+### Implémenté le 2026-10-03
+
+**Deux sources, deux rôles** : la grille est une **table** choisie à la main ; les **suggestions** viennent d'une **vue matérialisée** sur les ventes.
+- Table `produit_favori` (migration V2.1.24) : par magasin, un produit, un `ordre`. Épingler, retirer et réordonner relèvent du catalogue.
+  `GET /api/produits-favoris` (lecture ouverte à tout caissier), `PUT` / `DELETE /api/produits-favoris/{produitId}`, `PUT /api/produits-favoris/ordre`.
+- Vue `mv_produits_frequents_comptoir` (V2.1.25) : les produits **sans ordonnance** (statut légal `SANS_LISTE`) les plus vendus **au comptant**, en nombre de
+  tickets distincts puis en quantité, sur 30 jours, 50 par magasin ; rafraîchie au palier 2 de `MaterializedViewRefreshService`. Elle **ne remplit jamais la
+  grille toute seule** : `GET /api/produits-favoris/suggestions` alimente seulement l'écran de gestion.
+- Fonction SQL `search_produits_by_ids_json` : les mêmes résultats que la recherche produit, pour une liste d'identifiants (donc le même `ProduitSearch`, prix et stock du
+  rayon compris, et ajoutable au panier tel quel).
+- Écran de vente (comptant et proforma) : `app-quick-products-grid`, **une seule rangée** de tuiles (libellé sur deux lignes, prix, mention « Rupture »), qui se
+  replie (préférence mémorisée par poste) et n'occupe **aucune place** tant que rien n'est épinglé. Un clic ajoute le produit comme un produit scanné (quantité 1) : mêmes
+  contrôles de stock, d'allergie et de client requis. Une tuile en rupture reste cliquable : l'ajout ouvre alors la proposition d'équivalents (§4).
+- Catalogue produits : bouton **Favoris** (fenêtre : épinglés avec monter / descendre / retirer, et suggestions à épingler) et entrée « Ajouter aux favoris du comptoir » /
+  « Retirer… » dans le menu de chaque ligne.
+
+**Reste** : raccourcis clavier par tuile (Alt+1…9) ; préférence de repli par compte plutôt que par poste ; grille aussi sur les ventes assurance et carnet (elles exigent un
+client avant tout ajout).
+
+**Jeu de démonstration** : `scripts/demo-data/17b_favoris.sql` épingle huit tuiles — les sept produits sans ordonnance les plus vendus au comptant, et un produit sans ordonnance
+en rupture (tuile « Rupture », pour montrer la proposition d'équivalents). Choisis dans les données, pas par identifiant ; le script se saute avec un message si la table `produit_favori` n'existe
+pas encore (migration V2.1.24 non appliquée), pour ne pas interrompre un chargement lancé avant le redémarrage du backend. Contrôles dans `99_verification.sql`. **À savoir** : la grille s'affiche
+désormais sur l'écran comptant de toute démo rechargée, donc dans les captures du manuel et les parcours e2e.
+
 ---
 
 ## 4. Écart n°2 — Pas de substitution générique proposée en rupture de stock
@@ -135,9 +160,30 @@ chercher de mémoire.
 
 **Effort estimé : moyen.**
 
+### Implémenté le 2026-10-03
+
+- `GET /api/produits/{id}/substituts-disponibles` (`SubstitutionComptoirService`) : les substituts du produit **qui ont du stock au rayon**, lus **dans les deux sens** de
+  la table `substitut` (elle s'écrit dans un sens, « A est un générique de B » valant « B est l'équivalent de A »), les génériques avant les substituts thérapeutiques, puis du moins
+  cher au plus cher. À part de `/produits/{id}/generiques`, qui liste tous les substituts du catalogue, en stock ou non. Chaque proposition est un `ProduitSearch`.
+- Fenêtre « Équivalents disponibles » (`app-substituts-modal`) : libellé, nature du lien, forme et dosage, prix et **écart avec l'original** (signe `−` / `+` devant le montant,
+  pas seulement une couleur), stock, et la mention « à valider par le pharmacien » pour un substitut **thérapeutique**. Un stock qui ne couvre pas la quantité demandée est signalé.
+- Trois entrées, un seul chemin (`SubstitutionComptoirService`) :
+  1. **Stock insuffisant à l'ajout** : le modal de forçage gagne une troisième option, « Proposer un équivalent disponible », **sans motif de forçage** ; l'équivalent choisi est
+     ajouté avec la quantité demandée par le circuit ordinaire. L'option n'existe que pour un ajout (pas pour la modification d'une quantité de ligne) et sans privilège de forçage.
+  2. **Avant l'ajout** : un bouton « Équivalents » apparaît dans la ligne d'informations du produit sélectionné quand il est en rupture ou que la quantité tapée dépasse le stock ;
+     l'équivalent retenu prend sa place dans la recherche, avec la quantité déjà tapée.
+  3. **Ligne du panier** : « Équivalents… » dans le menu « Autres actions ».
+- Seule la table `substitut` est consultée (génériques et substituts thérapeutiques). Le rapprochement par molécule (DCI) n'est **pas** utilisé : un produit de même DCI n'est pas
+  forcément de même dosage ni de même forme, ce qui est une décision clinique avant d'être une requête.
+
+**Écart avec le plan** : depuis une ligne du panier, l'équivalent **s'ajoute** et la ligne d'origine **reste** (message : « Supprimez la ligne si le client préfère »). Le remplacer d'un
+geste demande de lier l'ajout et la suppression, avec le droit de suppression, et d'annuler proprement si l'ajout échoue sur le stock : à faire avec une règle de gestion explicite.
+
 ---
 
 ## 5. Écart n°3 — Pas d'ouverture manuelle du tiroir-caisse
+
+> **Plan dédié : [PLAN-OUVERTURE-TIROIR-CAISSE.md](PLAN-OUVERTURE-TIROIR-CAISSE.md)** (matériel, journal, droits, ouverture automatique). Ce qui suit est l'analyse d'origine.
 
 ### Le constat
 
@@ -225,7 +271,7 @@ coupures constatées chez les clients).
 | 8.2 | Pas d'affichage de la **date de péremption du lot servi** pendant la vente (FEFO silencieux) | `product-search`/`product-list` : afficher la péremption du lot qui sera sorti (donnée déjà connue côté `SalesLineServiceImpl` FEFO) ; alerte visuelle si < 3 mois |
 | 8.3 | Pas d'impression d'**étiquette prix/code-barres** depuis la vente pour un produit déconditionné sans étiquette | Réutiliser `print.service.ts`, nouveau template étiquette format rouleau |
 | 8.4 | Pas de **stock réseau** (autre officine du groupe) visible en cas de rupture locale | `showStock` ne montre que le magasin courant ; étendre l'appel stock avec un paramètre multi-magasin si l'organisation en a plusieurs (hors périmètre mono-officine) |
-| 8.5 | Pas de **programme de fidélité** (points, remise palier) | Nouvelle entité `CarteFidelite`/`PointFidelite`, calcul à l'encaissement, affichage solde dans `fiche-client-panel` |
+| 8.5 | Pas de **programme de fidélité** (points, remise palier) | **Plan dédié : [PLAN-FIDELITE-CLIENT.md](PLAN-FIDELITE-CLIENT.md)** — grand livre de points, usage en remise, annulations, expiration |
 
 ---
 
@@ -233,9 +279,9 @@ coupures constatées chez les clients).
 
 | Priorité | Écart | Effort | Impact quotidien comptoir |
 |---|---|---|---|
-| 1 | §3 Grille produits favoris | Moyen | Très élevé (gain de temps sur chaque vente OTC) |
-| 2 | §4 Substitution générique en rupture | Moyen | Très élevé (situation quotidienne stressante) |
-| 3 | §5 Ouverture tiroir-caisse | Faible | Élevé (sécurité/traçabilité) |
+| 1 | §3 Grille produits favoris — **fait** (2026-10-03) | Moyen | Très élevé (gain de temps sur chaque vente OTC) |
+| 2 | §4 Substitution générique en rupture — **fait** (2026-10-03) | Moyen | Très élevé (situation quotidienne stressante) |
+| 3 | §5 Ouverture tiroir-caisse — [plan dédié](PLAN-OUVERTURE-TIROIR-CAISSE.md) | Faible → moyen (journal, droits, matériel) | Élevé (sécurité/traçabilité) |
 | 4 | §6 Bandeau ventes en attente | Faible-Moyen | Moyen |
 | 5 | §8.2 Péremption lot affichée | Faible | Moyen (conformité) |
 | 6 | §8.1 Vente associée | Faible | Moyen (chiffre d'affaires) |

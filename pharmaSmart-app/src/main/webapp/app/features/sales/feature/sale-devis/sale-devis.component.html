@@ -98,12 +98,16 @@
   [showStock]="showStock()">
 </app-product-search-section>
 
+<!-- Favoris du comptoir : un clic ajoute le produit au panier (quantité 1), comme un produit scanné -->
+<app-quick-products-grid (productChosen)="onProductScanned($event)" [disabled]="isSaving()" />
+
 <!-- 3ème ligne: Tableau produit (gauche) + Sale summary (droite) -->
 @if (currentSale()) {
   <div class="row">
     <div class="col-lg-9 col-sm-12 col-md-12 col-xl-9 col-xxl-9">
       <app-product-list
         (authorizationRequired)="onAuthorizationRequired($event)"
+        (equivalentsDemandes)="onEquivalentsDemandes($event)"
         (lineRemoved)="onLineRemoved($event)"
         (lineSelected)="onLineSelected($event)"
         (quantityChanged)="onLineQuantityChanged($event)"

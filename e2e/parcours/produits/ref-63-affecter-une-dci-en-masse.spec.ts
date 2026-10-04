@@ -79,7 +79,7 @@ scenario('REF-63', async ({ etape, page }) => {
     // On coche les deux fiches relevées plus haut — par leur libellé, et non par leur rang :
     // c'est le seul ancrage qui garantisse que la remise en état porte sur les mêmes.
     for (const libelle of cibles) {
-      await lignes.filter({ hasText: libelle }).first().getByRole('checkbox').check();
+      await lignes.filter({ hasText: libelle }).first().getByRole('checkbox', { name: /^Sélectionner/ }).check();
     }
     // La barre d'actions groupées n'apparaît qu'à partir d'une sélection : c'est elle qui
     // porte « Affecter une DCI », et c'est ce qu'il faut voir sur la capture.

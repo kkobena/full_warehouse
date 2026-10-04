@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 @Service
-public class TaxeServiceImpl implements TaxeService, MvtCommonService {
+public class TaxeServiceImpl implements TaxeService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaxeServiceImpl.class);
     private final TvaReportReportService tvaReportService;

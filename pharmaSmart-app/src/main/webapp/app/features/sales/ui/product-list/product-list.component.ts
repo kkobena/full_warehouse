@@ -1,3 +1,4 @@
+import { FavoriEtoileComponent } from '../favori-etoile/favori-etoile.component';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -75,6 +76,7 @@ export interface DetailTiersPayantLigne {
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss'],
   imports: [
+    FavoriEtoileComponent,
     CommonModule,
     FormsModule,
     DataTableComponent,
@@ -123,6 +125,8 @@ export class ProductListComponent {
   nonRembourseChanged = output<{ line: ISalesLine; nonRembourse: boolean }>();
   /** Un prix négocié vient d'être enregistré pour le produit d'une ligne : la vente est à recalculer. */
   prixNegocieAjoute = output<ISalesLine>();
+  /** Le caissier veut un équivalent de cette ligne : l'écran de vente ouvre la liste et ajoute celui qu'on choisit. */
+  equivalentsDemandes = output<ISalesLine>();
   // Local state
   filterValue = signal('');
   /** Lignes visibles : le champ de recherche filtre par libellé, sans toucher au panier. */

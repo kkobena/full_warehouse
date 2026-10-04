@@ -27,6 +27,7 @@ import {
   CustomerSelectionModalComponent,
   ProductListComponent,
   ProductSearchSectionComponent,
+  QuickProductsGridComponent,
   SaleActionsComponent,
   SaleSummaryComponent,
   SaleType,
@@ -80,6 +81,7 @@ import {SaleForEditInfo} from '../../../../shared/model/sales.model';
     IconFieldComponent,
     ButtonComponent,
     ProductSearchSectionComponent,
+    QuickProductsGridComponent,
     ProductListComponent,
     SaleSummaryComponent,
     SaleActionsComponent,
@@ -176,6 +178,8 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
     forceStockContext: this.forceStockContext,
     getConfirmDialog: () => this.confirmDialog,
     resetProductSelection: () => this.productHandling.resetProductSelection(),
+    // Équivalent choisi en cas de rupture : ajouté par le circuit ordinaire, avec la quantité demandée.
+    ajouterSubstitut: (produit, quantite) => this.productHandling.addProductToSale(produit, quantite),
     operations: {
       createSale: (line: ISalesLine) => this.facade.createDevisSale(line),
       addProduct: (line: ISalesLine) => this.facade.onAddProduitDevis(line),
@@ -344,6 +348,10 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
     if (data.line.id) {
       this.facade.updateLineQuantityRequested(data.line.id, data.newQty);
     }
+  }
+
+  onEquivalentsDemandes(line: ISalesLine): void {
+    this.productHandling.proposerEquivalents(line);
   }
 
   onLineRemoved(line: ISalesLine): void {

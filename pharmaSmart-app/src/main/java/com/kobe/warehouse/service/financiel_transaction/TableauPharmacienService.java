@@ -5,7 +5,7 @@ import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
 import java.util.List;
 
-public interface TableauPharmacienService extends MvtCommonService {
+public interface TableauPharmacienService  {
     TableauPharmacienWrapper getTableauPharmacien(MvtParam mvtParam);
 
     byte[] exportToPdf(MvtParam mvtParam);

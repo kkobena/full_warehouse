@@ -75,6 +75,16 @@
             <i class="pi pi-tag"></i>
             <span>Prix: <strong>{{ selectedProduct()?.regularUnitPrice | devise }}</strong></span>
           </div>
+          <app-favori-etoile [libelle]="selectedProduct()!.libelle" [produitId]="selectedProduct()!.id" />
+          @if (depasseStock() || enRupture()) {
+            <app-button
+              (clicked)="chercherEquivalents()"
+              [outlined]="true"
+              ariaLabel="Voir les équivalents disponibles"
+              icon="pi pi-sync"
+              label="Équivalents"
+              severity="warn" />
+          }
           @for (rayon of selectedProduct()?.rayons || []; track rayon.code) {
             <div class="meta-item">
               <i class="pi pi-map-marker"></i>

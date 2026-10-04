@@ -1,0 +1,88 @@
+<div appModalDeplacable class="modal-header">
+  <h5 class="modal-title"><i aria-hidden="true" class="pi pi-sync me-2"></i>Équivalents disponibles</h5>
+  <button (click)="fermer()" aria-label="Fermer" class="btn-close" type="button"></button>
+</div>
+
+<div class="modal-body">
+  <p class="mb-3">
+    À la place de <strong>{{ origine.libelle }}</strong>
+    @if (origine.quantite != null) {
+      (<strong>{{ origine.quantite }}</strong> demandé<span>{{ origine.quantite > 1 ? 's' : '' }}</span>)
+    }
+    :
+  </p>
+
+  @switch (etat()) {
+    @case ('chargement') {
+      <p class="text-muted" role="status">Recherche des équivalents en stock…</p>
+    }
+    @case ('erreur') {
+      <p class="text-danger" role="alert">Les équivalents n'ont pas pu être chargés. Réessayez, ou cherchez le produit à la main.</p>
+    }
+    @default {
+      @if (propositions().length === 0) {
+        <p class="aucun" role="status">
+          <i aria-hidden="true" class="pi pi-info-circle"></i>
+          Aucun équivalent n'est en stock pour ce produit.
+        </p>
+      } @else {
+        <ul class="propositions">
+          @for (proposition of propositions(); track proposition.produit.id) {
+            <li class="proposition">
+              <div class="proposition-corps">
+                <div class="proposition-titre">
+                  <strong>{{ proposition.produit.libelle }}</strong>
+                  <app-produit-badges
+                    [peremptionDate]="proposition.produit.peremptionDate"
+                    [peremptionLot]="proposition.produit.peremptionLot"
+                    [statutLegal]="proposition.produit.statutLegal"
+                    [typeGenerique]="proposition.produit.typeGenerique" />
+                </div>
+                <div class="proposition-detail">
+                  <app-badge
+                    [label]="proposition.typeSubstitutLibelle"
+                    [severity]="proposition.typeSubstitut === 'GENERIQUE' ? 'success' : 'warn'" />
+                  @if (proposition.typeSubstitut === 'THERAPEUTIQUE') {
+                    <span class="avis">À valider par le pharmacien</span>
+                  }
+                  @if (proposition.produit.forme || proposition.produit.dosage) {
+                    <span class="forme">{{ proposition.produit.forme }} {{ proposition.produit.dosage }}</span>
+                  }
+                </div>
+              </div>
+
+              <div class="proposition-chiffres">
+                <span class="prix">{{ proposition.produit.regularUnitPrice | devise }}</span>
+                @if (ecart(proposition); as ecart) {
+                  <span [class.moins-cher]="ecart < 0" [class.plus-cher]="ecart > 0" class="ecart">
+                    {{ ecart < 0 ? '−' : '+' }}{{ (ecart < 0 ? -ecart : ecart) | devise }}
+                  </span>
+                } @else if (ecart(proposition) === 0) {
+                  <span class="ecart">même prix</span>
+                }
+                <span [class.stock-juste]="stockInsuffisant(proposition)" class="stock">
+                  {{ proposition.produit.totalQuantity }} en stock
+                  @if (stockInsuffisant(proposition)) {
+                    <i aria-hidden="true" class="pi pi-exclamation-triangle"></i>
+                    <span class="visually-hidden">ne couvre pas la quantité demandée</span>
+                  }
+                </span>
+              </div>
+
+              <app-button
+                (clicked)="choisir(proposition.produit)"
+                [ariaLabel]="'Choisir ' + proposition.produit.libelle"
+                icon="pi pi-check"
+                label="Choisir"
+                severity="primary" />
+            </li>
+          }
+        </ul>
+      }
+    }
+  }
+</div>
+
+<div class="modal-footer">
+  <app-button (clicked)="fermer()" data-action="fermer" icon="pi pi-times" label="Fermer" severity="secondary" [outlined]="true" />
+</div>

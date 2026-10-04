@@ -849,7 +849,8 @@ public class ThirdPartySaleDTO extends SaleDTO {
             dto.setCanceled(canceled);
             dto.setMagasin(magasin);
             // ThirdPartySaleDTO fields
-            if (!Objects.equals(customer.getId(), ayantDroitId)) {
+            // Sans assuré (vente transformée, client pas encore choisi), il n'y a pas d'ayant droit à distinguer de lui.
+            if (customer == null || !Objects.equals(customer.getId(), ayantDroitId)) {
                 dto.setAyantDroitId(ayantDroitId);
                 dto.setAyantDroit(ayantDroit);
             }

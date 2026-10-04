@@ -107,6 +107,10 @@ public interface ProduitRepository
     String searchProduitsJson(@Param("qtext") String qtext, @Param("magasin") Integer magasin,
         @Param("limitResult") Integer limitResult);
 
+    /** Mêmes résultats que {@link #searchProduitsJson}, pour des identifiants ({@code "{3,5,8}"}) ; l'ordre reçu est conservé. */
+    @Query(value = "SELECT search_produits_by_ids_json(CAST(:ids AS integer[]), :magasin)", nativeQuery = true)
+    String searchProduitsByIdsJson(@Param("ids") String ids, @Param("magasin") Integer magasin);
+
     @Query(value = "SELECT search_produits_by_storage_json(:qtext, :storageId, :limitResult)", nativeQuery = true)
     String searchProductsByStorage(@Param("qtext") String qtext,
         @Param("storageId") Integer storageId, @Param("limitResult") Integer limitResult);

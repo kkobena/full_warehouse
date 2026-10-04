@@ -65,6 +65,8 @@
 -- Après 16 : les propositions d'achat s'appuient sur le catalogue et les
 -- fournisseurs déjà chargés.
 \i 17_suggestions.sql
+-- Après 16b : les favoris du comptoir se choisissent dans les ventes et dans le stock stabilisé (la rupture affichée doit le rester).
+\i 17b_favoris.sql
 -- Après 17 : la trace des mouvements rayon / réserve, que 07 déplace sans
 -- l'historiser.
 \i 18_repartitions_stock.sql

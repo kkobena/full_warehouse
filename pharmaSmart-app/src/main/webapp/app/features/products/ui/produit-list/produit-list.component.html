@@ -22,16 +22,15 @@
       <th style="width: 110px">CIP</th>
       <th>Libellé</th>
       <th style="width: 80px; text-align: right">Stock</th>
-      <th
-        style="width: 72px; text-align: right; cursor: default"
-        title="Jours avant rupture estimés — disponible dans le panneau détail"
-      >J. stock
-      </th>
-      <th style="width: 68px; text-align: right" title="Marge brute : (PV − PA) / PV">Marge</th>
+      <th style="width: 100px; text-align: right; cursor: default; white-space: nowrap">J. stock <button type="button" class="btn btn-link p-0 ms-1 th-info" aria-label="À propos de la colonne J. stock" ngbTooltip="Jours avant rupture, estimés d’après les ventes récentes. Le détail est dans le panneau du produit." triggers="mouseenter:mouseleave focus:blur" placement="top" container="body" (click)="$event.stopPropagation()"><i class="pi pi-info-circle" aria-hidden="true"></i></button></th>
+      <th style="width: 100px; text-align: right; white-space: nowrap">Marge <button type="button" class="btn btn-link p-0 ms-1 th-info" aria-label="À propos de la colonne Marge" ngbTooltip="Marge brute en pourcentage du prix de vente : (PV − PA) / PV. Orange sous le seuil attendu, vert au-dessus." triggers="mouseenter:mouseleave focus:blur" placement="top" container="body" (click)="$event.stopPropagation()"><i class="pi pi-info-circle" aria-hidden="true"></i></button></th>
       <th style="width: 56px; text-align: center">Cl.</th>
-      <th style="width: 120px">Rayon</th>
-      <th>Etat</th>
-      <th style="width: 80px; text-align: center">Statut</th>
+      <th style="width: 140px">Rayon</th>
+      @if (!selectedProduit()) {
+        <th style="width: 130px; white-space: nowrap">Etat <button type="button" class="btn btn-link p-0 ms-1 th-info" aria-label="À propos de la colonne Etat" ngbTooltip="Situation du produit : en stock, rupture, stock négatif, en suggestion, en commande ou reçu. Un produit peut cumuler plusieurs états." triggers="mouseenter:mouseleave focus:blur" placement="top" container="body" (click)="$event.stopPropagation()"><i class="pi pi-info-circle" aria-hidden="true"></i></button></th>
+        <th style="width: 96px; text-align: center; white-space: nowrap">Favori <button type="button" class="btn btn-link p-0 ms-1 th-info" aria-label="À propos de la colonne Favori" ngbTooltip="Coché : le produit est épinglé à la grille de la vente comptant. Réservé aux produits actifs ; la modification demande le droit d’édition du catalogue." triggers="mouseenter:mouseleave focus:blur" placement="top" container="body" (click)="$event.stopPropagation()"><i class="pi pi-info-circle" aria-hidden="true"></i></button></th>
+        <th style="width: 80px; text-align: center">Statut</th>
+      }
       <th style="width: 44px"></th>
     </tr>
   </ng-template>
@@ -106,20 +105,29 @@
           <span class="text-muted" style="font-size: 0.7rem">—</span>
         }
       </td>
-      <td>
-        @if (produit.etatProduit) {
-          <jhi-eta-produit [etatProduit]="produit.etatProduit" [showLabel]="false" />
-        }
-      </td>
-      <td class="text-center">
-        @if (produit.status === 'DISABLE') {
-          <span class="pharma-badge pharma-badge-secondary">Veille</span>
-        } @else if (produit.status === 'DELETED') {
-          <span class="pharma-badge pharma-badge-danger">Supprimé</span>
-        } @else {
-          <span class="pharma-badge pharma-badge-success">Actif</span>
-        }
-      </td>
+      @if (!selectedProduit()) {
+        <td>
+          @if (produit.etatProduit) {
+            <jhi-eta-produit [etatProduit]="produit.etatProduit" [showLabel]="false" />
+          }
+        </td>
+        <td (click)="$event.stopPropagation()" class="text-center">
+          <app-checkbox
+            (ngModelChange)="favoriChanged.emit({ produit: produit, favori: $event })"
+            [ariaLabel]="(estFavori(produit) ? 'Retirer ' : 'Épingler ') + produit.libelle + (estFavori(produit) ? ' des' : ' aux') + ' favoris du comptoir'"
+            [disabled]="!canEdit() || produit.status !== 'ENABLE'"
+            [ngModel]="estFavori(produit)" />
+        </td>
+        <td class="text-center">
+          @if (produit.status === 'DISABLE') {
+            <span class="pharma-badge pharma-badge-secondary">Veille</span>
+          } @else if (produit.status === 'DELETED') {
+            <span class="pharma-badge pharma-badge-danger">Supprimé</span>
+          } @else {
+            <span class="pharma-badge pharma-badge-success">Actif</span>
+          }
+        </td>
+      }
       <td (click)="$event.stopPropagation()" class="text-end">
         <div container="body" ngbDropdown placement="bottom-end top-end bottom-start top-start">
           <button
@@ -155,7 +163,7 @@
 
   <ng-template #emptymessage>
     <tr>
-      <td class="pharma-empty-message" colspan="11">
+      <td class="pharma-empty-message" colspan="12">
         <div class="pharma-empty-content">
           <i class="pi pi-inbox"></i>
           <p>Aucun produit trouvé</p>

@@ -2,7 +2,7 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {ForceStockChoiceModalComponent} from './force-stock-choice-modal.component';
 
-/** Lot 3 de PLAN-VENTE-SUR-STOCK-ERRONE : le caissier dit pourquoi il force. */
+/** le caissier dit pourquoi il force. */
 describe('ForceStockChoiceModalComponent', () => {
   let fixture: ComponentFixture<ForceStockChoiceModalComponent>;
   const activeModal = {close: jest.fn(), dismiss: jest.fn()};
@@ -59,6 +59,32 @@ describe('ForceStockChoiceModalComponent', () => {
     bouton(el, `[data-motif="${motif}"]`).click();
 
     expect(activeModal.close).toHaveBeenCalledWith(motif);
+    expect(activeModal.dismiss).not.toHaveBeenCalled();
+  });
+
+  it("n'offre l'équivalent que si l'écran sait le recevoir", () => {
+    expect(choix(ouvrir({canRupture: true, canEcart: true}), 'SUBSTITUER')).toBeNull();
+
+    const el = ouvrir({canRupture: true, canEcart: true, canSubstituer: true});
+
+    expect(choix(el, 'SUBSTITUER')?.textContent).toContain('Proposer un équivalent disponible');
+    expect(choix(el, 'SUBSTITUER')?.textContent).toContain('Rien n\'est forcé');
+  });
+
+  it("propose l'équivalent même à qui n'a aucun privilège de forçage", () => {
+    const el = ouvrir({canRupture: false, canEcart: false, canSubstituer: true});
+
+    expect(choix(el, 'RUPTURE_AVOIR')).toBeNull();
+    expect(choix(el, 'ECART_INVENTAIRE')).toBeNull();
+    expect(choix(el, 'SUBSTITUER')).not.toBeNull();
+  });
+
+  it("ferme avec SUBSTITUER quand on choisit l'équivalent : aucun motif de forçage", () => {
+    const el = ouvrir({canRupture: true, canEcart: true, canSubstituer: true});
+
+    bouton(el, '[data-motif="SUBSTITUER"]').click();
+
+    expect(activeModal.close).toHaveBeenCalledWith('SUBSTITUER');
     expect(activeModal.dismiss).not.toHaveBeenCalled();
   });
 

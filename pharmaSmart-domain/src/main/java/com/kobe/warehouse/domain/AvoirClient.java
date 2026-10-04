@@ -61,6 +61,10 @@ public class AvoirClient implements Serializable {
     @Column(name = "montant_utilise", nullable = false, columnDefinition = "int default 0")
     private int montantUtilise = 0;
 
+    /** Unités déjà remises au client (mode RETOUR_PRODUIT), une remise pouvant être partielle. */
+    @Column(name = "quantite_remise", nullable = false, columnDefinition = "int default 0")
+    private int quantiteRemise = 0;
+
     @Column(name = "date_expiration")
     private LocalDate dateExpiration;
 
@@ -127,6 +131,11 @@ public class AvoirClient implements Serializable {
     public AvoirClient setMontantUtilise(int montantUtilise) { this.montantUtilise = montantUtilise; return this; }
 
     public int getMontantRestant() { return montant - montantUtilise; }
+
+    public int getQuantiteRemise() { return quantiteRemise; }
+    public AvoirClient setQuantiteRemise(int quantiteRemise) { this.quantiteRemise = quantiteRemise; return this; }
+
+    public int getQuantiteRestante() { return quantite - quantiteRemise; }
 
     public LocalDate getDateExpiration() { return dateExpiration; }
     public AvoirClient setDateExpiration(LocalDate dateExpiration) { this.dateExpiration = dateExpiration; return this; }

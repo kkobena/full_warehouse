@@ -5,6 +5,7 @@ import {CustomerDisplayService} from '../../data-access/services/customer-displa
 import {NotificationService} from '../../../../shared/services/notification.service';
 import {createSalesLineFromProduct} from '../../data-access/utils/sales-line.utils';
 import {AlerteSanteGuardService} from '../../data-access/services/alerte-sante-guard.service';
+import {SubstitutionComptoirService} from '../../data-access/services/substitution-comptoir.service';
 
 /**
  * Type pour les infos de produit en attente d'affichage
@@ -112,6 +113,7 @@ export function createProductHandling(context: ProductHandlingContext) {
   const pendingDisplayProduct = signal<PendingDisplayProduct | null>(null);
   // Appelé dans l'initialiseur de champ du composant : le contexte d'injection est disponible.
   const alerteSanteGuard = inject(AlerteSanteGuardService);
+  const substitution = inject(SubstitutionComptoirService);
 
   /**
    * Met le focus sur le composant de recherche produit
@@ -224,6 +226,30 @@ export function createProductHandling(context: ProductHandlingContext) {
     });
   }
 
+  /**
+   * Équivalents d'une ligne du panier (le client en veut un moins cher, ou le produit a changé de disponibilité). Celui qu'on choisit
+   * s'AJOUTE, avec la quantité de la ligne, par le circuit ordinaire — donc avec ses contrôles de stock et d'allergie. La ligne
+   * d'origine reste : la retirer relève du droit de suppression, que le caissier exerce comme d'habitude.
+   */
+  function proposerEquivalents(ligne: ISalesLine): void {
+    if (!ligne.produitId) {
+      return;
+    }
+    substitution
+      .choisir({ id: ligne.produitId, libelle: ligne.produitLibelle ?? '', prixUnitaire: ligne.regularUnitPrice, quantite: ligne.quantityRequested })
+      .subscribe(produit => {
+        if (!produit) {
+          focusProductSearch();
+          return;
+        }
+        addProductToSale(produit, ligne.quantityRequested ?? 1);
+        notificationService.info(
+          `« ${produit.libelle} » est ajouté. Supprimez « ${ligne.produitLibelle ?? 'la ligne d\'origine'} » si le client préfère l'équivalent.`,
+          'Équivalent ajouté',
+        );
+      });
+  }
+
   function ajouterSansControle(product: ProduitSearch, quantity: number, codeScan?: string | null): void {
     const sale = currentSale();
     const salesLine = createSalesLineFromProduct(product, quantity, sale, codeScan);
@@ -271,6 +297,7 @@ export function createProductHandling(context: ProductHandlingContext) {
     onProductScanned,
     onAddQuantity,
     addProductToSale,
+    proposerEquivalents,
     checkCustomerRequired,
     updatePendingDisplay,
     getPendingDisplayProduct,

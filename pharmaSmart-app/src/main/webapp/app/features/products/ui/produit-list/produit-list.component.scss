@@ -45,3 +45,40 @@
     color: #f0ad4e;
   }
 }
+
+// Cellules centrées verticalement : Rayon, Etat et Marge ne collent plus au haut de la ligne.
+:host ::ng-deep tbody td {
+  vertical-align: middle;
+}
+
+// Icône d'aide sur le fond bleu de l'en-tête : blanche et plus grande, pour qu'on la repère.
+.th-info {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  color: #fff;
+  opacity: 0.95;
+  font-size: 1.05rem;
+  vertical-align: middle;
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+// .form-check réserve la hauteur d'une ligne de texte et un retrait à gauche : la case sort du centre de la cellule.
+:host ::ng-deep tbody td app-checkbox .form-check {
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+
+  .form-check-input {
+    float: none;
+    margin: 0;
+  }
+}

@@ -26,6 +26,7 @@ import {
   CustomerSelectionModalComponent,
   ProductListComponent,
   ProductSearchSectionComponent,
+  QuickProductsGridComponent,
   SaleActionsComponent,
   SaleSummaryComponent,
   SaleType,
@@ -79,6 +80,7 @@ import {SaleForEditInfo} from '../../../../shared/model/sales.model';
     CommonModule,
     FormsModule,
     ProductSearchSectionComponent,
+    QuickProductsGridComponent,
     ProductListComponent,
     SaleSummaryComponent,
     SaleActionsComponent,
@@ -174,6 +176,8 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     forceStockContext: this.forceStockContext,
     getConfirmDialog: () => this.confirmDialog,
     resetProductSelection: () => this.productHandling.resetProductSelection(),
+    // Équivalent choisi en cas de rupture : ajouté par le circuit ordinaire, avec la quantité demandée.
+    ajouterSubstitut: (produit, quantite) => this.productHandling.addProductToSale(produit, quantite),
     operations: {
       createSale: (line: ISalesLine) => this.facade.createComptantSale(line),
       addProduct: (line: ISalesLine) => this.facade.onAddProduit(line),
@@ -379,6 +383,10 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   }
 
   // ===== Handlers pour ProductListComponent =====
+
+  onEquivalentsDemandes(line: ISalesLine): void {
+    this.productHandling.proposerEquivalents(line);
+  }
 
   onLineRemoved(line: ISalesLine): void {
     if (line.saleLineId) {

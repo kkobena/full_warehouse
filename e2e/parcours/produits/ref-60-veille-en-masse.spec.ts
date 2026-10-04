@@ -33,8 +33,8 @@ scenario('REF-60', async ({ etape, page }) => {
     await chercherAuCatalogue('Produits actifs');
     await expect(lignes.first()).toContainText(recherche);
     // Deux lignes suffisent à montrer le lot ; l'action est la même à deux ou à deux cents.
-    await lignes.nth(0).getByRole('checkbox').check();
-    await lignes.nth(1).getByRole('checkbox').check();
+    await lignes.nth(0).getByRole('checkbox', { name: /^Sélectionner/ }).check();
+    await lignes.nth(1).getByRole('checkbox', { name: /^Sélectionner/ }).check();
     // La barre d'actions groupées n'apparaît qu'avec une sélection, et compte ce qu'elle tient.
     await expect(barre).toContainText('2 produit(s) sélectionné(s)');
   });

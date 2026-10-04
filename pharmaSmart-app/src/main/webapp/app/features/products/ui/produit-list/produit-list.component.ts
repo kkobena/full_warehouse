@@ -67,11 +67,15 @@ export class ProduitListComponent {
   readonly clearSelectionTrigger = input<number>(0);
   readonly canCreate = input<boolean>(true);
   readonly canEdit = input<boolean>(true);
+  /** Produits épinglés à la grille du comptoir : l'état de la case « Favori » de chaque ligne. */
+  readonly favorisIds = input<ReadonlySet<number>>(new Set<number>());
   readonly canDelete = input<boolean>(true);
 
   readonly produitSelected = output<IProduit>();
   readonly lazyLoad = output<AppTableLazyLoadEvent>();
   readonly editRequested = output<IProduit>();
+  /** Case « Favori » cochée ou décochée : épingler ou retirer le produit de la grille du comptoir. */
+  readonly favoriChanged = output<{ produit: IProduit; favori: boolean }>();
   readonly deleteRequested = output<IProduit>();
   readonly menuAction = output<{ action: ProduitMenuAction; produit: IProduit }>();
   readonly selectionChanged = output<IProduit[]>();
@@ -99,6 +103,10 @@ export class ProduitListComponent {
 
   protected onRowClick(produit: IProduit): void {
     this.produitSelected.emit(produit);
+  }
+
+  protected estFavori(produit: IProduit): boolean {
+    return produit.id != null && this.favorisIds().has(produit.id);
   }
 
   protected toggleCheckbox(produit: IProduit): void {

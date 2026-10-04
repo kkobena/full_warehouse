@@ -1,0 +1,38 @@
+@use '../../shared/styles/accent-modal' as accent;
+
+@include accent.accent-modal;
+
+// Onglets : le Design System fournit la barre, l'accent du type de vente colore l'onglet actif.
+.pharma-nav-tabs .nav-link {
+  min-height: 44px;
+  color: var(--comptoir-accent-dark);
+
+  &.active {
+    border-bottom: 3px solid var(--comptoir-accent);
+    font-weight: 600;
+  }
+}
+
+// État vide bien visible : sans avoir, le caissier doit comprendre tout de suite que la recherche est terminée, pas en cours.
+.etat-vide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  background: var(--comptoir-accent-tint);
+  border: 2px dashed var(--comptoir-accent);
+  border-radius: 0.5rem;
+  color: var(--comptoir-accent-dark);
+
+  .pi {
+    font-size: 2rem;
+    color: var(--comptoir-accent);
+  }
+
+  strong {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+}

@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.sale.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -281,6 +282,51 @@ class SaleDataServiceIntegrationTest extends AbstractSaleIntegrationTest {
 
         assertEquals(1, preventes.size());
         assertEquals(SalesStatut.PROCESSING, preventes.getFirst().getStatut());
+    }
+
+    @Test
+    @DisplayName("Un identifiant de vente inconnu rend un 404 explicite, pas une erreur interne")
+    void venteInconnue() {
+        var erreur = org.junit.jupiter.api.Assertions.assertThrows(
+            org.springframework.web.server.ResponseStatusException.class,
+            () -> services.saleDataService.fetchPurchaseBy(987_654_321L, AUJOURD_HUI)
+        );
+
+        assertEquals(404, erreur.getStatusCode().value());
+        assertTrue(erreur.getReason().contains("Vente introuvable"));
+    }
+
+    @Test
+    @DisplayName("Une vente assurance fraîchement transformée, sans assuré, se relit par son identifiant : l'écran doit pouvoir la reprendre")
+    void venteAssuranceSansClientSeRelitParSonIdentifiant() {
+        Produit produit = produitEnStock("TRANSFORMEE", 700, 400, 0, 100);
+        ThirdPartySales sansClient = new ThirdPartySales();
+        sansClient.setSaleDate(AUJOURD_HUI);
+        sansClient.setId(services.saleIdGeneratorService.nextId());
+        sansClient.setNumberTransaction("IT" + sansClient.getId().getId());
+        sansClient.setStatut(SalesStatut.ACTIVE);
+        sansClient.setPaymentStatus(PaymentStatus.IMPAYE);
+        sansClient.setNatureVente(NatureVente.ASSURANCE);
+        sansClient.setOrigineVente(OrigineVente.DIRECT);
+        sansClient.setTypePrescription(TypePrescription.PRESCRIPTION);
+        sansClient.setCreatedAt(LocalDateTime.now());
+        sansClient.setUpdatedAt(LocalDateTime.now());
+        sansClient.setEffectiveUpdateDate(LocalDateTime.now());
+        sansClient.setAmountToBeTakenIntoAccount(0);
+        sansClient.setUser(caissier);
+        sansClient.setSeller(caissier);
+        sansClient.setCaissier(caissier);
+        sansClient.setMagasin(magasin);
+        em.persist(sansClient);
+        ajouterLigne(sansClient, produit, 2, 1);
+        em.flush();
+        viderLeCache();
+
+        SaleDTO relue = services.saleDataService.fetchPurchaseBy(sansClient.getId().getId(), AUJOURD_HUI);
+
+        assertEquals(sansClient.getId().getId(), relue.getId());
+        assertEquals(1, relue.getSalesLines().size(), "les lignes de la vente transformée sont conservées");
+        assertNull(((com.kobe.warehouse.service.dto.ThirdPartySaleDTO) relue).getCustomer(), "pas d'assuré tant que le caissier n'a pas choisi");
     }
 
     @Test

@@ -84,7 +84,7 @@
     gap: 0.5rem;
     padding: 0.3rem 0.75rem 0.4rem;
     border-top: 1px solid $gray-200;
-    background: $pharma-primary-light;
+    background: var(--pharma-chrome-tab-tint, #{$pharma-primary-light});
     animation: slideIn 0.2s ease;
   }
 
@@ -93,10 +93,10 @@
     align-items: center;
     gap: 4px;
     font-size: 0.78rem;
-    color: $pharma-primary-dark;
+    color: var(--pharma-chrome-tab-dark, #{$pharma-primary-dark});
     font-weight: 500;
 
-    i { font-size: 0.75rem; color: $pharma-primary; }
+    i { font-size: 0.75rem; color: var(--pharma-chrome-tab, #{$pharma-primary}); }
   }
 
   .low-stock {

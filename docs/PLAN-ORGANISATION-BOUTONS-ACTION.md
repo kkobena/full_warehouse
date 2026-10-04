@@ -84,7 +84,7 @@ messages de résultat) et aux boutons de **confirmation dans les boîtes de dial
 | Action | Niveau | Libellé / icône | Remarque |
 |---|---|---|---|
 | Nouveau / Ajouter / Créer | **N1** | « Nouveau … » `pi-plus` | une seule création principale par écran |
-| Rechercher | **N1 si l'écran n'a pas de création**, sinon **N2** | « Rechercher » `pi-search` | la touche Entrée dans un filtre déclenche la recherche ; même libellé partout |
+| Rechercher | **N2** (`info`, décidé) | « Rechercher » `pi-search` | la touche Entrée dans un filtre déclenche la recherche ; même libellé partout |
 | Enregistrer / Valider | N1 | « Enregistrer » `pi-check` | dans les formulaires et modales |
 | Exporter / Imprimer / PDF / Excel | N2 (groupe) | « Exporter ▾ » `pi-download` | une seule entrée de barre |
 | Importer | N2 (dans « Plus ▾ » ou groupe) | « Importer » `pi-upload` | |
@@ -121,7 +121,7 @@ les secondaires, le **destructif séparé en dernier**, et « Désélectionner �
 
 ## 8. Décisions à prendre avant la phase 1
 
-1. **« Rechercher » est-il le bouton principal des écrans de liste ?** Proposé : oui s'il n'y a pas de création, sinon secondaire (Entrée déclenche la recherche).
+1. **« Rechercher »** — **DÉCIDÉ (2026-10-04) : sévérité `info`**, partout, qu'il y ait ou non une création sur l'écran. Il n'est donc pas le bouton principal. Les 44 occurrences des gabarits sont déjà en `info`. La touche Entrée dans un filtre déclenche la recherche.
 2. **Position du principal** : proposé au bord droit, dernier dans l'ordre de tabulation (alternative : à gauche du groupe, premier au clavier).
 3. **Sort des sévérités `info`, `help`, `contrast`** : proposé de ne plus les utiliser sur des boutons d'action (conservées pour badges et alertes), `help` remplacé par l'icône d'aide N3.
 4. **Conventions PDF / Excel** : proposé de les supprimer au profit d'un menu « Exporter ▾ » neutre. À confirmer si les utilisateurs s'y fient.

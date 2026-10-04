@@ -34,7 +34,7 @@
 
     i {
       font-size: 0.85rem;
-      color: #5b89a6;
+      color: var(--pharma-chrome-tab, #5b89a6);
     }
 
     strong {
@@ -64,8 +64,8 @@
     margin-left: auto;
     font-size: 0.95rem;
     font-weight: 700;
-    color: #2e7d97;
-    background: #e8f4f8;
+    color: var(--pharma-chrome-head-icon, #2e7d97);
+    background: var(--pharma-chrome-tab-tint, #e8f4f8);
     padding: 0.15rem 0.6rem;
     border-radius: 12px;
   }
@@ -81,7 +81,7 @@
 
       .p-progressbar-value {
         border-radius: 5px;
-        background: linear-gradient(90deg, #5b89a6 0%, #2e7d97 100%);
+        background: linear-gradient(90deg, var(--pharma-chrome-tab, #5b89a6) 0%, var(--pharma-chrome-head-icon, #2e7d97) 100%);
         transition: width 0.4s ease;
       }
 

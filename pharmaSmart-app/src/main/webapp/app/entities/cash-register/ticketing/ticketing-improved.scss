@@ -211,7 +211,7 @@ $other: #6b7280;
   border-bottom: 1px solid $gray-200;
 
   i {
-    color: $pharma-primary;
+    color: var(--pharma-chrome-tab, #{$pharma-primary});
     font-size: 1.125rem;
   }
 }
@@ -237,10 +237,10 @@ $other: #6b7280;
   }
 
   &.pharma-other-row {
-    background: lighten($pharma-primary-light, 3%);
+    background: var(--pharma-chrome-tab-tint, #{lighten($pharma-primary-light, 3%)});
 
     &:hover {
-      background: $pharma-primary-light;
+      background: var(--pharma-chrome-tab-tint, #{$pharma-primary-light});
     }
   }
 }

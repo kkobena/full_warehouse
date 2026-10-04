@@ -11,7 +11,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 0.2rem;
-  background: #e8f4f8;
+  background: var(--pharma-chrome-tab-tint, #e8f4f8);
   border: 1px solid #b0cfe0;
   border-radius: 5px;
   padding: 0.35rem 0.6rem;
@@ -20,7 +20,7 @@
   margin-bottom: 0.75rem;
 
   strong {
-    color: #5b89a6;
+    color: var(--pharma-chrome-tab, #5b89a6);
   }
 }
 
@@ -70,7 +70,7 @@
   display: inline-flex;
   align-items: center;
   font-size: 0.72rem;
-  color: #5b89a6;
+  color: var(--pharma-chrome-tab, #5b89a6);
   font-style: italic;
 }
 

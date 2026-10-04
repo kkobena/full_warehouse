@@ -489,3 +489,12 @@ redéfinissent ces quatre jetons (fond 22 %, survol 32 % de l'accent, texte à l
 Garde-fou : texte sur fond et sur survol ≥ 4,5:1 (4,8 à 10,4), liseré ≥ 3:1 (3,5 à 5,2) ; 626 tests verts. Vu à l'écran (formes de produit), « Actuel » et deux thèmes.
 Défaut ancien, non traité : sur une ligne sélectionnée, les cellules suivant la première se teintent plus foncé (superposition du `table-active` de Bootstrap), y compris sous « Actuel ».
 
+**Page de connexion et relevé des couleurs en dur (2026-10-04).**
+- **Connexion :** jetons `--pharma-chrome-login-*`. « Actuel » garde son bleu d'origine (dégradé `#008cba → #5bc0de`, texte noir sur le bouton). Les thèmes dérivés ont un **fond clair teinté de l'accent** (14 % → 32 %), un texte à
+  l'encre de l'en-tête, un bouton en dégradé sombre à texte blanc ; accent des icônes, liens et champs = encre. Un fond clair, parce qu'un texte blanc sur un fond éclairci ne tient plus 4,5:1. Garde-fou : texte sur fond ≥ 4,8:1, texte
+  blanc du bouton ≥ 5,1:1, accent sur la carte blanche ≥ 7,4:1 ; 646 tests verts. Vu à l'écran (Assurance).
+- **Couleurs en dur :** réécriture automatique (script hors dépôt, qui ignore les définitions de variables, les commentaires et les fichiers sources de jetons) de 37 feuilles SCSS : `$pharma-primary` → `--pharma-chrome-tab`, `-dark` → `-tab-dark`,
+  `-light` → `-tab-tint`, `rgba($pharma-primary, x)` → `color-mix`, et les hexadécimaux équivalents `#5b89a6`, `#4a7189`, `#e8f4f8`, `#2e7d97`, `#6b9ab8`. Chaque valeur de repli compilée est égale à l'ancienne : « Actuel » est inchangé. Compilation de chaque fichier : OK.
+- **Chiffres :** il y a 34 fichiers SCSS avec `$pharma-primary` (les « 89 » comptaient aussi `-dark` et `-light`), dont ceux de l'espace de vente, **non touchés** (accents propres par type de vente).
+- **Laissés tels quels :** les définitions de variables locales (repli), `$gc-primary` (`_grid-caption`) et `$primary-blue` (`inventory-home`) qui passent par des fonctions Sass, et le dégradé `.bg-primary` de `table-common-global.scss` (utilitaire de gravité, pas un accent d'écran).
+

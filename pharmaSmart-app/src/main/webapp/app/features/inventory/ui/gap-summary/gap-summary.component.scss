@@ -44,7 +44,7 @@
 
   .gap-progress-fill {
     height: 100%;
-    background: #5b89a6;
+    background: var(--pharma-chrome-tab, #5b89a6);
     border-radius: 3px;
     transition: width 0.3s ease;
   }

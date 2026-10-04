@@ -54,12 +54,12 @@
 // ─── Ligne sélectionnée dans le panneau gauche ─────────────────────────────────
 .ae-row-selected {
   background: #e3f2fd !important;
-  box-shadow: inset 3px 0 0 #5b89a6;
+  box-shadow: inset 3px 0 0 var(--pharma-chrome-tab, #5b89a6);
 }
 
 // ─── Ligne REMBOURSE ───────────────────────────────────────────────────────────
 .pharma-row-info {
-  background: #e8f4f8 !important;
+  background: var(--pharma-chrome-tab-tint, #e8f4f8) !important;
   box-shadow: inset 3px 0 0 #5bc0de;
 
   &:hover { background: #d6edf5 !important; }

@@ -62,7 +62,7 @@
     }
 
     &:focus {
-      border-color: $pharma-primary;
+      border-color: var(--pharma-chrome-tab, #{$pharma-primary});
       box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
       background: $pharma-white;
       outline: none;
@@ -295,7 +295,7 @@ table {
 .pharma-code {
   font-family: 'Courier New', monospace;
   font-weight: 600;
-  color: $pharma-primary;
+  color: var(--pharma-chrome-tab, #{$pharma-primary});
   font-size: 13px;
   /*  padding: 8px 8px !important;*/
   background: #e3f2fd;
@@ -315,7 +315,7 @@ table {
 // Valeurs de quantité
 .pharma-qty-value {
   font-weight: 600;
-  color: $pharma-primary;
+  color: var(--pharma-chrome-tab, #{$pharma-primary});
   font-size: 14px;
   text-align: right !important;
 }
@@ -392,7 +392,7 @@ table {
 .pharma-input-text {
   width: 90px !important;
   text-align: center;
-  border: 2px solid $pharma-primary;
+  border: 2px solid var(--pharma-chrome-tab, #{$pharma-primary});
   border-radius: $pharma-radius;
   font-weight: 600;
   padding: 6px;
@@ -418,7 +418,7 @@ table {
 // FOOTER DU TABLEAU
 // ====================================
 .pharma-footer-label {
-  color: $pharma-primary;
+  color: var(--pharma-chrome-tab, #{$pharma-primary});
 
   i {
     font-size: 16px;
@@ -434,7 +434,7 @@ table {
 
 .pharma-footer-value {
   font-weight: 700;
-  color: $pharma-primary;
+  color: var(--pharma-chrome-tab, #{$pharma-primary});
   font-size: 14px;
 }
 
@@ -500,8 +500,8 @@ table {
 
 
         &.p-highlight {
-          background: $pharma-primary;
-          border-color: $pharma-primary;
+          background: var(--pharma-chrome-tab, #{$pharma-primary});
+          border-color: var(--pharma-chrome-tab, #{$pharma-primary});
         }
 
         &:hover {
@@ -515,7 +515,7 @@ table {
       border-radius: $pharma-radius;
 
       &:hover {
-        border-color: $pharma-primary;
+        border-color: var(--pharma-chrome-tab, #{$pharma-primary});
       }
     }
   }
@@ -594,7 +594,7 @@ table {
     }
 
     &.bg-primary {
-      background: linear-gradient(135deg, #5b89a6 0%, #4a7189 100%) !important;
+      background: linear-gradient(135deg, var(--pharma-chrome-tab, #5b89a6) 0%, var(--pharma-chrome-tab-dark, #4a7189) 100%) !important;
     }
 
     &.bg-success {

@@ -50,7 +50,7 @@
       color: #fff;
       margin: 0;
       padding: 0.65rem 1rem;
-      background: linear-gradient(135deg, #5b89a6 0%, #4a7189 100%);
+      background: linear-gradient(135deg, var(--pharma-chrome-tab, #5b89a6) 0%, var(--pharma-chrome-tab-dark, #4a7189) 100%);
       display: flex;
       align-items: center;
       gap: 0.4rem;
@@ -250,7 +250,7 @@
       align-items: center;
       gap: 0.4rem;
 
-      i { color: #2e7d97; }
+      i { color: var(--pharma-chrome-head-icon, #2e7d97); }
     }
   }
 }

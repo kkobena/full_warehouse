@@ -30,7 +30,7 @@
     .back-button {
       color: #4b5563;
       transition: all 0.2s ease;
-      &:hover { color: #5b89a6; background-color: #e8f4f8; }
+      &:hover { color: var(--pharma-chrome-tab, #5b89a6); background-color: var(--pharma-chrome-tab-tint, #e8f4f8); }
     }
 
     .page-title {

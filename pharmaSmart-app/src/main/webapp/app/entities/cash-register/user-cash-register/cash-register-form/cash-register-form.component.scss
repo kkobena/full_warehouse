@@ -70,7 +70,7 @@ $border-radius-lg: 12px;
   box-shadow: $pharma-shadow-md;
 
   &.bg-primary {
-    background: linear-gradient(135deg, $pharma-primary 0%, darken($pharma-primary, 10%) 100%);
+    background: linear-gradient(135deg, var(--pharma-chrome-tab, #{$pharma-primary}) 0%, var(--pharma-chrome-tab-dark, #{darken($pharma-primary, 10%)}) 100%);
   }
 
   &.bg-success {
@@ -123,7 +123,7 @@ $border-radius-lg: 12px;
 
   i {
     margin-right: 0.5rem;
-    color: $pharma-primary;
+    color: var(--pharma-chrome-tab, #{$pharma-primary});
   }
 }
 
@@ -136,8 +136,8 @@ $border-radius-lg: 12px;
   transition: all 0.3s ease;
 
   &:focus {
-    border-color: $pharma-primary;
-    box-shadow: 0 0 0 3px $pharma-primary-light;
+    border-color: var(--pharma-chrome-tab, #{$pharma-primary});
+    box-shadow: 0 0 0 3px var(--pharma-chrome-tab-tint, #{$pharma-primary-light});
     outline: none;
   }
 
@@ -198,7 +198,7 @@ $border-radius-lg: 12px;
   flex-shrink: 0;
 
   &.bg-primary-light {
-    background: $pharma-primary-light;
+    background: var(--pharma-chrome-tab-tint, #{$pharma-primary-light});
   }
 
   &.bg-success-light {

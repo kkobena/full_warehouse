@@ -59,6 +59,15 @@
   --pharma-chrome-head-icon: #2e7d97;
   --pharma-chrome-head-sep: rgba(255, 255, 255, 0.1);
   --pharma-chrome-close-filter: brightness(0) invert(1);
+  // Page de connexion : fond en dégradé (texte blanc dessus), accent des icônes, liens et champs sur la carte blanche.
+  --pharma-chrome-login-a: #008cba;
+  --pharma-chrome-login-b: #5bc0de;
+  --pharma-chrome-login-accent: #008cba;
+  --pharma-chrome-login-accent-hover: #5bc0de;
+  --pharma-chrome-login-btn-fg: #000;
+  --pharma-chrome-login-btn-a: #008cba;
+  --pharma-chrome-login-btn-b: #5bc0de;
+  --pharma-chrome-login-fg: #ffffff;
   // Liens de `app-nav-sidebar` : survol et actif aux couleurs du thème (les icônes gardent leur teinte propre, quel que soit l'état).
   --pharma-chrome-navv-hover-bg: #d9eaf2;
   --pharma-chrome-navv-hover-border: #5b89a6;
@@ -170,6 +179,10 @@ $chrome-pill-track: 10%;
 $chrome-pill-active: 34%;
 $chrome-pill-active-end: 26%;
 $chrome-pill-idle: #536074;
+// Page de connexion : part d'accent du côté sombre du dégradé.
+$chrome-login-dark: 78%;
+$chrome-login-bg-a: 14%;
+$chrome-login-bg-b: 32%;
 // Ligne sélectionnée des tableaux : teinte au repos et au survol.
 $chrome-row-selected: 22%;
 $chrome-row-selected-hover: 32%;
@@ -261,6 +274,16 @@ $pharma-chrome-themes: (
     --pharma-chrome-navv-active-bg: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-navv-active}, #fff);
     --pharma-chrome-navv-active-border: var(--pharma-chrome-seed);
     --pharma-chrome-navv-active-fg: var(--pharma-chrome-bar-ink);
+
+    // Page de connexion : fond clair teinté de l'accent, texte à l'encre de l'en-tête ; bouton en dégradé sombre (texte blanc).
+    --pharma-chrome-login-a: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-login-bg-a}, #fff);
+    --pharma-chrome-login-b: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-login-bg-b}, #fff);
+    --pharma-chrome-login-fg: var(--pharma-chrome-ink);
+    --pharma-chrome-login-btn-a: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-login-dark}, #000);
+    --pharma-chrome-login-btn-b: var(--pharma-chrome-seed);
+    --pharma-chrome-login-accent: var(--pharma-chrome-ink);
+    --pharma-chrome-login-accent-hover: var(--pharma-chrome-seed);
+    --pharma-chrome-login-btn-fg: #fff;
 
     // Ligne sélectionnée des tableaux (`tr.ligne-selected`, `app-data-table`) : teinte de l'accent, liseré à l'accent.
     --pharma-row-selected-bg: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-row-selected}, #fff);

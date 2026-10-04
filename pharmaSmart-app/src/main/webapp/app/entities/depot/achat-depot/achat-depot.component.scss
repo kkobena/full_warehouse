@@ -14,13 +14,13 @@ $border-radius: $pharma-radius;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: $pharma-primary;
+    border-color: var(--pharma-chrome-tab, #{$pharma-primary});
   }
 
   &:focus,
   &.p-focus {
-    border-color: $pharma-primary;
-    box-shadow: 0 0 0 3px rgba($pharma-primary, 0.1);
+    border-color: var(--pharma-chrome-tab, #{$pharma-primary});
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 10%, transparent);
   }
 }
 .p-floatlabel {

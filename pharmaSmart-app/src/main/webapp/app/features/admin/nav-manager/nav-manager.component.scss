@@ -23,7 +23,7 @@ $section-border: #a78bfa;
     font-weight: 600;
 
     i {
-      color: $pharma-primary;
+      color: var(--pharma-chrome-tab, #{$pharma-primary});
     }
   }
 }
@@ -415,7 +415,7 @@ $section-border: #a78bfa;
 // ═════════════════════════════════════════════════════════════════════════════
 
 .preview-info-bar {
-  background: #e8f4f8;
+  background: var(--pharma-chrome-tab-tint, #e8f4f8);
   border: 1px solid #b8d9e8;
   border-radius: 6px;
   padding: 8px 12px;

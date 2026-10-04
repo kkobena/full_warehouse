@@ -42,8 +42,8 @@ $pharma-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       transition: all 0.2s ease;
 
       &:hover {
-        color: $pharma-primary;
-        background-color: $pharma-primary-light;
+        color: var(--pharma-chrome-tab, #{$pharma-primary});
+        background-color: var(--pharma-chrome-tab-tint, #{$pharma-primary-light});
       }
     }
 
@@ -187,7 +187,7 @@ $border-radius-lg: 12px;
       white-space: nowrap;
 
       i {
-        color: $pharma-primary;
+        color: var(--pharma-chrome-tab, #{$pharma-primary});
         font-size: 0.9rem;
       }
 

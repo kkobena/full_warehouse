@@ -18,7 +18,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: #2e7d97;
+    color: var(--pharma-chrome-head-icon, #2e7d97);
     margin-bottom: 0.75rem;
     display: flex;
     align-items: center;
@@ -39,7 +39,7 @@
   i {
     width: 1.125rem;
     text-align: center;
-    color: #2e7d97;
+    color: var(--pharma-chrome-head-icon, #2e7d97);
     font-size: 0.9rem;
   }
 }

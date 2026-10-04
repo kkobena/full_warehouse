@@ -88,13 +88,13 @@
   i { font-size: 0.8rem; flex-shrink: 0; }
 
   &:hover:not(.lb-tab--active) {
-    color: $pharma-primary;
-    background: rgba($pharma-primary, 0.04);
+    color: var(--pharma-chrome-tab, #{$pharma-primary});
+    background: color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 4%, transparent);
   }
 
   &--active {
-    color: $pharma-primary;
-    border-bottom-color: $pharma-primary;
+    color: var(--pharma-chrome-tab, #{$pharma-primary});
+    border-bottom-color: var(--pharma-chrome-tab, #{$pharma-primary});
     background: $pharma-white;
   }
 
@@ -186,7 +186,7 @@
 .lb-meta-card__supplier {
   font-size: 0.82rem;
   font-weight: 700;
-  color: $pharma-primary-dark;
+  color: var(--pharma-chrome-tab-dark, #{$pharma-primary-dark});
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -214,7 +214,7 @@
 
   i {
     font-size: 0.65rem;
-    color: $pharma-primary;
+    color: var(--pharma-chrome-tab, #{$pharma-primary});
   }
 
   &--amount {

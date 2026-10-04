@@ -6,7 +6,7 @@
 // ── Table inventaires ─────────────────────────────────────────────────────────
 .inventory-table {
   thead tr th {
-    background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--pharma-chrome-tab, #5b89a6) 90%, #fff), var(--pharma-chrome-tab, #5b89a6));
     color: #fff;
     font-size: 0.8rem;
     font-weight: 600;

@@ -54,7 +54,7 @@
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
     &:focus-within {
-      border-color: #5b89a6;
+      border-color: var(--pharma-chrome-tab, #5b89a6);
       box-shadow: 0 0 0 2px rgba(91, 137, 166, 0.12);
     }
 
@@ -130,7 +130,7 @@
   .inventory-grid {
     // En-têtes de colonnes
     .ag-header-cell {
-      background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
+      background: linear-gradient(to bottom, color-mix(in srgb, var(--pharma-chrome-tab, #5b89a6) 90%, #fff), var(--pharma-chrome-tab, #5b89a6));
       color: #fff;
       font-weight: 600;
       font-size: 12px;
@@ -175,7 +175,7 @@
     // Cellule en édition
     .ag-cell-inline-editing {
       background: #e8f5e9 !important;
-      border: 2px solid #5b89a6 !important;
+      border: 2px solid var(--pharma-chrome-tab, #5b89a6) !important;
       border-radius: 4px;
     }
 

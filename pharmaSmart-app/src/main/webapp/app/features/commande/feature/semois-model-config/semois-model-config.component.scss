@@ -14,13 +14,13 @@
   cursor: pointer;
 
   &:hover {
-    border-color: #5b89a6;
+    border-color: var(--pharma-chrome-tab, #5b89a6);
     background-color: #f9fafb;
   }
 
   &.selected {
-    border-color: #5b89a6;
-    background-color: #e8f4f8;
+    border-color: var(--pharma-chrome-tab, #5b89a6);
+    background-color: var(--pharma-chrome-tab-tint, #e8f4f8);
     box-shadow: 0 2px 8px rgba(91, 137, 166, 0.15);
   }
 

@@ -42,7 +42,7 @@
 
 .rh-seq__nav-progress-fill {
   height: 100%;
-  background: $pharma-primary;
+  background: var(--pharma-chrome-tab, #{$pharma-primary});
   transition: width 0.4s ease;
 }
 
@@ -62,14 +62,14 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  strong { color: $pharma-primary; font-size: 0.95rem; }
+  strong { color: var(--pharma-chrome-tab, #{$pharma-primary}); font-size: 0.95rem; }
 }
 
 .rh-seq__nav-pct {
   font-size: 0.68rem;
   font-weight: 700;
-  color: $pharma-primary;
-  background: rgba($pharma-primary, 0.08);
+  color: var(--pharma-chrome-tab, #{$pharma-primary});
+  background: color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 8%, transparent);
   border-radius: 8px;
   padding: 1px 6px;
 }
@@ -83,7 +83,7 @@
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
-  input { cursor: pointer; accent-color: $pharma-primary; }
+  input { cursor: pointer; accent-color: var(--pharma-chrome-tab, #{$pharma-primary}); }
 }
 
 // ── AX-09 — Bandeau concordance compact ──────────────────────────────────────
@@ -148,11 +148,11 @@
   text-align: left;
   transition: background 0.1s;
 
-  &:hover { background: rgba($pharma-primary, 0.04); }
+  &:hover { background: color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 4%, transparent); }
 
   &--active {
-    background: rgba($pharma-primary, 0.09) !important;
-    border-left: 3px solid $pharma-primary;
+    background: color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 9%, transparent) !important;
+    border-left: 3px solid var(--pharma-chrome-tab, #{$pharma-primary});
     padding-left: calc(0.75rem - 3px);
   }
 
@@ -299,7 +299,7 @@
   font-size: 0.72rem;
   color: #475569;
 
-  i { font-size: 0.65rem; color: $pharma-primary; }
+  i { font-size: 0.65rem; color: var(--pharma-chrome-tab, #{$pharma-primary}); }
   strong { color: $gray-900; }
 
   &--pcb {
@@ -432,8 +432,8 @@
   transition: border-color 0.15s, box-shadow 0.15s;
 
   &:focus-within {
-    border: 2px solid $pharma-primary;
-    box-shadow: 0 0 0 3px rgba($pharma-primary, 0.12);
+    border: 2px solid var(--pharma-chrome-tab, #{$pharma-primary});
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 12%, transparent);
     background: #fff;
     padding: calc(0.35rem - 1px) calc(0.75rem - 1px);
   }
@@ -658,8 +658,8 @@
   text-align: right;
 
   &:focus {
-    border: 2px solid $pharma-primary !important;
-    box-shadow: 0 0 0 4px rgba($pharma-primary, 0.18) !important;
+    border: 2px solid var(--pharma-chrome-tab, #{$pharma-primary}) !important;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 18%, transparent) !important;
     outline: none !important;
   }
 
@@ -752,11 +752,11 @@
   gap: 0.6rem;
   padding: 0.5rem 0.75rem;
   margin: 0 0.75rem 0.5rem;
-  background: rgba($pharma-primary, 0.05);
-  border: 1px dashed rgba($pharma-primary, 0.4);
+  background: color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 5%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 40%, transparent);
   border-radius: 8px;
   font-size: 0.78rem;
-  color: $pharma-primary;
+  color: var(--pharma-chrome-tab, #{$pharma-primary});
 
   .rh-seq__batch-icon { font-size: 0.85rem; }
   .rh-seq__batch-label { flex: 1; font-weight: 600; }

@@ -40,6 +40,8 @@ export interface CouleursChrome {
   /** Liens de `app-nav-sidebar` : texte et fond au survol, texte et liseré à l'état actif. */
   /** Ligne sélectionnée d'un tableau : texte sur son fond, au repos et au survol, et liseré. */
   ligneSelectionnee?: { fond: string; survol: string; texte: string; liseré: string };
+  /** Page de connexion : texte blanc sur les deux bouts du dégradé, accent sur la carte blanche. */
+  connexion?: { fondA: string; fondB: string; texte: string; boutonA: string; boutonB: string; accent: string };
   liensVerticaux?: { survolFond: string; survolTexte: string; actifTexte: string; actifBordure: string; actifFond: string };
   /** Barre d'onglets légère (`app-subtab-bar`) : texte actif sur blanc, pastilles de comptage. */
   sousOnglets?: { actif: string; survol: string; pastilles: Record<string, { bg: string; texte: string }> };
@@ -88,6 +90,9 @@ export interface ParametresDerives {
   encreOnglet: number;
   survolLiensVerticaux: number;
   actifLiensVerticaux: number;
+  connexionSombre: number;
+  connexionFondA: number;
+  connexionFondB: number;
   ligneSelectionnee: number;
   ligneSelectionneeSurvol: number;
   pastillePiste: number;
@@ -142,6 +147,9 @@ export function lireParametres(scss: string): ParametresDerives {
     encreOnglet: lireNombre(scss, 'chrome-tab-ink'),
     survolLiensVerticaux: lireNombre(scss, 'chrome-navv-hover'),
     actifLiensVerticaux: lireNombre(scss, 'chrome-navv-active'),
+    connexionSombre: lireNombre(scss, 'chrome-login-dark'),
+    connexionFondA: lireNombre(scss, 'chrome-login-bg-a'),
+    connexionFondB: lireNombre(scss, 'chrome-login-bg-b'),
     ligneSelectionnee: lireNombre(scss, 'chrome-row-selected'),
     ligneSelectionneeSurvol: lireNombre(scss, 'chrome-row-selected-hover'),
     pastillePiste: lireNombre(scss, 'chrome-pill-track'),
@@ -279,6 +287,14 @@ export function deriverChrome(
     },
     kpi: [melanger(accent, p.kpiTeinte, BLANC), melanger(accent, p.kpiTeinteFin, BLANC)],
     fondPage: melanger(accent, p.pageTeinte, p.pageBase),
+    connexion: {
+      fondA: melanger(accent, p.connexionFondA, BLANC),
+      fondB: melanger(accent, p.connexionFondB, BLANC),
+      texte: encre,
+      boutonA: melanger(accent, p.connexionSombre, NOIR),
+      boutonB: accent,
+      accent: encre,
+    },
     ligneSelectionnee: {
       fond: melanger(accent, p.ligneSelectionnee, BLANC),
       survol: melanger(accent, p.ligneSelectionneeSurvol, BLANC),
@@ -366,6 +382,14 @@ export function mesurerChrome(theme: string, c: CouleursChrome): MesureChrome[] 
   if (c.onglet) {
     ajouter('onglet actif sur blanc', c.onglet.texte, BLANC, 4.5);
     ajouter('onglet actif sur sa teinte de survol', c.onglet.texte, c.onglet.survol, 4.5);
+  }
+  if (c.connexion) {
+    const k = c.connexion;
+    ajouter('connexion : texte sur le début du fond', k.texte, k.fondA, 4.5);
+    ajouter('connexion : texte sur la fin du fond', k.texte, k.fondB, 4.5);
+    ajouter('connexion : texte blanc du bouton, début du dégradé', BLANC, k.boutonA, 4.5);
+    ajouter('connexion : texte blanc du bouton, fin du dégradé', BLANC, k.boutonB, 4.5);
+    ajouter('connexion : accent (icônes, liens) sur la carte blanche', k.accent, BLANC, 4.5);
   }
   if (c.ligneSelectionnee) {
     const l = c.ligneSelectionnee;

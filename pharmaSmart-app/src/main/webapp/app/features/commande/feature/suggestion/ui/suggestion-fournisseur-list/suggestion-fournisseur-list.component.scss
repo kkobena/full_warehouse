@@ -32,8 +32,8 @@
 
   // Ligne active (fournisseur ouvert en détail)
   ::ng-deep tr.row-active {
-    background: $pharma-primary-light !important;
-    box-shadow: inset 3px 0 0 $pharma-primary-dark;
+    background: var(--pharma-chrome-tab-tint, #{$pharma-primary-light}) !important;
+    box-shadow: inset 3px 0 0 var(--pharma-chrome-tab-dark, #{$pharma-primary-dark});
     font-weight: 600;
   }
 

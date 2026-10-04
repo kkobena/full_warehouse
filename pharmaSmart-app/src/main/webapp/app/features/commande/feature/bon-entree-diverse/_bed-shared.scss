@@ -11,7 +11,7 @@
   &__title {
     font-size: 0.85rem;
     font-weight: 600;
-    color: $pharma-primary;
+    color: var(--pharma-chrome-tab, #{$pharma-primary});
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 0.75rem;

@@ -17,7 +17,7 @@
                 {{ alertBadgeService.urgentCount() > 99 ? '99+' : alertBadgeService.urgentCount() }}
               </span>
             }
-            <span class="link-arrow">›</span>
+            <span aria-hidden="true" class="link-arrow">›</span>
           </a>
           <ng-template ngbNavContent>
             @defer (on immediate) {
@@ -41,7 +41,7 @@
                 {{ alertBadgeService.ruptureCount() > 99 ? '99+' : alertBadgeService.ruptureCount() }}
               </span>
             }
-            <span class="link-arrow">›</span>
+            <span aria-hidden="true" class="link-arrow">›</span>
           </a>
           <ng-template ngbNavContent>
             @defer (on immediate) {

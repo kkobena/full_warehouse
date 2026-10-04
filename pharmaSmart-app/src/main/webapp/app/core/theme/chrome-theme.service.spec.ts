@@ -18,8 +18,8 @@ describe('ChromeThemeService', () => {
   it('applique le défaut en l’absence de préférence', () => {
     build().loadCurrentChrome();
 
-    expect(DEFAULT_CHROME).toBe('actuel');
-    expect(document.documentElement.getAttribute('data-chrome')).toBe('actuel');
+    expect(DEFAULT_CHROME).toBe('prevente-comptant');
+    expect(document.documentElement.getAttribute('data-chrome')).toBe('prevente-comptant');
   });
 
   it('respecte la couleur déjà enregistrée sur le poste', () => {

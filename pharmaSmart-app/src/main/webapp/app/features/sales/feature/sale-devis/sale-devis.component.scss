@@ -59,7 +59,7 @@
       &:enabled:focus,
       &:focus {
         border-color: var(--p-form-field-focus-border-color, #{$pharma-primary}) !important;
-        box-shadow: var(--pharma-focus-ring, 0 0 0 3px rgba($pharma-primary, 0.1)) !important;
+        box-shadow: var(--pharma-focus-ring, 0 0 0 3px color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 10%, transparent)) !important;
         outline: none !important;
       }
 
@@ -122,7 +122,7 @@
 
       i {
         font-size: 0.8125rem;
-        color: $pharma-primary;
+        color: var(--pharma-chrome-tab, #{$pharma-primary});
       }
 
       .info-value {

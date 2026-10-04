@@ -205,7 +205,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, OnDestroy {
     showCommonModal(
       this.modalService,
       FormTransactionComponent,
-      {header: "FORMULAIRE D'AJOUT DE MOUVEMENT DE CAISSE"},
+      {header: "Mouvement de Caisse"},
       (paymentId: PaymentId) => {
         if (paymentId) {
           this.onPrintReceipt(paymentId);

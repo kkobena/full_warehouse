@@ -147,6 +147,17 @@
           color: var(--pharma-chrome-navv-active-border, #{$pharma-primary});
         }
       }
+
+      // Focus clavier : contour de 3 px à l'encre du thème, DANS le lien (le conteneur coupe ce qui déborde). Sans lui, le focus du lien actif
+      // ne se distinguait pas de son état actif (WCAG 2.4.7) et celui d'un lien inactif n'était qu'un halo vert pâle de 1,3:1 (WCAG 1.4.11).
+      &:focus-visible {
+        outline: 3px solid var(--pharma-chrome-navv-active-fg, #1f4256);
+        outline-offset: -3px;
+      }
+
+      &:focus-visible:not(.active) {
+        box-shadow: none;
+      }
     }
   }
 

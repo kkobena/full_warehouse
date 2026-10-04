@@ -195,7 +195,8 @@ export class CaissierDashboardComponent implements OnInit, OnDestroy {
   protected ouvrirMouvementCaisse(): void {
     const ref = this.modalService.open(FormTransactionComponent, {
       size: "lg",
-      backdrop: "static"
+      backdrop: "static",
+      centered: true,
     });
     ref.componentInstance.header = "Mouvement de Caisse";
     ref.result.then(

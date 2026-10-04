@@ -1,5 +1,5 @@
 // Fenêtres modales de la vente : elles sont rendues hors de `app-sales-home` et ne peuvent donc pas hériter de l'accent du type de vente.
-// Le composant le reçoit en attributs d'hôte (`data-comptoir-mode`, `data-comptoir-doc`) ; ce partiel en tire les variables et l'en-tête.
+// L'accent est celui du thème de couleur du poste, hérité de la racine ; ce partiel en tire les dérivés et l'en-tête.
 // Mêmes variables et mêmes dérivés que `sales-home.component.scss` et `_comptoir-sales.scss`.
 //
 // Usage, dans le scss du composant :
@@ -8,30 +8,9 @@
 
 @mixin accent-modal {
   :host {
-    --comptoir-accent: var(--comptoir-accent-comptant);
     --comptoir-accent-dark: color-mix(in srgb, var(--comptoir-accent) 78%, black);
     --comptoir-accent-tint: color-mix(in srgb, var(--comptoir-accent) 14%, white);
     display: block;
-  }
-
-  :host([data-comptoir-mode='assurance']) {
-    --comptoir-accent: var(--comptoir-accent-assurance);
-  }
-
-  :host([data-comptoir-mode='carnet']) {
-    --comptoir-accent: var(--comptoir-accent-carnet);
-  }
-
-  :host([data-comptoir-doc='true']) {
-    --comptoir-accent: var(--comptoir-doc-accent-comptant);
-  }
-
-  :host([data-comptoir-doc='true'][data-comptoir-mode='assurance']) {
-    --comptoir-accent: var(--comptoir-doc-accent-assurance);
-  }
-
-  :host([data-comptoir-doc='true'][data-comptoir-mode='carnet']) {
-    --comptoir-accent: var(--comptoir-doc-accent-carnet);
   }
 
   // En-tête sobre : teinte très claire, filet d'accent, titre et icône à l'accent.

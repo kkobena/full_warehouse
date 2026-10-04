@@ -62,8 +62,8 @@ $border-radius-sm: $pharma-radius-sm;
   }
 
   &:hover {
-    color: $pharma-primary !important;
-    background-color: $pharma-primary-light !important;
+    color: var(--pharma-chrome-tab, #{$pharma-primary}) !important;
+    background-color: var(--pharma-chrome-tab-tint, #{$pharma-primary-light}) !important;
   }
 }
 
@@ -98,7 +98,7 @@ $border-radius-sm: $pharma-radius-sm;
 
     i {
       font-size: 1rem;
-      color: $pharma-primary;
+      color: var(--pharma-chrome-tab, #{$pharma-primary});
     }
   }
 }
@@ -161,11 +161,11 @@ $border-radius-sm: $pharma-radius-sm;
 
     &.name-info {
       i {
-        color: $pharma-primary;
+        color: var(--pharma-chrome-tab, #{$pharma-primary});
       }
 
       .info-content .info-value {
-        color: darken($pharma-primary, 10%);
+        color: var(--pharma-chrome-tab-dark, #{darken($pharma-primary, 10%)});
       }
     }
 
@@ -183,7 +183,7 @@ $border-radius-sm: $pharma-radius-sm;
 
     &:hover {
       background: $white;
-      border-color: $pharma-primary;
+      border-color: var(--pharma-chrome-tab, #{$pharma-primary});
       box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
       transform: translateY(-1px);
     }
@@ -317,7 +317,6 @@ $border-radius-sm: $pharma-radius-sm;
 
 @include comptoir-accent {
   .pharma-sales-layout {
-    --comptoir-accent: var(--comptoir-accent-depot);
     --comptoir-accent-dark: color-mix(in srgb, var(--comptoir-accent) 78%, black);
     --comptoir-accent-tint: color-mix(in srgb, var(--comptoir-accent) 14%, white);
     --pharma-row-selected-bg: var(--comptoir-accent-tint);

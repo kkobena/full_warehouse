@@ -36,7 +36,7 @@
                 {{ alertBadgeService.facturationOverdueCount() > 99 ? '99+' : alertBadgeService.facturationOverdueCount() }}
               </span>
             }
-            <span class="link-arrow">›</span>
+            <span aria-hidden="true" class="link-arrow">›</span>
           </a>
           <ng-template ngbNavContent>
             @defer (on immediate) {
@@ -113,7 +113,7 @@
                 {{ alertBadgeService.comptesFournisseursOverdueCount() > 99 ? '99+' : alertBadgeService.comptesFournisseursOverdueCount() }}
               </span>
             }
-            <span class="link-arrow">›</span>
+            <span aria-hidden="true" class="link-arrow">›</span>
           </a>
           <ng-template ngbNavContent>
             @defer (on immediate) {

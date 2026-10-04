@@ -13,15 +13,18 @@ export interface ChromeOption {
  * Les identifiants gardent l'origine de chaque teinte (accent de la vente comptant, de l'assurance…).
  */
 export const CHROMES: readonly ChromeOption[] = [
+  { name: 'prevente-comptant', label: 'Indigo', swatch: '#4f4aa8' },
   { name: 'actuel', label: 'Bleu acier', swatch: '#34506b' },
   { name: 'comptant', label: 'Vert', swatch: '#047857' },
   { name: 'assurance', label: 'Bleu', swatch: '#2a74a0' },
-  { name: 'prevente-comptant', label: 'Indigo', swatch: '#4f4aa8' },
   { name: 'prevente-carnet', label: 'Olive', swatch: '#6f6420' },
 ];
 
-/** Défaut du poste, choisi après les essais (D2) : une seule ligne à changer. */
-export const DEFAULT_CHROME: ChromeName = 'actuel';
+/**
+ * Défaut du poste : Indigo, en attendant le retour des essais utilisateurs (D2). Une seule ligne à changer ;
+ * le défaut reste en tête de `CHROMES`. « Bleu acier » (`actuel`) reste choisissable.
+ */
+export const DEFAULT_CHROME: ChromeName = 'prevente-comptant';
 export const CHROME_STORAGE_KEY = 'pharmasmart_chrome';
 
 /** Valeur mémorisée sur le poste, ou le défaut si elle est absente, inconnue ou illisible. */

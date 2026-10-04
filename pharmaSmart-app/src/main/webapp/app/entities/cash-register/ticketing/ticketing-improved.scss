@@ -237,7 +237,7 @@ $other: #6b7280;
   }
 
   &.pharma-other-row {
-    background: var(--pharma-chrome-tab-tint, #{lighten($pharma-primary-light, 3%)});
+    background: var(--pharma-chrome-tab-tint, #{var(--pharma-chrome-tab-tint, #{lighten($pharma-primary-light, 3%)})});
 
     &:hover {
       background: var(--pharma-chrome-tab-tint, #{$pharma-primary-light});

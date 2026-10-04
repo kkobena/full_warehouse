@@ -498,3 +498,55 @@ Défaut ancien, non traité : sur une ligne sélectionnée, les cellules suivant
 - **Chiffres :** il y a 34 fichiers SCSS avec `$pharma-primary` (les « 89 » comptaient aussi `-dark` et `-light`), dont ceux de l'espace de vente, **non touchés** (accents propres par type de vente).
 - **Laissés tels quels :** les définitions de variables locales (repli), `$gc-primary` (`_grid-caption`) et `$primary-blue` (`inventory-home`) qui passent par des fonctions Sass, et le dégradé `.bg-primary` de `table-common-global.scss` (utilitaire de gravité, pas un accent d'écran).
 
+**Comptoir, prévente, dépôt, proforma : thème de l'application (2026-10-04).** Décision : le type de vente ne se lit plus par la couleur (WCAG 1.4.1 ; les trois types, la prévente, le proforma et le dépôt avaient chacun leur teinte, en désaccord avec le thème du poste).
+- Un seul accent, `--comptoir-accent`, posé à la racine depuis `--pharma-chrome-comptoir-accent` (thème dérivé : son accent ; « Actuel » : `#4a7189`, blanc dessus 5,2:1). Supprimés : les cartes Sass `$comptoir-accents`,
+  `$comptoir-accents-document`, `$comptoir-accent-depot`, les variables `--comptoir-accent-<type>` / `--comptoir-doc-accent-*` et les sélecteurs `data-comptoir-mode` / `data-comptoir-doc` qui choisissaient l'accent
+  (`sales-home`, `vente-depot`, `_comptoir-sales`, `_accent-modal`). Les dérivés (foncé 78 %, teinte 14 %) et tous les consommateurs sont inchangés.
+- Défauts du bandeau corrigés : le sous-titre affichait la valeur interne (« Gestion des ventes comptant ») ; il porte maintenant une **pastille icône + libellé** (« COMPTANT », « ASSURANCE », « CARNET ») suivie de
+  « Gestion des ventes / pré-ventes / proformas ». Le dépôt a déjà son titre « Ventes dépôts ».
+- Garde-fou `comptoir-contraste.spec.ts` réécrit : contrastes de l'accent mesurés pour chaque thème (blanc sur accent 5,1 à 7,3:1 ; accent foncé sur teinte 6,2 à 7,9:1 ; icône sur teinte ≥ 3:1) et pastilles de règlement ;
+  les tests de distinction entre types sont supprimés (plus d'objet). 644 tests verts. Vu à l'écran : « Actuel » et « Assurance ».
+- Non traité : le doublon d'icône dans le bandeau (celle du titre et celle de la pastille), à arbitrer à l'usage ; les autres écrans du comptoir (liste des ventes en attente, fiche client, modales) héritent de l'accent
+  sans avoir été vus un à un.
+
+**Bandeau du comptoir et champ de recherche d'assuré (2026-10-04).**
+- Sous-titres « Gestion des ventes / pré-ventes / proformas » supprimés du bandeau : le titre et la pastille de type suffisent. Boutons du bandeau (Pré-vente, Proforma, Après-vente, En attente) en `primary` contour, au thème.
+- Champ « Rechercher un client assuré… » (`insurance-data-bar`) : il était presque invisible (contour gris 300 sur la bande gris 50 : 1,5:1 au lieu de 3:1, WCAG 1.4.11 ; texte d'aide gris 400 italique : 2,5:1 au lieu de 4,5:1, WCAG 1.4.3) et sa
+  loupe ne s'affichait pas (`pi pi-search()` avec des parenthèses en trop). Corrigé : contour à l'accent du thème sur fond blanc, texte d'aide `--pharma-text-muted` (5,7:1) sans italique, loupe réparée ; le bouton « Changer d'assuré »
+  (visible quand le panier contient des lignes) passe de `secondary` à `primary`. Vu à l'écran (Assurance, avec et sans client) ; le cas « panier rempli » (bouton « Changer d'assuré ») a été confirmé visible par l'utilisateur.
+
+**Espace de vente : couleurs en dur, bouton de mouvement de caisse, survol (2026-10-04).**
+- **Couleurs en dur de l'espace de vente :** le même script que pour le reste de l'application a réécrit 18 feuilles (`sales-home`, `vente-depot`, `product-list`, `sale-summary`, `payment-mode`, `insurance-data-bar`, `customer-overlay-panel`, `assured-customer-list-modal`,
+  `sale-devis`, `sale-assurance`, `product-search`, `_sales-common`, `customer-edit-modal`…). Toutes les valeurs de repli compilées sont identiques aux anciennes : « Actuel » est inchangé. Sous un thème dérivé, l'espace de vente redéclare déjà `--pharma-chrome-tab*`
+  depuis son accent : ces couleurs prennent donc l'accent du thème.
+- **Bouton « Mvt caisse »** dans les actions du bandeau du comptoir (`primary` contour, icône `pi-arrows-h`) : ouvre `FormTransactionComponent` en modale, sans toucher au panier, avec la notification de succès du tableau de bord du caissier. Visible avec le droit `display` sur
+  `mvt-caisse.mvt-caisse` (celui de l'onglet « Mouvements de caisse »). Présent en comptoir, pré-vente et proforma. Non testé : l'enregistrement d'un mouvement depuis le comptoir (la modale n'a pas été ouverte dans l'essai).
+- **Survol du menu des types de vente en pré-vente et en proforma :** les modes imposaient leur propre cyan / violet / sarcelle. Le survol lit maintenant `--pharma-chrome-navv-hover-*` (comme `app-nav-sidebar`). Vu à l'écran en pré-vente (Assurance).
+  Reste : le sélecteur de couleur du proforma (violet, sarcelle, indigo) n'a plus d'effet sur l'en-tête ni le menu ; à retirer si vous êtes d'accord.
+
+**Audit WCAG de `app-nav-sidebar` et `sale-types-nav`, puis aide du comptoir (2026-10-04).**
+Mesuré dans le navigateur (axe + styles calculés + clavier réel), sous « Actuel » et « Assurance », sur Comptabilité et le comptoir.
+- **Conforme :** axe à zéro violation (2a/2aa, 2.1, 2.2) ; rôle `tablist` / `tab` avec `aria-selected` et tabindex itinérant (Tab entre sur le lien actif, ↑ ↓ déplacent, Entrée active) ; texte 6,2 à 9,9:1 au repos, au survol et à l'actif ;
+  liseré actif ≥ 3,5:1 ; cibles de 46 × 280 px (menu) et 58 × 222 px (types de vente), au-dessus de 24 px (2.5.8) et proches de 44 px.
+- **Corrigé — focus clavier (2.4.7, 1.4.11) :** le lien actif n'avait aucun indicateur de focus propre (contour à 0, même ombre que l'état actif), et un lien inactif focalisé aux flèches n'avait qu'un halo vert Bootstrap à 25 %, environ 1,3:1 et hors thème.
+  Ajout dans `pharma-nav-global.scss` d'un contour de 3 px à l'encre du thème (`--pharma-chrome-navv-active-fg`), à l'intérieur du lien (le conteneur coupe les débordements). Garde-fou : ce contour tient 6,2 à 11,6:1 contre les trois fonds (repos, survol, actif), seuil 3:1 ; 659 tests verts.
+- **Corrigé — noms accessibles :** le chevron « › » et les icônes des types de vente étaient lus par les lecteurs d'écran (« Comptant Sans ordonnance › ») ; ils sont masqués (`aria-hidden`) ; la liste des types de vente reçoit un nom (`aria-label="Types de vente"`).
+- **Non corrigé, noté :** l'icône colorée du lien actif tombe à 2,6:1 (ambre, lime) dans `app-nav-sidebar` ; elle accompagne un libellé, donc elle ne porte pas l'information seule. Les listes d'onglets des écrans qui utilisent `app-nav-sidebar` n'ont pas de nom accessible (à poser appelant par appelant).
+- **Aide du comptoir :** bouton « Aide et raccourcis » en pied du menu des types de vente (icône seule quand le menu est replié) ; il ouvre un `app-offcanvas` à gauche (480 px) qui liste : le parcours d'une vente à la touche Entrée, les touches F, les raccourcis Alt + lettre, les touches du panier, le choix du client assuré,
+  la navigation du menu et les raccourcis Ctrl du bureau. Le contenu s'adapte au type de vente (F4, fiche client) et aux documents (pré-vente, proforma : ni règlement ni mise en attente). Source : `keyboard-shortcuts.mixin.ts`, `ProductListComponent.onGridKeydown` et les `keydown.enter` des champs.
+  `app-offcanvas` se ferme maintenant avec Échap (tous ses usages), sauf si une modale est ouverte par-dessus.
+
+**F1 ouvre le panneau d'aide, plus la modale (2026-10-04).** Le mixin `keyboard-shortcuts.mixin.ts` n'ouvre plus `ShortcutsHelpDialogComponent` : F1 appelle `SalesHelpService.ouvrir()` (signal partagé, `features/sales/data-access/services`), et l'écran affiche le panneau
+(`sales-home` : comptant, assurance, carnet, pré-vente, proforma ; `vente-depot` : version réduite, sans client, règlement, remise ni mise en attente). Vérifié par Playwright : F1 ouvre l'offcanvas, aucune modale, dans les trois écrans.
+`ShortcutsHelpDialogComponent` n'est plus utilisé que par l'ancien `SellingHomeShortcutsService`, qui n'est plus injecté nulle part : à supprimer avec lui.
+
+**Aide du comptoir : touche Entrée complétée (2026-10-04).** Relu dans `onProductSearchEnter` de chaque formulaire et `onBonEnter` : Entrée dans le champ produit vide, panier rempli, dépend du type — comptant : passe au règlement ; assurance et carnet : montant à payer 0 ⇒ propose de finaliser
+(confirmation), sinon règlement ; proforma : enregistre le proforma. Dans un numéro de bon : passe au bon suivant, et au dernier bon passe à la recherche de produit. La pré-vente n'a pas de ligne dédiée (aucun règlement affiché) : à confirmer.
+
+**Aide du comptoir : Alt+1 / Alt+2 / Alt+3 (2026-10-04).** Ces raccourcis existaient déjà (`handleGlobalKeyboardEvent` de `sales-home` : comptant, assurance, carnet ; confirmation si une vente est en cours ; Alt+2 ignoré en proforma ou sans le droit `pr-sale-assurance`, Alt+3 sans `pr-sale-carnet`).
+Ils manquaient à l'aide : ajoutés à la section « Menu des types de vente ». Vérifié par Playwright : Alt+2 ouvre Assurance, Alt+3 Carnet, Alt+1 revient à Comptant.
+
+**Thème par défaut : Indigo, provisoirement (2026-10-04).** En attendant le retour des essais utilisateurs (D2), `DEFAULT_CHROME` passe de `actuel` à `prevente-comptant` (« Indigo », `#4f4aa8`) et Indigo prend la tête de `CHROMES` (le test exige le défaut en premier). « Bleu acier » (`actuel`)
+reste choisissable ; un poste qui a déjà choisi un thème le garde (clé `pharmasmart_chrome`). Effet à connaître : les postes sans préférence mémorisée, les e2e sans thème explicite et les captures de référence passent en Indigo ; les tests de thème qui comparent à « actuel » le nomment explicitement et ne changent pas.
+Vérifié : 659 tests verts ; une session neuve pose `data-chrome="prevente-comptant"`. Le choix définitif reste à faire à la fin des essais.
+

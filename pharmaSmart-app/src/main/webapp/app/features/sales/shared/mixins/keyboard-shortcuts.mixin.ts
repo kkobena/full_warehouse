@@ -1,5 +1,4 @@
 import {inject} from '@angular/core';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {
   KeyboardShortcut
 } from '../../../../entities/sales/selling-home/racourci/keyboard-shortcuts.service';
@@ -7,9 +6,7 @@ import {
   TauriKeyboardService
 } from '../../../../entities/sales/selling-home/racourci/tauri-keyboard.service';
 import {ShortcutsProvider} from '../../../../shared/shortcuts/shortcuts-provider.interface';
-import {
-  ShortcutsHelpDialogComponent
-} from '../../../../shared/shortcuts/shortcuts-help-dialog.component';
+import {SalesHelpService} from '../../data-access/services/sales-help.service';
 
 // ============================================
 // Types
@@ -121,10 +118,10 @@ export function createKeyboardShortcuts(
   callbacks: SaleShortcutCallbacks,
 ): KeyboardShortcutsMixin {
   const tauriService = inject(TauriKeyboardService);
-  const modalService = inject(NgbModal);
+  const aide = inject(SalesHelpService);
 
   // Build the shortcut definitions
-  const shortcuts = buildShortcuts(config, callbacks, tauriService, modalService);
+  const shortcuts = buildShortcuts(config, callbacks, tauriService, aide);
 
   return {
     handleKeyboardEvent(event: KeyboardEvent): void {
@@ -176,7 +173,7 @@ function buildShortcuts(
   config: KeyboardShortcutsConfig,
   cb: SaleShortcutCallbacks,
   tauriService: TauriKeyboardService,
-  modalService: NgbModal,
+  aide: SalesHelpService,
 ): KeyboardShortcut[] {
   const shortcuts: KeyboardShortcut[] = [];
   const isPresale = config.isPresale ?? (() => false);
@@ -406,37 +403,10 @@ function buildShortcuts(
     });
   }
 
-  // --- F1 special handling: open help modal ---
-  // Override the F1 action to open the shortcuts help dialog
+  // --- F1 : ouvre le panneau d'aide de l'espace de vente (offcanvas affiché par l'écran) ---
   const f1Shortcut = shortcuts.find(s => s.key === 'F1' && !s.alt && !s.ctrl);
   if (f1Shortcut) {
-    const mixin = {
-      getShortcutsByCategory: () => {
-        const grouped = new Map<string, KeyboardShortcut[]>();
-        const isTauri = tauriService.isRunningInTauri();
-        for (const s of shortcuts) {
-          if (s.environmentRestriction === 'tauri' && !isTauri) {
-            continue;
-          }
-          if (s.environmentRestriction === 'web' && isTauri) {
-            continue;
-          }
-          const existing = grouped.get(s.category) || [];
-          existing.push(s);
-          grouped.set(s.category, existing);
-        }
-        return grouped;
-      },
-      isRunningInTauri: () => tauriService.isRunningInTauri(),
-    };
-
-    f1Shortcut.action = () => {
-      const modalRef = modalService.open(ShortcutsHelpDialogComponent, {
-        size: 'xl',
-        centered: true,
-      });
-      modalRef.componentInstance.shortcutsService = mixin;
-    };
+    f1Shortcut.action = () => aide.ouvrir();
   }
 
   return shortcuts;

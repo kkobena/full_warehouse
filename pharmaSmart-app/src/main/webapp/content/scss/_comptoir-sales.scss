@@ -62,33 +62,12 @@ app-vente-depot .ng-select.ng-select-opened > .ng-select-container:hover {
 // ====================================
 //
 // Ils sont rendus par `app-offcanvas`, dans `app-sales-home` mais hors de `.pharma-sales-layout` : l'accent
-// y arrive par héritage depuis l'hôte (`data-comptoir-mode`, `data-comptoir-doc`, posés par `sales-home`).
+// y arrive par héritage de la racine (thème de couleur du poste).
 // Mêmes dérivés que `sales-home.component.scss` : 78 % vers le noir, 14 % vers le blanc.
 
 :root app-sales-home {
-  --comptoir-accent: var(--comptoir-accent-comptant);
   --comptoir-accent-dark: color-mix(in srgb, var(--comptoir-accent) 78%, black);
   --comptoir-accent-tint: color-mix(in srgb, var(--comptoir-accent) 14%, white);
-
-  &[data-comptoir-mode='assurance'] {
-    --comptoir-accent: var(--comptoir-accent-assurance);
-  }
-
-  &[data-comptoir-mode='carnet'] {
-    --comptoir-accent: var(--comptoir-accent-carnet);
-  }
-
-  &[data-comptoir-doc='true'] {
-    --comptoir-accent: var(--comptoir-doc-accent-comptant);
-
-    &[data-comptoir-mode='assurance'] {
-      --comptoir-accent: var(--comptoir-doc-accent-assurance);
-    }
-
-    &[data-comptoir-mode='carnet'] {
-      --comptoir-accent: var(--comptoir-doc-accent-carnet);
-    }
-  }
 
   // Le panneau : en-tête sobre (teinte très claire, filet d'accent), icône et titre à l'accent.
   app-offcanvas .offcanvas-header {

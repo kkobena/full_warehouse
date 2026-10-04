@@ -149,7 +149,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 .pharma-table {
   // En-tête du tableau
   thead .pharma-table-head th {
-    background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--pharma-chrome-tab, #5b89a6) 90%, #fff), var(--pharma-chrome-tab, #5b89a6));
     color: $pharma-white;
     font-weight: 600;
     font-size: 13px;
@@ -228,7 +228,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 .pharma-code {
   font-family: 'Courier New', monospace;
   font-weight: 600;
-  color: $pharma-primary;
+  color: var(--pharma-chrome-tab, #{$pharma-primary});
   font-size: 12px;
   padding: 0 4px;
   background: #e3f2fd;
@@ -247,7 +247,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 // Valeurs de quantité
 .pharma-qty-value {
   font-weight: 600;
-  color: $pharma-primary;
+  color: var(--pharma-chrome-tab, #{$pharma-primary});
   font-size: 13px;
 }
 
@@ -279,7 +279,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   width: 80px !important;
   height: 26px;
   text-align: center;
-  border: 2px solid $pharma-primary;
+  border: 2px solid var(--pharma-chrome-tab, #{$pharma-primary});
   border-radius: $pharma-radius;
   font-weight: 600;
   padding: 0 6px;
@@ -302,7 +302,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
   &:hover {
     background: #ddeef8;
-    box-shadow: inset 0 0 0 2px #5b89a6;
+    box-shadow: inset 0 0 0 2px var(--pharma-chrome-tab, #5b89a6);
   }
 
   &.app-editable-cell--editing {
@@ -335,7 +335,7 @@ td.text-right app-editable-cell {
 
 .pharma-footer-value {
   font-weight: 700;
-  color: $pharma-primary;
+  color: var(--pharma-chrome-tab, #{$pharma-primary});
   font-size: 13px;
 }
 
@@ -466,7 +466,7 @@ td.text-right app-editable-cell {
   padding: 8px 12px 10px;
   font-weight: 600;
   font-size: 14px;
-  color: $pharma-primary;
+  color: var(--pharma-chrome-tab, #{$pharma-primary});
   border-bottom: 1px solid #e9ecef;
 
   i {
@@ -704,14 +704,14 @@ td.text-right app-editable-cell {
 
 // Popover de remise au clavier : l'élément qui a le focus est visible.
 .remise-popover-item:focus-visible {
-  outline: 2px solid $pharma-primary;
+  outline: 2px solid var(--pharma-chrome-tab, #{$pharma-primary});
   outline-offset: -2px;
-  background: rgba($pharma-primary, 0.08);
+  background: color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 8%, transparent);
 }
 
 // Un accent discret par type de vente : en assurance et carnet, l'œil est attendu sur le prix négocié.
 .product-list--assurance .pharma-table-header-compact {
-  border-bottom-color: $pharma-primary;
+  border-bottom-color: var(--pharma-chrome-tab, #{$pharma-primary});
 }
 
 .product-list--carnet .pharma-table-header-compact {

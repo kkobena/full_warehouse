@@ -58,19 +58,22 @@ $pharma-warning-light: #fff3cd;
       font-size: 0.8125rem !important;
       padding: 0.5rem 2.25rem 0.5rem 2.25rem !important;
       border-radius: $pharma-radius !important;
-      border: 2px solid $gray-300 !important;
+      // Contour à l'accent du thème sur fond blanc (≥ 3:1, WCAG 1.4.11) : le gris 300 sur le gris 50 de la bande (1,5:1) rendait le champ presque invisible.
+      border: 2px solid var(--pharma-chrome-tab, #{$pharma-primary}) !important;
+      background-color: #fff !important;
       transition: all 0.2s ease !important;
 
       &:enabled:focus,
       &:focus {
         border-color: var(--p-form-field-focus-border-color, #{$pharma-primary}) !important;
-        box-shadow: var(--pharma-focus-ring, 0 0 0 3px rgba($pharma-primary, 0.1)) !important;
+        box-shadow: var(--pharma-focus-ring, 0 0 0 3px color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 10%, transparent)) !important;
         outline: none !important;
       }
 
+      // Texte d'aide à 4,5:1 (WCAG 1.4.3) et sans italique.
       &::placeholder {
-        color: $gray-400 !important;
-        font-style: italic !important;
+        color: var(--pharma-text-muted, #{$gray-600}) !important;
+        font-style: normal !important;
       }
     }
 
@@ -136,7 +139,7 @@ $pharma-warning-light: #fff3cd;
 
   &:hover {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    border-color: $pharma-primary;
+    border-color: var(--pharma-chrome-tab, #{$pharma-primary});
   }
 
   .card-header {
@@ -240,20 +243,20 @@ $pharma-warning-light: #fff3cd;
 .assured-card {
   .card-header {
     padding: 0;
-    background: linear-gradient(135deg, $pharma-primary-light 0%, lighten($pharma-primary-light, 3%) 100%);
-    border-bottom-color: lighten($pharma-primary, 30%);
+    background: linear-gradient(135deg, var(--pharma-chrome-tab-tint, #{$pharma-primary-light}) 0%, var(--pharma-chrome-tab-tint, #{lighten($pharma-primary-light, 3%)}) 100%);
+    border-bottom-color: color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 70%, #fff);
 
     .header-title {
-      color: $pharma-primary-dark;
+      color: var(--pharma-chrome-tab-dark, #{$pharma-primary-dark});
 
       i {
-        color: $pharma-primary;
+        color: var(--pharma-chrome-tab, #{$pharma-primary});
       }
     }
   }
 
   &:hover {
-    border-color: $pharma-primary;
+    border-color: var(--pharma-chrome-tab, #{$pharma-primary});
   }
 }
 
@@ -398,7 +401,7 @@ $pharma-warning-light: #fff3cd;
 
         &:focus {
           border-color: var(--p-form-field-focus-border-color, #{$pharma-primary});
-          box-shadow: var(--pharma-focus-ring, 0 0 0 3px rgba($pharma-primary, 0.1));
+          box-shadow: var(--pharma-focus-ring, 0 0 0 3px color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 10%, transparent));
         }
 
         &::placeholder {

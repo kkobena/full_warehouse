@@ -4,19 +4,14 @@ import { join } from 'node:path';
 import {
   contraste,
   ecartCouleur,
-  lireAccentDepot,
-  lireAccents,
   lireCouleursModes,
   lireDerives,
-  lireVariablesScss,
   mesurerContrastes,
-  mesurerDistinction,
-  mesurerDistinctionDepot,
-  mesurerDistinctionEntrePalettes,
   melanger,
   mesurerPastilles,
   simuler,
 } from './comptoir-contraste';
+import { lireAccentsChrome } from './theme-contraste';
 
 /**
  * Garde-fou des couleurs d'accent du comptoir (docs/PLAN-STYLES-COMPTOIR.md, §4) : lit les fichiers SCSS
@@ -29,72 +24,49 @@ describe('Couleurs d\u2019accent du comptoir', () => {
   const lire = (chemin: string) => readFileSync(join(__dirname, '../../../content/scss', chemin), 'utf-8');
   const lireApp = (chemin: string) => readFileSync(join(__dirname, '../..', chemin), 'utf-8');
 
-  const variables = lireVariablesScss(lire('_pharma-bootstrap-palette.scss'));
   const scss = lire('_comptoir-styles.scss');
-  const accents = lireAccents(scss, variables);
-  const accentsDocument = lireAccents(scss, variables, 'comptoir-accents-document');
-  const palettes = { vente: accents, document: accentsDocument };
+  const themesScss = lire('_pharma-chrome-themes.scss');
+  // Un seul accent pour tous les types de vente, la prévente, le proforma et le dépôt : celui du thème du poste.
+  const accentActuel = /--pharma-chrome-comptoir-accent:\s*(#[0-9a-fA-F]{6})/.exec(themesScss)?.[1].toLowerCase() as string;
+  const accentsThemes: Record<string, string> = { actuel: accentActuel, ...lireAccentsChrome(themesScss) };
   const derives = lireDerives(lireApp('features/sales/feature/sales-home/sales-home.component.scss'));
-  const accentDepot = lireAccentDepot(scss);
   const couleursModes = lireCouleursModes(lireApp('features/sales/ui/payment-mode/payment-mode.component.scss'));
-  const contrastes = [...mesurerContrastes(palettes, derives, accentDepot), ...mesurerPastilles(couleursModes)];
-  const distinctions = mesurerDistinction(accents);
-  const distinctionsDocument = mesurerDistinction(accentsDocument);
-  const entrePalettes = mesurerDistinctionEntrePalettes(palettes);
-  const distinctionsDepot = mesurerDistinctionDepot(accents, accentDepot);
+  const contrastes = [
+    ...Object.entries(accentsThemes).flatMap(([theme, accent]) =>
+      mesurerContrastes(
+        { vente: { comptant: accent, assurance: accent, carnet: accent }, document: { comptant: accent, assurance: accent, carnet: accent } },
+        derives,
+        accent,
+      )
+        .filter(c => c.mode === 'vente/comptant')
+        .map(c => ({ ...c, mode: theme })),
+    ),
+    ...mesurerPastilles(couleursModes),
+  ];
 
   if (process.env.CONTRASTE_RAPPORT) {
     // eslint-disable-next-line no-console
     console.table(contrastes.map(c => ({ mode: c.mode, paire: c.paire, ratio: c.ratio.toFixed(2), seuil: c.seuil })));
-    // eslint-disable-next-line no-console
-    const tableau = (palette: string, mesures: typeof distinctions) =>
-      mesures.map(d => ({ palette, vision: d.vision, plusProche: `${d.plusProche.a}/${d.plusProche.b}`, ecart: d.plusProche.ecart.toFixed(0) }));
-    // eslint-disable-next-line no-console
-    console.table([...tableau('vente', distinctions), ...tableau('document', distinctionsDocument), ...tableau('entre palettes', entrePalettes)]);
   }
 
-  it('lit les trois types de vente, dans la palette de la vente et dans celle des documents', () => {
-    expect(Object.keys(accents).sort()).toEqual(['assurance', 'carnet', 'comptant']);
-    expect(Object.keys(accentsDocument).sort()).toEqual(['assurance', 'carnet', 'comptant']);
+  it('lit l’accent du thème « Actuel » et celui de chaque thème dérivé', () => {
+    expect(accentActuel).toMatch(/^#[0-9a-f]{6}$/);
+    expect(Object.keys(accentsThemes).sort()).toEqual(['actuel', 'assurance', 'comptant', 'prevente-carnet', 'prevente-comptant']);
   });
 
-  it('lit l’accent du dépôt et les huit couleurs de pastille', () => {
-    expect(accentDepot).toMatch(/^#[0-9a-f]{6}$/);
+  it('lit les huit couleurs de pastille', () => {
     expect(Object.keys(couleursModes).sort()).toEqual(['cash', 'cb', 'ch', 'moov', 'mtn', 'om', 'virement', 'wave']);
+  });
+
+  it('le comptoir n’a plus d’accent propre à un type de vente : il suit le thème de l’application', () => {
+    expect(scss).toContain('--comptoir-accent: var(--pharma-chrome-comptoir-accent)');
+    expect(scss).not.toMatch(/comptoir-accents|comptoir-accent-depot|comptoir-doc-accent/);
   });
 
   it('chaque paire texte / fond tient son seuil WCAG AA (4,5:1 texte, 3:1 non-texte)', () => {
     const echecs = contrastes.filter(c => c.ratio < c.seuil).map(c => `${c.mode} — ${c.paire} : ${c.ratio.toFixed(2)} < ${c.seuil}`);
 
     expect(echecs).toEqual([]);
-  });
-
-  it('deux types restent distincts (ΔE ≥ 18) dans chaque palette, en vision normale, protanopie et deutéranopie', () => {
-    const trop = [...distinctions, ...distinctionsDocument]
-      .filter(d => d.vision !== 'tritanopie')
-      .filter(d => d.plusProche.ecart < 18)
-      .map(d => `${d.vision} : ${d.plusProche.a}/${d.plusProche.b} à ${d.plusProche.ecart.toFixed(0)}`);
-
-    // Tritanopie (≈ 0,01 % de la population) exclue : comptant et assurance y tombent sous le seuil ;
-    // l'icône et le libellé du bandeau portent alors seuls la différence (WCAG 1.4.1).
-    expect(trop).toEqual([]);
-  });
-
-  it('l’accent du dépôt se distingue de chaque type de la vente (ΔE ≥ 18, hors tritanopie)', () => {
-    const trop = distinctionsDepot
-      .filter(d => d.vision !== 'tritanopie')
-      .filter(d => d.plusProche.ecart < 18)
-      .map(d => `${d.vision} : ${d.plusProche.a}/${d.plusProche.b} à ${d.plusProche.ecart.toFixed(0)}`);
-
-    expect(trop).toEqual([]);
-  });
-
-  it('la palette des documents se distingue de celle de la vente (ΔE ≥ 30, vision normale)', () => {
-    // Sous protanopie et deutéranopie, le brun du carnet et l'olive du carnet des documents se rapprochent
-    // (ΔE ≈ 9) : les deux palettes ne sont jamais à l'écran en même temps, et le libellé du bandeau tranche.
-    const normale = entrePalettes.find(d => d.vision === 'normale')!;
-
-    expect(normale.plusProche.ecart).toBeGreaterThanOrEqual(30);
   });
 
   it('l’infobulle (ardoise foncé teinté de l’accent du thème) porte du texte blanc à 4,5:1 dans chaque thème', () => {

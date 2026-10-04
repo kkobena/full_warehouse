@@ -154,7 +154,7 @@ $border-radius-lg: 12px;
     }
 
     .p-datatable-thead > tr > th {
-      background: linear-gradient(135deg, var(--pharma-chrome-tab, #{$pharma-primary}) 0%, var(--pharma-chrome-tab-dark, #{darken($pharma-primary, 5%)}) 100%);
+      background: linear-gradient(135deg, var(--pharma-chrome-tab, #{$pharma-primary}) 0%, var(--pharma-chrome-tab-dark, #{var(--pharma-chrome-tab-dark, #{darken($pharma-primary, 5%)})}) 100%);
       color: $pharma-white;
       font-weight: 600;
       padding: 0.75rem 1rem;

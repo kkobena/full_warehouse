@@ -40,13 +40,16 @@ import {IMagasin, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/m
 import {SaleLineId} from '../../../../shared/model/sales-line.model';
 import {IUser} from '../../../../core/user/user.model';
 import {ErrorService} from '../../../../shared/error.service';
+import { SalesHelpPanelComponent } from '../../ui/sales-help-panel/sales-help-panel.component';
+import { SalesHelpService } from '../../data-access/services/sales-help.service';
+import { OffcanvasComponent } from '../../../../shared/ui/offcanvas/offcanvas.component';
 @Component({
   selector: 'app-vente-depot',
   host: {
     '(window:keydown)': 'handleKeyboardEvent($event)',
   },
   providers: [fournirInfobullesEnHaut()],
-  imports: [
+  imports: [SalesHelpPanelComponent, OffcanvasComponent, 
     HauteurEcranVenteDirective,
     CommonModule,
     FormsModule,
@@ -150,6 +153,9 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, ProductSearch
       addProduct: (line: ISalesLine) => this.facade.addOrIncrementProduct(line),
     },
   });
+
+  /** Panneau d'aide ouvert par F1 (mixin de raccourcis). */
+  protected aideOuverte = inject(SalesHelpService).ouvert;
 
   private keyboardShortcuts = createKeyboardShortcuts(
     {saleType: 'COMPTANT'},

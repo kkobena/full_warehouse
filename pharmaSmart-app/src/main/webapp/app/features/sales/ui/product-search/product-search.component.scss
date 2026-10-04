@@ -37,7 +37,7 @@
   .product-price {
     font-weight: 700;
     font-size: 0.8rem;
-    color: #4a7189;
+    color: var(--pharma-chrome-tab-dark, #4a7189);
     min-width: 60px;
     text-align: right;
   }

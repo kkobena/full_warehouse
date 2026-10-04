@@ -21,6 +21,9 @@ import { fournirInfobullesEnHaut } from '../../shared/infobulles-en-haut';
 import { HauteurEcranVenteDirective } from '../../shared/hauteur-ecran-vente.directive';
 import { NgbModal, NgbNav, NgbNavChangeEvent, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavOutlet, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { ApresVenteModalComponent } from '../../ui/apres-vente-modal/apres-vente-modal.component';
+import { SalesHelpPanelComponent } from '../../ui/sales-help-panel/sales-help-panel.component';
+import { SalesHelpService } from '../../data-access/services/sales-help.service';
+import { FormTransactionComponent } from 'app/entities/mvt-caisse/form-transaction/form-transaction.component';
 import { ButtonComponent, OffcanvasComponent, SelectSearchComponent } from '../../../../shared/ui';
 import { SaleCreationComponent } from '../sale-creation/sale-creation.component';
 import { SaleAssuranceComponent } from '../sale-assurance/sale-assurance.component';
@@ -66,7 +69,7 @@ import { AbilityService } from '../../../../core/auth/ability.service';
   },
   providers: [ScanOrchestratorService, SalesScannerService, fournirInfobullesEnHaut()],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [SalesHelpPanelComponent,
     HauteurEcranVenteDirective,
     FicheClientPanelComponent,
     CommonModule,
@@ -117,6 +120,8 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   protected produitSelected: any | null = null;
   protected readonly disableButton = signal(true);
   protected pendingSalesSidebar = signal(false);
+  /** Panneau d'aide (raccourcis et navigation au clavier), ouvert depuis le menu des types de vente. */
+  protected aideOuverte = inject(SalesHelpService).ouvert;
   protected countPendingSales = signal('0');
   // Responsive state - passé aux composants enfants
   protected isSmallScreen = signal(false);
@@ -148,6 +153,8 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   private readonly peutRetourner = this.ability.canSignal('execute', 'ventes.retours-client.create');
   private readonly peutCloturer = this.ability.canSignal('execute', 'ventes.avoirs.cloturer');
   protected readonly canApresVente = computed(() => this.peutRetourner() || this.peutCloturer());
+  // Entrée / sortie de caisse sans quitter le comptoir : même droit que l'onglet « Mouvements de caisse ».
+  protected readonly canMouvementCaisse = this.ability.canSignal('display', 'mvt-caisse.mvt-caisse');
   // ── Abilities : types de vente conditionnés par privilège d'action ─────
   protected readonly canSaleAssurance = this.ability.canSignal('execute', 'pr-sale-assurance');
   protected readonly canSaleCarnet = this.ability.canSignal('execute', 'pr-sale-carnet');
@@ -178,6 +185,18 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     const type = this.active();
     return type === 'assurance' || type === 'carnet' ? type : 'comptant';
   });
+  /** Type de la vente affiché dans le bandeau : libellé et icône, pour que la couleur ne soit pas le seul repère. */
+  protected typeVente = computed(() => {
+    switch (this.comptoirMode()) {
+      case 'assurance':
+        return { libelle: 'Assurance', icone: 'pi pi-shield' };
+      case 'carnet':
+        return { libelle: 'Carnet', icone: 'pi pi-book' };
+      default:
+        return { libelle: 'Comptant', icone: 'pi pi-wallet' };
+    }
+  });
+
   protected isPresaleMode = computed(() => this.isPresale() || this.isPresaleFromRoute());
   private isDevisFromRoute = signal(false);
   protected isDevisMode = computed(() => this.isDevis() || this.isDevisFromRoute());
@@ -504,6 +523,22 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     // La fenêtre est rendue hors de `app-sales-home` : elle reçoit l'accent du type de vente en entrée.
     ref.componentInstance.mode = this.comptoirMode();
     ref.componentInstance.doc = this.isPresaleMode() || this.isDevisMode();
+  }
+
+  /** Entrée ou sortie de caisse sans quitter le comptoir : le panier en cours n'est pas touché. */
+  protected ouvrirMouvementCaisse(): void {
+    const ref = this.modalService.open(FormTransactionComponent, { size: 'lg', backdrop: 'static',centered: true });
+    ref.componentInstance.header = 'Mouvement de Caisse';
+    ref.result.then(
+      result => {
+        if (result) {
+          this.notificationService.success('Mouvement enregistré avec succès');
+        }
+      },
+      () => {
+        /* fermé sans enregistrement */
+      },
+    );
   }
 
   protected openPendingSales(): void {

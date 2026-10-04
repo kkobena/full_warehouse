@@ -19,6 +19,20 @@
   </app-offcanvas>
 }
 
+<app-offcanvas [(visible)]="aideOuverte" position="left" width="480px">
+  <div appOffcanvasHeader class="drawer-header-content">
+    <i aria-hidden="true" class="pi pi-question-circle text-xl"></i>
+    <div class="drawer-header-text">
+      <h3>Aide et raccourcis</h3>
+      <span class="drawer-subtitle">Clavier et navigation de l'espace de vente</span>
+    </div>
+  </div>
+
+  @if (aideOuverte()) {
+    <app-sales-help-panel [document]="isPresaleMode() || isDevisMode()" [mode]="comptoirMode()" [proforma]="isDevisMode()" />
+  }
+</app-offcanvas>
+
 <!-- Interface principale Point de Vente -->
 <div appHauteurEcranVente [attr.data-comptoir-doc]="isPresaleMode() || isDevisMode() ? 'true' : null" [attr.data-comptoir-mode]="comptoirMode()"
      class="pharma-sales-layout">
@@ -59,13 +73,10 @@
           }
         </h1>
         <p class="subtitle">
-          @if (isDevisMode()) {
-            Gestion des proformas {{ active() }}
-          } @else if (isPresaleMode()) {
-            Gestion des pré-ventes {{ active() }}
-          } @else {
-            Gestion des ventes {{ active() }}
-          }
+          <span class="sale-type-chip">
+            <i [class]="typeVente().icone" aria-hidden="true"></i>
+            {{ typeVente().libelle }}
+          </span>
         </p>
       </div>
 
@@ -123,7 +134,7 @@
               [ngbTooltip]="salesFacade.currentSale() !== null ? 'Terminez ou mettez en attente la vente en cours' : d.libelle"
               [outlined]="true"
               container="body"
-              [severity]="d.id === 'proforma' ? 'success' : 'info'"
+              severity="primary"
               size="small" />
           }
         </nav>
@@ -139,12 +150,27 @@
         </div>
       }
 
+      <!-- Entrée / sortie de caisse, sans quitter la vente -->
+      @if (canMouvementCaisse()) {
+        <app-button
+          (clicked)="ouvrirMouvementCaisse()"
+          [outlined]="true"
+          class="mvt-caisse-btn"
+          container="body"
+          icon="pi pi-arrows-h"
+          label="Mvt caisse"
+          ngbTooltip="Entrée / sortie de caisse"
+          placement="left"
+          severity="primary"
+          size="small" />
+      }
+
       <!-- Pending sales button (masqué en mode prévente et devis) -->
       @if (canApresVente()) {
         <button
           (click)="openApresVente()"
           aria-label="Après-vente : retour client, clôture d'avoir"
-          class="btn btn-sm btn-outline-info app-btn-normal d-inline-flex align-items-center justify-content-center gap-2 apres-vente-btn"
+          class="btn btn-sm btn-outline-primary app-btn-normal d-inline-flex align-items-center justify-content-center gap-2 apres-vente-btn"
           ngbTooltip="Retour client, clôture d'avoir"
           placement="left"
           type="button"
@@ -160,7 +186,7 @@
           (click)="openPendingSales()"
           [disabled]="salesFacade.currentSale() !== null"
           aria-label="Voir les ventes en attente"
-          class="btn btn-sm btn-outline-success app-btn-normal d-inline-flex align-items-center justify-content-center gap-2 pending-sales-btn"
+          class="btn btn-sm btn-outline-primary app-btn-normal d-inline-flex align-items-center justify-content-center gap-2 pending-sales-btn"
           ngbTooltip="Voir les ventes en attente"
           placement="left"
           type="button"
@@ -229,18 +255,19 @@
             [(activeId)]="active"
             [class.flex-column]="!navHorizontale()"
             [orientation]="navHorizontale() ? 'horizontal' : 'vertical'"
+            aria-label="Types de vente"
             class="nav nav-pills"
             ngbNav
           >
             <!-- Tab COMPTANT -->
             <ng-container ngbNavItem="comptant">
               <a class="sale-type-link pharma-nav-vertical-link" ngbNavLink>
-                <i class="pi pi-wallet sale-tab-icon"></i>
+                <i aria-hidden="true" class="pi pi-wallet sale-tab-icon"></i>
                 <span class="sale-tab-content">
                   <span class="sale-tab-label">Comptant</span>
                   <span class="sale-tab-subtitle">Sans ordonnance</span>
                 </span>
-                <span class="link-arrow">›</span>
+                <span aria-hidden="true" class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
                 @if (isDevisMode()) {
@@ -268,12 +295,12 @@
             @if (!isDevisMode() && canSaleAssurance()) {
               <ng-container ngbNavItem="assurance">
                 <a class="sale-type-link pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-shield sale-tab-icon"></i>
+                  <i aria-hidden="true" class="pi pi-shield sale-tab-icon"></i>
                   <span class="sale-tab-content">
                     <span class="sale-tab-label">Assurance</span>
                     <span class="sale-tab-subtitle">Tiers payant</span>
                   </span>
-                  <span class="link-arrow">›</span>
+                  <span aria-hidden="true" class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
                   <app-sale-assurance
@@ -292,12 +319,12 @@
             @if (canSaleCarnet()) {
               <ng-container ngbNavItem="carnet">
                 <a class="sale-type-link pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-book sale-tab-icon"></i>
+                  <i aria-hidden="true" class="pi pi-book sale-tab-icon"></i>
                   <span class="sale-tab-content">
                     <span class="sale-tab-label">Carnet</span>
                     <span class="sale-tab-subtitle">Vente à crédit</span>
                   </span>
-                  <span class="link-arrow">›</span>
+                  <span aria-hidden="true" class="link-arrow">›</span>
                 </a>
                 <ng-template ngbNavContent>
                   <app-sale-carnet
@@ -314,6 +341,20 @@
               </ng-container>
             }
           </div>
+        </div>
+
+        <!-- Aide : raccourcis clavier et navigation à la touche Entrée -->
+        <div class="sale-help">
+          <app-button
+            (clicked)="aideOuverte.set(true)"
+            [iconOnly]="sidebarCollapsed() && !navHorizontale()"
+            [outlined]="true"
+            ariaLabel="Aide : raccourcis clavier et navigation"
+            icon="pi pi-question-circle"
+            label="Aide et raccourcis"
+            placement="right"
+            severity="primary"
+            size="small" />
         </div>
       </div>
     </div>

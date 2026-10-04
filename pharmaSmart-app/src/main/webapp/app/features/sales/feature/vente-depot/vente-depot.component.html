@@ -1,4 +1,19 @@
 <!-- Interface vente dépôt -->
+<!-- Aide : raccourcis clavier (F1) -->
+<app-offcanvas [(visible)]="aideOuverte" position="left" width="480px">
+  <div appOffcanvasHeader class="drawer-header-content">
+    <i aria-hidden="true" class="pi pi-question-circle text-xl"></i>
+    <div class="drawer-header-text">
+      <h3>Aide et raccourcis</h3>
+      <span class="drawer-subtitle">Clavier de la vente dépôt</span>
+    </div>
+  </div>
+
+  @if (aideOuverte()) {
+    <app-sales-help-panel [depot]="true" />
+  }
+</app-offcanvas>
+
 <div appHauteurEcranVente class="pharma-sales-layout" data-comptoir-mode="depot">
 
   <!-- HEADER TOOLBAR -->

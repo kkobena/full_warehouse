@@ -4,7 +4,7 @@
        (bouton « Changer d'assuré ») pour libérer la hauteur de l'écran -->
   @if (showSearch()) {
     <div class="search-section">
-      <app-icon-field icon="pi pi-search()" [overlay]="true" class="search-input-wrapper">
+      <app-icon-field icon="pi pi-search" [overlay]="true" class="search-input-wrapper">
         <input #searchInput (keydown.enter)="load()" (keydown.escape)="fermerRecherche()" [ngModel]="search()" (ngModelChange)="search.set($event)" autocomplete="off" class="form-control search-input"
                placeholder="Rechercher un client assuré..." type="text"/>
       </app-icon-field>
@@ -25,7 +25,7 @@
             <div class="btn-group" role="group">
               @if (!showSearch()) {
                 <app-button (clicked)="ouvrirRecherche()" ariaLabel="Changer d'assuré" ngbTooltip="Changer d'assuré"
-                            icon="pi pi-search" severity="secondary" size="small" [rounded]="true" [text]="true" />
+                            icon="pi pi-search" severity="primary" size="small" [rounded]="true" [text]="true" />
               }
               <app-button (clicked)="voirFiche()" ariaLabel="Voir la fiche client" ngbTooltip="Voir la fiche client (Alt+V)"
                           icon="pi pi-id-card" severity="primary" size="small" [rounded]="true" [text]="true" placement="top" />

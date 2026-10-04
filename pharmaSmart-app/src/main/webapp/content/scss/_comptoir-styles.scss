@@ -8,30 +8,12 @@
 // Couleurs : accents par type de vente, contrastes mesurés par `comptoir-contraste.spec.ts` (blanc dessus ≥ 4,5:1).
 // Ombres : `--pharma-elevation-*` de `surface-global.scss`.
 
-// Accent par type de vente. La logique est la même partout — la couleur suit l'onglet actif (comptant /
-// assurance / carnet) — mais la prévente et le proforma, qui ne sont pas des ventes, ont leur PROPRE palette :
-// on ne confond pas un document avec une vente d'un coup d'œil. Le libellé et l'icône du bandeau disent lequel.
-$comptoir-accents: (
-  comptant: $primary, // emerald-700, le vert de la charte
-  assurance: #2a74a0, // bleu santé posé, teinte 202°, saturation 58 % (blanc dessus 5,12:1)
-  carnet: #92400e, // amber-800 : brun posé, ni l'orange vif (agressif) ni un gris (confondu avec les onglets inactifs)
-);
-
-// Vente dépôt : son propre écran, sa propre couleur. Violet profond (teinte 259°, blanc dessus 7,7:1) : à
-// plus de 24 de ΔE de chacune des trois couleurs de la vente, même sous protanopie et deutéranopie. Le bleu
-// « cornflower » qu'il portait avant (219°) se confondait avec l'assurance.
-$comptoir-accent-depot: #5f3dab;
-
-// Même logique, autre palette : prévente et proforma. Teintes à l'écart de celles de la vente (vert 163°,
-// bleu 202°, brun 23°) : indigo 243°, prune 314°, olive 52°. Blanc dessus : 7,3 / 7,1 / 6,0.
-$comptoir-accents-document: (
-  comptant: #4f4aa8,
-  assurance: #8b3a78,
-  carnet: #6f6420,
-);
+// Accent unique : celui du thème de couleur du poste (`--pharma-chrome-comptoir-accent`, voir `_pharma-chrome-themes.scss`),
+// pour la vente comptant, assurance et carnet, la prévente, le proforma et le dépôt. Le type se lit dans le bandeau
+// (pastille icône + libellé) et dans les onglets, jamais par la seule couleur (WCAG 1.4.1).
 
 // Jetons du style Billetage, retenu définitivement (2026-10-03) : rayon de 12 px, ombres de carte et de pièce
-// maîtresse, accents par type de vente. Les trois autres variantes (actuel, cartes, accent) ont été supprimées.
+// maîtresse. Les trois autres variantes (actuel, cartes, accent) ont été supprimées.
 :root {
   --comptoir-radius: 12px;
   --comptoir-border: var(--pharma-border);
@@ -39,13 +21,5 @@ $comptoir-accents-document: (
   --comptoir-shadow-key: var(--pharma-elevation-2);
   --comptoir-header-bg: var(--pharma-surface-alt);
 
-  @each $mode, $color in $comptoir-accents {
-    --comptoir-accent-#{$mode}: #{$color};
-  }
-
-  --comptoir-accent-depot: #{$comptoir-accent-depot};
-
-  @each $mode, $color in $comptoir-accents-document {
-    --comptoir-doc-accent-#{$mode}: #{$color};
-  }
+  --comptoir-accent: var(--pharma-chrome-comptoir-accent);
 }

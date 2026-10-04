@@ -366,8 +366,8 @@ $devis-indigo-light: #e8eaf6;
   }
 
   &:hover {
-    color: $pharma-primary !important;
-    background-color: $pharma-primary-light !important;
+    color: var(--pharma-chrome-tab, #{$pharma-primary}) !important;
+    background-color: var(--pharma-chrome-tab-tint, #{$pharma-primary-light}) !important;
   }
 }
 
@@ -404,7 +404,7 @@ $devis-indigo-light: #e8eaf6;
 
     i {
       font-size: 1rem;
-      color: $pharma-primary;
+      color: var(--pharma-chrome-tab, #{$pharma-primary});
     }
   }
 }
@@ -418,6 +418,10 @@ $devis-indigo-light: #e8eaf6;
   .header-customer-wrapper {
     min-width: 400px;
     max-width: 600px;
+  }
+
+  .mvt-caisse-btn ::ng-deep .btn {
+    min-height: 44px;
   }
 
   .pending-sales-btn,
@@ -440,6 +444,17 @@ $devis-indigo-light: #e8eaf6;
         color: #fff !important;
       }
     }
+  }
+}
+
+// Bouton d'aide en pied du menu des types de vente.
+.sale-help {
+  padding: 0.5rem;
+  border-top: 1px solid var(--comptoir-border, var(--pharma-border));
+
+  ::ng-deep .btn {
+    width: 100%;
+    min-height: 44px;
   }
 }
 
@@ -523,7 +538,7 @@ $devis-indigo-light: #e8eaf6;
   justify-content: space-between;
   gap: 0.75rem;
   font-weight: 600;
-  color: $pharma-primary;
+  color: var(--pharma-chrome-tab, #{$pharma-primary});
 
   i {
     font-size: 1.25rem;
@@ -561,7 +576,7 @@ $devis-indigo-light: #e8eaf6;
 
     &:hover {
       background: $gray-100;
-      color: $pharma-primary;
+      color: var(--pharma-chrome-tab, #{$pharma-primary});
     }
 
     i {
@@ -627,13 +642,13 @@ $devis-indigo-light: #e8eaf6;
     opacity: 0;
     transition: opacity 0.2s;
     font-size: 1.25rem;
-    color: $pharma-primary;
+    color: var(--pharma-chrome-tab, #{$pharma-primary});
   }
 
   &:hover {
-    background: rgba($pharma-primary, 0.08);
-    color: $pharma-primary;
-    border-left-color: $pharma-primary;
+    background: color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 8%, transparent);
+    color: var(--pharma-chrome-tab, #{$pharma-primary});
+    border-left-color: var(--pharma-chrome-tab, #{$pharma-primary});
 
     .link-arrow {
       opacity: 1;
@@ -641,15 +656,15 @@ $devis-indigo-light: #e8eaf6;
 
     .sale-tab-content {
       .sale-tab-subtitle {
-        color: darken($pharma-primary, 8%);
+        color: var(--pharma-chrome-tab-dark, #{darken($pharma-primary, 8%)});
       }
     }
   }
 
   &.active {
-    background: $pharma-primary;
+    background: var(--pharma-chrome-tab, #{$pharma-primary});
     color: white;
-    border-left-color: darken($pharma-primary, 15%);
+    border-left-color: var(--pharma-chrome-tab-dark, #{darken($pharma-primary, 15%)});
 
     .link-arrow {
       opacity: 1;
@@ -751,7 +766,7 @@ $devis-indigo-light: #e8eaf6;
   flex-shrink: 0;
 
   &:hover {
-    border-color: $pharma-primary;
+    border-color: var(--pharma-chrome-tab, #{$pharma-primary});
     box-shadow: $shadow-md;
   }
 
@@ -859,7 +874,7 @@ $devis-indigo-light: #e8eaf6;
         white-space: nowrap;
 
         i {
-          color: $pharma-primary;
+          color: var(--pharma-chrome-tab, #{$pharma-primary});
           font-size: 0.9rem;
         }
 
@@ -941,7 +956,7 @@ $devis-indigo-light: #e8eaf6;
   gap: 1rem;
 
   i {
-    color: $pharma-primary;
+    color: var(--pharma-chrome-tab, #{$pharma-primary});
   }
 
   .drawer-header-text {
@@ -973,13 +988,13 @@ $devis-indigo-light: #e8eaf6;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: $pharma-primary;
+    border-color: var(--pharma-chrome-tab, #{$pharma-primary});
   }
 
   &:focus,
   &.p-focus {
     border-color: var(--p-form-field-focus-border-color, #{$pharma-primary});
-    box-shadow: var(--pharma-focus-ring, 0 0 0 0.2rem rgba($pharma-primary, 0.25));
+    box-shadow: var(--pharma-focus-ring, 0 0 0 0.2rem color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 25%, transparent));
   }
 }
 
@@ -1471,32 +1486,9 @@ $devis-indigo-light: #e8eaf6;
   }
 }
 
-// --- Accent par type de vente (variantes accent, billetage) ---
+// --- Accent du comptoir : celui du thème de couleur du poste (billetage) ---
 :host-context(:root) {
   .pharma-sales-layout {
-    --comptoir-accent: var(--comptoir-accent-comptant);
-
-    &[data-comptoir-mode='assurance'] {
-      --comptoir-accent: var(--comptoir-accent-assurance);
-    }
-
-    &[data-comptoir-mode='carnet'] {
-      --comptoir-accent: var(--comptoir-accent-carnet);
-    }
-
-    // Prévente et proforma : même logique par type, autre palette.
-    &[data-comptoir-doc='true'] {
-      --comptoir-accent: var(--comptoir-doc-accent-comptant);
-
-      &[data-comptoir-mode='assurance'] {
-        --comptoir-accent: var(--comptoir-doc-accent-assurance);
-      }
-
-      &[data-comptoir-mode='carnet'] {
-        --comptoir-accent: var(--comptoir-doc-accent-carnet);
-      }
-    }
-
     // Dérivés : le blanc tient sur l'accent (charte, ≥ 4,5:1) et sur sa version assombrie.
     --comptoir-accent-dark: color-mix(in srgb, var(--comptoir-accent) 78%, black);
     --comptoir-accent-tint: color-mix(in srgb, var(--comptoir-accent) 14%, white);
@@ -1525,6 +1517,23 @@ $devis-indigo-light: #e8eaf6;
     .subtitle {
       color: var(--comptoir-accent-dark) !important;
     }
+
+    // Type de la vente (Comptant / Assurance / Carnet) : texte et icône, lisibles sans la couleur (WCAG 1.4.1).
+    .sale-type-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-right: 0.5rem;
+      padding: 0.1rem 0.6rem;
+      border: 1px solid var(--comptoir-accent);
+      border-radius: 999px;
+      background: var(--pharma-surface);
+      color: var(--comptoir-accent-dark);
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
   }
 
   // Pas d'aplat saturé : l'accent ne tient que dans un filet, une icône et la teinte très claire.
@@ -1541,6 +1550,27 @@ $devis-indigo-light: #e8eaf6;
   .sales-sidebar .pharma-nav-sidebar-content .pharma-nav-vertical-link {
     i.sale-tab-icon {
       color: var(--comptoir-accent);
+    }
+
+    // Survol : mêmes jetons que `app-nav-sidebar`. Les modes pré-vente et proforma imposaient leur propre cyan / violet / sarcelle.
+    &:hover:not(.active) {
+      background: var(--pharma-chrome-navv-hover-bg, var(--comptoir-accent-tint));
+      border-color: var(--pharma-chrome-navv-hover-border, var(--comptoir-accent));
+      border-left-color: var(--pharma-chrome-navv-hover-border, var(--comptoir-accent));
+      color: var(--pharma-chrome-navv-hover-fg, var(--comptoir-accent-dark));
+
+      i.sale-tab-icon {
+        color: var(--comptoir-accent);
+      }
+
+      .link-arrow {
+        color: var(--pharma-chrome-navv-hover-border, var(--comptoir-accent));
+      }
+
+      .sale-tab-label,
+      .sale-tab-subtitle {
+        color: var(--pharma-chrome-navv-hover-fg, var(--comptoir-accent-dark));
+      }
     }
 
     &.active {
@@ -1597,5 +1627,4 @@ $devis-indigo-light: #e8eaf6;
   }
 }
 
-// Les boutons du bandeau alternent bleu et vert (Pré-vente, Proforma, Après-vente, En attente) : chacun se repère à sa couleur,
-// sans passer par l'accent du type de vente.
+// Les boutons du bandeau (Pré-vente, Proforma, Après-vente, En attente) sont en `primary` contour : ils suivent le thème de couleur ; le libellé et l'icône les distinguent.

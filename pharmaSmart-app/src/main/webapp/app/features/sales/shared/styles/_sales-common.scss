@@ -79,7 +79,7 @@
         white-space: nowrap;
 
         i {
-          color: $pharma-primary;
+          color: var(--pharma-chrome-tab, #{$pharma-primary});
           font-size: 0.9rem;
         }
 

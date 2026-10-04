@@ -59,6 +59,8 @@
   --pharma-chrome-head-icon: #2e7d97;
   --pharma-chrome-head-sep: rgba(255, 255, 255, 0.1);
   --pharma-chrome-close-filter: brightness(0) invert(1);
+  // Accent du comptoir, de la prévente, du dépôt et du proforma : celui du thème du poste (texte blanc dessus ≥ 4,5:1), quel que soit le type de vente.
+  --pharma-chrome-comptoir-accent: #4a7189;
   // Page de connexion : fond en dégradé (texte blanc dessus), accent des icônes, liens et champs sur la carte blanche.
   --pharma-chrome-login-a: #008cba;
   --pharma-chrome-login-b: #5bc0de;
@@ -274,6 +276,8 @@ $pharma-chrome-themes: (
     --pharma-chrome-navv-active-bg: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-navv-active}, #fff);
     --pharma-chrome-navv-active-border: var(--pharma-chrome-seed);
     --pharma-chrome-navv-active-fg: var(--pharma-chrome-bar-ink);
+
+    --pharma-chrome-comptoir-accent: var(--pharma-chrome-seed);
 
     // Page de connexion : fond clair teinté de l'accent, texte à l'encre de l'en-tête ; bouton en dégradé sombre (texte blanc).
     --pharma-chrome-login-a: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-login-bg-a}, #fff);

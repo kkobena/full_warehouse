@@ -29,7 +29,7 @@
 }
 
 .payment-modes-header {
-  background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--pharma-chrome-tab, #5b89a6) 90%, #fff), var(--pharma-chrome-tab, #5b89a6));
   color: #ffffff;
   padding: 6px 12px;
   font-weight: 600;
@@ -214,11 +214,11 @@
 }
 
 ::ng-deep .ws-mode-reglement input.payment-mode-input:hover {
-  border-color: #5b89a6;
+  border-color: var(--pharma-chrome-tab, #5b89a6);
 }
 
 ::ng-deep .ws-mode-reglement input.payment-mode-input:focus {
-  border-color: var(--p-form-field-focus-border-color, #5b89a6);
+  border-color: var(--p-form-field-focus-border-color, var(--pharma-chrome-tab, #5b89a6));
   box-shadow: var(--pharma-focus-ring, 0 0 0 3px rgba(91, 137, 166, 0.1));
 }
 
@@ -259,7 +259,7 @@
 }
 
 .additional-info-header {
-  background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--pharma-chrome-tab, #5b89a6) 90%, #fff), var(--pharma-chrome-tab, #5b89a6));
   color: #ffffff;
   padding: 8px 12px;
   font-weight: 600;
@@ -357,7 +357,7 @@
 
   .payment-modes-header,
   .additional-info-header {
-    background: #5b89a6 !important;
+    background: var(--pharma-chrome-tab, #5b89a6) !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }

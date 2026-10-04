@@ -55,8 +55,8 @@
     }
 
     &:nth-child(1) {
-      --accent-start: #5b89a6;
-      --accent-end: #4a7189;
+      --accent-start: var(--pharma-chrome-tab, #5b89a6);
+      --accent-end: var(--pharma-chrome-tab-dark, #4a7189);
     }
     &:nth-child(2) {
       --accent-start: #008cba;

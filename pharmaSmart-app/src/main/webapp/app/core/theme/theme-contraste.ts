@@ -402,6 +402,10 @@ export function mesurerChrome(theme: string, c: CouleursChrome): MesureChrome[] 
     ajouter('lien vertical survolé : texte sur la teinte de survol', l.survolTexte, l.survolFond, 4.5);
     ajouter('lien vertical actif : texte sur son fond', l.actifTexte, l.actifFond, 4.5);
     ajouter('lien vertical actif : liseré sur son fond (non-texte)', l.actifBordure, l.actifFond, 3);
+    // Contour de focus clavier (WCAG 2.4.7, 1.4.11) : l'encre du texte actif, posée sur les trois fonds où le lien apparaît.
+    ajouter('lien vertical : contour de focus sur le fond au repos', l.actifTexte, BLANC, 3);
+    ajouter('lien vertical : contour de focus sur le fond survolé', l.actifTexte, l.survolFond, 3);
+    ajouter('lien vertical : contour de focus sur le fond actif', l.actifTexte, l.actifFond, 3);
   }
   if (c.sousOnglets) {
     ajouter('sous-onglet actif : texte sur blanc', c.sousOnglets.actif, BLANC, 4.5);

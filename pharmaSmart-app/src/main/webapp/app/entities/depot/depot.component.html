@@ -2,20 +2,20 @@
   <app-toolbar [code]="navCode()" icon="pi pi-building" title="Gestion des Dépôts">
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions py-1">
+        @if (canCreate()) {
+          <app-button (clicked)="onCreate()" [raised]="true" icon="pi pi-plus" label="Nouveau Dépôt"
+                      severity="primary" />
+        }
         @if (canNewVente()) {
           <app-button (clicked)="onNewVente()" [raised]="true" icon="pi pi-shopping-cart"
                       label="Nouvelle vente dépôt"
-                      severity="primary" size="small" />
+                      severity="secondary"  />
         }
-        @if (canCreate()) {
-          <app-button (clicked)="onCreate()" [raised]="true" icon="pi pi-plus" label="Nouveau Dépôt"
-                      severity="info"
-                      size="small" />
-        }
+
         @if (canReturn()) {
           <app-button [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo"
                       label="Retour dépôt"
-                      severity="warn" size="small" />
+                      severity="warn"  />
         }
       </div>
     </ng-container>

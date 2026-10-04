@@ -44,6 +44,8 @@ import { ChangeDetectionStrategy, Component, input, model } from '@angular/core'
       </div>
     </div>
   `,
+  // Échap referme le panneau (WCAG 2.1.2 : un panneau ouvert doit se quitter au clavier), sauf si une modale est ouverte par-dessus.
+  host: { '(document:keydown.escape)': 'fermerAuClavier()' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OffcanvasComponent {
@@ -53,4 +55,10 @@ export class OffcanvasComponent {
 
   /** Largeur du panneau, ex. `600px`. Bootstrap impose `400px` par défaut sur `.offcanvas-end`. */
   readonly width = input<string>('');
+
+  protected fermerAuClavier(): void {
+    if (this.visible() && !document.querySelector('ngb-modal-window')) {
+      this.visible.set(false);
+    }
+  }
 }

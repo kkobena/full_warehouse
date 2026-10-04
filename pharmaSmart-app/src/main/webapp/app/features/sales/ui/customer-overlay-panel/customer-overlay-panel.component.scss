@@ -52,7 +52,7 @@ $border-radius-sm: 6px;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: $pharma-primary;
+    border-color: var(--pharma-chrome-tab, #{$pharma-primary});
     box-shadow: $shadow-sm;
   }
 
@@ -129,7 +129,7 @@ $border-radius-sm: 6px;
 
     i {
       font-size: 1rem;
-      color: $pharma-primary;
+      color: var(--pharma-chrome-tab, #{$pharma-primary});
       flex-shrink: 0;
     }
 
@@ -162,11 +162,11 @@ $border-radius-sm: 6px;
       flex: 1.5;
 
       i {
-        color: $pharma-primary;
+        color: var(--pharma-chrome-tab, #{$pharma-primary});
       }
 
       .info-content .info-value {
-        color: $pharma-primary-dark;
+        color: var(--pharma-chrome-tab-dark, #{$pharma-primary-dark});
       }
     }
 
@@ -207,10 +207,10 @@ $border-radius-sm: 6px;
   }
 
   &:hover {
-    color: $pharma-primary;
+    color: var(--pharma-chrome-tab, #{$pharma-primary});
 
     i {
-      color: $pharma-primary;
+      color: var(--pharma-chrome-tab, #{$pharma-primary});
     }
   }
 }
@@ -282,7 +282,7 @@ $border-radius-sm: 6px;
 
   &:hover {
     background: $white;
-    border-color: $pharma-primary;
+    border-color: var(--pharma-chrome-tab, #{$pharma-primary});
     box-shadow: $shadow-sm;
     transform: translateY(-1px);
   }
@@ -312,7 +312,7 @@ $border-radius-sm: 6px;
     border-color: $gray-700;
 
     &:hover {
-      border-color: $pharma-primary;
+      border-color: var(--pharma-chrome-tab, #{$pharma-primary});
     }
   }
 

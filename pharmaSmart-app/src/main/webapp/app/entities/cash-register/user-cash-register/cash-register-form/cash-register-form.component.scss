@@ -70,7 +70,7 @@ $border-radius-lg: 12px;
   box-shadow: $pharma-shadow-md;
 
   &.bg-primary {
-    background: linear-gradient(135deg, var(--pharma-chrome-tab, #{$pharma-primary}) 0%, var(--pharma-chrome-tab-dark, #{darken($pharma-primary, 10%)}) 100%);
+    background: linear-gradient(135deg, var(--pharma-chrome-tab, #{$pharma-primary}) 0%, var(--pharma-chrome-tab-dark, #{var(--pharma-chrome-tab-dark, #{darken($pharma-primary, 10%)})}) 100%);
   }
 
   &.bg-success {

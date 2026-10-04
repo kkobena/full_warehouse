@@ -1,5 +1,5 @@
-<div class="container-fluid">
-  <div class="pharma-smart-content p-2">
+
+  <div class="pharma-smart-content ">
     <!-- Modern Pharma Toolbar (Standard) -->
     <app-toolbar [code]="navCode()" icon="pi pi-clock" title="Ventes en cours">
       <ng-container ngProjectAs="[toolbarFilters]">
@@ -23,16 +23,7 @@
 
       <ng-container ngProjectAs="[toolbarActions]">
         <div>
-          @if (useSimpleSale) {
-            <app-button
-              [raised]="true"
-              [routerLink]="['/sales/comptant', false, 'new']"
-              icon="pi pi-wallet"
-              label="Vente Comptant"
-              severity="primary"
-              type="button"
-            />
-          } @else {
+
             <app-button
               (clicked)="openNewSalesHome()"
               [raised]="true"
@@ -41,11 +32,11 @@
               severity="primary"
             />
 
-          }
+
         </div>
       </ng-container>
     </app-toolbar>
-    <div class="mt-3 mb-3">
+    <app-card>
       <app-data-table
         (onLazyLoad)="lazyLoading($event)"
         [lazy]="true"
@@ -203,6 +194,6 @@
           </tr>
         </ng-template>
       </app-data-table>
-    </div>
-  </div>
+    </app-card>
+
 </div>

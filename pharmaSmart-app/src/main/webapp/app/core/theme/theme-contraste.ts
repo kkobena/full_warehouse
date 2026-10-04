@@ -37,6 +37,10 @@ export interface CouleursChrome {
   kpi?: [string, string];
   /** Accent applicatif (phase 6) : bouton primaire, bouton contour, liens. Thèmes dérivés seulement. */
   accentApp?: { bouton: string; boutonSurvol: string; boutonActif: string; encre: string; lienSurvol: string };
+  /** Liens de `app-nav-sidebar` : texte et fond au survol, texte et liseré à l'état actif. */
+  /** Ligne sélectionnée d'un tableau : texte sur son fond, au repos et au survol, et liseré. */
+  ligneSelectionnee?: { fond: string; survol: string; texte: string; liseré: string };
+  liensVerticaux?: { survolFond: string; survolTexte: string; actifTexte: string; actifBordure: string; actifFond: string };
   /** Barre d'onglets légère (`app-subtab-bar`) : texte actif sur blanc, pastilles de comptage. */
   sousOnglets?: { actif: string; survol: string; pastilles: Record<string, { bg: string; texte: string }> };
   /** Boutons sémantiques nuancés par thème : fond, texte, survol, actif, contour. Thèmes dérivés seulement. */
@@ -82,6 +86,10 @@ export interface ParametresDerives {
   semContourClair: number;
   boutonEncre: string;
   encreOnglet: number;
+  survolLiensVerticaux: number;
+  actifLiensVerticaux: number;
+  ligneSelectionnee: number;
+  ligneSelectionneeSurvol: number;
   pastillePiste: number;
   pastilleActif: number;
   pastilleActifFin: number;
@@ -132,6 +140,10 @@ export function lireParametres(scss: string): ParametresDerives {
     semContourClair: lireNombre(scss, 'chrome-sem-outline-clair'),
     boutonEncre: lireCouleur(scss, 'chrome-btn-ink'),
     encreOnglet: lireNombre(scss, 'chrome-tab-ink'),
+    survolLiensVerticaux: lireNombre(scss, 'chrome-navv-hover'),
+    actifLiensVerticaux: lireNombre(scss, 'chrome-navv-active'),
+    ligneSelectionnee: lireNombre(scss, 'chrome-row-selected'),
+    ligneSelectionneeSurvol: lireNombre(scss, 'chrome-row-selected-hover'),
     pastillePiste: lireNombre(scss, 'chrome-pill-track'),
     pastilleActif: lireNombre(scss, 'chrome-pill-active'),
     pastilleActifFin: lireNombre(scss, 'chrome-pill-active-end'),
@@ -199,6 +211,20 @@ export function lireChromeActuel(scss: string): CouleursChrome {
       toolbar: [hex('toolbar-a'), hex('toolbar-b')],
     },
     enteteTexte: hex('head-fg'),
+    ligneSelectionnee: {
+      // « Actuel » : les valeurs d'origine, posées dans `_pharma-tokens.scss`.
+      fond: '#cfe6ff',
+      survol: '#b9daff',
+      texte: '#0a2f5c',
+      liseré: '#0d6efd',
+    },
+    liensVerticaux: {
+      survolFond: hex('navv-hover-bg'),
+      survolTexte: hex('navv-hover-fg'),
+      actifTexte: hex('navv-active-fg'),
+      actifBordure: hex('navv-active-border'),
+      actifFond: hex('navv-active-bg'),
+    },
     sousOnglets: {
       actif: hex('tab-dark'),
       survol: hex('tab-tint'),
@@ -253,6 +279,19 @@ export function deriverChrome(
     },
     kpi: [melanger(accent, p.kpiTeinte, BLANC), melanger(accent, p.kpiTeinteFin, BLANC)],
     fondPage: melanger(accent, p.pageTeinte, p.pageBase),
+    ligneSelectionnee: {
+      fond: melanger(accent, p.ligneSelectionnee, BLANC),
+      survol: melanger(accent, p.ligneSelectionneeSurvol, BLANC),
+      texte: encre,
+      liseré: accent,
+    },
+    liensVerticaux: {
+      survolFond: melanger(accent, p.survolLiensVerticaux, BLANC),
+      survolTexte: encreBarre,
+      actifTexte: encreBarre,
+      actifBordure: accent,
+      actifFond: melanger(accent, p.actifLiensVerticaux, BLANC),
+    },
     sousOnglets: {
       actif: melanger(accent, p.encreOnglet, NOIR),
       survol: debut,
@@ -327,6 +366,18 @@ export function mesurerChrome(theme: string, c: CouleursChrome): MesureChrome[] 
   if (c.onglet) {
     ajouter('onglet actif sur blanc', c.onglet.texte, BLANC, 4.5);
     ajouter('onglet actif sur sa teinte de survol', c.onglet.texte, c.onglet.survol, 4.5);
+  }
+  if (c.ligneSelectionnee) {
+    const l = c.ligneSelectionnee;
+    ajouter('ligne sélectionnée : texte sur son fond', l.texte, l.fond, 4.5);
+    ajouter('ligne sélectionnée survolée : texte sur son fond', l.texte, l.survol, 4.5);
+    ajouter('ligne sélectionnée : liseré sur son fond (non-texte)', l.liseré, l.fond, 3);
+  }
+  if (c.liensVerticaux) {
+    const l = c.liensVerticaux;
+    ajouter('lien vertical survolé : texte sur la teinte de survol', l.survolTexte, l.survolFond, 4.5);
+    ajouter('lien vertical actif : texte sur son fond', l.actifTexte, l.actifFond, 4.5);
+    ajouter('lien vertical actif : liseré sur son fond (non-texte)', l.actifBordure, l.actifFond, 3);
   }
   if (c.sousOnglets) {
     ajouter('sous-onglet actif : texte sur blanc', c.sousOnglets.actif, BLANC, 4.5);

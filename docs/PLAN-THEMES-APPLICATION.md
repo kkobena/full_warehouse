@@ -463,3 +463,29 @@ Reste de la phase 4 : relevé des couleurs figées (89 fichiers `$pharma-primary
 - Garde-fou : texte actif, texte inactif (`#6b7280`, 4,83:1), texte sur fond de survol et chaque pastille ≥ 4,5:1, pour les cinq thèmes ; 8 tests unitaires du composant ; 604 tests de thème et de composant verts.
 - Non vérifié à l'écran : `bed-home` (seul `suggestions-unified` a été capturé).
 
+**Sections de saisie et carte de synthèse de réception (2026-10-04).**
+- **Mixin partagé `search-section`** (`shared/scss/_search-section.scss`) : en-tête, cadre et icônes lisent les jetons du thème (`--pharma-chrome-head-a/b/fg/line`, `--pharma-chrome-frame`, nouveau `--pharma-chrome-head-icon`) avec, en repli, le dégradé
+  d'avant. Il est inclus par cinq composants : `product-search-section` de `manual-repartition` (demandé), `ajustement-form`, `supplier-returns` et la base commune des ventes (`_sales-common.scss`, où l'espace de vente
+  garde ses propres règles). Ils suivent donc tous le thème. Vu à l'écran : transfert manuel de stock, sous « Actuel » (inchangé, dégradé bleu) et « Assurance » (en-tête clair, texte foncé).
+- **`reception-summary-card`** (`commande-received`) : en-tête aux jetons du bandeau d'`app-toolbar`, cadre au jeton du thème, icônes des libellés en `--pharma-chrome-tab`, montants en `--pharma-chrome-tab-dark`
+  (texte : 5,2:1 au lieu de 3,8:1 sous « Actuel »). Compilé, **non vu à l'écran** : il faut une réception en cours pour afficher la carte.
+
+**`app-nav-sidebar` : survol et actif au thème, icônes préservées (2026-10-04).**
+- Les couleurs de survol et d'actif des liens (`.pharma-nav-vertical-link`) n'étaient plus fixes mais **calculées à partir de la teinte de chaque lien** (`--section-hue` : dégradé plein de la teinte à l'actif, texte
+  blanc, icône blanche). Supprimées. La teinte de chaque lien ne sert plus qu'à **son icône**, qui la garde dans tous les états (la règle globale qui la rendait « héritée » à l'actif est retirée de `icon-colors-global.scss`).
+- Jetons `--pharma-chrome-navv-*` : survol = teinte légère du thème (8 %), bordure et chevron à l'accent clair, texte foncé ; actif = **fond blanc**, liseré et barre de 3 px à l'accent du thème, texte en gras (le contraste
+  ne repose pas sur la seule couleur, WCAG 1.4.1). Fond blanc à l'actif parce que les icônes colorées (ambre, lime) tombent à 2,3–2,8:1 sur un fond teinté ; sur blanc elles restent à 3,1–3,8:1.
+  « Actuel » : survol bleu acier clair, actif blanc cerné de `#5b89a6`.
+- Garde-fou : texte survolé sur sa teinte (4,7 à 10,3:1), texte actif sur blanc (8,1 à 11,6:1), liseré actif sur blanc ≥ 3:1 (3,8 à 7,3). 611 tests de thème verts. Vu à l'écran (Comptabilité), quatre thèmes.
+- Les icônes (lime, ambre) sur la teinte de survol sont à 2,7–2,8:1, comparables au repos d'avant (2,9–3,0:1) : elles accompagnent un libellé, donc ne portent pas seules l'information. Non mesurées par le garde-fou.
+- Hors périmètre : le menu latéral de l'espace de vente (`sales-sidebar`) garde ses propres accents par type de vente.
+
+**`app-nav-sidebar` : fonds plus remplis (2026-10-04).** Survol à 16 % de la teinte du thème (8 % avant), actif à 28 % au lieu du blanc (`$chrome-navv-hover`, `$chrome-navv-active`). Le garde-fou lit désormais la teinte de l'actif.
+Sous « Actuel », survol `#d9eaf2`, actif `#c4dcea`, avec un texte et un liseré assombris (`#34576d`, `#1f4256`, `#4a7189`) après deux échecs du garde-fou (4,2:1 et 2,7:1). 611 tests verts.
+Le choix du blanc à l'actif, pris pour garder aux icônes ambre et lime leur contraste, est abandonné à votre demande : ces icônes tombent à environ 2,3–2,8:1 sur le fond actif. Elles accompagnent un libellé et ne sont pas mesurées par le garde-fou.
+
+**Ligne sélectionnée des tableaux (2026-10-04).** `app-data-table` pose `ligne-selected` + `table-active` sur la ligne choisie ; `tr.ligne-selected` lit déjà `--pharma-row-selected-*` (`_pharma-tokens.scss`, bleu fixe). Les thèmes dérivés
+redéfinissent ces quatre jetons (fond 22 %, survol 32 % de l'accent, texte à l'encre de l'en-tête, liseré à l'accent) ; « Actuel » garde les valeurs d'origine. Les espaces de vente continuent de les redéfinir localement.
+Garde-fou : texte sur fond et sur survol ≥ 4,5:1 (4,8 à 10,4), liseré ≥ 3:1 (3,5 à 5,2) ; 626 tests verts. Vu à l'écran (formes de produit), « Actuel » et deux thèmes.
+Défaut ancien, non traité : sur une ligne sélectionnée, les cellules suivant la première se teintent plus foncé (superposition du `table-active` de Bootstrap), y compris sous « Actuel ».
+

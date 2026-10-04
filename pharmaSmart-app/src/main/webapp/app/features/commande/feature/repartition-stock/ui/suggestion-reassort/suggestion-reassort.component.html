@@ -1,5 +1,5 @@
 @if (suggestions()?.length > 0) {
-  <div class="pharma-suggestion-container">
+  <app-card>
     <app-data-table
       [value]="suggestions()"
       dataKey="id"
@@ -113,14 +113,17 @@
         </tr>
       </ng-template>
     </app-data-table>
-  </div>
+  </app-card>
 } @else {
-  <div class="alert alert-info">
-    <i class="pi pi-info-circle"></i>
-    @if (loading()) {
-      Chargement en cours...
-    } @else {
-      Aucune suggestion de réassort {{ typeReassort() === 'RAYON' ? 'en rayon' : 'en réserve' }} disponible.
-    }
-  </div>
+  <app-card>
+    <div class="alert alert-info">
+      <i class="pi pi-info-circle"></i>
+      @if (loading()) {
+        Chargement en cours...
+      } @else {
+        Aucune suggestion de réassort {{ typeReassort() === 'RAYON' ? 'en rayon' : 'en réserve' }} disponible.
+      }
+    </div>
+  </app-card>
+
 }

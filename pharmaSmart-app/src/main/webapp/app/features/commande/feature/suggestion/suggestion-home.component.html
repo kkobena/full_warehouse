@@ -1,4 +1,4 @@
-<!-- SUIVI DU BUDGET — masqué uniquement lorsque le budget est illimité (valeur 0). -->
+<app-card class="mt-2">
 @if (facade.budget(); as budget) {
   @if (!budget.budgetIllimite) {
     <div
@@ -22,7 +22,7 @@
 
 <!-- MODE LISTE -->
 @if (!editingFournisseur()) {
-  <div class="view-panel">
+   <div class="view-panel">
     <div class="view-panel__header view-panel__header--list">
       <app-icon-field [overlay]="true" icon="pi pi-search">
         <input
@@ -83,6 +83,7 @@
       [selected]="facade.selectedFournisseur()"
     />
   </div>
+
 } @else {
   <!-- MODE DÉTAIL -->
   <div class="view-panel">
@@ -139,3 +140,4 @@
   </div>
 }
 
+</app-card>

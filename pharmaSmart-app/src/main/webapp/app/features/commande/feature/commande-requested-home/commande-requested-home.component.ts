@@ -22,12 +22,12 @@ import {
 } from '../pharmaml/ui/dispo-comparaison/dispo-comparaison.component';
 import {IPharmamlCommandeResponse} from 'app/shared/model/pharmaml.model';
 import {
-  ButtonComponent,
+  ButtonComponent, CardComponent,
   DataTableComponent,
   HeaderCheckboxComponent,
   RowCheckboxComponent,
-  SortableHeaderDirective,
-} from '../../../../shared/ui';
+  SortableHeaderDirective
+} from "../../../../shared/ui";
 import {ICommande} from 'app/shared/model/commande.model';
 import {CommandeId} from 'app/shared/model/abstract-commande.model';
 import {CommandeService} from '../../../../entities/commande/commande.service';
@@ -71,7 +71,9 @@ import {DevisePipe} from 'app/shared/utils/devise';
     RowCheckboxComponent,
     SortableHeaderDirective,
     CommandeRequestedActionsComponent,
-    DevisePipe],
+    DevisePipe,
+    CardComponent
+  ]
 })
 export class CommandeRequestedHomeComponent implements OnInit {
 

@@ -55,8 +55,17 @@
   --pharma-chrome-head-fg: #ffffff;
   // Filet sous l'en-tête, séparateur de colonnes, croix des modales et onglets : `actuel` n'a ni filet ni teinte.
   --pharma-chrome-head-line: transparent;
+  // Icône posée sur un fond clair à côté d'un en-tête (sections de saisie) : le bleu de l'ancien en-tête de modale.
+  --pharma-chrome-head-icon: #2e7d97;
   --pharma-chrome-head-sep: rgba(255, 255, 255, 0.1);
   --pharma-chrome-close-filter: brightness(0) invert(1);
+  // Liens de `app-nav-sidebar` : survol et actif aux couleurs du thème (les icônes gardent leur teinte propre, quel que soit l'état).
+  --pharma-chrome-navv-hover-bg: #d9eaf2;
+  --pharma-chrome-navv-hover-border: #5b89a6;
+  --pharma-chrome-navv-hover-fg: #34576d;
+  --pharma-chrome-navv-active-bg: #c4dcea;
+  --pharma-chrome-navv-active-border: #4a7189;
+  --pharma-chrome-navv-active-fg: #1f4256;
   // Pastille d'aide (`app-hint`), barre d'actions groupées et filet de total des tableaux : les valeurs d'avant le chantier.
   --pharma-chrome-hint-bg: #e8f4fd;
   --pharma-chrome-hint-border: #b6d9f7;
@@ -161,6 +170,12 @@ $chrome-pill-track: 10%;
 $chrome-pill-active: 34%;
 $chrome-pill-active-end: 26%;
 $chrome-pill-idle: #536074;
+// Ligne sélectionnée des tableaux : teinte au repos et au survol.
+$chrome-row-selected: 22%;
+$chrome-row-selected-hover: 32%;
+// Liens de `app-nav-sidebar` : teinte du survol.
+$chrome-navv-hover: 16%;
+$chrome-navv-active: 28%;
 // Bandeau d'indicateurs (`app-kpi-strip`).
 $chrome-kpi-tint: 12%;
 $chrome-kpi-tint-end: 4%;
@@ -227,6 +242,7 @@ $pharma-chrome-themes: (
     --pharma-chrome-head-b: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-head-tint-end}, #fff);
     --pharma-chrome-head-fg: var(--pharma-chrome-ink);
     --pharma-chrome-head-line: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-head-line}, #fff);
+    --pharma-chrome-head-icon: var(--pharma-chrome-ink);
     --pharma-chrome-head-sep: color-mix(in srgb, var(--pharma-chrome-seed) 15%, transparent);
     --pharma-chrome-close-filter: none;
     // Une seule paire d'en-tête pour modale, tableau et toolbar : on retire celles d'`actuel`.
@@ -237,6 +253,20 @@ $pharma-chrome-themes: (
     --pharma-chrome-tab: var(--pharma-chrome-ink);
     --pharma-chrome-tab-dark: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-tab-ink}, #000);
     --pharma-chrome-tab-tint: var(--pharma-chrome-head-a);
+
+    // Liens de `app-nav-sidebar` : survol et actif en teinte pleine du thème, actif cerné de l'accent.
+    --pharma-chrome-navv-hover-bg: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-navv-hover}, #fff);
+    --pharma-chrome-navv-hover-border: var(--pharma-chrome-head-line);
+    --pharma-chrome-navv-hover-fg: var(--pharma-chrome-bar-ink);
+    --pharma-chrome-navv-active-bg: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-navv-active}, #fff);
+    --pharma-chrome-navv-active-border: var(--pharma-chrome-seed);
+    --pharma-chrome-navv-active-fg: var(--pharma-chrome-bar-ink);
+
+    // Ligne sélectionnée des tableaux (`tr.ligne-selected`, `app-data-table`) : teinte de l'accent, liseré à l'accent.
+    --pharma-row-selected-bg: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-row-selected}, #fff);
+    --pharma-row-selected-hover-bg: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-row-selected-hover}, #fff);
+    --pharma-row-selected-fg: var(--pharma-chrome-ink);
+    --pharma-row-selected-accent: var(--pharma-chrome-seed);
 
     // Aide, barre d'actions groupées et filet de total : teinte de l'accent.
     --pharma-chrome-hint-bg: color-mix(in srgb, var(--pharma-chrome-seed) 8%, #fff);

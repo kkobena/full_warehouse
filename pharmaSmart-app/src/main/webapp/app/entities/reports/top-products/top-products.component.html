@@ -1,4 +1,4 @@
-<div class="pharma-smart-content p-1">
+<div class="pharma-smart-content">
   <!-- Modern Pharma Toolbar (Compact) -->
   <app-toolbar [code]="navCode()" icon="pi pi-star-fill" title="Top Produits">
 
@@ -66,16 +66,20 @@
           </h5>
         </div>
         <div class="card-body p-0">
-          <ul #nav="ngbNav" class="nav-tabs px-3 pt-3" ngbNav orientation="horizontal">
+          <app-nav-tabs [nav]="nav" containerClass="px-3 pt-2">
+          <div #nav="ngbNav" class="nav pharma-nav-tabs" ngbNav>
             <!-- ── Par Chiffre d'Affaires ─────────────────────────────── -->
-            <li [ngbNavItem]="1">
-              <button ngbNavLink>Par Chiffre d'Affaires</button>
+            <ng-container [ngbNavItem]="1">
+              <a class="pharma-nav-tab-link" ngbNavLink>
+                <i aria-hidden="true" class="pi pi-chart-line"></i>
+                <span>Par Chiffre d'Affaires</span>
+              </a>
               <ng-template ngbNavContent>
                 <app-data-table
                   [loading]="isLoading()"
                   [paginator]="true"
                   [rowsPerPageOptions]="[10, 20, 50]"
-                  [rows]="20"
+                  [rows]="10"
                   [scrollable]="true"
                   [showCurrentPageReport]="true"
                   [size]="'small'"
@@ -145,11 +149,14 @@
                   </ng-template>
                 </app-data-table>
               </ng-template>
-            </li>
+            </ng-container>
 
             <!-- ── Par Quantité Vendue ─────────────────────────────────── -->
-            <li [ngbNavItem]="2">
-              <button ngbNavLink>Par Quantité Vendue</button>
+            <ng-container [ngbNavItem]="2">
+              <a class="pharma-nav-tab-link" ngbNavLink>
+                <i aria-hidden="true" class="pi pi-box"></i>
+                <span>Par Quantité Vendue</span>
+              </a>
               <ng-template ngbNavContent>
                 <app-data-table
                   [loading]="isLoading()"
@@ -229,9 +236,9 @@
                   </ng-template>
                 </app-data-table>
               </ng-template>
-            </li>
-          </ul>
-          <div [ngbNavOutlet]="nav" class="mt-2"></div>
+            </ng-container>
+          </div>
+          </app-nav-tabs>
         </div>
       </div>
     </div>

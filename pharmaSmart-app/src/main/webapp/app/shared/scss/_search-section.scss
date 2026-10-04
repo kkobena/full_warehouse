@@ -16,15 +16,21 @@
   border-radius: 10px;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--pharma-chrome-frame, #e2e8f0);
   flex-shrink: 0;
   margin: 0.75rem;
 
   // ── Header ────────────────────────────────────────────────────────────
   .search-section-header {
     padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, $header-color 0%, darken($header-color, 12%) 100%);
-    color: #ffffff;
+    // Jetons du thème de couleur (`_pharma-chrome-themes.scss`) ; repli : le dégradé de `$header-color` d'avant.
+    background: linear-gradient(
+      135deg,
+      var(--pharma-chrome-head-a, #{$header-color}) 0%,
+      var(--pharma-chrome-head-b, #{darken($header-color, 12%)}) 100%
+    );
+    color: var(--pharma-chrome-head-fg, #ffffff);
+    box-shadow: inset 0 -2px 0 var(--pharma-chrome-head-line, transparent);
     display: flex;
     align-items: center;
     gap: 0.625rem;
@@ -91,7 +97,7 @@
       border: 1px solid #e2e8f0;
       white-space: nowrap;
 
-      i { color: $header-color; font-size: 0.9rem; }
+      i { color: var(--pharma-chrome-head-icon, #{$header-color}); font-size: 0.9rem; }
       strong { color: #1e293b; font-weight: 600; }
 
       &.low-stock {

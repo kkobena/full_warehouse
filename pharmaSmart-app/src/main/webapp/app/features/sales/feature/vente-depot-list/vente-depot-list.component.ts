@@ -18,7 +18,7 @@ import { FrenchDateParserFormatter } from "../../../../config/french-date-parser
 import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
 import {
   AppTableLazyLoadEvent,
-  ButtonComponent,
+  ButtonComponent, CardComponent,
   DataTableComponent,
   IconFieldComponent,
   SkeletonComponent,
@@ -54,7 +54,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     NgbDropdownToggle,
     NgbDropdownMenu,
     NgbDropdownItem,
-    RouterLink
+    RouterLink, CardComponent
   ]
 })
 export class VenteDepotListComponent implements OnInit {

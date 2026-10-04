@@ -6,12 +6,12 @@ import {FormsModule} from '@angular/forms';
 import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {
   BadgeComponent,
-  ButtonComponent,
+  ButtonComponent, CardComponent,
   DataTableComponent,
   HeaderCheckboxComponent,
   RowCheckboxComponent,
-  SelectComponent,
-} from 'app/shared/ui';
+  SelectComponent
+} from "app/shared/ui";
 
 import {ISemoisSuggestion, SemoisSuggestion} from 'app/shared/model/semois/semois-suggestion.model';
 import {
@@ -45,7 +45,8 @@ import {
     HeaderCheckboxComponent,
     RowCheckboxComponent,
     NgbTooltip,
-  ],
+    CardComponent
+  ]
 })
 export class SemoisSuggestionsComponent implements OnInit {
   readonly suggestions = signal<ISemoisSuggestion[]>([]);

@@ -12,7 +12,7 @@ import {
 import {CommonModule, DecimalPipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent} from 'app/shared/ui';
+import { ButtonComponent, CardComponent } from "app/shared/ui";
 import {
   AllCommunityModule,
   CellClickedEvent,
@@ -56,7 +56,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     AgGridAngular,
     DecimalPipe,
     CommandeProductSearchComponent,
-    DevisePipe],
+    DevisePipe]
 })
 export class SuggestionProduitPanelComponent {
   /** Libellés des 12 mois en français, indexés sur `Date.getMonth()` (0 = JANVIER). */

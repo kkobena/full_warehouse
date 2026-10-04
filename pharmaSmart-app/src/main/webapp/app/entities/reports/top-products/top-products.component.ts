@@ -16,6 +16,7 @@ import {
   KpiItemComponent,
   KpiStripComponent,
   MonthPickerComponent,
+  NavTabsComponent,
   SelectComponent,
   ToolbarComponent
 } from '../../../shared/ui';
@@ -33,6 +34,7 @@ interface ITopProductRanked extends ITopProduct {
     CommonModule,
     FormsModule,
     NgbNavModule,
+    NavTabsComponent,
     BadgeComponent,
     ButtonComponent,
     DataTableComponent,

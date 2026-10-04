@@ -117,15 +117,17 @@
         transition: transform 0.2s ease;
       }
 
+      // Survol et actif : couleurs du thème de couleur (`_pharma-chrome-themes.scss`), non plus calculées à partir de la teinte du lien.
+      // La teinte propre à chaque lien (`--section-hue`) ne sert plus qu'à son icône, qui la garde dans tous les états.
       &:hover {
-        background: color-mix(in srgb, var(--section-hue, #{$pharma-primary}) 10%, #fff);
-        border-color: var(--section-hue, #{$pharma-primary});
-        color: color-mix(in srgb, var(--section-hue, #{$pharma-primary}) 70%, #000);
+        background: var(--pharma-chrome-navv-hover-bg, #{$pharma-primary-light});
+        border-color: var(--pharma-chrome-navv-hover-border, #{$pharma-primary});
+        color: var(--pharma-chrome-navv-hover-fg, #{$pharma-primary-dark});
         transform: translateX(4px);
 
         .link-arrow {
           transform: translateX(4px);
-          color: var(--section-hue, #{$pharma-primary});
+          color: var(--pharma-chrome-navv-hover-border, #{$pharma-primary});
         }
 
         i {
@@ -133,18 +135,16 @@
         }
       }
 
+      // Actif : teinte pleine du thème, liseré et barre de 3 px à la couleur du thème, texte en gras. Le contraste ne repose pas sur la seule couleur.
       &.active {
-        background: linear-gradient(
-          135deg,
-          var(--section-hue, #{$pharma-primary}) 0%,
-          color-mix(in srgb, var(--section-hue, #{$pharma-primary}) 75%, #000) 100%
-        );
-        color: $pharma-white;
-        box-shadow: $pharma-shadow-md;
+        background: var(--pharma-chrome-navv-active-bg, #c4dcea);
+        border-color: var(--pharma-chrome-navv-active-border, #{$pharma-primary});
+        box-shadow: inset 3px 0 0 var(--pharma-chrome-navv-active-border, #{$pharma-primary}), $pharma-shadow;
+        color: var(--pharma-chrome-navv-active-fg, #2c5469);
+        font-weight: 600;
 
-        i,
         .link-arrow {
-          color: $pharma-white;
+          color: var(--pharma-chrome-navv-active-border, #{$pharma-primary});
         }
       }
     }

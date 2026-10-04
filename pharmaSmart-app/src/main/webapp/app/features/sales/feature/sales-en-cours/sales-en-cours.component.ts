@@ -14,7 +14,7 @@ import {NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 
 import {
   AppTableLazyLoadEvent,
-  ButtonComponent,
+  ButtonComponent, CardComponent,
   DataTableComponent,
   IconFieldComponent,
   RowTogglerDirective,
@@ -45,7 +45,8 @@ import {NotificationService} from "../../../../shared/services/notification.serv
     IconFieldComponent,
     NgbTooltip,
     RouterLink,
-    RowTogglerDirective
+    RowTogglerDirective,
+    CardComponent
   ]
 })
 export class SalesEnCoursComponent implements OnInit {

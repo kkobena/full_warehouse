@@ -1,5 +1,5 @@
 <app-page-layout ariaLabel="Dénominations Communes Internationales"
-                 class="pharma-smart-content p-1"
+                 class="pharma-smart-content"
                  density="compact">
   <app-toolbar
     [compact]="true"
@@ -46,7 +46,7 @@
       </div>
     </ng-container>
   </app-toolbar>
-
+<app-card>
   <!-- Masqué dès qu'un détail est ouvert : le conseil n'a alors plus d'objet. -->
   <app-hint [visible]="!panelOpen()" ngProjectAs="[pageGuidance]" storageKey="dci-home">
     Cliquez sur une DCI pour voir les produits qui portent cette substance active.
@@ -200,4 +200,6 @@
       </div>
     }
   </div>
+</app-card>
+
 </app-page-layout>

@@ -1,29 +1,16 @@
-<div class="container-fluid">
+
   <div class="pharma-smart-content">
-    <!-- HEADER TOOLBAR -->
-    <div class="pharma-toolbar">
-      <div class="pharma-toolbar-header">
-        <i class="pi pi-tags"></i>
-        <span class="pharma-toolbar-title">Motifs de Retour Produit</span>
-      </div>
-
-      <div class="pharma-toolbar-content">
-        <div class="pharma-toolbar-filters">
-          <div class="pharma-search-input"></div>
+    <app-toolbar icon="pi pi-tags" title="Motifs de Retour Produit">
+      <ng-container ngProjectAs="[toolbarActions]">
+        <div class="pharma-button-group">
+          <app-button (clicked)="openNew()" [raised]="true" icon="pi pi-plus" label="Nouveau motif"
+                      severity="primary" size="small" />
         </div>
-
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <app-button (clicked)="openNew()" [raised]="true" icon="pi pi-plus" label="Nouveau motif"
-                        severity="primary" size="small" />
-          </div>
-        </div>
-      </div>
-    </div>
+      </ng-container>
+    </app-toolbar>
 
     <!-- DATA TABLE -->
     <app-card>
-      <div class="table-section">
         <app-data-table [loading]="loading()" [rows]="itemsPerPage" [size]="'small'" [value]="motifRetours()" dataKey="id">
           <ng-template #header>
             <tr class="pharma-table-head">
@@ -61,7 +48,6 @@
             </tr>
           </ng-template>
         </app-data-table>
-      </div>
+
     </app-card>
   </div>
-</div>

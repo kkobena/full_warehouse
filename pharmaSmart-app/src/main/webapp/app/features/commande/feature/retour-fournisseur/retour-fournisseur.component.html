@@ -351,78 +351,60 @@
           <ng-template #expandedrow let-retourBon>
             <tr class="pharma-expanded-row">
               <td colspan="11">
-                <div class="pharma-sub-table-container">
-                  <div class="pharma-sub-table-header">
-                    <i class="pi pi-list"></i>
-                    <span>Détails du retour #{{ retourBon.id }}</span>
-                  </div>
-                  <div class="pharma-sub-table-body">
-                    @if (retourBon.retourBonItems && retourBon.retourBonItems.length > 0) {
-                      <table class="table table-sm mb-0">
-                        <thead class="pharma-table-head">
-                        <tr>
-                          <th class="text-center" style="width: 3rem">#</th>
-                          <th style="width: 100px">CIP</th>
-                          <th>Produit</th>
-                          <th style="width: 120px">Lot</th>
-                          <th class="text-center" style="width: 100px">Qté Retournée</th>
-                          <th class="text-center" style="width: 100px">Qté Acceptée</th>
-                          <th style="width: 200px">Motif de retour</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                          @for (item of retourBon.retourBonItems; track item.id; let idx = $index) {
-                            <tr>
-                              <td class="text-center">
-                                <span class="pharma-row-number">{{ idx + 1 }}</span>
-                              </td>
-                              <td>
-                                <span class="pharma-code">{{ item.produitCip }}</span>
-                              </td>
-                              <td>
-                                <span class="pharma-product-name">{{ item.produitLibelle }}</span>
-                              </td>
-                              <td>
-                                <small class="text-muted">{{ item.lotNumero }}</small>
-                              </td>
-                              <td class="text-center">
-                                <span class="pharma-qty-value">{{ item.qtyMvt | number }}</span>
-                              </td>
-                              <td class="text-center">
-                                <span class="pharma-price">{{ item.acceptedQty | number }}</span>
-                              </td>
-                              <td>{{ item.motifRetourLibelle }}</td>
-                            </tr>
-                          }
-                        </tbody>
-                        <tfoot class="pharma-table-footer">
-                        <tr>
-                          <td class="text-start" colspan="4">
-                          <span class="pharma-footer-label">
-                            <i class="pi pi-calculator"></i>
-                            <span>Total:</span>
-                          </span>
-                          </td>
-                          <td class="text-center">
-                          <span class="pharma-footer-total">{{
-                              getTotalQuantity(retourBon) | number
-                            }}</span>
-                          </td>
-                          <td class="text-center">
-                          <span class="pharma-footer-total">{{
-                              getTotalAccepted(retourBon) | number
-                            }}</span>
-                          </td>
-                          <td></td>
-                        </tr>
-                        </tfoot>
-                      </table>
-                    } @else {
+                <div class="expanded-row-container">
+                  <div class="activity-card activity-card-products">
+                    <div class="activity-card-header">
+                      <div class="activity-card-icon activity-card-icon-small">
+                        <i class="pi pi-list"></i>
+                      </div>
+                      <div class="activity-card-header-content">
+                        <h3 class="activity-card-title">Détails du retour #{{ retourBon.id }}</h3>
+                        <span class="activity-card-subtitle">{{ retourBon.retourBonItems?.length ?? 0 }} article(s)</span>
+                      </div>
+                    </div>
+                    <div class="activity-card-table-body">
+                      @if (retourBon.retourBonItems?.length) {
+                      <app-data-table [stripedRows]="true" [value]="retourBon.retourBonItems" class="rowexpansion-table" dataKey="id">
+                        <ng-template #header>
+                          <tr class="pharma-table-head">
+                            <th style="width: 5%">#</th>
+                            <th style="width: 10%">CIP</th>
+                            <th>PRODUIT</th>
+                            <th style="width: 12%">LOT</th>
+                            <th class="text-right" style="width: 10%">QTE RETOURNÉE</th>
+                            <th class="text-right" style="width: 10%">QTE ACCEPTÉE</th>
+                            <th style="width: 20%">MOTIF DE RETOUR</th>
+                          </tr>
+                        </ng-template>
+                        <ng-template #body let-item let-rowIndex="rowIndex">
+                          <tr class="pharma-row-hover">
+                            <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
+                            <td><span class="pharma-code">{{ item.produitCip }}</span></td>
+                            <td><span class="pharma-product-name">{{ item.produitLibelle }}</span></td>
+                            <td><small class="text-muted">{{ item.lotNumero }}</small></td>
+                            <td class="text-right pharma-qty-value">{{ item.qtyMvt | number }}</td>
+                            <td class="text-right pharma-qty-value">{{ item.acceptedQty | number }}</td>
+                            <td>{{ item.motifRetourLibelle }}</td>
+                          </tr>
+                        </ng-template>
+                        <ng-template #footer>
+                          <tr class="pharma-table-footer">
+                            <td class="text-start" colspan="4">
+                              <span class="pharma-footer-label"><i class="pi pi-calculator"></i> <span>Total :</span></span>
+                            </td>
+                            <td class="text-right"><span class="pharma-footer-total">{{ getTotalQuantity(retourBon) | number }}</span></td>
+                            <td class="text-right"><span class="pharma-footer-total">{{ getTotalAccepted(retourBon) | number }}</span></td>
+                            <td></td>
+                          </tr>
+                        </ng-template>
+                      </app-data-table>
+                      } @else {
                       <div class="p-3 text-center text-muted">
                         <i class="pi pi-info-circle me-2"></i>
                         Aucune ligne de retour
                       </div>
-                    }
+                      }
+                    </div>
                   </div>
                 </div>
               </td>
@@ -476,40 +458,46 @@
           <ng-template #expandedrow let-groupe>
             <tr class="pharma-expanded-row">
               <td colspan="5">
-                <div class="pharma-sub-table-container">
-                  <table class="table table-sm mb-0">
-                    <thead class="pharma-table-head">
-                    <tr>
-                      <th>Référence</th>
-                      <th>Commande</th>
-                      <th>Date</th>
-                      <th>Statut</th>
-                      <th class="text-right">Montant</th>
-                      <th class="text-center">PDF</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                      @for (bon of groupe.retourBons; track bon.id) {
-                        <tr>
-                          <td><span class="pharma-code">{{ bon.reference ?? '#' + bon.id }}</span>
-                          </td>
-                          <td><small>{{ bon.receiptReference ?? '—' }}</small></td>
-                          <td><small>{{ bon.dateMtv | date:'dd/MM/yyyy' }}</small></td>
-                          <td>
-                            <app-badge [label]="getStatusLabel(bon.statut!)"
-                                       [severity]="getStatusSeverity(bon.statut!)" />
-                          </td>
-                          <td class="text-right"><span class="pharma-price">{{ (bon.montantTotal ?? 0) | devise }}</span></td>
-                          <td class="text-center">
-                            <app-button (clicked)="downloadPdf(bon)" [rounded]="true" [text]="true"
-                                        icon="pi pi-print" ngbTooltip="PDF individuel"
-                                        placement="top" severity="secondary"
-                                        size="small" />
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
+                <div class="expanded-row-container">
+                  <div class="activity-card activity-card-products">
+                    <div class="activity-card-header">
+                      <div class="activity-card-icon activity-card-icon-small">
+                        <i class="pi pi-list"></i>
+                      </div>
+                      <div class="activity-card-header-content">
+                        <h3 class="activity-card-title">Bons de retour</h3>
+                        <span class="activity-card-subtitle">{{ groupe.retourBons?.length ?? 0 }} bon(s)</span>
+                      </div>
+                    </div>
+                    <div class="activity-card-table-body">
+                      <app-data-table [stripedRows]="true" [value]="groupe.retourBons" class="rowexpansion-table" dataKey="id">
+                        <ng-template #header>
+                          <tr class="pharma-table-head">
+                            <th>RÉFÉRENCE</th>
+                            <th>COMMANDE</th>
+                            <th>DATE</th>
+                            <th>STATUT</th>
+                            <th class="text-right">MONTANT</th>
+                            <th class="text-center">PDF</th>
+                          </tr>
+                        </ng-template>
+                        <ng-template #body let-bon>
+                          <tr class="pharma-row-hover">
+                            <td><span class="pharma-code">{{ bon.reference ?? '#' + bon.id }}</span></td>
+                            <td><small>{{ bon.receiptReference ?? '—' }}</small></td>
+                            <td><small>{{ bon.dateMtv | date:'dd/MM/yyyy' }}</small></td>
+                            <td><app-badge [label]="getStatusLabel(bon.statut!)" [severity]="getStatusSeverity(bon.statut!)" /></td>
+                            <td class="text-right"><span class="pharma-price">{{ (bon.montantTotal ?? 0) | devise }}</span></td>
+                            <td class="text-center">
+                              <app-button (clicked)="downloadPdf(bon)" [rounded]="true" [text]="true"
+                                          icon="pi pi-print" ngbTooltip="PDF individuel"
+                                          placement="top" severity="secondary" size="small" />
+                            </td>
+                          </tr>
+                        </ng-template>
+                      </app-data-table>
+                    </div>
+                  </div>
                 </div>
               </td>
             </tr>

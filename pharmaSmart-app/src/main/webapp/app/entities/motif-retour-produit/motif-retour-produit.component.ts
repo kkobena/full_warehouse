@@ -3,7 +3,7 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { HttpResponse } from "@angular/common/http";
 import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonComponent, DataTableComponent } from "../../shared/ui";
+import { ButtonComponent, DataTableComponent, ToolbarComponent } from "../../shared/ui";
 import { IMotifRetourProduit } from "app/shared/model/motif-retour-produit.model";
 import { ModifRetourProduitService } from "./motif-retour-produit.service";
 import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
@@ -15,7 +15,7 @@ import { CardComponent } from 'app/shared/ui';
 @Component({
   selector: "app-motif-retour-produit",
 
-  imports: [CardComponent, CommonModule, FormsModule, ButtonComponent, DataTableComponent, NgbTooltip],
+  imports: [CardComponent, CommonModule, FormsModule, ButtonComponent, DataTableComponent, NgbTooltip, ToolbarComponent],
   templateUrl: "./motif-retour-produit.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./motif-retour-produit.component.scss"

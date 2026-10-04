@@ -1,6 +1,6 @@
 <!-- ─── Header : alertes + sélecteur période + toggle ─────────────────────── -->
-<div class=" pharma-smart-content p-1">
-  <div class="row mb-2">
+<div class="pharma-smart-content">
+  <app-card class="d-block mb-2">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
 
       <!-- Zone gauche : alertes -->
@@ -88,168 +88,85 @@
       </div>
 
     </div>
-  </div>
+  </app-card>
 
   <!-- ─── KPI Strip ────────────────────────────────────────────────────────── -->
-  @if (isLoading()) {
-    <div class="kpi-strip mb-2">
-      @for (_ of [1, 2, 3, 4, 5, 6, 7, 8]; track _) {
-        <div class="kpi-strip-item">
-          <app-skeleton shape="circle" size="1.5rem" />
-          <div class="kpi-strip-body">
-            <app-skeleton class="mb-1" height="0.6rem" width="5rem" />
-            <app-skeleton class="mb-1" height="1.1rem" width="7rem" />
-            <app-skeleton height="0.6rem" width="4rem" />
-          </div>
-        </div>
-      }
-    </div>
-  } @else {
-    <div class="kpi-strip mb-2">
-
-      <div class="kpi-strip-item primary-accent">
-        <i aria-hidden="true" class="pi pi-shopping-cart text-primary"></i>
-        <div class="kpi-strip-body">
-          <span class="kpi-strip-label">CA Net</span>
-          <span class="kpi-strip-value text-primary">{{ venteRecord()?.netAmount | number }}</span>
-          <span class="kpi-strip-sub">
-            {{ venteRecord()?.saleCount | number }} ventes
-            @if (caEvolutionPct() !== null) {
-              · <span [class]="caEvolutionPct()! >= 0 ? 'evolution-positive' : 'evolution-negative'">
-                <i [class]="caEvolutionPct()! >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"
-                   aria-hidden="true"></i>
-                {{ caEvolutionPct() | number:'1.1-1' }}%
-              </span>
-            }
+  <app-kpi-strip [loading]="isLoading()" [skeletonCount]="8" stripClass="mb-2">
+    <app-kpi-item [accent]="'primary'" icon="pi pi-shopping-cart" iconClass="text-primary"
+                  label="CA Net" [value]="venteRecord()?.netAmount | number" valueClass="text-primary">
+      <ng-container ngProjectAs="[kpiSub]">
+        {{ venteRecord()?.saleCount | number }} ventes
+        @if (caEvolutionPct() !== null) {
+          · <span [class]="caEvolutionPct()! >= 0 ? 'evolution-positive' : 'evolution-negative'">
+            <i [class]="caEvolutionPct()! >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"
+               aria-hidden="true"></i>
+            {{ caEvolutionPct() | number:'1.1-1' }}%
           </span>
-        </div>
-      </div>
+        }
+      </ng-container>
+    </app-kpi-item>
 
-      <div class="kpi-strip-divider"></div>
+    <app-kpi-item [accent]="'success'" icon="pi pi-percentage" iconClass="text-success"
+                  label="Marge brute" [value]="margePeriode()?.marge | number" valueClass="text-success">
+      <ng-container ngProjectAs="[kpiSub]">
+        {{ margePeriode()?.taux | number:'1.1-1' }} % · coût {{ margePeriode()?.cout | number }}
+      </ng-container>
+    </app-kpi-item>
 
-      <div class="kpi-strip-item success-accent">
-        <i aria-hidden="true" class="pi pi-percentage text-success"></i>
-        <div class="kpi-strip-body">
-          <span class="kpi-strip-label">Marge brute</span>
-          <span
-            class="kpi-strip-value text-success">{{ margePeriode()?.marge | number }}</span>
-          <span class="kpi-strip-sub">{{ margePeriode()?.taux | number:'1.1-1' }}
-            % · coût {{ margePeriode()?.cout | number }}</span>
-        </div>
-      </div>
+    <app-kpi-item icon="pi pi-wallet" iconClass="text-info"
+                  label="Ventes comptant" [value]="vno()?.netAmount | number">
+      <ng-container ngProjectAs="[kpiSub]">
+        {{ vno()?.saleCount | number }} vente(s) · annulée(s) {{ canceled()?.netAmount | number }}
+      </ng-container>
+    </app-kpi-item>
 
-      <div class="kpi-strip-divider"></div>
+    @if (assurance() && assurance()?.saleCount !== 0) {
+      <app-kpi-item icon="pi pi-id-card" iconClass="text-primary"
+                    label="Ventes tiers payant" [value]="assurance()?.netAmount | number">
+        <ng-container ngProjectAs="[kpiSub]">
+          {{ assurance()?.saleCount | number }} vente(s) · part payeur {{ assurance()?.partTiersPayant | number }}
+        </ng-container>
+      </app-kpi-item>
+    }
 
-    <!--  <div class="kpi-strip-item">
-        <i aria-hidden="true" class="pi pi-chart-line" style="color: var(&#45;&#45;bs-success)"></i>
-        <div class="kpi-strip-body">
-          <span class="kpi-strip-label">Marge de rentabilité
-            <em class="kpi-strip-scope">12 mois glissants</em></span>
-          <span class="kpi-strip-value">{{ marge12Mois()?.margeBruteGlobale | number }}</span>
-          <span class="kpi-strip-sub">{{ marge12Mois()?.tauxMargeMoyen | number:'1.1-1' }}
-            % · {{ marge12Mois()?.totalProduits | number }} réf.</span>
-        </div>
-      </div>
--->
-      <div class="kpi-strip-divider"></div>
+    @if (venteDepot() && venteDepot()?.saleCount !== 0) {
+      <app-kpi-item icon="pi pi-send" iconClass="text-secondary"
+                    label="Ventes dépôt" [value]="venteDepot()?.netAmount | number">
+        <ng-container ngProjectAs="[kpiSub]">{{ venteDepot()?.saleCount | number }} vente(s) dépôt</ng-container>
+      </app-kpi-item>
+    }
 
+    <app-kpi-item [accent]="'danger'" icon="pi pi-credit-card" iconClass="text-danger"
+                  label="Créances TP" [value]="totalCreances() | number" valueClass="text-danger">
+      <ng-container ngProjectAs="[kpiLabel]"><em class="kpi-strip-scope">encours</em></ng-container>
+      <ng-container ngProjectAs="[kpiSub]">
+        &gt;90j {{ creancesPlusDe90j() | number }} · recouv. {{ facturationKpi()?.tauxRecouvrement | number:'1.0-1' }}%
+      </ng-container>
+    </app-kpi-item>
 
-      <div class="kpi-strip-item">
-        <i aria-hidden="true" class="pi pi-wallet" style="color: var(--bs-info)"></i>
-        <div class="kpi-strip-body">
-          <span class="kpi-strip-label">Ventes comptant</span>
-          <span class="kpi-strip-value">{{ vno()?.netAmount | number }}</span>
-          <span class="kpi-strip-sub">{{ vno()?.saleCount | number }}
-            vente(s) · annulée(s) {{ canceled()?.netAmount | number }}</span>
-        </div>
-      </div>
-      @if (assurance() && assurance()?.saleCount !== 0) {
+    <app-kpi-item [accent]="'warning'" icon="pi pi-truck" iconClass="text-warning"
+                  label="Achats fournisseurs" [value]="achatRecord()?.receiptAmount | number" valueClass="text-warning">
+      <ng-container ngProjectAs="[kpiSub]">
+        {{ achatRecord()?.achatCount | number }} cdes · HT {{ achatRecord()?.netAmount | number }}
+      </ng-container>
+    </app-kpi-item>
 
-        <div class="kpi-strip-divider"></div>
+    <app-kpi-item [accent]="'success'" icon="pi pi-box" iconClass="text-success"
+                  label="Stock valorisé" [value]="stockValuationSummary()?.totalPurchaseValue | number" valueClass="text-success">
+      <ng-container ngProjectAs="[kpiLabel]"><em class="kpi-strip-scope">au {{ aujourdhui | date:'dd/MM' }}</em></ng-container>
+      <ng-container ngProjectAs="[kpiSub]">
+        {{ stockValuationSummary()?.totalProducts | number }} réf. · marge pot. {{ stockValuationSummary()?.averageMarginPercentage | number:'1.1-1' }} %
+      </ng-container>
+    </app-kpi-item>
 
-        <div class="kpi-strip-item">
-          <i aria-hidden="true" class="pi pi-id-card" style="color: var(--bs-primary)"></i>
-          <div class="kpi-strip-body">
-            <span class="kpi-strip-label">Ventes tiers payant</span>
-            <span class="kpi-strip-value">{{ assurance()?.netAmount | number }}</span>
-            <span class="kpi-strip-sub">{{ assurance()?.saleCount | number }}
-              vente(s) · part payeur {{ assurance()?.partTiersPayant | number }}</span>
-          </div>
-        </div>
-      }
-
-
-      @if (venteDepot() && venteDepot()?.saleCount !== 0) {
-        <div class="kpi-strip-divider"></div>
-
-        <div class="kpi-strip-item">
-          <i aria-hidden="true" class="pi pi-send" style="color: var(--bs-secondary)"></i>
-          <div class="kpi-strip-body">
-            <span class="kpi-strip-label">Ventes dépôt</span>
-            <span class="kpi-strip-value">{{ venteDepot()?.netAmount | number }}</span>
-
-            <span class="kpi-strip-sub">{{ venteDepot()?.saleCount | number }}
-              vente(s) dépôt</span>
-          </div>
-        </div>
-
-      }
-
-      <div class="kpi-strip-divider"></div>
-
-      <div class="kpi-strip-item danger-accent">
-        <i aria-hidden="true" class="pi pi-credit-card text-danger"></i>
-        <div class="kpi-strip-body">
-          <span class="kpi-strip-label">Créances TP
-            <em class="kpi-strip-scope">encours</em></span>
-          <span class="kpi-strip-value text-danger">{{ totalCreances() | number }}</span>
-          <span class="kpi-strip-sub">&gt;90j {{ creancesPlusDe90j() | number }}
-            · recouv. {{ facturationKpi()?.tauxRecouvrement | number:'1.0-1' }}%</span>
-        </div>
-      </div>
-
-      <div class="kpi-strip-divider"></div>
-
-      <div class="kpi-strip-item warning-accent">
-        <i aria-hidden="true" class="pi pi-truck text-warning"></i>
-        <div class="kpi-strip-body">
-          <span class="kpi-strip-label">Achats fournisseurs</span>
-          <span
-            class="kpi-strip-value text-warning">{{ achatRecord()?.receiptAmount | number }}</span>
-          <span class="kpi-strip-sub">{{ achatRecord()?.achatCount | number }}
-            cdes · HT {{ achatRecord()?.netAmount | number }}</span>
-        </div>
-      </div>
-
-      <div class="kpi-strip-divider"></div>
-
-      <div class="kpi-strip-item success-accent">
-        <i aria-hidden="true" class="pi pi-box text-success"></i>
-        <div class="kpi-strip-body">
-          <span class="kpi-strip-label">Stock valorisé
-            <em class="kpi-strip-scope">au {{ aujourdhui | date:'dd/MM' }}</em></span>
-          <span
-            class="kpi-strip-value text-success">{{ stockValuationSummary()?.totalPurchaseValue | number }}</span>
-          <span class="kpi-strip-sub">{{ stockValuationSummary()?.totalProducts | number }} réf. · marge pot. {{ stockValuationSummary()?.averageMarginPercentage | number:'1.1-1' }}
-            %</span>
-        </div>
-      </div>
-
-      <div class="kpi-strip-divider"></div>
-
-      <div class="kpi-strip-item warning-accent">
-        <i aria-hidden="true" class="pi pi-users text-warning"></i>
-        <div class="kpi-strip-body">
-          <span class="kpi-strip-label">Différés clients
-            <em class="kpi-strip-scope">encours</em></span>
-          <span class="kpi-strip-value text-warning">{{ differeSummary()?.rest | number }}</span>
-          <span class="kpi-strip-sub">accordé {{ differeSummary()?.saleAmount | number }}
-            · remb. {{ differeSummary()?.paidAmount | number }}</span>
-        </div>
-      </div>
-
-    </div>
-  }
+    <app-kpi-item [accent]="'warning'" icon="pi pi-users" iconClass="text-warning"
+                  label="Différés clients" [value]="differeSummary()?.rest | number" valueClass="text-warning">
+      <ng-container ngProjectAs="[kpiLabel]"><em class="kpi-strip-scope">encours</em></ng-container>
+      <ng-container ngProjectAs="[kpiSub]">
+        accordé {{ differeSummary()?.saleAmount | number }} · remb. {{ differeSummary()?.paidAmount | number }}
+      </ng-container>
+    </app-kpi-item>
+  </app-kpi-strip>
 
   <!-- ─── Règlement + Tiers-payant ──────────────────────────────────────────── -->
   <div class="row">
@@ -262,7 +179,7 @@
             Total par mode de règlement
           </h5>
         </div>
-        <div class="card-body py-4">
+        <div class="card-body py-2">
           @if (!showGraphs()) {
             <ul class="list-group list-group-flush">
               @for (mode of venteModePaiments(); track mode.libelle) {
@@ -272,7 +189,7 @@
                 </li>
               }
               @if (venteModePaiments().length === 0) {
-                <li class="list-group-item text-center text-muted py-4">
+                <li class="list-group-item text-center text-muted py-2">
                   <div class="pharma-empty-content">
                     <i aria-hidden="true" class="pi pi-inbox" style="font-size: 2rem"></i>
                     <p class="mt-2 mb-0">Aucune donnée sur la période</p>
@@ -302,7 +219,7 @@
                       (selectionChange)="onTopTiersPayantChange($any($event))" [items]="tops"
                       [ngModel]="TOP_MAX_TP()" bindLabel="label"></app-select>
         </div>
-        <div class="card-body py-4">
+        <div class="card-body py-2">
           @if (!showGraphs()) {
             <ul class="list-group list-group-flush">
               @for (tp of tiersPayantAchat(); track tp.tiersPayantName; let i = $index) {
@@ -323,7 +240,7 @@
                 </li>
               }
               @if (tiersPayantAchat().length === 0) {
-                <li class="list-group-item text-center text-muted py-4">
+                <li class="list-group-item text-center text-muted py-2">
                   <div class="pharma-empty-content">
                     <i aria-hidden="true" class="pi pi-inbox" style="font-size: 2rem"></i>
                     <p class="mt-2 mb-0">Aucune donnée sur la période</p>
@@ -357,7 +274,7 @@
                       [items]="tops"
                       [ngModel]="TOP_MAX_FOURNISSEUR()" bindLabel="label"></app-select>
         </div>
-        <div class="card-body py-4">
+        <div class="card-body py-2">
           @if (!showGraphs()) {
             <ul class="list-group list-group-flush">
               @for (f of topFournisseurs(); track f.fournisseurId; let i = $index) {
@@ -389,7 +306,7 @@
                 </li>
               }
               @if (topFournisseurs().length === 0) {
-                <li class="list-group-item text-center text-muted py-4">
+                <li class="list-group-item text-center text-muted py-2">
                   <div class="pharma-empty-content">
                     <i aria-hidden="true" class="pi pi-inbox" style="font-size: 2rem"></i>
                     <p class="mt-2 mb-0">Aucun achat sur la période sélectionnée</p>

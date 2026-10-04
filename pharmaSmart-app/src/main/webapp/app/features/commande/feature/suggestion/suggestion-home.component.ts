@@ -2,7 +2,7 @@ import { Component, DestroyRef, effect, inject, Injector, signal, untracked, vie
 import { CommonModule, DecimalPipe } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { ButtonComponent, IconFieldComponent, MultiSelectComponent } from "app/shared/ui";
+import { ButtonComponent, CardComponent, IconFieldComponent, MultiSelectComponent } from "app/shared/ui";
 import { SuggestionFacadeService } from "./data-access/suggestion-facade.service";
 import {
   SuggestionFournisseurListComponent
@@ -38,7 +38,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     NgbTooltip,
     DecimalPipe,
     IconFieldComponent,
-    MultiSelectComponent
+    MultiSelectComponent, CardComponent
   ]
 })
 export class SuggestionHomeComponent {

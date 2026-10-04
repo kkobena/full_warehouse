@@ -9,7 +9,7 @@ import { ITEMS_PER_PAGE } from "../../../../shared/constants/pagination.constant
 import {
   AppTableLazyLoadEvent,
   BadgeComponent,
-  ButtonComponent,
+  ButtonComponent, CardComponent,
   DataTableComponent,
   DetailGridComponent,
   DetailSectionComponent,
@@ -51,7 +51,8 @@ import { DciImportComponent } from "../../ui/dci-import/dci-import.component";
     DetailSectionComponent,
     SelectableRowDirective,
     HintComponent,
-    DecimalPipe
+    DecimalPipe,
+    CardComponent
   ]
 })
 export class DciHomeComponent {

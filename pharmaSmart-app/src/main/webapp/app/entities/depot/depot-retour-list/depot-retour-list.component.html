@@ -107,79 +107,59 @@
           <ng-template #expandedrow let-retourDepot>
             <tr class="pharma-expanded-row">
               <td colspan="10">
-                <div class="pharma-sub-table-container">
-                  <div class="pharma-sub-table-header">
-                    <i class="pi pi-list"></i>
-                    <span>Détails du retour #{{ retourDepot.id }}</span>
-                  </div>
-                  <div class="pharma-sub-table-body">
-                    @if (retourDepot.retourDepotItems && retourDepot.retourDepotItems.length
-                    > 0) {
-                      <table class="table table-sm mb-0">
-                        <thead class="pharma-table-head">
-                        <tr>
-                          <th class="text-center" style="width: 3rem">#</th>
-                          <th style="width: 100px">CIP</th>
-                          <th>Produit</th>
-                          <th class="text-center" style="width: 100px">Qté Retournée</th>
-                          <th class="text-center" style="width: 100px">Stock Initial</th>
-                          <th class="text-center" style="width: 100px">Stock Après</th>
-                          <th class="text-end" style="width: 120px">Prix Unitaire</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                          @for (item of retourDepot.retourDepotItems; track item.id; let idx = $index) {
-                            <tr>
-                              <td class="text-center">
-                                <span class="pharma-row-number">{{ idx + 1 }}</span>
-                              </td>
-                              <td>
-                                <span class="pharma-code">{{ item.produitCip }}</span>
-                              </td>
-                              <td>
-                                <span class="pharma-product-name">{{ item.produitLibelle }}</span>
-                              </td>
-                              <td class="text-center">
-                                <span class="pharma-qty-value">{{ item.qtyMvt | number }}</span>
-                              </td>
-                              <td class="text-center">
-                                  <span
-                                    class="pharma-qty-value">{{ item.initStock | number }}</span>
-                              </td>
-                              <td class="text-center">
-                                  <span
-                                    class="pharma-qty-value">{{ item.afterStock | number }}</span>
-                              </td>
-                              <td class="text-end">
-                                  <span
-                                    class="pharma-price">{{ item.regularUnitPrice | number }}</span>
-                              </td>
-                            </tr>
-                          }
-                        </tbody>
-                        <tfoot class="pharma-table-footer">
-                        <tr>
-                          <td class="text-start" colspan="3">
-                                <span class="pharma-footer-label">
-                                  <i class="pi pi-calculator"></i>
-                                  <span>Total:</span>
-                                </span>
-                          </td>
-                          <td class="text-center">
-                              <span class="pharma-footer-total">{{
-                                  getTotalQuantity(retourDepot) | number
-                                }}</span>
-                          </td>
-                          <td colspan="3"></td>
-                        </tr>
-                        </tfoot>
-                      </table>
-                    } @else {
+                <div class="expanded-row-container">
+                  <div class="activity-card activity-card-products">
+                    <div class="activity-card-header">
+                      <div class="activity-card-icon activity-card-icon-small">
+                        <i class="pi pi-list"></i>
+                      </div>
+                      <div class="activity-card-header-content">
+                        <h3 class="activity-card-title">Détails du retour #{{ retourDepot.id }}</h3>
+                        <span class="activity-card-subtitle">{{ retourDepot.retourDepotItems?.length ?? 0 }} article(s)</span>
+                      </div>
+                    </div>
+                    <div class="activity-card-table-body">
+                      @if (retourDepot.retourDepotItems?.length) {
+                      <app-data-table [stripedRows]="true" [value]="retourDepot.retourDepotItems" class="rowexpansion-table" dataKey="id">
+                        <ng-template #header>
+                          <tr class="pharma-table-head">
+                            <th style="width: 5%">#</th>
+                            <th style="width: 12%">CIP</th>
+                            <th>PRODUIT</th>
+                            <th class="text-right" style="width: 12%">QTE RETOURNÉE</th>
+                            <th class="text-right" style="width: 12%">STOCK INITIAL</th>
+                            <th class="text-right" style="width: 12%">STOCK APRÈS</th>
+                            <th class="text-right" style="width: 12%">PU</th>
+                          </tr>
+                        </ng-template>
+                        <ng-template #body let-item let-rowIndex="rowIndex">
+                          <tr class="pharma-row-hover">
+                            <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
+                            <td><span class="pharma-code">{{ item.produitCip }}</span></td>
+                            <td><span class="pharma-product-name">{{ item.produitLibelle }}</span></td>
+                            <td class="text-right pharma-qty-value">{{ item.qtyMvt | number }}</td>
+                            <td class="text-right pharma-qty-value">{{ item.initStock | number }}</td>
+                            <td class="text-right pharma-qty-value">{{ item.afterStock | number }}</td>
+                            <td class="text-right pharma-price">{{ item.regularUnitPrice | number }}</td>
+                          </tr>
+                        </ng-template>
+                        <ng-template #footer>
+                          <tr class="pharma-table-footer">
+                            <td class="text-start" colspan="3">
+                              <span class="pharma-footer-label"><i class="pi pi-calculator"></i> <span>Total :</span></span>
+                            </td>
+                            <td class="text-right"><span class="pharma-footer-total">{{ getTotalQuantity(retourDepot) | number }}</span></td>
+                            <td colspan="3"></td>
+                          </tr>
+                        </ng-template>
+                      </app-data-table>
+                      } @else {
                       <div class="p-3 text-center text-muted">
                         <i class="pi pi-info-circle me-2"></i>
                         Aucune ligne de retour
                       </div>
-                    }
+                      }
+                    </div>
                   </div>
                 </div>
               </td>

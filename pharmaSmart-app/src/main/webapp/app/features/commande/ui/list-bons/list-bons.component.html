@@ -1,237 +1,238 @@
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
 <!-- MODE SAISIE : bon RECEIVED ouvert en plein écran                       -->
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
-@if (editingReceived()) {
-  <div class="view-panel">
-    <div class="lb-detail-body">
-      <app-commande-received
-        (commandeChange)="onCommandeChange($event)"
-        (retour)="onRetourSaisie()"
-        [commande]="editingReceived()!"
-        [showLotBtn]="showLotBtn()"
-      />
-    </div>
-  </div>
-
-} @else if (selectedClosed()) {
-  <!-- ═════════════════════════════════════════════════════════════════════ -->
-    <!-- MODE CONSULTATION : bon CLOSED en split-panel                        -->
-    <!-- ═════════════════════════════════════════════════════════════════════ -->
-  <div class="cr-wrapper">
-    <div class="view-panel__header view-panel__header--detail">
-      <app-button (clicked)="onRetourConsultation()" [text]="true" icon="pi pi-arrow-left"
-                  label="Retour à la liste"
-                  size="small" />
-      <div class="cr-header-actions">
-        <app-button
-          (clicked)="exportPdf(selectedClosed()!)"
-          icon="pi pi-file-pdf"
-          label="Imprimer BL"
-          severity="secondary"
-          size="small"
+<app-card class="mt-2">
+  @if (editingReceived()) {
+    <div class="view-panel">
+      <div class="lb-detail-body">
+        <app-commande-received
+          (commandeChange)="onCommandeChange($event)"
+          (retour)="onRetourSaisie()"
+          [commande]="editingReceived()!"
+          [showLotBtn]="showLotBtn()"
         />
       </div>
-
     </div>
 
+  } @else if (selectedClosed()) {
+    <!-- ═════════════════════════════════════════════════════════════════════ -->
+      <!-- MODE CONSULTATION : bon CLOSED en split-panel                        -->
+      <!-- ═════════════════════════════════════════════════════════════════════ -->
+    <div class="cr-wrapper">
+      <div class="view-panel__header view-panel__header--detail">
+        <app-button (clicked)="onRetourConsultation()" [text]="true" icon="pi pi-arrow-left"
+                    label="Retour à la liste"
+                    size="small" />
+        <div class="cr-header-actions">
+          <app-button
+            (clicked)="exportPdf(selectedClosed()!)"
+            icon="pi pi-file-pdf"
+            label="Imprimer BL"
+            severity="secondary"
+            size="small"
+          />
+        </div>
 
-    <div class="view-panel view-panel--split">
-      <div class="lb-split">
+      </div>
 
-        <!-- Panneau gauche : métadonnées + concordance -->
-        <div class="lb-split__left">
 
-          <!-- Carte métadonnées -->
-          <div class="lb-meta-card">
-            <div class="lb-meta-card__row">
+      <div class="view-panel view-panel--split">
+        <div class="lb-split">
+
+          <!-- Panneau gauche : métadonnées + concordance -->
+          <div class="lb-split__left">
+
+            <!-- Carte métadonnées -->
+            <div class="lb-meta-card">
+              <div class="lb-meta-card__row">
             <span class="lb-meta-card__supplier">
               {{ selectedClosed()!.fournisseurLibelle ?? selectedClosed()!.fournisseur?.libelle }}
             </span>
-              <span class="bc__badge" data-severity="success">Clôturé</span>
-            </div>
-            <div class="lb-meta-card__chips">
+                <span class="bc__badge" data-severity="success">Clôturé</span>
+              </div>
+              <div class="lb-meta-card__chips">
             <span class="lb-meta-chip">
               <i class="pi pi-hashtag"></i>
               {{ selectedClosed()!.receiptReference ?? selectedClosed()!.orderReference }}
             </span>
-              <span class="lb-meta-chip">
+                <span class="lb-meta-chip">
               <i class="pi pi-calendar"></i>
-                {{ selectedClosed()!.receiptDate | date:'dd/MM/yyyy' }}
+                  {{ selectedClosed()!.receiptDate | date:'dd/MM/yyyy' }}
             </span>
-              <span class="lb-meta-chip">
+                <span class="lb-meta-chip">
               <i class="pi pi-box"></i>
-                {{ selectedClosed()!.itemSize }} art.
+                  {{ selectedClosed()!.itemSize }} art.
             </span>
-              <span class="lb-meta-chip lb-meta-chip--amount">
+                <span class="lb-meta-chip lb-meta-chip--amount">
               <i class="pi pi-wallet"></i>
-                {{
-                  (selectedClosed()!.receiptAmount
-                    ?? selectedClosed()!.grossAmount) | devise
-                }}
+                  {{
+                    (selectedClosed()!.receiptAmount
+                      ?? selectedClosed()!.grossAmount) | devise
+                  }}
             </span>
+              </div>
             </div>
+
+            <!-- Statistiques de concordance -->
+            <app-reception-concordance [orderLines]="closedOrderLines()" />
+
           </div>
 
-          <!-- Statistiques de concordance -->
-          <app-reception-concordance [orderLines]="closedOrderLines()" />
+          <!-- Panneau droit : lignes de commande (lecture seule) -->
+          <div class="lb-split__right">
+            <app-data-table
+              [value]="closedOrderLines()"
+              class="p-datatable-sm"
+              scrollHeight="flex"
+            >
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th style="width:110px">Code</th>
+                  <th>Libellé</th>
+                  <th class="text-end" style="width:90px">Stk.Init</th>
+                  <th class="text-end" style="width:90px">Stk.Final</th>
+                  <th class="text-end" style="width:100px">Qté reçue</th>
+                  <th class="text-end" style="width:110px">P.Achat</th>
+                  <th class="text-end" style="width:110px">P.Vente</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-line>
+                <tr [ngClass]="getClosedRowClass(line)">
+                  <td><span class="pharma-code">{{ line.produitCip }}</span></td>
+                  <td>{{ line.produitLibelle }}</td>
+                  <td class="text-end"><span class="pharma-qty-value">{{ line.initStock }}</span></td>
+                  <td class="text-end"><span class="pharma-qty-value">{{ line.afterStock }}</span>
+                  </td>
+                  <td class="text-end"><span
+                    class="pharma-qty-value">{{ line.quantityReceived }}</span></td>
+                  <td class="text-end"><span
+                    class="pharma-price">{{
+                      line.orderCostAmount != null ? (line.orderCostAmount | number:'1.0-0') : '—'
+                    }}</span>
+                  </td>
+                  <td class="text-end"><span
+                    class="pharma-price">{{
+                      line.orderUnitPrice != null ? (line.orderUnitPrice | number:'1.0-0') : '—'
+                    }}</span>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template #emptymessage>
+                <tr>
+                  <td class="pharma-empty-message" colspan="7">
+                    <div class="pharma-empty-content">
+                      <i class="pi pi-inbox"></i>
+                      <p>Aucune ligne</p>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </app-data-table>
+          </div>
 
         </div>
-
-        <!-- Panneau droit : lignes de commande (lecture seule) -->
-        <div class="lb-split__right">
-          <app-data-table
-            [value]="closedOrderLines()"
-            class="p-datatable-sm"
-            scrollHeight="flex"
-          >
-            <ng-template #header>
-              <tr class="pharma-table-head">
-                <th style="width:110px">Code</th>
-                <th>Libellé</th>
-                <th class="text-end" style="width:90px">Stk.Init</th>
-                <th class="text-end" style="width:90px">Stk.Final</th>
-                <th class="text-end" style="width:100px">Qté reçue</th>
-                <th class="text-end" style="width:110px">P.Achat</th>
-                <th class="text-end" style="width:110px">P.Vente</th>
-              </tr>
-            </ng-template>
-            <ng-template #body let-line>
-              <tr [ngClass]="getClosedRowClass(line)">
-                <td><span class="pharma-code">{{ line.produitCip }}</span></td>
-                <td>{{ line.produitLibelle }}</td>
-                <td class="text-end"><span class="pharma-qty-value">{{ line.initStock }}</span></td>
-                <td class="text-end"><span class="pharma-qty-value">{{ line.afterStock }}</span>
-                </td>
-                <td class="text-end"><span
-                  class="pharma-qty-value">{{ line.quantityReceived }}</span></td>
-                <td class="text-end"><span
-                  class="pharma-price">{{
-                    line.orderCostAmount != null ? (line.orderCostAmount | number:'1.0-0') : '—'
-                  }}</span>
-                </td>
-                <td class="text-end"><span
-                  class="pharma-price">{{
-                    line.orderUnitPrice != null ? (line.orderUnitPrice | number:'1.0-0') : '—'
-                  }}</span>
-                </td>
-              </tr>
-            </ng-template>
-            <ng-template #emptymessage>
-              <tr>
-                <td class="pharma-empty-message" colspan="7">
-                  <div class="pharma-empty-content">
-                    <i class="pi pi-inbox"></i>
-                    <p>Aucune ligne</p>
-                  </div>
-                </td>
-              </tr>
-            </ng-template>
-          </app-data-table>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-
-} @else if (retourWorkspaceBon()) {
-  <!-- ═════════════════════════════════════════════════════════════════════ -->
-    <!-- MODE RETOUR PAR LIGNE                                                 -->
-    <!-- ═════════════════════════════════════════════════════════════════════ -->
-  <div class="view-panel">
-    <app-retour-workspace
-      (avoirCreated)="onRetourWorkspaceDone()"
-      (cancelled)="onRetourWorkspaceCancelled()"
-      [bon]="retourWorkspaceBon()!"
-    />
-  </div>
-
-} @else if (reconciliationWorkspaceBon()) {
-  <!-- ═════════════════════════════════════════════════════════════════════ -->
-    <!-- MODE RAPPROCHEMENT FACTURE                                            -->
-    <!-- ═════════════════════════════════════════════════════════════════════ -->
-  <div class="view-panel">
-    <app-reconciliation-workspace
-      (cancelled)="onReconciliationCancelled()"
-      (done)="onReconciliationDone()"
-      [delivery]="reconciliationWorkspaceBon()!"
-    />
-  </div>
-
-} @else {
-  <!-- ═════════════════════════════════════════════════════════════════════ -->
-    <!-- MODE LISTE                                                            -->
-    <!-- ═════════════════════════════════════════════════════════════════════ -->
-  <div class="view-panel">
-
-    <!-- ── BARRE D'ACTIONS ────────────────────────────────────────────────── -->
-    <div class="su-action-bar">
-      <div class="su-action-bar__filters">
-        <app-select
-          (selectionChange)="onSearch()"
-          [(ngModel)]="selectedStatut"
-          [clearable]="false"
-          [items]="statutOptions"
-          [style]="{ 'min-width': '170px' }"
-          bindLabel="label"
-          bindValue="value"
-          class="lb-select lb-select--statut"
-        />
-
-        <app-icon-field [overlay]="true" class="lb-search" icon="pi pi-search">
-          <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control"
-                 placeholder="Référence, fournisseur…" type="text" />
-        </app-icon-field>
-
-        <app-fournisseur-select
-          (selectionChange)="onFournisseurChange($event)"
-          [style]="{ 'min-width': '200px' }"
-          class="lb-select"
-          placeholder="Fournisseur"
-        />
-
-        <pharma-date-picker
-          (selectionChange)="onSearch()" [(ngModel)]="dtStart"
-          [labelPosition]="'inline'"
-          [style]="{ 'width': '180px' }"
-          id="dtStart"
-          label="Du"
-        />
-
-
-        <pharma-date-picker
-          (selectionChange)="onSearch()"
-          [(ngModel)]="dtEnd"
-          [labelPosition]="'inline'"
-          [style]="{ 'width': '180px' }"
-          id="dtEnd"
-          label="Au"
-        />
-
-
-      </div>
-      <div class="su-action-bar__actions">
-        <app-button (clicked)="onSearch()" icon="pi pi-search" label="Rechercher" severity="info"
-                    size="small" />
       </div>
     </div>
 
-    <!-- ── GRILLE BL ─────────────────────────────────────────────────────── -->
-    <!-- BANDEAU TOTAUX — au-dessus de la liste, là où le regard tombe en premier -->
-    <div class="grid-caption">
-      @if (countReceived() > 0) {
-        <span class="grid-caption__count grid-caption__count--attente">
+
+  } @else if (retourWorkspaceBon()) {
+    <!-- ═════════════════════════════════════════════════════════════════════ -->
+      <!-- MODE RETOUR PAR LIGNE                                                 -->
+      <!-- ═════════════════════════════════════════════════════════════════════ -->
+    <div class="view-panel">
+      <app-retour-workspace
+        (avoirCreated)="onRetourWorkspaceDone()"
+        (cancelled)="onRetourWorkspaceCancelled()"
+        [bon]="retourWorkspaceBon()!"
+      />
+    </div>
+
+  } @else if (reconciliationWorkspaceBon()) {
+    <!-- ═════════════════════════════════════════════════════════════════════ -->
+      <!-- MODE RAPPROCHEMENT FACTURE                                            -->
+      <!-- ═════════════════════════════════════════════════════════════════════ -->
+    <div class="view-panel">
+      <app-reconciliation-workspace
+        (cancelled)="onReconciliationCancelled()"
+        (done)="onReconciliationDone()"
+        [delivery]="reconciliationWorkspaceBon()!"
+      />
+    </div>
+
+  } @else {
+    <!-- ═════════════════════════════════════════════════════════════════════ -->
+      <!-- MODE LISTE                                                            -->
+      <!-- ═════════════════════════════════════════════════════════════════════ -->
+    <div class="view-panel">
+
+      <!-- ── BARRE D'ACTIONS ────────────────────────────────────────────────── -->
+      <div class="su-action-bar">
+        <div class="su-action-bar__filters">
+          <app-select
+            (selectionChange)="onSearch()"
+            [(ngModel)]="selectedStatut"
+            [clearable]="false"
+            [items]="statutOptions"
+            [style]="{ 'min-width': '170px' }"
+            bindLabel="label"
+            bindValue="value"
+            class="lb-select lb-select--statut"
+          />
+
+          <app-icon-field [overlay]="true" class="lb-search" icon="pi pi-search">
+            <input (keyup.enter)="onSearch()" [(ngModel)]="search" class="form-control"
+                   placeholder="Référence, fournisseur…" type="text" />
+          </app-icon-field>
+
+          <app-fournisseur-select
+            (selectionChange)="onFournisseurChange($event)"
+            [style]="{ 'min-width': '200px' }"
+            class="lb-select"
+            placeholder="Fournisseur"
+          />
+
+          <pharma-date-picker
+            (selectionChange)="onSearch()" [(ngModel)]="dtStart"
+            [labelPosition]="'inline'"
+            [style]="{ 'width': '180px' }"
+            id="dtStart"
+            label="Du"
+          />
+
+
+          <pharma-date-picker
+            (selectionChange)="onSearch()"
+            [(ngModel)]="dtEnd"
+            [labelPosition]="'inline'"
+            [style]="{ 'width': '180px' }"
+            id="dtEnd"
+            label="Au"
+          />
+
+
+        </div>
+        <div class="su-action-bar__actions">
+          <app-button (clicked)="onSearch()" icon="pi pi-search" label="Rechercher" severity="info"
+                      size="small" />
+        </div>
+      </div>
+
+      <!-- ── GRILLE BL ─────────────────────────────────────────────────────── -->
+      <!-- BANDEAU TOTAUX — au-dessus de la liste, là où le regard tombe en premier -->
+      <div class="grid-caption">
+        @if (countReceived() > 0) {
+          <span class="grid-caption__count grid-caption__count--attente">
           <i aria-hidden="true" class="pi pi-inbox"></i>
           <strong>{{ countReceived() }}</strong> en attente
         </span>
-      }
-      <span class="grid-caption__count">
+        }
+        <span class="grid-caption__count">
         <i aria-hidden="true" class="pi pi-file"></i>
         <strong>{{ periodTotals()?.count ?? totalItems() }}</strong>
         bon{{ (periodTotals()?.count ?? totalItems()) > 1 ? 's' : '' }}
       </span>
-      @if (periodTotals(); as t) {
-        <span class="grid-caption__totals ms-auto">
+        @if (periodTotals(); as t) {
+          <span class="grid-caption__totals ms-auto">
           <span class="grid-caption__stat">
             <span class="grid-caption__stat-label">Total HT achat</span>
             <span class="grid-caption__stat-value grid-caption__stat-value--achat">
@@ -253,131 +254,133 @@
             </span>
           </span>
         </span>
-      }
-    </div>
+        }
+      </div>
 
-    <div class="lb-grid-wrap">
-      <app-data-table
-        [loading]="loading()"
-        [value]="deliveries()"
-        class="p-datatable-sm"
-        dataKey="id"
-        scrollHeight="flex"
-      >
-        <ng-template #header>
-          <tr class="pharma-table-head">
-            <th appSortableHeader="receiptDate" style="width:105px">Date BL</th>
-            <th>Fournisseur</th>
-            <th style="width:145px">Référence</th>
-            <th appSortableHeader="itemSize" class="text-end" style="width:90px">Art.</th>
-            <th appSortableHeader="grossAmount" class="text-end" style="width:140px">Montant HT</th>
-            <th appSortableHeader="grossAmount" class="text-end" style="width:140px">Montant Tva
-            </th>
-            <th appSortableHeader="receiptAmount" class="text-end" style="width:140px">Montant TTC
-            </th>
-            <th style="width:200px">Statut</th>
-            <th style="width:70px">Actions</th>
-          </tr>
-        </ng-template>
+      <div class="lb-grid-wrap">
+        <app-data-table
+          [loading]="loading()"
+          [value]="deliveries()"
+          class="p-datatable-sm"
+          dataKey="id"
+          scrollHeight="flex"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th appSortableHeader="receiptDate" style="width:105px">Date BL</th>
+              <th>Fournisseur</th>
+              <th style="width:145px">Référence</th>
+              <th appSortableHeader="itemSize" class="text-end" style="width:90px">Art.</th>
+              <th appSortableHeader="grossAmount" class="text-end" style="width:140px">Montant HT</th>
+              <th appSortableHeader="grossAmount" class="text-end" style="width:140px">Montant Tva
+              </th>
+              <th appSortableHeader="receiptAmount" class="text-end" style="width:140px">Montant TTC
+              </th>
+              <th style="width:200px">Statut</th>
+              <th style="width:70px">Actions</th>
+            </tr>
+          </ng-template>
 
-        <ng-template #body let-d>
-          <tr (click)="onRowClick(d)" [ngClass]="getBlRowClass(d)">
-            <td>{{ d.receiptDate ? (d.receiptDate | date:'dd/MM/yyyy') : '—' }}</td>
-            <td>{{ d.fournisseurLibelle ?? '—' }}</td>
-            <td><span class="pharma-code">{{ d.receiptReference ?? d.orderReference ?? '—' }}</span>
-            </td>
-            <td class="text-end"><span class="pharma-qty-value">{{ d.itemSize }}</span></td>
-            <td class="text-end">
+          <ng-template #body let-d>
+            <tr (click)="onRowClick(d)" [ngClass]="getBlRowClass(d)">
+              <td>{{ d.receiptDate ? (d.receiptDate | date:'dd/MM/yyyy') : '—' }}</td>
+              <td>{{ d.fournisseurLibelle ?? '—' }}</td>
+              <td><span class="pharma-code">{{ d.receiptReference ?? d.orderReference ?? '—' }}</span>
+              </td>
+              <td class="text-end"><span class="pharma-qty-value">{{ d.itemSize }}</span></td>
+              <td class="text-end">
               <span class="pharma-total">{{
                   d.grossAmount != null ? (d.grossAmount | number:'1.0-0') : '—'
                 }}</span>
-            </td>
-            <td class="text-end">
+              </td>
+              <td class="text-end">
               <span class="pharma-total">{{
                   d.taxAmount != null ? (d.taxAmount | number:'1.0-0') : '—'
                 }}</span>
-            </td>
-            <td class="text-end">
+              </td>
+              <td class="text-end">
               <span class="pharma-total">{{
                   d.receiptAmount != null ? (d.receiptAmount | number:'1.0-0') : '—'
                 }}</span>
-            </td>
-            <td>
-              <app-list-bons-statut [delivery]="d" />
-              @if (!isReceived(d)) {
-                @switch (d.reconciliationStatut) {
-                  @case ('RECONCILIEE') {
-                    <span class="bc__badge bc__badge--reconciliee ms-1" title="Facture réconciliée">
+              </td>
+              <td>
+                <app-list-bons-statut [delivery]="d" />
+                @if (!isReceived(d)) {
+                  @switch (d.reconciliationStatut) {
+                    @case ('RECONCILIEE') {
+                      <span class="bc__badge bc__badge--reconciliee ms-1" title="Facture réconciliée">
                       <i class="pi pi-file-check"></i> Réconciliée
                     </span>
-                  }
-                  @case ('ECART') {
-                    <span class="bc__badge bc__badge--ecart ms-1" title="Écart détecté">
+                    }
+                    @case ('ECART') {
+                      <span class="bc__badge bc__badge--ecart ms-1" title="Écart détecté">
                       <i class="pi pi-exclamation-triangle"></i> Écart
                     </span>
-                  }
-                  @case ('LITIGE') {
-                    <span class="bc__badge bc__badge--litige ms-1" title="Litige fournisseur">
+                    }
+                    @case ('LITIGE') {
+                      <span class="bc__badge bc__badge--litige ms-1" title="Litige fournisseur">
                       <i class="pi pi-times-circle"></i> Litige
                     </span>
-                  }
-                  @default {
-                    <span class="bc__badge bc__badge--attente ms-1"
-                          title="Facture non encore rapprochée">
+                    }
+                    @default {
+                      <span class="bc__badge bc__badge--attente ms-1"
+                            title="Facture non encore rapprochée">
                       <i class="pi pi-clock"></i> Facture en attente
                     </span>
+                    }
                   }
                 }
-              }
-            </td>
-            <td (click)="$event.stopPropagation()" class="text-end">
-              <app-list-bons-actions
-                (menuAction)="onBonMenuAction($event, d)"
-                [delivery]="d"
-              />
-            </td>
-          </tr>
-        </ng-template>
+              </td>
+              <td (click)="$event.stopPropagation()" class="text-end">
+                <app-list-bons-actions
+                  (menuAction)="onBonMenuAction($event, d)"
+                  [delivery]="d"
+                />
+              </td>
+            </tr>
+          </ng-template>
 
-        <ng-template #emptymessage>
-          <tr>
-            <td class="pharma-empty-message" colspan="8">
-              <div class="pharma-empty-content">
-                <i class="pi pi-inbox"></i>
-                <p>Aucun bon de livraison</p>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </app-data-table>
-    </div>
-
-    <!-- ── FOOTER TOTAUX ──────────────────────────────────────────────────── -->
-    <!-- ── PAGINATION ──────────────────────────────────────────────────────── -->
-    @if (totalItems() > itemsPerPage) {
-      <div class="pagination-bar">
-        <app-button
-          (clicked)="goToPage(page() - 1)"
-          [disabled]="page() === 0"
-          icon="pi pi-angle-left"
-          ngbTooltip="Page précédente"
-          severity="secondary"
-          size="small"
-        />
-        <span class="pagination-info">Page {{ page() + 1 }} / {{ totalPages }} · {{ totalItems() }}
-          bon(s)</span>
-        <app-button
-          (clicked)="goToPage(page() + 1)"
-          [disabled]="page() >= totalPages - 1"
-          icon="pi pi-angle-right"
-          ngbTooltip="Page suivante"
-          severity="secondary"
-          size="small"
-        />
+          <ng-template #emptymessage>
+            <tr>
+              <td class="pharma-empty-message" colspan="8">
+                <div class="pharma-empty-content">
+                  <i class="pi pi-inbox"></i>
+                  <p>Aucun bon de livraison</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </app-data-table>
       </div>
-    }
 
-  </div>
-}
+      <!-- ── FOOTER TOTAUX ──────────────────────────────────────────────────── -->
+      <!-- ── PAGINATION ──────────────────────────────────────────────────────── -->
+      @if (totalItems() > itemsPerPage) {
+        <div class="pagination-bar">
+          <app-button
+            (clicked)="goToPage(page() - 1)"
+            [disabled]="page() === 0"
+            icon="pi pi-angle-left"
+            ngbTooltip="Page précédente"
+            severity="secondary"
+            size="small"
+          />
+          <span class="pagination-info">Page {{ page() + 1 }} / {{ totalPages }} · {{ totalItems() }}
+            bon(s)</span>
+          <app-button
+            (clicked)="goToPage(page() + 1)"
+            [disabled]="page() >= totalPages - 1"
+            icon="pi pi-angle-right"
+            ngbTooltip="Page suivante"
+            severity="secondary"
+            size="small"
+          />
+        </div>
+      }
+
+    </div>
+  }
+</app-card>
+
 
 <jhi-spinner #spinner></jhi-spinner>

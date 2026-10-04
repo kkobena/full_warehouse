@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, input, resource, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule} from '@angular/common';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import { BadgeComponent, ButtonComponent, DataTableComponent, RowTogglerDirective } from 'app/shared/ui';
+import { BadgeComponent, ButtonComponent, CardComponent, DataTableComponent, RowTogglerDirective } from "app/shared/ui";
 import { NotificationService } from 'app/shared/services/notification.service';
 import { AgGridAngular } from 'ag-grid-angular';
 import {
@@ -27,7 +27,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
   selector: 'app-suggestion-reassort',
   templateUrl: './suggestion-reassort.component.html',
   styleUrls: ['./suggestion-reassort.scss'],
-  imports: [CommonModule, DataTableComponent, ButtonComponent, BadgeComponent, NgbTooltip, RowTogglerDirective, AgGridAngular],
+  imports: [CommonModule, DataTableComponent, ButtonComponent, BadgeComponent, NgbTooltip, RowTogglerDirective, AgGridAngular, CardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppSuggestionReassortComponent {

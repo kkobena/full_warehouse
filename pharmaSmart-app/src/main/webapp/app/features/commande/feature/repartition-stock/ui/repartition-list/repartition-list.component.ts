@@ -3,7 +3,7 @@ import { HttpResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
-import { BadgeComponent, DataTableComponent } from 'app/shared/ui';
+import { BadgeComponent, CardComponent, DataTableComponent } from "app/shared/ui";
 import { IRepartitionStockProduit } from '../../../../../../entities/repartition-stock/repartition-stock.model';
 import { RepartitionStockService } from '../../../../../../entities/repartition-stock/repartition-stock.service';
 import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
@@ -13,7 +13,7 @@ import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
   templateUrl: './repartition-list.component.html',
   styleUrls: ['./repartition-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DataTableComponent, BadgeComponent, FormsModule],
+  imports: [CommonModule, DataTableComponent, BadgeComponent, FormsModule, CardComponent]
 })
 export class AppRepartitionListComponent implements OnInit {
   readonly searchTerm = input('');

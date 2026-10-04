@@ -18,11 +18,11 @@ import {CommonModule, DatePipe} from "@angular/common";
 import type {NgbDateStruct} from "@ng-bootstrap/ng-bootstrap";
 import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 import {
-  ButtonComponent,
+  ButtonComponent, CardComponent,
   DataTableComponent,
   IconFieldComponent,
   SelectComponent,
-  SortableHeaderDirective,
+  SortableHeaderDirective
 } from "app/shared/ui";
 import {PharmaDatePickerComponent} from "app/shared/date-picker/pharma-date-picker.component";
 import {NGB_DATE_TO_ISO} from "app/shared/util/warehouse-util";
@@ -90,7 +90,7 @@ import { DevisePipe } from 'app/shared/utils/devise';
     ReconciliationWorkspaceComponent,
     DatePipe,
     FournisseurSelectComponent
-  , DevisePipe]
+    , DevisePipe, CardComponent]
 })
 export class AppListBonsComponent implements OnInit {
   // ── Modes master/detail ────────────────────────────────────────────────────

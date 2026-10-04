@@ -28,7 +28,7 @@ import {FormsModule} from "@angular/forms";
 import {TiersPayantService} from "../../entities/tiers-payant/tierspayant.service";
 import {TiersPayantAchat} from "../../entities/tiers-payant/model/tiers-payant-achat.model";
 import {ChartComponent} from 'app/shared/chart/chart.component';
-import {DataTableComponent, SelectComponent, SkeletonComponent} from 'app/shared/ui';
+import {CardComponent, DataTableComponent, KpiItemComponent, KpiStripComponent, SelectComponent} from 'app/shared/ui';
 import {
   backgroundColor,
   hoverBackgroundColor,
@@ -81,14 +81,13 @@ interface PeriodOption {
 
 @Component({
   selector: "app-home-base",
-  imports: [PillSelectorComponent, 
+  imports: [CardComponent, KpiItemComponent, KpiStripComponent, PillSelectorComponent, 
     CommonModule,
     FormsModule,
     RouterModule,
     DataTableComponent,
     ChartComponent,
-    SelectComponent,
-    SkeletonComponent
+    SelectComponent
   ],
   templateUrl: "./home-base.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,

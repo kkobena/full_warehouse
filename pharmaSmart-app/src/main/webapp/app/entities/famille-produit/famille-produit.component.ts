@@ -21,13 +21,14 @@ import { finalize } from "rxjs/operators";
 import { SpinnerComponent } from "../../shared/spinner/spinner.component";
 import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../shared/services/notification.service";
+import { CardComponent } from 'app/shared/ui';
 
 @Component({
   selector: "app-famille-produit",
   templateUrl: "./famille-produit.component.html",
   styleUrl: "./famille-produit.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, DataTableComponent, SelectableRowDirective, IconFieldComponent, NgbTooltip, SpinnerComponent]
+  imports: [CardComponent, ButtonComponent, DataTableComponent, SelectableRowDirective, IconFieldComponent, NgbTooltip, SpinnerComponent]
 })
 export class FamilleProduitComponent implements OnInit {
   responsedto!: IResponseDto;

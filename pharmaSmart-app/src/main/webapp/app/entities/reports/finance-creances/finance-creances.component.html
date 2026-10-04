@@ -22,25 +22,10 @@
       </div>
       <div class="pharma-toolbar-actions">
         @if (active() === 'vieillissement-creances') {
-          <div class="dashboard-periode-selector">
-            <button class="periode-pill" [class.active]="trancheFilter() === 'all'" (click)="setTranche('all')">Tous</button>
-            <button class="periode-pill" [class.active]="trancheFilter() === '0-30'" (click)="setTranche('0-30')">0–30j</button>
-            <button class="periode-pill" [class.active]="trancheFilter() === '31-60'" (click)="setTranche('31-60')">31–60j</button>
-            <button class="periode-pill" [class.active]="trancheFilter() === '61-90'" (click)="setTranche('61-90')">61–90j</button>
-            <button class="periode-pill" [class.active]="trancheFilter() === '90+'" (click)="setTranche('90+')">
-              <i class="pi pi-exclamation-triangle"></i><span class="pill-label">&gt;90j</span>
-            </button>
-          </div>
+          <app-pill-selector [items]="trancheOptions" [ngModel]="trancheFilter()" (selectionChange)="setTranche($any($event))" />
         }
         @if (active() === 'concentration-payers') {
-          <div class="dashboard-periode-selector">
-            <button class="periode-pill" [class.active]="periode() === 'quarter'" (click)="setPeriode('quarter')">
-              <i class="pi pi-calendar"></i><span class="pill-label">Trimestre</span>
-            </button>
-            <button class="periode-pill" [class.active]="periode() === 'year'" (click)="setPeriode('year')">
-              <i class="pi pi-calendar-plus"></i><span class="pill-label">Année en cours</span>
-            </button>
-          </div>
+          <app-pill-selector [items]="periodeOptions" [ngModel]="periode()" (selectionChange)="setPeriode($any($event))" />
         }
       </div>
     </div>

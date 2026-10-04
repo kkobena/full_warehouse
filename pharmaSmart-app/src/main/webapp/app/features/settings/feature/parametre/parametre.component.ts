@@ -13,13 +13,14 @@ import {
   ToolbarComponent,
 } from '../../../../shared/ui';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
+import { CardComponent } from 'app/shared/ui';
 
 /** Paramètre non modifiable depuis cet écran : il est piloté par l'assistant de configuration. */
 const PARAM_GESTION_STOCK = 'APP_GESTION_STOCK';
 
 @Component({
   selector: 'app-parametre',
-  imports: [ButtonComponent, ToolbarComponent, IconFieldComponent, DataTableComponent],
+  imports: [CardComponent, ButtonComponent, ToolbarComponent, IconFieldComponent, DataTableComponent],
   templateUrl: './parametre.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./parametre.component.scss'],

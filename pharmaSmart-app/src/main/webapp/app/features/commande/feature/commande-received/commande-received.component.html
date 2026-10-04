@@ -184,25 +184,7 @@
       <!-- Actions barre droite -->
       <div class="cr-bar-actions ms-auto">
         <!-- Toggle séquentiel / grille -->
-        <div class="custom-segment-control">
-          <div class="segment-track">
-            <div [class.active-right]="viewMode() === 'grid'" class="segment-slider"></div>
-            <button (click)="setViewMode('sequential')" [class.active]="viewMode() === 'sequential'"
-                    class="segment-option"
-                    ngbTooltip="Saisie ligne par ligne — mode nominal"
-                    placement="bottom" type="button">
-              <i class="pi pi-list"></i>
-              <span>Séquentiel</span>
-            </button>
-            <button (click)="setViewMode('grid')" [class.active]="viewMode() === 'grid'"
-                    class="segment-option"
-                    ngbTooltip="Vue tableau complète"
-                    placement="bottom" type="button">
-              <i class="pi pi-table"></i>
-              <span>Grille</span>
-            </button>
-          </div>
-        </div>
+        <app-pill-selector [items]="viewModeOptions" [ngModel]="viewMode()" (selectionChange)="setViewMode($any($event))" />
         <app-button
           (clicked)="toggleLeftPanel()"
           [hidden]="viewMode() === 'sequential'"
@@ -239,7 +221,7 @@
           label="Aide"
           ngbTooltip="Raccourcis clavier, scanner CIP, scanner DataMatrix"
           placement="bottom"
-          severity="info"
+          severity="secondary"
           size="small"
         />
       </div>

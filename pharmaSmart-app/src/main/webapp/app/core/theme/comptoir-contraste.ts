@@ -28,7 +28,7 @@ export function melanger(a: string, pa: number, b: string): string {
   return versHex(A.map((c, i) => (c * pa) / 100 + (B[i] * (100 - pa)) / 100) as Rgb);
 }
 
-function luminance(hex: string): number {
+export function luminance(hex: string): number {
   const lineaire = (c: number) => (c / 255 <= 0.03928 ? c / 255 / 12.92 : Math.pow((c / 255 + 0.055) / 1.055, 2.4));
   const [r, g, b] = lireRgb(hex);
   return 0.2126 * lineaire(r) + 0.7152 * lineaire(g) + 0.0722 * lineaire(b);

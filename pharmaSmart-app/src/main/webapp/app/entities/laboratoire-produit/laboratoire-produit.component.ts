@@ -24,6 +24,7 @@ import {finalize} from 'rxjs/operators';
 import {ErrorService} from '../../shared/error.service';
 import {SpinnerComponent} from '../../shared/spinner/spinner.component';
 import {NotificationService} from "../../shared/services/notification.service";
+import { CardComponent } from 'app/shared/ui';
 import {
   NgbConfirmDialogService
 } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
@@ -33,7 +34,7 @@ import {
   templateUrl: './laboratoire-produit.component.html',
   styleUrl: './laboratoire-produit.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [CardComponent, 
     RouterModule,
     FormsModule,
     ButtonComponent,

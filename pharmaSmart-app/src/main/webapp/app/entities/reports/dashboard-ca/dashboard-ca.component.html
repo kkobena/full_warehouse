@@ -35,13 +35,13 @@
         }
 
         <app-button (clicked)="onRefresh()" icon="pi pi-refresh" label="Actualiser"
-                    severity="primary" size="small" />
+                    severity="info" size="small" />
         <app-button (clicked)="exportToPdf()" icon="pi pi-file-pdf" label="PDF"
-                    severity="danger"
+                    severity="warn"
                     size="small" />
         <app-button (clicked)="exportDailySummaryToExcel()" icon="pi pi-file-excel"
                     label="Excel"
-                    severity="info" size="small" />
+                    severity="warn" size="small" />
         <app-button (clicked)="exportDailySummaryToCsv()" icon="pi pi-file" label="CSV"
                     severity="help" size="small" />
       </div>

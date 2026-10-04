@@ -50,22 +50,22 @@
       }
 
       &:hover {
-        color: $pharma-primary;
-        background: $pharma-primary-light;
+        color: var(--pharma-chrome-tab);
+        background: var(--pharma-chrome-tab-tint);
 
         i {
-          color: $pharma-primary;
+          color: var(--pharma-chrome-tab);
           transform: scale(1.1);
         }
       }
 
       &.active {
-        color: $pharma-primary;
-        border-bottom-color: $pharma-primary;
+        color: var(--pharma-chrome-tab);
+        border-bottom-color: var(--pharma-chrome-tab);
         font-weight: 600;
 
         i {
-          color: $pharma-primary;
+          color: var(--pharma-chrome-tab);
         }
 
         &::after {
@@ -75,7 +75,7 @@
           left: 0;
           right: 0;
           height: 3px;
-          background: linear-gradient(90deg, $pharma-primary 0%, $pharma-primary-dark 100%);
+          background: linear-gradient(90deg, var(--pharma-chrome-tab) 0%, var(--pharma-chrome-tab-dark) 100%);
         }
       }
 

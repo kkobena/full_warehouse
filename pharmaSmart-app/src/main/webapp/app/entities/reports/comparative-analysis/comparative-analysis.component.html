@@ -32,30 +32,10 @@
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-toolbar-actions flex gap-2 align-items-center">
         <!-- View toggle -->
-        <div class="dashboard-periode-selector">
-          <button (click)="onViewChange('global')" [class.active]="activeView() === 'global'"
-                  class="periode-pill"
-                  type="button">
-            <i class="pi pi-chart-bar"></i>
-            <span class="pill-label">Globale</span>
-          </button>
-          <button (click)="onViewChange('famille')" [class.active]="activeView() === 'famille'"
-                  class="periode-pill"
-                  type="button">
-            <i class="pi pi-sitemap"></i>
-            <span class="pill-label">Par famille</span>
-          </button>
-          <button (click)="onViewChange('fournisseur')"
-                  [class.active]="activeView() === 'fournisseur'"
-                  class="periode-pill"
-                  type="button">
-            <i class="pi pi-truck"></i>
-            <span class="pill-label">Par fournisseur</span>
-          </button>
-        </div>
+        <app-pill-selector [items]="viewOptions" [ngModel]="activeView()" (selectionChange)="onViewChange($any($event))" />
 
         <app-button (clicked)="exportToPdf()" icon="pi pi-file-pdf" label="Exporter PDF"
-                    severity="danger" size="small" />
+                    severity="warn" size="small" />
       </div>
     </ng-container>
   </app-toolbar>

@@ -28,55 +28,57 @@
         </div>
       </div>
 
-      @if (entites() && entites().length > 0) {
-        <app-data-table
-          (onLazyLoad)="lazyLoading($event)"
-          [lazy]="true"
-          [loading]="loading()"
-          [paginator]="true"
-          [rows]="itemsPerPage"
-          [selectionMode]="'single'"
-          [size]="'small'"
-          [stripedRows]="true"
-          [totalRecords]="totalItems()"
-          [value]="entites()"
-          dataKey="id"
-        >
-          <ng-template #header>
-            <tr class="pharma-table-head">
-              <th scope="col"><span>Code</span></th>
-              <th scope="col"><span>Libellé</span></th>
-              <th scope="col"><span>Catégorie article</span></th>
-              <th scope="col"></th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-elRow>
-            <tr [appSelectableRow]="elRow">
-              <td>
-                <span class="pharma-code">{{ elRow.code }}</span>
-              </td>
-              <td>
-                <div class="pharma-entity-name">{{ elRow.libelle }}</div>
-              </td>
-              <td>{{ elRow.categorieLibelle }}</td>
-              <td style="text-align: right">
-                <app-button (clicked)="onEdit(elRow)" [iconOnly]="true" [rounded]="true"
-                            [text]="true"
-                            ariaLabel="Modifier" icon="pi pi-pencil" ngbTooltip="Modifier"
-                            severity="success" />
-                <app-button (clicked)="delete(elRow)" [iconOnly]="true" [rounded]="true"
-                            [text]="true"
-                            ariaLabel="Supprimer" icon="pi pi-trash" ngbTooltip="Supprimer"
-                            severity="danger" />
-              </td>
-            </tr>
-          </ng-template>
-        </app-data-table>
-      } @else {
-        <div class="alert alert-warning" id="no-result">
-          <span>Aucune donnée trouvée</span>
-        </div>
-      }
+      <app-card>
+        @if (entites() && entites().length > 0) {
+          <app-data-table
+            (onLazyLoad)="lazyLoading($event)"
+            [lazy]="true"
+            [loading]="loading()"
+            [paginator]="true"
+            [rows]="itemsPerPage"
+            [selectionMode]="'single'"
+            [size]="'small'"
+            [stripedRows]="true"
+            [totalRecords]="totalItems()"
+            [value]="entites()"
+            dataKey="id"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th scope="col"><span>Code</span></th>
+                <th scope="col"><span>Libellé</span></th>
+                <th scope="col"><span>Catégorie article</span></th>
+                <th scope="col"></th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-elRow>
+              <tr [appSelectableRow]="elRow">
+                <td>
+                  <span class="pharma-code">{{ elRow.code }}</span>
+                </td>
+                <td>
+                  <div class="pharma-entity-name">{{ elRow.libelle }}</div>
+                </td>
+                <td>{{ elRow.categorieLibelle }}</td>
+                <td style="text-align: right">
+                  <app-button (clicked)="onEdit(elRow)" [iconOnly]="true" [rounded]="true"
+                              [text]="true"
+                              ariaLabel="Modifier" icon="pi pi-pencil" ngbTooltip="Modifier"
+                              severity="success" />
+                  <app-button (clicked)="delete(elRow)" [iconOnly]="true" [rounded]="true"
+                              [text]="true"
+                              ariaLabel="Supprimer" icon="pi pi-trash" ngbTooltip="Supprimer"
+                              severity="danger" />
+                </td>
+              </tr>
+            </ng-template>
+          </app-data-table>
+        } @else {
+          <div class="alert alert-warning" id="no-result">
+            <span>Aucune donnée trouvée</span>
+          </div>
+        }
+      </app-card>
     </div>
   </div>
 </div>

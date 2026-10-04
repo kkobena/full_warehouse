@@ -1,4 +1,4 @@
-<div class="pharma-smart-content p-1">
+<div class="pharma-smart-content">
 
   @if (!editingBed()) {
 
@@ -10,36 +10,12 @@
         <span class="su-title">Bons d'Entrée Diverses</span>
       </div>
 
-      <div class="su-source-tabs-bar">
-
-        <button
-          (click)="setTab('BROUILLON')"
-          [class.su-tab--active]="activeTab() === 'BROUILLON'"
-          class="su-tab"
-          ngbTooltip="BED en cours de saisie"
-          placement="bottom"
-          type="button"
-        >
-          <i class="pi pi-file-edit"></i>
-          En attente
-          @if (countBrouillon() > 0) {
-            <span class="su-tab-badge su-tab-badge--warn">{{ countBrouillon() }}</span>
-          }
-        </button>
-
-        <button
-          (click)="setTab('HISTORIQUE')"
-          [class.su-tab--active]="activeTab() === 'HISTORIQUE'"
-          class="su-tab"
-          ngbTooltip="BED validés — stock crédité"
-          placement="bottom"
-          type="button"
-        >
-          <i class="pi pi-history"></i>
-          Historique
-        </button>
-
-      </div>
+      <app-subtab-bar
+        ariaLabel="Bons d'entrée diverses"
+        [tabs]="onglets()"
+        [active]="activeTab()"
+        (activeChange)="setTab($any($event))"
+      />
     </div>
 
     <!-- ─── Barre de filtres ─────────────────────────────────────────────── -->
@@ -110,13 +86,13 @@
     </div>
 
     <!-- Hint premier usage -->
-    <app-hint [visible]="activeTab() === 'BROUILLON'" storageKey="bed">
-      Cliquez sur <strong>Éditer</strong> pour modifier un BED en cours, ou utilisez <strong>Voir
-      détail</strong> pour consulter un BED validé.
-    </app-hint>
+    <app-card>   <app-hint [visible]="activeTab() === 'BROUILLON'" storageKey="bed">
+    Cliquez sur <strong>Éditer</strong> pour modifier un BED en cours, ou utilisez <strong>Voir
+    détail</strong> pour consulter un BED validé.
+  </app-hint>
 
     <!-- ─── Tableau ──────────────────────────────────────────────────────── -->
-    <div>
+
       <app-data-table
         (onLazyLoad)="onPageChange($event)"
         [lazy]="true"
@@ -229,7 +205,7 @@
                   [outlined]="true"
                   icon="pi pi-plus"
                   label="Nouveau"
-                  severity="success"
+                  severity="primary"
                   size="small"
                 />
 
@@ -238,7 +214,8 @@
           </tr>
         </ng-template>
       </app-data-table>
-    </div>
+   </app-card>
+
 
   }
 

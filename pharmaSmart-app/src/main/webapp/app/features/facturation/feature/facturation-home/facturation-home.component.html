@@ -89,43 +89,47 @@
   <!-- KPI Banner -->
   <app-facture-kpi-banner [kpi]="store.kpi()" [loading]="store.kpiLoading()" />
 
-  <!-- Hint premier usage -->
-  <app-hint storageKey="facturation" [visible]="!panelOpen()">
-    Cliquez sur une ligne pour afficher le détail et régler la facture. Utilisez les filtres pour affiner la recherche.
-  </app-hint>
+  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden"
+          [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
 
-  <!-- Bulk action bar -->
-  @if (store.hasSelection() && canDelete()) {
-    <div class="bulk-action-bar">
-      <span class="bulk-count">{{ store.selectedFactures().length }}
-        facture(s) sélectionnée(s)</span>
-      <app-button
-        (clicked)="onDeleteSelected()"
-        [loading]="deleteAllSpinner()"
-        [outlined]="true"
-        icon="pi pi-trash"
-        label="Supprimer la sélection"
-        severity="danger"
-        size="small"
-      />
-    </div>
-  }
+    <!-- Hint premier usage -->
+    <app-hint storageKey="facturation" [visible]="!panelOpen()">
+      Cliquez sur une ligne pour afficher le détail et régler la facture. Utilisez les filtres pour affiner la recherche.
+    </app-hint>
 
-  <!-- Split container: liste + panneau détail -->
-  <div [class.panel-open]="panelOpen()" class="split-container">
-    <div class="list-column">
-      <app-facture-list (createAvoir)="onCreateAvoir($event)" [canDelete]="canDelete()"
-                        [canExport]="canExport()" [searchParams]="currentSearchParams()" />
-    </div>
-
-    @if (panelOpen()) {
-      <div class="detail-column">
-        <app-facture-detail-panel [activeTabRequest]="requestedDetailTab()"
-                                  [canExecute]="canExecute()"
-                                  [canExport]="canExport()"
-                                  [facture]="store.selectedFacture()" />
+    <!-- Bulk action bar -->
+    @if (store.hasSelection() && canDelete()) {
+      <div class="bulk-action-bar">
+        <span class="bulk-count">{{ store.selectedFactures().length }}
+          facture(s) sélectionnée(s)</span>
+        <app-button
+          (clicked)="onDeleteSelected()"
+          [loading]="deleteAllSpinner()"
+          [outlined]="true"
+          icon="pi pi-trash"
+          label="Supprimer la sélection"
+          severity="danger"
+          size="small"
+        />
       </div>
     }
-  </div>
+
+    <!-- Split container: liste + panneau détail -->
+    <div [class.panel-open]="panelOpen()" class="split-container">
+      <div class="list-column">
+        <app-facture-list (createAvoir)="onCreateAvoir($event)" [canDelete]="canDelete()"
+                          [canExport]="canExport()" [searchParams]="currentSearchParams()" />
+      </div>
+
+      @if (panelOpen()) {
+        <div class="detail-column">
+          <app-facture-detail-panel [activeTabRequest]="requestedDetailTab()"
+                                    [canExecute]="canExecute()"
+                                    [canExport]="canExport()"
+                                    [facture]="store.selectedFacture()" />
+        </div>
+      }
+    </div>
+  </app-card>
 
 </div>

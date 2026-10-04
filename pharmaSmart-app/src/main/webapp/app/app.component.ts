@@ -9,6 +9,7 @@ import {fontAwesomeIcons} from './config/font-awesome-icons';
 import MainComponent from './layouts/main/main.component';
 
 import {ThemeService} from 'app/core/theme/theme.service';
+import {ChromeThemeService} from 'app/core/theme/chrome-theme.service';
 
 @Component({
   selector: 'app',
@@ -22,6 +23,7 @@ export default class AppComponent {
   private readonly iconLibrary = inject(FaIconLibrary);
   private readonly dpConfig = inject(NgbDatepickerConfig);
   private readonly themeService = inject(ThemeService);
+  private readonly chromeThemeService = inject(ChromeThemeService);
 
   constructor() {
     this.applicationConfigService.setEndpointPrefix(SERVER_API_URL);
@@ -29,5 +31,6 @@ export default class AppComponent {
     this.iconLibrary.addIcons(...fontAwesomeIcons);
     this.dpConfig.minDate = {year: dayjs().subtract(100, 'year').year(), month: 1, day: 1};
     this.themeService.loadCurrentTheme();
+    this.chromeThemeService.loadCurrentChrome();
   }
 }

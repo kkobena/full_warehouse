@@ -66,6 +66,7 @@ import {
 } from "../../features/facturation/data-access/services/facture-api.service";
 import {IFacturationKpi} from "../../features/facturation/data-access/models";
 import dayjs from "dayjs";
+import { PillSelectorComponent } from 'app/shared/ui/pill-selector/pill-selector.component';
 
 interface TopSelection {
   label: string;
@@ -80,7 +81,7 @@ interface PeriodOption {
 
 @Component({
   selector: "app-home-base",
-  imports: [
+  imports: [PillSelectorComponent, 
     CommonModule,
     FormsModule,
     RouterModule,
@@ -107,9 +108,17 @@ export class HomeBaseComponent implements OnInit {
     {label: "Semestre", value: CaPeriodeFilter.halfyearly, icon: "pi pi-chart-bar"},
     {label: "Année", value: CaPeriodeFilter.yearly, icon: "pi pi-chart-line"}
   ];
+  protected readonly graphOptions = [
+    { label: "Vue Tabulaire", value: false, icon: "pi pi-table" },
+    { label: "Vue Graphique", value: true, icon: "pi pi-chart-bar" },
+  ];
   protected activePeriode = signal<CaPeriodeFilter>(CaPeriodeFilter.daily);
   protected isLoading = signal(false);
   protected lastUpdate = signal<Date | null>(null);
+  protected readonly paretoOptions = [
+    { label: "Quantité", value: "qty", icon: "pi pi-sort-amount-down" },
+    { label: "Montant", value: "amt", icon: "pi pi-dollar" },
+  ];
   protected activePareto: "qty" | "amt" = "qty";
   /** Date du jour, pour dater les encours que le sélecteur de période ne déplace pas. */
   protected readonly aujourdhui = new Date();

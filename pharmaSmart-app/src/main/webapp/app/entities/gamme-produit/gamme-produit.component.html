@@ -19,57 +19,59 @@
 
           <div class="pharma-toolbar-actions">
             <div class="pharma-button-group">
-              <app-button (clicked)="showFileDialog()" [raised]="true" icon="pi pi-upload" label="Importer" severity="help" />
-              <app-button (clicked)="addNewEntity()" [raised]="true" icon="pi pi-check" label="Nouveau" severity="success" />
+              <app-button (clicked)="showFileDialog()" [raised]="true" icon="pi pi-upload" label="Importer" severity="secondary" />
+              <app-button (clicked)="addNewEntity()" [raised]="true" icon="pi pi-check" label="Nouveau" severity="primary" />
             </div>
           </div>
         </div>
       </div>
 
-      <div class="mt-2">
-        <app-data-table
-          (onLazyLoad)="lazyLoading($event)"
-          [lazy]="true"
-          [loading]="loading()"
-          [paginator]="true"
-          [rows]="itemsPerPage"
-          [selectionMode]="'single'"
-          [size]="'small'"
-          [stripedRows]="true"
-          [totalRecords]="totalItems()"
-          [value]="entites()"
-          dataKey="id"
-        >
-          <ng-template #header>
-            <tr class="pharma-table-head">
-              <th scope="col" style="width: 10%"><span>Code</span></th>
-              <th scope="col" style="width: 70%"><span>Libellé</span></th>
-              <th scope="col" style="width: 20%"></th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-elRow>
-            <tr [appSelectableRow]="elRow">
-              <td>
-                <span class="pharma-code">{{ elRow.code }}</span>
-              </td>
-              <td>
-                <div class="pharma-entity-name">{{ elRow.libelle }}</div>
-              </td>
-              <td style="text-align: right">
-                <app-button (clicked)="onEdit(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
-                            ariaLabel="Editer" buttonClass="mr-2" icon="pi pi-pencil" ngbTooltip="Editer" severity="success" />
-                <app-button (clicked)="delete(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
-                            ariaLabel="Supprimer" icon="pi pi-trash" ngbTooltip="Supprimer" severity="danger" />
-              </td>
-            </tr>
-          </ng-template>
-          <ng-template #emptymessage>
-            <tr>
-              <td [attr.colspan]="3">Aucune donnée trouvée</td>
-            </tr>
-          </ng-template>
-        </app-data-table>
-      </div>
+      <app-card>
+        <div class="mt-2">
+          <app-data-table
+            (onLazyLoad)="lazyLoading($event)"
+            [lazy]="true"
+            [loading]="loading()"
+            [paginator]="true"
+            [rows]="itemsPerPage"
+            [selectionMode]="'single'"
+            [size]="'small'"
+            [stripedRows]="true"
+            [totalRecords]="totalItems()"
+            [value]="entites()"
+            dataKey="id"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th scope="col" style="width: 10%"><span>Code</span></th>
+                <th scope="col" style="width: 70%"><span>Libellé</span></th>
+                <th scope="col" style="width: 20%"></th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-elRow>
+              <tr [appSelectableRow]="elRow">
+                <td>
+                  <span class="pharma-code">{{ elRow.code }}</span>
+                </td>
+                <td>
+                  <div class="pharma-entity-name">{{ elRow.libelle }}</div>
+                </td>
+                <td style="text-align: right">
+                  <app-button (clicked)="onEdit(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
+                              ariaLabel="Editer" buttonClass="mr-2" icon="pi pi-pencil" ngbTooltip="Editer" severity="success" />
+                  <app-button (clicked)="delete(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
+                              ariaLabel="Supprimer" icon="pi pi-trash" ngbTooltip="Supprimer" severity="danger" />
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td [attr.colspan]="3">Aucune donnée trouvée</td>
+              </tr>
+            </ng-template>
+          </app-data-table>
+        </div>
+      </app-card>
     </div>
   </div>
 </div>

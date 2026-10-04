@@ -26,59 +26,61 @@
     </ng-container>
   </app-toolbar>
 
-  <app-data-table
-    (onLazyLoad)="lazyLoading($event)"
-    [lazy]="true"
-    [loading]="loading()"
-    [paginator]="true"
-    [rowsPerPageOptions]="[10, 20, 50]"
-    [rows]="itemsPerPage()"
-    [showCurrentPageReport]="true"
-    [totalRecords]="totalItems()"
-    [value]="retours()"
-    class="p-datatable-sm p-datatable-striped"
-    currentPageReportTemplate="{first} – {last} sur {totalRecords}"
-    dataKey="id">
+  <app-card>
+    <app-data-table
+      (onLazyLoad)="lazyLoading($event)"
+      [lazy]="true"
+      [loading]="loading()"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [rows]="itemsPerPage()"
+      [showCurrentPageReport]="true"
+      [totalRecords]="totalItems()"
+      [value]="retours()"
+      class="p-datatable-sm p-datatable-striped"
+      currentPageReportTemplate="{first} – {last} sur {totalRecords}"
+      dataKey="id">
 
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th>Référence</th>
-        <th>Date</th>
-        <th>Client</th>
-        <th>Vente d'origine</th>
-        <th>Motif</th>
-        <th style="text-align:right">Montant</th>
-        <th>Mode règlement</th>
-        <th>Par</th>
-      </tr>
-    </ng-template>
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>Référence</th>
+          <th>Date</th>
+          <th>Client</th>
+          <th>Vente d'origine</th>
+          <th>Motif</th>
+          <th style="text-align:right">Montant</th>
+          <th>Mode règlement</th>
+          <th>Par</th>
+        </tr>
+      </ng-template>
 
-    <ng-template #body let-r>
-      <tr>
-        <td><span class="retour-ref">{{ r.reference }}</span></td>
-        <td>{{ r.createdAt | date:'dd/MM/yyyy' }}</td>
-        <td>{{ r.customerName ?? '—' }}</td>
-        <td>{{ r.originalSaleRef ?? '—' }}</td>
-        <td>{{ motifLabelOf(r.motif) }}</td>
-        <td class="retour-amount" style="text-align:right">{{ r.montantTotal | devise }}
-        </td>
-        <td>
-          @if (r.modeReglement) {
-            <span class="mode-badge">
-            <i [class]="modeIconOf(r.modeReglement)"></i>
-              {{ modeLabelOf(r.modeReglement) }}
-          </span>
-          }
-        </td>
-        <td>{{ r.createdByName }}</td>
-      </tr>
-    </ng-template>
+      <ng-template #body let-r>
+        <tr>
+          <td><span class="retour-ref">{{ r.reference }}</span></td>
+          <td>{{ r.createdAt | date:'dd/MM/yyyy' }}</td>
+          <td>{{ r.customerName ?? '—' }}</td>
+          <td>{{ r.originalSaleRef ?? '—' }}</td>
+          <td>{{ motifLabelOf(r.motif) }}</td>
+          <td class="retour-amount" style="text-align:right">{{ r.montantTotal | devise }}
+          </td>
+          <td>
+            @if (r.modeReglement) {
+              <span class="mode-badge">
+              <i [class]="modeIconOf(r.modeReglement)"></i>
+                {{ modeLabelOf(r.modeReglement) }}
+            </span>
+            }
+          </td>
+          <td>{{ r.createdByName }}</td>
+        </tr>
+      </ng-template>
 
-    <ng-template #emptymessage>
-      <tr>
-        <td colspan="8" style="text-align:center;padding:2rem;color:#888">Aucun retour trouvé</td>
-      </tr>
-    </ng-template>
-  </app-data-table>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="8" style="text-align:center;padding:2rem;color:#888">Aucun retour trouvé</td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </app-card>
 
 </div>

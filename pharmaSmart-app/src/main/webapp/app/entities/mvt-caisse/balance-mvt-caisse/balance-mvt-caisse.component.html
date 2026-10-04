@@ -1,4 +1,4 @@
-<div class="pharma-smart-content p-1">
+<div class="pharma-smart-content">
     <app-toolbar [code]="navCode()" icon="pi pi-balance-scale" title="Balance de caisse">
       <ng-container ngProjectAs="[toolbarFilters]">
         <div class="pharma-toolbar-filters">
@@ -35,14 +35,14 @@
         </div>
       </ng-container>
     </app-toolbar>
-  <div class="row mt-3 mb-3 px-2">
-    @if (balanceMvtCaisseWrapper(); as balance) {
-      @if (balance.balanceCaisses.length > 0) {
-        <div class="col-12">
-          <div class="table-responsive">
-            <table class="table table-secondary table-striped table-bordered table-hover">
-              <thead class="pharma-table-head">
-                <tr>
+
+    <div class="row mt-1">
+      @if (balanceMvtCaisseWrapper(); as balance) {
+        @if (balance.balanceCaisses.length > 0) {
+          <app-card class="mb-1">
+            <app-data-table [value]="balance.balanceCaisses" [size]="'small'" [stripedRows]="true" [showGridlines]="true">
+              <ng-template #header>
+                <tr class="pharma-table-head">
                   <th rowspan="2" class="text-center">Type</th>
                   <th rowspan="2" class="text-center">Nombre</th>
                   <th colspan="4" class="text-center">Montants</th>
@@ -51,7 +51,7 @@
                   <th rowspan="2" class="text-center">Différé</th>
                   <th rowspan="2" class="text-center">Tiers-payant</th>
                 </tr>
-                <tr>
+                <tr class="pharma-table-head">
                   <th class="text-center">Brut(TTC)</th>
                   <th class="text-center">Remise</th>
                   <th class="text-center">Net(TTC)</th>
@@ -62,28 +62,26 @@
                   <th class="text-center">Virement</th>
                   <th class="text-center">Mobile</th>
                 </tr>
-              </thead>
-              <tbody>
-                @for (item of balance.balanceCaisses; track $index) {
-                  <tr>
-                    <td>{{ item.typeVeTypeAffichage }}</td>
-                    <td class="amount-td-column">{{ item.count | number }}</td>
-                    <td class="amount-td-column">{{ item.montantTtc | number }}</td>
-                    <td class="amount-td-column">{{ item.montantDiscount | number }}</td>
-                    <td class="amount-td-column">{{ item.montantNet | number }}</td>
-                    <td class="amount-td-column">{{ item.typeSalePercent | number }}</td>
-                    <td class="amount-td-column">{{ item.panierMoyen | number }}</td>
-                    <td class="amount-td-column">{{ item.montantCash | number }}</td>
-                    <td class="amount-td-column">{{ item.montantCheck | number }}</td>
-                    <td class="amount-td-column">{{ item.montantCard | number }}</td>
-                    <td class="amount-td-column">{{ item.montantVirement | number }}</td>
-                    <td class="amount-td-column">{{ item.montantMobileMoney | number }}</td>
-                    <td class="amount-td-column">{{ item.montantDiffere | number }}</td>
-                    <td class="amount-td-column">{{ item.partTiersPayant | number }}</td>
-                  </tr>
-                }
-              </tbody>
-              <tfoot>
+              </ng-template>
+              <ng-template #body let-item>
+                <tr>
+                  <td>{{ item.typeVeTypeAffichage }}</td>
+                  <td class="amount-td-column">{{ item.count | number }}</td>
+                  <td class="amount-td-column">{{ item.montantTtc | number }}</td>
+                  <td class="amount-td-column">{{ item.montantDiscount | number }}</td>
+                  <td class="amount-td-column">{{ item.montantNet | number }}</td>
+                  <td class="amount-td-column">{{ item.typeSalePercent | number }}</td>
+                  <td class="amount-td-column">{{ item.panierMoyen | number }}</td>
+                  <td class="amount-td-column">{{ item.montantCash | number }}</td>
+                  <td class="amount-td-column">{{ item.montantCheck | number }}</td>
+                  <td class="amount-td-column">{{ item.montantCard | number }}</td>
+                  <td class="amount-td-column">{{ item.montantVirement | number }}</td>
+                  <td class="amount-td-column">{{ item.montantMobileMoney | number }}</td>
+                  <td class="amount-td-column">{{ item.montantDiffere | number }}</td>
+                  <td class="amount-td-column">{{ item.partTiersPayant | number }}</td>
+                </tr>
+              </ng-template>
+              <ng-template #footer>
                 <tr>
                   <td class="tf-column">Total</td>
                   <td class="amount-column">{{ balance.count | number }}</td>
@@ -100,140 +98,107 @@
                   <td class="amount-column">{{ balance.montantDiffere | number }}</td>
                   <td class="amount-column">{{ balance.partTiersPayant | number }}</td>
                 </tr>
-              </tfoot>
-            </table>
-          </div>
-        </div>
-      }
-      <!-- Balance Summary Cards -->
-      <div class="balance-cards-container mt-3">
-        <!-- Card 1: Information sur la vente -->
-        <div class="balance-card balance-card-primary">
-          <div class="balance-card-header">
-            <div class="balance-card-icon">
-              <i class="pi pi-shopping-cart"></i>
-            </div>
-            <div class="balance-card-header-content">
-              <h3 class="balance-card-title">Information sur la vente</h3>
-              <span class="balance-card-subtitle">Détails des transactions</span>
-            </div>
-          </div>
-          <div class="balance-card-body">
-            <div class="balance-item">
-              <span class="balance-item-label">Total TTC</span>
-              <div class="balance-item-value-wrapper">
-                <span class="balance-item-value">{{ balance.montantTtc | number }}</span>
-                <span class="balance-item-currency" appDevise></span>
-              </div>
-            </div>
-
-            <div class="balance-item">
-              <span class="balance-item-label">Total TVA</span>
-              <div class="balance-item-value-wrapper">
-                <span class="balance-item-value">{{ balance.montantTaxe | number }}</span>
-                <span class="balance-item-currency" appDevise></span>
-              </div>
-            </div>
-
-            <div class="balance-item">
-              <span class="balance-item-label">Total HT</span>
-              <div class="balance-item-value-wrapper">
-                <span class="balance-item-value">{{ balance.montantHt | number }}</span>
-                <span class="balance-item-currency" appDevise></span>
-              </div>
-            </div>
-
-            <div class="balance-item">
-              <span class="balance-item-label">Total comptant</span>
-              <div class="balance-item-value-wrapper">
-                <span class="balance-item-value">{{ balance.montantPaye | number }}</span>
-                <span class="balance-item-currency" appDevise></span>
-              </div>
-            </div>
-
-            <div class="balance-item">
-              <span class="balance-item-label">Total achat</span>
-              <div class="balance-item-value-wrapper">
-                <span class="balance-item-value">{{ balance.montantAchat | number }}</span>
-                <span class="balance-item-currency" appDevise></span>
-              </div>
-            </div>
-
-            <div class="balance-item balance-item-highlight">
-              <span class="balance-item-label">Marge</span>
-              <div class="balance-item-value-wrapper">
-                <span class="balance-item-value">{{ balance.montantMarge | number }}</span>
-                <span class="balance-item-currency" appDevise></span>
-              </div>
-            </div>
-
-            <div class="balance-item balance-item-small">
-              <span class="balance-item-label">Ratio V/A</span>
-              <div class="balance-item-value-wrapper">
-                <span class="balance-item-value">{{ balance.ratioVenteAchat | number }}</span>
-                <span class="balance-item-currency">%</span>
-              </div>
-            </div>
-
-            <div class="balance-item balance-item-small">
-              <span class="balance-item-label">Ratio A/V</span>
-              <div class="balance-item-value-wrapper">
-                <span class="balance-item-value">{{ balance.ratioAchatVente | number }}</span>
-                <span class="balance-item-currency">%</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 2: Montant ventes par modes règlement -->
-        @if (balance.mvtCaissesByModes.length > 0) {
-          <div class="balance-card balance-card-success">
-            <div class="balance-card-header">
-              <div class="balance-card-icon balance-card-icon-small">
-                <i class="pi pi-wallet"></i>
-              </div>
-              <div class="balance-card-header-content">
-                <h3 class="balance-card-title">Modes de règlement</h3>
-                <span class="balance-card-subtitle">Répartition des paiements</span>
-              </div>
-            </div>
-            <div class="balance-card-body">
-              @for (mvtCaisse of balance.mvtCaissesByModes; track mvtCaisse.key) {
-                <div class="balance-item">
-                  <span class="balance-item-label">{{ mvtCaisse.libelle }}</span>
-                  <div class="balance-item-value-wrapper">
-                    <span class="balance-item-value">{{ mvtCaisse.value | number }}</span>
-                    <span class="balance-item-currency" appDevise></span>
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
+              </ng-template>
+            </app-data-table>
+          </app-card>
         }
 
-        <!-- Card 3: Information sur les mouvements de caisse -->
-        @if (balance.mvtCaisses.length > 0) {
-          <div class="balance-card balance-card-warning">
+        <!-- Balance Summary Cards -->
+        <div class="balance-cards-container mt-1">
+          <!-- Card 1: Information sur la vente -->
+          <app-card>
+          <div class="balance-card balance-card-primary">
             <div class="balance-card-header">
-              <div class="balance-card-icon balance-card-icon-small">
-                <i class="pi pi-arrows-v"></i>
+              <div class="balance-card-icon">
+                <i class="pi pi-shopping-cart"></i>
               </div>
               <div class="balance-card-header-content">
-                <h3 class="balance-card-title">Mouvements de caisse</h3>
-                <span class="balance-card-subtitle">Entrées & Sorties</span>
+                <h3 class="balance-card-title">Information sur la vente</h3>
+                <span class="balance-card-subtitle">Détails des transactions</span>
               </div>
             </div>
             <div class="balance-card-body">
-              @for (mvtCaisse of balance.mvtCaisses; track mvtCaisse.key) {
-                @if (mvtCaisse.key === 'SORTIE_CAISSE') {
-                  <div class="balance-item balance-item-danger">
-                    <span class="balance-item-label">{{ mvtCaisse.libelle }}</span>
-                    <div class="balance-item-value-wrapper">
-                      <span class="balance-item-value">{{ mvtCaisse.value * -1 | number }}</span>
-                      <span class="balance-item-currency" appDevise></span>
-                    </div>
-                  </div>
-                } @else {
+              <div class="balance-item">
+                <span class="balance-item-label">Total TTC</span>
+                <div class="balance-item-value-wrapper">
+                  <span class="balance-item-value">{{ balance.montantTtc | number }}</span>
+                  <span class="balance-item-currency" appDevise></span>
+                </div>
+              </div>
+
+              <div class="balance-item">
+                <span class="balance-item-label">Total TVA</span>
+                <div class="balance-item-value-wrapper">
+                  <span class="balance-item-value">{{ balance.montantTaxe | number }}</span>
+                  <span class="balance-item-currency" appDevise></span>
+                </div>
+              </div>
+
+              <div class="balance-item">
+                <span class="balance-item-label">Total HT</span>
+                <div class="balance-item-value-wrapper">
+                  <span class="balance-item-value">{{ balance.montantHt | number }}</span>
+                  <span class="balance-item-currency" appDevise></span>
+                </div>
+              </div>
+
+              <div class="balance-item">
+                <span class="balance-item-label">Total comptant</span>
+                <div class="balance-item-value-wrapper">
+                  <span class="balance-item-value">{{ balance.montantPaye | number }}</span>
+                  <span class="balance-item-currency" appDevise></span>
+                </div>
+              </div>
+
+              <div class="balance-item">
+                <span class="balance-item-label">Total achat</span>
+                <div class="balance-item-value-wrapper">
+                  <span class="balance-item-value">{{ balance.montantAchat | number }}</span>
+                  <span class="balance-item-currency" appDevise></span>
+                </div>
+              </div>
+
+              <div class="balance-item balance-item-highlight">
+                <span class="balance-item-label">Marge</span>
+                <div class="balance-item-value-wrapper">
+                  <span class="balance-item-value">{{ balance.montantMarge | number }}</span>
+                  <span class="balance-item-currency" appDevise></span>
+                </div>
+              </div>
+
+              <div class="balance-item balance-item-small">
+                <span class="balance-item-label">Ratio V/A</span>
+                <div class="balance-item-value-wrapper">
+                  <span class="balance-item-value">{{ balance.ratioVenteAchat | number }}</span>
+                  <span class="balance-item-currency">%</span>
+                </div>
+              </div>
+
+              <div class="balance-item balance-item-small">
+                <span class="balance-item-label">Ratio A/V</span>
+                <div class="balance-item-value-wrapper">
+                  <span class="balance-item-value">{{ balance.ratioAchatVente | number }}</span>
+                  <span class="balance-item-currency">%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          </app-card>
+          <!-- Card 2: Montant ventes par modes règlement -->
+          @if (balance.mvtCaissesByModes.length > 0) {
+            <app-card>
+            <div class="balance-card balance-card-success">
+              <div class="balance-card-header">
+                <div class="balance-card-icon balance-card-icon-small">
+                  <i class="pi pi-wallet"></i>
+                </div>
+                <div class="balance-card-header-content">
+                  <h3 class="balance-card-title">Modes de règlement</h3>
+                  <span class="balance-card-subtitle">Répartition des paiements</span>
+                </div>
+              </div>
+              <div class="balance-card-body">
+                @for (mvtCaisse of balance.mvtCaissesByModes; track mvtCaisse.key) {
                   <div class="balance-item">
                     <span class="balance-item-label">{{ mvtCaisse.libelle }}</span>
                     <div class="balance-item-value-wrapper">
@@ -242,13 +207,51 @@
                     </div>
                   </div>
                 }
-              }
+              </div>
             </div>
-          </div>
-        }
-      </div>
-    } @else {
-      <div class="alert alert-warning" role="alert"><strong>Information!</strong> Aucune donnée à afficher.</div>
-    }
-  </div>
+            </app-card>
+          }
+
+          <!-- Card 3: Information sur les mouvements de caisse -->
+          @if (balance.mvtCaisses.length > 0) {
+            <app-card>
+            <div class="balance-card balance-card-warning">
+              <div class="balance-card-header">
+                <div class="balance-card-icon balance-card-icon-small">
+                  <i class="pi pi-arrows-v"></i>
+                </div>
+                <div class="balance-card-header-content">
+                  <h3 class="balance-card-title">Mouvements de caisse</h3>
+                  <span class="balance-card-subtitle">Entrées & Sorties</span>
+                </div>
+              </div>
+              <div class="balance-card-body">
+                @for (mvtCaisse of balance.mvtCaisses; track mvtCaisse.key) {
+                  @if (mvtCaisse.key === 'SORTIE_CAISSE') {
+                    <div class="balance-item balance-item-danger">
+                      <span class="balance-item-label">{{ mvtCaisse.libelle }}</span>
+                      <div class="balance-item-value-wrapper">
+                        <span class="balance-item-value">{{ mvtCaisse.value * -1 | number }}</span>
+                        <span class="balance-item-currency" appDevise></span>
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="balance-item">
+                      <span class="balance-item-label">{{ mvtCaisse.libelle }}</span>
+                      <div class="balance-item-value-wrapper">
+                        <span class="balance-item-value">{{ mvtCaisse.value | number }}</span>
+                        <span class="balance-item-currency" appDevise></span>
+                      </div>
+                    </div>
+                  }
+                }
+              </div>
+            </div></app-card>
+          }
+        </div>
+      } @else {
+        <app-card>  <div class="alert alert-warning" role="alert"><strong>Information!</strong> Aucune donnée à afficher.</div></app-card>
+      }
+    </div>
+
 </div>

@@ -264,7 +264,7 @@
 <div class="modal-footer">
   @if (retourResult()) {
     <app-button label="Fermer" icon="pi pi-check" size="small"
-              severity="success" (clicked)="fermerApresResultat()" />
+              severity="secondary" (clicked)="fermerApresResultat()" />
   } @else {
     <app-button label="Annuler" severity="secondary" size="small" [disabled]="submitLoading()"
               (clicked)="cancel()" />

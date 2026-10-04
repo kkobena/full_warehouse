@@ -1,4 +1,4 @@
-<div class="pharma-smart-content p-1">
+<div class="pharma-smart-content">
   <app-toolbar icon="pi pi-th-large" title="Catalogue produits">
     <ng-container ngProjectAs="[toolbarFilters]">
       <app-icon-field [overlay]="true" icon="pi pi-search">
@@ -102,103 +102,107 @@
   </app-toolbar>
 
 
-  <!-- Hint premier usage : masqué dès qu'un détail est ouvert, le conseil n'ayant alors plus d'objet -->
-  <app-hint [visible]="!panelOpen()" storageKey="produit-list">
-    Cliquez sur une ligne pour afficher le détail du produit. Utilisez le menu
-    <i class="pi pi-ellipsis-v"></i> pour accéder aux autres actions.
-  </app-hint>
+  <!-- Hint, actions groupées et split panel dans une carte : contour et élévation du Design System -->
+  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden" customClass="produit-home-card"
+            [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
+    <!-- Hint premier usage : masqué dès qu'un détail est ouvert, le conseil n'ayant alors plus d'objet -->
+    <app-hint [visible]="!panelOpen()" storageKey="produit-list">
+      Cliquez sur une ligne pour afficher le détail du produit. Utilisez le menu
+      <i class="pi pi-ellipsis-v"></i> pour accéder aux autres actions.
+    </app-hint>
 
-  <!-- Barre d'actions groupées -->
-  @if (hasSelection()) {
-    <div class="bulk-action-bar">
-      <span class="bulk-count">{{ selectedProduits().length }} produit(s) sélectionné(s)</span>
-      @if (canEdit()) {
+    <!-- Barre d'actions groupées -->
+    @if (hasSelection()) {
+      <div class="bulk-action-bar">
+        <span class="bulk-count">{{ selectedProduits().length }} produit(s) sélectionné(s)</span>
+        @if (canEdit()) {
+          <app-button
+            (clicked)="onBulkDisable()"
+            [outlined]="true"
+            icon="pi pi-pause"
+            label="Mettre en veille"
+            severity="warn"
+            size="small"
+          />
+          <app-button
+            (clicked)="onBulkEnable()"
+            [outlined]="true"
+            icon="pi pi-play"
+            label="Réactiver"
+            severity="success"
+            size="small"
+          />
+        }
+        @if (canEdit()) {
+
+          <app-button
+            (clicked)="onBulkDci()"
+            [outlined]="true"
+            icon="pi pi-bookmark"
+            label="Affecter une DCI"
+            severity="info"
+            size="small"
+          />
+        }
+        @if (canMergeProduits() && selectedProduits().length >= 2) {
+          <app-button
+            (clicked)="onBulkMerge()"
+            [outlined]="true"
+            icon="pi pi-sitemap"
+            label="Fusionner"
+            severity="info"
+            size="small"
+          />
+        }
         <app-button
-          (clicked)="onBulkDisable()"
-          [outlined]="true"
-          icon="pi pi-pause"
-          label="Mettre en veille"
-          severity="warn"
+          (clicked)="onClearSelection()"
+          [text]="true"
+          icon="pi pi-times"
+          ngbTooltip="Désélectionner tout"
+          severity="secondary"
           size="small"
-        />
-        <app-button
-          (clicked)="onBulkEnable()"
-          [outlined]="true"
-          icon="pi pi-play"
-          label="Réactiver"
-          severity="success"
-          size="small"
-        />
-      }
-      @if (canEdit()) {
-
-        <app-button
-          (clicked)="onBulkDci()"
-          [outlined]="true"
-          icon="pi pi-bookmark"
-          label="Affecter une DCI"
-          severity="info"
-          size="small"
-        />
-      }
-      @if (canMergeProduits() && selectedProduits().length >= 2) {
-        <app-button
-          (clicked)="onBulkMerge()"
-          [outlined]="true"
-          icon="pi pi-sitemap"
-          label="Fusionner"
-          severity="info"
-          size="small"
-        />
-      }
-      <app-button
-        (clicked)="onClearSelection()"
-        [text]="true"
-        icon="pi pi-times"
-        ngbTooltip="Désélectionner tout"
-        severity="secondary"
-        size="small"
-      />
-    </div>
-  }
-
-  <!-- Split panel -->
-  <div [class.panel-open]="panelOpen()" class="split-container">
-
-    <!-- Colonne gauche : liste -->
-    <div class="list-column">
-      <app-produit-list
-        (deleteRequested)="onDeleteRequested($event)"
-        (editRequested)="onEditRequested($event)"
-        (lazyLoad)="onLazyLoad($event)"
-        (menuAction)="onMenuAction($event)"
-        (produitSelected)="onProduitSelected($event)"
-        (selectionChanged)="onSelectionChanged($event)"
-        [canCreate]="canCreate()"
-        [canDelete]="canDelete()"
-        [canEdit]="canEdit()"
-        [clearSelectionTrigger]="clearSelectionTrigger()"
-        (favoriChanged)="onFavoriChanged($event)"
-        [favorisIds]="favorisIds()"
-        [loading]="loading()"
-        [produits]="produits()"
-        [rows]="rows()"
-        [selectedProduit]="selectedProduit()"
-        [totalItems]="totalItems()"
-      />
-    </div>
-
-    <!-- Colonne droite : panneau détail -->
-    @if (panelOpen()) {
-      <div class="detail-column">
-        <app-produit-detail-panel
-          (closePanel)="onClosePanel()"
-          (editRequested)="onEditRequested($event)"
-          [canEdit]="canEdit()"
-          [produit]="selectedProduit()!"
         />
       </div>
     }
 
-  </div>
+    <!-- Split panel -->
+    <div [class.panel-open]="panelOpen()" class="split-container">
+
+      <!-- Colonne gauche : liste -->
+      <div class="list-column">
+        <app-produit-list
+          (deleteRequested)="onDeleteRequested($event)"
+          (editRequested)="onEditRequested($event)"
+          (lazyLoad)="onLazyLoad($event)"
+          (menuAction)="onMenuAction($event)"
+          (produitSelected)="onProduitSelected($event)"
+          (selectionChanged)="onSelectionChanged($event)"
+          [canCreate]="canCreate()"
+          [canDelete]="canDelete()"
+          [canEdit]="canEdit()"
+          [clearSelectionTrigger]="clearSelectionTrigger()"
+          (favoriChanged)="onFavoriChanged($event)"
+          [favorisIds]="favorisIds()"
+          [loading]="loading()"
+          [produits]="produits()"
+          [rows]="rows()"
+          [selectedProduit]="selectedProduit()"
+          [totalItems]="totalItems()"
+        />
+      </div>
+
+      <!-- Colonne droite : panneau détail -->
+      @if (panelOpen()) {
+        <div class="detail-column">
+          <app-produit-detail-panel
+            (closePanel)="onClosePanel()"
+            (editRequested)="onEditRequested($event)"
+            [canEdit]="canEdit()"
+            [produit]="selectedProduit()!"
+          />
+        </div>
+      }
+
+    </div>
+  </app-card>
 </div>

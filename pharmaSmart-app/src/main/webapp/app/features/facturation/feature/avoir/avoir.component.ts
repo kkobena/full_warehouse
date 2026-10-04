@@ -47,6 +47,7 @@ import {
   PharmaDatePickerComponent
 } from "../../../../shared/date-picker/pharma-date-picker.component";
 import {DeviseDirective} from "../../../../shared/utils/devise";
+import { CardComponent } from 'app/shared/ui';
 
 interface IStatutOption {
   label: string;
@@ -60,7 +61,7 @@ interface IKpiGroup {
 
 @Component({
   selector: "app-avoir",
-  imports: [
+  imports: [CardComponent, 
     FormsModule,
     DecimalPipe,
     BadgeComponent,

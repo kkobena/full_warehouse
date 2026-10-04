@@ -42,15 +42,15 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
       align-items: center;
       gap: 0.75rem;
       padding: 1rem 1.25rem;
-      background: linear-gradient(135deg, #f0f7fa 0%, #e8f4f8 100%);
-      border-bottom: 1px solid #d1e3ed;
+      background: linear-gradient(135deg, var(--pharma-chrome-dlg-a) 0%, var(--pharma-chrome-dlg-b) 100%);
+      border-bottom: 1px solid var(--pharma-chrome-dlg-line);
     }
 
     .confirm-icon-wrapper {
       width: 36px;
       height: 36px;
       border-radius: 50%;
-      background: rgba(91, 137, 166, 0.15);
+      background: var(--pharma-chrome-dlg-icon-bg);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -58,7 +58,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
       i {
         font-size: 1.1rem;
-        color: #5b89a6;
+        color: var(--pharma-chrome-dlg-accent);
       }
     }
 
@@ -66,7 +66,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
       margin: 0;
       font-size: 1.05rem;
       font-weight: 600;
-      color: #1f2937;
+      color: var(--pharma-chrome-dlg-title);
     }
 
     .confirm-body {
@@ -101,7 +101,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
       i { font-size: 0.85rem; }
 
       &:focus-visible {
-        outline: 2px solid #5b89a6;
+        outline: 2px solid var(--pharma-chrome-dlg-accent);
         outline-offset: 2px;
       }
     }
@@ -118,12 +118,12 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     }
 
     .confirm-btn-accept {
-      color: #5b89a6;
-      border-color: #5b89a6;
+      color: var(--pharma-chrome-dlg-accent);
+      border-color: var(--pharma-chrome-dlg-accent);
       background: transparent;
 
       &:hover {
-        background: #5b89a6;
+        background: var(--pharma-chrome-dlg-accent);
         color: #fff;
       }
     }

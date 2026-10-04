@@ -53,18 +53,7 @@
       </div>
 
       <!-- Zone centre : sélecteur de période  -->
-      <div class="dashboard-periode-selector">
-        @for (opt of periodeOptions; track opt.value) {
-          <button (click)="onPeriodeChange(opt.value)"
-                  [class.active]="activePeriode() === opt.value"
-                  [title]="opt.label"
-                  class="periode-pill"
-                  type="button">
-            <i [class]="opt.icon" aria-hidden="true"></i>
-            <span class="pill-label">{{ opt.label }}</span>
-          </button>
-        }
-      </div>
+      <app-pill-selector [items]="periodeOptions" [ngModel]="activePeriode()" (selectionChange)="onPeriodeChange($any($event))" />
 
 
       <div class="d-flex align-items-center gap-2">
@@ -95,23 +84,7 @@
             <span class="pill-label">Différés</span>
           </a>
         </div>
-        <div class="custom-segment-control">
-          <div class="segment-track">
-            <div [class.active-right]="showGraphs()" class="segment-slider"></div>
-            <button (click)="showGraphs.set(false)" [class.active]="!showGraphs()"
-                    class="segment-option"
-                    type="button">
-              <i aria-hidden="true" class="pi pi-table"></i>
-              <span>Vue Tabulaire</span>
-            </button>
-            <button (click)="showGraphs.set(true)" [class.active]="showGraphs()"
-                    class="segment-option"
-                    type="button">
-              <i aria-hidden="true" class="pi pi-chart-bar"></i>
-              <span>Vue Graphique</span>
-            </button>
-          </div>
-        </div>
+        <app-pill-selector [items]="graphOptions" [ngModel]="showGraphs()" (selectionChange)="showGraphs.set($any($event))" />
       </div>
 
     </div>
@@ -604,18 +577,7 @@
             <i aria-hidden="true" class="pi pi-chart-line text-info"></i>
             Analyse Pareto 20/80
           </h5>
-          <div class="dashboard-periode-selector">
-            <button (click)="activePareto = 'qty'" [class.active]="activePareto === 'qty'"
-                    class="periode-pill"
-                    type="button">
-              <i aria-hidden="true" class="pi pi-sort-amount-down"></i> Quantité
-            </button>
-            <button (click)="activePareto = 'amt'" [class.active]="activePareto === 'amt'"
-                    class="periode-pill"
-                    type="button">
-              <i aria-hidden="true" class="pi pi-dollar"></i> Montant
-            </button>
-          </div>
+          <app-pill-selector [items]="paretoOptions" [(ngModel)]="activePareto" />
         </div>
         <div class="card-body p-0">
 

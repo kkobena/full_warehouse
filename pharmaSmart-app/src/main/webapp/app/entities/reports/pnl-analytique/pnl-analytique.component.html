@@ -22,23 +22,9 @@
       }
     </div>
     <div class="pharma-toolbar-actions">
-      <div class="dashboard-periode-selector">
-        <button class="periode-pill" [class.active]="snapshotTab() === 'segment'" (click)="setSnapshotTab('segment')">
-          <i class="pi pi-users" aria-hidden="true"></i><span class="pill-label">Par type de vente</span>
-        </button>
-        <button class="periode-pill" [class.active]="snapshotTab() === 'famille'" (click)="setSnapshotTab('famille')">
-          <i class="pi pi-box" aria-hidden="true"></i><span class="pill-label">Par famille</span>
-        </button>
-      </div>
+      <app-pill-selector [items]="snapshotOptions" [ngModel]="snapshotTab()" (selectionChange)="setSnapshotTab($any($event))" />
       <div class="kpi-strip-divider mx-2"></div>
-      <div class="dashboard-periode-selector">
-        <button class="periode-pill" [class.active]="view() === 'snapshot'" (click)="setView('snapshot')">
-          <i class="pi pi-table" aria-hidden="true"></i><span class="pill-label">Synthèse annuelle</span>
-        </button>
-        <button class="periode-pill" [class.active]="view() === 'evolution'" (click)="setView('evolution')">
-          <i class="pi pi-chart-line" aria-hidden="true"></i><span class="pill-label">Évolution 12 mois</span>
-        </button>
-      </div>
+      <app-pill-selector [items]="viewOptions" [ngModel]="view()" (selectionChange)="setView($any($event))" />
     </div>
   </div>
 </div>

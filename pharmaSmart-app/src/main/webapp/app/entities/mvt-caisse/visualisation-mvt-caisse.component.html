@@ -1,4 +1,4 @@
-<div class="pharma-smart-content p-2">
+<div class="pharma-smart-content">
   <app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-wallet" title="Mouvements de caisse">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
@@ -62,7 +62,7 @@
             icon="pi pi-plus"
             label="Nouveau"
             ngbTooltip="Nouveau mouvement"
-            severity="success"
+            severity="primary"
           />
 
           <app-button
@@ -79,9 +79,9 @@
       </div>
     </ng-container>
   </app-toolbar>
-  <div class="row mt-3 mb-3 px-2">
+  <div class="row mt-1 mb-1 ">
     @if (mvtCaisses() && mvtCaisses().length > 0) {
-      <div class="col-md-12 col-lg-8 col-xl-9 col-xxl-9 col-sm-12 mb-2">
+      <div class="col-md-12 col-lg-8 col-xl-9 col-xxl-9 col-sm-12 mb-1">
         <div class="card  data-card">
           <div class="card-header">
             <h5 class="card-title">

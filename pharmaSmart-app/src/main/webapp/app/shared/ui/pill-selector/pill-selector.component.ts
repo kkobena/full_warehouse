@@ -64,7 +64,7 @@ export interface AppPillOption {
       align-items: center;
       gap: 0.2rem;
       padding: 3px;
-      background: rgba(226, 232, 240, 0.4);
+      background: var(--pharma-chrome-pill-track);
       border-radius: 12px;
       flex-wrap: wrap;
 
@@ -82,7 +82,7 @@ export interface AppPillOption {
       border: none;
       border-radius: 9px;
       background: transparent;
-      color: #888;
+      color: var(--pharma-chrome-pill-fg);
       font-size: 0.78rem;
       font-weight: 500;
       cursor: pointer;
@@ -98,15 +98,15 @@ export interface AppPillOption {
       }
 
       &:hover:not(.active):not(:disabled) {
-        background: rgba(0, 140, 186, 0.08);
-        color: #008cba;
+        background: var(--pharma-chrome-pill-hover-bg);
+        color: var(--pharma-chrome-pill-hover-fg);
       }
 
       &.active {
-        background: linear-gradient(135deg, #008cba 0%, #5bc0de 100%);
-        color: #fff;
+        background: linear-gradient(135deg, var(--pharma-chrome-pill-active-a) 0%, var(--pharma-chrome-pill-active-b) 100%);
+        color: var(--pharma-chrome-pill-active-fg);
         font-weight: 600;
-        box-shadow: 0 2px 8px rgba(0, 140, 186, 0.25);
+        box-shadow: var(--pharma-chrome-pill-active-shadow);
       }
     }
   `,

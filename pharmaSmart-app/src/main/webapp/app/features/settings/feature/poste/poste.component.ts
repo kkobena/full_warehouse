@@ -13,6 +13,7 @@ import { IPosteDevice } from "../../../../shared/model/poste-device.model";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../../../shared/services/notification.service";
 import { CommonModule } from "@angular/common";
+import { CardComponent } from 'app/shared/ui';
 import {
   BadgeComponent,
   ButtonComponent,
@@ -27,7 +28,7 @@ import {
   templateUrl: "./poste.component.html",
   styleUrls: ["./poste.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [CardComponent, 
     CommonModule,
     ButtonComponent,
     ToolbarComponent,

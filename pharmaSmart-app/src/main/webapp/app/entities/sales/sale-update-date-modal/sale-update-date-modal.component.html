@@ -11,7 +11,6 @@
   <div class="modal-body">
     <app-card [variant]="'form'">
       <div class="form-grid-compact">
-        <div class="form-field form-field-full">
           <label for="updatedAt">Date<span style="font-weight: 900; color: red">*</span></label>
           <pharma-date-picker formControlName="updatedAt" id="updatedAt" label="" />
           @if (editForm.get('updatedAt')!.invalid && (editForm.get('updatedAt')!.dirty || editForm.get('updatedAt')!.touched)) {
@@ -21,7 +20,7 @@
               }
             </div>
           }
-        </div>
+
       </div>
     </app-card>
   </div>

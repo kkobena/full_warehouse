@@ -13,13 +13,14 @@ import {
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { ModePaymentUpdateComponent } from './mode-payment-update.component';
+import { CardComponent } from 'app/shared/ui';
 
 @Component({
   selector: 'app-mode-payment',
   templateUrl: './mode-payment.component.html',
   styleUrls: ['./mode-payment.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, DataTableComponent, SelectableRowDirective, IconFieldComponent, NgbTooltip],
+  imports: [CardComponent, ButtonComponent, DataTableComponent, SelectableRowDirective, IconFieldComponent, NgbTooltip],
 })
 export class ModePaymentComponent implements OnInit {
   protected readonly paymentModes = signal<IPaymentMode[] | undefined>(undefined);

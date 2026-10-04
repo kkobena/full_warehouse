@@ -19,6 +19,7 @@ import {formatCurrency, formatNumber, formatPercent} from 'app/shared/utils/form
 
 import {Chart, ChartConfiguration, registerables} from 'chart.js';
 import {DeviseDirective} from 'app/shared/utils/devise';
+import { PillSelectorComponent } from 'app/shared/ui/pill-selector/pill-selector.component';
 import {
   AppKpiAccent,
   DataTableComponent,
@@ -46,7 +47,7 @@ const CHART_COLORS = [
   templateUrl: './pnl-analytique.component.html',
   styleUrl: './pnl-analytique.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective,
+  imports: [PillSelectorComponent, DeviseDirective,
     CommonModule,
     FormsModule,
     DataTableComponent,
@@ -59,6 +60,14 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
   @ViewChild('familleEvolutionChartCanvas') familleEvolutionChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('segmentEvolutionChartCanvas') segmentEvolutionChartCanvas?: ElementRef<HTMLCanvasElement>;
 
+  protected readonly snapshotOptions = [
+    { label: 'Par type de vente', value: 'segment', icon: 'pi pi-users' },
+    { label: 'Par famille', value: 'famille', icon: 'pi pi-box' },
+  ];
+  protected readonly viewOptions = [
+    { label: 'Synthèse annuelle', value: 'snapshot', icon: 'pi pi-table' },
+    { label: 'Évolution 12 mois', value: 'evolution', icon: 'pi pi-chart-line' },
+  ];
   protected readonly view = signal<PnlView>('snapshot');
   protected readonly snapshotTab = signal<SnapshotTab>('segment');
   protected readonly selectedYear = signal<number>(new Date().getFullYear());

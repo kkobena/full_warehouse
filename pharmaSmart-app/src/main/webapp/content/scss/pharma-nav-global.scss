@@ -51,8 +51,10 @@
 
     .pharma-nav-sidebar-header {
       padding: 1rem;
-      background: linear-gradient(135deg, $pharma-primary 0%, $pharma-primary-dark 100%);
-      color: $pharma-white;
+      // En-tête de la colonne : même habillage que le bandeau d'app-toolbar (jetons du thème de couleur).
+      background: linear-gradient(135deg, var(--pharma-chrome-toolbar-a, var(--pharma-chrome-head-a)) 0%, var(--pharma-chrome-toolbar-b, var(--pharma-chrome-head-b)) 100%);
+      color: var(--pharma-chrome-head-fg);
+      box-shadow: inset 0 -2px 0 var(--pharma-chrome-head-line);
       display: flex;
       align-items: center;
       gap: 0.625rem;

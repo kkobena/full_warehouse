@@ -23,7 +23,7 @@
                   class="form-control"
                   placeholder="Numéro de vente, client, référence d'avoir…"
                 />
-                <app-button [loading]="chargementAvoirs()" icon="pi pi-search" label="Rechercher" type="submit" />
+                <app-button severity="info" [loading]="chargementAvoirs()" icon="pi pi-search" label="Rechercher" type="submit" />
               </form>
               @if (erreurAvoirs(); as erreur) {
                 <div class="alert alert-danger py-2">{{ erreur }}</div>
@@ -76,7 +76,7 @@
                   class="form-control"
                   placeholder="Numéro de la vente (ticket)…"
                 />
-                <app-button [disabled]="!reference().trim()" [loading]="rechercheVente()" icon="pi pi-search" label="Rechercher" type="submit" />
+                <app-button severity="info" [disabled]="!reference().trim()" [loading]="rechercheVente()" icon="pi pi-search" label="Rechercher" type="submit" />
               </form>
               @if (venteIntrouvable(); as numero) {
                 <div class="etat-vide" role="status">

@@ -38,9 +38,10 @@ import {
 import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
 
 import { DeviseDirective } from 'app/shared/utils/devise';
+import { CardComponent } from 'app/shared/ui';
 @Component({
   selector: 'app-historique-reglements-differes',
-  imports: [DeviseDirective, 
+  imports: [CardComponent, DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,

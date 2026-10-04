@@ -65,22 +65,26 @@
   </app-toolbar>
   <!-- KPI Banner -->
   <app-differe-kpi-banner [summary]="store.summary()" />
-  <!-- Hint premier usage -->
-  <app-hint [visible]="!panelOpen()" storageKey="differes">
-    Cliquez sur un client pour afficher le détail de ses ventes à crédit et procéder au règlement.
-  </app-hint>
 
-  <!-- Split container -->
-  <div [class.panel-open]="panelOpen()" class="split-container">
-    <div class="list-column">
-      <app-differe-list [searchParams]="currentSearchParams()" />
-    </div>
+  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden"
+          [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
+    <!-- Hint premier usage -->
+    <app-hint [visible]="!panelOpen()" storageKey="differes">
+      Cliquez sur un client pour afficher le détail de ses ventes à crédit et procéder au règlement.
+    </app-hint>
 
-    @if (panelOpen()) {
-      <div class="detail-column">
-        <app-differe-detail-panel [canExecute]="canExecute()" [differe]="store.selectedDiffere()" />
+    <!-- Split container -->
+    <div [class.panel-open]="panelOpen()" class="split-container">
+      <div class="list-column">
+        <app-differe-list [searchParams]="currentSearchParams()" />
       </div>
-    }
-  </div>
+
+      @if (panelOpen()) {
+        <div class="detail-column">
+          <app-differe-detail-panel [canExecute]="canExecute()" [differe]="store.selectedDiffere()" />
+        </div>
+      }
+    </div>
+  </app-card>
 
 </div>

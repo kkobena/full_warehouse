@@ -70,7 +70,7 @@
             [routerLink]="['/gestion-peremption', 'edit']"
             icon="pi pi-plus"
             label="{{ 'warehouseApp.buttons.add' | translate }}"
-            severity="success"
+            severity="primary"
             type="button"
           />
 
@@ -109,7 +109,6 @@
             label="{{ 'warehouseApp.labels.au' | translate }}"
           ></pharma-date-picker>
         </div>
-
 
         <app-float-label [style]="{ 'min-width': '180px' }"
                          inputId="storages"
@@ -170,33 +169,6 @@
       </div>
     }
   </app-toolbar>
-
-  <hr />
-
-  <!-- Bulk action bar -->
-  @if (selectedLotPerimes()?.length >= 1) {
-    <div class="bulk-action-bar">
-      <span class="bulk-count">{{ selectedLotPerimes().length }} lot(s) sélectionné(s)</span>
-      <app-button
-        (clicked)="confirmAll()"
-        [outlined]="true"
-        icon="pi pi-trash"
-        label="{{ 'warehouseApp.buttons.removeAllStock' | translate }}"
-        severity="danger"
-        size="small"
-      />
-      <app-button
-        (clicked)="confirmRetourGroupeDialog()"
-        [outlined]="true"
-        icon="pi pi-reply"
-        label="Retour fournisseur groupé"
-        ngbTooltip="Créer un bon de retour fournisseur pour les lots sélectionnés"
-        placement="top"
-        severity="info"
-        size="small"
-      />
-    </div>
-  }
 
   @if (lotPerimeValeurSum()) {
     <app-kpi-strip stripClass="mb-2 mt-1">
@@ -268,143 +240,173 @@
     </app-kpi-strip>
   }
 
-  @if (data().length) {
-    <div>
-      <app-data-table
-        (onLazyLoad)="lazyLoading($event)"
-        (selectionChange)="selectedLotPerimes.set($any($event))" [lazy]="true"
-        [loading]="loading()"
-        [paginator]="true"
-        [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-        [rows]="itemsPerPage"
-        [selection]="selectedLotPerimes()"
-        [showCurrentPageReport]="false"
-        [showGridlines]="true"
-        [size]="'small'"
-        [totalRecords]="totalItems()"
-        [value]="data()"
-        dataKey="id"
-        selectionMode="multiple"
-      >
-        <ng-template #header>
-          <tr class="pharma-table-head">
-            <th appSortableHeader="produitName">Libellé produit</th>
-            <th>Code produit</th>
-            <th>Numéro lot</th>
-            <th appSortableHeader="datePeremption">Date de péremption</th>
-            <th appSortableHeader="quantity">Quantité</th>
-            <th appSortableHeader="prixAchat">Prix.Achat</th>
-            <th appSortableHeader="prixVente">Prix.vente</th>
-            <th>Statut</th>
-            <th>Fournisseur</th>
-            <th>Rayon</th>
-            <th>Emplacement</th>
-            <th class="table-all-checkbos">
-              <app-header-checkbox />
-            </th>
-            <th>Actions</th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-data>
-          <tr [class.pharma-row-danger]="data.peremptionStatut?.days < 0"
-              [class.pharma-row-warning]="data.peremptionStatut?.days >= 0 && data.peremptionStatut?.days <= 30">
-            <td>
-                 <span class="pharma-product-name">
-                 {{ data.produitName }}
-              </span>
+  <app-card>
+    <hr />
 
-            </td>
-            <td>
-              <span class="pharma-code">
-                 {{ data.produitCode }}
-              </span>
+    <!-- Bulk action bar -->
+    @if (selectedLotPerimes()?.length >= 1) {
+      <div class="bulk-action-bar">
+        <span class="bulk-count">{{ selectedLotPerimes().length }} lot(s) sélectionné(s)</span>
+        <app-button
+          (clicked)="confirmAll()"
+          [outlined]="true"
+          icon="pi pi-trash"
+          label="{{ 'warehouseApp.buttons.removeAllStock' | translate }}"
+          severity="danger"
+          size="small"
+        />
+        <app-button
+          (clicked)="confirmRetourGroupeDialog()"
+          [outlined]="true"
+          icon="pi pi-reply"
+          label="Retour fournisseur groupé"
+          ngbTooltip="Créer un bon de retour fournisseur pour les lots sélectionnés"
+          placement="top"
+          severity="info"
+          size="small"
+        />
+      </div>
+    }
 
-            </td>
-            <td>
-              <span class="pharma-badge  pharma-badge-info"> {{ data.numLot }}</span>
 
-            </td>
-            <td>
-              {{ data.datePeremption }}
-            </td>
-            <td class="text-right amount-column">
-              <span class="pharma-qty-value">{{ data.quantity | number }}</span>
-            </td>
-            <td class="text-right amount-column">
-              <span class="pharma-price">{{ data.prixAchat | number }}</span>
-            </td>
-            <td class="text-right amount-column">
-              <span class="pharma-price">{{ data.prixVente | number }}</span>
-            </td>
-            <td class="text-center">
-              <app-badge [label]="data.peremptionStatut?.libelle ?? ''"
-                         [severity]="getSeverity(data.peremptionStatut)" />
-            </td>
-            <td class="pharma-entity-name">
-              {{ data.fournisseur }}
-            </td>
-            <td class="pharma-entity-name">
-              {{ data.rayonName }}
-            </td>
-            <td class="text-center">
-              @if (getSingleLocation(data); as loc) {
-                <!-- Lot dans 1 seul emplacement → retrait automatiquement ciblé -->
-                <span
-                  [ngbTooltip]="'Qté : ' + (loc.qty | number) + ' — Retrait ciblé sur cet emplacement'"
-                  class="pharma-badge pharma-badge-info">
-                  <i class="pi pi-map-marker me-1"></i>{{ loc.storageName }}
+    @if (data().length) {
+      <div>
+        <app-data-table
+          (onLazyLoad)="lazyLoading($event)"
+          (selectionChange)="selectedLotPerimes.set($any($event))" [lazy]="true"
+          [loading]="loading()"
+          [paginator]="true"
+          [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+          [rows]="itemsPerPage"
+          [selection]="selectedLotPerimes()"
+          [showCurrentPageReport]="false"
+          [showGridlines]="true"
+          [size]="'small'"
+          [totalRecords]="totalItems()"
+          [value]="data()"
+          dataKey="id"
+          selectionMode="multiple"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th appSortableHeader="produitName">Libellé produit</th>
+              <th>Code produit</th>
+              <th>Numéro lot</th>
+              <th appSortableHeader="datePeremption">Date de péremption</th>
+              <th appSortableHeader="quantity">Quantité</th>
+              <th appSortableHeader="prixAchat">Prix.Achat</th>
+              <th appSortableHeader="prixVente">Prix.vente</th>
+              <th>Statut</th>
+              <th>Fournisseur</th>
+              <th>Rayon</th>
+              <th>Emplacement</th>
+              <th class="table-all-checkbos">
+                <app-header-checkbox />
+              </th>
+              <th>Actions</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-data>
+            <tr [class.pharma-row-danger]="data.peremptionStatut?.days < 0"
+                [class.pharma-row-warning]="data.peremptionStatut?.days >= 0 && data.peremptionStatut?.days <= 30">
+              <td>
+                   <span class="pharma-product-name">
+                   {{ data.produitName }}
                 </span>
-              } @else if (isMultiLocation(data)) {
-                <!-- Lot multi-site → sélecteur d'emplacement obligatoire -->
-                <div class="d-flex flex-column gap-1 align-items-center">
-                  <app-select
-                    (ngModelChange)="onLocationSelect(data, $event)"
-                    [clearable]="true"
-                    [items]="locationOptions(data)"
-                    [ngModel]="selectedLocationMap.get(data.id)"
-                    [small]="true"
-                    [style]="{'min-width':'140px'}"
-                    appendTo="body"
-                    bindLabel="label"
-                    bindValue="storageId"
-                    placeholder="Choisir emplacement"
-                  />
-                  @if (!selectedLocationMap.get(data.id)) {
-                    <small class="text-warning"><i class="pi pi-exclamation-triangle"></i>
-                      Requis</small>
-                  }
-                </div>
-              } @else {
-                <!-- Aucune donnée LotStockLocation (mode sans multi-emplacement) -->
-                <span class="text-muted small">—</span>
-              }
-            </td>
-            <td class="text-center">
-              <app-row-checkbox [row]="data" />
-            </td>
-            <td>
-              <div class="btn-group">
-                <app-button (clicked)="confirmRetirerDialog(data)" [text]="true"
-                            ariaLabel="Retirer du stock"
-                            icon="pi pi-trash"
-                            ngbTooltip="Retirer du stock" placement="left"
-                            severity="danger" />
-                <app-button (clicked)="confirmRetourFournisseurDialog(data)" [text]="true"
-                            ariaLabel="Faire un retour fournisseur"
-                            icon="pi pi-reply" ngbTooltip="Faire un retour fournisseur"
-                            placement="left" severity="info" />
-              </div>
 
-            </td>
-          </tr>
-        </ng-template>
-      </app-data-table>
-    </div>
-  } @else {
-    <div class="alert alert-warning" id="no-result">
-      <span>{{ 'global.messages.emptyData' | translate }}</span>
-    </div>
-  }
+              </td>
+              <td>
+                <span class="pharma-code">
+                   {{ data.produitCode }}
+                </span>
+
+              </td>
+              <td>
+                <span class="pharma-badge  pharma-badge-info"> {{ data.numLot }}</span>
+
+              </td>
+              <td>
+                {{ data.datePeremption }}
+              </td>
+              <td class="text-right amount-column">
+                <span class="pharma-qty-value">{{ data.quantity | number }}</span>
+              </td>
+              <td class="text-right amount-column">
+                <span class="pharma-price">{{ data.prixAchat | number }}</span>
+              </td>
+              <td class="text-right amount-column">
+                <span class="pharma-price">{{ data.prixVente | number }}</span>
+              </td>
+              <td class="text-center">
+                <app-badge [label]="data.peremptionStatut?.libelle ?? ''"
+                           [severity]="getSeverity(data.peremptionStatut)" />
+              </td>
+              <td class="pharma-entity-name">
+                {{ data.fournisseur }}
+              </td>
+              <td class="pharma-entity-name">
+                {{ data.rayonName }}
+              </td>
+              <td class="text-center">
+                @if (getSingleLocation(data); as loc) {
+                  <!-- Lot dans 1 seul emplacement → retrait automatiquement ciblé -->
+                  <span
+                    [ngbTooltip]="'Qté : ' + (loc.qty | number) + ' — Retrait ciblé sur cet emplacement'"
+                    class="pharma-badge pharma-badge-info">
+                    <i class="pi pi-map-marker me-1"></i>{{ loc.storageName }}
+                  </span>
+                } @else if (isMultiLocation(data)) {
+                  <!-- Lot multi-site → sélecteur d'emplacement obligatoire -->
+                  <div class="d-flex flex-column gap-1 align-items-center">
+                    <app-select
+                      (ngModelChange)="onLocationSelect(data, $event)"
+                      [clearable]="true"
+                      [items]="locationOptions(data)"
+                      [ngModel]="selectedLocationMap.get(data.id)"
+                      [small]="true"
+                      [style]="{'min-width':'140px'}"
+                      appendTo="body"
+                      bindLabel="label"
+                      bindValue="storageId"
+                      placeholder="Choisir emplacement"
+                    />
+                    @if (!selectedLocationMap.get(data.id)) {
+                      <small class="text-warning"><i class="pi pi-exclamation-triangle"></i>
+                        Requis</small>
+                    }
+                  </div>
+                } @else {
+                  <!-- Aucune donnée LotStockLocation (mode sans multi-emplacement) -->
+                  <span class="text-muted small">—</span>
+                }
+              </td>
+              <td class="text-center">
+                <app-row-checkbox [row]="data" />
+              </td>
+              <td>
+                <div class="btn-group">
+                  <app-button (clicked)="confirmRetirerDialog(data)" [text]="true"
+                              ariaLabel="Retirer du stock"
+                              icon="pi pi-trash"
+                              ngbTooltip="Retirer du stock" placement="left"
+                              severity="danger" />
+                  <app-button (clicked)="confirmRetourFournisseurDialog(data)" [text]="true"
+                              ariaLabel="Faire un retour fournisseur"
+                              icon="pi pi-reply" ngbTooltip="Faire un retour fournisseur"
+                              placement="left" severity="info" />
+                </div>
+
+              </td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </div>
+    } @else {
+      <div class="alert alert-warning" id="no-result">
+        <span>{{ 'global.messages.emptyData' | translate }}</span>
+      </div>
+    }
+  </app-card>
 </div>
 
 <jhi-spinner #spinner></jhi-spinner>

@@ -9,6 +9,8 @@ export interface NavItem {
   faIcon?: IconProp;
   /** Teinte de l'entrée (valeur CSS), partagée par ses sous-entrées ; posée par le NavigationService. */
   accent?: string;
+  /** Pastille de couleur affichée à droite du libellé d'un sous-menu (valeur CSS). */
+  swatch?: string;
   children?: NavItem[];
   click?: () => void;
   /** Nombre affiché dans le badge (0 ou undefined = pas de badge) */

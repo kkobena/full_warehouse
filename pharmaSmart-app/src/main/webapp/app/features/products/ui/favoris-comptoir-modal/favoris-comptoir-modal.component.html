@@ -4,7 +4,7 @@
 </div>
 
 <div class="modal-body">
-  @if (chargement()) {
+  <app-card> @if (chargement()) {
     <p class="text-muted" role="status">Chargement…</p>
   } @else {
     <section aria-labelledby="titre-epingles">
@@ -54,7 +54,8 @@
         </ul>
       }
     </section>
-  }
+  }</app-card>
+
 </div>
 
 <div class="modal-footer">

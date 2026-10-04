@@ -71,101 +71,103 @@
       </ng-container>
     </app-toolbar>
 
-    <app-data-table
-      (onLazyLoad)="lazyLoading($event)"
-      [lazy]="true"
-      [loading]="loading()"
-      [paginator]="true"
-      [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-      [rows]="itemsPerPage"
-      [showCurrentPageReport]="false"
-      [showGridlines]="true"
-      [totalRecords]="totalItems()"
-      [value]="data()"
-      dataKey="id"
-    >
-      <ng-template #caption>
-        <app-icon-field [overlay]="true" icon="pi pi-search">
-          <input (input)="onSearch()" [(ngModel)]="searchTerm" class="form-control"
-                 placeholder="Rechercher..." type="text" />
-        </app-icon-field>
-      </ng-template>
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th>Libellé produit</th>
-          <th>Code produit</th>
-          <th>Numéro lot</th>
-          <th>Date de péremption</th>
-          <th>Quantité</th>
-          <th>Prix.Achat</th>
-          <th>Prix.vente</th>
-          <th>Statut</th>
-          <th>Fournisseur</th>
-          <th></th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-data>
-        <tr>
-          <td class="pharma-product-name">
-            {{ data.produitName }}
-          </td>
+    <app-card>
+      <app-data-table
+        (onLazyLoad)="lazyLoading($event)"
+        [lazy]="true"
+        [loading]="loading()"
+        [paginator]="true"
+        [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+        [rows]="itemsPerPage"
+        [showCurrentPageReport]="false"
+        [showGridlines]="true"
+        [totalRecords]="totalItems()"
+        [value]="data()"
+        dataKey="id"
+      >
+        <ng-template #caption>
+          <app-icon-field [overlay]="true" icon="pi pi-search">
+            <input (input)="onSearch()" [(ngModel)]="searchTerm" class="form-control"
+                   placeholder="Rechercher..." type="text" />
+          </app-icon-field>
+        </ng-template>
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Libellé produit</th>
+            <th>Code produit</th>
+            <th>Numéro lot</th>
+            <th>Date de péremption</th>
+            <th>Quantité</th>
+            <th>Prix.Achat</th>
+            <th>Prix.vente</th>
+            <th>Statut</th>
+            <th>Fournisseur</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-data>
+          <tr>
+            <td class="pharma-product-name">
+              {{ data.produitName }}
+            </td>
 
-          <td class="pharma-code">
-            {{ data.produitCodeCip }}
-          </td>
-          <td class="pharma-code">
-            {{ data.numLot }}
-          </td>
-          <td>
-            {{ data.datePeremption }}
-          </td>
-          <td class="amount-column text-right">
-            <app-editable-cell>
-              <ng-template #input>
-                <input
-                  #quantityInput
-                  (keydown.enter)="modifyProductQuantity(data, quantityInput.value)"
-                  [(ngModel)]="data.quantity"
-                  autocomplete="off"
-                  class="form-control form-control-sm text-end"
-                  required
-                  type="number"
-                />
-              </ng-template>
-              <ng-template #output>
-                <span class="pharma-qty-value">{{ data.quantity | number }}</span>
-              </ng-template>
-            </app-editable-cell>
-          </td>
+            <td class="pharma-code">
+              {{ data.produitCodeCip }}
+            </td>
+            <td class="pharma-code">
+              {{ data.numLot }}
+            </td>
+            <td>
+              {{ data.datePeremption }}
+            </td>
+            <td class="amount-column text-right">
+              <app-editable-cell>
+                <ng-template #input>
+                  <input
+                    #quantityInput
+                    (keydown.enter)="modifyProductQuantity(data, quantityInput.value)"
+                    [(ngModel)]="data.quantity"
+                    autocomplete="off"
+                    class="form-control form-control-sm text-end"
+                    required
+                    type="number"
+                  />
+                </ng-template>
+                <ng-template #output>
+                  <span class="pharma-qty-value">{{ data.quantity | number }}</span>
+                </ng-template>
+              </app-editable-cell>
+            </td>
 
-          <td class="text-right amount-column">
-            <span class="pharma-price">{{ data.prixAchat | number }}</span>
-          </td>
-          <td class="text-right amount-column">
-            <span class="pharma-price">{{ data.prixUni | number }}</span>
-          </td>
-          <td class="text-center">
-            <app-badge [label]="data.peremptionStatut.libelle"
-                       [severity]="getSeverity(data.peremptionStatut)" />
-          </td>
+            <td class="text-right amount-column">
+              <span class="pharma-price">{{ data.prixAchat | number }}</span>
+            </td>
+            <td class="text-right amount-column">
+              <span class="pharma-price">{{ data.prixUni | number }}</span>
+            </td>
+            <td class="text-center">
+              <app-badge [label]="data.peremptionStatut.libelle"
+                         [severity]="getSeverity(data.peremptionStatut)" />
+            </td>
 
-          <td class="pharma-entity-name">
-            {{ data.fournisseur }}
-          </td>
+            <td class="pharma-entity-name">
+              {{ data.fournisseur }}
+            </td>
 
-          <td class="text-right">
-            <app-button
-              (clicked)="onRemoveItem(data)"
-              [ngbTooltip]="'warehouseApp.buttons.delete' | translate"
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-trash"
-              severity="danger"
-            ></app-button>
-          </td>
-        </tr>
-      </ng-template>
-    </app-data-table>
+            <td class="text-right">
+              <app-button
+                (clicked)="onRemoveItem(data)"
+                [ngbTooltip]="'warehouseApp.buttons.delete' | translate"
+                [rounded]="true"
+                [text]="true"
+                icon="pi pi-trash"
+                severity="danger"
+              ></app-button>
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </app-card>
   </div>
 </div>
 

@@ -47,7 +47,7 @@
                           storageKey="customer.achats.detail">
         <div ngProjectAs="[sectionActions]">
           <app-button (clicked)="print()"  icon="pi pi-file-pdf"
-                      label="Imprimer" severity="secondary" size="small" />
+                      label="Imprimer" severity="warn" size="small" />
         </div>
         @if (saleSelected()) {
               <app-data-table [value]="selectedRowSaleLines()" dataKey="id" size="small">

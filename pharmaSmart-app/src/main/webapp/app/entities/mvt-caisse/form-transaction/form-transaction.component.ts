@@ -17,7 +17,7 @@ import { ButtonComponent, CardComponent, InputNumberComponent, SelectComponent }
 import { PharmaDatePickerComponent } from '../../../shared/date-picker/pharma-date-picker.component';
 
 @Component({
-  selector: 'jhi-form-transaction',
+  selector: 'app-form-transaction',
   imports: [
     FormsModule,
     ReactiveFormsModule,

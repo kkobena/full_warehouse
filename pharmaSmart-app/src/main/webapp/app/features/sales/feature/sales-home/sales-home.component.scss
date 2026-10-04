@@ -1565,6 +1565,24 @@ $devis-indigo-light: #e8eaf6;
 }
 
 
+// En-têtes (tableaux, bandeaux, onglets) de l'espace de vente : sous un thème de couleur autre que « actuel », ils gardent la
+// teinte du type de vente en cours (comptant, assurance, carnet) au lieu de celle du thème, donc plus marquée que le reste de
+// l'application. Les jetons sont posés ici car un `var()` est résolu là où il est déclaré : surcharger `head-*` ne suffit pas.
+:host-context(:root[data-chrome]:not([data-chrome='actuel'])) .pharma-sales-layout {
+  --pharma-chrome-head-a: var(--comptoir-accent-tint);
+  --pharma-chrome-head-b: color-mix(in srgb, var(--comptoir-accent) 8%, white);
+  --pharma-chrome-head-fg: var(--comptoir-accent-dark);
+  --pharma-chrome-head-line: var(--comptoir-accent);
+  --pharma-chrome-head-sep: color-mix(in srgb, var(--comptoir-accent) 20%, transparent);
+  --pharma-chrome-table-a: var(--pharma-chrome-head-a);
+  --pharma-chrome-table-b: var(--pharma-chrome-head-b);
+  --pharma-chrome-toolbar-a: var(--pharma-chrome-head-a);
+  --pharma-chrome-toolbar-b: var(--pharma-chrome-head-b);
+  --pharma-chrome-tab: var(--comptoir-accent-dark);
+  --pharma-chrome-tab-dark: var(--comptoir-accent-dark);
+  --pharma-chrome-tab-tint: var(--comptoir-accent-tint);
+}
+
 // ============================================
 // NAVIGATION DU BANDEAU (comptoir, pré-vente, proforma)
 // `display: contents` : les boutons rejoignent directement la rangée `.header-actions` et son espacement

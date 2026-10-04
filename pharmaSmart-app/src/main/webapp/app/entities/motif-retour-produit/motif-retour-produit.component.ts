@@ -10,11 +10,12 @@ import { ITEMS_PER_PAGE } from "app/shared/constants/pagination.constants";
 import { MotifRetourProduitFormModalComponent } from "./motif-retour-produit-form-modal.component";
 import { NotificationService } from "../../shared/services/notification.service";
 import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
+import { CardComponent } from 'app/shared/ui';
 
 @Component({
   selector: "app-motif-retour-produit",
 
-  imports: [CommonModule, FormsModule, ButtonComponent, DataTableComponent, NgbTooltip],
+  imports: [CardComponent, CommonModule, FormsModule, ButtonComponent, DataTableComponent, NgbTooltip],
   templateUrl: "./motif-retour-produit.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: "./motif-retour-produit.component.scss"

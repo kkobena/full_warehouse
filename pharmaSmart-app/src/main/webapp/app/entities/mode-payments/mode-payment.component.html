@@ -17,53 +17,55 @@
         </div>
       </div>
 
-      @if (paymentModes() && paymentModes().length > 0) {
-        <app-data-table
-          (onLazyLoad)="lazyLoading($event)"
-          [lazy]="true"
-          [loading]="loading()"
-          [paginator]="true"
-          [rows]="itemsPerPage"
-          [selectionMode]="'single'"
-          [size]="'small'"
-          [stripedRows]="true"
-          [totalRecords]="totalItems()"
-          [value]="paymentModes()"
-          dataKey="code"
-        >
-          <ng-template #header>
-            <tr class="pharma-table-head">
-              <th scope="col"><span>Code</span></th>
-              <th scope="col"><span>Libellé</span></th>
-              <th scope="col"><span>Ordre</span></th>
-              <th scope="col"><span>QR Code</span></th>
-              <th scope="col"></th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-paymentMode>
-            <tr [appSelectableRow]="paymentMode">
-              <td>{{ paymentMode.code }}</td>
-              <td>{{ paymentMode.libelle }}</td>
-              <td>{{ paymentMode.order }}</td>
-              <td class="text-center">
-                @if (paymentMode.qrCode) {
-                  <i class="pi pi-check text-success"></i>
-                } @else {
-                  <i class="pi pi-times text-danger"></i>
-                }
-              </td>
-              <td class="text-right">
-                <app-button (clicked)="onEdit(paymentMode)" [iconOnly]="true" [rounded]="true" [text]="true"
-                            ariaLabel="Modifier" icon="pi pi-pencil" ngbTooltip="Modifier" severity="success" />
-              </td>
-            </tr>
-          </ng-template>
-        </app-data-table>
-      } @else {
-        <div class="alert alert-warning" id="no-result">
-          <span>Aucun mode de paiement trouvé</span>
-        </div>
-      }
+      <app-card>
+        @if (paymentModes() && paymentModes().length > 0) {
+          <app-data-table
+            (onLazyLoad)="lazyLoading($event)"
+            [lazy]="true"
+            [loading]="loading()"
+            [paginator]="true"
+            [rows]="itemsPerPage"
+            [selectionMode]="'single'"
+            [size]="'small'"
+            [stripedRows]="true"
+            [totalRecords]="totalItems()"
+            [value]="paymentModes()"
+            dataKey="code"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th scope="col"><span>Code</span></th>
+                <th scope="col"><span>Libellé</span></th>
+                <th scope="col"><span>Ordre</span></th>
+                <th scope="col"><span>QR Code</span></th>
+                <th scope="col"></th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-paymentMode>
+              <tr [appSelectableRow]="paymentMode">
+                <td>{{ paymentMode.code }}</td>
+                <td>{{ paymentMode.libelle }}</td>
+                <td>{{ paymentMode.order }}</td>
+                <td class="text-center">
+                  @if (paymentMode.qrCode) {
+                    <i class="pi pi-check text-success"></i>
+                  } @else {
+                    <i class="pi pi-times text-danger"></i>
+                  }
+                </td>
+                <td class="text-right">
+                  <app-button (clicked)="onEdit(paymentMode)" [iconOnly]="true" [rounded]="true" [text]="true"
+                              ariaLabel="Modifier" icon="pi pi-pencil" ngbTooltip="Modifier" severity="success" />
+                </td>
+              </tr>
+            </ng-template>
+          </app-data-table>
+        } @else {
+          <div class="alert alert-warning" id="no-result">
+            <span>Aucun mode de paiement trouvé</span>
+          </div>
+        }
+      </app-card>
     </div>
   </div>
 </div>

@@ -56,6 +56,9 @@
                 }
               </span>
               <span class="flyout-link-label">{{ row.item.label }}</span>
+              @if (row.item.swatch) {
+                <span class="flyout-swatch ms-auto" aria-hidden="true" [style.background]="row.item.swatch"></span>
+              }
               @if (row.item.badge > 0) {
                 <span class="badge rounded-pill bg-{{ row.item.badgeSeverity ?? 'danger' }} flyout-badge ms-auto">
                   {{ row.item.badge > 99 ? '99+' : row.item.badge }}
@@ -70,6 +73,9 @@
                 }
               </span>
               <span class="flyout-link-label">{{ row.item.label }}</span>
+              @if (row.item.swatch) {
+                <span class="flyout-swatch ms-auto" aria-hidden="true" [style.background]="row.item.swatch"></span>
+              }
               @if (row.item.badge > 0) {
                 <span class="badge rounded-pill bg-{{ row.item.badgeSeverity ?? 'danger' }} flyout-badge ms-auto">
                   {{ row.item.badge > 99 ? '99+' : row.item.badge }}

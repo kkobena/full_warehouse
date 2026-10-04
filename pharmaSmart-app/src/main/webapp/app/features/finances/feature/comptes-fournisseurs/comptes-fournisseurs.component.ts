@@ -55,9 +55,10 @@ import { HintComponent } from 'app/shared/ui/hint/hint.component';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
 import { currencySymbol } from 'app/shared/utils/format-utils';
+import { CardComponent } from 'app/shared/ui';
 @Component({
   selector: "app-comptes-fournisseurs",
-  imports: [DeviseDirective,
+  imports: [CardComponent, DeviseDirective,
     HintComponent,
     CommonModule,
     FormsModule,

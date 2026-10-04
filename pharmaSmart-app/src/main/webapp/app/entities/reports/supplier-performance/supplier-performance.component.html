@@ -29,26 +29,13 @@
         <!-- <app-button (clicked)="exportToPdf()" [loading]="isLoading()" class="mr-1" icon="pi pi-file-pdf"
                    label="Exporter PDF" severity="warn" size="small" />-->
         <app-button (clicked)="loadData()" class="mr-1" icon="pi pi-refresh" label="Rafraîchir"
-                    severity="primary" size="small" />
+                    severity="info" size="small" />
       </div>
     </ng-container>
   </app-toolbar>
 
   <!-- View toggle -->
-  <div class="dashboard-periode-selector mt-2">
-    <button (click)="setView('table')" [class.active]="activeView() === 'table'"
-            class="periode-pill"
-            type="button">
-      <i class="pi pi-table"></i>
-      <span class="pill-label">Tableau</span>
-    </button>
-    <button (click)="setView('evolution')" [class.active]="activeView() === 'evolution'"
-            class="periode-pill"
-            type="button">
-      <i class="pi pi-chart-line"></i>
-      <span class="pill-label">Évolution N vs N-1</span>
-    </button>
-  </div>
+  <app-pill-selector class="d-inline-block mt-2" [items]="viewOptions" [ngModel]="activeView()" (selectionChange)="setView($any($event))" />
 
   <!-- KPI Strip -->
   @if (summary() && activeView() === 'table') {

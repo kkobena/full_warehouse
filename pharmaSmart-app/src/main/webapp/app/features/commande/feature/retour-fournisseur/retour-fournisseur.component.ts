@@ -51,6 +51,8 @@ import {
   PharmaDatePickerComponent
 } from "../../../../shared/date-picker/pharma-date-picker.component";
 import { DevisePipe } from 'app/shared/utils/devise';
+import { CardComponent } from 'app/shared/ui';
+import AppComponent from "../../../../app.component";
 
 export type RetourTab = "EN_ATTENTE" | "HISTORIQUE" | "AVOIRS" | "GROUPE";
 
@@ -59,7 +61,7 @@ export type RetourTab = "EN_ATTENTE" | "HISTORIQUE" | "AVOIRS" | "GROUPE";
   templateUrl: "./retour-fournisseur.component.html",
   styleUrls: ["./retour-fournisseur.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [CardComponent,
     CommonModule,
     FormsModule,
     NgbNavModule,
@@ -75,7 +77,7 @@ export type RetourTab = "EN_ATTENTE" | "HISTORIQUE" | "AVOIRS" | "GROUPE";
     RowTogglerDirective,
     SelectComponent,
     SplitButtonComponent
-  , DevisePipe]
+    , DevisePipe, AppComponent]
 })
 export class AppRetourFournisseurComponent implements OnInit {
   protected readonly search = signal("");

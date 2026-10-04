@@ -23,6 +23,7 @@ import {
 } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
 import {finalize} from 'rxjs/operators';
 import {SpinnerComponent} from '../../shared/spinner/spinner.component';
+import { CardComponent } from 'app/shared/ui';
 import {
   NgbConfirmDialogService
 } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
@@ -32,7 +33,7 @@ import {
   templateUrl: './gamme-produit.component.html',
   styleUrl: './gamme-produit.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, DataTableComponent, SelectableRowDirective, IconFieldComponent, NgbTooltip, SpinnerComponent],
+  imports: [CardComponent, ButtonComponent, DataTableComponent, SelectableRowDirective, IconFieldComponent, NgbTooltip, SpinnerComponent],
 })
 export class GammeProduitComponent implements OnInit {
   protected responsedto!: IResponseDto;

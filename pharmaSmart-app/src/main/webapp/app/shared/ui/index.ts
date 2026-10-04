@@ -37,6 +37,7 @@ export * from './nav-tabs/nav-tabs.component';
 export * from './nav-sidebar/nav-sidebar.component';
 export * from './nav-sidebar/nav-section-link.component';
 export * from './pill-selector/pill-selector.component';
+export * from './subtab-bar/subtab-bar.component';
 export * from './toolbar/toolbar.component';
 export * from './password/password.component';
 export * from './radio/radio.component';

@@ -35,10 +35,11 @@ import {
 import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
 
 import {ModeCa, ModeCaService} from '../mode-ca';
+import { CardComponent } from 'app/shared/ui';
 
 @Component({
   selector: 'app-tableau-pharmacien',
-  imports: [
+  imports: [CardComponent, 
     CommonModule,
     FormsModule,
     ButtonComponent,

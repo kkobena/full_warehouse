@@ -35,10 +35,11 @@ import {combineLatest} from 'rxjs';
 import {FormsModule} from '@angular/forms';
 import {StockDepotService} from './stock-depot.service';
 import {MagasinService} from '../../magasin/magasin.service';
+import { CardComponent } from 'app/shared/ui';
 
 @Component({
   selector: 'app-stock-depot',
-  imports: [
+  imports: [CardComponent, 
     CommonModule,
     ButtonComponent,
     IconFieldComponent,

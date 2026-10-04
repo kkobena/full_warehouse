@@ -7,9 +7,10 @@ import { formatCurrency } from 'app/shared/utils/format-utils';
 import { BadgeComponent, ButtonComponent, DataTableComponent, NavTabsComponent, ToolbarComponent } from '../../../../shared/ui';
 
 import { DeviseDirective, DevisePipe } from 'app/shared/utils/devise';
+import { CardComponent } from 'app/shared/ui';
 @Component({
   selector: 'app-remises-rfa',
-  imports: [DeviseDirective, DevisePipe, CommonModule, ButtonComponent, DataTableComponent, ToolbarComponent, BadgeComponent, NgbNavModule, NavTabsComponent],
+  imports: [CardComponent, DeviseDirective, DevisePipe, CommonModule, ButtonComponent, DataTableComponent, ToolbarComponent, BadgeComponent, NgbNavModule, NavTabsComponent],
   templateUrl: './remises-rfa.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './remises-rfa.component.scss',

@@ -1,3 +1,10 @@
+
+@use 'app/shared/scss/modal-theme' as *;
+
+@import 'app/shared/scss/form-styles';
+:host {
+  @include modal-theme;
+}
 .liste {
   display: flex;
   flex-direction: column;

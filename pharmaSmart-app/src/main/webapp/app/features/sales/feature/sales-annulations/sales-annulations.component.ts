@@ -16,13 +16,14 @@ import { SalesApiService } from "../../data-access/services/sales-api.service";
 import { SalesStatut } from "../../models/enumerations/sales-statut.enum";
 
 import { DeviseDirective } from 'app/shared/utils/devise';
+import { CardComponent } from 'app/shared/ui';
 @Component({
   selector: "app-sales-annulations",
   templateUrl: "./sales-annulations.component.html",
   styleUrl: "./sales-annulations.component.scss",
   providers: [{ provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, 
+  imports: [CardComponent, DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,

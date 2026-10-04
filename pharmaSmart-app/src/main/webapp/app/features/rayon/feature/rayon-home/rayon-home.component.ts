@@ -25,6 +25,7 @@ import { CloneRayonFormComponent } from '../../ui/clone-rayon-form/clone-rayon-f
 import { CloneRayonProduitsFormComponent } from '../../ui/clone-rayon-produits-form/clone-rayon-produits-form.component';
 import { InventoryCreateModalComponent } from '../../../inventory/ui/inventory-create-modal/inventory-create-modal.component';
 import { IResponseDto } from '../../../../shared/util/response-dto';
+import { CardComponent } from 'app/shared/ui';
 import {
   AppTableLazyLoadEvent,
   ButtonComponent,
@@ -39,7 +40,7 @@ import {
   templateUrl: './rayon-home.component.html',
   styleUrl: './rayon-home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [CardComponent, 
     FormsModule,
     ToolbarComponent,
     ButtonComponent,

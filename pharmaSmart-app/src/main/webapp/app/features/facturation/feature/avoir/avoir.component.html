@@ -56,7 +56,7 @@
             [raised]="true"
             icon="pi pi-plus"
             label="Nouvel avoir"
-            severity="success"
+            severity="primary"
           />
           <app-button
             (clicked)="onSearch()"
@@ -82,7 +82,6 @@
     </ng-container>
   </app-toolbar>
 
-  <!-- KPI bar -->
   @if (avoirs().length > 0) {
     <!--
       Bandeau commun `app-kpi-strip` plutôt qu'un `.kpi-bar` propre à cet écran : mêmes
@@ -121,113 +120,115 @@
     </app-kpi-strip>
   }
 
+  <app-card>
 
-  <app-data-table
-    [loading]="loading()"
-    [paginator]="true"
-    [rows]="15"
-    [rowsPerPageOptions]="[10, 15, 25, 50]"
-    [scrollable]="true"
-    [showCurrentPageReport]="true"
-    [size]="'small'"
-    [value]="avoirs()"
-    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} avoirs"
-    scrollHeight="flex"
-  >
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th>N° Avoir</th>
-        <th>Facture origine</th>
-        <th>Tiers-payant</th>
-        <th>Date avoir</th>
-        <th class="text-end">Montant TTC</th>
-        <th class="text-end">TVA</th>
-        <th class="text-end">HT</th>
-        <th>Statut</th>
-        <th>Motif</th>
-        <th class="text-center">Actions</th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-avoir>
-      <tr>
-        <td><span class="pharma-code">{{ avoir.numAvoir || '—' }}</span></td>
-        <td><span class="pharma-code">{{ avoir.factureNum }}</span></td>
-        <td>{{ avoir.tiersPayantName }}</td>
-        <td class="small text-muted">{{ avoir.avoirDate }}</td>
-        <td class="text-end fw-bold">{{ (avoir.montantAvoir ?? 0) | number:'1.0-0' }}</td>
-        <td class="text-end small text-muted">{{ (avoir.montantTva ?? 0) | number:'1.0-0' }}</td>
-        <td class="text-end small text-muted">{{ (avoir.montantHt ?? 0) | number:'1.0-0' }}</td>
-        <td>
-          <app-badge [label]="getStatutLabel(avoir.statut)"
-                     [severity]="getStatutSeverity(avoir.statut)" />
-        </td>
-        <td [title]="avoir.motif ?? ''" class="small text-muted">
-          <span class="avoir-motif-cell">{{ avoir.motif }}</span>
-        </td>
-        <td class="text-center">
-          <div class="d-flex gap-1 justify-content-center">
-            @if (avoir.statut === 'DRAFT') {
+    <app-data-table
+      [loading]="loading()"
+      [paginator]="true"
+      [rows]="15"
+      [rowsPerPageOptions]="[10, 15, 25, 50]"
+      [scrollable]="true"
+      [showCurrentPageReport]="true"
+      [size]="'small'"
+      [value]="avoirs()"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} avoirs"
+      scrollHeight="flex"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>N° Avoir</th>
+          <th>Facture origine</th>
+          <th>Tiers-payant</th>
+          <th>Date avoir</th>
+          <th class="text-end">Montant TTC</th>
+          <th class="text-end">TVA</th>
+          <th class="text-end">HT</th>
+          <th>Statut</th>
+          <th>Motif</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-avoir>
+        <tr>
+          <td><span class="pharma-code">{{ avoir.numAvoir || '—' }}</span></td>
+          <td><span class="pharma-code">{{ avoir.factureNum }}</span></td>
+          <td>{{ avoir.tiersPayantName }}</td>
+          <td class="small text-muted">{{ avoir.avoirDate }}</td>
+          <td class="text-end fw-bold">{{ (avoir.montantAvoir ?? 0) | number:'1.0-0' }}</td>
+          <td class="text-end small text-muted">{{ (avoir.montantTva ?? 0) | number:'1.0-0' }}</td>
+          <td class="text-end small text-muted">{{ (avoir.montantHt ?? 0) | number:'1.0-0' }}</td>
+          <td>
+            <app-badge [label]="getStatutLabel(avoir.statut)"
+                       [severity]="getStatutSeverity(avoir.statut)" />
+          </td>
+          <td [title]="avoir.motif ?? ''" class="small text-muted">
+            <span class="avoir-motif-cell">{{ avoir.motif }}</span>
+          </td>
+          <td class="text-center">
+            <div class="d-flex gap-1 justify-content-center">
+              @if (avoir.statut === 'DRAFT') {
+                <app-button
+                  (clicked)="onEmettre(avoir)"
+                  [outlined]="true"
+                  icon="pi pi-send"
+                  label="Émettre"
+                  ngbTooltip="Émettre cet avoir"
+                  severity="primary"
+                  size="small"
+                />
+              }
+              @if (avoir.statut === 'EMIS') {
+                <app-button
+                  (clicked)="onOpenImputer(avoir)"
+                  [outlined]="true"
+                  icon="pi pi-link"
+                  label="Imputer"
+                  ngbTooltip="Imputer sur une facture"
+                  severity="primary"
+                  size="small"
+                />
+              }
+              @if (avoir.statut === 'DRAFT' || avoir.statut === 'EMIS') {
+                <app-button
+                  (clicked)="onOpenAnnuler(avoir)"
+                  [text]="true"
+                  icon="pi pi-ban"
+                  ngbTooltip="Annuler l'avoir"
+                  severity="danger"
+                  size="small"
+                />
+              }
               <app-button
-                (clicked)="onEmettre(avoir)"
-                [outlined]="true"
-                icon="pi pi-send"
-                label="Émettre"
-                ngbTooltip="Émettre cet avoir"
-                severity="info"
-                size="small"
-              />
-            }
-            @if (avoir.statut === 'EMIS') {
-              <app-button
-                (clicked)="onOpenImputer(avoir)"
-                [outlined]="true"
-                icon="pi pi-link"
-                label="Imputer"
-                ngbTooltip="Imputer sur une facture"
-                severity="success"
-                size="small"
-              />
-            }
-            @if (avoir.statut === 'DRAFT' || avoir.statut === 'EMIS') {
-              <app-button
-                (clicked)="onOpenAnnuler(avoir)"
+                (clicked)="onExportPdf(avoir)"
+                [loading]="exportingPdf() === avoir.id"
                 [text]="true"
-                icon="pi pi-ban"
-                ngbTooltip="Annuler l'avoir"
-                severity="danger"
+                icon="pi pi-file-pdf"
+                ngbTooltip="Télécharger PDF"
+                severity="warn"
                 size="small"
               />
-            }
-            <app-button
-              (clicked)="onExportPdf(avoir)"
-              [loading]="exportingPdf() === avoir.id"
-              [text]="true"
-              icon="pi pi-file-pdf"
-              ngbTooltip="Télécharger PDF"
-              severity="warn"
-              size="small"
-            />
-            <app-button
-              (clicked)="openNouvelAvoir(avoir.factureOrigineId, avoir.factureOrigineDate)"
-              [text]="true"
-              icon="pi pi-plus"
-              ngbTooltip="Créer un avoir sur cette facture"
-              severity="secondary"
-              size="small"
-            />
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template #emptymessage>
-      <tr>
-        <td class="text-center text-muted py-5" colspan="10">
-          <i class="pi pi-inbox d-block fs-1 mb-2"></i>
-          <p>Aucun avoir trouvé.</p>
-        </td>
-      </tr>
-    </ng-template>
-  </app-data-table>
+              <app-button
+                (clicked)="openNouvelAvoir(avoir.factureOrigineId, avoir.factureOrigineDate)"
+                [text]="true"
+                icon="pi pi-plus"
+                ngbTooltip="Créer un avoir sur cette facture"
+                severity="secondary"
+                size="small"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td class="text-center text-muted py-5" colspan="10">
+            <i class="pi pi-inbox d-block fs-1 mb-2"></i>
+            <p>Aucun avoir trouvé.</p>
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </app-card>
 
 </div>
 

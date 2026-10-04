@@ -3,7 +3,7 @@
 // Accents alignés sur la palette Bootstrap (`_pharma-bootstrap-palette.scss`), tous ≥ 3:1
 // sur blanc. `primary` suit le thème.
 
-$_ks-primary:   var(--bs-primary);
+$_ks-primary:   var(--pharma-kpi-accent, var(--bs-primary));
 $_ks-success:   #15803d;
 $_ks-danger:    #dc2626;
 $_ks-warning:   #c2410c;

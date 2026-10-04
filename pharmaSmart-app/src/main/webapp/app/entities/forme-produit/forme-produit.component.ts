@@ -15,6 +15,7 @@ import {NotificationService} from '../../shared/services/notification.service';
 import {ErrorService} from '../../shared/error.service';
 import {FormFormeProduitComponent} from './form-forme-produit/form-forme-produit.component';
 import {NgbModal, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import { CardComponent } from 'app/shared/ui';
 import {
   NgbConfirmDialogService
 } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
@@ -24,7 +25,7 @@ import {
   templateUrl: './forme-produit.component.html',
   styleUrl: './forme-produit.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, DataTableComponent, SelectableRowDirective, IconFieldComponent, NgbTooltip],
+  imports: [CardComponent, ButtonComponent, DataTableComponent, SelectableRowDirective, IconFieldComponent, NgbTooltip],
 })
 export class FormeProduitComponent implements OnInit {
   protected readonly entites = signal<IFormProduit[] | undefined>(undefined);

@@ -56,350 +56,353 @@
   </app-kpi-strip>
 
   <!-- Hint premier usage -->
-  <app-hint [visible]="!panelOpen()" storageKey="comptes-fournisseurs">
-    Cliquez sur un fournisseur pour afficher le détail de ses commandes et enregistrer un règlement.
-  </app-hint>
+  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden"
+          [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
+    <app-hint [visible]="!panelOpen()" storageKey="comptes-fournisseurs">
+      Cliquez sur un fournisseur pour afficher le détail de ses commandes et enregistrer un règlement.
+    </app-hint>
 
-  <!-- Split container -->
-  <div [class.panel-open]="panelOpen()" class="split-container">
+    <!-- Split container -->
+    <div [class.panel-open]="panelOpen()" class="split-container">
 
-    <!-- Liste fournisseurs -->
-    <div class="list-column">
-      <!-- Pagination : une officine travaille avec des dizaines de fournisseurs et d'agences,
-           et la liste des comptes les rendait tous d'un bloc. -->
-      <app-data-table [loading]="isLoading()" [paginator]="true"
-                      [rowsPerPageOptions]="[10, 15, 25, 50]"
-                      [rows]="15"
-                      [showCurrentPageReport]="true"
-                      [value]="getFiltered()"
-                      class="p-datatable-sm p-datatable-striped p-datatable-hoverable"
-                      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} comptes">
-        <ng-template #header>
-          <tr class="pharma-table-head">
-            <th>Fournisseur</th>
-            <th>Code</th>
-            <th class="text-end">Solde dû</th>
-            <th>Statut</th>
-            <th>Prochaine échéance</th>
-            <th></th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-c>
-          <tr (click)="selectFournisseur(c)"
-              [class.ligne-selected]="isSelected(c)"
-              [class.table-row-overdue]="c.statut === 'CRITIQUE'"
-              [class.table-row-warning]="c.statut === 'EN_RETARD'" style="cursor: pointer;">
-            <td>
-              <span class="fw-semibold">{{ c.fournisseurName }}</span>
-              @if (c.phone) {
-                <div class="text-muted" style="font-size: 0.72rem;">
-                  <i class="pi pi-phone me-1" style="font-size: 0.65rem;"></i>{{ c.phone }}
-                </div>
-              }
-              @if (c.nbCommandesEnAttente > 0) {
-                <span class="badge bg-secondary ms-2">{{ c.nbCommandesEnAttente }} cmd</span>
-              }
-            </td>
-            <td><code class="pharma-code">{{ c.fournisseurCode }}</code></td>
-            <td [class.text-danger]="c.solde > 0" class="text-end fw-bold">{{
-                formatCurrency(c.solde)
-              }}
-            </td>
-            <td>
-              <app-badge [label]="statutLabel(c.statut)" [ngbTooltip]="statutTooltip(c.statut)"
-                         [severity]="statutSeverity(c.statut)" placement="left" />
-            </td>
-            <td>{{ c.prochaineEcheance ? (c.prochaineEcheance | date:'dd/MM/yyyy') : '—' }}</td>
-            <td class="text-end">
-              <app-button (clicked)="selectFournisseur(c)" [text]="true" icon="pi pi-eye"
-                          ngbTooltip="Voir règlements"
-                          severity="info"
-                          size="small" />
-            </td>
-          </tr>
-        </ng-template>
-        <ng-template #emptymessage>
-          <tr>
-            <td class="text-center py-4 text-secondary" colspan="6">Aucun compte fournisseur
-              trouvé.
-            </td>
-          </tr>
-        </ng-template>
-      </app-data-table>
-    </div>
-
-    <!-- Panneau détail -->
-    @if (panelOpen()) {
-      <div class="detail-column">
-        @if (selectedFournisseur(); as f) {
-          <div class="detail-panel">
-
-            <!-- Header -->
-            <div class="panel-header">
-              <div class="panel-title-block">
-                <div class="panel-libelle">{{ f.fournisseurName }}</div>
-                <div class="panel-meta">
-                  <app-badge [label]="statutLabel(f.statut)" [ngbTooltip]="statutTooltip(f.statut)"
-                             [severity]="statutSeverity(f.statut)" />
-                  <span class="pharma-badge pharma-badge-danger ms-2">
-                    Solde : {{ formatCurrency(f.solde) }} <span appDevise></span>
-                  </span>
-                  @if (f.phone) {
-                    <span class="text-muted ms-2" style="font-size: 0.75rem;">
-                      <i class="pi pi-phone me-1"></i>{{ f.phone }}
-                    </span>
-                  }
-                  @if (f.mobile) {
-                    <span class="text-muted ms-2" style="font-size: 0.75rem;">
-                      <i class="pi pi-mobile me-1"></i>{{ f.mobile }}
-                    </span>
-                  }
-                </div>
-                <!-- Récapitulatif financier -->
-                <div class="d-flex gap-4 mt-1" style="font-size: 0.82rem;">
-                  <span>Commandé : <strong>{{ formatCurrency(f.totalCommande) }} <span
-                    appDevise></span></strong></span>
-                  <span>Réglé : <strong class="text-success">{{ formatCurrency(f.totalRegle) }}
-                    <span appDevise></span></strong></span>
-                  <span>Solde : <strong class="text-danger">{{ formatCurrency(f.solde) }}
-                    <span appDevise></span></strong></span>
-                </div>
-              </div>
-              <div class="panel-actions">
-                @if (f.solde > 0) {
-                  <app-button (clicked)="regleTout()" icon="pi pi-check" label="Régler tout"
-                              ngbTooltip="Solder ce fournisseur en un règlement"
-                              severity="success"
-                              size="small" />
+      <!-- Liste fournisseurs -->
+      <div class="list-column">
+        <!-- Pagination : une officine travaille avec des dizaines de fournisseurs et d'agences,
+             et la liste des comptes les rendait tous d'un bloc. -->
+        <app-data-table [loading]="isLoading()" [paginator]="true"
+                        [rowsPerPageOptions]="[10, 15, 25, 50]"
+                        [rows]="10"
+                        [showCurrentPageReport]="true"
+                        [value]="getFiltered()"
+                        class="p-datatable-sm p-datatable-striped p-datatable-hoverable"
+                        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} comptes">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th>Fournisseur</th>
+              <th>Code</th>
+              <th class="text-end">Solde dû</th>
+              <th>Statut</th>
+              <th>Prochaine échéance</th>
+              <th></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-c>
+            <tr (click)="selectFournisseur(c)"
+                [class.ligne-selected]="isSelected(c)"
+                [class.table-row-overdue]="c.statut === 'CRITIQUE'"
+                [class.table-row-warning]="c.statut === 'EN_RETARD'" style="cursor: pointer;">
+              <td>
+                <span class="fw-semibold">{{ c.fournisseurName }}</span>
+                @if (c.phone) {
+                  <div class="text-muted" style="font-size: 0.72rem;">
+                    <i class="pi pi-phone me-1" style="font-size: 0.65rem;"></i>{{ c.phone }}
+                  </div>
                 }
-                <app-button (clicked)="exportPdfFournisseur()" [loading]="isExporting()"
-                            [outlined]="true"
-                            icon="pi pi-file-pdf" label="Exporter en PDF"
-                            ngbTooltip="Exporter le détail en PDF" severity="warn"
+                @if (c.nbCommandesEnAttente > 0) {
+                  <span class="badge bg-secondary ms-2">{{ c.nbCommandesEnAttente }} cmd</span>
+                }
+              </td>
+              <td><code class="pharma-code">{{ c.fournisseurCode }}</code></td>
+              <td [class.text-danger]="c.solde > 0" class="text-end fw-bold">{{
+                  formatCurrency(c.solde)
+                }}
+              </td>
+              <td>
+                <app-badge [label]="statutLabel(c.statut)" [ngbTooltip]="statutTooltip(c.statut)"
+                           [severity]="statutSeverity(c.statut)" placement="left" />
+              </td>
+              <td>{{ c.prochaineEcheance ? (c.prochaineEcheance | date:'dd/MM/yyyy') : '—' }}</td>
+              <td class="text-end">
+                <app-button (clicked)="selectFournisseur(c)" [text]="true" icon="pi pi-eye"
+                            ngbTooltip="Voir règlements"
+                            severity="info"
                             size="small" />
-                <app-button (clicked)="closeDetail()" [rounded]="true" [text]="true"
-                            icon="pi pi-times"
-                            ngbTooltip="Fermer"
-                            severity="secondary" size="small" />
-              </div>
-            </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td class="text-center py-4 text-secondary" colspan="6">Aucun compte fournisseur
+                trouvé.
+              </td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </div>
 
-            <!-- Onglets ngbNav -->
-            <app-nav-tabs [nav]="nav" containerClass="flex-1-overflow">
-              <div #nav="ngbNav" (activeIdChange)="onTabChange($event)" [activeId]="activeTab()"
-                   class="nav pharma-nav-tabs" ngbNav orientation="horizontal">
+      <!-- Panneau détail -->
+      @if (panelOpen()) {
+        <div class="detail-column">
+          @if (selectedFournisseur(); as f) {
+            <div class="detail-panel">
 
-                <!-- Onglet Commandes -->
-                <ng-container ngbNavItem="commandes">
-                  <a class="pharma-nav-tab-link" ngbNavLink>
-                    <i class="pi pi-list"></i>
-                    <span>Commandes</span>
-                    @if (totalLignes() > 0) {
-                      <span class="badge bg-danger ms-1">{{ totalLignes() }}</span>
+              <!-- Header -->
+              <div class="panel-header">
+                <div class="panel-title-block">
+                  <div class="panel-libelle">{{ f.fournisseurName }}</div>
+                  <div class="panel-meta">
+                    <app-badge [label]="statutLabel(f.statut)" [ngbTooltip]="statutTooltip(f.statut)"
+                               [severity]="statutSeverity(f.statut)" />
+                    <span class="pharma-badge pharma-badge-danger ms-2">
+                      Solde : {{ formatCurrency(f.solde) }} <span appDevise></span>
+                    </span>
+                    @if (f.phone) {
+                      <span class="text-muted ms-2" style="font-size: 0.75rem;">
+                        <i class="pi pi-phone me-1"></i>{{ f.phone }}
+                      </span>
                     }
-                  </a>
-                  <ng-template ngbNavContent>
-                    <app-detail-grid>
-                      <app-detail-section header="Commandes" icon="pi pi-list" [accent]="'blue'"
-                                          [width]="'full'" [layout]="'block'" [count]="totalLignes()"
-                                          [loading]="isLoadingLignes()" [skeletonRows]="5"
-                                          storageKey="comptes-fournisseurs.commandes">
-                        <!-- Filtre statut -->
-                        <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                          <small class="text-muted me-1">Filtrer :</small>
-                          <button (click)="setFiltreStatut(null)"
-                                  [class.btn-outline-secondary]="filtreStatutLignes() !== null"
-                                  [class.btn-secondary]="filtreStatutLignes() === null"
-                                  class="btn btn-sm"
-                                  type="button">
-                            Tous <span
-                            class="badge bg-light text-dark ms-1">{{ totalLignes() }}</span>
-                          </button>
-                          <button (click)="setFiltreStatut('EN_ATTENTE')"
-                                  [class.btn-outline-secondary]="filtreStatutLignes() !== 'EN_ATTENTE'"
-                                  [class.btn-secondary]="filtreStatutLignes() === 'EN_ATTENTE'"
-                                  class="btn btn-sm"
-                                  type="button">En attente
-                          </button>
-                          <button (click)="setFiltreStatut('EN_RETARD')"
-                                  [class.btn-danger]="filtreStatutLignes() === 'EN_RETARD'"
-                                  [class.btn-outline-danger]="filtreStatutLignes() !== 'EN_RETARD'"
-                                  class="btn btn-sm"
-                                  type="button">En retard
-                          </button>
-                          <button (click)="setFiltreStatut('PARTIEL')"
-                                  [class.btn-outline-warning]="filtreStatutLignes() !== 'PARTIEL'"
-                                  [class.btn-warning]="filtreStatutLignes() === 'PARTIEL'"
-                                  class="btn btn-sm"
-                                  type="button">Partiel
-                          </button>
+                    @if (f.mobile) {
+                      <span class="text-muted ms-2" style="font-size: 0.75rem;">
+                        <i class="pi pi-mobile me-1"></i>{{ f.mobile }}
+                      </span>
+                    }
+                  </div>
+                  <!-- Récapitulatif financier -->
+                  <div class="d-flex gap-4 mt-1" style="font-size: 0.82rem;">
+                    <span>Commandé : <strong>{{ formatCurrency(f.totalCommande) }} <span
+                      appDevise></span></strong></span>
+                    <span>Réglé : <strong class="text-success">{{ formatCurrency(f.totalRegle) }}
+                      <span appDevise></span></strong></span>
+                    <span>Solde : <strong class="text-danger">{{ formatCurrency(f.solde) }}
+                      <span appDevise></span></strong></span>
+                  </div>
+                </div>
+                <div class="panel-actions">
+                  @if (f.solde > 0) {
+                    <app-button (clicked)="regleTout()" icon="pi pi-check" label="Régler tout"
+                                ngbTooltip="Solder ce fournisseur en un règlement"
+                                severity="primary"
+                                size="small" />
+                  }
+                  <app-button (clicked)="exportPdfFournisseur()" [loading]="isExporting()"
+                              [outlined]="true"
+                              icon="pi pi-file-pdf" label="Exporter en PDF"
+                              ngbTooltip="Exporter le détail en PDF" severity="warn"
+                              size="small" />
+                  <app-button (clicked)="closeDetail()" [rounded]="true" [text]="true"
+                              icon="pi pi-times"
+                              ngbTooltip="Fermer"
+                              severity="secondary" size="small" />
+                </div>
+              </div>
 
-                        </div>
+              <!-- Onglets ngbNav -->
+              <app-nav-tabs [nav]="nav" containerClass="flex-1-overflow">
+                <div #nav="ngbNav" (activeIdChange)="onTabChange($event)" [activeId]="activeTab()"
+                     class="nav pharma-nav-tabs" ngbNav orientation="horizontal">
 
-                        <app-data-table (onLazyLoad)="onPage($event)" [lazy]="true"
-                                        [loading]="isLoadingLignes()" [paginator]="true"
-                                        [rows]="PAGE_SIZE" [totalRecords]="totalLignes()"
-                                        [value]="lignes()"
-                                        class="p-datatable-sm">
-                          <ng-template #header>
-                            <tr class="pharma-table-head">
-                              <th>N° Bon</th>
-                              <th>Date échéance</th>
-                              <th class="text-end">Total</th>
-                              <th class="text-end">Réglé</th>
-                              <th class="text-end">Restant dû</th>
-                              <th>Statut</th>
-                              <th></th>
-                            </tr>
-                          </ng-template>
-                          <ng-template #body let-l>
-                            <tr [class.ligne-selected]="selectedLigne()?.commandeId === l.commandeId">
-                              <td><code class="pharma-code">{{ l.numBon }}</code></td>
-                              <td>{{ (l.dateEcheance ?? l.dateCommande) | date:'dd/MM/yyyy' }}</td>
-                              <td class="text-end">{{ formatCurrency(l.montant) }}</td>
-                              <td class="text-end text-success">{{
-                                  formatCurrency(l.montantRegle)
-                                }}
-                              </td>
-                              <td class="text-end fw-semibold text-danger">{{
-                                  formatCurrency(l.restantDu)
-                                }}
-                              </td>
-                              <td>
-                                <app-badge [label]="ligneStatutLabel(l.statut)"
-                                          [ngbTooltip]="ligneStatutTooltip(l.statut)"
-                                          [severity]="ligneSeverity(l.statut)"
-                                          placement="left" />
-                              </td>
-                              <td class="actions-col">
-                                @if (l.statut !== 'REGLE') {
-                                  <app-button (clicked)="reglerLigne(l)" [text]="true"
-                                              icon="pi pi-money-bill"
-                                              ngbTooltip="Régler ce BL"
-                                              severity="success"
-                                              size="small" />
-                                }
-                              </td>
-                            </tr>
-                          </ng-template>
-                          <ng-template #emptymessage>
-                            <tr>
-                              <td class="text-center text-muted py-3" colspan="7">
-                                <i class="pi pi-filter-slash me-1"></i> Aucune commande pour ce
-                                filtre.
-                              </td>
-                            </tr>
-                          </ng-template>
-                        </app-data-table>
-                      </app-detail-section>
-                    </app-detail-grid>
-                  </ng-template>
-                </ng-container>
-
-                <!-- Onglet Règlement -->
-                @if (lignes().length > 0) {
-                  <ng-container ngbNavItem="regler">
+                  <!-- Onglet Commandes -->
+                  <ng-container ngbNavItem="commandes">
                     <a class="pharma-nav-tab-link" ngbNavLink>
-                      <i class="pi pi-money-bill"></i>
-                      <span>Régler</span>
+                      <i class="pi pi-list"></i>
+                      <span>Commandes</span>
+                      @if (totalLignes() > 0) {
+                        <span class="badge bg-danger ms-1">{{ totalLignes() }}</span>
+                      }
                     </a>
                     <ng-template ngbNavContent>
                       <app-detail-grid>
-                        <app-detail-section header="Règlement" icon="pi pi-money-bill" [accent]="'success'"
-                                            [width]="'full'" [layout]="'block'" storageKey="comptes-fournisseurs.regler">
-                          <!-- Indicateur solde (Signal) -->
-                          <div class="solde-indicator mb-2">
-                            @if (selectedLigne(); as bl) {
-                              <span class="solde-label">Restant BL <code
-                                class="pharma-code">{{ bl.numBon }}</code> :</span>
-                              <span class="solde-value text-danger fw-bold">{{
-                                  formatCurrency(bl.restantDu)
-                                }} <span appDevise></span></span>
-                              <span class="ms-3 text-muted" style="font-size: 0.8rem;">
-                                Solde global : {{ formatCurrency(solde()) }} <span appDevise></span>
-                              </span>
-                            } @else {
-                              <span class="solde-label">Solde à régler :</span>
-                              <span class="solde-value text-danger fw-bold">{{
-                                  formatCurrency(solde())
-                                }} <span appDevise></span></span>
-                            }
+                        <app-detail-section header="Commandes" icon="pi pi-list" [accent]="'blue'"
+                                            [width]="'full'" [layout]="'block'" [count]="totalLignes()"
+                                            [loading]="isLoadingLignes()" [skeletonRows]="5"
+                                            storageKey="comptes-fournisseurs.commandes">
+                          <!-- Filtre statut -->
+                          <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                            <small class="text-muted me-1">Filtrer :</small>
+                            <button (click)="setFiltreStatut(null)"
+                                    [class.btn-outline-secondary]="filtreStatutLignes() !== null"
+                                    [class.btn-secondary]="filtreStatutLignes() === null"
+                                    class="btn btn-sm"
+                                    type="button">
+                              Tous <span
+                              class="badge bg-light text-dark ms-1">{{ totalLignes() }}</span>
+                            </button>
+                            <button (click)="setFiltreStatut('EN_ATTENTE')"
+                                    [class.btn-outline-secondary]="filtreStatutLignes() !== 'EN_ATTENTE'"
+                                    [class.btn-secondary]="filtreStatutLignes() === 'EN_ATTENTE'"
+                                    class="btn btn-sm"
+                                    type="button">En attente
+                            </button>
+                            <button (click)="setFiltreStatut('EN_RETARD')"
+                                    [class.btn-danger]="filtreStatutLignes() === 'EN_RETARD'"
+                                    [class.btn-outline-danger]="filtreStatutLignes() !== 'EN_RETARD'"
+                                    class="btn btn-sm"
+                                    type="button">En retard
+                            </button>
+                            <button (click)="setFiltreStatut('PARTIEL')"
+                                    [class.btn-outline-warning]="filtreStatutLignes() !== 'PARTIEL'"
+                                    [class.btn-warning]="filtreStatutLignes() === 'PARTIEL'"
+                                    class="btn btn-sm"
+                                    type="button">Partiel
+                            </button>
+
                           </div>
 
-                          <form (ngSubmit)="saveReglement()" [formGroup]="reglementForm">
-                            <!-- Ligne 1 : Montant | Date -->
-                            <div class="row g-2 mb-3">
-                              <div class="col-6">
-                                <app-float-label inputId="montant" label="Montant">
-                                  <app-input-number formControlName="montant" inputId="montant" />
-                                </app-float-label>
-                                @if (montantSaisi() > solde()) {
-                                  <small class="text-danger">Le montant ne peut pas dépasser le
-                                    solde
-                                    dû.</small>
-                                }
-                              </div>
-                              <div class="col-6">
-                                <pharma-date-picker [labelPosition]="'top'"
-                                                    formControlName="dateReglement"
-                                                    id="dateReg"
-                                                    label="Date du règlement" />
-                              </div>
-                            </div>
-
-                            <!-- Ligne 2 : Mode | Référence -->
-                            <div class="row g-2 mb-3">
-                              <div class="col-6">
-                                <app-float-label inputId="modeReglement" label="Mode de règlement">
-                                  <app-select [items]="modeReglementOptions" bindLabel="label"
-                                              bindValue="value" formControlName="modeReglement"
-                                              inputId="modeReglement" />
-                                </app-float-label>
-                              </div>
-                              <div class="col-6">
-                                <app-float-label inputId="reference" label="Référence">
-                                  <input class="form-control" formControlName="reference"
-                                        id="reference" placeholder=" " />
-                                </app-float-label>
-                              </div>
-                            </div>
-
-                            <!-- Commentaire -->
-                            <div class="mb-3">
-                              <app-float-label inputId="commentaire"
-                                              label="Commentaire (optionnel)">
-                                <input class="form-control" formControlName="commentaire"
-                                      id="commentaire" placeholder=" " />
-                              </app-float-label>
-                            </div>
-
-                            <div class="d-flex gap-1">
-                              <app-button [disabled]="reglementForm.invalid || !validMontant()"
-                                          [loading]="isSaving()"
-                                          icon="pi pi-save"
-                                          label="Enregistrer"
-                                          type="submit" />
-                              <app-button (clicked)="activeTab.set('commandes')"
-                                          label="Annuler"
-                                          severity="secondary"
-                                          type="button" />
-                            </div>
-                          </form>
+                          <app-data-table (onLazyLoad)="onPage($event)" [lazy]="true"
+                                          [loading]="isLoadingLignes()" [paginator]="true"
+                                          [rows]="PAGE_SIZE" [totalRecords]="totalLignes()"
+                                          [value]="lignes()"
+                                          class="p-datatable-sm">
+                            <ng-template #header>
+                              <tr class="pharma-table-head">
+                                <th>N° Bon</th>
+                                <th>Date échéance</th>
+                                <th class="text-end">Total</th>
+                                <th class="text-end">Réglé</th>
+                                <th class="text-end">Restant dû</th>
+                                <th>Statut</th>
+                                <th></th>
+                              </tr>
+                            </ng-template>
+                            <ng-template #body let-l>
+                              <tr [class.ligne-selected]="selectedLigne()?.commandeId === l.commandeId">
+                                <td><code class="pharma-code">{{ l.numBon }}</code></td>
+                                <td>{{ (l.dateEcheance ?? l.dateCommande) | date:'dd/MM/yyyy' }}</td>
+                                <td class="text-end">{{ formatCurrency(l.montant) }}</td>
+                                <td class="text-end text-success">{{
+                                    formatCurrency(l.montantRegle)
+                                  }}
+                                </td>
+                                <td class="text-end fw-semibold text-danger">{{
+                                    formatCurrency(l.restantDu)
+                                  }}
+                                </td>
+                                <td>
+                                  <app-badge [label]="ligneStatutLabel(l.statut)"
+                                            [ngbTooltip]="ligneStatutTooltip(l.statut)"
+                                            [severity]="ligneSeverity(l.statut)"
+                                            placement="left" />
+                                </td>
+                                <td class="actions-col">
+                                  @if (l.statut !== 'REGLE') {
+                                    <app-button (clicked)="reglerLigne(l)" [text]="true"
+                                                icon="pi pi-money-bill"
+                                                ngbTooltip="Régler ce BL"
+                                                severity="success"
+                                                size="small" />
+                                  }
+                                </td>
+                              </tr>
+                            </ng-template>
+                            <ng-template #emptymessage>
+                              <tr>
+                                <td class="text-center text-muted py-3" colspan="7">
+                                  <i class="pi pi-filter-slash me-1"></i> Aucune commande pour ce
+                                  filtre.
+                                </td>
+                              </tr>
+                            </ng-template>
+                          </app-data-table>
                         </app-detail-section>
                       </app-detail-grid>
                     </ng-template>
                   </ng-container>
-                }
+
+                  <!-- Onglet Règlement -->
+                  @if (lignes().length > 0) {
+                    <ng-container ngbNavItem="regler">
+                      <a class="pharma-nav-tab-link" ngbNavLink>
+                        <i class="pi pi-money-bill"></i>
+                        <span>Régler</span>
+                      </a>
+                      <ng-template ngbNavContent>
+                        <app-detail-grid>
+                          <app-detail-section header="Règlement" icon="pi pi-money-bill" [accent]="'success'"
+                                              [width]="'full'" [layout]="'block'" storageKey="comptes-fournisseurs.regler">
+                            <!-- Indicateur solde (Signal) -->
+                            <div class="solde-indicator mb-2">
+                              @if (selectedLigne(); as bl) {
+                                <span class="solde-label">Restant BL <code
+                                  class="pharma-code">{{ bl.numBon }}</code> :</span>
+                                <span class="solde-value text-danger fw-bold">{{
+                                    formatCurrency(bl.restantDu)
+                                  }} <span appDevise></span></span>
+                                <span class="ms-3 text-muted" style="font-size: 0.8rem;">
+                                  Solde global : {{ formatCurrency(solde()) }} <span appDevise></span>
+                                </span>
+                              } @else {
+                                <span class="solde-label">Solde à régler :</span>
+                                <span class="solde-value text-danger fw-bold">{{
+                                    formatCurrency(solde())
+                                  }} <span appDevise></span></span>
+                              }
+                            </div>
+
+                            <form (ngSubmit)="saveReglement()" [formGroup]="reglementForm">
+                              <!-- Ligne 1 : Montant | Date -->
+                              <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                  <app-float-label inputId="montant" label="Montant">
+                                    <app-input-number formControlName="montant" inputId="montant" />
+                                  </app-float-label>
+                                  @if (montantSaisi() > solde()) {
+                                    <small class="text-danger">Le montant ne peut pas dépasser le
+                                      solde
+                                      dû.</small>
+                                  }
+                                </div>
+                                <div class="col-6">
+                                  <pharma-date-picker [labelPosition]="'top'"
+                                                      formControlName="dateReglement"
+                                                      id="dateReg"
+                                                      label="Date du règlement" />
+                                </div>
+                              </div>
+
+                              <!-- Ligne 2 : Mode | Référence -->
+                              <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                  <app-float-label inputId="modeReglement" label="Mode de règlement">
+                                    <app-select [items]="modeReglementOptions" bindLabel="label"
+                                                bindValue="value" formControlName="modeReglement"
+                                                inputId="modeReglement" />
+                                  </app-float-label>
+                                </div>
+                                <div class="col-6">
+                                  <app-float-label inputId="reference" label="Référence">
+                                    <input class="form-control" formControlName="reference"
+                                          id="reference" placeholder=" " />
+                                  </app-float-label>
+                                </div>
+                              </div>
+
+                              <!-- Commentaire -->
+                              <div class="mb-3">
+                                <app-float-label inputId="commentaire"
+                                                label="Commentaire (optionnel)">
+                                  <input class="form-control" formControlName="commentaire"
+                                        id="commentaire" placeholder=" " />
+                                </app-float-label>
+                              </div>
+
+                              <div class="d-flex gap-1">
+                                <app-button [disabled]="reglementForm.invalid || !validMontant()"
+                                            [loading]="isSaving()"
+                                            icon="pi pi-save"
+                                            label="Enregistrer"
+                                            type="submit" />
+                                <app-button (clicked)="activeTab.set('commandes')"
+                                            label="Annuler"
+                                            severity="secondary"
+                                            type="button" />
+                              </div>
+                            </form>
+                          </app-detail-section>
+                        </app-detail-grid>
+                      </ng-template>
+                    </ng-container>
+                  }
 
 
-              </div>
-            </app-nav-tabs>
+                </div>
+              </app-nav-tabs>
 
-          </div>
-        }
-      </div>
-    }
+            </div>
+          }
+        </div>
+      }
 
-  </div>
+    </div>
+  </app-card>
 
 </div>

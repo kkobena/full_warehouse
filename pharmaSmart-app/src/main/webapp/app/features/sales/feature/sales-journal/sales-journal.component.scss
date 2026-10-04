@@ -55,9 +55,8 @@ $gray-border: #e2e8f0;
   gap: 2rem;
   padding: 0.5rem 1rem;
   background: var(--surface-50, #f8f9fa);
-  border: 1px solid var(--surface-200, #e9ecef);
-  border-radius: 6px;
-  margin: 0.75rem 0 0;
+  border-bottom: 1px solid var(--surface-200, #e9ecef);
+  margin: 0;
 
   .summary-item {
     display: flex;

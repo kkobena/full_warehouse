@@ -19,52 +19,54 @@
 
           <div class="pharma-toolbar-actions">
             <div class="pharma-button-group">
-              <app-button (clicked)="addNewEntity()" [raised]="true" icon="pi pi-check" label="Nouveau" severity="success" />
+              <app-button (clicked)="addNewEntity()" [raised]="true" icon="pi pi-check" label="Nouveau" severity="primary" />
             </div>
           </div>
         </div>
       </div>
 
-      <div class="mt-2">
-        @if (entites() && entites().length > 0) {
-          <app-data-table
-            (onLazyLoad)="lazyLoading($event)"
-            [lazy]="true"
-            [loading]="loading()"
-            [paginator]="true"
-            [rows]="itemsPerPage"
-            [size]="'small'"
-            [stripedRows]="true"
-            [totalRecords]="totalItems()"
-            [value]="entites()"
-            dataKey="id"
-          >
-            <ng-template #header>
-              <tr class="pharma-table-head">
-                <th scope="col"><span>Libellé</span></th>
-                <th scope="col"></th>
-              </tr>
-            </ng-template>
-            <ng-template #body let-elRow>
-              <tr>
-                <td>
-                  <span class="pharma-entity-name">{{ elRow.libelle }}</span>
-                </td>
-                <td style="text-align: right">
-                  <app-button (clicked)="onEdit(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
-                              ariaLabel="Modifier" icon="pi pi-pencil" severity="success" size="small" />
-                  <app-button (clicked)="delete(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
-                              ariaLabel="Supprimer" icon="pi pi-trash" severity="danger" size="small" />
-                </td>
-              </tr>
-            </ng-template>
-          </app-data-table>
-        } @else {
-          <div class="alert alert-warning" id="no-result">
-            <span>Aucune donnée trouvée</span>
-          </div>
-        }
-      </div>
+      <app-card>
+        <div class="mt-2">
+          @if (entites() && entites().length > 0) {
+            <app-data-table
+              (onLazyLoad)="lazyLoading($event)"
+              [lazy]="true"
+              [loading]="loading()"
+              [paginator]="true"
+              [rows]="itemsPerPage"
+              [size]="'small'"
+              [stripedRows]="true"
+              [totalRecords]="totalItems()"
+              [value]="entites()"
+              dataKey="id"
+            >
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th scope="col"><span>Libellé</span></th>
+                  <th scope="col"></th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-elRow>
+                <tr>
+                  <td>
+                    <span class="pharma-entity-name">{{ elRow.libelle }}</span>
+                  </td>
+                  <td style="text-align: right">
+                    <app-button (clicked)="onEdit(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
+                                ariaLabel="Modifier" icon="pi pi-pencil" severity="success" size="small" />
+                    <app-button (clicked)="delete(elRow)" [iconOnly]="true" [rounded]="true" [text]="true"
+                                ariaLabel="Supprimer" icon="pi pi-trash" severity="danger" size="small" />
+                  </td>
+                </tr>
+              </ng-template>
+            </app-data-table>
+          } @else {
+            <div class="alert alert-warning" id="no-result">
+              <span>Aucune donnée trouvée</span>
+            </div>
+          }
+        </div>
+      </app-card>
     </div>
   </div>
 </div>

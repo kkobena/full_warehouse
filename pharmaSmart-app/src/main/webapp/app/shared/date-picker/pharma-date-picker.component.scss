@@ -1,10 +1,11 @@
 // ── Palette PharmaSmart (identique à ngb-confirm-dialog) ──────────────────────
-$pharma-primary:        #5b89a6;
-$pharma-primary-light:  rgba(91, 137, 166, 0.15);
-$pharma-primary-hover:  #4a7590;
-$pharma-bg-header:      linear-gradient(135deg, #f0f7fa 0%, #e8f4f8 100%);
-$pharma-border:         #d1e3ed;
-$pharma-text-title:     #1f2937;
+// Jetons du thème de couleur (`--pharma-chrome-dlg-*`, `_pharma-chrome-themes.scss`) : les valeurs d'« Actuel » sont celles d'avant.
+$pharma-primary:        var(--pharma-chrome-dlg-accent);
+$pharma-primary-light:  var(--pharma-chrome-dlg-icon-bg);
+$pharma-primary-hover:  var(--pharma-chrome-dlg-accent-hover);
+$pharma-bg-header:      linear-gradient(135deg, var(--pharma-chrome-dlg-a) 0%, var(--pharma-chrome-dlg-b) 100%);
+$pharma-border:         var(--pharma-chrome-dlg-line);
+$pharma-text-title:     var(--pharma-chrome-dlg-title);
 $pharma-text-body:      #374151;
 $pharma-footer-bg:      #f9fafb;
 $pharma-footer-border:  #e5e7eb;
@@ -69,10 +70,18 @@ $pharma-footer-border:  #e5e7eb;
   padding: 0 0.55rem;
   transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s;
 
+  // Survol : teinte pleine du thème et icône à la couleur du thème. `background` (raccourci) et non `background-color` :
+  // le dégradé de l'état de repos est une `background-image`, qui resterait par-dessus et rendait l'icône blanche illisible.
   &:hover:not(:disabled) {
-    background-color: $pharma-primary;
-    color: #fff;
+    background: $pharma-primary-light;
+    color: $pharma-primary-hover;
     border-color: $pharma-primary;
+  }
+
+  &:active:not(:disabled) {
+    background: $pharma-primary-light;
+    color: $pharma-primary-hover;
+    box-shadow: inset 0 0 0 1px $pharma-primary;
   }
 
   &:focus-visible {

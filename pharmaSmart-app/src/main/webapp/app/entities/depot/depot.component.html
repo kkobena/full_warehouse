@@ -21,91 +21,93 @@
     </ng-container>
   </app-toolbar>
 
-  <app-data-table
-    #dt
-    [globalFilterFields]="['name', 'fullName', 'address', 'phone', 'email']"
-    [loading]="loading()"
-    [paginator]="true"
-    [rowsPerPageOptions]="[10, 25, 50]"
-    [rows]="10"
-    [showCurrentPageReport]="true"
-    [size]="'small'"
-    [stripedRows]="true"
-    [value]="depots()"
+  <app-card>
+    <app-data-table
+      #dt
+      [globalFilterFields]="['name', 'fullName', 'address', 'phone', 'email']"
+      [loading]="loading()"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      [size]="'small'"
+      [stripedRows]="true"
+      [value]="depots()"
 
-    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dépôts"
-  >
-    <ng-template #caption>
-      <div class="table-header">
-        <app-icon-field [overlay]="true" icon="pi pi-search">
-          <input
-            #searchInput
-            (input)="dt.filterGlobal($any($event.target).value)"
-            class="form-control"
-            placeholder="Taper pour rechercher"
-            type="text"
-          />
-        </app-icon-field>
-      </div>
-    </ng-template>
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dépôts"
+    >
+      <ng-template #caption>
+        <div class="table-header">
+          <app-icon-field [overlay]="true" icon="pi pi-search">
+            <input
+              #searchInput
+              (input)="dt.filterGlobal($any($event.target).value)"
+              class="form-control"
+              placeholder="Taper pour rechercher"
+              type="text"
+            />
+          </app-icon-field>
+        </div>
+      </ng-template>
 
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th style="width: 15%">Nom Court</th>
-        <th style="width: 20%">Nom Complet</th>
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th style="width: 15%">Nom Court</th>
+          <th style="width: 20%">Nom Complet</th>
 
-        <th style="width: 12%">Téléphone</th>
-        <th style="width: 20%">Email</th>
-        <th style="width: 20%">Adresse</th>
+          <th style="width: 12%">Téléphone</th>
+          <th style="width: 20%">Email</th>
+          <th style="width: 20%">Adresse</th>
 
-        <th style="width: 20%; text-align: center">Actions</th>
-      </tr>
-    </ng-template>
+          <th style="width: 20%; text-align: center">Actions</th>
+        </tr>
+      </ng-template>
 
-    <ng-template #body let-depot>
-      <tr>
-        <td>
-          <strong>{{ depot.name }}</strong>
-        </td>
-        <td>{{ depot.fullName }}</td>
+      <ng-template #body let-depot>
+        <tr>
+          <td>
+            <strong>{{ depot.name }}</strong>
+          </td>
+          <td>{{ depot.fullName }}</td>
 
-        <td>
-          @if (depot.phone) {
-            <i class="pi pi-phone"></i> {{ depot.phone }}
-          }
-        </td>
-        <td>
-          {{ depot.email }}
-        </td>
-        <td>
-            <span [ngbTooltip]="depot.address" class="text-truncate">
-              {{ depot.address }}
-            </span>
-        </td>
-
-        <td style="text-align: center">
-          <div class="action-buttons">
-            @if (canEdit()) {
-              <app-button (clicked)="onEdit(depot)" [rounded]="true" [text]="true"
-                          icon="pi pi-pencil"
-                          ngbTooltip="Modifier" severity="info" />
+          <td>
+            @if (depot.phone) {
+              <i class="pi pi-phone"></i> {{ depot.phone }}
             }
-            @if (canDelete()) {
-              <app-button (clicked)="onDelete(depot)" [rounded]="true" [text]="true"
-                          icon="pi pi-trash"
-                          ngbTooltip="Supprimer" severity="danger" />
-            }
-          </div>
-        </td>
-      </tr>
-    </ng-template>
+          </td>
+          <td>
+            {{ depot.email }}
+          </td>
+          <td>
+              <span [ngbTooltip]="depot.address" class="text-truncate">
+                {{ depot.address }}
+              </span>
+          </td>
 
-    <ng-template #emptymessage>
-      <tr>
-        <td colspan="6"><p>Aucun dépôt trouvé</p></td>
-      </tr>
-    </ng-template>
-  </app-data-table>
+          <td style="text-align: center">
+            <div class="action-buttons">
+              @if (canEdit()) {
+                <app-button (clicked)="onEdit(depot)" [rounded]="true" [text]="true"
+                            icon="pi pi-pencil"
+                            ngbTooltip="Modifier" severity="info" />
+              }
+              @if (canDelete()) {
+                <app-button (clicked)="onDelete(depot)" [rounded]="true" [text]="true"
+                            icon="pi pi-trash"
+                            ngbTooltip="Supprimer" severity="danger" />
+              }
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6"><p>Aucun dépôt trouvé</p></td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </app-card>
 </div>
 
 

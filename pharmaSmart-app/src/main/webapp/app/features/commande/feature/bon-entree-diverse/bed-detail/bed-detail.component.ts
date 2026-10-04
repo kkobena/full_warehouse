@@ -4,7 +4,7 @@ import { FormsModule } from "@angular/forms";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize, switchMap } from "rxjs/operators";
 import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
-import { BadgeComponent, ButtonComponent } from "app/shared/ui";
+import { BadgeComponent, ButtonComponent, CardComponent } from "app/shared/ui";
 import {
   AllCommunityModule,
   CellValueChangedEvent,
@@ -45,7 +45,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     BadgeComponent,
     AgGridAngular,
     CommandeProductSearchComponent
-  , DevisePipe]
+    , DevisePipe, CardComponent]
 })
 export class BedDetailComponent implements OnInit {
   /** Libellés français d'AG Grid — voir shared/ui/ag-grid. */

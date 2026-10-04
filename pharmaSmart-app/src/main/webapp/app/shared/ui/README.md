@@ -40,6 +40,7 @@ Les severities PrimeNG absentes de Bootstrap (`help`, `contrast`) sont ajoutées
 | `<p-multiselect>` | `<app-multi-select>` | idem, en multiple |
 | `<p-splitbutton [model]="items">` | `<app-split-button [items]="items">` | `NgbDropdown` + `.btn-group` |
 | `<p-selectbutton>` | `<app-pill-selector [items]="opts">` | style `.dashboard-periode-selector` du tableau de bord |
+| onglets de section sous un en-tête (`.su-source-tabs-bar`, `.su-tab`) | `<app-subtab-bar [tabs]="onglets()" [active]="id" (activeChange)="…">` | `role="tablist"`, flèches / Début / Fin, pastilles de comptage thémées ; suit le thème de couleur |
 | `<p-fileupload>` | `<app-file-upload>` | choix des fichiers uniquement, l'envoi reste à l'appelant |
 | `<p-table>` | `<app-data-table>` | + `[appSortableHeader]`, `[appSelectableRow]`, `[appRowToggler]` |
 | `pKeyFilter="alphanum"` | `appKeyFilter="alphanum"` | presets `alpha` / `alphanum` / `int` / `pint`, ou une `RegExp` |

@@ -1,4 +1,4 @@
-<div class="pharma-smart-content p-2">
+<div class="pharma-smart-content">
   <app-toolbar [code]="navCode()" icon="pi pi-briefcase" title="Gestion de caisse">
     <ng-container ngProjectAs="[toolbarFilters]">
       <div class="pharma-toolbar-filters">
@@ -38,77 +38,79 @@
     </ng-container>
   </app-toolbar>
 
-  <div class="mvt-caisse-data-section mt-3 mb-3">
-    @if (datas() && datas().length > 0) {
-      <div>
-        <app-data-table
-          [lazy]="true"
-          [loading]="loading()"
-          [paginator]="true"
-          [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
-          [rows]="itemsPerPage"
-          [totalRecords]="totalItems()"
-          [value]="datas()"
-          dataKey="id"
-        >
-          <ng-template #header>
-            <tr class="pharma-table-head">
-              <th>Caissier</th>
-              <th>Fond de caisse</th>
-              <th>Recette</th>
-              <th>Total caisse</th>
-              <th>Montant mobile</th>
-              <th>Billetage</th>
-              <th>Ecart</th>
-              <th>Total annulation</th>
-              <th>Etat de la caisse</th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-mvtCaisse>
-            <tr>
-              <td>
-                {{ mvtCaisse.user?.abbrName }}
-              </td>
-              <td class="text-right amount-column">
-                <span class="pharma-price">{{ mvtCaisse.cashFund | number }}</span>
-              </td>
-              <td>
-                <span class="pharma-total">{{ mvtCaisse.cashAmount | number }}</span>
-              </td>
-              <td>
-                <span class="pharma-price">{{ mvtCaisse.estimateAmount | number }}</span>
-              </td>
-              <td>
-                <span class="pharma-price">{{ mvtCaisse.mobileAmount | number }}</span>
-              </td>
-              <td>
-                <span class="pharma-total">{{ mvtCaisse.ticketing?.totalAmount | number }}</span>
-              </td>
-              @if (mvtCaisse.gap > 0) {
-                <td class="pharma-price">{{ mvtCaisse.gap | number }}</td>
-              } @else if (mvtCaisse.gap === 0) {
-                <td class="pharma-price">{{ mvtCaisse.gap | number }}</td>
-              } @else {
-                <td class="text-danger pharma-price">{{ mvtCaisse.gap | number }}</td>
-              }
-              <td class="text-danger pharma-price">{{ mvtCaisse.canceledAmount | number }}</td>
-              <td class="text-center">
-                @if (mvtCaisse.statut === OPEN) {
-                  <app-badge icon="pi pi-lock-open" label="Ouvert" severity="warn" />
-                } @else if (mvtCaisse.statut === CLOSED) {
-                  <app-badge icon="pi pi-lock" label="Fermé" severity="success" />
-                } @else if (mvtCaisse.statut === VALIDATED) {
-                  <app-badge icon="pi pi-check" label="Validé" severity="secondary" />
+  <app-card>
+    <div class="mvt-caisse-data-section mt-3 mb-3">
+      @if (datas() && datas().length > 0) {
+        <div>
+          <app-data-table
+            [lazy]="true"
+            [loading]="loading()"
+            [paginator]="true"
+            [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
+            [rows]="itemsPerPage"
+            [totalRecords]="totalItems()"
+            [value]="datas()"
+            dataKey="id"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>Caissier</th>
+                <th>Fond de caisse</th>
+                <th>Recette</th>
+                <th>Total caisse</th>
+                <th>Montant mobile</th>
+                <th>Billetage</th>
+                <th>Ecart</th>
+                <th>Total annulation</th>
+                <th>Etat de la caisse</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-mvtCaisse>
+              <tr>
+                <td>
+                  {{ mvtCaisse.user?.abbrName }}
+                </td>
+                <td class="text-right amount-column">
+                  <span class="pharma-price">{{ mvtCaisse.cashFund | number }}</span>
+                </td>
+                <td>
+                  <span class="pharma-total">{{ mvtCaisse.cashAmount | number }}</span>
+                </td>
+                <td>
+                  <span class="pharma-price">{{ mvtCaisse.estimateAmount | number }}</span>
+                </td>
+                <td>
+                  <span class="pharma-price">{{ mvtCaisse.mobileAmount | number }}</span>
+                </td>
+                <td>
+                  <span class="pharma-total">{{ mvtCaisse.ticketing?.totalAmount | number }}</span>
+                </td>
+                @if (mvtCaisse.gap > 0) {
+                  <td class="pharma-price">{{ mvtCaisse.gap | number }}</td>
+                } @else if (mvtCaisse.gap === 0) {
+                  <td class="pharma-price">{{ mvtCaisse.gap | number }}</td>
+                } @else {
+                  <td class="text-danger pharma-price">{{ mvtCaisse.gap | number }}</td>
                 }
-              </td>
-            </tr>
-          </ng-template>
-        </app-data-table>
-      </div>
-    } @else {
-      <div class="alert alert-warning" role="alert">
-        <span>Aucune donnée trouvée</span>
-      </div>
-    }
-  </div>
+                <td class="text-danger pharma-price">{{ mvtCaisse.canceledAmount | number }}</td>
+                <td class="text-center">
+                  @if (mvtCaisse.statut === OPEN) {
+                    <app-badge icon="pi pi-lock-open" label="Ouvert" severity="warn" />
+                  } @else if (mvtCaisse.statut === CLOSED) {
+                    <app-badge icon="pi pi-lock" label="Fermé" severity="success" />
+                  } @else if (mvtCaisse.statut === VALIDATED) {
+                    <app-badge icon="pi pi-check" label="Validé" severity="secondary" />
+                  }
+                </td>
+              </tr>
+            </ng-template>
+          </app-data-table>
+        </div>
+      } @else {
+        <div class="alert alert-warning" role="alert">
+          <span>Aucune donnée trouvée</span>
+        </div>
+      }
+    </div>
+  </app-card>
 </div>

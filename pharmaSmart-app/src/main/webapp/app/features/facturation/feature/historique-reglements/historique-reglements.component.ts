@@ -29,6 +29,7 @@ import {
   DetailGroupReglementComponent
 } from "../../../../entities/reglement/detail-group-reglement/detail-group-reglement.component";
 import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
+import { CardComponent } from 'app/shared/ui';
 import {
   ButtonComponent,
   DataTableComponent,
@@ -46,7 +47,7 @@ import {
 
 @Component({
   selector: "app-historique-reglements",
-  imports: [
+  imports: [CardComponent, 
     CommonModule,
     FormsModule,
     ButtonComponent,

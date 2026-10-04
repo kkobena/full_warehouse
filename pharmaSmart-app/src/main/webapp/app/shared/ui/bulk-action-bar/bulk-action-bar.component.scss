@@ -10,12 +10,12 @@
   gap: 0.5rem;
   min-width: 0;
   padding: 0.4rem 0.75rem;
-  background: #eff6ff;
-  border-bottom: 1px solid #bfdbfe;
+  background: var(--pharma-chrome-bulk-bg);
+  border-bottom: 1px solid var(--pharma-chrome-bulk-border);
 
   &__count {
     margin-right: 0.25rem;
-    color: #1e40af;
+    color: var(--pharma-chrome-bulk-fg);
     font-size: 0.78rem;
     font-weight: 600;
   }

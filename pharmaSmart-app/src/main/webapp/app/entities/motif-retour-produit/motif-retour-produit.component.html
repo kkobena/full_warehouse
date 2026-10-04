@@ -22,44 +22,46 @@
     </div>
 
     <!-- DATA TABLE -->
-    <div class="table-section">
-      <app-data-table [loading]="loading()" [rows]="itemsPerPage" [size]="'small'" [value]="motifRetours()" dataKey="id">
-        <ng-template #header>
-          <tr class="pharma-table-head">
-            <th>Libellé</th>
-            <th style="width: 150px; text-align: center">Actions</th>
-          </tr>
-        </ng-template>
+    <app-card>
+      <div class="table-section">
+        <app-data-table [loading]="loading()" [rows]="itemsPerPage" [size]="'small'" [value]="motifRetours()" dataKey="id">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th>Libellé</th>
+              <th style="width: 150px; text-align: center">Actions</th>
+            </tr>
+          </ng-template>
 
-        <ng-template #body let-motif>
-          <tr>
-            <td>
-              <span class="motif-label">{{ motif.libelle }}</span>
-            </td>
-            <td style="text-align: center">
-              <div class="action-buttons">
-                <app-button (clicked)="edit(motif)" [iconOnly]="true" [rounded]="true" [text]="true"
-                            ariaLabel="Modifier" icon="pi pi-pencil" ngbTooltip="Modifier" placement="top"
-                            severity="info" size="small" />
-                <app-button (clicked)="confirmDelete(motif)" [iconOnly]="true" [rounded]="true" [text]="true"
-                            ariaLabel="Supprimer" icon="pi pi-trash" ngbTooltip="Supprimer" placement="top"
-                            severity="danger" size="small" />
-              </div>
-            </td>
-          </tr>
-        </ng-template>
+          <ng-template #body let-motif>
+            <tr>
+              <td>
+                <span class="motif-label">{{ motif.libelle }}</span>
+              </td>
+              <td style="text-align: center">
+                <div class="action-buttons">
+                  <app-button (clicked)="edit(motif)" [iconOnly]="true" [rounded]="true" [text]="true"
+                              ariaLabel="Modifier" icon="pi pi-pencil" ngbTooltip="Modifier" placement="top"
+                              severity="info" size="small" />
+                  <app-button (clicked)="confirmDelete(motif)" [iconOnly]="true" [rounded]="true" [text]="true"
+                              ariaLabel="Supprimer" icon="pi pi-trash" ngbTooltip="Supprimer" placement="top"
+                              severity="danger" size="small" />
+                </div>
+              </td>
+            </tr>
+          </ng-template>
 
-        <ng-template #emptymessage>
-          <tr>
-            <td class="text-center" colspan="2">
-              <div class="empty-state">
-                <i class="pi pi-inbox"></i>
-                <p>Aucun motif de retour trouvé</p>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </app-data-table>
-    </div>
+          <ng-template #emptymessage>
+            <tr>
+              <td class="text-center" colspan="2">
+                <div class="empty-state">
+                  <i class="pi pi-inbox"></i>
+                  <p>Aucun motif de retour trouvé</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </div>
+    </app-card>
   </div>
 </div>

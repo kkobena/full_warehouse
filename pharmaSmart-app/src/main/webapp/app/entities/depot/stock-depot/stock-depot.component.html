@@ -35,7 +35,7 @@
           size="small"
         />
         <app-button (clicked)="onOpenImportDialog()" icon="pi pi-upload" label="Importation"
-                    severity="help" size="small" />
+                    severity="secondary" size="small" />
 
         <app-button [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt"
                     severity="warn" size="small" />
@@ -43,72 +43,74 @@
     </ng-container>
   </app-toolbar>
 
-  <div class="mt-2">
-    <app-data-table [value]="produits()" dataKey="id">
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th style="width: 8%">Cip</th>
-          <th style="width: 11%">Code EAN</th>
-          <th style="width: 24%"><span jhiTranslate="warehouseApp.produit.libelle">Libelle</span>
-          </th>
-          <th style="text-align: right; width: 6%"><span
-            jhiTranslate="warehouseApp.produit.quantity">Quantity</span></th>
+  <app-card>
+    <div class="mt-2">
+      <app-data-table [value]="produits()" dataKey="id">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th style="width: 8%">Cip</th>
+            <th style="width: 11%">Code EAN</th>
+            <th style="width: 24%"><span jhiTranslate="warehouseApp.produit.libelle">Libelle</span>
+            </th>
+            <th style="text-align: right; width: 6%"><span
+              jhiTranslate="warehouseApp.produit.quantity">Quantity</span></th>
 
-          <th style="text-align: right; width: 8%"><span
-            jhiTranslate="warehouseApp.produit.costAmount">Prix achat </span></th>
-          <th style="text-align: right; width: 8%">
-            <span jhiTranslate="warehouseApp.produit.regularUnitPrice">Regular Unit Price</span>
-          </th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-produit>
-        <tr>
-          <td>
-            <span class="pharma-code">{{ produit.codeCip }}</span>
-          </td>
-          <td>
-            <span class="pharma-code">{{ produit.codeEan }}</span>
-          </td>
-          <td>
-            <div class="pharma-product-name">{{ produit.libelle }}</div>
-          </td>
-          @if (produit.totalQuantity < 0) {
-            <td class="amount-column red-400"
-                style="text-align: right">{{ produit.totalQuantity | number }}
+            <th style="text-align: right; width: 8%"><span
+              jhiTranslate="warehouseApp.produit.costAmount">Prix achat </span></th>
+            <th style="text-align: right; width: 8%">
+              <span jhiTranslate="warehouseApp.produit.regularUnitPrice">Regular Unit Price</span>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-produit>
+          <tr>
+            <td>
+              <span class="pharma-code">{{ produit.codeCip }}</span>
             </td>
-          } @else if (produit.totalQuantity === 0) {
-            <td class="amount-column orange-400"
-                style="text-align: right">{{ produit.totalQuantity | number }}
+            <td>
+              <span class="pharma-code">{{ produit.codeEan }}</span>
             </td>
-          } @else {
-            <td class="amount-column"
-                style="text-align: right">{{ produit.totalQuantity | number }}
+            <td>
+              <div class="pharma-product-name">{{ produit.libelle }}</div>
             </td>
-          }
+            @if (produit.totalQuantity < 0) {
+              <td class="amount-column red-400"
+                  style="text-align: right">{{ produit.totalQuantity | number }}
+              </td>
+            } @else if (produit.totalQuantity === 0) {
+              <td class="amount-column orange-400"
+                  style="text-align: right">{{ produit.totalQuantity | number }}
+              </td>
+            } @else {
+              <td class="amount-column"
+                  style="text-align: right">{{ produit.totalQuantity | number }}
+              </td>
+            }
 
-          <td style="text-align: right">
-            <span class="pharma-price">{{ produit.costAmount | number }}</span>
-          </td>
-          <td style="text-align: right">
-            <span class="pharma-price">{{ produit.regularUnitPrice | number }}</span>
-          </td>
-        </tr>
-      </ng-template>
+            <td style="text-align: right">
+              <span class="pharma-price">{{ produit.costAmount | number }}</span>
+            </td>
+            <td style="text-align: right">
+              <span class="pharma-price">{{ produit.regularUnitPrice | number }}</span>
+            </td>
+          </tr>
+        </ng-template>
 
-      <ng-template #emptymessage>
-        <tr>
-          <td class="pharma-empty-message" colspan="10">
-            <div class="pharma-empty-content">
-              <i class="pi pi-inbox"></i>
-              <p>Aucune donnée trouvée</p>
-              <small>Sélectionner un dépôt pour afficher ses produits()</small>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </app-data-table>
+        <ng-template #emptymessage>
+          <tr>
+            <td class="pharma-empty-message" colspan="10">
+              <div class="pharma-empty-content">
+                <i class="pi pi-inbox"></i>
+                <p>Aucune donnée trouvée</p>
+                <small>Sélectionner un dépôt pour afficher ses produits()</small>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
    
-  </div>
+    </div>
+  </app-card>
 </div>
 
 

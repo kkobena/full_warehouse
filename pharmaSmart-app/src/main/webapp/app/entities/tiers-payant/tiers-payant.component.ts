@@ -38,6 +38,7 @@ import {
   ListPrixReferenceComponent
 } from "../../features/products/ui/prix-reference/list-prix-reference/list-prix-reference.component";
 import {CommonModule} from "@angular/common";
+import { CardComponent } from 'app/shared/ui';
 
 @Component({
   selector: "app-tiers-payant",
@@ -45,7 +46,7 @@ import {CommonModule} from "@angular/common";
   styleUrls: ["./tiers-payant.component.scss"],
   providers: [NgbActiveModal],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [CardComponent, 
     CommonModule,
     FormsModule,
     RouterModule,

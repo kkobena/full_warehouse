@@ -40,6 +40,7 @@ import {
   MultiSelectComponent,
   ToolbarComponent, RowTogglerDirective } from "../../../../shared/ui";
 import { PharmaDatePickerComponent } from "../../../../shared/date-picker/pharma-date-picker.component";
+import { CardComponent } from 'app/shared/ui';
 
 interface IStatutOption {
   label: string;
@@ -48,7 +49,7 @@ interface IStatutOption {
 
 @Component({
   selector: "app-rapprochement",
-  imports: [RowTogglerDirective,
+  imports: [CardComponent, RowTogglerDirective,
     HintComponent,
     FormsModule,
     DecimalPipe,

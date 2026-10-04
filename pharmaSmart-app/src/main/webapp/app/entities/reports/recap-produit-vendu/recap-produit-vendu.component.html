@@ -27,7 +27,7 @@
       />
 
       <app-button (clicked)="loadCurrentTabData()" icon="pi pi-refresh" label="Rechercher"
-                  severity="primary" size="small" />
+                  severity="info" size="small" />
 
 
       <app-split-button (clicked)="createInventory()" [items]="actionsMenuItems()"
@@ -460,7 +460,7 @@
     <!-- Action Buttons -->
     <div class="d-flex gap-1">
       <app-button (clicked)="toggleFiltersDrawer()" class="flex-fill" icon="pi pi-refresh"
-                  label="Rechercher" severity="primary" />
+                  label="Rechercher" severity="info" />
       <app-split-button (clicked)="createInventory()" [items]="actionsMenuItems()"
                         icon="pi pi-cog" label="Actions"
                         severity="info" size="small" />

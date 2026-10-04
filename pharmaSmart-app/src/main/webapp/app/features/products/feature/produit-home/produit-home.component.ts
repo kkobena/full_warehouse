@@ -13,8 +13,7 @@ import {
   SelectComponent,
   SelectSearchComponent,
   SplitButtonComponent,
-  ToolbarComponent,
-} from "app/shared/ui";
+  ToolbarComponent, CardComponent } from "app/shared/ui";
 import {AbilityService} from "app/core/auth/ability.service";
 import {IProduit} from "app/shared/model/produit.model";
 import {IFamilleProduit} from "app/shared/model/famille-produit.model";
@@ -88,6 +87,7 @@ import {
   styleUrls: ["./produit-home.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    CardComponent,
     CommonModule,
     RouterModule,
     FormsModule,
@@ -595,8 +595,7 @@ export class ProduitHomeComponent implements OnInit {
 
   /** Gestion de la grille du comptoir ; à la fermeture, on relit les épingles pour que le menu des lignes soit juste. */
   protected openFavoris(): void {
-    const ref = this.modalService.open(FavorisComptoirModalComponent, {size: "lg", centered: true, scrollable: true});
-    // Fermée par « Terminé », la croix ou Échap : dans les trois cas la liste a pu changer.
+    const ref = this.modalService.open(FavorisComptoirModalComponent, {size: "xl", centered: true, scrollable: true});
     ref.result.then(() => this.loadFavoris(), () => this.loadFavoris());
   }
 
@@ -678,7 +677,7 @@ export class ProduitHomeComponent implements OnInit {
       return;
     }
     const ref = this.modalService.open(ListPrixReferenceComponent, {
-      size: "lg",
+      size: "xl",
       centered: true,
       backdrop: "static"
     });

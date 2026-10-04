@@ -20,9 +20,9 @@ import {
 import { PageLayoutComponent } from "../../../../shared/ui/page-layout/page-layout.component";
 import { DciApiService, DciQuery } from "../../data-access/services/dci-api.service";
 import { IDci, IDciProduit } from "../../models/dci.model";
-import { AppBadgeSeverity } from "../../../../shared/ui/badge/badge.component";
-import { HintComponent } from "../../../../shared/ui/hint/hint.component";
-import { SelectableRowDirective } from "../../../../shared/ui/data-table/selectable-row.directive";
+import { AppBadgeSeverity } from "../../../../shared/ui";
+import { HintComponent } from "../../../../shared/ui";
+import { SelectableRowDirective } from "../../../../shared/ui";
 import { DciFormComponent } from "../../ui/dci-form/dci-form.component";
 import { DciImportComponent } from "../../ui/dci-import/dci-import.component";
 

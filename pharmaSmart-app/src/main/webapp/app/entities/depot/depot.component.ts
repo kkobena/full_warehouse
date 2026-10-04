@@ -8,10 +8,11 @@ import { AbilityService } from "../../core/auth/ability.service";
 import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../shared/services/notification.service";
 import { ButtonComponent, DataTableComponent, IconFieldComponent, ToolbarComponent } from "../../shared/ui";
+import { CardComponent } from 'app/shared/ui';
 @Component({
   selector: "app-depot",
 
-  imports: [
+  imports: [CardComponent, 
     RouterModule,
     ButtonComponent,
     DataTableComponent,

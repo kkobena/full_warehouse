@@ -18,6 +18,7 @@ import {
 import { RecapitulatifApiService } from "../../data-access/services/recapitulatif-api.service";
 import { RecapitulatifKpiBannerComponent } from "../../ui/recapitulatif-kpi-banner/recapitulatif-kpi-banner.component";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import { CardComponent } from 'app/shared/ui';
 import {
   ButtonComponent,
   DataTableComponent,
@@ -47,7 +48,7 @@ interface IAnneeOption {
 
 @Component({
   selector: "app-recapitulatif",
-  imports: [
+  imports: [CardComponent, 
     HintComponent,
     FormsModule,
     DecimalPipe,

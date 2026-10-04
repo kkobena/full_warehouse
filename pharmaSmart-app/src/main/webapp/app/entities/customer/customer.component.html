@@ -70,196 +70,199 @@
   </app-toolbar>
 
   <!-- Barre d'actions groupées -->
-  @if (hasSelection()) {
-    <div class="bulk-action-bar mt-2">
-      <span class="bulk-count">{{ selectedCustomers().length }} client(s) sélectionné(s)</span>
-      @if (canMerge() && selectedCustomers().length >= 2) {
+  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden"
+          [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
+    @if (hasSelection()) {
+      <div class="bulk-action-bar mt-2">
+        <span class="bulk-count">{{ selectedCustomers().length }} client(s) sélectionné(s)</span>
+        @if (canMerge() && selectedCustomers().length >= 2) {
+          <app-button
+            (clicked)="onBulkMerge()"
+            [outlined]="true"
+            icon="pi pi-sitemap"
+            label="Fusionner"
+            severity="info"
+            size="small"
+          />
+        }
         <app-button
-          (clicked)="onBulkMerge()"
-          [outlined]="true"
-          icon="pi pi-sitemap"
-          label="Fusionner"
-          severity="info"
+          (clicked)="onClearSelection()"
+          [text]="true"
+          icon="pi pi-times"
+          ngbTooltip="Désélectionner tout"
+          severity="secondary"
           size="small"
-        />
-      }
-      <app-button
-        (clicked)="onClearSelection()"
-        [text]="true"
-        icon="pi pi-times"
-        ngbTooltip="Désélectionner tout"
-        severity="secondary"
-        size="small"
-      />
-    </div>
-  }
-
-  <!-- Split panel -->
-  <div [class.panel-open]="panelOpen()" class="split-container">
-
-    <!-- Colonne gauche : liste -->
-    <div class="list-column">
-      @if (customers() && customers().length > 0) {
-        <app-data-table
-          (onLazyLoad)="lazyLoading($event)"
-          [lazy]="true"
-          [loading]="loading()"
-          [paginator]="true"
-          [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-          [rows]="itemsPerPage"
-          [showCurrentPageReport]="true"
-          [totalRecords]="totalItems()"
-          [value]="customers()"
-          class="p-datatable-sm p-datatable-striped"
-          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} client"
-          dataKey="id"
-        >
-          <ng-template #header>
-            <tr class="pharma-table-head">
-              <th style="width: 36px; text-align: center">
-                <app-checkbox (ngModelChange)="toggleAll()" [ngModel]="allSelected()" ariaLabel="Tout sélectionner" />
-              </th>
-              <th style="width: 10%">Catégorie</th>
-              <th style="width: 30%">Nom et Prénom(s)</th>
-              @if (!panelOpen()) {
-                <th style="width: 10%">Identifiant</th>
-                <th style="width: 12%">Numéro assuré</th>
-                <th style="width: 10%">Téléphone</th>
-              }
-              <th container="body" ngbTooltip="Reste dû sur les ventes différées" style="width: 10%">Encours</th>
-
-              <th style="width: 15%"></th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-customer>
-            <tr
-              (click)="onCustomerSelected(customer)"
-              [class.ligne-selected]="selectedCustomer()?.id === customer.id"
-              [class.row-checked]="isChecked(customer)"
-              style="cursor: pointer"
-            >
-              <td (click)="$event.stopPropagation()" class="text-center">
-                <app-checkbox (ngModelChange)="toggleCheckbox(customer)" [ariaLabel]="'Sélectionner ' + customer.fullName"
-                              [ngModel]="isChecked(customer)" />
-              </td>
-              <td>
-                <span class="pharma-badge pharma-badge-info">{{ customer.categorie }}</span>
-              </td>
-              <td>
-                <div class="pharma-entity-name">{{ customer.fullName }}</div>
-              </td>
-              @if (!panelOpen()) {
-                <td>
-                  <span class="pharma-code">{{ customer.code }}</span>
-                </td>
-                <td>{{ customer.num }}</td>
-                <td>{{ customer.phone }}</td>
-              }
-              <td class="text-right">
-                <span class="pharma-total">{{ customer.encours | number }}</span>
-              </td>
-              <td (click)="$event.stopPropagation()" class="text-right">
-                <div class="btn-group">
-                  <app-button
-                    (clicked)="onCustomerSelected(customer)"
-                    [rounded]="true"
-                    [text]="true"
-                    icon="pi pi-eye"
-                    ngbTooltip="Voir la fiche"
-                    severity="info"
-                    type="button"
-                  >
-                  </app-button>
-
-                  @if (customer.categorie === 'ASSURE' && canEdit()) {
-                    <app-button
-                      (clicked)="editAssureCustomer(customer)"
-                      [rounded]="true"
-                      [text]="true"
-                      data-placement="left"
-                      icon="pi pi-pencil"
-                      ngbTooltip="Editer"
-                      severity="primary"
-                      type="button"
-                    >
-                    </app-button>
-                  }
-
-                  @if (customer.categorie === 'STANDARD' && canEdit()) {
-                    <app-button
-                      (clicked)="editUninsuredCustomer(customer)"
-                      [rounded]="true"
-                      [text]="true"
-                      data-placement="left"
-                      icon="pi pi-pencil"
-                      ngbTooltip="Editer"
-                      severity="primary"
-                      type="button"
-                    >
-                    </app-button>
-                  }
-
-                  @if (canDelete()) {
-                    <app-button
-                      (clicked)="confirmRemove(customer)"
-                      [rounded]="true"
-                      [text]="true"
-                      icon="pi pi-trash"
-                      ngbTooltip="Supprimer"
-                      severity="danger"
-                      type="button"
-                    >
-                    </app-button>
-                  }
-                  @if (canEdit()) {
-                    @if (statutSelected() === 'DISABLE') {
-                      <app-button
-                        (clicked)="confirmReactivation(customer)"
-                        [rounded]="true"
-                        [text]="true"
-                        icon="pi pi-lock-open"
-                        ngbTooltip="Réactiver"
-                        severity="success"
-                        type="button"
-                      >
-                      </app-button>
-                    } @else {
-                      <app-button
-                        (clicked)="confirmDesactivation(customer)"
-                        [rounded]="true"
-                        [text]="true"
-                        icon="pi pi-lock"
-                        ngbTooltip="Désactiver"
-                        severity="warn"
-                        type="button"
-                      >
-                      </app-button>
-                    }
-                  }
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-        </app-data-table>
-      } @else {
-        <div class="alert alert-warning mt-2">
-          <span>Aucune donnée trouvée</span>
-        </div>
-      }
-    </div>
-
-    <!-- Colonne droite : fiche client -->
-    @if (panelOpen()) {
-      <div class="detail-column">
-        <app-customer-detail
-          (closePanel)="onClosePanel()"
-          (customerChanged)="loadPage()"
-          [customer]="selectedCustomer()!"
         />
       </div>
     }
 
-  </div>
+    <!-- Split panel -->
+    <div [class.panel-open]="panelOpen()" class="split-container">
+
+      <!-- Colonne gauche : liste -->
+      <div class="list-column">
+        @if (customers() && customers().length > 0) {
+          <app-data-table
+            (onLazyLoad)="lazyLoading($event)"
+            [lazy]="true"
+            [loading]="loading()"
+            [paginator]="true"
+            [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+            [rows]="itemsPerPage"
+            [showCurrentPageReport]="true"
+            [totalRecords]="totalItems()"
+            [value]="customers()"
+            class="p-datatable-sm p-datatable-striped"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} client"
+            dataKey="id"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th style="width: 36px; text-align: center">
+                  <app-checkbox (ngModelChange)="toggleAll()" [ngModel]="allSelected()" ariaLabel="Tout sélectionner" />
+                </th>
+                <th style="width: 10%">Catégorie</th>
+                <th style="width: 30%">Nom et Prénom(s)</th>
+                @if (!panelOpen()) {
+                  <th style="width: 10%">Identifiant</th>
+                  <th style="width: 12%">Numéro assuré</th>
+                  <th style="width: 10%">Téléphone</th>
+                }
+                <th container="body" ngbTooltip="Reste dû sur les ventes différées" style="width: 10%">Encours</th>
+
+                <th style="width: 15%"></th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-customer>
+              <tr
+                (click)="onCustomerSelected(customer)"
+                [class.ligne-selected]="selectedCustomer()?.id === customer.id"
+                [class.row-checked]="isChecked(customer)"
+                style="cursor: pointer"
+              >
+                <td (click)="$event.stopPropagation()" class="text-center">
+                  <app-checkbox (ngModelChange)="toggleCheckbox(customer)" [ariaLabel]="'Sélectionner ' + customer.fullName"
+                                [ngModel]="isChecked(customer)" />
+                </td>
+                <td>
+                  <span class="pharma-badge pharma-badge-info">{{ customer.categorie }}</span>
+                </td>
+                <td>
+                  <div class="pharma-entity-name">{{ customer.fullName }}</div>
+                </td>
+                @if (!panelOpen()) {
+                  <td>
+                    <span class="pharma-code">{{ customer.code }}</span>
+                  </td>
+                  <td>{{ customer.num }}</td>
+                  <td>{{ customer.phone }}</td>
+                }
+                <td class="text-right">
+                  <span class="pharma-total">{{ customer.encours | number }}</span>
+                </td>
+                <td (click)="$event.stopPropagation()" class="text-right">
+                  <div class="btn-group">
+                    <app-button
+                      (clicked)="onCustomerSelected(customer)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-eye"
+                      ngbTooltip="Voir la fiche"
+                      severity="info"
+                      type="button"
+                    >
+                    </app-button>
+
+                    @if (customer.categorie === 'ASSURE' && canEdit()) {
+                      <app-button
+                        (clicked)="editAssureCustomer(customer)"
+                        [rounded]="true"
+                        [text]="true"
+                        data-placement="left"
+                        icon="pi pi-pencil"
+                        ngbTooltip="Editer"
+                        severity="primary"
+                        type="button"
+                      >
+                      </app-button>
+                    }
+
+                    @if (customer.categorie === 'STANDARD' && canEdit()) {
+                      <app-button
+                        (clicked)="editUninsuredCustomer(customer)"
+                        [rounded]="true"
+                        [text]="true"
+                        data-placement="left"
+                        icon="pi pi-pencil"
+                        ngbTooltip="Editer"
+                        severity="primary"
+                        type="button"
+                      >
+                      </app-button>
+                    }
+
+                    @if (canDelete()) {
+                      <app-button
+                        (clicked)="confirmRemove(customer)"
+                        [rounded]="true"
+                        [text]="true"
+                        icon="pi pi-trash"
+                        ngbTooltip="Supprimer"
+                        severity="danger"
+                        type="button"
+                      >
+                      </app-button>
+                    }
+                    @if (canEdit()) {
+                      @if (statutSelected() === 'DISABLE') {
+                        <app-button
+                          (clicked)="confirmReactivation(customer)"
+                          [rounded]="true"
+                          [text]="true"
+                          icon="pi pi-lock-open"
+                          ngbTooltip="Réactiver"
+                          severity="success"
+                          type="button"
+                        >
+                        </app-button>
+                      } @else {
+                        <app-button
+                          (clicked)="confirmDesactivation(customer)"
+                          [rounded]="true"
+                          [text]="true"
+                          icon="pi pi-lock"
+                          ngbTooltip="Désactiver"
+                          severity="warn"
+                          type="button"
+                        >
+                        </app-button>
+                      }
+                    }
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </app-data-table>
+        } @else {
+          <div class="alert alert-warning mt-2">
+            <span>Aucune donnée trouvée</span>
+          </div>
+        }
+      </div>
+
+      <!-- Colonne droite : fiche client -->
+      @if (panelOpen()) {
+        <div class="detail-column">
+          <app-customer-detail
+            (closePanel)="onClosePanel()"
+            (customerChanged)="loadPage()"
+            [customer]="selectedCustomer()!"
+          />
+        </div>
+      }
+
+    </div>
+  </app-card>
 </div>
 
 <jhi-spinner #spinner></jhi-spinner>

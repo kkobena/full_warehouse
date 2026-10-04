@@ -72,6 +72,6 @@
 
 <div class="modal-footer">
   <app-button (clicked)="dismiss()" label="Fermer" severity="secondary" />
-  <app-button (clicked)="loadRetour()" [loading]="loading()" icon="pi pi-refresh"
+  <app-button severity="info" (clicked)="loadRetour()" [loading]="loading()" icon="pi pi-refresh"
               label="Actualiser" />
 </div>

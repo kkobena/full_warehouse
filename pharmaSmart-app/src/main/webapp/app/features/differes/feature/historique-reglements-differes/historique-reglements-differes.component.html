@@ -50,137 +50,139 @@
   </app-toolbar>
 
   <!-- Table principale -->
-  <app-data-table
-    (onLazyLoad)="lazyLoading($event)"
-    [lazy]="true"
-    [loading]="loading()"
-    [paginator]="true"
-    [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-    [rows]="itemsPerPage"
-    [showCurrentPageReport]="true"
-    [size]="'small'"
-    [stripedRows]="true"
-    [totalRecords]="store.totalReglements()"
-    [value]="store.reglements()"
-    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} clients"
-    dataKey="id"
-  >
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th style="width: 3rem"></th>
-        <th>Client</th>
-        <th class="text-end">Total encaissé</th>
-        <th class="text-end">Solde restant</th>
-        <th class="text-end">Nb règlements</th>
-      </tr>
-    </ng-template>
-
-    <ng-template #body let-expanded="expanded" let-r>
-      <tr [appRowToggler]="r" class="clickable-row">
-        <td>
-          <app-button
-            [appRowToggler]="r"
-            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-            [rounded]="true"
-            [text]="true"
-            ariaLabel="Déplier le détail"
-            size="small"
-          />
-        </td>
-        <td>
-          <span class="pharma-entity-name">{{ r.firstName }} {{ r.lastName }}</span>
-        </td>
-        <td class="text-end">
-          <span class="pharma-price">{{ r.paidAmount | number }}</span>
-        </td>
-        <td class="text-end">
-          <span [class.pharma-total]="(r.solde ?? 0) > 0">{{ r.solde | number }}</span>
-        </td>
-        <td class="text-end">{{ r.items?.length ?? 0 }}</td>
-      </tr>
-    </ng-template>
-
-    <ng-template #expandedrow let-r>
-      <tr>
-        <td class="p-0" colspan="5">
-          <div class="px-4 py-2 bg-light">
-            <app-data-table
-              [size]="'small'"
-              [stripedRows]="true"
-              [value]="r.items ?? []" class="pharma-table-nested"
-            >
-              <ng-template #header>
-                <tr class="pharma-table-head">
-                  <th>Mode de paiement</th>
-                  <th class="text-end">Montant attendu</th>
-                  <th class="text-end">Montant versé</th>
-                  <th class="text-center">Date</th>
-                  <th>Opérateur</th>
-                  <th class="text-center">Actions</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-item>
-                <tr>
-                  <td>
-                    <span class="pharma-badge pharma-badge-info">{{
-                        item.libelleMode ?? '—'
-                      }}</span>
-                  </td>
-                  <td class="text-end"><span
-                    class="pharma-price">{{ item.expectedAmount | number }}</span></td>
-                  <td class="text-end"><span
-                    class="pharma-total">{{ item.montantVerse | number }}</span></td>
-                  <td class="text-center text-muted small">{{ item.mvtDate | date: 'dd/MM/yyyy' }}
-                  </td>
-                  <td class="small">{{ item.user ?? '—' }}</td>
-                  <td class="text-center">
-                    <app-button
-                      (clicked)="printItem(item)"
-                      [rounded]="true"
-                      [text]="true"
-                      icon="pi pi-print"
-                      ngbTooltip="Imprimer le reçu"
-                      placement="top"
-                      severity="secondary"
-                      size="small"
-                    />
-                  </td>
-                </tr>
-              </ng-template>
-              <ng-template #emptymessage>
-                <tr>
-                  <td class="text-center text-muted py-2 small" colspan="6">Aucun détail
-                    disponible
-                  </td>
-                </tr>
-              </ng-template>
-            </app-data-table>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-
-    <ng-template #emptymessage>
-      <tr>
-        <td colspan="5">
-          <div class="alert alert-warning m-2">Aucun règlement trouvé — affinez la période ou le
-            client
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-
-    <ng-template #footer>
-      @if (store.reglementSummary(); as s) {
-        <tr class="pharma-table-footer">
-          <td class="fw-semibold" colspan="2">
-            <i class="pi pi-check-circle text-success me-1"></i>Total encaissé (période)
-          </td>
-          <td class="text-end fw-bold text-success">{{ s.paidAmount | number }} <span appDevise></span></td>
-          <td colspan="2"></td>
+  <app-card>
+    <app-data-table
+      (onLazyLoad)="lazyLoading($event)"
+      [lazy]="true"
+      [loading]="loading()"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+      [rows]="itemsPerPage"
+      [showCurrentPageReport]="true"
+      [size]="'small'"
+      [stripedRows]="true"
+      [totalRecords]="store.totalReglements()"
+      [value]="store.reglements()"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} clients"
+      dataKey="id"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th style="width: 3rem"></th>
+          <th>Client</th>
+          <th class="text-end">Total encaissé</th>
+          <th class="text-end">Solde restant</th>
+          <th class="text-end">Nb règlements</th>
         </tr>
-      }
-    </ng-template>
-  </app-data-table>
+      </ng-template>
+
+      <ng-template #body let-expanded="expanded" let-r>
+        <tr [appRowToggler]="r" class="clickable-row">
+          <td>
+            <app-button
+              [appRowToggler]="r"
+              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              [rounded]="true"
+              [text]="true"
+              ariaLabel="Déplier le détail"
+              size="small"
+            />
+          </td>
+          <td>
+            <span class="pharma-entity-name">{{ r.firstName }} {{ r.lastName }}</span>
+          </td>
+          <td class="text-end">
+            <span class="pharma-price">{{ r.paidAmount | number }}</span>
+          </td>
+          <td class="text-end">
+            <span [class.pharma-total]="(r.solde ?? 0) > 0">{{ r.solde | number }}</span>
+          </td>
+          <td class="text-end">{{ r.items?.length ?? 0 }}</td>
+        </tr>
+      </ng-template>
+
+      <ng-template #expandedrow let-r>
+        <tr>
+          <td class="p-0" colspan="5">
+            <div class="px-4 py-2 bg-light">
+              <app-data-table
+                [size]="'small'"
+                [stripedRows]="true"
+                [value]="r.items ?? []" class="pharma-table-nested"
+              >
+                <ng-template #header>
+                  <tr class="pharma-table-head">
+                    <th>Mode de paiement</th>
+                    <th class="text-end">Montant attendu</th>
+                    <th class="text-end">Montant versé</th>
+                    <th class="text-center">Date</th>
+                    <th>Opérateur</th>
+                    <th class="text-center">Actions</th>
+                  </tr>
+                </ng-template>
+                <ng-template #body let-item>
+                  <tr>
+                    <td>
+                      <span class="pharma-badge pharma-badge-info">{{
+                          item.libelleMode ?? '—'
+                        }}</span>
+                    </td>
+                    <td class="text-end"><span
+                      class="pharma-price">{{ item.expectedAmount | number }}</span></td>
+                    <td class="text-end"><span
+                      class="pharma-total">{{ item.montantVerse | number }}</span></td>
+                    <td class="text-center text-muted small">{{ item.mvtDate | date: 'dd/MM/yyyy' }}
+                    </td>
+                    <td class="small">{{ item.user ?? '—' }}</td>
+                    <td class="text-center">
+                      <app-button
+                        (clicked)="printItem(item)"
+                        [rounded]="true"
+                        [text]="true"
+                        icon="pi pi-print"
+                        ngbTooltip="Imprimer le reçu"
+                        placement="top"
+                        severity="secondary"
+                        size="small"
+                      />
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                  <tr>
+                    <td class="text-center text-muted py-2 small" colspan="6">Aucun détail
+                      disponible
+                    </td>
+                  </tr>
+                </ng-template>
+              </app-data-table>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5">
+            <div class="alert alert-warning m-2">Aucun règlement trouvé — affinez la période ou le
+              client
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #footer>
+        @if (store.reglementSummary(); as s) {
+          <tr class="pharma-table-footer">
+            <td class="fw-semibold" colspan="2">
+              <i class="pi pi-check-circle text-success me-1"></i>Total encaissé (période)
+            </td>
+            <td class="text-end fw-bold text-success">{{ s.paidAmount | number }} <span appDevise></span></td>
+            <td colspan="2"></td>
+          </tr>
+        }
+      </ng-template>
+    </app-data-table>
+  </app-card>
 
 </div>

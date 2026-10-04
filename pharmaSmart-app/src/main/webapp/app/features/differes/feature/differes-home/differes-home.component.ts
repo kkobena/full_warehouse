@@ -30,12 +30,13 @@ import {
 } from "../../ui/differe-detail-panel/differe-detail-panel.component";
 import {BlobDownloadService} from "../../../../shared/services/blob-download.service";
 import { HintComponent } from 'app/shared/ui/hint/hint.component';
+import { CardComponent } from 'app/shared/ui';
 
 type StatutDiffere = "PAYE" | "IMPAYE";
 
 @Component({
   selector: "app-differes-home",
-  imports: [
+  imports: [CardComponent, 
     HintComponent,
     FormsModule,
     ButtonComponent,

@@ -14,10 +14,11 @@ import {
   NgbConfirmDialogService
 } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import {ButtonComponent, DataTableComponent, SwitchComponent, ToolbarComponent} from '../../../shared/ui';
+import { CardComponent } from 'app/shared/ui';
 
 @Component({
   selector: 'app-remise-produits',
-  imports: [
+  imports: [CardComponent, 
     FormsModule,
     NgbTooltip,
     ButtonComponent,

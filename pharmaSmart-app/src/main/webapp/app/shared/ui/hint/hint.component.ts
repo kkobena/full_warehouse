@@ -41,11 +41,11 @@ import {ChangeDetectionStrategy, Component, computed, input, output, signal} fro
       gap: 0.5rem;
       padding: 0.4rem 0.75rem;
       margin-bottom: 0.25rem;
-      background: #e8f4fd;
-      border: 1px solid #b6d9f7;
+      background: var(--pharma-chrome-hint-bg);
+      border: 1px solid var(--pharma-chrome-hint-border);
       border-radius: 4px;
       font-size: 0.8rem;
-      color: #1a6fa8;
+      color: var(--pharma-chrome-hint-fg);
       flex-shrink: 0;
     }
 

@@ -50,10 +50,11 @@ import {
 } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import {NotificationService} from "../../../shared/services/notification.service";
 import {ErrorService} from "../../../shared/error.service";
+import { CardComponent } from 'app/shared/ui';
 
 @Component({
   selector: "app-ajout-perimes",
-  imports: [
+  imports: [CardComponent, 
     CommonModule,
     FloatLabelComponent,
     TranslatePipe,

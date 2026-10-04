@@ -36,6 +36,7 @@ import {TauriPrinterService} from '../../../shared/services/tauri-printer.servic
 import {handleBlobForTauri} from '../../../shared/util/tauri-util';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
+import { PillSelectorComponent } from 'app/shared/ui/pill-selector/pill-selector.component';
 Chart.register(...registerables);
 
 interface FilterOption {
@@ -45,7 +46,7 @@ interface FilterOption {
 
 @Component({
   selector: 'app-supplier-performance',
-  imports: [DeviseDirective, FormsModule, NgbTooltip, ButtonComponent, DataTableComponent, OffcanvasComponent, SelectComponent, ToolbarComponent, KpiStripComponent, KpiItemComponent],
+  imports: [PillSelectorComponent, DeviseDirective, FormsModule, NgbTooltip, ButtonComponent, DataTableComponent, OffcanvasComponent, SelectComponent, ToolbarComponent, KpiStripComponent, KpiItemComponent],
   templateUrl: './supplier-performance.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './supplier-performance.component.scss',
@@ -70,6 +71,10 @@ export default class SupplierPerformanceComponent implements OnInit, OnDestroy {
   selectedFilter = signal<string>('all');
   searchText = signal<string>('');
   helpDrawerVisible = signal<boolean>(false);
+  readonly viewOptions = [
+    { label: 'Tableau', value: 'table', icon: 'pi pi-table' },
+    { label: 'Évolution N vs N-1', value: 'evolution', icon: 'pi pi-chart-line' },
+  ];
   activeView = signal<'table' | 'evolution'>('table');
 
   filterOptions: FilterOption[] = [

@@ -8,7 +8,7 @@
           (clicked)="openCreateForm()"
           icon="pi pi-plus"
           label="Nouveau rôle"
-          severity="success"
+          severity="primary"
           size="small"
         />
       </div>
@@ -16,80 +16,82 @@
   </app-toolbar>
 
   <!-- Table des rôles -->
-  <app-data-table
-    [loading]="loading()"
-    [value]="roles()"
-    class="p-datatable-sm"
-  >
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th>Libellé</th>
-        <th style="width:160px"></th>
-      </tr>
-    </ng-template>
+  <app-card>
+    <app-data-table
+      [loading]="loading()"
+      [value]="roles()"
+      class="p-datatable-sm"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>Libellé</th>
+          <th style="width:160px"></th>
+        </tr>
+      </ng-template>
 
-    <ng-template #body let-role>
-      <tr [class.row-predefined]="isPredefined(role.name)">
-        <!-- Libellé (éditable) -->
-        <td>
-          @if (editingName() === role.name) {
-            <div class="d-flex align-items-center gap-2">
-              <input (blur)="saveEdit(role)"
-                     (input)="editingLibelle.set($any($event.target).value)"
-                     (keydown.enter)="saveEdit(role)"
-                     (keydown.escape)="cancelEdit()"
-                     [value]="editingLibelle()"
-                     autofocus
-                     class="form-control"
-              />
-            </div>
-          } @else {
-            <div class="libelle-display">
-              <span>{{ role.libelle ?? role.name }}</span>
-              <button (click)="startEdit(role)" class="edit-btn" title="Modifier le libellé"
-                      type="button">
-                <i class="pi pi-pencil"></i>
-              </button>
-            </div>
-          }
-        </td>
+      <ng-template #body let-role>
+        <tr [class.row-predefined]="isPredefined(role.name)">
+          <!-- Libellé (éditable) -->
+          <td>
+            @if (editingName() === role.name) {
+              <div class="d-flex align-items-center gap-2">
+                <input (blur)="saveEdit(role)"
+                       (input)="editingLibelle.set($any($event.target).value)"
+                       (keydown.enter)="saveEdit(role)"
+                       (keydown.escape)="cancelEdit()"
+                       [value]="editingLibelle()"
+                       autofocus
+                       class="form-control"
+                />
+              </div>
+            } @else {
+              <div class="libelle-display">
+                <span>{{ role.libelle ?? role.name }}</span>
+                <button (click)="startEdit(role)" class="edit-btn" title="Modifier le libellé"
+                        type="button">
+                  <i class="pi pi-pencil"></i>
+                </button>
+              </div>
+            }
+          </td>
 
-        <!-- Actions -->
-        <td class="text-end">
-          <div class="d-flex align-items-center justify-content-end gap-1">
-            <app-button
-              (clicked)="managePermissions.emit(role.name!)"
-              [rounded]="true"
-              [text]="true"
-              ariaLabel="Gérer les autorisations"
-              icon="pi pi-lock"
-              ngbTooltip="Gérer les autorisations"
-              severity="help"
-              size="small"
-            />
-            @if (!isPredefined(role.name)) {
+          <!-- Actions -->
+          <td class="text-end">
+            <div class="d-flex align-items-center justify-content-end gap-1">
               <app-button
-                (clicked)="deleteRole(role)"
+                (clicked)="managePermissions.emit(role.name!)"
                 [rounded]="true"
                 [text]="true"
-                ariaLabel="Supprimer ce rôle"
-                icon="pi pi-trash"
-                ngbTooltip="Supprimer ce rôle"
-                severity="danger"
+                ariaLabel="Gérer les autorisations"
+                icon="pi pi-lock"
+                ngbTooltip="Gérer les autorisations"
+                severity="help"
                 size="small"
               />
-            }
-          </div>
-        </td>
-      </tr>
-    </ng-template>
+              @if (!isPredefined(role.name)) {
+                <app-button
+                  (clicked)="deleteRole(role)"
+                  [rounded]="true"
+                  [text]="true"
+                  ariaLabel="Supprimer ce rôle"
+                  icon="pi pi-trash"
+                  ngbTooltip="Supprimer ce rôle"
+                  severity="danger"
+                  size="small"
+                />
+              }
+            </div>
+          </td>
+        </tr>
+      </ng-template>
 
-    <ng-template #emptymessage>
-      <tr>
-        <td class="text-center text-muted py-4" colspan="3">
-          Aucun rôle trouvé.
-        </td>
-      </tr>
-    </ng-template>
-  </app-data-table>
+      <ng-template #emptymessage>
+        <tr>
+          <td class="text-center text-muted py-4" colspan="3">
+            Aucun rôle trouvé.
+          </td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </app-card>
 </div>

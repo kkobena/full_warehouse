@@ -74,6 +74,7 @@ import {
 import {AvoirClientApiService} from "../../data-access/services/avoir-client-api.service";
 
 import {DeviseDirective} from 'app/shared/utils/devise';
+import { CardComponent } from 'app/shared/ui';
 
 interface SaleMenuEntry {
   label?: string;
@@ -89,7 +90,7 @@ interface SaleMenuEntry {
   styleUrl: "./sales-journal.component.scss",
   providers: [DatePipe, {provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter}],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective,
+  imports: [CardComponent, DeviseDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,

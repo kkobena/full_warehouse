@@ -14,11 +14,12 @@ import { NotificationService } from "../../../shared/services/notification.servi
 import { NgbDateStruct, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { BadgeComponent, ButtonComponent, DataTableComponent, SelectComponent, ToolbarComponent } from "../../../shared/ui";
 import { PharmaDatePickerComponent } from "../../../shared/date-picker/pharma-date-picker.component";
+import { CardComponent } from 'app/shared/ui';
 
 @Component({
   selector: "app-gestion-caisse",
   styleUrls: ["./gestion-caisse.component.scss"],
-  imports: [
+  imports: [CardComponent, 
     CommonModule,
     FormsModule,
     ButtonComponent,

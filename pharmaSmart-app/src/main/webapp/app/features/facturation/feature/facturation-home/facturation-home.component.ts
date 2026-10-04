@@ -36,10 +36,11 @@ import { FactureListComponent } from "../../ui/facture-list/facture-list.compone
 import { FactureDetailPanelComponent } from "../../ui/facture-detail-panel/facture-detail-panel.component";
 import { TranslateService } from "@ngx-translate/core";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
+import { CardComponent } from 'app/shared/ui';
 
 @Component({
   selector: "app-facturation-home",
-  imports: [
+  imports: [CardComponent, 
     HintComponent,
     FormsModule,
     ButtonComponent,

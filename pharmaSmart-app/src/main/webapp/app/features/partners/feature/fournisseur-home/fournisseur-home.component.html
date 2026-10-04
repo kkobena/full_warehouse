@@ -12,14 +12,14 @@
     </ng-container>
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="pharma-button-group">
-        <app-button (clicked)="showFileDialog()" [raised]="true" [severity]="'help'"
+        <app-button (clicked)="showFileDialog()" [raised]="true" [severity]="'secondary'"
                     icon="pi pi-upload" label="Importer" type="button" />
-        <app-button (clicked)="openNewParent()" [raised]="true" [severity]="'success'"
+        <app-button (clicked)="openNewParent()" [raised]="true" [severity]="'primary'"
                     icon="pi pi-plus" label="Nouveau fournisseur" type="button" />
       </div>
     </ng-container>
   </app-toolbar>
-
+<app-card>
   <app-data-table
     (onLazyLoad)="lazyLoading($event)"
     [lazy]="true"
@@ -228,4 +228,6 @@
       </tr>
     </ng-template>
   </app-data-table>
+</app-card>
+
 </div>

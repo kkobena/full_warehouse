@@ -14,99 +14,9 @@ $white: #ffffff;
 $gray-light: #f8f9fa;
 $gray-border: #e2e8f0;
 
-// Custom iOS-Style Segmented Control
 .dashboard-toggle {
   display: flex;
   justify-content: flex-end;
-}
-
-.custom-segment-control {
-  display: inline-flex;
-  animation: slideInDown 0.5s ease-out;
-}
-
-.segment-track {
-  position: relative;
-  display: flex;
-  background: rgba($gray-border, 0.4);
-  border-radius: 12px;
-  padding: 3px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-}
-
-// Sliding indicator background — aligné sur .periode-pill.active
-.segment-slider {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  bottom: 3px;
-  width: calc(50% - 3px);
-  background: linear-gradient(135deg, $primary-blue 0%, $primary-light 100%);
-  border-radius: 9px;
-  box-shadow: 0 2px 8px rgba($primary-blue, 0.25);
-  transition: all 0.3s ease;
-  z-index: 0;
-
-  &.active-right {
-    transform: translateX(calc(100% + 3px));
-  }
-}
-
-// Segment buttons — même taille que .periode-pill
-.segment-option {
-  position: relative;
-  z-index: 1;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.3rem;
-  padding: 0.28rem 0.7rem;
-  border: none;
-  background: transparent;
-  color: $text-secondary;
-  font-size: 0.78rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  white-space: nowrap;
-  min-width: unset;
-
-  i {
-    font-size: 0.75rem;
-    transition: all 0.25s ease;
-  }
-
-  span {
-    transition: all 0.25s ease;
-  }
-
-  // Inactive state
-  &:not(.active) {
-    &:hover {
-      color: $primary-blue;
-    }
-
-    &:active {
-      transform: scale(0.98);
-    }
-  }
-
-  // Active state
-  &.active {
-    color: $white;
-  }
-
-  // Focus state for accessibility
-  &:focus {
-    outline: none;
-  }
-
-  &:focus-visible {
-    outline: 2px solid $primary-blue;
-    outline-offset: 2px;
-    border-radius: 8px;
-  }
 }
 
 // ─── Quick Alert Cards (barre d'alertes du dashboard) ────────────────────────
@@ -217,33 +127,6 @@ $gray-border: #e2e8f0;
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-// Responsive adjustments
-@media (max-width: 768px) {
-  .segment-option {
-    padding: 0.25rem 0.6rem;
-    font-size: 0.75rem;
-
-    i {
-      font-size: 0.7rem;
-    }
-  }
-}
-
-@media (max-width: 576px) {
-  .segment-option {
-    padding: 0.22rem 0.5rem;
-    gap: 0.25rem;
-
-    span {
-      display: none;
-    }
-
-    i {
-      font-size: 0.75rem;
-    }
   }
 }
 
@@ -578,7 +461,8 @@ $gray-border: #e2e8f0;
   align-items: center;
   gap: 0.2rem;
   padding: 3px;
-  background: rgba($gray-border, 0.4);
+  // Mêmes jetons que `app-pill-selector` (`_pharma-chrome-themes.scss`) : les deux restent identiques.
+  background: var(--pharma-chrome-pill-track);
   border-radius: 12px;
   flex-wrap: wrap;
 
@@ -590,7 +474,7 @@ $gray-border: #e2e8f0;
     border: none;
     border-radius: 9px;
     background: transparent;
-    color: $text-secondary;
+    color: var(--pharma-chrome-pill-fg);
     font-size: 0.78rem;
     font-weight: 500;
     cursor: pointer;
@@ -601,15 +485,15 @@ $gray-border: #e2e8f0;
     .pill-label { font-size: 0.78rem; }
 
     &:hover:not(.active) {
-      background: rgba($primary-blue, 0.08);
-      color: $primary-blue;
+      background: var(--pharma-chrome-pill-hover-bg);
+      color: var(--pharma-chrome-pill-hover-fg);
     }
 
     &.active {
-      background: linear-gradient(135deg, $primary-blue 0%, $primary-light 100%);
-      color: #fff;
+      background: linear-gradient(135deg, var(--pharma-chrome-pill-active-a) 0%, var(--pharma-chrome-pill-active-b) 100%);
+      color: var(--pharma-chrome-pill-active-fg);
       font-weight: 600;
-      box-shadow: 0 2px 8px rgba($primary-blue, 0.25);
+      box-shadow: var(--pharma-chrome-pill-active-shadow);
     }
   }
 }

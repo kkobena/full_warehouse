@@ -73,9 +73,9 @@
           réunion d'achat : c'est lui qui dit quelles références méritent qu'on s'en occupe.
         -->
         <app-button (clicked)="paretoComp?.exportToPdf()"
-                    icon="pi pi-file-pdf" label="Exporter PDF" severity="danger" size="small" />
+                    icon="pi pi-file-pdf" label="Exporter PDF" severity="warn" size="small" />
         <app-button (clicked)="paretoComp?.loadABCPareto()"
-                    icon="pi pi-refresh" label="Rafraîchir" severity="primary" size="small" />
+                    icon="pi pi-refresh" label="Rafraîchir" severity="info" size="small" />
       </div>
     }
     @if (active() === 'rotation') {
@@ -86,9 +86,9 @@
                     icon="pi pi-filter-slash" label="Effacer les filtres" severity="secondary"
                     size="small" />
         <app-button (clicked)="rotationComp?.exportToPdf()"
-                    icon="pi pi-file-pdf" label="Exporter PDF" severity="danger" size="small" />
+                    icon="pi pi-file-pdf" label="Exporter PDF" severity="warn" size="small" />
         <app-button (clicked)="rotationComp?.loadRotations()"
-                    icon="pi pi-refresh" label="Rafraîchir" severity="primary" size="small" />
+                    icon="pi pi-refresh" label="Rafraîchir" severity="info" size="small" />
       </div>
     }
   </ng-container>

@@ -133,7 +133,7 @@
             @if (pendingFile(); as file) {
               <div class="d-flex align-items-center gap-2 flex-wrap mt-3">
                 <span><i aria-hidden="true" class="pi pi-file me-1"></i>{{ file.name }}</span>
-                <app-button (clicked)="activate()" [loading]="activating()" icon="pi pi-check"
+                <app-button severity="primary" (clicked)="activate()" [loading]="activating()" icon="pi pi-check"
                             label="Activer" />
               </div>
             }

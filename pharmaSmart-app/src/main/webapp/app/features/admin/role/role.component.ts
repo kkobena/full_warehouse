@@ -7,6 +7,7 @@ import { showCommonModal } from 'app/entities/sales/selling-home/sale-helper';
 import { RoleFormComponent } from './ui/role-form.component';
 import { NgbConfirmDialogService } from "../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { ButtonComponent, DataTableComponent, ToolbarComponent } from "../../../shared/ui";
+import { CardComponent } from 'app/shared/ui';
 
 const PREDEFINED = new Set([
   'ROLE_ADMIN', 'ROLE_USER', 'ROLE_CAISSIER',
@@ -18,7 +19,7 @@ const PREDEFINED = new Set([
   templateUrl: './role.component.html',
   styleUrl: './role.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, ButtonComponent, DataTableComponent, ToolbarComponent, NgbTooltip]
+  imports: [CardComponent, FormsModule, ButtonComponent, DataTableComponent, ToolbarComponent, NgbTooltip]
 })
 export class RoleComponent implements OnInit {
   /**

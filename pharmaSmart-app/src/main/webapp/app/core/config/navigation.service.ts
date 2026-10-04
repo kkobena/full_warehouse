@@ -6,7 +6,8 @@ import {AlertBadgeService} from '../../shared/services/alert-badge.service';
 import {AccountService} from '../auth/account.service';
 import {TauriPrinterService} from '../../shared/services/tauri-printer.service';
 import {LayoutService} from './layout.service';
-import {THEMES, ThemeService} from 'app/core/theme/theme.service';
+import {CHROMES} from 'app/core/theme/chrome-theme';
+import {ChromeThemeService} from 'app/core/theme/chrome-theme.service';
 import {Authority} from '../../config/authority.constants';
 import {NavStore} from 'app/core/store/nav.store';
 import {INavNode} from 'app/shared/model/nav-item.model';
@@ -114,7 +115,7 @@ export class NavigationService {
   private readonly accountService = inject(AccountService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly layoutService = inject(LayoutService);
-  private readonly themeService = inject(ThemeService);
+  private readonly chromeThemeService = inject(ChromeThemeService);
 
   /**
    * Construit l'arbre de navigation complet, identique pour la navbar
@@ -134,14 +135,15 @@ export class NavigationService {
       faIcon: faBars,
       click: () => this.layoutService.toggleLayout(),
     };
-    const themeMenu: NavItem = {
-      id: 'theme',
-      label: 'Thème',
-      children: THEMES.map(theme => ({
-        id: `theme.${theme.name}`,
-        label: theme.label,
-        faIcon: this.themeService.theme() === theme.name ? faCheck : undefined,
-        click: () => this.themeService.setTheme(theme.name),
+    const chromeMenu: NavItem = {
+      id: 'chrome',
+      label: 'Couleur de l’application',
+      children: CHROMES.map(chrome => ({
+        id: `chrome.${chrome.name}`,
+        label: chrome.label,
+        faIcon: this.chromeThemeService.chrome() === chrome.name ? faCheck : undefined,
+        swatch: chrome.swatch,
+        click: () => this.chromeThemeService.setChrome(chrome.name),
       })),
     };
     const menuDivider: NavItem = {id: 'account.divider', label: '', divider: true};
@@ -149,7 +151,7 @@ export class NavigationService {
     if (!account) {
       const anonymousItems: NavItem[] = [
         layoutToggle,
-        themeMenu,
+        chromeMenu,
         menuDivider,
         {
           id: 'account.login',
@@ -172,7 +174,7 @@ export class NavigationService {
     const isAdmin = this.hasAnyAuthority(Authority.ADMIN, account.authorities);
     const accountItems: NavItem[] = [
       layoutToggle,
-      themeMenu,
+      chromeMenu,
       menuDivider,
       {
         id: 'account.logout',

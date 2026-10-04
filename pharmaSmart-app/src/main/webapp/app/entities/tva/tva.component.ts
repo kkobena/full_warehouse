@@ -10,6 +10,7 @@ import {CommonModule} from '@angular/common';
 import {NotificationService} from '../../shared/services/notification.service';
 import {ErrorService} from '../../shared/error.service';
 import {TranslatePipe} from '@ngx-translate/core';
+import { CardComponent } from 'app/shared/ui';
 import {
   NgbConfirmDialogService
 } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
@@ -19,7 +20,7 @@ import {
   templateUrl: './tva.component.html',
   styleUrl: './tva.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, TranslatePipe, ButtonComponent, DataTableComponent, SelectableRowDirective, NgbTooltip],
+  imports: [CardComponent, CommonModule, TranslatePipe, ButtonComponent, DataTableComponent, SelectableRowDirective, NgbTooltip],
 })
 export class TvaComponent implements OnInit {
   protected readonly tvas = signal<ITva[] | undefined>(undefined);

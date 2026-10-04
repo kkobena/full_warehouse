@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -16,14 +16,16 @@ import { NGB_DATE_TO_ISO } from "app/shared/util/warehouse-util";
 import { PharmaDatePickerComponent } from "app/shared/date-picker/pharma-date-picker.component";
 import {
   AppSplitButtonItem,
+  AppSubtab,
   AppTableLazyLoadEvent,
   BadgeComponent,
-  ButtonComponent,
+  ButtonComponent, CardComponent,
   DataTableComponent,
   HintComponent,
   IconFieldComponent,
   SelectComponent,
   SplitButtonComponent,
+  SubtabBarComponent
 } from "app/shared/ui";
 import {
   ImportProduitModalComponent
@@ -43,6 +45,7 @@ export type BedTab = "BROUILLON" | "HISTORIQUE";
   styleUrls: ["./bed-home.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    SubtabBarComponent,
     HintComponent,
     CommonModule,
     FormsModule,
@@ -55,7 +58,9 @@ export type BedTab = "BROUILLON" | "HISTORIQUE";
     BedDetailComponent,
     SplitButtonComponent,
     SelectComponent,
-   DevisePipe]
+    DevisePipe,
+    CardComponent
+  ]
 })
 export class BedHomeComponent implements OnInit {
   readonly beds = signal<IBedSummary[]>([]);
@@ -64,6 +69,18 @@ export class BedHomeComponent implements OnInit {
   readonly activeTab = signal<BedTab>("BROUILLON");
   readonly editingBed = signal<IBed | null>(null);
   readonly countBrouillon = signal<number>(0);
+
+  protected readonly onglets = computed<AppSubtab[]>(() => [
+    {
+      id: 'BROUILLON',
+      label: 'En attente',
+      icon: 'pi pi-file-edit',
+      tooltip: 'BED en cours de saisie',
+      badge: this.countBrouillon() > 0 ? this.countBrouillon() : null,
+      badgeSeverity: 'warn',
+    },
+    { id: 'HISTORIQUE', label: 'Historique', icon: 'pi pi-history', tooltip: 'BED validés — stock crédité' },
+  ]);
 
   protected readonly search = signal("");
   protected readonly filterMotif = signal<MotifBed | null>(null);

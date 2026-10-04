@@ -8,7 +8,7 @@ import {AccountService} from "app/core/auth/account.service";
 import {UserManagementService} from "../service/user-management.service";
 import {User} from "../user-management.model";
 import {NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
-import {ButtonComponent, DataTableComponent, IconFieldComponent, ToolbarComponent} from "app/shared/ui";
+import {ButtonComponent, DataTableComponent, IconFieldComponent, ToolbarComponent, CardComponent } from "app/shared/ui";
 import {CommonModule} from "@angular/common";
 import {
   NgbConfirmDialogService
@@ -19,7 +19,7 @@ import {NotificationService} from "../../../shared/services/notification.service
   templateUrl: "./user-management.component.html",
   styleUrls: ["./user-management.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [CardComponent, 
     CommonModule,
     RouterModule,
     ButtonComponent,

@@ -7,7 +7,7 @@
           [raised]="true"
           icon="pi pi-plus"
           label="Nouveau"
-          severity="success"
+          severity="primary"
           type="button"
         />
 
@@ -15,82 +15,84 @@
     </ng-container>
   </app-toolbar>
 
-  @if (entites() && entites()?.length > 0) {
-    <app-data-table
-      (onLazyLoad)="lazyLoading()"
-      [lazy]="true"
-      [loading]="loading()"
-      [paginator]="false"
-      [showGridlines]="true"
-      [value]="entites()"
-      dataKey="id"
-    >
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th scope="col" style="width: 30px">#</th>
+  <app-card>
+    @if (entites() && entites()?.length > 0) {
+      <app-data-table
+        (onLazyLoad)="lazyLoading()"
+        [lazy]="true"
+        [loading]="loading()"
+        [paginator]="false"
+        [showGridlines]="true"
+        [value]="entites()"
+        dataKey="id"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th scope="col" style="width: 30px">#</th>
 
-          <th scope="col"><span>Libellé</span></th>
-          <th scope="col"><span>Code remise associé</span></th>
-          <th scope="col"><span>Taux VNO</span></th>
-          <th scope="col"><span>Taux VO</span></th>
-          <th class="text-right" scope="col">Activation/Désactivation</th>
-          <th scope="col"></th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-columns="columns" let-elRow let-rowIndex="rowIndex">
-        <tr>
-          <td>
-            <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
-          </td>
+            <th scope="col"><span>Libellé</span></th>
+            <th scope="col"><span>Code remise associé</span></th>
+            <th scope="col"><span>Taux VNO</span></th>
+            <th scope="col"><span>Taux VO</span></th>
+            <th class="text-right" scope="col">Activation/Désactivation</th>
+            <th scope="col"></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-columns="columns" let-elRow let-rowIndex="rowIndex">
+          <tr>
+            <td>
+              <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+            </td>
 
-          <td>
-            <span class="pharma-entity-name">{{ elRow.valeur }}</span>
-          </td>
-          <td class="text-right">
-            <span class="pharma-code">{{ elRow.grilles[0]?.codeRemise?.value }}</span>
-          </td>
-          <td class="text-right">
-            <span class="pharma-qty-value">{{ getVnoTaux(elRow) }}</span>
-          </td>
-          <td class="text-right">
-            <span class="pharma-qty-value">{{ getVoTaux(elRow) }}</span>
-          </td>
-          <td class="text-right">
-            <app-switch (ngModelChange)="onStatusChange(elRow)" [(ngModel)]="elRow.enable" />
-          </td>
+            <td>
+              <span class="pharma-entity-name">{{ elRow.valeur }}</span>
+            </td>
+            <td class="text-right">
+              <span class="pharma-code">{{ elRow.grilles[0]?.codeRemise?.value }}</span>
+            </td>
+            <td class="text-right">
+              <span class="pharma-qty-value">{{ getVnoTaux(elRow) }}</span>
+            </td>
+            <td class="text-right">
+              <span class="pharma-qty-value">{{ getVoTaux(elRow) }}</span>
+            </td>
+            <td class="text-right">
+              <app-switch (ngModelChange)="onStatusChange(elRow)" [(ngModel)]="elRow.enable" />
+            </td>
 
-          <td class="text-right">
-            @if (elRow.enable) {
+            <td class="text-right">
+              @if (elRow.enable) {
+                <app-button
+                  (clicked)="onOpenRemiseForm(elRow)"
+                  [rounded]="true"
+                  [text]="true"
+                  class="p-mr-1"
+                  icon="pi pi-pencil"
+                  ngbTooltip="Editer"
+                  severity="success"
+                  size="small"
+                  type="submit"
+                />
+              }
+
               <app-button
-                (clicked)="onOpenRemiseForm(elRow)"
+                (clicked)="delete(elRow)"
                 [rounded]="true"
                 [text]="true"
-                class="p-mr-1"
-                icon="pi pi-pencil"
-                ngbTooltip="Editer"
-                severity="success"
+                icon="pi pi-trash"
+                ngbTooltip="Supprimer"
+                severity="danger"
                 size="small"
-                type="submit"
+                type="button"
               />
-            }
-
-            <app-button
-              (clicked)="delete(elRow)"
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-trash"
-              ngbTooltip="Supprimer"
-              severity="danger"
-              size="small"
-              type="button"
-            />
-          </td>
-        </tr>
-      </ng-template>
-    </app-data-table>
-  } @else {
-    <div class="alert alert-warning" id="no-result">
-      <span>Aucune donnée trouvée</span>
-    </div>
-  }
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    } @else {
+      <div class="alert alert-warning" id="no-result">
+        <span>Aucune donnée trouvée</span>
+      </div>
+    }
+  </app-card>
 </div>

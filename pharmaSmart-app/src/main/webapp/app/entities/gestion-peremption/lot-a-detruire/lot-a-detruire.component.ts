@@ -40,6 +40,7 @@ import {
   FournisseurSelectComponent
 } from "../../../features/partners/ui/fournisseur-select/fournisseur-select.component";
 import {currencySymbol} from 'app/shared/utils/format-utils';
+import { CardComponent } from 'app/shared/ui';
 import {
   AppSplitButtonItem,
   AppTableLazyLoadEvent,
@@ -60,7 +61,7 @@ import {
 
 @Component({
   selector: "app-lot-a-detruire",
-  imports: [
+  imports: [CardComponent, 
     ButtonComponent,
     FloatLabelComponent,
     IconFieldComponent,

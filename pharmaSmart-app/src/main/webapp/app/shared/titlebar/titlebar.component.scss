@@ -1,12 +1,10 @@
 .titlebar {
-  // Même teinte que le rail et la navbar — hsl(210, 29%) — mais assombrie d'un
-  // cran. La barre de fenêtre est le bord physique de l'application : elle doit
-  // ancrer la pile (titlebar L=18% < sidebar L=24% < navbar L=32%) plutôt que
-  // d'introduire une couleur étrangère. Le dégradé descend de #22303d vers
-  // #2c3e50, si bien que le bas de la barre rejoint exactement la couleur de la
-  // sidebar et que l'angle haut-gauche ne montre aucune rupture.
-  --titlebar-bg-top: #22303d;
-  --titlebar-bg-bottom: var(--pharma-nav-bg, #2c3e50);
+  // La barre de fenêtre est le bord physique de l'application : elle ancre la pile des bandes
+  // (barre de titre < rail < navbar en luminosité), pour qu'aucune arête ne se voie à l'angle.
+  // Haut et bas du dégradé viennent du thème (`--pharma-chrome-titlebar-*`, `_pharma-chrome-themes.scss`) ;
+  // le bas est la couleur du rail.
+  --titlebar-bg-top: var(--pharma-chrome-titlebar-a, #22303d);
+  --titlebar-bg-bottom: var(--pharma-chrome-titlebar-b, var(--pharma-nav-bg, #2c3e50));
   --titlebar-fg: var(--pharma-nav-fg, #ecf0f1);
   --titlebar-fg-muted: var(--pharma-nav-fg-muted, rgba(236, 240, 241, 0.85));
 
@@ -26,7 +24,7 @@
   z-index: 9999;
   // La navbar qui suit est plus claire : une ombre portée marquée créerait une
   // arête. Un simple filet suffit à séparer les deux bandes.
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid color-mix(in srgb, var(--pharma-chrome-shade) 20%, transparent);
 
   .titlebar-left {
     display: flex;
@@ -90,7 +88,7 @@
       justify-content: center;
       width: 32px;
       height: 24px;
-      background: rgba(255, 255, 255, 0.1);
+      background: color-mix(in srgb, var(--pharma-chrome-on) 10%, transparent);
       border: none;
       border-radius: 4px;
       color: var(--titlebar-fg);
@@ -99,12 +97,12 @@
       padding: 0;
 
       &:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: color-mix(in srgb, var(--pharma-chrome-on) 20%, transparent);
         transform: translateY(-1px);
       }
 
       &:active {
-        background: rgba(255, 255, 255, 0.25);
+        background: color-mix(in srgb, var(--pharma-chrome-on) 25%, transparent);
         transform: translateY(0);
       }
 
@@ -116,7 +114,7 @@
 
       &.new-instance {
         &:hover {
-          background: rgba(255, 255, 255, 0.25);
+          background: color-mix(in srgb, var(--pharma-chrome-on) 25%, transparent);
         }
       }
     }
@@ -142,22 +140,22 @@
       padding: 0;
 
       &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: color-mix(in srgb, var(--pharma-chrome-on) 10%, transparent);
       }
 
       &:active {
-        background-color: rgba(255, 255, 255, 0.15);
+        background-color: color-mix(in srgb, var(--pharma-chrome-on) 15%, transparent);
       }
 
       &.minimize {
         &:hover {
-          background-color: rgba(255, 255, 255, 0.15);
+          background-color: color-mix(in srgb, var(--pharma-chrome-on) 15%, transparent);
         }
       }
 
       &.maximize {
         &:hover {
-          background-color: rgba(255, 255, 255, 0.15);
+          background-color: color-mix(in srgb, var(--pharma-chrome-on) 15%, transparent);
         }
       }
 
@@ -224,67 +222,3 @@
     padding-top: 32px;
   }
 }
-
-// Alternative color schemes (commented out, can be activated)
-
-// macOS style
-/*
-.titlebar {
-  background: #ececec;
-  color: #333;
-  border-bottom: 1px solid #d1d1d1;
-
-  .titlebar-button {
-    color: #333;
-
-    &.close:hover {
-      background-color: #ff5f57;
-      color: white;
-    }
-  }
-}
-*/
-
-// Dark mode
-/*
-.titlebar {
-  background: #1e1e1e;
-  color: #cccccc;
-  border-bottom: 1px solid #333;
-
-  .titlebar-button {
-    color: #cccccc;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    &.close:hover {
-      background-color: #e81123;
-      color: white;
-    }
-  }
-}
-*/
-
-// Minimal/Flat style
-/*
-.titlebar {
-  background: #ffffff;
-  color: #333333;
-  border-bottom: 1px solid #e0e0e0;
-
-  .titlebar-button {
-    color: #666;
-
-    &:hover {
-      background-color: #f0f0f0;
-    }
-
-    &.close:hover {
-      background-color: #e81123;
-      color: white;
-    }
-  }
-}
-*/

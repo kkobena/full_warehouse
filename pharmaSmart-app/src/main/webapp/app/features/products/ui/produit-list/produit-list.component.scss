@@ -51,12 +51,12 @@
   vertical-align: middle;
 }
 
-// Icône d'aide sur le fond bleu de l'en-tête : blanche et plus grande, pour qu'on la repère.
+// Icône d'aide dans l'en-tête : de la couleur du texte d'en-tête du thème (blanche sous « Actuel »), plus grande pour qu'on la repère.
 .th-info {
   display: inline-flex;
   align-items: center;
   line-height: 1;
-  color: #fff;
+  color: var(--pharma-chrome-head-fg);
   opacity: 0.95;
   font-size: 1.05rem;
   vertical-align: middle;

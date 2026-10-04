@@ -18,6 +18,14 @@ import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProdu
 import { RACINE } from '../src/config';
 
 const DOSSIER = join(RACINE, 'target', 'a11y-comptoir');
+
+// `E2E_CHROME=comptant` rejoue le test sous un thème de couleur (docs/PLAN-THEMES-APPLICATION.md, phase 4) : la hauteur des barres ne doit pas changer d'un thème à l'autre.
+test.beforeEach(async ({ page }) => {
+  const theme = process.env.E2E_CHROME;
+  if (theme) {
+    await page.addInitScript(t => localStorage.setItem('pharmasmart_chrome', t), theme);
+  }
+});
 const SEUIL_NAV_HORIZONTALE = 1440;
 
 const TAILLES = [

@@ -1,0 +1,509 @@
+// ====================================
+// PHARMA SMART - COULEUR DE L'APPLICATION (« chrome »)
+// ====================================
+//
+// Second axe de thème, indépendant du fond de page (`data-theme`, voir `_pharma-themes.scss`) :
+// barres, en-têtes de modale, de tableau et de toolbar, barre de titre Tauri.
+// Posé en `data-chrome` sur <html> ; sans attribut, `actuel`. Voir docs/PLAN-THEMES-APPLICATION.md.
+//
+// `actuel` décrit l'habillage d'avant ce chantier, valeur pour valeur (une seule exception, D5 :
+// l'en-tête de tableau, relevé à 4,5:1).
+//
+// Jetons :
+//   --pharma-chrome-bar / -bar-hover / -panel   fond des barres, survol, panneau déroulant
+//   --pharma-chrome-gradient-h / -gradient-v    dégradé de la barre horizontale / du rail
+//   --pharma-chrome-navbar / -navbar-hover      fond uni et survol de la barre horizontale (plus clairs que le rail)
+//   --pharma-chrome-fg / -fg-muted              texte et icônes sur barre
+//   --pharma-chrome-accent / -accent-soft / -active   survol, repère, entrée active
+//   --pharma-chrome-head-a / -head-b / -head-fg  en-tête de modale (et défaut des deux suivants)
+//   --pharma-chrome-table-a / -table-b          en-tête de tableau ; absents = head-a / head-b
+//   --pharma-chrome-toolbar-a / -toolbar-b      bandeau d'`app-toolbar` ; absents = head-a / head-b
+//   --pharma-chrome-titlebar-a / -titlebar-b    haut et bas de la barre de titre Tauri
+//   --pharma-chrome-on                          texte fort et voiles sur les barres
+//   --pharma-chrome-dlg-*                       boîte de confirmation (`ngb-confirm-dialog`)
+//   --pharma-chrome-pill-*                      sélecteur à pastilles (`app-pill-selector`)
+//   --pharma-chrome-rainbow / -rainbow-v        liseré des barres (D6)
+
+:root {
+  --pharma-chrome-bar: #2c3e50;
+  --pharma-chrome-bar-hover: #34495e;
+  --pharma-chrome-panel: #34495e;
+  --pharma-chrome-fg: #ecf0f1;
+  --pharma-chrome-fg-muted: rgba(236, 240, 241, 0.85);
+  --pharma-chrome-accent: #3498db;
+  --pharma-chrome-accent-soft: rgba(52, 152, 219, 0.2);
+  --pharma-chrome-active: #2ecc71;
+  --pharma-chrome-gradient-v: linear-gradient(180deg, #243b55 0%, #2c3e50 50%, #1f4e5a 100%);
+  --pharma-chrome-gradient-h: linear-gradient(90deg, #34506b 0%, #3a5269 45%, #2f5b6b 100%);
+  // Texte fort et superpositions (survol, filets) sur les barres : blanc sur les barres sombres d'`actuel`, encre sur les barres claires des thèmes dérivés.
+  --pharma-chrome-on: #ffffff;
+  // Anneau de focus clavier des barres (WCAG 2.4.7 / 1.4.11 : 3:1 au moins sur la barre) et voile de l'en-tête du menu déroulant.
+  --pharma-chrome-focus: #ffffff;
+  --pharma-chrome-panel-head: rgba(0, 0, 0, 0.2);
+  // Voiles d'ombre (en-têtes de panneau, filets) : noir sur les barres sombres, encre sur les barres claires.
+  --pharma-chrome-shade: #000000;
+  // Libellés de la barre horizontale : Bootstrap (`navbar-dark`) les fixe en blanc à 70 %.
+  --pharma-chrome-navlink: rgba(255, 255, 255, 0.7);
+  --pharma-chrome-navlink-strong: #ffffff;
+  --pharma-chrome-navbar: #3a5269;
+  --pharma-chrome-navbar-hover: #45617d;
+  --pharma-chrome-rainbow: linear-gradient(90deg, #10b981, #3b82f6, #f59e0b, #8b5cf6, #f43f5e, #14b8a6);
+  --pharma-chrome-rainbow-v: linear-gradient(180deg, #10b981, #3b82f6, #f59e0b, #8b5cf6, #f43f5e, #14b8a6);
+
+  --pharma-chrome-head-a: #2e7d97;
+  --pharma-chrome-head-b: #1b5e75;
+  --pharma-chrome-head-fg: #ffffff;
+  // Filet sous l'en-tête, séparateur de colonnes, croix des modales et onglets : `actuel` n'a ni filet ni teinte.
+  --pharma-chrome-head-line: transparent;
+  --pharma-chrome-head-sep: rgba(255, 255, 255, 0.1);
+  --pharma-chrome-close-filter: brightness(0) invert(1);
+  // Pastille d'aide (`app-hint`), barre d'actions groupées et filet de total des tableaux : les valeurs d'avant le chantier.
+  --pharma-chrome-hint-bg: #e8f4fd;
+  --pharma-chrome-hint-border: #b6d9f7;
+  --pharma-chrome-hint-fg: #1a6fa8;
+  --pharma-chrome-bulk-bg: #eff6ff;
+  --pharma-chrome-bulk-border: #bfdbfe;
+  --pharma-chrome-bulk-fg: #1e40af;
+  --pharma-chrome-rule: #008cba;
+  // Boîte de confirmation (`ngb-confirm-dialog`) et sélecteur de date : les valeurs d'avant le chantier.
+  --pharma-chrome-dlg-a: #f0f7fa;
+  --pharma-chrome-dlg-b: #e8f4f8;
+  --pharma-chrome-dlg-line: #d1e3ed;
+  --pharma-chrome-dlg-accent: #5b89a6;
+  --pharma-chrome-dlg-accent-hover: #4a7590;
+  --pharma-chrome-dlg-icon-bg: rgba(91, 137, 166, 0.15);
+  --pharma-chrome-dlg-title: #1f2937;
+  // Pastilles de comptage (`app-subtab-bar`) : couleurs de la charte, blanc dessus ≥ 4,5:1.
+  --pharma-chrome-badge-primary: #4a7189;
+  --pharma-chrome-badge-success: #15803d;
+  --pharma-chrome-badge-warn: #c2410c;
+  --pharma-chrome-badge-warn-fg: #ffffff;
+  --pharma-chrome-badge-danger: #dc2626;
+  --pharma-chrome-badge-info: #0369a1;
+  // Sélecteur à pastilles : les valeurs d'avant le chantier.
+  --pharma-chrome-pill-track: rgba(226, 232, 240, 0.4);
+  --pharma-chrome-pill-fg: #888888;
+  --pharma-chrome-pill-hover-bg: rgba(0, 140, 186, 0.08);
+  --pharma-chrome-pill-hover-fg: #008cba;
+  --pharma-chrome-pill-active-a: #008cba;
+  --pharma-chrome-pill-active-b: #5bc0de;
+  --pharma-chrome-pill-active-fg: #ffffff;
+  --pharma-chrome-pill-active-shadow: 0 2px 8px rgba(0, 140, 186, 0.25);
+  --pharma-chrome-tab: #5b89a6;
+  --pharma-chrome-tab-dark: #4a7189;
+  --pharma-chrome-tab-tint: #e8f4f8;
+  --pharma-chrome-table-a: #527b95;
+  --pharma-chrome-table-b: #4d748d;
+  // Même correction que le tableau (D5) : #5b89a6 donnait 3,77:1 sous du texte blanc de 16 px.
+  --pharma-chrome-toolbar-a: #527b95;
+  --pharma-chrome-toolbar-b: #4d748d;
+
+  --pharma-chrome-titlebar-a: #22303d;
+  --pharma-chrome-titlebar-b: #2c3e50;
+
+  // Alias : les composants de navigation lisent encore `--pharma-nav-*`.
+  --pharma-nav-bg: var(--pharma-chrome-bar);
+  --pharma-nav-bg-hover: var(--pharma-chrome-bar-hover);
+  --pharma-nav-panel: var(--pharma-chrome-panel);
+  --pharma-nav-fg: var(--pharma-chrome-fg);
+  --pharma-nav-fg-muted: var(--pharma-chrome-fg-muted);
+  --pharma-nav-accent: var(--pharma-chrome-accent);
+  --pharma-nav-accent-soft: var(--pharma-chrome-accent-soft);
+  --pharma-nav-active: var(--pharma-chrome-active);
+  --pharma-nav-gradient-v: var(--pharma-chrome-gradient-v);
+  --pharma-nav-gradient-h: var(--pharma-chrome-gradient-h);
+  --pharma-nav-rainbow: var(--pharma-chrome-rainbow);
+  --pharma-nav-rainbow-v: var(--pharma-chrome-rainbow-v);
+}
+
+// ─── Thèmes dérivés d'un seul accent ────────────────────────────────────────
+//
+// Une couleur par thème ; tout le reste est calculé. Les pourcentages sont des variables parce que
+// `theme-contraste.spec.ts` les lit pour rejouer le calcul et mesurer les contrastes : ne pas les
+// recopier ailleurs.
+//
+// Tout est **clair**, comme l'espace de vente (`--comptoir-accent-tint` / `-dark`) : teinte de l'accent sur blanc, texte et filet de
+// l'accent assombri. Les barres sombres (accent dans de l'ardoise) étaient « beaucoup trop foncées » face aux thèmes de référence.
+//
+//   rail            = accent à 14 % sur blanc
+//   barre horiz.    = accent à  9 % sur blanc   (plus claire que le rail)
+//   barre de titre  = accent à 24 % sur blanc   (plus soutenue : elle ancre la pile)
+// Ordre de luminosité tenu par construction : barre de titre < rail < navbar.
+// Texte des barres = l'accent assombri (`$chrome-head-ink`), comme celui des en-têtes.
+
+$chrome-bar-tint: 14%;
+$chrome-navbar-tint: 9%;
+$chrome-hover-tint: 22%;
+$chrome-panel-tint: 7%;
+$chrome-title-tint: 24%;
+$chrome-fg-muted-keep: 92%;
+// Encre du texte des barres : plus foncée que celle des en-têtes (78 %), car le texte se pose aussi sur les fonds de survol teintés.
+$chrome-bar-ink: 66%;
+$chrome-gradient-keep: 92%;
+// Fond de page des thèmes dérivés : accent à 6 % dans un gris-bleu. Plus soutenu que les fonds de page d'`actuel`, pour que les cartes
+// blanches s'en détachent.
+$chrome-page-tint: 6%;
+$chrome-page-base: #edf1f5;
+// Cadre des conteneurs : accent à 28 % dans un gris-bleu.
+$chrome-frame-tint: 28%;
+$chrome-frame-base: #cbd5e1;
+// En-têtes (modale, tableau, toolbar, onglets) : teinte claire, texte foncé, filet.
+$chrome-head-tint: 10%;
+$chrome-head-tint-end: 5%;
+$chrome-head-ink: 78%;
+$chrome-head-line: 55%;
+$chrome-tab-ink: 65%;
+// Boutons primaires : survol et état actif (l'accent mélangé de noir).
+$chrome-btn-hover: 80%;
+$chrome-btn-active: 66%;
+// Sélecteur à pastilles : piste, pastille active (teinte), texte au repos.
+$chrome-pill-track: 10%;
+$chrome-pill-active: 34%;
+$chrome-pill-active-end: 26%;
+$chrome-pill-idle: #536074;
+// Bandeau d'indicateurs (`app-kpi-strip`).
+$chrome-kpi-tint: 12%;
+$chrome-kpi-tint-end: 4%;
+
+// Teintes de navigation pensées pour la barre sombre (niveau 300) : sur barre claire, on prend le niveau 600 assombri.
+$nav-hue-keep: 78%;
+$nav-hues: emerald, blue, amber, violet, rose, teal, orange, indigo, lime, fuchsia, cyan, pink;
+
+// Identifiants : l'origine de la teinte (accent de la vente comptant, de l'assurance, des préventes).
+$pharma-chrome-themes: (
+  'comptant': #047857,
+  'assurance': #2a74a0,
+  'prevente-comptant': #4f4aa8,
+  'prevente-carnet': #6f6420,
+);
+
+@each $name, $accent in $pharma-chrome-themes {
+  :root[data-chrome='#{$name}'] {
+    --pharma-chrome-seed: #{$accent};
+    --pharma-chrome-ink: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-head-ink}, #000);
+    --pharma-chrome-bar-ink: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-bar-ink}, #000);
+    // Le thème de couleur impose aussi le fond de page (il l'emporte sur `data-theme`, posé avant : même spécificité, ordre du fichier).
+    --pharma-app-bg: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-page-tint}, #{$chrome-page-base});
+    --pharma-chrome-frame: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-frame-tint}, #{$chrome-frame-base});
+    --pharma-surface-border: var(--pharma-chrome-frame);
+
+    // Barres claires.
+    --pharma-chrome-on: var(--pharma-chrome-bar-ink);
+    --pharma-chrome-focus: var(--pharma-chrome-bar-ink);
+    --pharma-chrome-panel-head: color-mix(in srgb, var(--pharma-chrome-seed) 8%, transparent);
+    --pharma-chrome-shade: var(--pharma-chrome-ink);
+    --pharma-chrome-navlink: var(--pharma-chrome-fg-muted);
+    --pharma-chrome-navlink-strong: var(--pharma-chrome-bar-ink);
+    --pharma-chrome-bar: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-bar-tint}, #fff);
+    --pharma-chrome-bar-top: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-navbar-tint}, #fff);
+    --pharma-chrome-bar-hover: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-hover-tint}, #fff);
+    --pharma-chrome-navbar: var(--pharma-chrome-bar-top);
+    --pharma-chrome-navbar-hover: var(--pharma-chrome-bar-hover);
+    --pharma-chrome-panel: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-panel-tint}, #fff);
+    --pharma-chrome-fg: var(--pharma-chrome-bar-ink);
+    --pharma-chrome-fg-muted: color-mix(in srgb, var(--pharma-chrome-bar-ink) #{$chrome-fg-muted-keep}, var(--pharma-chrome-bar));
+    --pharma-chrome-accent: var(--pharma-chrome-seed);
+    --pharma-chrome-accent-soft: color-mix(in srgb, var(--pharma-chrome-seed) 18%, transparent);
+    --pharma-chrome-active: var(--pharma-chrome-seed);
+    --pharma-chrome-gradient-h: linear-gradient(
+      90deg,
+      var(--pharma-chrome-bar-top) 0%,
+      color-mix(in srgb, var(--pharma-chrome-bar-top) #{$chrome-gradient-keep}, var(--pharma-chrome-seed)) 100%
+    );
+    --pharma-chrome-gradient-v: linear-gradient(
+      180deg,
+      var(--pharma-chrome-bar) 0%,
+      color-mix(in srgb, var(--pharma-chrome-bar) #{$chrome-gradient-keep}, var(--pharma-chrome-seed)) 100%
+    );
+    --pharma-chrome-titlebar-a: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-title-tint}, #fff);
+    --pharma-chrome-titlebar-b: var(--pharma-chrome-bar);
+
+    @each $hue in $nav-hues {
+      --nav-hue-#{$hue}: color-mix(in srgb, var(--icon-#{$hue}) #{$nav-hue-keep}, #000);
+    }
+
+    // En-têtes clairs : teinte de l'accent, texte et filet de l'accent assombri / éclairci.
+    --pharma-chrome-head-a: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-head-tint}, #fff);
+    --pharma-chrome-head-b: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-head-tint-end}, #fff);
+    --pharma-chrome-head-fg: var(--pharma-chrome-ink);
+    --pharma-chrome-head-line: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-head-line}, #fff);
+    --pharma-chrome-head-sep: color-mix(in srgb, var(--pharma-chrome-seed) 15%, transparent);
+    --pharma-chrome-close-filter: none;
+    // Une seule paire d'en-tête pour modale, tableau et toolbar : on retire celles d'`actuel`.
+    --pharma-chrome-table-a: var(--pharma-chrome-head-a);
+    --pharma-chrome-table-b: var(--pharma-chrome-head-b);
+    --pharma-chrome-toolbar-a: var(--pharma-chrome-head-a);
+    --pharma-chrome-toolbar-b: var(--pharma-chrome-head-b);
+    --pharma-chrome-tab: var(--pharma-chrome-ink);
+    --pharma-chrome-tab-dark: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-tab-ink}, #000);
+    --pharma-chrome-tab-tint: var(--pharma-chrome-head-a);
+
+    // Aide, barre d'actions groupées et filet de total : teinte de l'accent.
+    --pharma-chrome-hint-bg: color-mix(in srgb, var(--pharma-chrome-seed) 8%, #fff);
+    --pharma-chrome-hint-border: color-mix(in srgb, var(--pharma-chrome-seed) 30%, #fff);
+    --pharma-chrome-hint-fg: var(--pharma-chrome-ink);
+    --pharma-chrome-bulk-bg: color-mix(in srgb, var(--pharma-chrome-seed) 8%, #fff);
+    --pharma-chrome-bulk-border: color-mix(in srgb, var(--pharma-chrome-seed) 30%, #fff);
+    --pharma-chrome-bulk-fg: var(--pharma-chrome-ink);
+    --pharma-chrome-rule: var(--pharma-chrome-seed);
+
+    // Boîte de confirmation : en-tête clair du thème, icône et bouton « Oui » à l'encre de l'accent.
+    --pharma-chrome-dlg-a: var(--pharma-chrome-head-a);
+    --pharma-chrome-dlg-b: var(--pharma-chrome-head-b);
+    --pharma-chrome-dlg-line: var(--pharma-chrome-head-line);
+    --pharma-chrome-dlg-accent: var(--pharma-chrome-ink);
+    --pharma-chrome-dlg-accent-hover: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-tab-ink}, #000);
+    --pharma-chrome-dlg-icon-bg: color-mix(in srgb, var(--pharma-chrome-seed) 15%, transparent);
+    --pharma-chrome-dlg-title: var(--pharma-chrome-ink);
+
+    // Sélecteur à pastilles : pastille active en teinte claire, texte foncé, comme les onglets.
+    --pharma-chrome-pill-track: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-pill-track}, #fff);
+    --pharma-chrome-pill-fg: #{$chrome-pill-idle};
+    --pharma-chrome-pill-hover-bg: color-mix(in srgb, var(--pharma-chrome-seed) 12%, transparent);
+    --pharma-chrome-pill-hover-fg: var(--pharma-chrome-ink);
+    --pharma-chrome-pill-active-a: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-pill-active}, #fff);
+    --pharma-chrome-pill-active-b: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-pill-active-end}, #fff);
+    --pharma-chrome-pill-active-fg: var(--pharma-chrome-ink);
+    --pharma-chrome-pill-active-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pharma-chrome-seed) 60%, #fff), 0 1px 3px color-mix(in srgb, var(--pharma-chrome-seed) 30%, transparent);
+
+    // Bandeau d'indicateurs : fond et filet du thème, barre « primaire » à l'accent.
+    --pharma-kpi-bg-start: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-kpi-tint}, #fff);
+    --pharma-kpi-bg-end: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-kpi-tint-end}, #fff);
+    --pharma-kpi-border: var(--pharma-chrome-frame);
+    --pharma-kpi-accent: var(--pharma-chrome-seed);
+
+    // ag-grid n'a pas d'en-tête coloré sous `actuel` ; les thèmes dérivés lui donnent celui des tableaux.
+    .ag-theme-alpine {
+      --ag-header-background-color: var(--pharma-chrome-head-a);
+      --ag-header-foreground-color: var(--pharma-chrome-head-fg);
+    }
+  }
+}
+
+// ─── Conteneurs : contour et élévation ──────────────────────────────────────
+//
+// Sous un thème dérivé, un conteneur blanc sur le fond de page prend un contour à la couleur du thème et l'élévation 1 du système
+// (`surface-global.scss`). Sans cela, `.data-card` (aucune bordure, ombre de 8 % d'opacité) et les `.card` nus se fondaient dans le fond.
+// `actuel` n'est pas touché. Sélecteur à quatre classes d'avance sur les règles propres aux composants (encapsulées).
+// Liste = les conteneurs les plus employés des gabarits (`.card` 155, `.data-card` 114, `.activity-card` 16). Les volets (`.list-column`, `.detail-column`) n'y sont
+// pas : ils se placent dans un `app-card`, qui apporte le cadre.
+:root[data-chrome]:not([data-chrome='actuel']) {
+  .card:not(.main),
+  .data-card,
+  .activity-card,
+  .pharma-toolbar,
+  .pharma-nav-sidebar-card {
+    border: 1px solid var(--pharma-chrome-frame);
+    box-shadow: var(--pharma-elevation-1);
+  }
+
+  .data-card:hover {
+    box-shadow: var(--pharma-elevation-2);
+  }
+
+  // Une carte dans une carte : le cadre suffit, l'ombre s'empilerait.
+  :is(.card, .data-card, .activity-card) :is(.card:not(.main), .data-card, .activity-card) {
+    box-shadow: none;
+  }
+}
+
+// ─── Accent applicatif (phase 6, D4) ────────────────────────────────────────
+//
+// Boutons primaires, liens, cases cochées, pagination, onglets actifs, listes, barres de progression : ce que lisent les
+// composants de `shared/ui` (`--bs-primary`, `--p-primary-*`, `--pharma-accent`). Valeurs calculées à la compilation (Bootstrap veut
+// des composantes RGB). Le texte « primaire » (liens, `.text-primary`) prend l'encre de l'accent, non l'accent lui-même : l'accent
+// seul tombe sous 4,5:1 sur le fond de page teinté (3,84:1 relevé par axe sur `.text-primary`).
+// Le vert « succès » de la charte n'est pas touché : à regarder pour le thème vert, où primaire et succès se ressemblent.
+@each $name, $accent in $pharma-chrome-themes {
+  $ink: mix($accent, #000, $chrome-head-ink);
+  $dark: mix($accent, #000, $chrome-btn-hover);
+  $darker: mix($accent, #000, $chrome-btn-active);
+
+  :root[data-chrome='#{$name}'] {
+    --pharma-accent: #{$accent};
+    --pharma-focus-ring: 0 0 0 0.2rem #{rgba($accent, 0.25)};
+    --bs-primary: #{$accent};
+    --bs-primary-rgb: #{red($ink)}, #{green($ink)}, #{blue($ink)};
+    --bs-link-color: #{$ink};
+    --bs-link-color-rgb: #{red($ink)}, #{green($ink)}, #{blue($ink)};
+    --bs-link-hover-color: #{$darker};
+    --bs-link-hover-color-rgb: #{red($darker)}, #{green($darker)}, #{blue($darker)};
+    --p-primary-color: #{$accent};
+    --p-primary-50: #{mix($accent, #fff, 8%)};
+    --p-primary-100: #{mix($accent, #fff, 16%)};
+    --p-primary-200: #{mix($accent, #fff, 30%)};
+    --p-primary-400: #{mix($accent, #fff, 60%)};
+    --p-primary-500: #{mix($accent, #fff, 80%)};
+    --p-primary-600: #{$accent};
+    --p-primary-700: #{$ink};
+    --p-primary-800: #{$darker};
+
+    .btn-primary {
+      --bs-btn-color: #fff;
+      --bs-btn-bg: #{$accent};
+      --bs-btn-border-color: #{$accent};
+      --bs-btn-hover-color: #fff;
+      --bs-btn-hover-bg: #{$dark};
+      --bs-btn-hover-border-color: #{$dark};
+      --bs-btn-focus-shadow-rgb: #{red($accent)}, #{green($accent)}, #{blue($accent)};
+      --bs-btn-active-color: #fff;
+      --bs-btn-active-bg: #{$darker};
+      --bs-btn-active-border-color: #{$darker};
+      --bs-btn-disabled-color: #fff;
+      --bs-btn-disabled-bg: #{$accent};
+      --bs-btn-disabled-border-color: #{$accent};
+    }
+
+    .btn-outline-primary {
+      --bs-btn-color: #{$ink};
+      --bs-btn-border-color: #{$accent};
+      --bs-btn-hover-color: #fff;
+      --bs-btn-hover-bg: #{$accent};
+      --bs-btn-hover-border-color: #{$accent};
+      --bs-btn-focus-shadow-rgb: #{red($accent)}, #{green($accent)}, #{blue($accent)};
+      --bs-btn-active-color: #fff;
+      --bs-btn-active-bg: #{$darker};
+      --bs-btn-active-border-color: #{$darker};
+      --bs-btn-disabled-color: #{$accent};
+      --bs-btn-disabled-border-color: #{$accent};
+    }
+
+    .form-check-input:checked {
+      background-color: #{$accent};
+      border-color: #{$accent};
+    }
+
+    .pagination {
+      --bs-pagination-active-bg: #{$accent};
+      --bs-pagination-active-border-color: #{$accent};
+    }
+
+    .nav-pills {
+      --bs-nav-pills-link-active-bg: #{$accent};
+    }
+
+    .dropdown-menu {
+      --bs-dropdown-link-active-bg: #{$accent};
+    }
+
+    .list-group {
+      --bs-list-group-active-bg: #{$accent};
+      --bs-list-group-active-border-color: #{$accent};
+    }
+
+    .progress,
+    .progress-stacked {
+      --bs-progress-bar-bg: #{$accent};
+    }
+  }
+}
+
+// ─── Boutons sémantiques nuancés par thème (D4, suite) ──────────────────────
+//
+// `secondary`, `success`, `info`, `warning`, `danger`, `help`, `contrast` : une couleur **propre à chaque thème**. Un même bouton ne doit pas
+// avoir la même couleur d'un thème à l'autre, ni se confondre avec le primaire du thème. Chaque sévérité garde sa famille (le vert reste un vert, le rouge
+// un rouge) mais sa teinte est décalée de quelques degrés, et sa clarté de quelques points, différemment selon le thème : `success` entre le vert franc et le
+// vert-sarcelle, `info` du bleu acier au bleu roi et au sarcelle, `danger` du rose poudré au rouge orangé, `help` de l'indigo au magenta, `warning` de l'orange au
+// jaune. Saturation réduite d'environ 15 % par rapport à la charte : les teintes vives étaient jugées agressives. `secondary` et `contrast` sont des neutres teintés de la couleur du thème.
+//
+// Table calculée hors ligne (recherche par thème, sous contraintes) : blanc ≥ 4,6:1 sur les fonds à texte blanc, encre ≥ 7:1 sur les ambres ; écart de teinte
+// (ΔE CIE76) ≥ 30 au primaire du thème. Le garde-fou (`theme-contraste.spec.ts`) rejoue le contraste texte / fond au repos, au survol et à l'actif, le texte des boutons
+// contour sur blanc et sur fond de page, l'écart au primaire et l'écart **d'un thème à l'autre** pour une même sévérité.
+//
+// Texte : blanc, sauf `secondary` et `warning` (fonds clairs) qui portent l'encre `$chrome-btn-ink`.
+
+$chrome-btn-ink: #0f172a;
+$chrome-sem-hover: 84%;
+$chrome-sem-active: 72%;
+$chrome-sem-hover-clair: 92%;
+$chrome-sem-active-clair: 84%;
+$chrome-sem-outline: 72%;
+$chrome-sem-outline-clair: 40%;
+$chrome-sem-clairs: secondary, warning;
+
+$pharma-chrome-buttons: (
+  'comptant-secondary': #c2d6d0,
+  'comptant-success': #22852a,
+  'comptant-info': #0f6281,
+  'comptant-warning': #f2942d,
+  'comptant-danger': #ce4066,
+  'comptant-help': #7259de,
+  'comptant-contrast': #0a382b,
+  'assurance-secondary': #c2cfd6,
+  'assurance-success': #1a6628,
+  'assurance-info': #1341a5,
+  'assurance-warning': #f4b745,
+  'assurance-danger': #b92f42,
+  'assurance-help': #5c2ed5,
+  'assurance-contrast': #0a2738,
+  'prevente-comptant-secondary': #c3c2d6,
+  'prevente-comptant-success': #22835a,
+  'prevente-comptant-info': #108284,
+  'prevente-comptant-warning': #f1c215,
+  'prevente-comptant-danger': #cc3636,
+  'prevente-comptant-help': #9243da,
+  'prevente-comptant-contrast': #0c0a38,
+  'prevente-carnet-secondary': #d6d3c2,
+  'prevente-carnet-success': #1a6655,
+  'prevente-carnet-info': #0f4581,
+  'prevente-carnet-warning': #f2e32d,
+  'prevente-carnet-danger': #bd5630,
+  'prevente-carnet-help': #be2fd5,
+  'prevente-carnet-contrast': #38320a,
+);
+
+@each $name, $accent in $pharma-chrome-themes {
+  :root[data-chrome='#{$name}'] {
+    @each $sev in secondary, success, info, warning, danger, help, contrast {
+      $bg: map-get($pharma-chrome-buttons, '#{$name}-#{$sev}');
+      $clair: index($chrome-sem-clairs, $sev) != null;
+      $texte: if($clair, $chrome-btn-ink, #fff);
+      $survol: if($clair, mix($bg, #000, $chrome-sem-hover-clair), mix($bg, #000, $chrome-sem-hover));
+      $actif: if($clair, mix($bg, #000, $chrome-sem-active-clair), mix($bg, #000, $chrome-sem-active));
+      $contour: if($clair, mix($bg, #000, $chrome-sem-outline-clair), mix($bg, #000, $chrome-sem-outline));
+
+      .btn-#{$sev} {
+        --bs-btn-color: #{$texte};
+        --bs-btn-bg: #{$bg};
+        --bs-btn-border-color: #{$bg};
+        --bs-btn-hover-color: #{$texte};
+        --bs-btn-hover-bg: #{$survol};
+        --bs-btn-hover-border-color: #{$survol};
+        --bs-btn-focus-shadow-rgb: #{red($bg)}, #{green($bg)}, #{blue($bg)};
+        --bs-btn-active-color: #{$texte};
+        --bs-btn-active-bg: #{$actif};
+        --bs-btn-active-border-color: #{$actif};
+        --bs-btn-disabled-color: #{$texte};
+        --bs-btn-disabled-bg: #{$bg};
+        --bs-btn-disabled-border-color: #{$bg};
+      }
+
+      .btn-outline-#{$sev} {
+        --bs-btn-color: #{$contour};
+        --bs-btn-border-color: #{$contour};
+        --bs-btn-hover-color: #{$texte};
+        --bs-btn-hover-bg: #{$bg};
+        --bs-btn-hover-border-color: #{$bg};
+        --bs-btn-focus-shadow-rgb: #{red($bg)}, #{green($bg)}, #{blue($bg)};
+        --bs-btn-active-color: #{$texte};
+        --bs-btn-active-bg: #{$actif};
+        --bs-btn-active-border-color: #{$actif};
+        --bs-btn-disabled-color: #{$contour};
+        --bs-btn-disabled-border-color: #{$contour};
+      }
+    }
+  }
+}
+
+// ─── Pastilles de comptage des onglets (`app-subtab-bar`) ───────────────────
+// Elles reprennent la palette des boutons du thème : mêmes couleurs, donc même contraste (blanc ≥ 4,6:1 ; encre sur l'ambre de `warn`).
+@each $name, $accent in $pharma-chrome-themes {
+  :root[data-chrome='#{$name}'] {
+    --pharma-chrome-badge-primary: var(--pharma-chrome-tab-dark);
+    --pharma-chrome-badge-success: #{map-get($pharma-chrome-buttons, '#{$name}-success')};
+    --pharma-chrome-badge-warn: #{map-get($pharma-chrome-buttons, '#{$name}-warning')};
+    --pharma-chrome-badge-warn-fg: #{$chrome-btn-ink};
+    --pharma-chrome-badge-danger: #{map-get($pharma-chrome-buttons, '#{$name}-danger')};
+    --pharma-chrome-badge-info: #{map-get($pharma-chrome-buttons, '#{$name}-info')};
+  }
+}

@@ -26,13 +26,14 @@ import { SaleToolbarService } from '../../data-access/services/sale-toolbar.serv
 import { CloturerAvoirModalComponent } from '../../ui/cloturer-avoir-modal/cloturer-avoir-modal.component';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
+import { CardComponent } from 'app/shared/ui';
 @Component({
   selector: 'app-avoirs-client-list',
   templateUrl: './avoirs-client-list.component.html',
   styleUrl: './avoirs-client-list.component.scss',
   providers: [{ provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, 
+  imports: [CardComponent, DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,

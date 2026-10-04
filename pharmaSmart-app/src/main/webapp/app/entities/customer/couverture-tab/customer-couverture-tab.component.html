@@ -3,7 +3,7 @@
                       [layout]="'block'" [count]="tiersPayants().length" storageKey="customer.couverture.tiers-payants">
     @if (canEdit() && peutAjouterTiersPayant()) {
       <app-button ngProjectAs="[sectionActions]" (clicked)="addTiersPayant()" [outlined]="true" icon="pi pi-plus"
-                  label="Ajouter" severity="info" size="small" />
+                  label="Ajouter" severity="primary" size="small" />
     }
     @if (tiersPayants().length > 0) {
       <app-data-table [value]="tiersPayants()" [stripedRows]="true" size="small">
@@ -85,7 +85,7 @@
                       [layout]="'block'" [count]="customer().ayantDroits?.length ?? 0" storageKey="customer.couverture.ayants-droit">
     @if (canEdit() && customer().typeTiersPayant === 'ASSURANCE') {
       <app-button ngProjectAs="[sectionActions]" (clicked)="addAyantDroit()" [outlined]="true" icon="pi pi-plus"
-                  label="Ajouter" severity="info" size="small" />
+                  label="Ajouter" severity="primary" size="small" />
     }
     @if (customer().ayantDroits?.length) {
       <app-data-table [value]="customer().ayantDroits ?? []" [stripedRows]="true" size="small">

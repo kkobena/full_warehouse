@@ -6,7 +6,7 @@ import { IAuthority, INavRole, NavApiService } from "app/core/data-access/nav-ap
 import { NotificationService } from "app/shared/services/notification.service";
 import { INavNode, NavItemAssignment } from "app/shared/model/nav-item.model";
 import { NavReorderComponent } from "./nav-reorder.component";
-import { CheckboxComponent, DataTableComponent, SelectSearchComponent, NavTabsComponent } from "app/shared/ui";
+import { CheckboxComponent, DataTableComponent, SelectSearchComponent, NavTabsComponent, CardComponent } from "app/shared/ui";
 
 interface FlatNavNode extends INavNode {
   depth: number;
@@ -19,7 +19,7 @@ interface FlatNavNode extends INavNode {
   templateUrl: "./nav-manager.component.html",
   styleUrl: "./nav-manager.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [CardComponent, 
     CommonModule, FormsModule,
     DataTableComponent, CheckboxComponent, SelectSearchComponent,
     NgbNavModule, NavTabsComponent, NavReorderComponent

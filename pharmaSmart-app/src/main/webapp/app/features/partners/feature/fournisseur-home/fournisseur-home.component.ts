@@ -18,20 +18,20 @@ import { DeviseDirective } from 'app/shared/utils/devise';
 import {
   AppTableLazyLoadEvent,
   BadgeComponent,
-  ButtonComponent,
+  ButtonComponent, CardComponent,
   DataTableComponent,
   FrozenColumnDirective,
   IconFieldComponent,
   RowTogglerDirective,
   ToolbarComponent
-} from '../../../../shared/ui';
+} from "../../../../shared/ui";
 
 @Component({
   selector: 'app-fournisseur-home',
   templateUrl: './fournisseur-home.component.html',
   styleUrls: ['./fournisseur-home.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, 
+  imports: [DeviseDirective,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -42,8 +42,8 @@ import {
     IconFieldComponent,
     BadgeComponent,
     NgbTooltip,
-    SpinnerComponent,
-  ],
+    SpinnerComponent, CardComponent
+  ]
 })
 export class FournisseurHomeComponent implements OnInit {
   protected readonly fournisseurs = signal<IFournisseur[]>([]);
@@ -103,7 +103,7 @@ export class FournisseurHomeComponent implements OnInit {
   }
 
   protected openNewParent(): void {
-    const ref = this.modalService.open(FournisseurFormComponent, { size: 'xl', backdrop: 'static' });
+    const ref = this.modalService.open(FournisseurFormComponent, { size: 'xl', backdrop: 'static',centered:true });
     ref.componentInstance.fournisseur = null;
     ref.componentInstance.presetParentId = null;
     ref.componentInstance.title = 'Nouveau fournisseur';
@@ -111,7 +111,7 @@ export class FournisseurHomeComponent implements OnInit {
   }
 
   protected editFournisseur(f: IFournisseur): void {
-    const ref = this.modalService.open(FournisseurFormComponent, { size: 'xl', backdrop: 'static' });
+    const ref = this.modalService.open(FournisseurFormComponent, { size: 'xl', backdrop: 'static',centered:true });
     ref.componentInstance.fournisseur = f;
     ref.componentInstance.presetParentId = null;
     ref.componentInstance.title = `Modifier ${f.libelle}`;
@@ -122,7 +122,7 @@ export class FournisseurHomeComponent implements OnInit {
   }
 
   protected addAgence(parent: IFournisseur): void {
-    const ref = this.modalService.open(FournisseurFormComponent, { size: 'xl', backdrop: 'static' });
+    const ref = this.modalService.open(FournisseurFormComponent, { size: 'xl', backdrop: 'static',centered:true });
     ref.componentInstance.fournisseur = null;
     ref.componentInstance.presetParentId = parent.id;
     ref.componentInstance.title = `Nouvelle agence — ${parent.libelle}`;
@@ -152,7 +152,7 @@ export class FournisseurHomeComponent implements OnInit {
   }
 
   protected showFileDialog(): void {
-    const ref = this.modalService.open(FileUploadDialogComponent, { size: 'xl' });
+    const ref = this.modalService.open(FileUploadDialogComponent, { size: 'xl',centered:true });
     ref.result.then(file => {
       this.spinner().show();
       this.api.uploadFile(file)

@@ -59,7 +59,7 @@
             (clicked)="cloneRayons()"
             icon="pi pi-copy"
             label="Cloner"
-            severity="info"
+            severity="primary"
             [raised]="true"
             ngbTooltip="Cloner"
             placement="left"
@@ -88,7 +88,7 @@
             (clicked)="addNew()"
             icon="pi pi-plus"
             label="Nouveau"
-            severity="success"
+            severity="primary"
             [raised]="true"
             ngbTooltip="Nouveau"
             placement="left"
@@ -99,34 +99,37 @@
   </app-toolbar>
 
   <!-- Split container -->
-  <div class="split-container" [class.panel-open]="panelOpen()">
-    <div class="list-column">
-      <app-rayon-list
-        [rayons]="rayons()"
-        [totalItems]="totalItems()"
-        [loading]="loading()"
-        [rows]="rows()"
-        [first]="page() * rows()"
-        [selectedRayon]="selectedRayon()"
-        (rayonSelected)="onRayonSelected($event)"
-        (lazyLoad)="onLazyLoad($event)"
-        (editRequested)="onEditRequested($event)"
-        (deleteRequested)="onDeleteRequested($event)"
-        (inventaireRequested)="onInventaireRequested($event)"
-        (cloneRequested)="onCloneRequested($event)"
-      />
-    </div>
-
-    @if (panelOpen()) {
-      <div class="detail-column">
-        <app-rayon-detail-panel
-          [rayon]="selectedRayon()!"
-          (closed)="onClosePanel()"
-          (edited)="onRayonEdited($event)"
+  <app-card bodyClass="p-2 d-flex flex-column flex-grow-1 overflow-hidden"
+          [style]="{ 'min-height': '0', height: 'auto', flex: '1 1 0' }">
+    <div class="split-container" [class.panel-open]="panelOpen()">
+      <div class="list-column">
+        <app-rayon-list
+          [rayons]="rayons()"
+          [totalItems]="totalItems()"
+          [loading]="loading()"
+          [rows]="rows()"
+          [first]="page() * rows()"
+          [selectedRayon]="selectedRayon()"
+          (rayonSelected)="onRayonSelected($event)"
+          (lazyLoad)="onLazyLoad($event)"
+          (editRequested)="onEditRequested($event)"
           (deleteRequested)="onDeleteRequested($event)"
+          (inventaireRequested)="onInventaireRequested($event)"
+          (cloneRequested)="onCloneRequested($event)"
         />
       </div>
-    }
-  </div>
+
+      @if (panelOpen()) {
+        <div class="detail-column">
+          <app-rayon-detail-panel
+            [rayon]="selectedRayon()!"
+            (closed)="onClosePanel()"
+            (edited)="onRayonEdited($event)"
+            (deleteRequested)="onDeleteRequested($event)"
+          />
+        </div>
+      }
+    </div>
+  </app-card>
 </div>
 

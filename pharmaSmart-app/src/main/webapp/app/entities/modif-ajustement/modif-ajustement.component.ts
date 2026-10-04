@@ -10,6 +10,7 @@ import {
 import {FormsModule} from '@angular/forms';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {showCommonModal} from '../sales/selling-home/sale-helper';
+import { CardComponent } from 'app/shared/ui';
 import {
   AppTableLazyLoadEvent,
   ButtonComponent,
@@ -25,7 +26,7 @@ import {
   templateUrl: './modif-ajustement.component.html',
   styleUrl: './modif-ajustement.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterModule, FormsModule, ButtonComponent, DataTableComponent, IconFieldComponent],
+  imports: [CardComponent, RouterModule, FormsModule, ButtonComponent, DataTableComponent, IconFieldComponent],
 })
 export class ModifAjustementComponent implements OnInit {
   protected readonly entites = signal<IMotifAjustement[] | undefined>(undefined);

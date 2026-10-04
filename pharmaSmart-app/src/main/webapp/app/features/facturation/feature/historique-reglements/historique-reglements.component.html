@@ -79,7 +79,7 @@
             [raised]="true"
             icon="pi pi-file-excel"
             label="Excel"
-            severity="success"
+            severity="warn"
           />
         </div>
       </div>
@@ -87,135 +87,137 @@
   </app-toolbar>
 
   <!-- Table -->
-  <div class="px-2">
-    <app-data-table
-      #reglementTable
-      [selection]="selectedDatas()" (selectionChange)="selectedDatas.set($any($event))"
-      [paginator]="true"
-      [rowsPerPageOptions]="[10, 15, 20, 25, 30, 100]"
-      [rows]="15"
-      [scrollable]="true"
-      [selectionMode]="'multiple'"
-      [showCurrentPageReport]="true"
-      [size]="'small'"
-      [stripedRows]="true"
-      [value]="datas()"
-      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} règlements"
-      dataKey="id.id"
-      groupRowsBy="organismeId"
-      initialSortField="organisme"
-      scrollHeight="calc(100vh - 370px)"
-    >
-      <!-- Caption: filtre local + suppression sélection -->
-      <ng-template #caption>
-        <div class="d-flex justify-content-between align-items-center gap-2">
-          <app-icon-field [overlay]="true" icon="pi pi-search">
-            <input
-              (input)="reglementTable.filterGlobal($event.target['value'])"
-              [style]="{ width: '280px' }"
-              class="form-control"
-              placeholder="Filtrer dans la liste..." type="text" />
-          </app-icon-field>
-          @if (selectedDatas().length > 0) {
-            <app-button
-              (clicked)="onDeleteAll()"
-              [raised]="true"
-              icon="pi pi-trash"
-              label="Supprimer la sélection ({{ selectedDatas().length }})"
-              severity="danger"
-            />
-          }
-        </div>
-      </ng-template>
-
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th>Organisme</th>
-          <th>Code facture</th>
-          <th>Mode règlement</th>
-          <th class="text-end">Montant attendu</th>
-          <th class="text-end">Montant réglé</th>
-          <th class="text-end">Restant</th>
-          <th class="text-center">Date</th>
-          <th>Opérateur</th>
-          <th class="text-center">Actions</th>
-          <th class="text-center">
-            <app-header-checkbox />
-          </th>
-        </tr>
-      </ng-template>
-
-      <!-- Sous-en-tête de groupe -->
-      <ng-template #groupheader let-r>
-        <tr>
-          <td class="fw-bold" colspan="3">
-            <i class="pi pi-building me-2 text-primary"></i>{{ r.organisme }}
-          </td>
-          <td class="text-end fw-bold" colspan="2">
-            Total : <span class="pharma-total">{{ getTotalByGroupe(r.organismeId) | number }}</span>
-          </td>
-          <td colspan="5"></td>
-        </tr>
-      </ng-template>
-
-      <ng-template #body let-r>
-        <tr>
-          <td></td>
-          <td><span class="pharma-code">{{ r.codeFacture }}</span></td>
-          <td><span class="pharma-badge pharma-badge-info">{{ r.paymentMode }}</span></td>
-          <td class="text-end"><span class="pharma-price">{{ r.montantAttendu }}</span></td>
-          <td class="text-end"><span class="pharma-total">{{ r.paidAmount }}</span></td>
-          <td class="text-end"><span class="pharma-price">{{ r.montantRestant }}</span></td>
-          <td class="text-center small text-muted">{{ r.created }}</td>
-          <td class="small">{{ r.user }}</td>
-          <td class="text-center">
-            <div class="btn-group" role="group">
+  <app-card>
+    <div class="px-2">
+      <app-data-table
+        #reglementTable
+        [selection]="selectedDatas()" (selectionChange)="selectedDatas.set($any($event))"
+        [paginator]="true"
+        [rowsPerPageOptions]="[10, 15, 20, 25, 30, 100]"
+        [rows]="15"
+        [scrollable]="true"
+        [selectionMode]="'multiple'"
+        [showCurrentPageReport]="true"
+        [size]="'small'"
+        [stripedRows]="true"
+        [value]="datas()"
+        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} règlements"
+        dataKey="id.id"
+        groupRowsBy="organismeId"
+        initialSortField="organisme"
+        scrollHeight="calc(100vh - 370px)"
+      >
+        <!-- Caption: filtre local + suppression sélection -->
+        <ng-template #caption>
+          <div class="d-flex justify-content-between align-items-center gap-2">
+            <app-icon-field [overlay]="true" icon="pi pi-search">
+              <input
+                (input)="reglementTable.filterGlobal($event.target['value'])"
+                [style]="{ width: '280px' }"
+                class="form-control"
+                placeholder="Filtrer dans la liste..." type="text" />
+            </app-icon-field>
+            @if (selectedDatas().length > 0) {
               <app-button
-                (clicked)="onView(r)"
-                [rounded]="true"
-                [text]="true"
-                ariaLabel="Voir le détail du règlement"
-                icon="pi pi-eye"
-                ngbTooltip="Voir le détail"
-                severity="info"
-                size="small"
-              />
-              <app-button
-                (clicked)="onPrint(r)"
-                [rounded]="true"
-                [text]="true"
-                ariaLabel="Imprimer le reçu du règlement"
-                icon="pi pi-print"
-                ngbTooltip="Imprimer le reçu"
-                severity="secondary"
-                size="small"
-              />
-              <app-button
-                (clicked)="onDelete(r)"
-                [rounded]="true"
-                [text]="true"
-                ariaLabel="Supprimer le règlement"
+                (clicked)="onDeleteAll()"
+                [raised]="true"
                 icon="pi pi-trash"
-                ngbTooltip="Supprimer"
+                label="Supprimer la sélection ({{ selectedDatas().length }})"
                 severity="danger"
-                size="small"
               />
-            </div>
-          </td>
-          <td class="text-center">
-            <app-row-checkbox [row]="r" />
-          </td>
-        </tr>
-      </ng-template>
+            }
+          </div>
+        </ng-template>
 
-      <ng-template #emptymessage>
-        <tr>
-          <td colspan="10">
-            <div class="alert alert-warning m-2">Aucun règlement trouvé — affinez les filtres</div>
-          </td>
-        </tr>
-      </ng-template>
-    </app-data-table>
-  </div>
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Organisme</th>
+            <th>Code facture</th>
+            <th>Mode règlement</th>
+            <th class="text-end">Montant attendu</th>
+            <th class="text-end">Montant réglé</th>
+            <th class="text-end">Restant</th>
+            <th class="text-center">Date</th>
+            <th>Opérateur</th>
+            <th class="text-center">Actions</th>
+            <th class="text-center">
+              <app-header-checkbox />
+            </th>
+          </tr>
+        </ng-template>
+
+        <!-- Sous-en-tête de groupe -->
+        <ng-template #groupheader let-r>
+          <tr>
+            <td class="fw-bold" colspan="3">
+              <i class="pi pi-building me-2 text-primary"></i>{{ r.organisme }}
+            </td>
+            <td class="text-end fw-bold" colspan="2">
+              Total : <span class="pharma-total">{{ getTotalByGroupe(r.organismeId) | number }}</span>
+            </td>
+            <td colspan="5"></td>
+          </tr>
+        </ng-template>
+
+        <ng-template #body let-r>
+          <tr>
+            <td></td>
+            <td><span class="pharma-code">{{ r.codeFacture }}</span></td>
+            <td><span class="pharma-badge pharma-badge-info">{{ r.paymentMode }}</span></td>
+            <td class="text-end"><span class="pharma-price">{{ r.montantAttendu }}</span></td>
+            <td class="text-end"><span class="pharma-total">{{ r.paidAmount }}</span></td>
+            <td class="text-end"><span class="pharma-price">{{ r.montantRestant }}</span></td>
+            <td class="text-center small text-muted">{{ r.created }}</td>
+            <td class="small">{{ r.user }}</td>
+            <td class="text-center">
+              <div class="btn-group" role="group">
+                <app-button
+                  (clicked)="onView(r)"
+                  [rounded]="true"
+                  [text]="true"
+                  ariaLabel="Voir le détail du règlement"
+                  icon="pi pi-eye"
+                  ngbTooltip="Voir le détail"
+                  severity="info"
+                  size="small"
+                />
+                <app-button
+                  (clicked)="onPrint(r)"
+                  [rounded]="true"
+                  [text]="true"
+                  ariaLabel="Imprimer le reçu du règlement"
+                  icon="pi pi-print"
+                  ngbTooltip="Imprimer le reçu"
+                  severity="secondary"
+                  size="small"
+                />
+                <app-button
+                  (clicked)="onDelete(r)"
+                  [rounded]="true"
+                  [text]="true"
+                  ariaLabel="Supprimer le règlement"
+                  icon="pi pi-trash"
+                  ngbTooltip="Supprimer"
+                  severity="danger"
+                  size="small"
+                />
+              </div>
+            </td>
+            <td class="text-center">
+              <app-row-checkbox [row]="r" />
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="10">
+              <div class="alert alert-warning m-2">Aucun règlement trouvé — affinez les filtres</div>
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </div>
+  </app-card>
 
 </div>

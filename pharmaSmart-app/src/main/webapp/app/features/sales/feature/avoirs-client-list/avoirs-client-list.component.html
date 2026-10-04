@@ -32,160 +32,162 @@
       </ng-container>
     </app-toolbar>
 
-    <div class="journal-summary-bar">
-      <div class="summary-item">
-        <i class="pi pi-list"></i>
-        <span class="summary-label">Nombre total :</span>
-        <span class="summary-value">{{ documentsTotal() | number }}</span>
+    <app-card>
+      <div class="journal-summary-bar">
+        <div class="summary-item">
+          <i class="pi pi-list"></i>
+          <span class="summary-label">Nombre total :</span>
+          <span class="summary-value">{{ documentsTotal() | number }}</span>
+        </div>
+        <div class="summary-item">
+          <i class="pi pi-wallet"></i>
+          <span class="summary-label">Montant total :</span>
+          <span class="summary-value avoir-amount">{{ totalMontantDocuments | number: '1.0-0' }}
+            <span appDevise></span></span>
+        </div>
       </div>
-      <div class="summary-item">
-        <i class="pi pi-wallet"></i>
-        <span class="summary-label">Montant total :</span>
-        <span class="summary-value avoir-amount">{{ totalMontantDocuments | number: '1.0-0' }}
-          <span appDevise></span></span>
-      </div>
-    </div>
 
-    <app-data-table
-      (onLazyLoad)="lazyLoadingDocuments($event)"
-      [lazy]="true"
-      [loading]="loading()"
-      [paginator]="true"
-      [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-      [rows]="itemsPerPage()"
-      [showCurrentPageReport]="true"
-      [size]="'small'"
-      [stripedRows]="true"
-      [totalRecords]="documentsTotal()"
-      [value]="documents()"
-      currentPageReportTemplate="{first} – {last} sur {totalRecords}"
-      dataKey="id"
-    >
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th>Référence</th>
-          <th>Créé le</th>
-          @if (statut() !== 'OUVERT') {
-            <th>Clôturé le</th>
-          }
-          @if (statut() === 'OUVERT' || statut() === null) {
-            <th>Expire le</th>
-          }
-          <th>Produit</th>
-          <th>Code</th>
-          <th class="text-right">Qté</th>
-          <th class="text-right">Montant</th>
-          @if (statut() === 'OUVERT' || statut() === null) {
-            <th class="text-right">Solde</th>
-          }
-          <th>Client</th>
-          @if (statut() !== 'OUVERT') {
-            <th>Mode clôture</th>
-            <th>Clôturé par</th>
-          }
-          <th class="text-center">Statut</th>
-          @if (statut() !== 'CLOTURE' && statut() !== 'EXPIRE') {
-            <th class="text-center">Action</th>
-          }
-        </tr>
-      </ng-template>
-
-      <ng-template #body let-doc>
-        <tr [class.row-expiring]="doc.procheExpiration">
-          <td><span class="pharma-code">{{ doc.reference }}</span></td>
-          <td>{{ doc.createdAt | date: 'dd/MM/yyyy' }}</td>
-          @if (statut() !== 'OUVERT') {
-            <td>{{ doc.clotureLe | date: 'dd/MM/yyyy' }}</td>
-          }
-          @if (statut() === 'OUVERT' || statut() === null) {
-            <td>
-              @if (doc.dateExpiration) {
-                <span [class.fw-semibold]="doc.procheExpiration"
-                      [class.text-danger]="doc.procheExpiration">
-                  {{ doc.dateExpiration | date: 'dd/MM/yyyy' }}
-                </span>
-                @if (doc.procheExpiration) {
-                  <span class="badge bg-warning text-white ms-1"
-                        style="font-size:.7rem">Bientôt</span>
-                }
-              } @else {
-                <span class="text-muted">—</span>
-              }
-            </td>
-          }
-          <td class="pharma-product-name">{{ doc.produitLibelle }}</td>
-          <td><span class="pharma-code">{{ doc.codeCip }}</span></td>
-          <td class="text-right pharma-qty-value avoir-qty">{{ doc.quantite | number }}</td>
-          <td class="text-right pharma-price">{{ doc.montant | number: '1.0-0' }}</td>
-          @if (statut() === 'OUVERT' || statut() === null) {
-            <td class="text-right pharma-price fw-semibold text-success">
-              @if (doc.statut === 'OUVERT') {
-                {{ (doc.montantRestant ?? doc.montant) | number: '1.0-0' }}
-              } @else {
-                —
-              }
-            </td>
-          }
-          <td class="pharma-entity-name">{{ doc.customerName || '—' }}</td>
-          @if (statut() !== 'OUVERT') {
-            <td>
-              @if (doc.modeCloture) {
-                <span class="mode-cloture-badge">
-                  <i [class]="modeClotureIconOf(doc.modeCloture) + ' me-1'"></i>
-                  {{ modeClotureLabelOf(doc.modeCloture) }}
-                </span>
-              } @else {
-                <span>—</span>
-              }
-            </td>
-            <td>{{ doc.closedByName || '—' }}</td>
-          }
-          <td class="text-center">
-            @if (doc.statut === 'OUVERT') {
-              <app-badge label="Ouvert" severity="warn" />
-            } @else if (doc.statut === 'EXPIRE') {
-              <app-badge label="Expiré" severity="danger" />
-            } @else if (doc.statut === 'ANNULE') {
-              <app-badge label="Annulé" severity="secondary" />
-            } @else {
-              <app-badge label="Clôturé" severity="success" />
+      <app-data-table
+        (onLazyLoad)="lazyLoadingDocuments($event)"
+        [lazy]="true"
+        [loading]="loading()"
+        [paginator]="true"
+        [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+        [rows]="itemsPerPage()"
+        [showCurrentPageReport]="true"
+        [size]="'small'"
+        [stripedRows]="true"
+        [totalRecords]="documentsTotal()"
+        [value]="documents()"
+        currentPageReportTemplate="{first} – {last} sur {totalRecords}"
+        dataKey="id"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Référence</th>
+            <th>Créé le</th>
+            @if (statut() !== 'OUVERT') {
+              <th>Clôturé le</th>
             }
-          </td>
-          @if (statut() !== 'CLOTURE' && statut() !== 'EXPIRE') {
+            @if (statut() === 'OUVERT' || statut() === null) {
+              <th>Expire le</th>
+            }
+            <th>Produit</th>
+            <th>Code</th>
+            <th class="text-right">Qté</th>
+            <th class="text-right">Montant</th>
+            @if (statut() === 'OUVERT' || statut() === null) {
+              <th class="text-right">Solde</th>
+            }
+            <th>Client</th>
+            @if (statut() !== 'OUVERT') {
+              <th>Mode clôture</th>
+              <th>Clôturé par</th>
+            }
+            <th class="text-center">Statut</th>
+            @if (statut() !== 'CLOTURE' && statut() !== 'EXPIRE') {
+              <th class="text-center">Action</th>
+            }
+          </tr>
+        </ng-template>
+
+        <ng-template #body let-doc>
+          <tr [class.row-expiring]="doc.procheExpiration">
+            <td><span class="pharma-code">{{ doc.reference }}</span></td>
+            <td>{{ doc.createdAt | date: 'dd/MM/yyyy' }}</td>
+            @if (statut() !== 'OUVERT') {
+              <td>{{ doc.clotureLe | date: 'dd/MM/yyyy' }}</td>
+            }
+            @if (statut() === 'OUVERT' || statut() === null) {
+              <td>
+                @if (doc.dateExpiration) {
+                  <span [class.fw-semibold]="doc.procheExpiration"
+                        [class.text-danger]="doc.procheExpiration">
+                    {{ doc.dateExpiration | date: 'dd/MM/yyyy' }}
+                  </span>
+                  @if (doc.procheExpiration) {
+                    <span class="badge bg-warning text-white ms-1"
+                          style="font-size:.7rem">Bientôt</span>
+                  }
+                } @else {
+                  <span class="text-muted">—</span>
+                }
+              </td>
+            }
+            <td class="pharma-product-name">{{ doc.produitLibelle }}</td>
+            <td><span class="pharma-code">{{ doc.codeCip }}</span></td>
+            <td class="text-right pharma-qty-value avoir-qty">{{ doc.quantite | number }}</td>
+            <td class="text-right pharma-price">{{ doc.montant | number: '1.0-0' }}</td>
+            @if (statut() === 'OUVERT' || statut() === null) {
+              <td class="text-right pharma-price fw-semibold text-success">
+                @if (doc.statut === 'OUVERT') {
+                  {{ (doc.montantRestant ?? doc.montant) | number: '1.0-0' }}
+                } @else {
+                  —
+                }
+              </td>
+            }
+            <td class="pharma-entity-name">{{ doc.customerName || '—' }}</td>
+            @if (statut() !== 'OUVERT') {
+              <td>
+                @if (doc.modeCloture) {
+                  <span class="mode-cloture-badge">
+                    <i [class]="modeClotureIconOf(doc.modeCloture) + ' me-1'"></i>
+                    {{ modeClotureLabelOf(doc.modeCloture) }}
+                  </span>
+                } @else {
+                  <span>—</span>
+                }
+              </td>
+              <td>{{ doc.closedByName || '—' }}</td>
+            }
             <td class="text-center">
               @if (doc.statut === 'OUVERT') {
-                <app-button
-                  (clicked)="openCloturerDialog(doc)"
-                  [raised]="true"
-                  icon="pi pi-check-circle"
-                  label="Clôturer"
-                  ngbTooltip="Clôturer cet avoir"
-                  placement="left"
-                  severity="success"
-                  size="small"
-                />
+                <app-badge label="Ouvert" severity="warn" />
+              } @else if (doc.statut === 'EXPIRE') {
+                <app-badge label="Expiré" severity="danger" />
+              } @else if (doc.statut === 'ANNULE') {
+                <app-badge label="Annulé" severity="secondary" />
+              } @else {
+                <app-badge label="Clôturé" severity="success" />
               }
             </td>
-          }
-        </tr>
-      </ng-template>
-
-      <ng-template #emptymessage>
-        <tr>
-          <td [attr.colspan]="16" style="text-align:center;padding:2rem;color:#888">
-            @if (statut() === 'OUVERT') {
-              Aucun avoir en attente de clôture
-            } @else if (statut() === 'CLOTURE') {
-              Aucun avoir clôturé pour la période sélectionnée
-            } @else if (statut() === 'EXPIRE') {
-              Aucun avoir expiré pour la période sélectionnée
-            } @else {
-              Aucun avoir trouvé
+            @if (statut() !== 'CLOTURE' && statut() !== 'EXPIRE') {
+              <td class="text-center">
+                @if (doc.statut === 'OUVERT') {
+                  <app-button
+                    (clicked)="openCloturerDialog(doc)"
+                    [raised]="true"
+                    icon="pi pi-check-circle"
+                    label="Clôturer"
+                    ngbTooltip="Clôturer cet avoir"
+                    placement="left"
+                    severity="primary"
+                    size="small"
+                  />
+                }
+              </td>
             }
-          </td>
-        </tr>
-      </ng-template>
-    </app-data-table>
+          </tr>
+        </ng-template>
+
+        <ng-template #emptymessage>
+          <tr>
+            <td [attr.colspan]="16" style="text-align:center;padding:2rem;color:#888">
+              @if (statut() === 'OUVERT') {
+                Aucun avoir en attente de clôture
+              } @else if (statut() === 'CLOTURE') {
+                Aucun avoir clôturé pour la période sélectionnée
+              } @else if (statut() === 'EXPIRE') {
+                Aucun avoir expiré pour la période sélectionnée
+              } @else {
+                Aucun avoir trouvé
+              }
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </app-card>
 
   </div>
 </div>

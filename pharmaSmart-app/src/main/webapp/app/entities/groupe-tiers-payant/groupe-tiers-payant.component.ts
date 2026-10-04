@@ -18,6 +18,7 @@ import { FileUploadDialogComponent } from "./file-upload-dialog/file-upload-dial
 import { SpinnerComponent } from "../../shared/spinner/spinner.component";
 import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { NotificationService } from "../../shared/services/notification.service";
+import { CardComponent } from 'app/shared/ui';
 import {
   ButtonComponent,
   DataTableComponent,
@@ -30,7 +31,7 @@ import {
   templateUrl: "./groupe-tiers-payant.component.html",
   styleUrls: ["./group-tiers-payant.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [CardComponent, 
     RouterModule,
     FormsModule,
     SpinnerComponent,

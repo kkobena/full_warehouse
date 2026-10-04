@@ -17,7 +17,7 @@
               [raised]="true"
               icon="pi pi-plus"
               label="Nouveau Poste"
-              severity="success"
+              severity="primary"
               type="button"
             />
           </div>
@@ -25,99 +25,101 @@
       </ng-container>
     </app-toolbar>
 
-    <app-data-table
-      [loading]="loading()"
-      [value]="filteredEntities()"
-      class="p-datatable-sm"
-      dataKey="id"
-    >
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th scope="col" style="width: 3rem"></th>
-          <th scope="col" style="width: 18%"><span>Nom</span></th>
-          <th scope="col" style="width: 10%"><span>Numéro</span></th>
-          <th scope="col" style="width: 15%"><span>Adresse IP</span></th>
-          <th scope="col" style="text-align: center; width: 8rem">Actions</th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-elRow let-expanded="expanded">
-        <tr>
-          <td>
-            <app-button
-              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-              [appRowToggler]="elRow"
-              (clicked)="onRowExpand(elRow)"
-              [rounded]="true"
-              [text]="true"
-              severity="secondary"
-              size="small"
-            />
-          </td>
-          <td>
-            <span class="pharma-entity-name">{{ elRow.name }}</span>
-          </td>
-          <td>
-            <span class="pharma-code">{{ elRow.posteNumber }}</span>
-          </td>
-          <td>
-            <span class="pharma-entity-name">{{ elRow.address }}</span>
-          </td>
-          <td style="text-align: right">
-            <app-button (clicked)="onEdit(elRow)" [rounded]="true" [text]="true" icon="pi pi-pencil" ngbTooltip="Modifier" severity="success" />
-            <app-button (clicked)="delete(elRow)" [rounded]="true" [text]="true" icon="pi pi-trash" ngbTooltip="Supprimer" severity="danger" />
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template #expandedrow let-elRow>
-        <tr>
-          <td [attr.colspan]="5" class="p-0">
-            <div class="p-3">
-              <h6 class="mb-2"><i class="pi pi-usb me-1"></i>Périphériques associés</h6>
-              @if (devicesMap()[elRow.id]?.length) {
-                <table class="table table-sm table-bordered mb-0">
-                  <thead>
-                    <tr>
-                      <th>Type</th>
-                      <th>Port</th>
-                      <th>Libellé</th>
-                      <th>Fabricant</th>
-                      <th>Baud Rate</th>
-                      <th>Actif</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (device of devicesMap()[elRow.id]; track device.id) {
+    <app-card>
+      <app-data-table
+        [loading]="loading()"
+        [value]="filteredEntities()"
+        class="p-datatable-sm"
+        dataKey="id"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th scope="col" style="width: 3rem"></th>
+            <th scope="col" style="width: 18%"><span>Nom</span></th>
+            <th scope="col" style="width: 10%"><span>Numéro</span></th>
+            <th scope="col" style="width: 15%"><span>Adresse IP</span></th>
+            <th scope="col" style="text-align: center; width: 8rem">Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-elRow let-expanded="expanded">
+          <tr>
+            <td>
+              <app-button
+                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                [appRowToggler]="elRow"
+                (clicked)="onRowExpand(elRow)"
+                [rounded]="true"
+                [text]="true"
+                severity="secondary"
+                size="small"
+              />
+            </td>
+            <td>
+              <span class="pharma-entity-name">{{ elRow.name }}</span>
+            </td>
+            <td>
+              <span class="pharma-code">{{ elRow.posteNumber }}</span>
+            </td>
+            <td>
+              <span class="pharma-entity-name">{{ elRow.address }}</span>
+            </td>
+            <td style="text-align: right">
+              <app-button (clicked)="onEdit(elRow)" [rounded]="true" [text]="true" icon="pi pi-pencil" ngbTooltip="Modifier" severity="success" />
+              <app-button (clicked)="delete(elRow)" [rounded]="true" [text]="true" icon="pi pi-trash" ngbTooltip="Supprimer" severity="danger" />
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #expandedrow let-elRow>
+          <tr>
+            <td [attr.colspan]="5" class="p-0">
+              <div class="p-3">
+                <h6 class="mb-2"><i class="pi pi-usb me-1"></i>Périphériques associés</h6>
+                @if (devicesMap()[elRow.id]?.length) {
+                  <table class="table table-sm table-bordered mb-0">
+                    <thead>
                       <tr>
-                        <td>
-                          <app-badge [severity]="deviceTypeSeverity(device.deviceType)" [label]="deviceTypeLabel(device.deviceType)" />
-                        </td>
-                        <td><span class="pharma-code">{{ device.portName }}</span></td>
-                        <td>{{ device.label || device.productName || '—' }}</td>
-                        <td>{{ device.manufacturer || '—' }}</td>
-                        <td>{{ device.baudRate }}</td>
-                        <td>
-                          @if (device.active) {
-                            <i class="pi pi-check-circle text-success"></i>
-                          } @else {
-                            <i class="pi pi-circle text-secondary"></i>
-                          }
-                        </td>
+                        <th>Type</th>
+                        <th>Port</th>
+                        <th>Libellé</th>
+                        <th>Fabricant</th>
+                        <th>Baud Rate</th>
+                        <th>Actif</th>
                       </tr>
-                    }
-                  </tbody>
-                </table>
-              } @else {
-                <span class="text-muted"><i class="pi pi-info-circle me-1"></i>Aucun périphérique configuré pour ce poste.</span>
-              }
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template #emptymessage>
-        <tr>
-          <td [attr.colspan]="5" style="text-align: center">Aucun poste trouvé</td>
-        </tr>
-      </ng-template>
-    </app-data-table>
+                    </thead>
+                    <tbody>
+                      @for (device of devicesMap()[elRow.id]; track device.id) {
+                        <tr>
+                          <td>
+                            <app-badge [severity]="deviceTypeSeverity(device.deviceType)" [label]="deviceTypeLabel(device.deviceType)" />
+                          </td>
+                          <td><span class="pharma-code">{{ device.portName }}</span></td>
+                          <td>{{ device.label || device.productName || '—' }}</td>
+                          <td>{{ device.manufacturer || '—' }}</td>
+                          <td>{{ device.baudRate }}</td>
+                          <td>
+                            @if (device.active) {
+                              <i class="pi pi-check-circle text-success"></i>
+                            } @else {
+                              <i class="pi pi-circle text-secondary"></i>
+                            }
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                } @else {
+                  <span class="text-muted"><i class="pi pi-info-circle me-1"></i>Aucun périphérique configuré pour ce poste.</span>
+                }
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td [attr.colspan]="5" style="text-align: center">Aucun poste trouvé</td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </app-card>
   </div>
 </div>

@@ -32,8 +32,7 @@
     />
   }
 </app-kpi-strip>
-
-<div class="ae-layout">
+<app-card>
 
   <!-- ─── Panneau gauche : encours par fournisseur ─────────────────────── -->
   <div class="ae-left">
@@ -43,7 +42,7 @@
     </div>
 
     <app-data-table [value]="encours()" [loading]="loadingEncours()" [rows]="15"
-             [paginator]="encours().length > 15" [size]="'small'">
+                    [paginator]="encours().length > 15" [size]="'small'">
       <ng-template #header>
         <tr class="pharma-table-head">
           <th>Fournisseur</th>
@@ -57,8 +56,8 @@
           <td class="text-right pharma-price">{{ row.montantEncours | number:'1.0-0' }}</td>
           <td>
             <app-button icon="pi pi-list" size="small" severity="info" [text]="true"
-                      ariaLabel="Voir les avoirs" ngbTooltip="Voir les avoirs" placement="left"
-                      (clicked)="selectFournisseur(row)" />
+                        ariaLabel="Voir les avoirs" ngbTooltip="Voir les avoirs" placement="left"
+                        (clicked)="selectFournisseur(row)" />
           </td>
         </tr>
       </ng-template>
@@ -96,7 +95,7 @@
       </div>
 
       <app-data-table [value]="avoirs()" [loading]="loadingDetail()" [rows]="20"
-               [paginator]="avoirs().length > 20" [size]="'small'">
+                      [paginator]="avoirs().length > 20" [size]="'small'">
         <ng-template #header>
           <tr class="pharma-table-head">
             <th>Référence avoir</th>
@@ -118,14 +117,14 @@
               @if (avoir.statut === 'EN_ATTENTE') {
                 <div class="pharma-action-buttons">
                   <app-button icon="pi pi-check" size="small" severity="success" [text]="true"
-                            ariaLabel="Marquer remboursé" ngbTooltip="Marquer remboursé" placement="top"
-                            (clicked)="confirmUpdateStatut(avoir, 'REMBOURSE')" />
+                              ariaLabel="Marquer remboursé" ngbTooltip="Marquer remboursé" placement="top"
+                              (clicked)="confirmUpdateStatut(avoir, 'REMBOURSE')" />
                   <app-button icon="pi pi-arrow-right-arrow-left" size="small" severity="info" [text]="true"
-                            ariaLabel="Marquer imputé" ngbTooltip="Marquer imputé" placement="top"
-                            (clicked)="confirmUpdateStatut(avoir, 'IMPUTE')" />
+                              ariaLabel="Marquer imputé" ngbTooltip="Marquer imputé" placement="top"
+                              (clicked)="confirmUpdateStatut(avoir, 'IMPUTE')" />
                   <app-button icon="pi pi-ban" size="small" severity="danger" [text]="true"
-                            ariaLabel="Annuler l'avoir" ngbTooltip="Annuler l'avoir" placement="top"
-                            (clicked)="confirmAnnuler(avoir)" />
+                              ariaLabel="Annuler l'avoir" ngbTooltip="Annuler l'avoir" placement="top"
+                              (clicked)="confirmAnnuler(avoir)" />
                 </div>
               }
             </td>
@@ -161,4 +160,5 @@
     }
   </div>
 
-</div>
+</app-card>
+

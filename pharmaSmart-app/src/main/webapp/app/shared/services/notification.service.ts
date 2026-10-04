@@ -16,9 +16,7 @@ export interface ToastMessage {
  *
  * **L'API publique (`success` / `info` / `warning` / `error` / `show` / `clear`) est
  * inchangée** : les ~100 appelants existants n'ont pas été touchés. Seule
- * l'implémentation a changé — `MessageService` de PrimeNG a laissé place à un signal
  * interne, consommé par `<app-toast-host />` qui rend des `<ngb-toast>`
- * (cf. plan de migration §7.1).
  *
  * Le retrait automatique est géré par `NgbToast` via son `[delay]`, qui appelle
  * `dismiss(id)` — inutile de programmer un `setTimeout` ici.

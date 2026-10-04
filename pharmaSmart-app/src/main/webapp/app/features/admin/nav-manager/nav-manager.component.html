@@ -8,429 +8,431 @@
   </div>
 
   <!-- Onglets ngbNav -->
-  <app-nav-tabs [nav]="nav">
-    <div
-      #nav="ngbNav"
-      (activeIdChange)="onTabChange($event)"
-      [activeId]="activeTab()"
-      class="nav pharma-nav-tabs"
-      ngbNav
-      orientation="horizontal"
-    >
-      <!-- ── Onglet Permissions par rôle ──────────────────────────── -->
-      <ng-container ngbNavItem="permissions">
-        <a class="pharma-nav-tab-link" ngbNavLink>
-          <i class="pi pi-shield"></i>
-          <span>Permissions par rôle</span>
-        </a>
-        <ng-template ngbNavContent>
-          <!-- Sélecteur de rôle + actions -->
-          <div class="d-flex align-items-center gap-2 p-3 border-bottom role-selector-bar">
-            <label class="fw-semibold mb-0 me-1">Rôle :</label>
-            @if (loadingRoles()) {
-              <div class="spinner-border spinner-border-sm" role="status"
-                   style="width: 24px; height: 24px;"></div>
-            } @else {
+  <app-card>
+    <app-nav-tabs [nav]="nav">
+      <div
+        #nav="ngbNav"
+        (activeIdChange)="onTabChange($event)"
+        [activeId]="activeTab()"
+        class="nav pharma-nav-tabs"
+        ngbNav
+        orientation="horizontal"
+      >
+        <!-- ── Onglet Permissions par rôle ──────────────────────────── -->
+        <ng-container ngbNavItem="permissions">
+          <a class="pharma-nav-tab-link" ngbNavLink>
+            <i class="pi pi-shield"></i>
+            <span>Permissions par rôle</span>
+          </a>
+          <ng-template ngbNavContent>
+            <!-- Sélecteur de rôle + actions -->
+            <div class="d-flex align-items-center gap-2 p-3 border-bottom role-selector-bar">
+              <label class="fw-semibold mb-0 me-1">Rôle :</label>
+              @if (loadingRoles()) {
+                <div class="spinner-border spinner-border-sm" role="status"
+                     style="width: 24px; height: 24px;"></div>
+              } @else {
 
-              <app-select-search
-                (ngModelChange)="selectedRole.set($event)"
-                (selectionChange)="loadRoleItems()" [clearable]="true"
-                [items]="availableRoles()"
-                [ngModel]="selectedRole()"
-                [optionTemplate]="roleOption"
-                [style]="{ 'min-width': '300px' }"
-                bindLabel="libelle"
-                inputId="navRole"
-                placeholder="Sélectionner un rôle"
-              />
-              <ng-template #roleOption let-role>
-                <span>{{ role.libelle ?? role.name }}</span>
-              </ng-template>
-            }
-          </div>
-
-          <!-- Barre de recherche -->
-          <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom search-bar">
-              <span class="p-input-icon-left search-input-wrap">
-                <i class="pi pi-search search-icon"></i>
-                <input
-                  (input)="searchTerm.set($any($event.target).value); onSearchChange()"
-                  [value]="searchTerm()"
-                  class="form-control form-control-sm search-input"
-                  placeholder="Rechercher un menu…"
-                  type="text"
+                <app-select-search
+                  (ngModelChange)="selectedRole.set($event)"
+                  (selectionChange)="loadRoleItems()" [clearable]="true"
+                  [items]="availableRoles()"
+                  [ngModel]="selectedRole()"
+                  [optionTemplate]="roleOption"
+                  [style]="{ 'min-width': '300px' }"
+                  bindLabel="libelle"
+                  inputId="navRole"
+                  placeholder="Sélectionner un rôle"
                 />
-              </span>
-            @if (searchTerm()) {
-              <button (click)="clearSearch()" class="btn btn-sm btn-outline-secondary"
-                      type="button">
-                <i class="pi pi-times"></i>
-              </button>
-              <span class="text-muted small ms-1">{{ visibleItems().length }} résultat(s)</span>
-            }
-          </div>
+                <ng-template #roleOption let-role>
+                  <span>{{ role.libelle ?? role.name }}</span>
+                </ng-template>
+              }
+            </div>
 
-          <!-- Tableau des permissions -->
-          <app-data-table
-            [loading]="loading()"
-            [value]="visibleItems()"
-            class="p-datatable-sm">
-            <ng-template #header>
-              <tr class="pharma-table-head">
-                <th style="width:27%">Entrée de menu</th>
-                <th style="width:5%"></th>
-                <th class="text-center" style="width:9%">Afficher</th>
-                <th class="text-center" style="width:9%">Accéder</th>
-                <th class="text-center" style="width:9%">Créer</th>
-                <th class="text-center" style="width:9%">Modifier</th>
-                <th class="text-center" style="width:9%">Supprimer</th>
-                <th class="text-center" style="width:9%">Exporter</th>
-                <th class="text-center execute-col" style="width:9%"
-                    title="Uniquement pour les actions métier (type ACTION)">
-                  Exécuter <i class="pi pi-bolt ms-1 text-warning small"></i>
-                </th>
-              </tr>
-            </ng-template>
-            <ng-template #body let-item>
-              <tr
-                [class.row-action]="item.targetType === 'ACTION'"
-                [class.row-group]="item.targetType === 'GROUP'"
-                [class.row-route]="item.targetType === 'ROUTE' && item.depth === 1"
-                [class.row-section]="item.targetType === 'SECTION'"
-                [class.row-subroute]="item.targetType === 'ROUTE' && item.depth > 1"
-              >
-                <td class="item-name-cell">
-                    <span [style.padding-left]="indentRem(item.depth)" class="item-label">
-                      @if (item.targetType === 'GROUP') {
-                        <button (click)="toggleGroup(item.id)" class="group-toggle" type="button">
-                          <i [class.pi-chevron-down]="!collapsedGroups().has(item.id)"
-                             [class.pi-chevron-right]="collapsedGroups().has(item.id)"
-                             class="pi"></i>
-                        </button>
-                        <span class="group-icon-wrap">
-                          <i class="pi pi-folder-open"></i>
-                        </span>
-                      } @else if (item.targetType === 'ROUTE' && item.children?.length) {
-                        <button (click)="toggleGroup(item.id)" class="group-toggle route-toggle"
-                                type="button">
-                          <i [class.pi-chevron-down]="!collapsedGroups().has(item.id)"
-                             [class.pi-chevron-right]="collapsedGroups().has(item.id)"
-                             class="pi"></i>
-                        </button>
-                        <span class="tree-branch"></span>
-                        @if (item.icon) {
-                          <i [class]="item.icon + ' route-icon'"></i>
-                        } @else {
-                          <i class="pi pi-minus route-icon"></i>
-                        }
-                      } @else if (item.targetType === 'SECTION') {
-                        <span class="tree-branch"></span>
-                        <span class="section-icon-wrap">
-                          <i class="pi pi-table"></i>
-                        </span>
-                      } @else if (item.targetType === 'ACTION') {
-                        <span class="tree-branch"></span>
-                        <span class="action-icon-wrap">
-                          <i class="pi pi-bolt"></i>
-                        </span>
-                      } @else {
-                        <span class="tree-branch"></span>
-                        @if (item.icon) {
-                          <i [class]="item.icon + ' route-icon'"></i>
-                        } @else {
-                          <i class="pi pi-minus route-icon"></i>
-                        }
-                      }
-                      @if (editingItemId() === item.id && editingField() === 'libelle') {
-                        <input
-                          (blur)="saveEdit(item)"
-                          (input)="editingLibelle.set($any($event.target).value)"
-                          (keydown.enter)="saveEdit(item)"
-                          (keydown.escape)="cancelEdit()"
-                          [value]="editingLibelle()"
-                          autofocus
-                          class="libelle-input"
-                        />
-                      } @else if (editingItemId() === item.id && editingField() === 'titreLong') {
-                        <input
-                          (blur)="saveTitreLong(item)"
-                          (input)="editingTitreLong.set($any($event.target).value)"
-                          (keydown.enter)="saveTitreLong(item)"
-                          (keydown.escape)="cancelEdit()"
-                          [value]="editingTitreLong()"
-                          autofocus
-                          class="libelle-input"
-                          placeholder="Titre de la barre d'outils"
-                        />
-                      } @else {
-                        <span class="item-libelle">{{ item.libelle }}</span>
-                        <!--
-                          `aria-label` en plus de `title` : le `title` seul laisse le bouton
-                          sans nom pour une partie des lecteurs d'écran — et pour les outils
-                          qui les imitent — puisqu'il n'est qu'un ultime recours dans le calcul
-                          du nom accessible.
-                        -->
-                        <button (click)="$event.stopPropagation(); startEdit(item)"
-                                aria-label="Modifier le libellé du menu"
-                                class="edit-label-btn"
-                                title="Modifier le libellé du menu"
-                                type="button">
-                          <i class="pi pi-pencil"></i>
-                        </button>
+            <!-- Barre de recherche -->
+            <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom search-bar">
+                <span class="p-input-icon-left search-input-wrap">
+                  <i class="pi pi-search search-icon"></i>
+                  <input
+                    (input)="searchTerm.set($any($event.target).value); onSearchChange()"
+                    [value]="searchTerm()"
+                    class="form-control form-control-sm search-input"
+                    placeholder="Rechercher un menu…"
+                    type="text"
+                  />
+                </span>
+              @if (searchTerm()) {
+                <button (click)="clearSearch()" class="btn btn-sm btn-outline-secondary"
+                        type="button">
+                  <i class="pi pi-times"></i>
+                </button>
+                <span class="text-muted small ms-1">{{ visibleItems().length }} résultat(s)</span>
+              }
+            </div>
 
-                        <!--
-                          Le titre long ne concerne que les onglets : ce sont eux qui ouvrent un
-                          écran doté d'une barre d'outils. Un menu ou une action n'en affiche pas.
-                        -->
-                        @if (item.targetType === 'SECTION') {
-                          <button (click)="$event.stopPropagation(); startEditTitreLong(item)"
-                                  aria-label="Définir le titre de la barre d'outils"
-                                  [title]="item.titreLong
-                                    ? 'Titre de la barre : ' + item.titreLong
-                                    : 'Définir un titre de barre (le libellé du menu s’applique par défaut)'"
-                                  class="edit-label-btn"
-                                  type="button">
-                            <i class="pi pi-window-maximize"></i>
+            <!-- Tableau des permissions -->
+            <app-data-table
+              [loading]="loading()"
+              [value]="visibleItems()"
+              class="p-datatable-sm">
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th style="width:27%">Entrée de menu</th>
+                  <th style="width:5%"></th>
+                  <th class="text-center" style="width:9%">Afficher</th>
+                  <th class="text-center" style="width:9%">Accéder</th>
+                  <th class="text-center" style="width:9%">Créer</th>
+                  <th class="text-center" style="width:9%">Modifier</th>
+                  <th class="text-center" style="width:9%">Supprimer</th>
+                  <th class="text-center" style="width:9%">Exporter</th>
+                  <th class="text-center execute-col" style="width:9%"
+                      title="Uniquement pour les actions métier (type ACTION)">
+                    Exécuter <i class="pi pi-bolt ms-1 text-warning small"></i>
+                  </th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-item>
+                <tr
+                  [class.row-action]="item.targetType === 'ACTION'"
+                  [class.row-group]="item.targetType === 'GROUP'"
+                  [class.row-route]="item.targetType === 'ROUTE' && item.depth === 1"
+                  [class.row-section]="item.targetType === 'SECTION'"
+                  [class.row-subroute]="item.targetType === 'ROUTE' && item.depth > 1"
+                >
+                  <td class="item-name-cell">
+                      <span [style.padding-left]="indentRem(item.depth)" class="item-label">
+                        @if (item.targetType === 'GROUP') {
+                          <button (click)="toggleGroup(item.id)" class="group-toggle" type="button">
+                            <i [class.pi-chevron-down]="!collapsedGroups().has(item.id)"
+                               [class.pi-chevron-right]="collapsedGroups().has(item.id)"
+                               class="pi"></i>
                           </button>
-                          @if (item.titreLong) {
-                            <span class="titre-long-hint">{{ item.titreLong }}</span>
+                          <span class="group-icon-wrap">
+                            <i class="pi pi-folder-open"></i>
+                          </span>
+                        } @else if (item.targetType === 'ROUTE' && item.children?.length) {
+                          <button (click)="toggleGroup(item.id)" class="group-toggle route-toggle"
+                                  type="button">
+                            <i [class.pi-chevron-down]="!collapsedGroups().has(item.id)"
+                               [class.pi-chevron-right]="collapsedGroups().has(item.id)"
+                               class="pi"></i>
+                          </button>
+                          <span class="tree-branch"></span>
+                          @if (item.icon) {
+                            <i [class]="item.icon + ' route-icon'"></i>
+                          } @else {
+                            <i class="pi pi-minus route-icon"></i>
+                          }
+                        } @else if (item.targetType === 'SECTION') {
+                          <span class="tree-branch"></span>
+                          <span class="section-icon-wrap">
+                            <i class="pi pi-table"></i>
+                          </span>
+                        } @else if (item.targetType === 'ACTION') {
+                          <span class="tree-branch"></span>
+                          <span class="action-icon-wrap">
+                            <i class="pi pi-bolt"></i>
+                          </span>
+                        } @else {
+                          <span class="tree-branch"></span>
+                          @if (item.icon) {
+                            <i [class]="item.icon + ' route-icon'"></i>
+                          } @else {
+                            <i class="pi pi-minus route-icon"></i>
                           }
                         }
-                      }
-                      @if (item.targetType === 'GROUP') {
-                        <span class="group-badge">
-                          <i class="pi pi-sitemap me-1" style="font-size:0.6rem"></i>Menu
-                        </span>
-                      }
-                      @if (item.targetType === 'SECTION') {
-                        <span class="section-badge">
-                          <i class="pi pi-window-maximize me-1" style="font-size:0.55rem"></i>Onglet
-                        </span>
-                      }
-                      @if (item.targetType === 'ACTION') {
-                        <span class="action-badge">
-                          <i class="pi pi-bolt me-1" style="font-size:0.55rem"></i>Action
-                        </span>
-                      }
-                    </span>
-                </td>
+                        @if (editingItemId() === item.id && editingField() === 'libelle') {
+                          <input
+                            (blur)="saveEdit(item)"
+                            (input)="editingLibelle.set($any($event.target).value)"
+                            (keydown.enter)="saveEdit(item)"
+                            (keydown.escape)="cancelEdit()"
+                            [value]="editingLibelle()"
+                            autofocus
+                            class="libelle-input"
+                          />
+                        } @else if (editingItemId() === item.id && editingField() === 'titreLong') {
+                          <input
+                            (blur)="saveTitreLong(item)"
+                            (input)="editingTitreLong.set($any($event.target).value)"
+                            (keydown.enter)="saveTitreLong(item)"
+                            (keydown.escape)="cancelEdit()"
+                            [value]="editingTitreLong()"
+                            autofocus
+                            class="libelle-input"
+                            placeholder="Titre de la barre d'outils"
+                          />
+                        } @else {
+                          <span class="item-libelle">{{ item.libelle }}</span>
+                          <!--
+                            `aria-label` en plus de `title` : le `title` seul laisse le bouton
+                            sans nom pour une partie des lecteurs d'écran — et pour les outils
+                            qui les imitent — puisqu'il n'est qu'un ultime recours dans le calcul
+                            du nom accessible.
+                          -->
+                          <button (click)="$event.stopPropagation(); startEdit(item)"
+                                  aria-label="Modifier le libellé du menu"
+                                  class="edit-label-btn"
+                                  title="Modifier le libellé du menu"
+                                  type="button">
+                            <i class="pi pi-pencil"></i>
+                          </button>
 
-                <!-- Indicateur de sauvegarde + actions groupées pour GROUP/ROUTE -->
-                <td class="saving-indicator-cell">
-                  @if (savingRows().has(item.id)) {
-                    <i class="pi pi-spinner pi-spin saving-spinner"></i>
-                  } @else if ((item.targetType === 'GROUP' || item.targetType === 'ROUTE')
-                  && item.children?.length) {
-                    <span class="bulk-actions">
-                        <button
-                          (click)="$event.stopPropagation(); grantSubtree(item, true)"
-                          aria-label="Tout accorder sur cette branche"
-                          class="bulk-btn bulk-grant"
-                          title="Tout accorder (menu + enfants)"
-                          type="button">
-                          <i class="pi pi-check-circle"></i>
-                        </button>
-                        <button
-                          (click)="$event.stopPropagation(); grantSubtree(item, false)"
-                          aria-label="Tout révoquer sur cette branche"
-                          class="bulk-btn bulk-revoke"
-                          title="Tout révoquer (menu + enfants)"
-                          type="button">
-                          <i class="pi pi-ban"></i>
-                        </button>
+                          <!--
+                            Le titre long ne concerne que les onglets : ce sont eux qui ouvrent un
+                            écran doté d'une barre d'outils. Un menu ou une action n'en affiche pas.
+                          -->
+                          @if (item.targetType === 'SECTION') {
+                            <button (click)="$event.stopPropagation(); startEditTitreLong(item)"
+                                    aria-label="Définir le titre de la barre d'outils"
+                                    [title]="item.titreLong
+                                      ? 'Titre de la barre : ' + item.titreLong
+                                      : 'Définir un titre de barre (le libellé du menu s’applique par défaut)'"
+                                    class="edit-label-btn"
+                                    type="button">
+                              <i class="pi pi-window-maximize"></i>
+                            </button>
+                            @if (item.titreLong) {
+                              <span class="titre-long-hint">{{ item.titreLong }}</span>
+                            }
+                          }
+                        }
+                        @if (item.targetType === 'GROUP') {
+                          <span class="group-badge">
+                            <i class="pi pi-sitemap me-1" style="font-size:0.6rem"></i>Menu
+                          </span>
+                        }
+                        @if (item.targetType === 'SECTION') {
+                          <span class="section-badge">
+                            <i class="pi pi-window-maximize me-1" style="font-size:0.55rem"></i>Onglet
+                          </span>
+                        }
+                        @if (item.targetType === 'ACTION') {
+                          <span class="action-badge">
+                            <i class="pi pi-bolt me-1" style="font-size:0.55rem"></i>Action
+                          </span>
+                        }
                       </span>
-                  }
-                </td>
+                  </td>
 
-                <!-- Colonnes nav (désactivées pour ACTION) -->
-                <!--
-                  L'ORDRE des deux liaisons compte, et il est ici l'inverse de ce qu'il était.
-                  `[(ngModel)]` se décompose en `[ngModel]` + `(ngModelChange)` qui écrit la
-                  nouvelle valeur dans le modèle, et Angular exécute les gestionnaires de
-                  `ngModelChange` dans l'ordre où ils sont DÉCLARÉS. Avec
-                  `(ngModelChange)="onPermissionChange(item)"` en premier, l'enregistrement
-                  partait avec l'ANCIENNE valeur : décocher une case envoyait « coché », et la
-                  permission n'était jamais retirée. La liaison bidirectionnelle vient donc
-                  d'abord, l'enregistrement ensuite.
-                -->
-                <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
-                  @if (item.targetType !== 'ACTION') {
-                    <app-checkbox [(ngModel)]="item.assignment.canDisplay"
-                                  (ngModelChange)="onPermissionChange(item)" />
-                  } @else {
-                    <span class="na-dash">—</span>
-                  }
-                </td>
-                <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
-                  @if (item.targetType !== 'ACTION') {
-                    <app-checkbox [(ngModel)]="item.assignment.canAccess"
-                                  (ngModelChange)="onPermissionChange(item)" />
-                  } @else {
-                    <span class="na-dash">—</span>
-                  }
-                </td>
-                <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
-                  @if (item.targetType !== 'ACTION') {
-                    <app-checkbox [(ngModel)]="item.assignment.canCreate"
-                                  (ngModelChange)="onPermissionChange(item)" />
-                  } @else {
-                    <span class="na-dash">—</span>
-                  }
-                </td>
-                <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
-                  @if (item.targetType !== 'ACTION') {
-                    <app-checkbox [(ngModel)]="item.assignment.canEdit"
-                                  (ngModelChange)="onPermissionChange(item)" />
-                  } @else {
-                    <span class="na-dash">—</span>
-                  }
-                </td>
-                <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
-                  @if (item.targetType !== 'ACTION') {
-                    <app-checkbox [(ngModel)]="item.assignment.canDelete"
-                                  (ngModelChange)="onPermissionChange(item)" />
-                  } @else {
-                    <span class="na-dash">—</span>
-                  }
-                </td>
-                <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
-                  @if (item.targetType !== 'ACTION') {
-                    <app-checkbox [(ngModel)]="item.assignment.canExport"
-                                  (ngModelChange)="onPermissionChange(item)" />
-                  } @else {
-                    <span class="na-dash">—</span>
-                  }
-                </td>
-                <!-- Colonne Exécuter : uniquement pour les ACTION -->
-                <td [class.cell-na]="item.targetType !== 'ACTION'"
-                    class="text-center perm-cell execute-col">
-                  @if (item.targetType === 'ACTION') {
-                    <app-checkbox
-                      [(ngModel)]="item.assignment.canExecute"
-                      (ngModelChange)="onPermissionChange(item)"
-                      title="Autoriser l'exécution de cette action métier"
-                    />
-                  } @else {
-                    <span class="na-dash">—</span>
-                  }
-                </td>
+                  <!-- Indicateur de sauvegarde + actions groupées pour GROUP/ROUTE -->
+                  <td class="saving-indicator-cell">
+                    @if (savingRows().has(item.id)) {
+                      <i class="pi pi-spinner pi-spin saving-spinner"></i>
+                    } @else if ((item.targetType === 'GROUP' || item.targetType === 'ROUTE')
+                    && item.children?.length) {
+                      <span class="bulk-actions">
+                          <button
+                            (click)="$event.stopPropagation(); grantSubtree(item, true)"
+                            aria-label="Tout accorder sur cette branche"
+                            class="bulk-btn bulk-grant"
+                            title="Tout accorder (menu + enfants)"
+                            type="button">
+                            <i class="pi pi-check-circle"></i>
+                          </button>
+                          <button
+                            (click)="$event.stopPropagation(); grantSubtree(item, false)"
+                            aria-label="Tout révoquer sur cette branche"
+                            class="bulk-btn bulk-revoke"
+                            title="Tout révoquer (menu + enfants)"
+                            type="button">
+                            <i class="pi pi-ban"></i>
+                          </button>
+                        </span>
+                    }
+                  </td>
 
-              </tr>
+                  <!-- Colonnes nav (désactivées pour ACTION) -->
+                  <!--
+                    L'ORDRE des deux liaisons compte, et il est ici l'inverse de ce qu'il était.
+                    `[(ngModel)]` se décompose en `[ngModel]` + `(ngModelChange)` qui écrit la
+                    nouvelle valeur dans le modèle, et Angular exécute les gestionnaires de
+                    `ngModelChange` dans l'ordre où ils sont DÉCLARÉS. Avec
+                    `(ngModelChange)="onPermissionChange(item)"` en premier, l'enregistrement
+                    partait avec l'ANCIENNE valeur : décocher une case envoyait « coché », et la
+                    permission n'était jamais retirée. La liaison bidirectionnelle vient donc
+                    d'abord, l'enregistrement ensuite.
+                  -->
+                  <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
+                    @if (item.targetType !== 'ACTION') {
+                      <app-checkbox [(ngModel)]="item.assignment.canDisplay"
+                                    (ngModelChange)="onPermissionChange(item)" />
+                    } @else {
+                      <span class="na-dash">—</span>
+                    }
+                  </td>
+                  <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
+                    @if (item.targetType !== 'ACTION') {
+                      <app-checkbox [(ngModel)]="item.assignment.canAccess"
+                                    (ngModelChange)="onPermissionChange(item)" />
+                    } @else {
+                      <span class="na-dash">—</span>
+                    }
+                  </td>
+                  <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
+                    @if (item.targetType !== 'ACTION') {
+                      <app-checkbox [(ngModel)]="item.assignment.canCreate"
+                                    (ngModelChange)="onPermissionChange(item)" />
+                    } @else {
+                      <span class="na-dash">—</span>
+                    }
+                  </td>
+                  <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
+                    @if (item.targetType !== 'ACTION') {
+                      <app-checkbox [(ngModel)]="item.assignment.canEdit"
+                                    (ngModelChange)="onPermissionChange(item)" />
+                    } @else {
+                      <span class="na-dash">—</span>
+                    }
+                  </td>
+                  <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
+                    @if (item.targetType !== 'ACTION') {
+                      <app-checkbox [(ngModel)]="item.assignment.canDelete"
+                                    (ngModelChange)="onPermissionChange(item)" />
+                    } @else {
+                      <span class="na-dash">—</span>
+                    }
+                  </td>
+                  <td [class.cell-na]="item.targetType === 'ACTION'" class="text-center perm-cell">
+                    @if (item.targetType !== 'ACTION') {
+                      <app-checkbox [(ngModel)]="item.assignment.canExport"
+                                    (ngModelChange)="onPermissionChange(item)" />
+                    } @else {
+                      <span class="na-dash">—</span>
+                    }
+                  </td>
+                  <!-- Colonne Exécuter : uniquement pour les ACTION -->
+                  <td [class.cell-na]="item.targetType !== 'ACTION'"
+                      class="text-center perm-cell execute-col">
+                    @if (item.targetType === 'ACTION') {
+                      <app-checkbox
+                        [(ngModel)]="item.assignment.canExecute"
+                        (ngModelChange)="onPermissionChange(item)"
+                        title="Autoriser l'exécution de cette action métier"
+                      />
+                    } @else {
+                      <span class="na-dash">—</span>
+                    }
+                  </td>
+
+                </tr>
+              </ng-template>
+              <ng-template #emptymessage>
+                <tr>
+                  <td class="text-center text-muted py-4" colspan="9">
+                    @if (!selectedRole()) {
+                      Sélectionnez un rôle pour afficher les items de navigation.
+                    } @else {
+                      Aucun item trouvé.
+                    }
+                  </td>
+                </tr>
+              </ng-template>
+            </app-data-table>
+          </ng-template>
+        </ng-container>
+
+        <!-- ── Onglet Réorganisation (Drag & Drop) ──────────────────── -->
+        @if (showTabReorder) {
+          <ng-container ngbNavItem="reorder">
+            <a class="pharma-nav-tab-link" ngbNavLink>
+              <i class="pi pi-arrows-alt"></i>
+              <span>Réorganisation</span>
+            </a>
+            <ng-template ngbNavContent>
+              <div class="p-3">
+                <app-nav-reorder />
+              </div>
             </ng-template>
-            <ng-template #emptymessage>
-              <tr>
-                <td class="text-center text-muted py-4" colspan="9">
-                  @if (!selectedRole()) {
-                    Sélectionnez un rôle pour afficher les items de navigation.
-                  } @else {
-                    Aucun item trouvé.
-                  }
-                </td>
-              </tr>
-            </ng-template>
-          </app-data-table>
-        </ng-template>
-      </ng-container>
+          </ng-container>
+        }
 
-      <!-- ── Onglet Réorganisation (Drag & Drop) ──────────────────── -->
-      @if (showTabReorder) {
-        <ng-container ngbNavItem="reorder">
+
+        <!-- ── Onglet Prévisualisation ──────────────────────────────── -->
+        <ng-container ngbNavItem="preview">
           <a class="pharma-nav-tab-link" ngbNavLink>
-            <i class="pi pi-arrows-alt"></i>
-            <span>Réorganisation</span>
+            <i class="pi pi-eye"></i>
+            <span>Prévisualisation</span>
           </a>
           <ng-template ngbNavContent>
             <div class="p-3">
-              <app-nav-reorder />
+              @if (!selectedRole()) {
+                <div class="text-center text-muted py-5">
+                  <i class="pi pi-eye-slash fs-3 d-block mb-2"></i>
+                  Sélectionnez un rôle dans l'onglet <strong>Permissions</strong> pour prévisualiser
+                  sa navigation.
+                </div>
+              } @else if (previewTree().length === 0) {
+                <div class="text-center text-muted py-5">
+                  <i class="pi pi-ban fs-3 d-block mb-2 text-danger"></i>
+                  Aucun item visible pour <strong>{{
+                    selectedRole().libelle ?? selectedRole().name
+                  }}</strong>.
+                  Activez la colonne "Afficher" dans les permissions.
+                </div>
+              } @else {
+                <div class="preview-info-bar mb-3">
+                  <i class="pi pi-info-circle me-1"></i>
+                  Aperçu de la navbar pour le rôle
+                  <strong>{{ selectedRole().libelle ?? selectedRole().name }}</strong>
+                  selon les permissions actuellement cochées.
+                  <span class="text-muted ms-2">(Les items de type ACTION sont masqués)</span>
+                </div>
+
+                <!-- Navbar simulée -->
+                <nav class="preview-navbar">
+                  @for (item of previewTree(); track item.id) {
+                    <div [class.has-children]="item.children?.length" class="preview-nav-item">
+                      <div class="preview-nav-label">
+                        @if (item.icon) {
+                          <i [class]="item.icon + ' me-2'"></i>
+                        }
+                        <span>{{ item.libelle }}</span>
+                        @if (item.targetType === 'GROUP') {
+                          <i class="pi pi-chevron-down ms-auto small"></i>
+                        }
+                        @if (item.routerLink) {
+                          <code class="ms-2 preview-route">{{ item.routerLink }}</code>
+                        }
+                      </div>
+
+                      @if (item.children?.length) {
+                        <div class="preview-dropdown">
+                          @for (child of item.children; track child.id) {
+                            <div class="preview-dropdown-item">
+                              @if (child.icon) {
+                                <i [class]="child.icon + ' me-2 text-muted'"></i>
+                              }
+                              <span>{{ child.libelle }}</span>
+                              @if (child.routerLink) {
+                                <code class="ms-auto preview-route">{{ child.routerLink }}</code>
+                              }
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                </nav>
+
+                <!-- Résumé chiffré -->
+                <div class="preview-summary mt-3">
+                  <span class="badge bg-secondary me-2">
+                    {{ previewTree().length }} groupe(s)
+                  </span>
+                  <span class="badge bg-info">
+                    {{ countAllChildren(previewTree()) }} sous-menu(s)
+                  </span>
+                </div>
+              }
             </div>
           </ng-template>
         </ng-container>
-      }
+      </div>
 
-
-      <!-- ── Onglet Prévisualisation ──────────────────────────────── -->
-      <ng-container ngbNavItem="preview">
-        <a class="pharma-nav-tab-link" ngbNavLink>
-          <i class="pi pi-eye"></i>
-          <span>Prévisualisation</span>
-        </a>
-        <ng-template ngbNavContent>
-          <div class="p-3">
-            @if (!selectedRole()) {
-              <div class="text-center text-muted py-5">
-                <i class="pi pi-eye-slash fs-3 d-block mb-2"></i>
-                Sélectionnez un rôle dans l'onglet <strong>Permissions</strong> pour prévisualiser
-                sa navigation.
-              </div>
-            } @else if (previewTree().length === 0) {
-              <div class="text-center text-muted py-5">
-                <i class="pi pi-ban fs-3 d-block mb-2 text-danger"></i>
-                Aucun item visible pour <strong>{{
-                  selectedRole().libelle ?? selectedRole().name
-                }}</strong>.
-                Activez la colonne "Afficher" dans les permissions.
-              </div>
-            } @else {
-              <div class="preview-info-bar mb-3">
-                <i class="pi pi-info-circle me-1"></i>
-                Aperçu de la navbar pour le rôle
-                <strong>{{ selectedRole().libelle ?? selectedRole().name }}</strong>
-                selon les permissions actuellement cochées.
-                <span class="text-muted ms-2">(Les items de type ACTION sont masqués)</span>
-              </div>
-
-              <!-- Navbar simulée -->
-              <nav class="preview-navbar">
-                @for (item of previewTree(); track item.id) {
-                  <div [class.has-children]="item.children?.length" class="preview-nav-item">
-                    <div class="preview-nav-label">
-                      @if (item.icon) {
-                        <i [class]="item.icon + ' me-2'"></i>
-                      }
-                      <span>{{ item.libelle }}</span>
-                      @if (item.targetType === 'GROUP') {
-                        <i class="pi pi-chevron-down ms-auto small"></i>
-                      }
-                      @if (item.routerLink) {
-                        <code class="ms-2 preview-route">{{ item.routerLink }}</code>
-                      }
-                    </div>
-
-                    @if (item.children?.length) {
-                      <div class="preview-dropdown">
-                        @for (child of item.children; track child.id) {
-                          <div class="preview-dropdown-item">
-                            @if (child.icon) {
-                              <i [class]="child.icon + ' me-2 text-muted'"></i>
-                            }
-                            <span>{{ child.libelle }}</span>
-                            @if (child.routerLink) {
-                              <code class="ms-auto preview-route">{{ child.routerLink }}</code>
-                            }
-                          </div>
-                        }
-                      </div>
-                    }
-                  </div>
-                }
-              </nav>
-
-              <!-- Résumé chiffré -->
-              <div class="preview-summary mt-3">
-                <span class="badge bg-secondary me-2">
-                  {{ previewTree().length }} groupe(s)
-                </span>
-                <span class="badge bg-info">
-                  {{ countAllChildren(previewTree()) }} sous-menu(s)
-                </span>
-              </div>
-            }
-          </div>
-        </ng-template>
-      </ng-container>
-    </div>
-
-  </app-nav-tabs>
+    </app-nav-tabs>
+  </app-card>
 </div>
 
 

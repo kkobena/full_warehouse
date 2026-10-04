@@ -90,15 +90,16 @@
 // For regular HTML <table> elements (not PrimeNG)
 .pharma-table-head {
   th {
-    background: linear-gradient(to bottom, #6b9ab8, #5b89a6) !important;
-    color: $pharma-white !important;
+    background: linear-gradient(to bottom, var(--pharma-chrome-table-a, var(--pharma-chrome-head-a)), var(--pharma-chrome-table-b, var(--pharma-chrome-head-b))) !important;
+    color: var(--pharma-chrome-head-fg) !important;
+    box-shadow: inset 0 -2px 0 var(--pharma-chrome-head-line);
     font-weight: 600 !important;
     font-size: 13px !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
     padding: 8px !important;
     border: none !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-right: 1px solid var(--pharma-chrome-head-sep) !important;
 
     &:last-child {
       border-right: none !important;
@@ -116,15 +117,16 @@ table {
   .p-datatable-thead {
     .pharma-table-head {
       th {
-        background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
-        color: $pharma-white;
+        background: linear-gradient(to bottom, var(--pharma-chrome-table-a, var(--pharma-chrome-head-a)), var(--pharma-chrome-table-b, var(--pharma-chrome-head-b)));
+        color: var(--pharma-chrome-head-fg);
+        box-shadow: inset 0 -2px 0 var(--pharma-chrome-head-line);
         font-weight: 600;
         font-size: 13px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         padding: 4px;
         border: none;
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        border-right: 1px solid var(--pharma-chrome-head-sep);
 
         &:last-child {
           border-right: none;

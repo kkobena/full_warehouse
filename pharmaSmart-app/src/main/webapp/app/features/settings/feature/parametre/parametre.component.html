@@ -10,57 +10,59 @@
       </ng-container>
     </app-toolbar>
 
-    <app-data-table
-      (onLazyLoad)="lazyLoading($event)"
-      [(first)]="first"
-      [(rows)]="rows"
-      [emptyMessage]="emptyMessage()"
-      [lazy]="true"
-      [loading]="loading()"
-      [paginator]="true"
-      [rowsPerPageOptions]="rowsPerPageOptions"
-      [scrollHeight]="'calc(100vh - 260px)'"
-      [scrollable]="true"
-      [showCurrentPageReport]="true"
-      [size]="'small'"
-      [stripedRows]="true"
-      [totalRecords]="totalItems()"
-      [value]="apps()"
-      dataKey="name"
-    >
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th scope="col">Description</th>
-          <th scope="col">Valeur</th>
-          <th scope="col"></th>
-        </tr>
-      </ng-template>
+    <app-card>
+      <app-data-table
+        (onLazyLoad)="lazyLoading($event)"
+        [(first)]="first"
+        [(rows)]="rows"
+        [emptyMessage]="emptyMessage()"
+        [lazy]="true"
+        [loading]="loading()"
+        [paginator]="true"
+        [rowsPerPageOptions]="rowsPerPageOptions"
+        [scrollHeight]="'calc(100vh - 260px)'"
+        [scrollable]="true"
+        [showCurrentPageReport]="true"
+        [size]="'small'"
+        [stripedRows]="true"
+        [totalRecords]="totalItems()"
+        [value]="apps()"
+        dataKey="name"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th scope="col">Description</th>
+            <th scope="col">Valeur</th>
+            <th scope="col"></th>
+          </tr>
+        </ng-template>
 
-      <ng-template #body let-app>
-        <tr>
-          <td>{{ app.description }}</td>
+        <ng-template #body let-app>
+          <tr>
+            <td>{{ app.description }}</td>
 
-          @if (app.valueType === 'BOOLEAN') {
+            @if (app.valueType === 'BOOLEAN') {
+              <td>
+                @if (isEditable(app)) {
+                  @if (isActive(app)) {
+                    <app-button (clicked)="setActive(app, false)" [raised]="true" label="Désactiver" severity="danger" size="small" />
+                  } @else {
+                    <app-button (clicked)="setActive(app, true)" [raised]="true" label="Activer" severity="primary" size="small" />
+                  }
+                }
+              </td>
+            } @else {
+              <td>{{ app.value }}</td>
+            }
+
             <td>
               @if (isEditable(app)) {
-                @if (isActive(app)) {
-                  <app-button (clicked)="setActive(app, false)" [raised]="true" label="Désactiver" severity="danger" size="small" />
-                } @else {
-                  <app-button (clicked)="setActive(app, true)" [raised]="true" label="Activer" severity="success" size="small" />
-                }
+                <app-button (clicked)="onEdit(app)" [raised]="true" icon="pi pi-pencil" label="Modifier" severity="primary" size="small" />
               }
             </td>
-          } @else {
-            <td>{{ app.value }}</td>
-          }
-
-          <td>
-            @if (isEditable(app)) {
-              <app-button (clicked)="onEdit(app)" [raised]="true" icon="pi pi-pencil" label="Modifier" severity="info" size="small" />
-            }
-          </td>
-        </tr>
-      </ng-template>
-    </app-data-table>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </app-card>
   </div>
 </div>

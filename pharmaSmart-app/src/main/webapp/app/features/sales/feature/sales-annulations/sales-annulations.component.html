@@ -35,84 +35,86 @@
     </ng-container>
   </app-toolbar>
 
-  <div class="journal-summary-bar">
-    <div class="summary-item">
-      <i class="pi pi-ban"></i>
-      <span class="summary-label">Nombre total annulations :</span>
-      <span class="summary-value">{{ totalItems() | number }}</span>
-    </div>
-    <div class="summary-item">
-      <i class="pi pi-wallet"></i>
-      <span class="summary-label">Montant annulé  :</span>
-      <span class="summary-value">{{ totalCanceledAmount() | number: '1.0-0' }} <span appDevise></span></span>
-    </div>
-  </div>
-
-  <div class="mt-3">
-    @if (sales() && sales().length > 0) {
-      <app-data-table
-        (onLazyLoad)="lazyLoading($event)"
-        [lazy]="true"
-        [loading]="loading()"
-        [paginator]="true"
-        [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-        [rows]="itemsPerPage()"
-        [showCurrentPageReport]="true"
-        [size]="'small'"
-        [stripedRows]="true"
-        [totalRecords]="totalItems()"
-        [value]="sales()"
-        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} annulations"
-        dataKey="id"
-      >
-        <ng-template #header>
-          <tr class="pharma-table-head">
-            <th style="width: 13%">Date annulation</th>
-            <th style="width: 8%">Type</th>
-            <th style="width: 11%">Référence</th>
-            <th class="text-right" style="width: 8%">Articles</th>
-            <th class="text-right" style="width: 9%">Montant</th>
-            <th style="width: 18%">Client</th>
-            <th style="width: 14%">Vendeur</th>
-            <th style="width: 14%">Caissier</th>
-            <th style="width: 5%">Motif</th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-sale>
-          <tr class="pharma-annulation-row">
-            <td>{{ sale.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-            <td>
-              @if (sale.natureVente === 'ASSURANCE') {
-                <span class="pharma-badge pharma-badge-info">Assurance</span>
-              } @else if (sale.natureVente === 'CARNET') {
-                <span class="pharma-badge pharma-badge-warning">Carnet</span>
-              } @else {
-                <span class="pharma-badge pharma-badge-info">Comptant</span>
-              }
-            </td>
-            <td><span class="pharma-code">{{ sale.numberTransaction }}</span></td>
-            <td class="text-right">{{ sale.itemCount| number }}</td>
-            <td class="text-right pharma-price-negative">{{ sale.salesAmount | number: '1.0-0' }}
-            </td>
-            <td class="pharma-entity-name">{{ sale.customer?.fullName || '—' }}</td>
-            <td>{{ sale.seller?.abbrName || '—' }}</td>
-            <td>{{ sale.cassier?.abbrName || '—' }}</td>
-            <td>
-              @if (sale.commentaire) {
-                <span [ngbTooltip]="sale.commentaire" class="motif-icon" placement="left">
-                    <i class="pi pi-comment"></i>
-                  </span>
-              }
-            </td>
-          </tr>
-        </ng-template>
-      </app-data-table>
-    } @else {
-      <div class="alert alert-success text-center mt-4">
-        <i class="pi pi-check-circle me-2"></i>
-        <span>Aucune annulation sur cette période</span>
+  <app-card>
+    <div class="journal-summary-bar">
+      <div class="summary-item">
+        <i class="pi pi-ban"></i>
+        <span class="summary-label">Nombre total annulations :</span>
+        <span class="summary-value">{{ totalItems() | number }}</span>
       </div>
-    }
-  </div>
+      <div class="summary-item">
+        <i class="pi pi-wallet"></i>
+        <span class="summary-label">Montant annulé  :</span>
+        <span class="summary-value">{{ totalCanceledAmount() | number: '1.0-0' }} <span appDevise></span></span>
+      </div>
+    </div>
+
+    <div class="mt-3">
+      @if (sales() && sales().length > 0) {
+        <app-data-table
+          (onLazyLoad)="lazyLoading($event)"
+          [lazy]="true"
+          [loading]="loading()"
+          [paginator]="true"
+          [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+          [rows]="itemsPerPage()"
+          [showCurrentPageReport]="true"
+          [size]="'small'"
+          [stripedRows]="true"
+          [totalRecords]="totalItems()"
+          [value]="sales()"
+          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} annulations"
+          dataKey="id"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th style="width: 13%">Date annulation</th>
+              <th style="width: 8%">Type</th>
+              <th style="width: 11%">Référence</th>
+              <th class="text-right" style="width: 8%">Articles</th>
+              <th class="text-right" style="width: 9%">Montant</th>
+              <th style="width: 18%">Client</th>
+              <th style="width: 14%">Vendeur</th>
+              <th style="width: 14%">Caissier</th>
+              <th style="width: 5%">Motif</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-sale>
+            <tr class="pharma-annulation-row">
+              <td>{{ sale.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>
+                @if (sale.natureVente === 'ASSURANCE') {
+                  <span class="pharma-badge pharma-badge-info">Assurance</span>
+                } @else if (sale.natureVente === 'CARNET') {
+                  <span class="pharma-badge pharma-badge-warning">Carnet</span>
+                } @else {
+                  <span class="pharma-badge pharma-badge-info">Comptant</span>
+                }
+              </td>
+              <td><span class="pharma-code">{{ sale.numberTransaction }}</span></td>
+              <td class="text-right">{{ sale.itemCount| number }}</td>
+              <td class="text-right pharma-price-negative">{{ sale.salesAmount | number: '1.0-0' }}
+              </td>
+              <td class="pharma-entity-name">{{ sale.customer?.fullName || '—' }}</td>
+              <td>{{ sale.seller?.abbrName || '—' }}</td>
+              <td>{{ sale.cassier?.abbrName || '—' }}</td>
+              <td>
+                @if (sale.commentaire) {
+                  <span [ngbTooltip]="sale.commentaire" class="motif-icon" placement="left">
+                      <i class="pi pi-comment"></i>
+                    </span>
+                }
+              </td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      } @else {
+        <div class="alert alert-success text-center mt-4">
+          <i class="pi pi-check-circle me-2"></i>
+          <span>Aucune annulation sur cette période</span>
+        </div>
+      }
+    </div>
+  </app-card>
 </div>
 

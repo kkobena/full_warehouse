@@ -84,18 +84,26 @@ describe('NavigationService', () => {
 
       expect(items).toHaveLength(1);
       expect(items[0].id).toBe('account');
-      expect(items[0].children?.map(c => c.id)).toEqual(['layout.toggle', 'theme', 'account.divider', 'account.login']);
+      expect(items[0].children?.map(c => c.id)).toEqual(['layout.toggle', 'chrome', 'account.divider', 'account.login']);
     });
 
-    it('coche le thème courant et bascule au clic', () => {
-      const themes = () => find(service.buildNavItems(noopActions), 'theme')!.children!;
-      expect(themes().map(t => t.id)).toEqual(['theme.menthe', 'theme.ardoise', 'theme.clair']);
-      expect(themes().filter(t => t.faIcon).map(t => t.id)).toEqual(['theme.menthe']);
+    it('coche la couleur de l’application courante et bascule au clic', () => {
+      localStorage.clear();
+      const chromes = () => find(service.buildNavItems(noopActions), 'chrome')!.children!;
+      expect(chromes().map(c => c.id)).toEqual([
+        'chrome.actuel',
+        'chrome.comptant',
+        'chrome.assurance',
+        'chrome.prevente-comptant',
+        'chrome.prevente-carnet',
+      ]);
+      expect(chromes().filter(c => c.faIcon).map(c => c.id)).toEqual(['chrome.actuel']);
+      expect(chromes().every(c => !!c.swatch)).toBe(true);
 
-      themes()[1].click!();
+      chromes()[2].click!();
 
-      expect(themes().filter(t => t.faIcon).map(t => t.id)).toEqual(['theme.ardoise']);
-      expect(document.documentElement.getAttribute('data-theme')).toBe('ardoise');
+      expect(chromes().filter(c => c.faIcon).map(c => c.id)).toEqual(['chrome.assurance']);
+      expect(document.documentElement.getAttribute('data-chrome')).toBe('assurance');
     });
 
     it('ajoute les paramètres serveur sous Tauri seulement', () => {

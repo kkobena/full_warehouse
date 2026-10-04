@@ -236,3 +236,230 @@ phase 5 attend les essais, pas du développement.
 - Les couleurs de **statut** (succès, danger, avertissement) : elles restent celles de la charte, quel que soit le thème.
 - Les **écrans à accents propres** (vente, dépôt, prévente) : leurs accents par type ne changent pas.
 - Les graphiques (Chart.js) et les PDF / tickets : hors périmètre.
+
+## 10. Avancement
+
+**Phase 1 — faite le 2026-10-04 (SCSS compilé, rendu non encore vérifié à l'écran).**
+- `content/scss/_pharma-chrome-themes.scss` (importé dans `vendor.scss`) : jetons `--pharma-chrome-*` avec le thème `actuel` en valeurs littérales, et
+  alias `--pharma-nav-*`. Le bloc `:root` de `global.scss` en a été retiré. `navbar`, `sidebar`, `nav-flyout` n'ont pas changé.
+- Branchés sur les jetons : en-tête de modale (`_modal-theme.scss`), en-tête de tableau (`table-common-global.scss`, 2 règles), bandeau d'`app-toolbar`
+  (`pharma-toolbar-global.scss`, `.pharma-toolbar-header`), barre de titre Tauri (`titlebar.component.scss`, schémas commentés supprimés).
+- D5 appliqué : tableau `#527b95 → #4d748d`.
+- **Écarts au plan :**
+  - `actuel` a trois dégradés différents (modale `#2e7d97 → #1b5e75`, tableau, toolbar `#5b89a6 → #4a7189`) : en plus de `head-a/b`, deux paires de
+    jetons `-table-*` et `-toolbar-*`, qui retombent sur `head-*` quand elles sont absentes (les quatre thèmes dérivés n'auront qu'une paire).
+  - Les `!important` des règles d'en-tête sont **conservés** : avec une variable, ils ne figent plus la couleur, et les retirer risque de laisser
+    Bootstrap reprendre la main (`.table > :not(caption) > * > *`). À retirer seulement si la phase 3 montre un cas qui résiste.
+  - ag-grid : le thème alpine n'a **aucun** en-tête coloré aujourd'hui (gris par défaut) ; le rendre au thème changerait `actuel`. Reporté à la phase 3,
+    uniquement sous un thème dérivé.
+- **Contrôle du rendu (2026-10-04, pile 4200/9080, barre et rail)** : valeurs calculées dans le navigateur = valeurs d'avant (toolbar `#5b89a6 → #4a7189`,
+  barre de titre `#22303d → #2c3e50`, dégradé de la barre `#34506b…`), sauf l'en-tête de tableau `#527b95 → #4d748d` (D5, voulu). Captures d'accueil, catalogue
+  produits et point de vente, dans les deux dispositions : aucune rupture visible. Les modales passent par un mixin appliqué par composant : compilation
+  vérifiée (`var(--pharma-chrome-head-*)`), pas vue à l'écran.
+- **Limites :** pas de captures « avant » (comparaison par valeurs calculées, pas par pixels) ; la barre de titre Tauri n'est contrôlée que par sa valeur
+  calculée — forcer `__TAURI_INTERNALS__` fait apparaître l'écran d'attente du backend ; vérification sur exécutable à faire (phase 4).
+- Reste de la phase 1 : Jest, axe.
+
+**Phase 2 — faite le 2026-10-04.**
+- `core/theme/chrome-theme.ts` (liste des cinq thèmes, `DEFAULT_CHROME = 'actuel'`, clé `pharmasmart_chrome`, lecture tolérante, `applyChrome`) et
+  `chrome-theme.service.ts` (signal, `data-chrome`, écoute de l'événement `storage` pour les autres fenêtres). `ThemeService` et sa clé sont intacts.
+- `main.ts` pose l'attribut **avant** l'amorçage ; `AppComponent` appelle `loadCurrentChrome()`.
+- Menu Compte : l'ancien « Thème » devient **« Fond de page »** (libellé proposé en D1, à confirmer) ; nouveau sous-menu **« Couleur de l'application »**, pastille
+  par entrée. **Libellés = noms de couleur seuls** (Bleu acier, Vert, Bleu, Indigo, Olive), décidé le 2026-10-04 : « Vente comptant » ou « Prévente carnet » laissaient croire
+  que le thème ne concernait que l'écran de vente ; l'info-bulle « peut ressembler à l'écran de prévente » (D3) est donc retirée du sélecteur. Les identifiants
+  internes (`comptant`, `prevente-carnet`…) ne changent pas. Ajout de `swatch` à `NavItem`, rendu par `nav-flyout`.
+- Tests : `chrome-theme.service.spec.ts` (7), `navigation.service.spec.ts` complété ; 86 tests verts sur `core/theme`, `core/config/navigation`, `layouts`.
+  Vérifié dans le navigateur : attribut `actuel` au chargement, choix mémorisé après rechargement, menu affiché.
+- **Sans effet visible pour l'instant** : seul `actuel` existe côté SCSS ; choisir un autre thème pose l'attribut mais ne change rien avant la phase 3.
+- Non fait : la page de connexion prend le thème (l'attribut est sur `<html>`, donc oui dès la phase 3, à confirmer en navigateur) ; test de pose avant amorçage.
+
+**Phase 3 — faite le 2026-10-04.**
+- `_pharma-chrome-themes.scss` : la table `$pharma-chrome-themes` (quatre accents) et une boucle qui émet `:root[data-chrome='…']`. Un accent par thème, le reste en
+  `color-mix` ; les pourcentages sont des variables (`$chrome-bar-accent: 45%`, `-nav-keep: 88%`, `-title-keep: 70%`, `-end-keep: 78%`, `-gradient-keep: 94%`).
+  Les thèmes dérivés retirent les paires `table` / `toolbar` propres à `actuel` (une seule paire d'en-tête). ag-grid reçoit son en-tête coloré **sous les thèmes dérivés
+  seulement** (`actuel` inchangé).
+- **Point de couleur oublié par le plan (le septième)** : `navbar.component.scss` redéfinissait `--pharma-nav-bg` / `-bg-hover` en valeurs fixes (`#3a5269`, `#45617d`) ;
+  la barre horizontale ne suivait donc pas. Deux jetons `--pharma-chrome-navbar` / `-navbar-hover` (valeurs d'`actuel` identiques) la rebranchent.
+- `core/theme/theme-contraste.ts` + `.spec.ts` : lisent le SCSS (aucune couleur recopiée) et rejouent le calcul. Contrôlent, pour les cinq thèmes : blanc ≥ 4,5:1 sur
+  navbar (début, fin, survol), rail (début, fin), barre de titre, en-têtes de modale / tableau / toolbar ; entrée active et repère d'accent ≥ 3:1 ; empilement
+  barre de titre < rail < navbar ; infobulle ≥ 7:1 sur les trois fonds de page ; liste du sélecteur = table SCSS ; pastille = accent. 158 tests verts.
+- Ratios obtenus : conformes à ceux du §3 (navbar 6,6 à 7,6 ; rail 9,2 à 10,9 ; barre de titre 12,8 à 14,3 ; en-têtes ≥ 5,1).
+- **Écart trouvé, non corrigé :** le bandeau d'`app-toolbar` du thème **Actuel** (`#5b89a6`, texte 16 px / 600) donne **3,77:1** — la même couleur que l'ancien en-tête
+  de tableau, mais D5 n'a corrigé que le tableau. Le test le tolère (plancher 3,7) en écart connu ; correction possible : `#527b95 → #4d748d`, comme le tableau. **À décider.**
+- Vérifié dans le navigateur (barre et rail, cinq thèmes) : couleurs calculées conformes aux accents ; la barre horizontale devient bien indigo (`#4c4f7e`).
+  Le thème choisi donne une barre **sourde** (accent à 45 % dans l'ardoise) : le §3 le prévoyait, à juger à l'œil en phase 4–5.
+
+**Retour d'essai (2026-10-04) — thèmes adoucis, aligné sur l'espace de vente.** Les thèmes dérivés étaient « trop saturés et agressifs » face aux espaces de travail
+(comptoir, prévente). Changements :
+- **En-têtes clairs** (modale, tableau, toolbar, onglets, en-tête de `pharma-nav-sidebar`) : teinte de l'accent à **10 %** sur blanc (5 % en fin de dégradé), texte = accent
+  assombri (78 % + noir), filet de 2 px (accent 55 % + blanc), au lieu d'un aplat accent / blanc. Même vocabulaire que l'espace de vente (teinte 14 %, texte foncé, filet),
+  en plus léger. Nouveaux jetons : `head-fg` (texte), `head-line` (filet, `box-shadow: inset`, sans effet de mise en page), `head-sep` (séparateur de colonnes),
+  `close-filter` (croix des modales), `tab` / `tab-dark` / `tab-tint` (onglets : `.pharma-nav-tabs-container` ne lisait que des variables SCSS figées). `actuel` : valeurs
+  inchangées (texte blanc, pas de filet).
+- **Barres un peu plus saturées** : accent à **55 %** dans l'ardoise (contre 45 %). L'entrée active des barres passe à `#58d68d` (le vert d'`actuel` éclairci) : à 55 %, la
+  barre du thème assurance donnait 2,87:1 avec `#2ecc71`.
+- **Différence avec l'espace de vente** : sous un thème autre qu'`actuel`, `.pharma-sales-layout` (sales-home) repose les jetons d'en-tête sur la teinte du **type de vente**
+  (comptant, assurance, carnet) : teinte 14 %, filet plein. Les tableaux, bandeaux et onglets de l'espace de vente se distinguent donc du reste de l'application, qui prend la
+  teinte plus légère du thème. Les modales (portées par l'overlay, hors de l'espace de vente) suivent toujours le thème.
+- `pharma-nav-sidebar` : son en-tête lit les jetons du bandeau d'`app-toolbar`. Les liens gardent leur teinte par position (`--section-hue`, volontairement multicolore) :
+  le lien actif reste donc un aplat de sa couleur, quel que soit le thème. **À décider** s'il doit lui aussi prendre l'accent du thème.
+- Icône ⓘ des en-têtes de la liste produits : blanche en dur (`.th-info`), invisible sur teinte claire ; elle lit maintenant `head-fg`. D'autres écrans peuvent avoir le même défaut
+  (couleurs claires codées en dur dans un en-tête) : relevé à faire en phase 4.
+- Garde-fou : texte foncé sur teinte (≥ 4,5:1, 6,5 à 9,1 mesurés), onglet actif sur blanc et sur sa teinte (≥ 4,5:1), entrée active ≥ 3:1. 184 tests verts.
+
+**Suite (2026-10-04).**
+- **Bandeau d'`app-toolbar` d'« Actuel » corrigé** : `#5b89a6 → #4a7189` devient `#527b95 → #4d748d` (4,54:1 en début de dégradé), comme le tableau (D5). Deuxième exception à
+  « Actuel = identique à aujourd'hui », à annoncer dans les notes de version avec la première. L'écart connu du test est supprimé : plus aucune tolérance.
+- **Barre horizontale et rail trop saturés à 55 %** : accent ramené à **40 %** dans l'ardoise (`$chrome-bar-accent`). Blanc sur navbar 6,9 à 7,9:1, sur rail 9,8 à 11,3:1 ;
+  entrée active ≥ 3,7:1.
+
+**Deuxième retour d'essai (2026-10-04) — barres adoucies, fond de page et conteneurs.**
+- **Barres** : accent ramené de 40 % à **25 %** dans l'ardoise (`$chrome-bar-accent`). 55 % puis 40 % restaient trop saturés.
+- **Fond de page suit le thème** (thèmes dérivés seulement) : `--pharma-app-bg` = accent à 6 % dans `#edf1f5` (`$chrome-page-tint`, `$chrome-page-base`), posé par
+  `:root[data-chrome='…']` (même spécificité que `data-theme`, gagne par l'ordre d'import). **Conséquence à connaître : sous un thème autre qu'« Actuel », le menu « Fond de page »
+  (menthe / ardoise / clair) ne change plus le fond** ; il reste actif sous « Actuel ». Ceci tranche D1 dans le sens demandé le 2026-10-04, à confirmer.
+- **Conteneurs sans contour ni élévation** (`.data-card`, `.pharma-toolbar`, `.pharma-nav-sidebar-card`) : sous un thème dérivé, bordure `--pharma-chrome-frame` (accent 28 % dans
+  `#cbd5e1`) et ombre `--pharma-elevation-1` (2 au survol de `.data-card`). `.data-card` n'avait aucune bordure et une ombre à 8 %. `actuel` inchangé. Liste volontairement courte ;
+  d'autres conteneurs (`.card` nus, panneaux propres à un écran) peuvent encore se fondre dans le fond : à relever écran par écran en phase 4.
+- Garde-fou : texte courant ≥ 4,5:1 (7,6 à 7,8) et atténué ≥ 4,5:1 (4,65 à 4,71) sur le fond de page ; carte blanche / fond ≥ 1,12 (1,22 mesuré). 178 tests verts.
+- Captures : accueil exclu ; catalogue produits et mouvements de caisse × cinq thèmes × barre / rail, dans le dossier temporaire de la session.
+
+**Troisième retour d'essai (2026-10-04) — barres claires, conteneurs cadrés, `kpi-strip` et `pill-selector`.**
+- **Barres claires** (remplace les barres sombres « accent dans de l'ardoise », que 55 %, 40 % puis 25 % n'ont pas suffi à rendre acceptables : le défaut était la
+  luminosité, pas seulement la saturation). Sous un thème dérivé : rail = accent à 14 % sur blanc, barre horizontale 9 %, barre de titre 24 % (ordre barre de titre < rail <
+  navbar conservé), texte = accent assombri (78 %), entrée active = accent. Nouveau jeton `--pharma-chrome-on` (blanc sous « Actuel », encre sous les thèmes dérivés) : les
+  `rgba(255,255,255,x)` et `color: #fff` codés en dur dans `sidebar`, `nav-flyout`, `titlebar` et `navbar` y sont rebranchés (rendu d'« Actuel » identique : mêmes valeurs).
+  Les teintes d'icônes de navigation (`--nav-hue-*`, niveau 300 pour fond sombre) passent au niveau 600 assombri sous les thèmes dérivés.
+  `navbar-dark` de Bootstrap fixait le texte en blanc : ses variables sont redéfinies par `--pharma-chrome-navlink*`.
+- **Conteneurs** : liste élargie à `.card:not(.main)` (155 usages), `.data-card`, `.activity-card`, `.pharma-toolbar`, `.pharma-nav-sidebar-card`, `.list-column`,
+  `.detail-column`, `.view-panel` (contour du thème + élévation 1) ; une carte dans une carte n'a pas d'ombre. `.card.main` (racine de page) est exclu : il avait pris un cadre
+  autour de toute la page. Fond de page : confirmé par l'utilisateur ; le menu « Fond de page » ne joue donc que sous « Actuel ».
+- **`app-pill-selector`** : valeurs d'avant le chantier (`#008cba`, `#888`…) devenues les jetons `--pharma-chrome-pill-*` (`actuel` identique). Thèmes dérivés : piste teintée, pastille
+  active en teinte claire + texte foncé (comme les onglets), survol teinté.
+- **`app-kpi-strip`** : fond (`--pharma-kpi-bg-*`), filet (`--pharma-kpi-border`) et barre « primaire » (`--pharma-kpi-accent`) lisent le thème ; les barres de statut
+  (succès, danger, avertissement, info) gardent leur couleur de charte.
+- Garde-fou étendu : texte des barres (navbar, début / fin / survol, rail, barre de titre, panneau) ≥ 4,5:1, texte atténué des barres, pastille (repos, survol, active),
+  texte sur le bandeau d'indicateurs ; 276 tests verts sur `core/`, `layouts`, `nav-sidebar`, `pill`, `kpi`, `titlebar`.
+- **Non vérifié** : barre de titre Tauri claire (valeur seulement ; ses boutons de fenêtre lisent maintenant `--pharma-chrome-on`, le rouge de fermeture est inchangé) ; modales ; écran
+  de vente sous les nouveaux thèmes ; le rail de la capture d'accueil (page d'accueil non rejouée).
+
+**Correctifs du même jour.**
+- **Libellés du menu déroulant (flyout) invisibles** : `.flyout-link` fixait son texte à `rgba(236,240,241,.85)` (la valeur d'« Actuel ») et l'en-tête du panneau posait un voile noir à 20 % ;
+  sur barre claire, texte clair sur fond clair. Le texte lit maintenant `--pharma-nav-fg-muted`, et les voiles noirs 10 / 20 % du flyout, du rail et de la barre de titre passent par
+  `--pharma-chrome-shade` (noir sous « Actuel », encre sous les thèmes dérivés). Les ombres portées et le fond d'overlay restent noirs.
+- **Pastille active de `app-pill-selector`** : elle suivait déjà le thème mais ne se distinguait pas de sa piste (teinte 22 % contre 10 %). Teinte portée à 34 % / 26 %, plus un liseré
+  intérieur à l'accent. Contraste texte / pastille 4,6 à 6,5:1.
+- Garde-fou : 214 tests verts (`core/theme`, `layouts`, `titlebar`).
+
+**Sélecteurs de période et contrôle segmenté migrés vers `app-pill-selector`.** Les blocs `.dashboard-periode-selector` (boutons `.periode-pill`) et `.custom-segment-control`
+(curseur coulissant `.segment-slider`) étaient des doublons codés en dur du Design System : ils gardaient le bleu `#008cba` sous tous les thèmes.
+- **Migrés** (11 blocs) : `comparative-analysis` (3 vues), `supplier-performance`, `pnl-analytique` (2 sélecteurs), `finance-creances` (tranches, période), `home-base` (période, Pareto,
+  Tabulaire / Graphique), `commande-received` (Séquentiel / Grille). Les composants importent `PillSelectorComponent` ; `finance-creances` gagne `FormsModule`.
+- **Gardés en HTML** : les cinq liens de l'accueil (« CA avancé », « Marges & Résultat »…), qui sont des `<a routerLink>` et non un choix d'état. Le style `.dashboard-periode-selector`
+  / `.periode-pill` lit désormais les mêmes jetons `--pharma-chrome-pill-*` (valeurs d'« Actuel » identiques à `#008cba` / `#5bc0de` / `#888`) : un seul réglage pour les deux.
+- **Supprimé** : `.custom-segment-control`, `.segment-track`, `.segment-slider`, `.segment-option` (SCSS global et local de `commande-received`) et leurs requêtes responsive.
+- **Perte assumée** : le curseur qui glissait d'une option à l'autre (0,3 s) et les info-bulles `ngbTooltip` de « Séquentiel » / « Grille » (remplacées par le `title` natif portant le libellé).
+- Vérifié : compilation des templates (`ngc`) sans erreur ; accueil sous le thème assurance à l'écran. Tests unitaires des composants touchés non confirmés (aucune sortie de Jest sur ce filtre).
+
+**Menu « Fond de page » supprimé (2026-10-04).** Décision de l'utilisateur : le thème de couleur impose le fond de page, le menu menthe / ardoise / clair n'avait plus d'effet sous les thèmes
+de couleur. L'entrée est retirée de `NavigationService` (et son test) ; `ThemeService` reste, il pose toujours `data-theme='menthe'` (le fond d'« Actuel »). Ceci clôt D1 :
+un seul sélecteur, « Couleur de l'application ». Les deux libellés à confirmer du §4 sont donc caducs.
+
+**Chantier voisin : contenus à placer dans `app-card`** (contour + élévation du Design System, plutôt que des règles globales sur des classes).
+- `produit-home` : du hint « premier usage », la barre d'actions groupées et le split panel, dans un `app-card` (`bodyClass="p-0"`, hauteur flexible pour que le split garde son défilement interne).
+- `sales-journal` : de `journal-summary-bar` au `app-data-table`, dans un `app-card` ; la barre de synthèse perd son cadre propre et garde un filet inférieur.
+- Les autres écrans « sont déjà ok » (retour de l'utilisateur) : non touchés. La règle globale de cadre ne porte plus sur `.list-column`, `.detail-column`, `.view-panel` (ils se placent
+  dans une carte) ; elle reste sur `.card`, `.data-card`, `.activity-card`, `.pharma-toolbar` et la carte de `pharma-nav-sidebar`.
+- Vérifié : `ngc` sans erreur, 257 tests verts (`core/`, `layouts`), les deux écrans à l'écran sous « Comptant ». Reste à repasser les autres écrans à split panel un par un, au fil de l'usage.
+
+**Chantier `app-card` — passe en masse (2026-10-04).** « 80 % des menus ne sont pas faits » : migration par script (`cartes_masse.py`, hors dépôt) des écrans dont le contenu
+principal n'était dans aucune carte.
+- **Critère** : racine `.pharma-smart-content`, barre d'outils au premier niveau, contenu avec `app-data-table`, `<table>` ou `split-container`, et **aucune carte** à aucun niveau du contenu.
+  Le contenu situé après la barre d'outils est enveloppé dans `<app-card>`.
+- **Hors de la carte, toujours** (consigne : « ne mets pas les `app-kpi-item` dans `app-card` ») : bandes `app-kpi-strip` / `app-kpi-item`, bannières `app-*-kpi-banner`, `ngx-spinner`,
+  gabarits `ng-template`, modales. Des bandes d'indicateurs avaient d'abord été englobées (`lot-perimes`, `lot-a-detruire`, `avoir`, et les bannières de `differes-home`,
+  `facturation-home`, `rapprochement`, `recapitulatif`) : sorties, avec leur `@if` quand il existe. `sales-kpi-dashboard` (tableau de bord d'indicateurs) n'a finalement pas de carte.
+- **Padding** : le corps de carte garde son padding par défaut (1 rem) pour les listes ; 0,5 rem (`p-2`) pour les écrans à volets. `p-0` collait tableaux et volets aux bords.
+- **Volume** : 35 listes + 7 écrans à volets (+ `produit-home` et `sales-journal` faits à la main) = 43 gabarits, leurs composants gagnent `CardComponent`. Compilation des templates (`ngc`) sans erreur.
+- **Non traité (volontairement)** : les éditeurs et formulaires sans tableau (`user-management-update`, `app-config-editor`, `inventory-editor`, `dashboard-editor`, `license-admin`, `facturation-edition`…), les
+  tableaux de bord qui ont déjà des cartes, et les écrans sans racine `.pharma-smart-content` (rapports, `commande-*`, `mvt-caisse`…). À regarder un par un.
+- **Tests** : Jest `entities|features|admin|home` : 4 suites en échec (`stock-depot`, `achat-depot`, `ajout-perimes` : `ActivatedRoute` sans fournisseur dans le squelette ; `home.component.spec` :
+  `zone.js` absent ; `user-management.service.spec` : rôles). Aucun lien visible avec la carte ; non comparé à un état antérieur. E2E non rejoué.
+
+**Phase 4 — avancement (2026-10-04).**
+- **Axe sur les thèmes** : `e2e/a11y/themes-chrome.spec.ts` (projet `a11y`, lecture seule, ~6 min). Pour 9 écrans (accueil, catalogue produits, mouvements de caisse, familles, clients, différés,
+  journal des ventes, comptoir, modale « nouvelle famille ») × 2 dispositions × 5 thèmes, il relève les éléments en défaut de contraste sous « Actuel » (référence) puis sous chaque thème ;
+  **seuls comptent les défauts absents sous « Actuel »**. Résultat : **0 défaut introduit par un thème**. Mesuré : 122 défauts sous « Actuel » contre 104 sous chaque thème de couleur
+  (ex. pastilles au repos à 2,98:1 sous « Actuel », corrigées par les thèmes) ; ces défauts communs préexistent (`.last-update-label` 2,88:1, `text-primary` 3,84:1 — ce dernier relève
+  de la phase 6, accent applicatif). Limite d'axe : texte sur dégradé non évalué (couvert par `theme-contraste.spec.ts`).
+- **Vu à l'écran** : espace de vente avec un panier (comptant, prévente carnet), modale « nouvelle famille » (en-tête clair du thème), page de connexion.
+- **Connexion** : seule la barre du haut suit le thème ; le fond bleu dégradé et la carte de la page sont propres à cet écran et ne changent pas. À décider si on les aligne.
+- **Reste de la phase 4** : barre de titre Tauri sur l'exécutable (`npm run tauri:dev`) ; test responsive sous chaque thème ; relevé des couleurs figées (89 fichiers `$pharma-primary`,
+  16 fichiers en dur) ; regroupements `app-card` à revoir écran par écran ; captures « avant » d'« Actuel » jamais prises.
+- **Responsive sous un thème** : `comptoir-responsive.spec.ts` accepte `E2E_CHROME=<thème>`. Rejoué sous **« Comptant »** : 9 tailles sur 9 passent (la page ne défile pas, le règlement reste à l'écran,
+  onglets de 44 px). Les autres thèmes ne sont pas rejoués : seule la couleur change d'un thème à l'autre, pas les hauteurs.
+
+**Barres de menu et menus déroulants : conformité WCAG 2.2 AA mesurée (2026-10-04).**
+- **Nouveau test navigateur** `e2e/a11y/themes-menus.spec.ts` (projet `a11y`, lecture seule, ~2 min) : 5 thèmes × 2 dispositions, sur ce qui est réellement rendu.
+  1.4.3 / 1.4.11 contraste du texte (4,5:1) et des icônes (3:1) **sur les pixels du fond** (texte rendu transparent, page photographiée) — repos, survol de chaque entrée, focus, menu
+  déroulant ouvert et sa ligne survolée ; 2.4.7 / 1.4.11 le focus clavier doit ajouter un signe visible à 3:1 de ce qu'il recouvre ; 1.4.1 l'entrée active se distingue autrement que par la
+  couleur ; 2.5.8 cibles de 24 × 24 px ; 2.1.1 / 2.1.2 / 2.4.3 clavier (Entrée ouvre, Échap ferme et rend le focus) ; 4.1.2 règles WCAG 2 A/AA d'axe sur les barres et le menu ouvert.
+  Acceptation : un thème échoue pour tout défaut absent sous « Actuel » ; **résultat final : 0 défaut, « Actuel » compris** (10 combinaisons).
+- **Calcul** (`theme-contraste.spec.ts`) : ajout des 12 icônes colorées de navigation sur barre horizontale, rail, panneau et survol (3:1). A relevé le **lime à 2,99:1 au survol** du thème vert :
+  icônes assombries à 78 % (`$nav-hue-keep`) ; le texte des barres prend une encre propre, plus foncée que celle des en-têtes (`$chrome-bar-ink: 66 %`), pour tenir 4,5:1 sur les fonds de survol.
+- **Défauts réels trouvés et corrigés :**
+  - **Focus clavier** : l'anneau Bootstrap des entrées de la barre horizontale ne donnait que **1,7:1 sous « Actuel »** et le rail n'avait **aucun signe de focus** (2.4.7). Anneau de 2 px
+    (`--pharma-chrome-focus` : blanc sous « Actuel », encre sous les thèmes) sur les deux barres. **Changement visible sous « Actuel »**, à annoncer avec les deux corrections de contraste.
+  - Pastilles (`.navbar-badge`, `.sidebar-badge`, `.flyout-badge`) : texte blanc explicite (il héritait l'encre du thème).
+  - Rail : bloc utilisateur et en-tête du menu déroulant, voile gris trop dense (`--pharma-chrome-panel-head`) ; rôle de l'utilisateur et version, textes semi-transparents rendus opaques ou plus denses.
+- **Faux positifs écartés** : texte en dégradé (`background-clip: text`, logo du rail) non mesurable par pixels (les trois teintes sont couvertes par le calcul des icônes) ; pixels de bord des
+  pastilles arrondies (zone mesurée resserrée de 10 à 18 %).
+- **Boîte de confirmation** (`ngb-confirm-dialog`) : suit le thème (jetons `--pharma-chrome-dlg-*`, valeurs d'« Actuel » inchangées) ; vérifiée à l'écran, non mesurée au contraste.
+- Garde-fou unitaire : 449 tests verts (`core/`, `layouts`, `titlebar`).
+- **Toujours non couvert** : la barre de titre Tauri (jamais vue à l'écran), 1.4.4 / 1.4.10 (agrandissement à 200 %, reflow), 1.4.12 (espacement du texte), 1.4.13 (contenu au survol), daltonisme des thèmes.
+
+**Barre de titre Tauri — validée par l'utilisateur (2026-10-04)** : « le header Tauri est OK, ça suit bien le thème ». Vérifiée sur l'exécutable ; le point « Tauri sur exécutable » de la phase 4 est clos.
+Reste de la phase 4 : relevé des couleurs figées (89 fichiers `$pharma-primary`, 16 en dur), 1.4.4 / 1.4.10 / 1.4.12 / 1.4.13 et daltonisme des thèmes. Puis phases 5 (essais, défaut) et 6 (accent applicatif).
+
+**Phase 6 — accent applicatif, et `shared/ui` + sélecteur de date au thème (2026-10-04).**
+- **Accent applicatif** (`_pharma-chrome-themes.scss`, dernière section) : sous un thème dérivé, `--pharma-accent`, `--bs-primary`, `--p-primary-*` (échelle 50 à 800), `--pharma-focus-ring`, les liens et `.btn-primary`,
+  `.btn-outline-primary`, cases cochées, pagination, onglets `nav-pills`, `dropdown-menu`, `list-group`, `progress` prennent l'accent du thème. Valeurs calculées à la compilation (Bootstrap veut des composantes RGB).
+  Choix d'ingénierie : le **texte** « primaire » (liens, `.text-primary`, `--bs-primary-rgb`) prend l'**encre** de l'accent (78 %), pas l'accent : l'accent seul donnait 3,84:1 (`.text-primary`) sur le fond de page teinté.
+  Boutons : survol à 80 % et actif à 66 % de l'accent (`$chrome-btn-hover`, `$chrome-btn-active`).
+- **Garde-fou** : bouton primaire (repos 5,1 à 7,3:1 ; survol ; actif), bouton contour, liens (repos, survol, sur blanc et sur fond de page) ≥ 4,5:1 ; accent sur blanc ≥ 3:1. 390 tests de thème verts.
+- **Composants `shared/ui`** : tout ce qui lit `--bs-primary` / `--p-primary-*` / `--pharma-accent` suit désormais (boutons, cases, pagination, `float-label`, `input-number`, surlignage de grille…). Couleurs figées rebranchées :
+  `app-hint` (`--pharma-chrome-hint-*`), `app-bulk-action-bar` (`--pharma-chrome-bulk-*`), filet de total de `app-data-table` (`--pharma-chrome-rule`). Valeurs d'« Actuel » identiques. Non touchés, car ce sont des
+  couleurs de **statut** ou neutres : `detail-field` (vert / orange / rouge), `detail-section`, ombres.
+- **Sélecteur de date** (`pharma-date-picker`) : sa palette « identique à la boîte de confirmation » lit maintenant les mêmes jetons `--pharma-chrome-dlg-*` (+ `--pharma-chrome-dlg-accent-hover`). Vu à l'écran, calendrier ouvert.
+  **Survol de l'icône calendrier corrigé** : la règle posait `background-color` alors que le dégradé de repos (`background-image`) restait par-dessus, d'où une icône blanche illisible ; le survol est maintenant une teinte
+  pleine du thème avec l'icône à la couleur du thème (raccourci `background`).
+- **Axe, après ces changements** : toujours **0 défaut introduit par un thème** (122 sous « Actuel », 104 sous chaque thème de couleur) ; `themes-menus` : 0 défaut.
+- **À regarder** : thème vert, où le primaire (`#047857`) et le « succès » de la charte (`#15803d`) se ressemblent (validation et réussite côte à côte) ; focus des champs `.form-control` (bordure Bootstrap compilée) ;
+  surlignages `ng-select`.
+- **Jest `shared/`** : 6 suites en échec (`button` : `.shadow-sm` attendu mais classe `app-btn-raised` ; `float-label` : `.form-floating` absent ; `data-table` : sélecteur de taille de page ; `alert`, `sort`, `sort-by` :
+  `zone.js`). Ce sont des attentes de balisage, sans rapport avec une couleur ; non comparées à un état antérieur.
+
+**Boutons : création en `primary`, sévérités nuancées par thème (2026-10-04).**
+- 13 boutons de création des barres d'outils passés de `severity="success"` à `primary` (« Nouveau… », « Vente Comptant »…). « Excel » (export) laissé en l'état.
+- `secondary`, `success`, `info`, `warning`, `danger`, `help`, `contrast` — pleins et contour — suivent le thème : chaque couleur de la charte est mélangée à 12 % avec l'accent (20 % pour `contrast`), table
+  `$pharma-chrome-buttons`. Sens conservé. Deux exceptions où le mélange restait trop proche du primaire (ΔE CIE76 < 25) : `success` du thème vert → `#4d7c0f` (ΔE 38), `info` du thème bleu → `#0f766e` (ΔE 34).
+  Garde-fou : contraste texte / fond (repos, survol, actif), contour sur blanc et sur fond de page ≥ 4,5:1, écart au primaire ≥ 25 pour `success`, `info`, `help` ; 542 tests de thème verts. `info` a été nuancé aussi, bien que non demandé :
+  laissé tel quel il aurait ressemblé au primaire du thème bleu.
+- Organisation des boutons par importance (standards UX et WCAG 2.2) : [PLAN-ORGANISATION-BOUTONS-ACTION.md](PLAN-ORGANISATION-BOUTONS-ACTION.md), **à valider** (six décisions au §8).
+
+**Boutons : une couleur propre à chaque thème, et une sévérité par action (2026-10-04).**
+- Les sévérités ne sont plus un simple mélange à 12 % avec l'accent (écarts de 3 à 11 ΔE d'un thème à l'autre : quasi identiques). Palette recalculée sous contraintes : même famille de teintes,
+  décalage différent par thème, saturation réduite d'environ 15 %, contraste blanc ≥ 4,6:1 (encre ≥ 7:1 sur ambre), ΔE ≥ 30 au primaire du thème. Nouveau test : **couleur distincte d'un thème à l'autre (ΔE ≥ 12)** pour chaque sévérité.
+- 84 boutons alignés sur une sévérité de référence par action (« Rechercher » `info`, « Enregistrer » `primary`, exports `warn`…), table au §10 de [PLAN-ORGANISATION-BOUTONS-ACTION.md](PLAN-ORGANISATION-BOUTONS-ACTION.md).
+- 556 tests de thème verts.
+
+**Composant `app-subtab-bar` (2026-10-04)** — les blocs `.su-source-tabs-bar` / `.su-tab` / `.su-tab-badge`, recopiés dans `suggestions-unified` et `bed-home`, deviennent un composant du Design System
+(`shared/ui/subtab-bar`, exporté par `shared/ui/index.ts`, ligne ajoutée au `README` du Design System).
+- API : `[tabs]` (`id`, `label`, `icon`, `tooltip`, `badge`, `badgeSeverity`), `[active]` / `(activeChange)`, `ariaLabel`, `idPrefix`. Pastille : `null` ou absente = masquée, `0` = affichée.
+- Accessibilité (patron ARIA « Tabs », activation automatique) : `role="tablist"` / `tab`, `aria-selected`, tabulation itinérante, flèches, Début, Fin ; anneau de focus net (l'ancien halo à 35 % ne se voyait pas).
+- Thème : soulignement `--pharma-chrome-tab`, texte actif et survol `--pharma-chrome-tab-dark`, **fond de survol `--pharma-chrome-tab-tint`**, pastilles `--pharma-chrome-badge-*` (palette des boutons du thème).
+  Sous « Actuel », les pastilles prennent les couleurs de la charte : les anciennes (`#22c55e`, `#f59e0b`, `#3b82f6`, blanc dessus) donnaient 2,1 à 3,7:1 ; le texte actif passe de `#5b89a6` (3,8:1) à `#4a7189` (5,2:1).
+- Partial `_subtab-bar.scss` : les classes d'onglets sont retirées (il garde `.su-parent-toolbar`, `.su-title`, `.su-header-end`). `retour-fournisseur`, qui n'utilisait que le titre, n'est pas touché.
+- Garde-fou : texte actif, texte inactif (`#6b7280`, 4,83:1), texte sur fond de survol et chaque pastille ≥ 4,5:1, pour les cinq thèmes ; 8 tests unitaires du composant ; 604 tests de thème et de composant verts.
+- Non vérifié à l'écran : `bed-home` (seul `suggestions-unified` a été capturé).
+

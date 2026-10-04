@@ -20,6 +20,20 @@
 
 
   &.navbar-chrome {
+    // Anneau de focus net (Bootstrap n'en pose qu'un halo très pâle, 1,7:1) : WCAG 2.4.7 et 1.4.11.
+    a:focus-visible,
+    button:focus-visible {
+      outline: 2px solid var(--pharma-chrome-focus);
+      outline-offset: -2px;
+      box-shadow: none;
+    }
+
+    // Remplace les couleurs de `navbar-dark` (texte blanc) : sur barre claire, elles seraient illisibles.
+    --bs-navbar-color: var(--pharma-chrome-navlink);
+    --bs-navbar-hover-color: var(--pharma-chrome-navlink-strong);
+    --bs-navbar-active-color: var(--pharma-chrome-navlink-strong);
+    --bs-navbar-brand-color: var(--pharma-chrome-navlink-strong);
+    --bs-navbar-brand-hover-color: var(--pharma-chrome-navlink-strong);
     background-color: var(--pharma-nav-bg);
     background-image: var(--pharma-nav-gradient-h);
     border-bottom: 2px solid transparent;
@@ -31,7 +45,7 @@
   }
 
   .nav-link:hover {
-    background-color: color-mix(in srgb, var(--nav-hue, #fff) 16%, transparent);
+    background-color: color-mix(in srgb, var(--nav-hue, var(--pharma-chrome-on)) 16%, transparent);
   }
 
   .nav-item.active > .nav-link {
@@ -76,7 +90,7 @@
     }
 
     &.expanded {
-      background-color: color-mix(in srgb, var(--nav-hue, #fff) 22%, transparent);
+      background-color: color-mix(in srgb, var(--nav-hue, var(--pharma-chrome-on)) 22%, transparent);
 
       .nav-caret {
         transform: rotate(180deg);
@@ -127,8 +141,9 @@ Logo styles — taille desktop
   // d'un contenu clair, la même valeur produit une arête horizontale très dure.
   // On ne change ni la teinte ni la saturation : l'harmonie avec la sidebar
   // tient sur la teinte, pas sur la luminosité.
-  --pharma-nav-bg: #3a5269; // L=32%
-  --pharma-nav-bg-hover: #45617d; // L=38%
+  // Valeurs du thème (`--pharma-chrome-navbar*`) : `actuel` garde #3a5269 (L=32%) et #45617d (L=38%).
+  --pharma-nav-bg: var(--pharma-chrome-navbar);
+  --pharma-nav-bg-hover: var(--pharma-chrome-navbar-hover);
 }
 
 /* ==========================================================================
@@ -136,6 +151,7 @@ Badge d'alerte dans la navbar (péremptions et autres alertes)
 ========================================================================== */
 
 .navbar-badge {
+  color: #fff;
   font-size: 0.62rem;
   min-width: 16px;
   height: 16px;

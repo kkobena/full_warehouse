@@ -1,0 +1,126 @@
+// Barre d'onglets légère, sous un en-tête de barre d'outils. Couleurs : jetons du thème de couleur
+// (`_pharma-chrome-themes.scss`) ; les valeurs de repli sont celles d'« Actuel ».
+
+:host {
+  display: block;
+}
+
+.app-subtab-bar {
+  display: flex;
+  align-items: stretch;
+  background: var(--pharma-surface, #fff);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 0 0.5rem;
+  min-height: 40px;
+  overflow-x: auto;
+}
+
+.app-subtab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0 1.125rem;
+  border: none;
+  background: transparent;
+  // Gris 4,8:1 sur blanc : l'ancien `#6b7280` à 0,7 d'opacité sur l'icône n'atteignait pas 3:1.
+  color: #6b7280;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s ease, background-color 0.15s ease;
+
+  i {
+    font-size: 0.875rem;
+    transition: opacity 0.15s ease;
+  }
+
+  // Soulignement de l'onglet actif
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0.875rem;
+    right: 0.875rem;
+    height: 2px;
+    background: var(--pharma-chrome-tab, #5b89a6);
+    border-radius: 2px 2px 0 0;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  // Survol : fond à la teinte du thème (`--pharma-chrome-tab-tint`) et texte foncé, sur l'onglet actif comme sur les autres.
+  &:hover {
+    background: var(--pharma-chrome-tab-tint, #e8f4f8);
+  }
+
+  &:hover:not(.app-subtab--active) {
+    color: var(--pharma-chrome-tab-dark, #4a7189);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  // Anneau net (WCAG 2.4.7 / 1.4.11) : l'ancien halo à 35 % d'opacité ne se voyait pas.
+  &:focus-visible {
+    outline: 2px solid var(--pharma-chrome-tab-dark, #4a7189);
+    outline-offset: -2px;
+    border-radius: 2px;
+  }
+
+  &--active {
+    // Texte en teinte foncée : l'accent seul (`#5b89a6`) ne donne que 3,8:1 sur blanc.
+    color: var(--pharma-chrome-tab-dark, #4a7189);
+    font-weight: 600;
+
+    &::after {
+      opacity: 1;
+    }
+  }
+}
+
+// ── Pastilles de comptage ────────────────────────────────────────────────────
+.app-subtab__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-left: 0.25rem;
+  color: #fff;
+
+  &--primary {
+    background: var(--pharma-chrome-badge-primary, #4a7189);
+  }
+
+  &--success {
+    background: var(--pharma-chrome-badge-success, #15803d);
+  }
+
+  &--warn {
+    background: var(--pharma-chrome-badge-warn, #c2410c);
+    color: var(--pharma-chrome-badge-warn-fg, #fff);
+  }
+
+  &--danger {
+    background: var(--pharma-chrome-badge-danger, #dc2626);
+  }
+
+  &--info {
+    background: var(--pharma-chrome-badge-info, #0369a1);
+  }
+}
+
+@media (max-width: 576px) {
+  .app-subtab {
+    padding: 0 0.625rem;
+    font-size: 0.75rem;
+  }
+}

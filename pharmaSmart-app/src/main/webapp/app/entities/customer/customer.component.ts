@@ -33,6 +33,7 @@ import {
 import {NotificationService} from "../../shared/services/notification.service";
 import {ErrorService} from "../../shared/error.service";
 import {AbilityService} from "app/core/auth/ability.service";
+import { CardComponent } from 'app/shared/ui';
 import {
   AppSplitButtonItem,
   AppTableLazyLoadEvent,
@@ -54,7 +55,7 @@ import {
   templateUrl: "./customer.component.html",
   styleUrls: ["./customer.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [CardComponent, 
     CommonModule,
     FormsModule,
     SpinnerComponent,

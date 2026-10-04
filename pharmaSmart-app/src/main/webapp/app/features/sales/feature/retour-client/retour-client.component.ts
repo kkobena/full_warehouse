@@ -18,6 +18,7 @@ import {
 import { RetourClientModalComponent } from "../../ui/retour-client-modal/retour-client-modal.component";
 import { ISales } from "../../../../shared/model";
 import { DevisePipe } from 'app/shared/utils/devise';
+import { CardComponent } from 'app/shared/ui';
 
 @Component({
   selector: "app-retour-client",
@@ -25,7 +26,7 @@ import { DevisePipe } from 'app/shared/utils/devise';
   styleUrl: "./retour-client.component.scss",
   providers: [{ provide: NgbDateParserFormatter, useClass: FrenchDateParserFormatter }],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [CardComponent, 
     CommonModule,
     FormsModule,
     ButtonComponent,

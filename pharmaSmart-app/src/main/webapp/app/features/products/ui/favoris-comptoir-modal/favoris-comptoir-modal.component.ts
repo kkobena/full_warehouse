@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { forkJoin, Observable } from "rxjs";
 import { DevisePipe } from "app/shared/utils/devise";
-import { ButtonComponent } from "app/shared/ui";
+import { ButtonComponent, CardComponent } from "app/shared/ui";
 import { NotificationService } from "app/shared/services/notification.service";
 import { ProduitSearch } from "app/shared/model";
 import { FavoriSuggere, ProduitsFavorisApiService } from "../../data-access/services/produits-favoris-api.service";
@@ -17,7 +17,7 @@ import { FavoriSuggere, ProduitsFavorisApiService } from "../../data-access/serv
   templateUrl: "./favoris-comptoir-modal.component.html",
   styleUrl: "./favoris-comptoir-modal.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, DevisePipe],
+  imports: [ButtonComponent, DevisePipe, CardComponent]
 })
 export class FavorisComptoirModalComponent implements OnInit {
   protected readonly epingles = signal<ProduitSearch[]>([]);

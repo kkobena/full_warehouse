@@ -1,3 +1,4 @@
+<app-card>
 <div class="d-flex flex-column h-100">
 
   <!-- ── PANEL HEADER ─────────────────────────────────────────────────── -->
@@ -6,7 +7,7 @@
       <app-button
         icon="pi pi-arrow-left"
         label="Retour à la liste"
-        severity="success"
+        severity="primary"
         size="small"
         [text]="true"
         (clicked)="retour.emit()"
@@ -46,8 +47,7 @@
       }
     </div>
   </div>
-
-  <!-- ── BARRE RECHERCHE / AJOUT PRODUIT ──────────────────────────────── -->
+<!-- ── BARRE RECHERCHE / AJOUT PRODUIT ──────────────────────────────── -->
   @if (isBrouillon()) {
     <div class="add-product-bar">
       <div class="search-controls">
@@ -103,45 +103,49 @@
     </div>
   }
 
-  <!-- ── GRILLE LIGNES ─────────────────────────────────────────────────── -->
-  <div class="grid-wrapper flex-grow-1">
 
-    @if (lignes().length > 0) {
-      <div class="grid-caption">
-        <span class="grid-caption__count">{{ lignes().length }} ligne(s)</span>
-        <span class="grid-caption__totals ms-auto">
+
+   <!-- ── GRILLE LIGNES ─────────────────────────────────────────────────── -->
+   <div class="grid-wrapper flex-grow-1">
+     <app-card>
+     @if (lignes().length > 0) {
+       <div class="grid-caption">
+         <span class="grid-caption__count">{{ lignes().length }} ligne(s)</span>
+         <span class="grid-caption__totals ms-auto">
           Total achat&nbsp;: <strong>{{ totalGross() | devise }}</strong>
         </span>
-      </div>
-    }
+       </div>
+     }
 
-    <div class="grid-body d-flex overflow-hidden">
-      <div class="flex-grow-1 overflow-hidden h-100">
-        @if (lignes().length > 0) {
-          <ag-grid-angular
-    [localeText]="localeFr"
-            [theme]="theme"
-            [columnDefs]="columnDefs"
-            [defaultColDef]="defaultColDef"
-            [rowData]="lignes()"
-            [getRowId]="getRowId"
-            [singleClickEdit]="true"
-            [stopEditingWhenCellsLoseFocus]="true"
-            [animateRows]="true"
-            [context]="gridContext"
-            (gridReady)="onGridReady($event)"
-            (cellValueChanged)="onCellValueChanged($event)"
-            style="width: 100%; height: 100%;"
-          />
-        } @else {
-          <div class="grid-empty-state">
-            <i class="pi pi-inbox"></i>
-            <span>Aucune ligne — recherchez et ajoutez un produit</span>
-          </div>
-        }
-      </div>
-    </div>
+     <div class="grid-body d-flex overflow-hidden">
+       <div class="flex-grow-1 overflow-hidden h-100">
+         @if (lignes().length > 0) {
+           <ag-grid-angular
+             [localeText]="localeFr"
+             [theme]="theme"
+             [columnDefs]="columnDefs"
+             [defaultColDef]="defaultColDef"
+             [rowData]="lignes()"
+             [getRowId]="getRowId"
+             [singleClickEdit]="true"
+             [stopEditingWhenCellsLoseFocus]="true"
+             [animateRows]="true"
+             [context]="gridContext"
+             (gridReady)="onGridReady($event)"
+             (cellValueChanged)="onCellValueChanged($event)"
+             style="width: 100%; height: 100%;"
+           />
+         } @else {
+           <div class="grid-empty-state">
+             <i class="pi pi-inbox"></i>
+             <span>Aucune ligne — recherchez et ajoutez un produit</span>
+           </div>
+         }
+       </div>
+     </div>
+     </app-card>
+   </div>
 
-  </div>
 
 </div>
+</app-card>

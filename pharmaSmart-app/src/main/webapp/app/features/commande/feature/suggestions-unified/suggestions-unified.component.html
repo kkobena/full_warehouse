@@ -1,4 +1,4 @@
-<div class="pharma-smart-content p-1">
+<div class="pharma-smart-content">
   <div class="pharma-toolbar su-parent-toolbar">
 
     <!-- Header bleu : titre + indicateur fraîcheur + bouton config -->
@@ -20,7 +20,7 @@
           <app-button
             (clicked)="ouvrirConfigCriticite()"
             [outlined]="false"
-            [severity]="'info'"
+            [severity]="'primary'"
             icon="pi pi-sliders-h"
             label="Classes produits"
             ngbTooltip="Paramétrage des classes A/B/C/D et des règles de réapprovisionnement automatique par classe"
@@ -31,69 +31,12 @@
       </div>
     </div>
 
-    <!-- Barre des 3 onglets -->
-    <div class="su-source-tabs-bar">
-
-      <!-- Onglet 1 : Propositions d'achat (GENEREE) -->
-      <button
-        (click)="setSource('REAPPRO')"
-        [class.su-tab--active]="activeSource() === 'REAPPRO'"
-        class="su-tab"
-        ngbTooltip="Propositions d'achat générées automatiquement selon la VMM — en attente de validation"
-        placement="bottom"
-        type="button"
-      >
-        <i class="pi pi-inbox"></i>
-        Propositions d'achat
-        @if (countReappro() > 0) {
-          <span class="su-tab-badge su-tab-badge--primary">{{ countReappro() }}</span>
-        }
-      </button>
-
-      <!-- Onglet 2 : Commandes fournisseurs (REQUESTED) -->
-      <button
-        (click)="setSource('COMMANDES_A_PASSER')"
-        [class.su-tab--active]="activeSource() === 'COMMANDES_A_PASSER'"
-        class="su-tab"
-        ngbTooltip="Bons de commande en cours de préparation, prêts à être transmis aux fournisseurs"
-        placement="bottom"
-        type="button"
-      >
-        <i class="pi pi-cart-plus"></i>
-        Commandes fournisseurs
-        <span class="su-tab-badge su-tab-badge--success">{{ countCommandesAPasser() }}</span>
-      </button>
-
-      <!-- Onglet 3 : Réceptions (bons de livraison à traiter) -->
-      <button
-        (click)="setSource('BONS_DE_LIVRAISON')"
-        [class.su-tab--active]="activeSource() === 'BONS_DE_LIVRAISON'"
-        class="su-tab"
-        ngbTooltip="Bons de livraison reçus des fournisseurs, en attente de réception en stock"
-        placement="bottom"
-        type="button"
-      >
-        <i class="pi pi-truck"></i>
-        Réceptions
-        @if (countBonsLivraison() > 0) {
-          <span class="su-tab-badge su-tab-badge--warn">{{ countBonsLivraison() }}</span>
-        }
-      </button>
-
-      <!-- Onglet 4 : Tableau de bord stock (lecture seule) -->
-      <button
-        (click)="setSource('ANALYSE')"
-        [class.su-tab--active]="activeSource() === 'ANALYSE'"
-        class="su-tab"
-        ngbTooltip="Tableau de bord : niveaux de stock par classe A/B/C/D et seuils de rupture"
-        placement="bottom"
-        type="button"
-      >
-        <i class="pi pi-chart-bar"></i>
-        Tableau de bord stock
-      </button>
-
-    </div>
+    <app-subtab-bar
+      ariaLabel="Sources d'approvisionnement"
+      [tabs]="onglets()"
+      [active]="activeSource()"
+      (activeChange)="setSource($any($event))"
+    />
   </div>
 
   <!-- ─── Contenu selon la source active ──────────────────────────────── -->

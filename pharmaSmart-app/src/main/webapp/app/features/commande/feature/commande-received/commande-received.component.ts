@@ -97,6 +97,7 @@ import {IConfiguration} from "../../../../shared/model/configuration.model";
 import { formatCurrencyWithUnit, formatNumber } from 'app/shared/utils/format-utils';
 import {AG_GRID_LOCALE_FR} from '../../../../shared/ui/ag-grid/ag-grid-locale.fr';
 import { DevisePipe } from 'app/shared/utils/devise';
+import { PillSelectorComponent } from 'app/shared/ui/pill-selector/pill-selector.component';
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
 @Component({
@@ -105,7 +106,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
   styleUrls: ["./commande-received.component.scss"],
   providers: [ReceptionScannerService, ScanOrchestratorService],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [PillSelectorComponent, 
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -205,6 +206,10 @@ export class CommandeReceivedComponent implements OnInit {
   protected readonly scannerMode = this.scanOrchestrator.scannerMode;
   /** Bouton reconnexion CDC visible — délégué à l'orchestrateur. */
 
+  protected readonly viewModeOptions = [
+    { label: 'Séquentiel', value: 'sequential', icon: 'pi pi-list' },
+    { label: 'Grille', value: 'grid', icon: 'pi pi-table' },
+  ];
   constructor() {
     this.filtres.set([
       {label: "Prix d'achat differents", value: "NOT_EQUAL"},

@@ -25,7 +25,7 @@
               icon="pi pi-upload"
               label="Importer"
               [raised]="true"
-              severity="help"
+              severity="secondary"
               type="button"
             ></app-button>
             <app-button
@@ -33,7 +33,7 @@
               icon="pi pi-check"
               label="Nouveau"
               [raised]="true"
-              severity="success"
+              severity="primary"
               type="button"
             ></app-button>
           </div>
@@ -41,57 +41,59 @@
       </ng-container>
   </app-toolbar>
 
-  <div class="mt-2">
-    @if (entites() && entites()?.length > 0) {
-      <app-data-table [paginator]="true" [rows]="20" [value]="entites()" [size]="'small'">
-        <ng-template #header>
-          <tr class="pharma-table-head">
-            <th scope="col"><span>Libellé</span></th>
-            <th scope="col"><span>Ordre de tris</span></th>
-            <th scope="col"><span>Adresse</span></th>
-            <th scope="col"><span>Téléphone</span></th>
-            <th scope="col"><span>Téléphone fixe</span></th>
-            <th scope="col"></th>
-          </tr>
-        </ng-template>
-        <ng-template let-columns="columns" let-groupeTiersPayant #body>
-          <tr>
-            <td><span class="pharma-entity-name"></span>{{ groupeTiersPayant.name }}</td>
-            <td>{{ groupeTiersPayant.ordreTrisFacture }}</td>
-            <td>{{ groupeTiersPayant.adresse }}</td>
-            <td>{{ groupeTiersPayant.telephone }}</td>
-            <td>{{ groupeTiersPayant.telephoneFixe }}</td>
+  <app-card>
+    <div class="mt-2">
+      @if (entites() && entites()?.length > 0) {
+        <app-data-table [paginator]="true" [rows]="20" [value]="entites()" [size]="'small'">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th scope="col"><span>Libellé</span></th>
+              <th scope="col"><span>Ordre de tris</span></th>
+              <th scope="col"><span>Adresse</span></th>
+              <th scope="col"><span>Téléphone</span></th>
+              <th scope="col"><span>Téléphone fixe</span></th>
+              <th scope="col"></th>
+            </tr>
+          </ng-template>
+          <ng-template let-columns="columns" let-groupeTiersPayant #body>
+            <tr>
+              <td><span class="pharma-entity-name"></span>{{ groupeTiersPayant.name }}</td>
+              <td>{{ groupeTiersPayant.ordreTrisFacture }}</td>
+              <td>{{ groupeTiersPayant.adresse }}</td>
+              <td>{{ groupeTiersPayant.telephone }}</td>
+              <td>{{ groupeTiersPayant.telephoneFixe }}</td>
 
-            <td style="text-align: center">
-              <app-button
-                severity="success"
-                (clicked)="editGroupeTiersPayant(groupeTiersPayant)"
-                class="p-mr-2"
-                icon="pi pi-pencil"
-                [rounded]="true"
-                [text]="true"
-                ngbTooltip="Modifier"
-                type="button"
-              ></app-button>
-              <app-button
-                (clicked)="onConfirmDelete(groupeTiersPayant)"
-                severity="danger"
-                icon="pi pi-trash"
-                [text]="true"
-                [rounded]="true"
-                ngbTooltip="Supprimer"
-                type="button"
-              ></app-button>
-            </td>
-          </tr>
-        </ng-template>
-      </app-data-table>
-    } @else {
-      <div class="alert alert-warning mt-2" id="no-result">
-        <span>Aucune donnée trouvée</span>
-      </div>
-    }
-  </div>
+              <td style="text-align: center">
+                <app-button
+                  severity="success"
+                  (clicked)="editGroupeTiersPayant(groupeTiersPayant)"
+                  class="p-mr-2"
+                  icon="pi pi-pencil"
+                  [rounded]="true"
+                  [text]="true"
+                  ngbTooltip="Modifier"
+                  type="button"
+                ></app-button>
+                <app-button
+                  (clicked)="onConfirmDelete(groupeTiersPayant)"
+                  severity="danger"
+                  icon="pi pi-trash"
+                  [text]="true"
+                  [rounded]="true"
+                  ngbTooltip="Supprimer"
+                  type="button"
+                ></app-button>
+              </td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      } @else {
+        <div class="alert alert-warning mt-2" id="no-result">
+          <span>Aucune donnée trouvée</span>
+        </div>
+      }
+    </div>
+  </app-card>
 </div>
 
 <jhi-spinner #spinner></jhi-spinner>

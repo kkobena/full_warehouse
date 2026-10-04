@@ -50,7 +50,7 @@
           [raised]="true"
           icon="pi pi-upload"
           label="Importation"
-          severity="help"
+          severity="secondary"
         />
 
         <app-split-button
@@ -65,128 +65,130 @@
     </ng-container>
   </app-toolbar>
 
-  @if (tiersPayants() && tiersPayants().length > 0) {
-    <app-data-table
-      (onLazyLoad)="lazyLoading($event)"
-      [lazy]="true"
-      [loading]="loading()"
-      [paginator]="true"
-      [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-      [rows]="itemsPerPage"
-      [selectionMode]="'single'"
-      [showCurrentPageReport]="true"
-      [size]="'small'"
-      [totalRecords]="totalItems()"
-      [value]="tiersPayants()"
-      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords}"
-      dataKey="id"
-    >
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th scope="col" style="width: 8%">Type</th>
-          <th scope="col" style="width: 7%">Code</th>
-          <th scope="col" style="width: 15%">Nom abrégé</th>
-          <th scope="col" style="width: 16%">Nom longue</th>
-          <th scope="col" style="width: 9%">Téléphone</th>
-          <th scope="col" style="width: 8%">Plafond.Conso.Clients</th>
-          <th scope="col" style="width: 8%">Plafond.Journalier.Client</th>
-          <th scope="col" style="width: 7%">Encours</th>
-          <th scope="col" style="width: 7%">Nbre Clients</th>
-          <th scope="col" style="width: 12%"></th>
-        </tr>
-      </ng-template>
+  <app-card>
+    @if (tiersPayants() && tiersPayants().length > 0) {
+      <app-data-table
+        (onLazyLoad)="lazyLoading($event)"
+        [lazy]="true"
+        [loading]="loading()"
+        [paginator]="true"
+        [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+        [rows]="itemsPerPage"
+        [selectionMode]="'single'"
+        [showCurrentPageReport]="true"
+        [size]="'small'"
+        [totalRecords]="totalItems()"
+        [value]="tiersPayants()"
+        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords}"
+        dataKey="id"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th scope="col" style="width: 8%">Type</th>
+            <th scope="col" style="width: 7%">Code</th>
+            <th scope="col" style="width: 15%">Nom abrégé</th>
+            <th scope="col" style="width: 16%">Nom longue</th>
+            <th scope="col" style="width: 9%">Téléphone</th>
+            <th scope="col" style="width: 8%">Plafond.Conso.Clients</th>
+            <th scope="col" style="width: 8%">Plafond.Journalier.Client</th>
+            <th scope="col" style="width: 7%">Encours</th>
+            <th scope="col" style="width: 7%">Nbre Clients</th>
+            <th scope="col" style="width: 12%"></th>
+          </tr>
+        </ng-template>
 
-      <ng-template #body let-tiersPayant>
-        <tr>
-          <td>
-            <span class="pharma-badge pharma-badge-info">{{ tiersPayant.categorie }}</span>
-          </td>
-          <td>
-            <span class="pharma-code">{{ tiersPayant.codeOrganisme }}</span>
-          </td>
-          <td>{{ tiersPayant.name }}</td>
-          <td>
-            <div class="pharma-entity-name">{{ tiersPayant.fullName }}</div>
-          </td>
-          <td>{{ tiersPayant.telephone }}</td>
-          <td class="text-right">
-            <span class="pharma-total">{{ tiersPayant.plafondConsoClient | number }}</span>
-          </td>
-          <td class="text-right">
-            <span class="pharma-total">{{ tiersPayant.plafondJournalierClient | number }}</span>
-          </td>
-          <td class="text-right">
-            <span class="pharma-total">{{ tiersPayant.encours | number }}</span>
-          </td>
-          <td class="text-right">{{ tiersPayant.customers?.length | number }}</td>
+        <ng-template #body let-tiersPayant>
+          <tr>
+            <td>
+              <span class="pharma-badge pharma-badge-info">{{ tiersPayant.categorie }}</span>
+            </td>
+            <td>
+              <span class="pharma-code">{{ tiersPayant.codeOrganisme }}</span>
+            </td>
+            <td>{{ tiersPayant.name }}</td>
+            <td>
+              <div class="pharma-entity-name">{{ tiersPayant.fullName }}</div>
+            </td>
+            <td>{{ tiersPayant.telephone }}</td>
+            <td class="text-right">
+              <span class="pharma-total">{{ tiersPayant.plafondConsoClient | number }}</span>
+            </td>
+            <td class="text-right">
+              <span class="pharma-total">{{ tiersPayant.plafondJournalierClient | number }}</span>
+            </td>
+            <td class="text-right">
+              <span class="pharma-total">{{ tiersPayant.encours | number }}</span>
+            </td>
+            <td class="text-right">{{ tiersPayant.customers?.length | number }}</td>
 
-          <td class="text-right">
-            <div class="btn-group" role="group">
-              <app-button
-                [hidden]="true"
-                [rounded]="true"
-                [routerLink]="['/tiers-payant', tiersPayant.id, 'view']"
-                [text]="true"
-                ariaLabel="Voir détails"
-                icon="pi pi-eye"
-                ngbTooltip="Voir détails"
-                severity="info"
-                size="small"
-              />
+            <td class="text-right">
+              <div class="btn-group" role="group">
+                <app-button
+                  [hidden]="true"
+                  [rounded]="true"
+                  [routerLink]="['/tiers-payant', tiersPayant.id, 'view']"
+                  [text]="true"
+                  ariaLabel="Voir détails"
+                  icon="pi pi-eye"
+                  ngbTooltip="Voir détails"
+                  severity="info"
+                  size="small"
+                />
 
-              <app-button
-                (clicked)="voirTarifsProduits(tiersPayant)"
-                [rounded]="true"
-                [text]="true"
-                ariaLabel="Tarifs produits"
-                icon="pi pi-euro"
-                ngbTooltip="Tarifs produits négociés"
-                severity="secondary"
-                size="small"
-              />
+                <app-button
+                  (clicked)="voirTarifsProduits(tiersPayant)"
+                  [rounded]="true"
+                  [text]="true"
+                  ariaLabel="Tarifs produits"
+                  icon="pi pi-euro"
+                  ngbTooltip="Tarifs produits négociés"
+                  severity="secondary"
+                  size="small"
+                />
 
-              <app-button
-                (clicked)="editTiersPayant(tiersPayant)"
-                [rounded]="true"
-                [text]="true"
-                ariaLabel="Editer"
-                icon="pi pi-pencil"
-                ngbTooltip="Editer"
-                severity="success"
-                size="small"
-              />
+                <app-button
+                  (clicked)="editTiersPayant(tiersPayant)"
+                  [rounded]="true"
+                  [text]="true"
+                  ariaLabel="Editer"
+                  icon="pi pi-pencil"
+                  ngbTooltip="Editer"
+                  severity="success"
+                  size="small"
+                />
 
-              <app-button
-                (clicked)="confirmDesactivation(tiersPayant)"
-                [rounded]="true"
-                [text]="true"
-                ariaLabel="Désactiver"
-                icon="pi pi-lock"
-                ngbTooltip="Désactiver"
-                severity="warn"
-                size="small"
-              />
+                <app-button
+                  (clicked)="confirmDesactivation(tiersPayant)"
+                  [rounded]="true"
+                  [text]="true"
+                  ariaLabel="Désactiver"
+                  icon="pi pi-lock"
+                  ngbTooltip="Désactiver"
+                  severity="warn"
+                  size="small"
+                />
 
-              <app-button
-                (clicked)="confirmRemove(tiersPayant)"
-                [rounded]="true"
-                [text]="true"
-                ariaLabel="Supprimer"
-                icon="pi pi-trash"
-                ngbTooltip="Supprimer"
-                severity="danger"
-                size="small"
-              />
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </app-data-table>
-  } @else {
-    <div class="alert alert-warning mt-2">
-      <span>Aucune donnée trouvée</span>
-    </div>
-  }
+                <app-button
+                  (clicked)="confirmRemove(tiersPayant)"
+                  [rounded]="true"
+                  [text]="true"
+                  ariaLabel="Supprimer"
+                  icon="pi pi-trash"
+                  ngbTooltip="Supprimer"
+                  severity="danger"
+                  size="small"
+                />
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    } @else {
+      <div class="alert alert-warning mt-2">
+        <span>Aucune donnée trouvée</span>
+      </div>
+    }
+  </app-card>
 </div>
 
 <jhi-spinner #spinner></jhi-spinner>

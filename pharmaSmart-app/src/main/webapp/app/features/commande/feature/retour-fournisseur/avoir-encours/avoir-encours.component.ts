@@ -2,7 +2,14 @@ import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonComponent, DataTableComponent, KpiItemComponent, KpiStripComponent, SelectComponent } from 'app/shared/ui';
+import {
+  ButtonComponent,
+  CardComponent,
+  DataTableComponent,
+  KpiItemComponent,
+  KpiStripComponent,
+  SelectComponent
+} from "app/shared/ui";
 import { AvoirFournisseurService } from 'app/entities/commande/retour_fournisseur/avoir-fournisseur.service';
 import { AvoirFournisseurStatut, IAvoirEncoursFournisseur, IAvoirFournisseur } from 'app/shared/model/avoir-fournisseur.model';
 import { NotificationService } from 'app/shared/services/notification.service';
@@ -18,7 +25,8 @@ import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ng
     DataTableComponent,
     KpiItemComponent,
     KpiStripComponent,
-    SelectComponent
+    SelectComponent,
+    CardComponent
   ],
   templateUrl: './avoir-encours.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

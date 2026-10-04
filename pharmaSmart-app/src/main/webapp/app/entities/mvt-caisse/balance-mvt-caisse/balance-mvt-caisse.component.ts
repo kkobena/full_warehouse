@@ -20,18 +20,20 @@ import {TauriPrinterService} from '../../../shared/services/tauri-printer.servic
 import {handleBlobForTauri} from '../../../shared/util/tauri-util';
 import {CommonModule} from "@angular/common";
 import {NgbDateStruct, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {ButtonComponent, ToolbarComponent} from '../../../shared/ui';
+import {ButtonComponent, DataTableComponent, ToolbarComponent} from '../../../shared/ui';
 import {PharmaDatePickerComponent} from '../../../shared/date-picker/pharma-date-picker.component';
 
 import {ModeCa, ModeCaService} from '../mode-ca';
 
 import { DeviseDirective } from 'app/shared/utils/devise';
+import { CardComponent } from 'app/shared/ui';
 @Component({
   selector: 'app-balance-mvt-caisse',
-  imports: [DeviseDirective, 
+  imports: [CardComponent, DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,
+    DataTableComponent,
     ToolbarComponent,
     PharmaDatePickerComponent,
     NgbTooltip,

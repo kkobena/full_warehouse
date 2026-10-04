@@ -18,6 +18,7 @@ import { libelleNatureVente } from "app/shared/constants/type-vente.constants";
 import { Chart, ChartConfiguration, ChartData, registerables } from "chart.js";
 import { BlobDownloadService } from "../../../shared/services/blob-download.service";
 import { DeviseDirective } from 'app/shared/utils/devise';
+import { PillSelectorComponent } from 'app/shared/ui/pill-selector/pill-selector.component';
 import {
   ButtonComponent,
   KpiItemComponent,
@@ -59,7 +60,7 @@ function etiquetteMontantHorizontal(contexte: { dataset: { label?: string }; par
   templateUrl: "./comparative-analysis.component.html",
   styleUrl: "./comparative-analysis.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DeviseDirective, 
+  imports: [PillSelectorComponent, DeviseDirective, 
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -94,6 +95,11 @@ export default class ComparativeAnalysisComponent implements OnInit {
   protected isFournisseurLoading = signal<boolean>(false);
 
   // View
+  protected readonly viewOptions = [
+    { label: "Globale", value: "global", icon: "pi pi-chart-bar" },
+    { label: "Par famille", value: "famille", icon: "pi pi-sitemap" },
+    { label: "Par fournisseur", value: "fournisseur", icon: "pi pi-truck" },
+  ];
   protected activeView = signal<ActiveView>("global");
 
   // Family sort

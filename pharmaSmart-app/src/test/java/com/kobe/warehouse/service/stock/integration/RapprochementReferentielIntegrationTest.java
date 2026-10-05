@@ -198,6 +198,8 @@ class RapprochementReferentielIntegrationTest extends AbstractStockIntegrationTe
     @Test
     @DisplayName("Tant que le référentiel est vide, rien n'est écrit : les produits ne sont pas figés en NON_TROUVE")
     void referentielVide() {
+        // Flyway charge la BDPM (V2.1.28 à V2.1.31) : on la retire, dans la transaction du test.
+        em.createNativeQuery("DELETE FROM ref_specialite").executeUpdate();
         Produit produit = produit("TESTBRAND 500MG CPR B/240");
 
         assertEquals(0, service.rapprocherNouveauxProduits());

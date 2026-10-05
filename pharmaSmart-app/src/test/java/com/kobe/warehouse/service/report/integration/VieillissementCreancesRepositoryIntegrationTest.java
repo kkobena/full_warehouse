@@ -330,8 +330,7 @@ class VieillissementCreancesRepositoryIntegrationTest extends AbstractReportInte
         @DisplayName("chaque mois porte son facturé et ce qui reste dû")
         void contenuDuMois() {
             TiersPayant payeur = payeur("CNAM", 30);
-            LocalDate mois = LocalDate.now().withDayOfMonth(1).plusDays(5);
-            facture(payeur, mois, 5_000_000, 2_000_000, InvoiceStatut.PARTIALLY_PAID);
+            facture(payeur, premierDuMois(), 5_000_000, 2_000_000, InvoiceStatut.PARTIALLY_PAID);
             em.flush();
 
             Object[] ligne = moisDe(LocalDate.now().getYear(), LocalDate.now().getMonthValue());
@@ -360,12 +359,11 @@ class VieillissementCreancesRepositoryIntegrationTest extends AbstractReportInte
         @DisplayName("une facture soldée compte au facturé mais plus à l'encours")
         void factureSoldee() {
             TiersPayant payeur = payeur("CNAM", 30);
-            LocalDate mois = LocalDate.now().withDayOfMonth(1).plusDays(3);
             Object[] avant = moisDe(LocalDate.now().getYear(), LocalDate.now().getMonthValue());
             long factureAvant = avant != null ? toLong(avant[2]) : 0L;
             long encoursAvant = avant != null ? toLong(avant[3]) : 0L;
 
-            facture(payeur, mois, 4_000_000, 4_000_000, InvoiceStatut.PAID);
+            facture(payeur, premierDuMois(), 4_000_000, 4_000_000, InvoiceStatut.PAID);
             em.flush();
 
             Object[] apres = moisDe(LocalDate.now().getYear(), LocalDate.now().getMonthValue());
@@ -398,6 +396,11 @@ class VieillissementCreancesRepositoryIntegrationTest extends AbstractReportInte
         LocalDate jour = LocalDate.now().minusDays(anciennete);
         LocalDate premierJanvier = LocalDate.now().withDayOfYear(1);
         return jour.isBefore(premierJanvier) ? premierJanvier : jour;
+    }
+
+    /** La requête mensuelle ignore les factures futures : le 1er du mois est toujours admis. */
+    private static LocalDate premierDuMois() {
+        return LocalDate.now().withDayOfMonth(1);
     }
 
     private static long ecart(Object[] avant, Object[] apres, int colonne) {

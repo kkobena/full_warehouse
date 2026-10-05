@@ -109,7 +109,7 @@ JOIN storage s ON s.id = lsl.storage_id AND s.storage_type = 'PRINCIPAL' AND s.m
 WHERE l.statut = 'AVAILABLE'
   AND l.expiry_date > CURRENT_DATE + 90
 GROUP BY l.produit_id
-HAVING sum(lsl.qty) >= 20;
+HAVING sum(lsl.qty) >= 12;
 
 CREATE TEMP TABLE tmp_vd_ligne AS
 SELECT DISTINCT ON (v.id, e.produit_id)
@@ -125,14 +125,17 @@ CROSS JOIN LATERAL generate_series(1, 3 + (v.rang % 4)) AS n
 JOIN tmp_vd_dispo e ON e.rang = 1 + ((v.rang * 11 + n * 173) % e.total)
 ORDER BY v.id, e.produit_id;
 
--- Écrêtage : un produit ne peut pas être transféré au-delà de ce qui reste.
+-- Écrêtage : un produit ne peut pas être transféré au-delà de ce qui reste. Le transfert
+-- du jour passe en premier, comme les ventes du jour dans 09_ventes.sql : c'est celui que
+-- les écrans courants et les contrôles réclament.
 DELETE FROM tmp_vd_ligne t
 USING (
     SELECT c.sales_id, c.produit_id
       FROM (
           SELECT sales_id, produit_id,
                  sum(quantity) OVER (PARTITION BY produit_id
-                                     ORDER BY sale_date, sales_id
+                                     ORDER BY CASE WHEN sale_date = CURRENT_DATE THEN 0 ELSE 1 END,
+                                              sale_date, sales_id
                                      ROWS UNBOUNDED PRECEDING) AS cumul
             FROM tmp_vd_ligne
       ) c
@@ -305,7 +308,7 @@ INSERT INTO stock_produit (
 SELECT
     v.produit_id, d.storage_id, v.qte, v.qte, 0,
     GREATEST(2, v.qte / 6), GREATEST(10, v.qte * 2), 0,
-    0, 'system', NOW() - INTERVAL '180 days', NOW()
+    0, 'system', NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 40)), NOW()
 FROM (SELECT produit_id, sum(quantity)::int AS qte FROM tmp_vd_calc GROUP BY produit_id) v
 CROSS JOIN LATERAL (
     SELECT s.id AS storage_id FROM storage s

@@ -23,48 +23,32 @@
 
 \echo '>> 03b_substituts : catalogue de substitution'
 
--- ---------------------------------------------------------------------------
--- Décomposition du libellé
---
--- Les libellés sont construits « BASE DOSAGE CONDITIONNEMENT ». La base peut
--- contenir des espaces (ACIDE FOLIQUE, PARACETAMOL GE) : on ne peut donc pas
--- découper au premier espace. On s'appuie sur le dosage, seul jeton de forme
--- reconnaissable — un nombre suivi de MG, G, CH ou ML.
--- ---------------------------------------------------------------------------
 CREATE TEMP TABLE tmp_sub_prod AS
-SELECT
-    p.id,
-    p.dci_id,
-    substring(p.libelle from '\m[0-9]+(?:MG|G|CH|ML)\M')                  AS dosage,
-    regexp_replace(p.libelle, '\s+\m[0-9]+(?:MG|G|CH|ML)\M.*$', '')       AS base
+SELECT p.id, p.dci_id
 FROM produit p
-WHERE p.status = 'ENABLE';
+WHERE p.status = 'ENABLE' AND p.type_produit = 'PACKAGE';
 
-CREATE INDEX ON tmp_sub_prod (dci_id, dosage);
+CREATE INDEX ON tmp_sub_prod (dci_id);
 
 -- ---------------------------------------------------------------------------
 -- 1. Substitutions GÉNÉRIQUES
 --
--- Même molécule ET même dosage, sous une marque différente. Les trois
--- conditions comptent :
---   * même DCI seule ne suffit pas — PARACETAMOL 100MG ne remplace pas
---     PARACETAMOL 1G ;
---   * base différente évite d'apparier deux conditionnements du même produit
---     (B/10 et B/20), qui ne sont pas une substitution mais un choix de boîte.
---
--- Résultat attendu : PARACETAMOL, DOLIPRANE, EFFERALGAN et PARACETAMOL GE en
--- 500 MG forment un groupe substituable.
+-- Elles viennent des groupes génériques du référentiel (ref_specialite.groupe_generique_id) :
+-- un princeps et ses génériques ont même molécule et même dosage, par définition du groupe.
+-- On n'apparie que le princeps avec chacun de ses génériques — jamais deux génériques entre
+-- eux : le catalogue reste creux, comme en production, où il ne s'alimente que des
+-- substitutions réellement acceptées.
 -- ---------------------------------------------------------------------------
 INSERT INTO substitut (produit_id, substitut_id, type_substitut)
-SELECT a.id, b.id, 'GENERIQUE'
-FROM tmp_sub_prod a
-JOIN tmp_sub_prod b
-  ON b.dci_id = a.dci_id
- AND b.dosage = a.dosage
- AND b.base  <> a.base
- AND b.id     > a.id          -- sens canonique : une seule ligne par paire
-WHERE a.dci_id IS NOT NULL
-  AND a.dosage IS NOT NULL
+SELECT DISTINCT least(a.id, b.id), greatest(a.id, b.id), 'GENERIQUE'
+FROM produit a
+JOIN ref_specialite sa ON sa.libelle = a.libelle AND sa.groupe_generique_id IS NOT NULL
+JOIN ref_specialite sb ON sb.groupe_generique_id = sa.groupe_generique_id
+                      AND sb.type_generique = 'GENERIQUE'
+JOIN produit b ON b.libelle = sb.libelle AND b.id <> a.id
+WHERE sa.type_generique = 'PRINCEPS'
+  AND a.type_produit = 'PACKAGE' AND b.type_produit = 'PACKAGE'
+  AND a.dci_id = b.dci_id
 ON CONFLICT (produit_id, substitut_id) DO NOTHING;
 
 -- ---------------------------------------------------------------------------

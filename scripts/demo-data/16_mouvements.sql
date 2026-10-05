@@ -209,6 +209,32 @@ CROSS JOIN LATERAL (
 ) s;
 
 -- ---------------------------------------------------------------------------
+-- 4bis. Stock avant / après porté par les lignes de l'HISTORIQUE
+--
+-- 09b_histo_achats.sql n'a pas pu les poser : seul le grand livre ci-dessus
+-- connaît le stock d'ouverture qui rend l'ensemble cohérent avec le stock
+-- courant. Les lignes de la fenêtre récente gardent les valeurs de 05 et 09.
+-- ---------------------------------------------------------------------------
+UPDATE sales_line sl
+   SET init_stock  = (m.stock_depart + m.cumul_avant)::int,
+       after_stock = (m.stock_depart + m.cumul_apres)::int
+  FROM tmp_mvt_pos m
+ WHERE m.mouvement_type = 'SALE'
+   AND m.entity_id = sl.id
+   AND m.mvt_date = sl.sale_date
+   AND sl.sale_date < CURRENT_DATE - pg_temp.jours_recents();
+
+UPDATE order_line ol
+   SET init_stock  = (m.stock_depart + m.cumul_avant)::int,
+       final_stock = (m.stock_depart + m.cumul_apres)::int
+  FROM tmp_mvt_pos m, commande c
+ WHERE m.mouvement_type = 'ENTREE_STOCK'
+   AND m.entity_id = ol.id
+   AND c.id = ol.commande_id AND c.order_date = ol.commande_order_date
+   AND c.receipt_date = m.mvt_date
+   AND ol.order_date < CURRENT_DATE - pg_temp.jours_recents();
+
+-- ---------------------------------------------------------------------------
 -- 5. Ajustement d'inventaire de clôture
 --
 -- Pour les produits dont l'historique ne retombe pas sur le stock compté, une

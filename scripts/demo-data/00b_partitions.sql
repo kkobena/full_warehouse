@@ -15,10 +15,10 @@ DECLARE
         'inventory_transaction'
     ];
 
-    -- Deux ans en arrière : le jeu couvre environ dix-huit mois, et les
-    -- périmés détruits remontent plus loin que les ventes. Une année de marge
+    -- Autant d'années que l'historique en couvre (3 ans), plus une marge : les achats du
+    -- premier mois précèdent les premières ventes. Une année de marge
     -- coûte une table vide, un trou coûte un chargement interrompu.
-    v_debut CONSTANT int := EXTRACT(YEAR FROM CURRENT_DATE)::int - 2;
+    v_debut CONSTANT int := EXTRACT(YEAR FROM CURRENT_DATE - (pg_temp.horizon() + 90))::int;
     v_fin   CONSTANT int := EXTRACT(YEAR FROM CURRENT_DATE)::int + 1;
 
     v_table text;
@@ -88,7 +88,7 @@ BEGIN
       FROM pg_class t
       JOIN pg_namespace n ON n.oid = t.relnamespace
      CROSS JOIN generate_series(
-         EXTRACT(YEAR FROM CURRENT_DATE)::int - 2,
+         EXTRACT(YEAR FROM CURRENT_DATE - (pg_temp.horizon() + 90))::int,
          EXTRACT(YEAR FROM CURRENT_DATE)::int + 1
      ) AS a(annee)
      WHERE n.nspname = current_schema()

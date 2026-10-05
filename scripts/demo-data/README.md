@@ -122,6 +122,45 @@ est nécessaire si l'instance tourne déjà.
 
 ---
 
+## Trois ans d'historique
+
+Tout est daté **à rebours du jour d'exécution**, sur `horizon` jours (1095 par défaut, soit trois
+ans ; `-v horizon=730` pour deux ans). Deux zones, deux modèles de stock :
+
+- les **180 derniers jours** portent le stock *vivant* (lots en rayon, périmés, en alerte,
+  consommés en FEFO) — c'est le modèle historique, dont dépendent les parcours e2e ;
+- **au-delà**, `09b_histo_achats.sql` *déduit* les achats des ventes : chaque mois d'achat couvre
+  exactement la demande du mois suivant. Le stock ne passe jamais sous zéro, achats et ventes se
+  recoupent produit par produit, et chaque ligne vendue pointe son lot (reçu avant la vente).
+  `16_mouvements.sql` en tire le stock avant / après des lignes anciennes.
+
+Le stock d'ouverture de la fenêtre récente (lots `LOUV…`, posés par `06`) est rattaché par `09b`
+aux achats du dernier mois de l'historique : pas de creux d'achats à la jointure.
+
+Volume : ~21 000 ventes, ~62 000 lignes, ~640 commandes anciennes + 120 récentes, ~440 factures
+tiers payant, 940 caisses. Légère croissance (80 % → 100 % sur trois ans) et saisonnalité
+(pic de saison des pluies). `99_verification.sql` contrôle l'absence de décrochage du chiffre
+d'affaires et du panier moyen d'un mois à l'autre.
+
+Les écrans de réassort, les favoris, les retours et avoirs clients, le dossier de santé, la
+caisse (sorties, règlements fournisseurs, billetage) et le référentiel médicament sont couverts
+par les scripts `03c`, `14d`, `17c`, `20` à `23`.
+
+### Référentiel médicament (BDPM) et DCI
+
+Les tables `ref_*` sont chargées par **Flyway** (`V2.1.19`, `V2.1.28` à `V2.1.31`) ;
+`00_reset.sql` les préserve. `03c` constitue les 1 000 médicaments du catalogue à partir de **vraies spécialités**
+(avec leurs vrais CIP et EAN13), avec leur DCI ; `20` joue le rapprochement
+produit/spécialité et pose des décisions (validées, rejetées, en attente). Les fichiers de
+`scripts/sql/` ne servent plus qu'à recharger ce référentiel hors Flyway.
+
+Limites assumées : les retours clients sont tous *non restockables* (quarantaine), car
+`validerRetour` crédite le stock sans toucher aux lots, ce qui briserait l'invariant ; les
+suggestions de réassort et les inventaires anciens restent récents ; la dépôt-vente ne couvre que
+la fenêtre récente.
+
+---
+
 ## Scripts
 
 | Fichier | Rôle |
@@ -132,8 +171,9 @@ est nécessaire si l'instance tourne déjà.
 | `01_config.sql` | Active la gestion de lot. |
 | `02_fournisseurs.sql` | 5 grossistes principaux + 12 agences. |
 | `02b_dci.sql` | 59 substances actives (DCI), référentiel du catalogue. |
-| `03_produits.sql` | 600 produits, codes fournisseurs, rayons, substances actives. |
-| `03b_substituts.sql` | Catalogue de substitution générique et thérapeutique. |
+| `03_parapharmacie.sql` | Rayons et ~100 produits de parapharmacie fictifs (EAN13 internes valides). |
+| `03c_produits_bdpm.sql` | 1 000 médicaments réels (CIP7 / EAN13 BDPM), DCI, déconditionnables. |
+| `03b_substituts.sql` | Catalogue de substitution, tiré des groupes génériques du référentiel. |
 | `04_clients.sql` | 320 clients, 12 organismes tiers-payants, 170 contrats. |
 | `05_commandes.sql` | 120 commandes fournisseurs, ~2 000 lignes. |
 | `06_lots.sql` | Lots, cohortes de péremption, sérials FMD. |
@@ -204,61 +244,40 @@ du parent, et il doit être représenté.
 
 ### Produits
 
-600 produits, montants **entiers en FCFA**.
+~1 100 produits, montants **entiers en FCFA**, deux sources :
 
-| Famille | Nombre | TVA | Statut légal |
+**Médicaments — `03c_produits_bdpm.sql` : 1 000 vrais produits** de la BDPM, avec leur vrai nom,
+leur **CIP7 et leur EAN13 réels** (`03c_data_cip_bdpm.sql`, extrait de `CIS_CIP_bdpm.txt`) et leur
+molécule.
+
+| Famille | Nombre | TVA | Contenu |
 |---|---|---|---|
-| Médicaments France (1050) | 250 | 0 % | Liste I |
-| Spécialités publiques (1000) | 80 | 0 % | Liste I |
-| Génériques (1030) | 60 | 0 % | Liste II |
-| Homéopathie (1040) | 50 | 18 % | Sans liste |
-| Diététique infantile (5000) | 40 | 18 % | Sans liste |
-| Diététique adulte (6000) | 20 | 18 % | Sans liste |
-| Parfumerie (3000) | 20 | 18 % | Sans liste |
-| Accessoires (8000) | 30 | 18 % | Sans liste |
-| Déconditionnables | 25 `PACKAGE` + 25 `DETAIL` | 0 % | Liste II |
+| Génériques (1030) | ~670 | 0 % | génériques de groupes génériques complets |
+| Médicaments France (1050) | ~210 | 0 % | princeps de ces groupes, produits de tête |
+| Spécialités publiques (1000) | ~90 | 0 % | spécialités sans groupe générique |
+| Homéopathie (1040) | 60 | 18 % | dont un ARNICA |
+| Déconditionnables | 25 `PACKAGE` + 25 `DETAIL` | 0 % | boîtes de comprimés ou gélules |
 
-Les libellés sont construits par combinaison (base, dosage, conditionnement). L'index est
-décomposé en base numérique variable, ce qui **garantit l'unicité** exigée par la contrainte
-`(libelle, type_produit)` — sans recourir au hasard, donc reproductible à l'identique.
+Une soixantaine d'associations à deux molécules, des stupéfiants (TRAMADOL) et psychotropes
+(DIAZEPAM, BROMAZEPAM) pour le refus de retour. Seuls les prix sont fictifs.
 
-Les prix suivent la même logique : étalement déterministe dans une fourchette par famille,
-arrondi à 5 F.
+**Parapharmacie — `03_parapharmacie.sql` : ~100 produits fictifs**, noms réalistes sans marque
+réelle (savons, pommades, préservatifs, laits infantiles, compléments, pansements, petit
+matériel). EAN13 **valides** dans la plage interne `299…` ; le « CIP » (7 chiffres au plus pour
+l'application) est un code interne en `9…`. La parfumerie (3000) et les accessoires (8000) sont
+hors gestion de lot : le chemin mixte est exercé, et ces produits se vendent comme les autres.
 
-**Chaque médicament porte sa substance active** (`dci_id`), et plusieurs produits partagent
-la même : `DOLIPRANE`, `EFFERALGAN`, `PARACETAMOL`, `PARACETAMOL GE` et `PARACETAMOL SIROP`
-pointent tous la molécule *PARACETAMOL*. C'est ce qui rend la **substitution générique**
-démontrable — sans cela, l'écran de substitution ne propose jamais rien.
+Chaque médicament porte sa substance active (`dci_id`, `produit_dci` avec dosage). Les DCI du
+référentiel absentes du catalogue sont créées (`BDPM…`) comme le fait l'application.
 
-La résolution suit deux cas : le libellé de base *est* déjà la molécule (médicaments France,
-génériques, souches homéopathiques), ou c'est un **nom de marque** qu'une correspondance
-explicite ramène à sa molécule (spécialités publiques). Les suffixes `GE` et `SIROP` sont
-retirés avant recherche : ce sont des présentations, pas des substances différentes.
-
-Parapharmacie, diététique et accessoires n'ont **pas** de DCI — la colonne reste nulle.
-
-Le **catalogue de substitution** (`substitut`) en découle. Deux types, contraints par un CHECK :
-
-- `GENERIQUE` — même molécule **et même dosage**, sous une marque différente. Les deux
-  conditions comptent : `PARACETAMOL 100MG` ne remplace pas `PARACETAMOL 1G`, et deux
-  conditionnements du même produit (`B/10`, `B/20`) ne sont pas une substitution mais un choix
-  de boîte.
-- `THERAPEUTIQUE` — molécules différentes d'une même classe, le rayon commercial tenant lieu
-  de classe thérapeutique.
-
-La table est écrite dans un sens mais **lue dans les deux** (`findAllByProduitId` et
-`findAllBySubstitutId`) : on ne pose donc qu'**une ligne par paire**, dans un sens canonique.
-En poser deux ferait apparaître chaque partenaire en double à l'écran.
-
-Le catalogue est volontairement **creux**. En production il s'alimente au fil de l'eau, quand
-une substitution proposée par un grossiste est acceptée (`PharmaMlHttpClientService`) : un
-catalogue exhaustif de toutes les équivalences théoriques ne ressemblerait pas à une base réelle.
+Le **catalogue de substitution** (`substitut`) vient des groupes génériques du référentiel :
+`GENERIQUE` apparie un princeps à chacun de ses génériques (même molécule et dosage), jamais deux
+génériques entre eux ; `THERAPEUTIQUE` apparie des molécules différentes d'un même rayon. Un seul
+sens par paire, la table étant lue dans les deux.
 
 Points de modèle exercés volontairement :
 
 - **le CIP vit sur `fournisseur_produit`**, pas sur `produit` ;
-- accessoires et parfumerie sont **hors gestion de lot** (`gestion_lot = false`), le chemin
-  mixte étant un cas réel en officine ;
 - les couples `PACKAGE` / `DETAIL` portent le **déconditionnement** : c'est la boîte qui est
   `deconditionnable`, et l'unité qui porte `parent_id`.
 

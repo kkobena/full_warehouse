@@ -83,7 +83,7 @@ UPDATE produit p
 -- de zero, ce qui ne demontre rien.
 UPDATE produit
    SET code_remise = 'CODE_2'   -- grille CODE_14 : 15 % en vente comptant
- WHERE libelle LIKE 'ATORVASTATINE 100MG%';
+ WHERE libelle LIKE 'ATORVASTATINE%';
 
 -- ---------------------------------------------------------------------------
 -- 2. Tarifs négociés (prix de référence assurance)

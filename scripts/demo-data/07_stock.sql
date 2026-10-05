@@ -93,7 +93,7 @@ WHERE l.statut = 'AVAILABLE'
   -- Le produit nommé ne doit PAS être un de ceux que les parcours de vente mettent en
   -- rupture : une réserve change ce que l'écran propose alors — un transfert plutôt qu'un
   -- forçage de stock (VTE-41).
-  AND (p.id % 5 = 0 OR p.libelle LIKE 'ARNICA MONTANA 9CH%');
+  AND (p.id % 5 = 0 OR p.libelle LIKE 'ARNICA%');
 
 -- Crédit de la réserve
 INSERT INTO lot_stock_location (lot_id, storage_id, qty, updated_at)
@@ -155,7 +155,7 @@ SELECT
     GREATEST(5, (sum(lsl.qty) / 6)::int),
     GREATEST(20, (sum(lsl.qty) * 2)::int),
     0,
-    0, 'system', NOW() - INTERVAL '180 days', NOW()
+    0, 'system', NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 40)), NOW()
 FROM lot_stock_location lsl
 JOIN lot l ON l.id = lsl.lot_id
 GROUP BY l.produit_id, lsl.storage_id
@@ -172,7 +172,7 @@ SELECT
     GREATEST(5, (sum(ol.quantity_received) / 6)::int),
     GREATEST(20, (sum(ol.quantity_received) * 2)::int),
     0,
-    0, 'system', NOW() - INTERVAL '180 days', NOW()
+    0, 'system', NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 40)), NOW()
 FROM order_line ol
 JOIN commande c ON c.id = ol.commande_id AND c.order_date = ol.commande_order_date
 JOIN fournisseur_produit fp ON fp.id = ol.fournisseur_produit_id
@@ -202,7 +202,7 @@ INSERT INTO stock_produit (
     version, last_modified_by, created_at, updated_at
 )
 SELECT p.id, s.id, 0, 0, 0, 5, 20, 0, 0, 'system',
-       NOW() - INTERVAL '180 days', NOW()
+       NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 40)), NOW()
 FROM produit p
 CROSS JOIN LATERAL (
     SELECT st.id FROM storage st
@@ -328,7 +328,7 @@ INSERT INTO stock_produit (
     version, last_modified_by, created_at, updated_at
 )
 SELECT DISTINCT fp.produit_id, s.id, 0, 0, 0, 0, 0, 0,
-       0, 'system', NOW() - INTERVAL '180 days', NOW()
+       0, 'system', NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 40)), NOW()
   FROM order_line ol
   JOIN commande c ON c.id = ol.commande_id AND c.order_date = ol.commande_order_date
   JOIN fournisseur_produit fp ON fp.id = ol.fournisseur_produit_id
@@ -407,6 +407,13 @@ END $$;
 -- rejouee plusieurs fois, sans jamais rendre le chiffre invraisemblable pour
 -- une officine.
 -- ---------------------------------------------------------------------------
+-- Les vedettes : trois spécialités DOLIPRANE ou EFFERALGAN du catalogue réel (les parcours
+-- passent par elles), quel que soit leur identifiant.
+CREATE TEMP TABLE tmp_vedette AS
+SELECT id AS produit_id FROM produit
+ WHERE libelle ~ '^(DOLIPRANE|EFFERALGAN) ' AND type_produit = 'PACKAGE' AND gestion_lot
+ ORDER BY id LIMIT 3;
+
 -- Le complement se pose SUR UN LOT, et non sur le seul compteur de stock : la
 -- quantite d'un produit suivi par lot doit toujours egaler la somme de ses
 -- emplacements (controle « Stock = tous les emplacements du meme stockage »).
@@ -427,8 +434,7 @@ SELECT 'LVEDETTE' || lpad(p.id::text, 4, '0'),
        CURRENT_DATE - INTERVAL '6 months',
        'AVAILABLE', now(), now()
   FROM produit p
- WHERE p.libelle LIKE ANY (ARRAY['DOLIPRANE 500MG%', 'DOLIPRANE 1G%',
-                                 'DOLIPRANE 250MG%', 'PARACETAMOL 1G%'])
+ WHERE p.id IN (SELECT produit_id FROM tmp_vedette)
    AND NOT EXISTS (
        SELECT 1 FROM lot l
          JOIN lot_stock_location lsl ON lsl.lot_id = l.id
@@ -460,8 +466,7 @@ SELECT p.id, st.id, 0, 0, 0, 0, now()
       SELECT s.id FROM storage s
        WHERE s.storage_type = 'PRINCIPAL' AND s.magasin_id = 1 LIMIT 1
   ) st
- WHERE p.libelle LIKE ANY (ARRAY['DOLIPRANE 500MG%', 'DOLIPRANE 1G%',
-                                 'DOLIPRANE 250MG%', 'PARACETAMOL 1G%'])
+ WHERE p.id IN (SELECT produit_id FROM tmp_vedette)
    AND NOT EXISTS (
        SELECT 1 FROM stock_produit sp
         WHERE sp.produit_id = p.id AND sp.storage_id = st.id
@@ -474,8 +479,7 @@ WITH vedettes AS (
       FROM stock_produit sp
       JOIN produit p ON p.id = sp.produit_id
       JOIN storage st ON st.id = sp.storage_id AND st.storage_type = 'PRINCIPAL'
-     WHERE p.libelle LIKE ANY (ARRAY['DOLIPRANE 500MG%', 'DOLIPRANE 1G%',
-                                     'DOLIPRANE 250MG%', 'PARACETAMOL 1G%'])
+     WHERE p.id IN (SELECT produit_id FROM tmp_vedette)
 ),
 lot_cible AS (
     -- Le lot le plus lointain a peremption : on gonfle celui qui a le moins de
@@ -489,6 +493,7 @@ lot_cible AS (
            v.produit_id, v.storage_id, v.complement, lsl.lot_id
       FROM vedettes v
       JOIN lot l ON l.produit_id = v.produit_id AND l.serial_number IS NULL
+                AND l.num_lot NOT LIKE 'LOUV%'
       JOIN lot_stock_location lsl ON lsl.lot_id = l.id AND lsl.storage_id = v.storage_id
      WHERE v.complement > 0
      ORDER BY v.produit_id, v.storage_id, l.expiry_date DESC NULLS LAST
@@ -521,14 +526,13 @@ DO $$
 DECLARE
     v_manquants text;
 BEGIN
-    SELECT string_agg(v.motif, ', ') INTO v_manquants
-      FROM (VALUES ('DOLIPRANE 500MG%'), ('DOLIPRANE 1G%'), ('PARACETAMOL 1G%')) AS v(motif)
+    SELECT string_agg(v.produit_id::text, ', ') INTO v_manquants
+      FROM tmp_vedette v
      WHERE NOT EXISTS (
          SELECT 1
            FROM stock_produit sp
-           JOIN produit p ON p.id = sp.produit_id
            JOIN storage st ON st.id = sp.storage_id AND st.storage_type = 'PRINCIPAL'
-          WHERE p.libelle LIKE v.motif AND sp.qty_stock >= 100
+          WHERE sp.produit_id = v.produit_id AND sp.qty_stock >= 100
      );
     IF v_manquants IS NOT NULL THEN
         RAISE EXCEPTION 'Produit(s) vedette(s) sans stock vendable : %', v_manquants;

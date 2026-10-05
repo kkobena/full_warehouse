@@ -61,7 +61,7 @@ jours AS (
     -- Depuis 0 et non 1 : la journée du chargement doit avoir ses ventes,
     -- sinon la caisse du jour, le tableau de bord et les états quotidiens
     -- s'ouvrent vides. 08_caisses.sql couvre déjà cette journée.
-    FROM generate_series(0, 180) AS j
+    FROM generate_series(0, pg_temp.horizon()) AS j
     -- L'officine ferme le lundi, sauf la journee du chargement : une demo
     -- lancee un lundi n'aurait sinon ni caisse ouverte, ni vente du jour, ni
     -- tableau de bord caissier -- un ecran vide un jour sur sept.
@@ -75,6 +75,10 @@ compte AS (
                CASE j.dow WHEN 6 THEN 35 + (j.j % 11)      -- samedi
                           WHEN 0 THEN  8 + (j.j %  5)      -- dimanche de garde
                           ELSE       20 + (j.j % 11) END
+               -- Croissance : l'activité d'il y a trois ans pèse 80 % de celle d'aujourd'hui.
+               * (0.80 + 0.20 * (1 - j.j::numeric / pg_temp.horizon()))
+               -- Saisonnalité : pic de la saison des pluies (paludisme, affections ORL), vers fin août.
+               * (1 + 0.12 * sin(2 * pi() * (extract(doy FROM j.jour) - 150) / 365.0))
                * CASE WHEN j.j = 0 THEN f.part ELSE 1 END
            )::int) AS nb,
            -- Étendue horaire, en minutes, sur laquelle étaler les ventes.
@@ -162,25 +166,53 @@ DELETE FROM tmp_vente WHERE cash_register_id IS NULL;
 --
 -- Le stock éligible borne ce qu'on peut vendre : seuls les lots disponibles,
 -- présents en rayon et dont la péremption dépasse J+90 (règle des 90 jours).
--- On ne consomme au total que 60 % de ce gisement, pour laisser du stock en
+-- On ne consomme au total que 85 % de ce gisement, pour laisser du stock en
 -- rayon à la fin de l'historique.
+--
+-- Le POIDS d'un produit à la sélection suit son stock (plafonné à 80 unités) : un produit
+-- bien approvisionné se vend davantage, comme en officine. Tiré à plat, il épuisait les
+-- produits à faible stock et écrêtait les ventes récentes — le chiffre d'affaires des
+-- derniers mois décrochait alors de celui des années précédentes.
 -- ---------------------------------------------------------------------------
+-- Deux gisements : les produits suivis par lot (quantité des lots vendables, au rayon) et les
+-- produits HORS lot — parapharmacie, accessoires — dont le stock est un simple compteur.
+-- Sans les seconds, savons, pommades et préservatifs ne se vendraient jamais.
 CREATE TEMP TABLE tmp_eligible AS
 SELECT
-    l.produit_id,
-    sum(lsl.qty)::int AS qte_eligible,
-    (sum(lsl.qty) * 6 / 10)::int AS plafond,
-    row_number() OVER (ORDER BY l.produit_id) AS rang,
-    count(*) OVER () AS total
-FROM lot l
-JOIN lot_stock_location lsl ON lsl.lot_id = l.id
-JOIN storage s ON s.id = lsl.storage_id AND s.storage_type = 'PRINCIPAL' AND s.magasin_id = 1
-WHERE l.statut = 'AVAILABLE'
-  AND l.expiry_date > CURRENT_DATE + 90
-GROUP BY l.produit_id
-HAVING sum(lsl.qty) >= 10;
+    q.produit_id,
+    q.qte AS qte_eligible,
+    -- Les produits vedettes (stock relevé par 07) n'en cèdent que la moitié : le manuel compte
+    -- sur ce qu'il en reste.
+    (CASE WHEN q.qte > 300 THEN q.qte / 2 ELSE q.qte * 85 / 100 END)::int AS plafond,
+    row_number() OVER (ORDER BY q.produit_id) AS rang,
+    count(*) OVER () AS total,
+    LEAST(q.qte, 80)::bigint AS poids
+FROM (
+    SELECT l.produit_id, sum(lsl.qty)::int AS qte
+      FROM lot l
+      JOIN lot_stock_location lsl ON lsl.lot_id = l.id
+      JOIN storage s ON s.id = lsl.storage_id AND s.storage_type = 'PRINCIPAL' AND s.magasin_id = 1
+     WHERE l.statut = 'AVAILABLE'
+       AND l.expiry_date > CURRENT_DATE + 90
+     GROUP BY l.produit_id
+    HAVING sum(lsl.qty) >= 10
+    UNION ALL
+    SELECT sp.produit_id, sp.qty_stock
+      FROM stock_produit sp
+      JOIN storage s ON s.id = sp.storage_id AND s.storage_type = 'PRINCIPAL' AND s.magasin_id = 1
+      JOIN produit p ON p.id = sp.produit_id AND NOT p.gestion_lot AND p.status = 'ENABLE'
+     WHERE sp.qty_stock >= 10
+) q;
+
+ALTER TABLE tmp_eligible ADD COLUMN poids_deb bigint;
+ALTER TABLE tmp_eligible ADD COLUMN poids_fin bigint;
+UPDATE tmp_eligible e
+   SET poids_fin = c.fin, poids_deb = c.fin - e.poids
+  FROM (SELECT produit_id, sum(poids) OVER (ORDER BY produit_id) AS fin FROM tmp_eligible) c
+ WHERE c.produit_id = e.produit_id;
 
 CREATE INDEX ON tmp_eligible (produit_id);
+CREATE INDEX ON tmp_eligible (poids_deb, poids_fin);
 
 -- Sélection déterministe : 1 à 5 produits distincts par vente.
 CREATE TEMP TABLE tmp_ligne_brute AS
@@ -190,11 +222,17 @@ SELECT
     v.moment,
     v.rang,
     e.produit_id,
-    -- Quantités faibles, comme en officine.
-    1 + ((v.rang + n) % 3) AS quantity
+    -- Quantités faibles, comme en officine : une boîte le plus souvent, deux parfois, trois rarement.
+    1 + ((v.rang + n) % 10) / 6 + ((v.rang + n) % 10) / 9 AS quantity
 FROM tmp_vente v
 CROSS JOIN LATERAL generate_series(1, 1 + (v.rang % 5)) AS n
-JOIN tmp_eligible e ON e.rang = 1 + ((v.rang * 7 + n * 149) % e.total);
+-- Tirage pondéré : un point pseudo-aléatoire (md5, donc reproductible) dans l'étendue
+-- cumulée des poids désigne le produit dont il tombe dans l'intervalle.
+JOIN tmp_eligible e
+  ON ('x' || substr(md5((v.rang * 31 + n)::text), 1, 8))::bit(32)::bigint
+         % (SELECT max(poids_fin) FROM tmp_eligible) >= e.poids_deb
+ AND ('x' || substr(md5((v.rang * 31 + n)::text), 1, 8))::bit(32)::bigint
+         % (SELECT max(poids_fin) FROM tmp_eligible) <  e.poids_fin;
 
 -- Un produit ne peut apparaître qu'une fois par vente : contrainte d'unicité
 -- (produit_id, sales_id, sale_date).
@@ -207,24 +245,95 @@ ORDER BY sales_id, produit_id, quantity;
 DROP TABLE tmp_ligne_brute;
 
 -- Écrêtage au plafond de stock. Les ventes du jour passent d'abord afin que
--- l'historique ne consomme pas les cas métier nécessaires aux écrans courants ;
--- le reste conserve son ordre chronologique.
-DELETE FROM tmp_ligne t
-USING (
-    SELECT c.sales_id, c.produit_id
-      FROM (
-          SELECT sales_id, produit_id,
-                 sum(quantity) OVER (PARTITION BY produit_id
-                                     ORDER BY CASE WHEN sale_date = CURRENT_DATE THEN 0 ELSE 1 END,
-                                              sale_date, sales_id
-                                     ROWS UNBOUNDED PRECEDING) AS cumul
-            FROM tmp_ligne
-      ) c
-      JOIN tmp_eligible e ON e.produit_id = c.produit_id
-     WHERE c.cumul > e.plafond
-) trop
-WHERE t.sales_id = trop.sales_id
-  AND t.produit_id = trop.produit_id;
+-- l'historique ne consomme pas les cas métier nécessaires aux écrans courants ; le reste est
+-- départagé par un hachage de la ligne, PAS par la date : écarter les lignes les plus récentes
+-- épuiserait les produits en début de fenêtre et reporterait toute la demande des derniers
+-- mois sur les rares produits restants — un panier moyen qui s'envole en fin de période.
+--
+-- Seules les lignes de la fenêtre récente sont écrêtées : celles de l'historique
+-- ne touchent pas au stock vivant, leurs achats étant déduits d'elles par
+-- 09b_histo_achats.sql.
+--
+-- Une ligne écartée n'est pas perdue : elle est REPORTÉE sur un produit qui a encore de la
+-- capacité, tiré au prorata de ce qui lui reste, puis le tout est écrêté de nouveau. Sans
+-- report, les produits à faible stock épuisaient leur plafond dès le début de la fenêtre et
+-- les ventes des derniers mois s'amenuisaient : le chiffre d'affaires décrochait de celui
+-- des années précédentes sans aucune raison métier.
+CREATE TEMP TABLE tmp_perdu (LIKE tmp_ligne);
+CREATE TEMP TABLE tmp_reste (
+    produit_id int, reste int, poids_deb bigint, poids_fin bigint
+);
+
+DO $$
+DECLARE
+    i int;
+    n int;
+BEGIN
+    FOR i IN 0..10 LOOP
+        IF i > 0 THEN
+            TRUNCATE tmp_reste;
+            INSERT INTO tmp_reste (produit_id, reste, poids_deb, poids_fin)
+            SELECT r.produit_id, r.reste,
+                   sum(r.reste) OVER (ORDER BY r.produit_id) - r.reste,
+                   sum(r.reste) OVER (ORDER BY r.produit_id)
+              FROM (
+                  -- Poids plafonné : sans cela, les produits les mieux dotés absorbaient tous les
+                  -- reports et gonflaient le panier moyen des derniers mois.
+                  SELECT e.produit_id, LEAST(e.plafond - COALESCE(u.q, 0), 25)::int AS reste
+                    FROM tmp_eligible e
+                    LEFT JOIN (SELECT produit_id, sum(quantity) AS q
+                                 FROM tmp_ligne
+                                WHERE sale_date >= CURRENT_DATE - pg_temp.jours_recents()
+                                GROUP BY produit_id) u ON u.produit_id = e.produit_id
+                   WHERE e.plafond - COALESCE(u.q, 0) >= 3
+              ) r;
+
+            EXIT WHEN NOT EXISTS (SELECT 1 FROM tmp_reste);
+
+            INSERT INTO tmp_ligne (sales_id, sale_date, moment, rang, produit_id, quantity)
+            SELECT DISTINCT ON (p.sales_id, r.produit_id)
+                   p.sales_id, p.sale_date, p.moment, p.rang, r.produit_id, p.quantity
+              FROM tmp_perdu p
+              JOIN tmp_reste r
+                ON ('x' || substr(md5(p.sales_id::text || '/' || p.produit_id::text || '/' || i::text), 1, 8))::bit(32)::bigint
+                       % (SELECT max(poids_fin) FROM tmp_reste) >= r.poids_deb
+               AND ('x' || substr(md5(p.sales_id::text || '/' || p.produit_id::text || '/' || i::text), 1, 8))::bit(32)::bigint
+                       % (SELECT max(poids_fin) FROM tmp_reste) <  r.poids_fin
+             WHERE NOT EXISTS (SELECT 1 FROM tmp_ligne x
+                                WHERE x.sales_id = p.sales_id AND x.produit_id = r.produit_id);
+        END IF;
+
+        TRUNCATE tmp_perdu;
+
+        WITH ecarte AS (
+            DELETE FROM tmp_ligne t
+            USING (
+                SELECT c.sales_id, c.produit_id
+                  FROM (
+                      SELECT sales_id, produit_id,
+                             sum(quantity) OVER (PARTITION BY produit_id
+                                                 ORDER BY CASE WHEN sale_date = CURRENT_DATE THEN 0 ELSE 1 END,
+                                                          md5(sales_id::text || '/' || produit_id::text)
+                                                 ROWS UNBOUNDED PRECEDING) AS cumul
+                        FROM tmp_ligne
+                       WHERE sale_date >= CURRENT_DATE - pg_temp.jours_recents()
+                  ) c
+                  JOIN tmp_eligible e ON e.produit_id = c.produit_id
+                 WHERE c.cumul > e.plafond
+            ) trop
+            WHERE t.sales_id = trop.sales_id
+              AND t.produit_id = trop.produit_id
+            RETURNING t.sales_id, t.sale_date, t.moment, t.rang, t.produit_id, t.quantity
+        )
+        INSERT INTO tmp_perdu SELECT * FROM ecarte;
+
+        GET DIAGNOSTICS n = ROW_COUNT;
+        EXIT WHEN n = 0;
+    END LOOP;
+END $$;
+
+DROP TABLE tmp_reste;
+DROP TABLE tmp_perdu;
 
 -- Une vente sans ligne n'a pas de sens : on la retire.
 DELETE FROM tmp_vente v
@@ -498,7 +607,8 @@ SELECT
     sum(l.quantity) OVER (PARTITION BY l.produit_id
                           ORDER BY l.sale_date, l.sales_id, l.id
                           ROWS UNBOUNDED PRECEDING)              AS fin
-FROM tmp_ligne_calc l;
+FROM tmp_ligne_calc l
+WHERE l.sale_date >= CURRENT_DATE - pg_temp.jours_recents();
 
 CREATE TEMP TABLE tmp_alloc AS
 SELECT
@@ -559,7 +669,9 @@ UPDATE stock_produit sp
        qty_virtual = sp.qty_stock - v.qte,
        updated_at = NOW()
   FROM (SELECT produit_id, sum(quantity)::int AS qte
-          FROM tmp_ligne_calc GROUP BY produit_id) v,
+          FROM tmp_ligne_calc
+         WHERE sale_date >= CURRENT_DATE - pg_temp.jours_recents()
+         GROUP BY produit_id) v,
        storage s
  WHERE sp.produit_id = v.produit_id
    AND s.id = sp.storage_id AND s.storage_type = 'PRINCIPAL' AND s.magasin_id = 1;
@@ -576,7 +688,9 @@ UPDATE sales_line sl
                         JOIN storage s ON s.id = sp.storage_id
                        WHERE sp.produit_id = l.produit_id
                          AND s.storage_type = 'PRINCIPAL' AND s.magasin_id = 1), 0) AS stock_final
-        FROM tmp_ligne_calc l GROUP BY l.produit_id
+        FROM tmp_ligne_calc l
+       WHERE l.sale_date >= CURRENT_DATE - pg_temp.jours_recents()
+       GROUP BY l.produit_id
   ) f ON f.produit_id = p.produit_id
  WHERE sl.id = p.id;
 
@@ -699,8 +813,11 @@ BEGIN
     SELECT count(*) INTO v_ht FROM sales WHERE ht_amount + tax_amount <> sales_amount;
 
     -- Le snapshot de lots doit couvrir exactement la quantité vendue.
+    -- L'historique en est exclu : 09b_histo_achats.sql lui pose ses lots, avec ses achats.
     SELECT count(*) INTO v_lots FROM sales_line sl
-     WHERE sl.quantity_sold <> COALESCE(
+      JOIN produit pr ON pr.id = sl.produit_id AND pr.gestion_lot
+     WHERE sl.sale_date >= CURRENT_DATE - pg_temp.jours_recents()
+       AND sl.quantity_sold <> COALESCE(
         (SELECT sum((e->>'quantity')::int) FROM jsonb_array_elements(sl.lots) e), 0);
 
     SELECT count(*) INTO v_neg FROM stock_produit WHERE qty_stock < 0;

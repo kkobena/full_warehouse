@@ -35,7 +35,7 @@ DO $$
 DECLARE
     v_keep CONSTANT text[] := ARRAY[
         -- Structure de l'officine
-        'magasin', 'storage', 'rayon', 'tableau',
+        'magasin', 'storage', 'rayon', 'tableau','fournisseur',
         -- Comptes et droits
         'app_user', 'authority', 'user_authority',
         -- Référentiels produit
@@ -59,7 +59,12 @@ DECLARE
         -- definitivement desert — Flyway ne rejoue pas une migration deja appliquee.
         'planification_facturation', 'planification_certification_fne',
         'scheduled_report', 'license_state', 'license_audit',
-        'dci'
+        'dci',
+        -- Référentiel médicament (BDPM), posé par les migrations V2.1.19 et V2.1.28 à V2.1.31 :
+        -- 15 000 spécialités, leurs compositions et leurs RCP. Flyway ne les rejoue pas, et les
+        -- tronquer priverait le rapprochement produit-spécialité de toute matière.
+        'ref_groupe_generique', 'ref_substance', 'ref_dci', 'ref_specialite',
+        'ref_specialite_composition', 'ref_specialite_rcp'
     ];
     v_tables text;
     v_count  int;

@@ -47,7 +47,7 @@ SELECT
     v.login,
     (SELECT password_hash FROM app_user WHERE login = 'admin'),
     v.prenom, v.nom, v.login || '@pharma-smart.example',
-    true, 'fr', 1, 'system', NOW() - INTERVAL '400 days', 'system'
+    true, 'fr', 1, 'system', NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 60)), 'system'
 FROM (VALUES
     ('kkone',    'KOFFI',   'KONE'),
     ('atraore',  'AMINATA', 'TRAORE'),
@@ -97,7 +97,7 @@ WHERE u.login IN ('kkone', 'atraore')
 ON CONFLICT DO NOTHING;
 
 -- ---------------------------------------------------------------------------
--- 3. Caisses — une par jour sur 180 jours
+-- 3. Caisses — une par jour d'ouverture sur tout l'historique
 --
 -- Le fonds initial et le montant final resteront à recaler par 09_ventes.sql,
 -- une fois les encaissements connus : une caisse dont le final ne correspond
@@ -109,7 +109,7 @@ SELECT
     j,
     -- Deux caissiers en alternance.
     (SELECT id FROM app_user WHERE login = CASE WHEN j % 2 = 0 THEN 'kkone' ELSE 'atraore' END) AS user_id
-FROM generate_series(0, 180) AS j
+FROM generate_series(0, pg_temp.horizon()) AS j
 -- L'officine ferme le lundi : c'est le jour de repos usuel après la garde
 -- du week-end, et il doit exister dans les statistiques.
 -- La journee du chargement fait exception. Sans elle, une demonstration lancee

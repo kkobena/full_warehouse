@@ -35,7 +35,9 @@
 \i 01_config.sql
 \i 02_fournisseurs.sql
 \i 02b_dci.sql
-\i 03_produits.sql
+\i 03_parapharmacie.sql
+-- Les médicaments (vrais noms, CIP et EAN13 de la BDPM) avant la substitution, qui s'appuie sur leurs groupes génériques.
+\i 03c_produits_bdpm.sql
 \i 03b_substituts.sql
 \i 04_clients.sql
 \i 04b_remises_plafonds_tarifs.sql
@@ -45,6 +47,8 @@
 \i 07_stock.sql
 \i 08_caisses.sql
 \i 09_ventes.sql
+-- Après 09 : les achats de l'historique se déduisent des ventes qui viennent d'être posées.
+\i 09b_histo_achats.sql
 \i 10_repartitions.sql
 \i 10b_ventes_depot.sql
 \i 11_inventaires.sql
@@ -57,6 +61,8 @@
 -- Après 14 : les règlements de factures supposent les factures posées.
 \i 14b_reglements.sql
 \i 14c_avoirs.sql
+-- Après 14b : le fond de tiroir se recale sur les lignes de ticket Z, règlements compris.
+\i 14d_mouvements_caisse.sql
 \i 15_reference.sql
 \i 16_mouvements.sql
 -- Après 16 : les bons d'ajustement s'écrivent sur un stock stabilisé, dont ils
@@ -70,7 +76,16 @@
 -- Après 17 : la trace des mouvements rayon / réserve, que 07 déplace sans
 -- l'historiser.
 \i 18_repartitions_stock.sql
+-- Après 18 : les favoris reçoivent leur stock de réserve, et les suggestions de réassort s'appuient sur les deux stocks.
+\i 17c_reassort.sql
 \i 19_declaration_ca.sql
+\i 20_referentiel_bdpm.sql
+-- Après 19 : agrégats, ruptures et classes s'appuient sur les ventes et les achats définitifs.
+\i 21_referentiels_produit.sql
+-- Après 21 : le suivi du client s'appuie sur des ventes, des différés et des caisses définitifs.
+\i 22_clients_suivi.sql
+-- Après 22 : le billetage reprend le fond de tiroir définitif de chaque caisse.
+\i 23_exploitation.sql
 
 \i 99_verification.sql
 

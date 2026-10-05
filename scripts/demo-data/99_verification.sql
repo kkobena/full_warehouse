@@ -1173,12 +1173,12 @@ $q$);
 -- Cas nommé : le manuel montre les deux stocks d'un produit précis (REF-48), il
 -- lui faut donc une réserve garantie et non tirée d'un « un produit sur cinq »
 -- qui dépend de l'ordre d'insertion.
-SELECT pg_temp.verif_compte('emplacements', 'Cas nommé ARNICA MONTANA 9CH en réserve', $q$
+SELECT pg_temp.verif_compte('emplacements', 'Cas nommé ARNICA en réserve', $q$
     SELECT 1
       FROM stock_produit sp
       JOIN storage st ON st.id = sp.storage_id AND st.storage_type = 'SAFETY_STOCK'
       JOIN produit p  ON p.id = sp.produit_id
-     WHERE p.libelle LIKE 'ARNICA MONTANA 9CH%' AND sp.qty_stock > 0
+     WHERE p.libelle LIKE 'ARNICA%' AND sp.qty_stock > 0
 $q$, 1);
 
 SELECT pg_temp.verif_vide('emplacements', 'La réserve n''est alimentée que par transfert', $q$
@@ -1288,11 +1288,14 @@ SELECT pg_temp.verif_vide('caisses', 'Chronologie ouverture / fermeture', $q$
     SELECT id FROM cash_register WHERE end_time IS NOT NULL AND end_time < begin_time
 $q$);
 
--- Le montant final est le fonds initial augmenté des espèces encaissées.
+-- Le montant final est le fonds initial augmenté des espèces encaissées et diminué de celles
+-- qui sont sorties du tiroir (sorties de caisse, règlements fournisseurs, fonds de caisse).
 SELECT pg_temp.verif_vide('caisses', 'Montant final = fonds + espèces encaissées', $q$
     SELECT cr.id FROM cash_register cr
      WHERE cr.final_amount <> cr.init_amount + COALESCE((
-         SELECT sum(pt.paid_amount) FROM payment_transaction pt
+         SELECT sum(CASE WHEN pt.type_transaction IN ('SORTIE_CAISSE', 'FONDS_CAISSE', 'REGLMENT_FOURNISSEUR')
+                         THEN -pt.paid_amount ELSE pt.paid_amount END)
+           FROM payment_transaction pt
           WHERE pt.cash_register_id = cr.id AND pt.payment_mode_code = 'CASH'), 0)
 $q$);
 
@@ -1646,6 +1649,7 @@ $q$);
 -- Le snapshot doit couvrir exactement la quantité vendue.
 SELECT pg_temp.verif_vide('fefo', 'Lots vendus = quantité vendue', $q$
     SELECT sl.id FROM sales_line sl
+      JOIN produit pr ON pr.id = sl.produit_id AND pr.gestion_lot
      WHERE sl.quantity_sold > 0
        AND sl.quantity_sold <> COALESCE(
            (SELECT sum((e->>'quantity')::int)
@@ -2082,7 +2086,7 @@ $q$);
 
 -- Un bon ne peut pas être facturé hors de la période qu'il couvre.
 -- Les produits VEDETTES du manuel doivent rester vendables : trente-huit
--- parcours passent par DOLIPRANE 500MG. Un stock épuisé ferait échouer toute la
+-- parcours passent par DOLIPRANE. Un stock épuisé ferait échouer toute la
 -- série des ventes sur « Stock insuffisant », ce qui se lit comme un défaut de
 -- l'application alors que c'est le jeu de données qui est à sec.
 SELECT pg_temp.verif_compte('stock', 'Produits vedettes vendables', $q$
@@ -2091,9 +2095,7 @@ SELECT pg_temp.verif_compte('stock', 'Produits vedettes vendables', $q$
       JOIN produit p ON p.id = sp.produit_id
       JOIN storage st ON st.id = sp.storage_id AND st.storage_type = 'PRINCIPAL'
      WHERE sp.qty_stock >= 100
-       AND (p.libelle LIKE 'DOLIPRANE 500MG%'
-         OR p.libelle LIKE 'DOLIPRANE 1G%'
-         OR p.libelle LIKE 'PARACETAMOL 1G%')
+       AND p.libelle ~ '^(DOLIPRANE|EFFERALGAN) '
 $q$, 3);
 
 -- Un organisme SANS email doit subsister : la certification fiscale (FNE) le
@@ -2257,6 +2259,246 @@ $q$, 8);
 SELECT pg_temp.verif_compte('referentiels', 'Menus de navigation', $q$
     SELECT 1 FROM nav_item
 $q$, 1);
+
+
+-- ===========================================================================
+-- HISTORIQUE DE TROIS ANS ET COHÉRENCE ACHATS / VENTES / STOCK
+-- ===========================================================================
+-- Le jeu couvre trois ans à partir du jour d'exécution (variable `horizon`, 1095 par défaut) :
+-- ventes, caisses, achats et factures doivent réellement remonter jusque-là, et chaque mois
+-- doit porter une activité comparable — sans quoi un graphique à douze mois trahit la jointure
+-- entre l'historique et la fenêtre récente.
+SELECT pg_temp.verif_vide('historique', 'Les ventes remontent à l''horizon', $q$
+    SELECT 1 WHERE (SELECT min(sale_date) FROM sales) > CURRENT_DATE - pg_temp.horizon() + 7
+$q$);
+
+SELECT pg_temp.verif_vide('historique', 'Les achats précèdent les premières ventes', $q$
+    SELECT 1 WHERE (SELECT min(order_date) FROM commande) >= (SELECT min(sale_date) FROM sales)
+$q$);
+
+SELECT pg_temp.verif_vide('historique', 'Chaque mois de l''historique a des ventes, des achats et des caisses', $q$
+    SELECT m.mois
+      FROM generate_series(date_trunc('month', CURRENT_DATE - pg_temp.horizon() + 31),
+                           date_trunc('month', CURRENT_DATE - 31), INTERVAL '1 month') AS m(mois)
+     WHERE NOT EXISTS (SELECT 1 FROM sales s WHERE date_trunc('month', s.sale_date) = m.mois)
+        OR NOT EXISTS (SELECT 1 FROM commande c WHERE date_trunc('month', c.receipt_date) = m.mois)
+        OR NOT EXISTS (SELECT 1 FROM cash_register r WHERE date_trunc('month', r.begin_time) = m.mois)
+$q$);
+
+-- Le chiffre d'affaires d'un mois ne s'écarte pas de plus de 60 % de celui du mois précédent
+-- (le mois courant, inachevé, est écarté) : pas de décrochage à la jointure.
+SELECT pg_temp.verif_vide('historique', 'Pas de rupture brutale du chiffre d''affaires mensuel', $q$
+    WITH m AS (
+        SELECT date_trunc('month', sale_date) AS mois, sum(sales_amount) AS ca
+          FROM sales
+         WHERE sale_date < date_trunc('month', CURRENT_DATE)
+           AND sale_date >= date_trunc('month', CURRENT_DATE - pg_temp.horizon()) + INTERVAL '1 month'
+         GROUP BY 1
+    )
+    SELECT a.mois FROM m a JOIN m b ON b.mois = a.mois - INTERVAL '1 month'
+     WHERE a.ca > 1.6 * b.ca OR a.ca < b.ca / 1.6
+$q$);
+
+-- Le panier moyen reste stable : une dérive de plus de 25 % d'un mois à l'autre trahirait
+-- des ventes reportées sur peu de produits (voir 09_ventes.sql, écrêtage).
+SELECT pg_temp.verif_vide('historique', 'Panier moyen stable d''un mois à l''autre', $q$
+    WITH m AS (
+        SELECT date_trunc('month', sale_date) AS mois, avg(sales_amount) AS panier
+          FROM sales
+         WHERE sale_date < date_trunc('month', CURRENT_DATE)
+           AND sale_date >= date_trunc('month', CURRENT_DATE - pg_temp.horizon()) + INTERVAL '1 month'
+         GROUP BY 1
+    )
+    SELECT a.mois FROM m a JOIN m b ON b.mois = a.mois - INTERVAL '1 month'
+     WHERE a.panier > 1.25 * b.panier OR a.panier < b.panier / 1.25
+$q$);
+
+SELECT pg_temp.verif_compte('historique', 'Ventes sur trois ans', $q$ SELECT 1 FROM sales $q$, pg_temp.horizon() * 15);
+
+-- Achats et ventes de l'historique se recoupent : un lot H est intégralement écoulé, reçu avant
+-- les ventes qui le consomment.
+SELECT pg_temp.verif_vide('historique', 'Lots historiques intégralement écoulés', $q$
+    SELECT l.id FROM lot l
+     WHERE l.num_lot ~ '^H[0-9]{4}[0-9]{3}$'
+       AND (l.statut <> 'SOLD' OR l.current_quantity <> 0)
+$q$);
+
+SELECT pg_temp.verif_vide('historique', 'Chaque lot historique a sa réception', $q$
+    SELECT l.id FROM lot l
+     WHERE l.num_lot ~ '^H[0-9]{4}[0-9]{3}$'
+       AND NOT EXISTS (SELECT 1 FROM lot_reception r WHERE r.lot_id = l.id)
+$q$);
+
+SELECT pg_temp.verif_vide('historique', 'Lots tracés sur les ventes anciennes : existants et antérieurs', $q$
+    SELECT sl.id FROM sales_line sl
+      CROSS JOIN LATERAL jsonb_array_elements(sl.lots) e
+     WHERE sl.sale_date < CURRENT_DATE - pg_temp.jours_recents()
+       AND NOT EXISTS (SELECT 1 FROM lot_reception r
+                        WHERE r.lot_id = (e->>'id')::int AND r.receipt_date <= sl.sale_date)
+$q$);
+
+-- Le stock avant / après des lignes de l'historique est renseigné, non négatif, et se referme.
+SELECT pg_temp.verif_vide('historique', 'Stock avant / après des ventes anciennes cohérent', $q$
+    SELECT sl.id FROM sales_line sl
+     WHERE sl.sale_date < CURRENT_DATE - pg_temp.jours_recents()
+       AND (sl.init_stock IS NULL OR sl.after_stock IS NULL OR sl.after_stock < 0
+            OR sl.init_stock - sl.quantity_sold <> sl.after_stock)
+$q$);
+
+-- Un bon de livraison d'historique est entièrement soldé et payé.
+SELECT pg_temp.verif_vide('historique', 'Commandes anciennes closes et payées', $q$
+    SELECT id FROM commande
+     WHERE order_date < CURRENT_DATE - pg_temp.jours_recents() - 40
+       AND (order_status <> 'CLOSED' OR paiment_status <> 'PAID')
+$q$);
+
+-- Tout bon d'un mois révolu est rattaché à sa facture.
+SELECT pg_temp.verif_vide('historique', 'Bons tiers payant des mois révolus facturés', $q$
+    SELECT t.id FROM third_party_sale_line t
+     WHERE t.sale_date < date_trunc('month', CURRENT_DATE) AND t.montant > 0
+       AND t.facture_tiers_payant_id IS NULL
+$q$);
+
+SELECT pg_temp.verif_vide('historique', 'Numéros de facture uniques', $q$
+    SELECT num_facture FROM facture_tiers_payant GROUP BY num_facture HAVING count(*) > 1
+$q$);
+
+-- Les créances différées de plus de trois mois ne subsistent que chez une minorité de clients.
+SELECT pg_temp.verif_vide('historique', 'Créances différées anciennes rares', $q$
+    SELECT 1 WHERE (SELECT count(DISTINCT customer_id) FROM sales
+                     WHERE differe AND payment_status = 'IMPAYE' AND sale_date < CURRENT_DATE - 90)
+                 > (SELECT count(DISTINCT customer_id) FROM sales WHERE differe) / 6 + 1
+$q$);
+
+SELECT pg_temp.verif_vide('historique', 'Chaque commande payée a son règlement fournisseur', $q$
+    SELECT c.id FROM commande c
+     WHERE c.paiment_status = 'PAID' AND c.final_amount > 0 AND c.receipt_date IS NOT NULL
+       AND NOT EXISTS (SELECT 1 FROM payment_transaction p WHERE p.dtype = 'PaymentFournisseur'
+                        AND p.commande_id = c.id AND p.commande_order_date = c.order_date)
+$q$);
+
+-- ===========================================================================
+-- RÉFÉRENTIEL MÉDICAMENT (BDPM), DCI ET SUBSTITUTION
+-- ===========================================================================
+SELECT pg_temp.verif_compte('bdpm', 'Référentiel médicament chargé (Flyway)', $q$ SELECT 1 FROM ref_specialite $q$, 10000);
+
+SELECT pg_temp.verif_compte('bdpm', 'Produits issus d''une spécialité réelle', $q$
+    SELECT 1 FROM produit WHERE libelle IN (SELECT libelle FROM ref_specialite)
+$q$, 150);
+
+SELECT pg_temp.verif_vide('bdpm', 'Produits du référentiel : DCI renseignée et cohérente', $q$
+    SELECT p.id FROM produit p
+     WHERE p.libelle IN (SELECT libelle FROM ref_specialite)
+       AND (p.dci_id IS NULL
+            OR NOT EXISTS (SELECT 1 FROM produit_dci pd WHERE pd.produit_id = p.id AND pd.dci_id = p.dci_id))
+$q$);
+
+SELECT pg_temp.verif_compte('bdpm', 'Des génériques substituables (même DCI, plusieurs produits)', $q$
+    SELECT dci_id FROM produit WHERE dci_id IS NOT NULL AND libelle IN (SELECT libelle FROM ref_specialite)
+     GROUP BY dci_id HAVING count(*) >= 2
+$q$, 40);
+
+SELECT pg_temp.verif_vide('bdpm', 'Une spécialité proposée existe dans le référentiel', $q$
+    SELECT r.id FROM produit_ref_specialite r
+     WHERE r.cis IS NOT NULL AND NOT EXISTS (SELECT 1 FROM ref_specialite s WHERE s.cis = r.cis)
+$q$);
+
+SELECT pg_temp.verif_compte('bdpm', 'Correspondances sûres', $q$
+    SELECT 1 FROM produit_ref_specialite WHERE statut = 'SUR'
+$q$, 100);
+
+SELECT pg_temp.verif_vide('bdpm', 'Les trois décisions du pharmacien coexistent', $q$
+    SELECT v.d FROM (VALUES ('VALIDE'), ('REJETE'), ('EN_ATTENTE')) v(d)
+     WHERE NOT EXISTS (SELECT 1 FROM produit_ref_specialite r WHERE r.decision = v.d)
+$q$);
+
+SELECT pg_temp.verif_compte('bdpm', 'DCI du référentiel reliées au catalogue', $q$
+    SELECT 1 FROM ref_dci WHERE dci_id IS NOT NULL
+$q$, 300);
+
+-- ===========================================================================
+-- RÉASSORT ET FAVORIS À DEUX STOCKS
+-- ===========================================================================
+SELECT pg_temp.verif_vide('reassort', 'Un favori est stocké au rayon ET en réserve', $q$
+    SELECT f.produit_id FROM produit_favori f
+     WHERE NOT EXISTS (SELECT 1 FROM stock_produit sp JOIN storage st ON st.id = sp.storage_id
+                        WHERE sp.produit_id = f.produit_id AND st.storage_type = 'PRINCIPAL' AND st.magasin_id = 1)
+        OR NOT EXISTS (SELECT 1 FROM stock_produit sp JOIN storage st ON st.id = sp.storage_id
+                        WHERE sp.produit_id = f.produit_id AND st.storage_type = 'SAFETY_STOCK'
+                          AND st.magasin_id = 1 AND sp.qty_stock > 0)
+$q$);
+
+SELECT pg_temp.verif_vide('reassort', 'Une suggestion ouverte par type', $q$
+    SELECT v.t FROM (VALUES ('RAYON'), ('RESERVE')) v(t)
+     WHERE (SELECT count(*) FROM suggestion_reassort s WHERE s.statut = 'OPEN' AND s.type_reassort = v.t) <> 1
+$q$);
+
+SELECT pg_temp.verif_vide('reassort', 'Lignes de réassort : même produit, bons stockages, quantité positive', $q$
+    SELECT lr.id
+      FROM ligne_reassort lr
+      JOIN suggestion_reassort s ON s.id = lr.reassort_id
+      JOIN stock_produit d ON d.id = lr.stock_produit_id
+      JOIN storage sd ON sd.id = d.storage_id
+      JOIN stock_produit o ON o.id = lr.stock_src_produit_id
+      JOIN storage so ON so.id = o.storage_id
+     WHERE d.produit_id <> o.produit_id OR lr.quantity <= 0
+        OR (s.type_reassort = 'RAYON'   AND NOT (sd.storage_type = 'PRINCIPAL'    AND so.storage_type = 'SAFETY_STOCK'))
+        OR (s.type_reassort = 'RESERVE' AND NOT (sd.storage_type = 'SAFETY_STOCK' AND so.storage_type = 'PRINCIPAL'))
+$q$);
+
+SELECT pg_temp.verif_vide('reassort', 'Réassort rayon : quantité couverte par la réserve', $q$
+    SELECT lr.id FROM ligne_reassort lr
+      JOIN suggestion_reassort s ON s.id = lr.reassort_id AND s.type_reassort = 'RAYON' AND s.statut = 'OPEN'
+      JOIN stock_produit o ON o.id = lr.stock_src_produit_id
+     WHERE lr.quantity > o.qty_stock + o.qty_ug
+$q$);
+
+SELECT pg_temp.verif_compte('reassort', 'Historique de suggestions validées', $q$
+    SELECT 1 FROM suggestion_reassort WHERE statut = 'CLOSED'
+$q$, 30);
+
+-- ===========================================================================
+-- FONCTIONS COMPLÉMENTAIRES (laboratoires, ruptures, caisse, clients)
+-- ===========================================================================
+SELECT pg_temp.verif_compte('fonctions', 'Laboratoires', $q$ SELECT 1 FROM laboratoire $q$, 40);
+SELECT pg_temp.verif_compte('fonctions', 'Ruptures fournisseur', $q$ SELECT 1 FROM rupture $q$, 50);
+SELECT pg_temp.verif_compte('fonctions', 'Ventes mensuelles agrégées', $q$ SELECT 1 FROM ventes_mensuelles_agregees $q$, 5000);
+SELECT pg_temp.verif_compte('fonctions', 'Banques', $q$ SELECT 1 FROM banque $q$, 3);
+SELECT pg_temp.verif_compte('fonctions', 'Règlements fournisseurs', $q$ SELECT 1 FROM payment_transaction WHERE dtype = 'PaymentFournisseur' $q$, 300);
+SELECT pg_temp.verif_compte('fonctions', 'Sorties de caisse', $q$ SELECT 1 FROM payment_transaction WHERE type_transaction = 'SORTIE_CAISSE' $q$, 50);
+SELECT pg_temp.verif_compte('fonctions', 'Entrées de caisse', $q$ SELECT 1 FROM payment_transaction WHERE type_transaction = 'ENTREE_CAISSE' $q$, 10);
+SELECT pg_temp.verif_compte('fonctions', 'Billetages', $q$ SELECT 1 FROM ticketing $q$, 500);
+SELECT pg_temp.verif_compte('fonctions', 'Dossiers de santé', $q$ SELECT 1 FROM customer_dossier_sante $q$, 50);
+SELECT pg_temp.verif_compte('fonctions', 'Allergies', $q$ SELECT 1 FROM customer_allergie $q$, 30);
+SELECT pg_temp.verif_compte('fonctions', 'Traitements chroniques', $q$ SELECT 1 FROM customer_traitement_chronique $q$, 30);
+SELECT pg_temp.verif_compte('fonctions', 'Relances de créance', $q$ SELECT 1 FROM relance_differe $q$, 1);
+SELECT pg_temp.verif_compte('fonctions', 'Retours clients', $q$ SELECT 1 FROM retour_client $q$, 15);
+SELECT pg_temp.verif_compte('fonctions', 'Avoirs clients', $q$ SELECT 1 FROM avoir_client $q$, 15);
+SELECT pg_temp.verif_compte('fonctions', 'Rapprochements de factures fournisseur', $q$ SELECT 1 FROM reconciliation_facture_fournisseur $q$, 30);
+SELECT pg_temp.verif_compte('fonctions', 'Changements de classe ABC', $q$ SELECT 1 FROM classification_criticite_log $q$, 100);
+
+SELECT pg_temp.verif_vide('fonctions', 'Allergie : toute délivrance postérieure est dérogée', $q$
+    SELECT ca.id FROM customer_allergie ca
+      JOIN sales s ON s.customer_id = ca.customer_id AND s.created_at > ca.created_at
+      JOIN sales_line sl ON sl.sales_id = s.id AND sl.sales_sale_date = s.sale_date
+      JOIN produit_dci pd ON pd.produit_id = sl.produit_id AND pd.dci_id = ca.dci_id
+     WHERE ca.dci_id IS NOT NULL
+       AND NOT EXISTS (SELECT 1 FROM alerte_sante_derogation d
+                        WHERE d.customer_id = ca.customer_id AND d.produit_id = sl.produit_id
+                          AND d.created_at = sl.created_at)
+$q$);
+
+SELECT pg_temp.verif_vide('fonctions', 'Classe de criticité = dernier calcul', $q$
+    SELECT p.id FROM produit p
+     WHERE EXISTS (SELECT 1 FROM classification_criticite_log l WHERE l.produit_id = p.id)
+       AND p.classe_criticite <> (SELECT l.nouvelle_classe FROM classification_criticite_log l
+                                   WHERE l.produit_id = p.id ORDER BY l.created_at DESC, l.id DESC LIMIT 1)
+$q$);
+
+SELECT pg_temp.verif_vide('fonctions', 'Billetage = fond de caisse', $q$
+    SELECT t.id FROM ticketing t JOIN cash_register cr ON cr.id = t.cash_register_id
+     WHERE t.totalamount <> cr.final_amount
+$q$);
 
 
 -- ===========================================================================

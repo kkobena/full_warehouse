@@ -67,8 +67,8 @@ SELECT
     -- Quelques comptes désactivés : les écrans de filtre doivent avoir matière.
     CASE WHEN i % 25 = 0 THEN 'DISABLE' ELSE 'ENABLE' END,
     'PRINCIPAL',
-    NOW() - (INTERVAL '1 day' * (400 - i)),
-    NOW() - (INTERVAL '1 day' * (400 - i))
+    NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 400 - i)),
+    NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 400 - i))
 FROM tmp_noms n
 CROSS JOIN LATERAL generate_series(1, 150) AS i
 ON CONFLICT (code) DO NOTHING;
@@ -97,8 +97,8 @@ SELECT
     CASE WHEN i % 2 = 0 THEN 'M' ELSE 'F' END,
     -- Adultes, de 22 à 79 ans.
     (CURRENT_DATE - (INTERVAL '1 day' * (8000 + (i * 173) % 21000)))::date,
-    NOW() - (INTERVAL '1 day' * (400 - i)),
-    NOW() - (INTERVAL '1 day' * (400 - i))
+    NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 400 - i)),
+    NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 400 - i))
 FROM tmp_noms n
 CROSS JOIN LATERAL generate_series(1, 120) AS i
 ON CONFLICT (code) DO NOTHING;
@@ -130,8 +130,8 @@ SELECT
     (CURRENT_DATE - (INTERVAL '1 day' * (700 + (i * 211) % 21000)))::date,
     p.id,
     'AD' || lpad(i::text, 8, '0'),
-    NOW() - (INTERVAL '1 day' * (300 - i)),
-    NOW() - (INTERVAL '1 day' * (300 - i))
+    NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 300 - i)),
+    NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 300 - i))
 FROM tmp_noms n
 CROSS JOIN LATERAL generate_series(1, 50) AS i
 JOIN customer p ON p.code = 'ASS' || lpad((1 + ((i - 1) * 2))::text, 6, '0')
@@ -145,7 +145,7 @@ ON CONFLICT (code) DO NOTHING;
 -- ---------------------------------------------------------------------------
 INSERT INTO customer_account (customer_id, account_type, balance, enabled, created_at, updated_at)
 SELECT c.id, 'CARNET', 0, true,
-       NOW() - INTERVAL '300 days', NOW() - INTERVAL '300 days'
+       NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 300)), NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 300))
 FROM customer c
 WHERE c.dtype = 'UninsuredCustomer'
   AND c.status = 'ENABLE'
@@ -185,7 +185,7 @@ SELECT
     v.plafond, v.plafond IS NOT NULL, v.plafond_client, v.plafond_jour,
     0, v.nbre_bons, v.montant_max, 0,
     v.delai, 'MENSUEL', 'default',
-    false, NOW() - INTERVAL '400 days', NOW() - INTERVAL '400 days'
+    false, NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 400)), NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 400))
 FROM (VALUES
     ('CNAM',        'CAISSE NATIONALE D''ASSURANCE MALADIE',   'ASSURANCE', 'CNAM01',  'CI0001234A',
      'Plateau, Abidjan',  '27 20 25 40 00', 'facturation@cnam.example',      'MUTUELLES PUBLIQUES', NULL::bigint, NULL::int, NULL::int, 200, 5000000::bigint, 30),
@@ -259,11 +259,11 @@ SELECT
     -- @PrePersist de ClientTiersPayant alimente cet historique ; une insertion
     -- SQL court-circuite le hook, il faut donc l'écrire nous-mêmes.
     json_build_array(json_build_object(
-        'updatedAt', to_char(NOW() - INTERVAL '350 days', 'YYYY-MM-DD"T"HH24:MI:SS'),
+        'updatedAt', to_char(NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 350)), 'YYYY-MM-DD"T"HH24:MI:SS'),
         'taux', r.taux
     )),
-    NOW() - INTERVAL '350 days',
-    NOW() - INTERVAL '350 days'
+    NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 350)),
+    NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 350))
 FROM (
     SELECT id, status,
            row_number() OVER (ORDER BY code) AS rang_client
@@ -306,7 +306,7 @@ UPDATE client_tiers_payant ctp
    SET taux = 100,
        priorite = 'R0',
        taux_historique = json_build_array(json_build_object(
-           'updatedAt', to_char(NOW() - INTERVAL '350 days', 'YYYY-MM-DD"T"HH24:MI:SS'),
+           'updatedAt', to_char(NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 350)), 'YYYY-MM-DD"T"HH24:MI:SS'),
            'taux', 100
        ))
   FROM tiers_payant tp
@@ -380,11 +380,11 @@ SELECT
     0,
     '[]'::json,
     json_build_array(json_build_object(
-        'updatedAt', to_char(NOW() - INTERVAL '350 days', 'YYYY-MM-DD"T"HH24:MI:SS'),
+        'updatedAt', to_char(NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 350)), 'YYYY-MM-DD"T"HH24:MI:SS'),
         'taux', cn.taux
     )),
-    NOW() - INTERVAL '350 days',
-    NOW() - INTERVAL '350 days'
+    NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 350)),
+    NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 350))
 FROM tmp_cas_nommes cn
 JOIN tmp_cas_clients cc ON cc.rang_client = cn.rang
 JOIN tiers_payant tp ON tp.name = cn.organisme;

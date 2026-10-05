@@ -169,6 +169,95 @@ BEGIN
 END $$;
 
 -- ---------------------------------------------------------------------------
+-- Historique : un retour soldé par mois d'activité sur les trois ans
+--
+-- Les huit retours ci-dessus sont tous récents. Un retour d'il y a deux ans n'a plus rien
+-- d'en cours : il est CLOSED, son avoir REMBOURSE. Pris sur les bons de l'historique
+-- (09b), un par mois environ, avec leur propre numérotation annuelle.
+-- ---------------------------------------------------------------------------
+DO $$
+DECLARE
+    v_user_id  INTEGER;
+    v_motif_id INTEGER;
+    v_bon_id   INTEGER;
+    v_avoir_id INTEGER;
+    v_montant  INTEGER;
+    v_rang     INTEGER := 0;
+    v_jour     TIMESTAMP;
+    c          RECORD;
+    l          RECORD;
+BEGIN
+    SELECT id INTO v_user_id FROM app_user ORDER BY id LIMIT 1;
+    SELECT id INTO v_motif_id FROM motif_retour_produit ORDER BY id LIMIT 1;
+
+    FOR c IN
+        SELECT DISTINCT ON (date_trunc('month', cmd.order_date))
+               cmd.id, cmd.order_date, cmd.receipt_date, cmd.fournisseur_id,
+               to_char(cmd.order_date, 'YYYY') AS annee
+          FROM commande cmd
+         WHERE cmd.order_reference LIKE 'PO%H%'
+           AND cmd.receipt_date < CURRENT_DATE - 200
+         ORDER BY date_trunc('month', cmd.order_date), cmd.id
+    LOOP
+        v_rang := v_rang + 1;
+        v_jour := (c.receipt_date + 4 + (v_rang % 9))::timestamp + TIME '10:30:00';
+
+        INSERT INTO retour_bon (
+            reference, date_mtv, statut, commentaire,
+            commande_id, commande_order_date, fournisseur_id,
+            hors_commande, hors_stock, user_id
+        ) VALUES (
+            'RET-' || c.annee || '-' || to_char(100 + v_rang, 'FM0000'),
+            v_jour, 'CLOSED', 'Retour solde : marchandise reprise par le fournisseur',
+            c.id, c.order_date, c.fournisseur_id, false, false, v_user_id
+        )
+        RETURNING id INTO v_bon_id;
+
+        v_montant := 0;
+        FOR l IN
+            SELECT ol.id, ol.commande_order_date, ol.order_cost_amount,
+                   greatest(ol.quantity_received / 10, 1) AS qty
+              FROM order_line ol
+             WHERE ol.commande_id = c.id AND ol.commande_order_date = c.order_date
+               AND ol.quantity_received > 0
+             ORDER BY ol.id
+             LIMIT 2
+        LOOP
+            INSERT INTO retour_bon_item (
+                date_mtv, init_stock, after_stock, qty_mvt, accepted_qty,
+                prix_achat, motif_retour_id, orderline_id, orderline_order_date, retour_bon_id
+            ) VALUES (
+                v_jour, l.qty * 10, l.qty * 10 - l.qty, l.qty, l.qty,
+                l.order_cost_amount, v_motif_id, l.id, l.commande_order_date, v_bon_id
+            );
+            v_montant := v_montant + l.order_cost_amount * l.qty;
+        END LOOP;
+
+        IF v_montant > 0 THEN
+            INSERT INTO avoir_fournisseur (
+                reference, date_mtv, montant, statut, commentaire,
+                user_id, retour_bon_id, fournisseur_id
+            ) VALUES (
+                'AVF-' || c.annee || '-' || to_char(100 + v_rang, 'FM0000'),
+                v_jour + INTERVAL '12 days', v_montant, 'REMBOURSE',
+                'Avoir recu et impute sur la facture suivante',
+                v_user_id, v_bon_id, c.fournisseur_id
+            )
+            RETURNING id INTO v_avoir_id;
+
+            INSERT INTO avoir_fournisseur_line (
+                avoir_fournisseur_id, retour_bon_item_id, qty_mvt, prix_achat, commentaire
+            )
+            SELECT v_avoir_id, i.id, i.accepted_qty, i.prix_achat, NULL
+              FROM retour_bon_item i WHERE i.retour_bon_id = v_bon_id;
+        ELSE
+            DELETE FROM retour_bon_item WHERE retour_bon_id = v_bon_id;
+            DELETE FROM retour_bon WHERE id = v_bon_id;
+        END IF;
+    END LOOP;
+END $$;
+
+-- ---------------------------------------------------------------------------
 -- Controles
 -- ---------------------------------------------------------------------------
 DO $$

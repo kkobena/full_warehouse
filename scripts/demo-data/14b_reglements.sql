@@ -59,6 +59,7 @@ FROM (
            row_number() OVER (ORDER BY s.customer_id) AS rang
       FROM sales s
      WHERE s.differe AND s.payment_status = 'IMPAYE' AND s.amount_to_be_paid > 0
+       AND s.sale_date >= CURRENT_DATE - 90        -- l'ancien est soldé plus bas, au fil de l'eau
      GROUP BY s.customer_id
 ) c
 WHERE c.customer_id % 3 <> 0;        -- deux clients sur trois règlent
@@ -72,7 +73,26 @@ SELECT s.id, s.sale_date, s.customer_id, s.amount_to_be_paid, c.jour_reglement
  WHERE s.differe
    AND s.payment_status = 'IMPAYE'
    AND s.amount_to_be_paid > 0
+   AND s.sale_date >= CURRENT_DATE - 90
    AND s.sale_date < c.jour_reglement;
+
+-- Les crédits de plus de trois mois ont été soldés au fil de l'eau : un client vient régler
+-- son ardoise dans le mois qui suit, sauf un sur douze qui ne règle jamais — les créances
+-- anciennes, matière des relances. Un règlement par client et par mois de règlement, daté
+-- du premier jour d'ouverture de ce mois-là à partir d'un décalage propre au client, et
+-- toujours postérieur à la dernière vente qu'il solde.
+INSERT INTO tmp_differe
+SELECT s.id, s.sale_date, s.customer_id, s.amount_to_be_paid,
+       (date_trunc('month', s.sale_date) + INTERVAL '1 month'
+        + (INTERVAL '1 day' * (s.customer_id % 25)))::date AS jour_reglement
+  FROM sales s
+ WHERE s.differe
+   AND s.payment_status = 'IMPAYE'
+   AND s.amount_to_be_paid > 0
+   AND s.sale_date < CURRENT_DATE - 90
+   AND s.customer_id % 12 <> 0
+   AND (date_trunc('month', s.sale_date) + INTERVAL '1 month'
+        + (INTERVAL '1 day' * (s.customer_id % 25)))::date < CURRENT_DATE;
 
 -- Un règlement par client, rattaché à une caisse réellement ouverte :
 -- PaymentTransaction.cashRegister est obligatoire, et une caisse inventée
@@ -84,10 +104,11 @@ SELECT
     g.montant,
     reg.id   AS cash_register_id,
     reg.jour AS transaction_date,
-    row_number() OVER (ORDER BY g.customer_id) AS rang
+    g.jour_reglement,
+    row_number() OVER (ORDER BY g.customer_id, g.jour) AS rang
 FROM (
-    SELECT customer_id, sum(amount_to_be_paid)::int AS montant, max(jour_reglement) AS jour
-      FROM tmp_differe GROUP BY customer_id
+    SELECT customer_id, jour_reglement, sum(amount_to_be_paid)::int AS montant, jour_reglement AS jour
+      FROM tmp_differe GROUP BY customer_id, jour_reglement
 ) g
 CROSS JOIN LATERAL (
     -- Première caisse ouverte à partir de la date de règlement. Le repli sur
@@ -135,7 +156,8 @@ INSERT INTO differe_payment_item (
 )
 SELECT 0, d.amount_to_be_paid, p.id, p.transaction_date, d.id, d.sale_date
   FROM tmp_differe d
-  JOIN tmp_differe_paiement p ON p.customer_id = d.customer_id;
+  JOIN tmp_differe_paiement p ON p.customer_id = d.customer_id
+                            AND p.jour_reglement = d.jour_reglement;
 
 -- La vente soldée bascule à PAYE ; payroll_amount enregistre l'encaissé.
 UPDATE sales s

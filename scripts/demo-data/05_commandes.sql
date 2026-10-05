@@ -152,7 +152,7 @@ SELECT
     s.prix_uni,
     s.rang,
     -- Quantité commandée : multiple du colisage, entre 5 et 60.
-    (5 + ((s.commande_id * 7 + s.rang * 13) % 56)) AS quantity_requested
+    (3 + ((s.commande_id * 7 + s.rang * 13) % 21)) AS quantity_requested
 FROM (
     SELECT DISTINCT ON (c.id, fp.id)
         c.id       AS commande_id,

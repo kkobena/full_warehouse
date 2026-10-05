@@ -32,7 +32,10 @@ SELECT
     make_date(x.annee, x.mois, 1) AS debut_periode,
     (make_date(x.annee, x.mois, 1) + INTERVAL '1 month' - INTERVAL '1 day')::date AS fin_periode,
     x.montant,
-    row_number() OVER (ORDER BY x.annee, x.mois, x.tierspayant_id) AS rang
+    row_number() OVER (ORDER BY x.annee, x.mois, x.tierspayant_id) AS rang,
+    -- Le compteur de numerotation repart a 1 chaque annee (getFactureNumber).
+    row_number() OVER (PARTITION BY extract(year FROM make_date(x.annee, x.mois, 1) + INTERVAL '1 month' + INTERVAL '4 days')
+                       ORDER BY x.annee, x.mois, x.tierspayant_id) AS rang_an
 FROM (
     SELECT
         ctp.tierspayant_id,
@@ -48,6 +51,17 @@ FROM (
 -- Mois révolus uniquement.
 WHERE make_date(x.annee, x.mois, 1) < date_trunc('month', CURRENT_DATE)::date
   AND x.montant > 0;
+
+-- Profil de reglement, qui suit l'anciennete : 0 = soldee, 1 = partielle, 2 = impayee.
+-- Au-dela de quatre mois, un organisme a regle presque tout ; ne restent que quelques
+-- factures litigieuses, vieilles de plusieurs mois -- ce qu'un ecran de creances anciennes
+-- doit pouvoir montrer. Les quatre derniers mois gardent la rotation d'origine.
+ALTER TABLE tmp_facture ADD COLUMN profil int;
+UPDATE tmp_facture
+   SET profil = CASE WHEN invoice_date >= CURRENT_DATE - 120 THEN rang % 3
+                     WHEN rang % 41 = 0 THEN 2
+                     WHEN rang % 17 = 0 THEN 1
+                     ELSE 0 END;
 
 -- ---------------------------------------------------------------------------
 -- 2. Ventilation TVA de la facture
@@ -94,20 +108,20 @@ SELECT
     -- qui suit le souligne, rendait alors le numero entier, et le manuel
     -- montrait une numerotation que le logiciel ne produit jamais. Le rang est
     -- global a l'annee, comme le compteur du service.
-    to_char(f.invoice_date, 'YYYY') || '_' || lpad(f.rang::text, 4, '0'),
+    to_char(f.invoice_date, 'YYYY') || '_' || lpad(f.rang_an::text, 4, '0'),
     f.debut_periode, f.fin_periode, false,
     -- Réglée intégralement, partiellement, ou pas du tout.
-    CASE WHEN f.rang % 3 = 0 THEN f.montant
-         WHEN f.rang % 3 = 1 THEN (f.montant * 4 / 10)
-         ELSE 0 END,
+    CASE f.profil WHEN 0 THEN f.montant
+                  WHEN 1 THEN (f.montant * 4 / 10)
+                  ELSE 0 END,
     0,
     f.rang,
     COALESCE(a.ttc, f.montant), COALESCE(a.ht, f.montant),
     COALESCE(a.tva, 0), COALESCE(a.ttc, f.montant),
     COALESCE(a.rep, '[]'::jsonb),
-    CASE WHEN f.rang % 3 = 0 THEN 'PAID'
-         WHEN f.rang % 3 = 1 THEN 'PARTIALLY_PAID'
-         ELSE 'NOT_PAID' END,
+    CASE f.profil WHEN 0 THEN 'PAID'
+                  WHEN 1 THEN 'PARTIALLY_PAID'
+                  ELSE 'NOT_PAID' END,
     'MANUELLE',
     f.tierspayant_id,
     -- NUL sur une facture individuelle : ce champ ne dit pas que l'organisme
@@ -237,13 +251,13 @@ FROM (
       JOIN groupe_tiers_payant gtp  ON gtp.id = tp.groupe_tiers_payant_id
      WHERE gtp.name = 'MUTUELLES PUBLIQUES'
        AND f.groupe_facture_tiers_payant_id IS NULL
-       -- Les deux dernières éditions : les plus récentes sont celles que
+       -- Les six dernières éditions : les plus récentes sont celles que
        -- l'écran montre en premier, période par défaut à un mois glissant.
        AND f.invoice_date IN (SELECT invoice_date
                                 FROM facture_tiers_payant
                                GROUP BY invoice_date
                                ORDER BY invoice_date DESC
-                               LIMIT 2)
+                               LIMIT 6)
      GROUP BY tp.groupe_tiers_payant_id, f.invoice_date
 ) g;
 
@@ -283,7 +297,8 @@ SELECT
 FROM tmp_facture_groupe g
 CROSS JOIN LATERAL (SELECT id FROM app_user WHERE login = 'admin' LIMIT 1) u
 CROSS JOIN LATERAL (SELECT COALESCE(max(split_part(num_facture, '_', 2)::int), 0) AS dernier
-                      FROM facture_tiers_payant) n;
+                      FROM facture_tiers_payant
+                     WHERE num_facture LIKE to_char(g.invoice_date, 'YYYY') || '_%') n;
 
 -- Rattachement des filles. La clé étrangère porte sur les DEUX colonnes de la
 -- clé composite de la parente.

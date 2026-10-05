@@ -90,16 +90,18 @@ ALTER TABLE tmp_lot ADD COLUMN statut text;
 
 UPDATE tmp_lot t
    SET expiry_date = GREATEST(
-        CASE (t.produit_id * 7 + t.rang_produit * 3) % 20
+        -- Sur 40 : 2,5 % à détruire, 5 % périmés, 2,5 % en alerte, 10 % en vigilance, le reste
+        -- sain. Un lot sur dix ne se vend plus — la perte réelle d'une officine, pas davantage :
+        -- au-delà, les ventes récentes manqueraient de marchandise.
+        CASE (t.produit_id * 7 + t.rang_produit * 3) % 40
             WHEN 0 THEN CURRENT_DATE - (170 + (t.produit_id % 40))   -- destruction
             WHEN 1 THEN CURRENT_DATE - (10 + (t.produit_id % 130))   -- périmé
             WHEN 2 THEN CURRENT_DATE - (10 + (t.produit_id % 130))
             WHEN 3 THEN CURRENT_DATE + (7 + (t.produit_id % 80))     -- alerte
-            WHEN 4 THEN CURRENT_DATE + (7 + (t.produit_id % 80))
-            WHEN 5 THEN CURRENT_DATE + (90 + (t.produit_id % 175))   -- vigilance
+            WHEN 4 THEN CURRENT_DATE + (90 + (t.produit_id % 175))   -- vigilance
+            WHEN 5 THEN CURRENT_DATE + (90 + (t.produit_id % 175))
             WHEN 6 THEN CURRENT_DATE + (90 + (t.produit_id % 175))
             WHEN 7 THEN CURRENT_DATE + (90 + (t.produit_id % 175))
-            WHEN 8 THEN CURRENT_DATE + (90 + (t.produit_id % 175))
             ELSE        CURRENT_DATE + (270 + (t.produit_id % 440))  -- sain
         END,
         t.receipt_date + 15
@@ -140,6 +142,36 @@ WHERE p.gestion_lot
 LIMIT 60;
 
 -- ---------------------------------------------------------------------------
+-- 3bis. Lots d'ouverture : le stock repris au début de la fenêtre récente
+--
+-- Les 180 derniers jours construisent à eux seuls tout le stock courant : sans stock
+-- d'ouverture, leurs achats devraient porter à la fois les ventes et le stock final, et
+-- les achats mensuels bondiraient d'un tiers au passage de l'historique à cette fenêtre.
+-- Ces lots sont sains, reçus dans les jours qui précèdent la fenêtre ; 09b_histo_achats.sql
+-- leur rattache la réception (ligne de commande, lot_reception) qui les rend traçables,
+-- et ils comptent dans les achats du dernier mois de l'historique.
+--
+-- Un produit sur trois n'en reçoit pas : l'ouverture ne couvre pas tout le catalogue.
+-- ---------------------------------------------------------------------------
+INSERT INTO tmp_lot (
+    produit_id, order_line_id, commande_order_date, receipt_date,
+    order_cost_amount, order_unit_price, est_scanne, quantity,
+    statut_legal, rang_produit, expiry_date, statut
+)
+SELECT
+    p.id, NULL, NULL, CURRENT_DATE - pg_temp.jours_recents() - 1,
+    p.cost_amount, p.regular_unit_price, false,
+    3 + (p.id * 13) % 16,
+    p.statut_legal,
+    2000 + row_number() OVER (ORDER BY p.id),
+    CURRENT_DATE + (270 + (p.id % 440)),
+    'AVAILABLE'
+FROM produit p
+WHERE p.gestion_lot
+  AND p.status = 'ENABLE'
+  AND p.id % 3 <> 0;
+
+-- ---------------------------------------------------------------------------
 -- 4. Insertion
 --
 -- num_lot est unique par produit ; serial_number l'est aussi, via un index
@@ -154,8 +186,9 @@ INSERT INTO lot (
     created_date, updated
 )
 SELECT
-    'L' || COALESCE(to_char(t.receipt_date, 'YYMM'), 'HIST')
-        || lpad(t.rang_produit::text, 4, '0'),
+    CASE WHEN t.rang_produit > 2000 THEN 'LOUV' || lpad(t.produit_id::text, 5, '0')
+         ELSE 'L' || COALESCE(to_char(t.receipt_date, 'YYMM'), 'HIST')
+                  || lpad(t.rang_produit::text, 4, '0') END,
     t.produit_id,
     t.order_line_id,
     t.commande_order_date,

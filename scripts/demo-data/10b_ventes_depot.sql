@@ -55,8 +55,18 @@ ON CONFLICT (name) DO NOTHING;
 
 INSERT INTO storage (name, storage_type, magasin_id)
 SELECT 'Stock dépôt', 'PRINCIPAL', m.id
-FROM magasin m WHERE m.type_magasin = 'DEPOT'
+FROM magasin m WHERE m.name = 'PHARMA SMART DEPOT'
 ON CONFLICT (storage_type, magasin_id) DO NOTHING;
+
+-- LE dépôt du jeu de données, désigné par son nom (unique) et jamais par son
+-- seul type : la remise à zéro préserve la table magasin, si bien qu'un dépôt
+-- créé depuis l'écran survit au rechargement. Le chercher par type_magasin
+-- renverrait alors plusieurs lignes, et verserait le stock du jeu dans tous.
+CREATE TEMP TABLE tmp_depot AS
+SELECT m.id AS depot_id, s.id AS storage_id
+  FROM magasin m
+  JOIN storage s ON s.magasin_id = m.id AND s.storage_type = 'PRINCIPAL'
+ WHERE m.name = 'PHARMA SMART DEPOT';
 
 -- ---------------------------------------------------------------------------
 -- 2. En-têtes des ventes dépôt (150 sur 180 jours)
@@ -74,10 +84,8 @@ SELECT
     LEAST(d.jour + TIME '07:30:00', date_trunc('minute', LOCALTIMESTAMP)) AS moment,
     cr.id AS cash_register_id,
     cr.user_id AS caissier_id,
-    (SELECT id FROM magasin WHERE type_magasin = 'DEPOT') AS depot_id,
-    (SELECT s.id FROM storage s
-       JOIN magasin m ON m.id = s.magasin_id AND m.type_magasin = 'DEPOT'
-      WHERE s.storage_type = 'PRINCIPAL' LIMIT 1) AS depot_storage_id
+    (SELECT depot_id FROM tmp_depot) AS depot_id,
+    (SELECT storage_id FROM tmp_depot) AS depot_storage_id
 FROM (
     SELECT (CURRENT_DATE - (INTERVAL '1 day' * j))::date AS jour
       -- Depuis 0 : la journée du chargement doit figurer dans l'historique des
@@ -310,11 +318,7 @@ SELECT
     GREATEST(2, v.qte / 6), GREATEST(10, v.qte * 2), 0,
     0, 'system', NOW() - (INTERVAL '1 day' * (pg_temp.horizon() + 40)), NOW()
 FROM (SELECT produit_id, sum(quantity)::int AS qte FROM tmp_vd_calc GROUP BY produit_id) v
-CROSS JOIN LATERAL (
-    SELECT s.id AS storage_id FROM storage s
-      JOIN magasin m ON m.id = s.magasin_id AND m.type_magasin = 'DEPOT'
-     WHERE s.storage_type = 'PRINCIPAL' LIMIT 1
-) d
+CROSS JOIN tmp_depot d
 ON CONFLICT (storage_id, produit_id) DO UPDATE
    SET qty_stock = stock_produit.qty_stock + EXCLUDED.qty_stock,
        qty_virtual = stock_produit.qty_virtual + EXCLUDED.qty_virtual;
@@ -354,9 +358,9 @@ UPDATE stock_produit sp
    SET qty_stock = sp.qty_stock - r.qte, qty_virtual = sp.qty_stock - r.qte, updated_at = NOW()
   FROM (SELECT i.produit_id, sum(i.qty_mvt)::int AS qte
           FROM retour_depot_item i GROUP BY i.produit_id) r,
-       storage s, magasin m
+       tmp_depot d
  WHERE sp.produit_id = r.produit_id
-   AND s.id = sp.storage_id AND m.id = s.magasin_id AND m.type_magasin = 'DEPOT';
+   AND sp.storage_id = d.storage_id;
 
 UPDATE stock_produit sp
    SET qty_stock = sp.qty_stock + r.qte, qty_virtual = sp.qty_stock + r.qte, updated_at = NOW()
@@ -373,6 +377,7 @@ DROP TABLE tmp_vd_calc;
 DROP TABLE tmp_vd_ligne;
 DROP TABLE tmp_vd_dispo;
 DROP TABLE tmp_vd;
+DROP TABLE tmp_depot;
 
 -- ---------------------------------------------------------------------------
 -- Contrôles immédiats
@@ -382,7 +387,11 @@ DECLARE
     v_depot int; v_ventes int; v_retours int;
     v_marqueurs int; v_paie int; v_lot_depot int; v_neg int;
 BEGIN
-    SELECT count(*) INTO v_depot   FROM magasin WHERE type_magasin = 'DEPOT';
+    -- Le dépôt du jeu, avec son stockage : d'autres dépôts créés depuis
+    -- l'écran peuvent coexister, ils ne sont pas l'affaire de ce script.
+    SELECT count(*) INTO v_depot   FROM magasin m
+      JOIN storage s ON s.magasin_id = m.id AND s.storage_type = 'PRINCIPAL'
+     WHERE m.name = 'PHARMA SMART DEPOT' AND m.type_magasin = 'DEPOT';
     SELECT count(*) INTO v_ventes  FROM sales WHERE dtype = 'VenteDepot';
     SELECT count(*) INTO v_retours FROM retour_depot;
 

@@ -41,8 +41,10 @@ SELECT s.cis, s.libelle, s.forme,
        (SELECT count(*) FROM ref_specialite_composition x
          WHERE x.cis = s.cis AND x.nature = 'SA')::int AS nsa,
        (s.composition ILIKE '%HOMÉOPATHIQUES%') AS homeo,
-       -- Produits de tête : deux spécialités par marque ou molécule imposée.
-       (s.libelle ~ '^(DOLIPRANE|EFFERALGAN|TRAMADOL|DIAZEPAM|BROMAZEPAM|AUGMENTIN|ATORVASTATINE|ADVIL|SPASFON|AMOXICILLINE|ZYRTEC|VOLTARENE|ARNICA|ARTEMETHER|METFORMINE) ') AS tete
+       -- Produits de tête : deux spécialités par marque ou molécule imposée. PARACETAMOL
+       -- en est : les parcours y passent, et le contrôle « Princeps et générique partagent
+       -- leur molécule » de 99_verification.sql le rapproche de DOLIPRANE.
+       (s.libelle ~ '^(DOLIPRANE|EFFERALGAN|PARACETAMOL|TRAMADOL|DIAZEPAM|BROMAZEPAM|AUGMENTIN|ATORVASTATINE|ADVIL|SPASFON|AMOXICILLINE|ZYRTEC|VOLTARENE|ARNICA|ARTEMETHER|METFORMINE) ') AS tete
   FROM ref_specialite s
   JOIN tmp_cip_bdpm k ON k.cis = s.cis
  WHERE s.commercialisee
@@ -55,8 +57,10 @@ SELECT s.cis, s.libelle, s.forme,
 CREATE TEMP TABLE tmp_bdpm_sel AS
 WITH tete AS (
     SELECT c.*, 0 AS prio FROM (
+        -- Mono-molécule d'abord : une association (DOLIPRANE CODEINE…) prendrait pour DCI
+        -- principale sa première substance par code, pas forcément celle de la marque.
         SELECT c.*, row_number() OVER (PARTITION BY substring(c.libelle FROM '^[A-Z]+')
-                                       ORDER BY md5(c.cis)) AS n
+                                       ORDER BY (c.nsa <> 1), md5(c.cis)) AS n
           FROM tmp_bdpm_c c WHERE c.tete AND c.nsa >= 1
     ) c WHERE c.n <= 2
 ),
@@ -407,7 +411,7 @@ DROP TABLE tmp_bdpm_c;
 DO $$
 DECLARE
     v_nb int; v_sans_dci int; v_sans_fp int; v_stup int; v_pso int; v_assoc int; v_homeo int;
-    v_groupes int; v_dec int;
+    v_groupes int; v_dec int; v_parac int;
 BEGIN
     SELECT count(*) INTO v_nb FROM produit WHERE libelle IN (SELECT libelle FROM ref_specialite);
     SELECT count(*) INTO v_sans_dci FROM produit p
@@ -421,6 +425,11 @@ BEGIN
     SELECT count(*) INTO v_groupes FROM (SELECT dci_id FROM produit WHERE dci_id IS NOT NULL
                                           GROUP BY dci_id HAVING count(*) >= 3) x;
     SELECT count(*) INTO v_dec FROM produit WHERE type_produit = 'PACKAGE' AND deconditionnable;
+    -- Même requête que le contrôle dci de 99_verification.sql : échouer ici, là où se
+    -- décide le catalogue, plutôt qu'au bout de toute la chaîne.
+    SELECT count(*) INTO v_parac FROM produit p1
+      JOIN produit p2 ON p2.dci_id = p1.dci_id
+     WHERE p1.libelle LIKE 'PARACETAMOL %' AND p2.libelle LIKE 'DOLIPRANE %';
 
     IF v_nb < 900 THEN RAISE EXCEPTION 'Produits issus du référentiel : % (attendu >= 900)', v_nb; END IF;
     IF v_sans_dci > 0 THEN RAISE EXCEPTION '% produit(s) du référentiel sans DCI', v_sans_dci; END IF;
@@ -432,6 +441,7 @@ BEGIN
     IF v_homeo < 20 THEN RAISE EXCEPTION 'Produits homéopathiques : % (attendu >= 20)', v_homeo; END IF;
     IF v_groupes < 20 THEN RAISE EXCEPTION 'Molécules à trois produits ou plus : % (attendu >= 20)', v_groupes; END IF;
     IF v_dec < 20 THEN RAISE EXCEPTION 'Boîtes déconditionnables : % (attendu >= 20)', v_dec; END IF;
+    IF v_parac = 0 THEN RAISE EXCEPTION 'Aucun PARACETAMOL ne partage sa molécule avec un DOLIPRANE'; END IF;
 
     RAISE NOTICE '% produits du référentiel (% homéopathiques, % associations, % déconditionnables, % stupéfiants, % psychotropes).',
                  v_nb, v_homeo, v_assoc, v_dec, v_stup, v_pso;

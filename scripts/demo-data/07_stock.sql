@@ -435,11 +435,17 @@ SELECT 'LVEDETTE' || lpad(p.id::text, 4, '0'),
        'AVAILABLE', now(), now()
   FROM produit p
  WHERE p.id IN (SELECT produit_id FROM tmp_vedette)
+   -- Meme critere d'eligibilite que lot_cible plus bas : un lot d'ouverture
+   -- (LOUV) ou serialise est present en rayon mais ne sera jamais gonfle. Le
+   -- compter ici ferait sauter la pose du lot vedette et laisserait le produit
+   -- sans rien a crediter.
    AND NOT EXISTS (
        SELECT 1 FROM lot l
          JOIN lot_stock_location lsl ON lsl.lot_id = l.id
          JOIN storage st ON st.id = lsl.storage_id AND st.storage_type = 'PRINCIPAL'
         WHERE l.produit_id = p.id
+          AND l.serial_number IS NULL
+          AND l.num_lot NOT LIKE 'LOUV%'
    )
 ON CONFLICT (num_lot, produit_id) DO NOTHING;
 

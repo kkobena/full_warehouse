@@ -1,4 +1,15 @@
-import {AfterViewInit, Component, computed, DestroyRef, effect, inject, OnInit, signal, viewChild, ChangeDetectionStrategy} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  OnInit,
+  signal,
+  viewChild
+} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
@@ -7,7 +18,7 @@ import {take} from 'rxjs/operators';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {fournirInfobullesEnHaut} from '../../shared/infobulles-en-haut';
 import {HauteurEcranVenteDirective} from '../../shared/hauteur-ecran-vente.directive';
-import {ButtonComponent, SelectSearchComponent} from '../../../../shared/ui';
+import {ButtonComponent, OffcanvasComponent, SelectSearchComponent} from '../../../../shared/ui';
 import {NgxSpinnerComponent, NgxSpinnerService} from 'ngx-spinner';
 
 import {VenteDepotFacade} from '../../data-access/facades/vente-depot.facade';
@@ -33,23 +44,25 @@ import {UserVendeurService} from '../../../../entities/sales/service/user-vendeu
 import {TauriPrinterService} from '../../../../shared/services/tauri-printer.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
 
-import {NgbConfirmDialogService} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import {
+  NgbConfirmDialogService
+} from '../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
 
 import {FinalyseSale, SaleId} from '../../../../shared/model/sales.model';
 import {IMagasin, IRemise, ISalesLine, ProduitSearch} from '../../../../shared/model';
 import {SaleLineId} from '../../../../shared/model/sales-line.model';
 import {IUser} from '../../../../core/user/user.model';
 import {ErrorService} from '../../../../shared/error.service';
-import { SalesHelpPanelComponent } from '../../ui/sales-help-panel/sales-help-panel.component';
-import { SalesHelpService } from '../../data-access/services/sales-help.service';
-import { OffcanvasComponent } from '../../../../shared/ui/offcanvas/offcanvas.component';
+import {SalesHelpPanelComponent} from '../../ui/sales-help-panel/sales-help-panel.component';
+import {SalesHelpService} from '../../data-access/services/sales-help.service';
+
 @Component({
   selector: 'app-vente-depot',
   host: {
     '(window:keydown)': 'handleKeyboardEvent($event)',
   },
   providers: [fournirInfobullesEnHaut()],
-  imports: [SalesHelpPanelComponent, OffcanvasComponent, 
+  imports: [SalesHelpPanelComponent, OffcanvasComponent,
     HauteurEcranVenteDirective,
     CommonModule,
     FormsModule,
@@ -67,26 +80,36 @@ import { OffcanvasComponent } from '../../../../shared/ui/offcanvas/offcanvas.co
   styleUrl: './vente-depot.component.scss',
 })
 export class VenteDepotComponent implements OnInit, AfterViewInit, ProductSearchHost {
-  // ── Confirm Dialog ──────────────────────────────────────────
-  private readonly confirmDialog = inject(NgbConfirmDialogService);
-
-
   productSearchComponent = viewChild<ProductSearchSectionComponent>('produitbox');
-  private readonly depotBox = viewChild<SelectSearchComponent>('depotBox');
-
   readonly quantityComponent = computed(() => {
     const section = this.productSearchComponent();
-    if (!section) return undefined;
+    if (!section) {
+      return undefined;
+    }
     return {
       focusProduitControl: () => section.focusProduitControl(),
       reset: (qty: number) => section.resetQuantity(qty),
     };
   });
-
+  // ── Autorisations ─────────────────────────────────────────────
+  readonly canApplyDiscount = signal<boolean>(false);
+  readonly canModifyPrice = signal<boolean>(false);
+  // Force Stock state signals (requis par les mixins)
+  readonly waitingForForceStockSuccess = signal<boolean>(false);
+  readonly forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
   // ── Services ─────────────────────────────────────────────────
   protected readonly facade = inject(VenteDepotFacade);
   protected readonly userVendeurService = inject(UserVendeurService);
   protected readonly remiseCacheService = inject(RemiseCacheService);
+  // ── État local ────────────────────────────────────────────────
+  protected readonly selectedDepot = signal<IMagasin | null>(null);
+  protected userCaissier: IUser | null = null;
+  protected readonly userSeller = signal<IUser | undefined>(undefined);
+  /** Panneau d'aide ouvert par F1 (mixin de raccourcis). */
+  protected aideOuverte = inject(SalesHelpService).ouvert;
+  // ── Confirm Dialog ──────────────────────────────────────────
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly depotBox = viewChild<SelectSearchComponent>('depotBox');
   private readonly authorizationService = inject(AuthorizationService);
   private readonly accountService = inject(AccountService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
@@ -94,23 +117,9 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, ProductSearch
   private readonly customerDisplay = inject(CustomerDisplayService);
   private readonly errorService = inject(ErrorService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly spinner = inject(NgxSpinnerService);
-
-  // ── Autorisations ─────────────────────────────────────────────
-  readonly canApplyDiscount = signal<boolean>(false);
-  readonly canModifyPrice = signal<boolean>(false);
-
-  // ── État local ────────────────────────────────────────────────
-  protected readonly selectedDepot = signal<IMagasin | null>(null);
-  protected userCaissier: IUser | null = null;
-  protected readonly userSeller = signal<IUser | undefined>(undefined);
-
-  // Force Stock state signals (requis par les mixins)
-  readonly waitingForForceStockSuccess = signal<boolean>(false);
-  readonly forceStockContext = signal<'addProduct' | 'editCell' | null>(null);
 
   // ── Mixins ──────────────────────────────────────────────────
-
+  private readonly spinner = inject(NgxSpinnerService);
   private productHandling = createProductHandling({
     facade: this.facade as any,
     customerDisplay: this.customerDisplay,
@@ -125,7 +134,6 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, ProductSearch
     createSale: (line: ISalesLine) => this.facade.create(line),
     addProduct: (line: ISalesLine) => this.facade.addOrIncrementProduct(line),
   });
-
   private forceStockHandling = createForceStockHandling({
     facade: this.facade as any,
     authorizationService: this.authorizationService,
@@ -142,7 +150,6 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, ProductSearch
       addProduct: (line: ISalesLine) => this.facade.addOrIncrementProduct(line),
     },
   });
-
   private deconditionnementHandling = createDeconditionnementHandling({
     facade: this.facade as any,
     waitingForForceStockSuccess: this.waitingForForceStockSuccess,
@@ -153,10 +160,6 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, ProductSearch
       addProduct: (line: ISalesLine) => this.facade.addOrIncrementProduct(line),
     },
   });
-
-  /** Panneau d'aide ouvert par F1 (mixin de raccourcis). */
-  protected aideOuverte = inject(SalesHelpService).ouvert;
-
   private keyboardShortcuts = createKeyboardShortcuts(
     {saleType: 'COMPTANT'},
     {
@@ -177,11 +180,15 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, ProductSearch
       cancelSale: () => this.onCancel(),
       printReceipt: () => {
         const sale = this.facade.currentSale();
-        if (sale?.saleId) this.printSale(sale.saleId);
+        if (sale?.saleId) {
+          this.printSale(sale.saleId);
+        }
       },
       printInvoice: () => {
         const sale = this.facade.currentSale();
-        if (sale?.saleId) this.facade.printInvoice(sale.saleId);
+        if (sale?.saleId) {
+          this.facade.printInvoice(sale.saleId);
+        }
       },
     },
   );
@@ -375,7 +382,10 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, ProductSearch
   }
 
 
-  protected onAuthorizationRequired(event: { line: ISalesLine; action: 'delete' | 'discount' }): void {
+  protected onAuthorizationRequired(event: {
+    line: ISalesLine;
+    action: 'delete' | 'discount'
+  }): void {
     const saleId = this.facade.currentSale()?.id;
     if (event.action === 'delete') {
       this.facade.removeItemFromSale(event.line.saleLineId as SaleLineId);
@@ -415,7 +425,9 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, ProductSearch
   }
 
   protected onRemoveRemise(): void {
-    if (!this.facade.currentSale()?.remise) return;
+    if (!this.facade.currentSale()?.remise) {
+      return;
+    }
 
     const doRemove = () => {
       this.confirmDialog.onConfirm(
@@ -434,7 +446,9 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, ProductSearch
         .requestDiscountAuthorization(this.facade.currentSale()?.id)
         .pipe(take(1))
         .subscribe(authorized => {
-          if (authorized) doRemove();
+          if (authorized) {
+            doRemove();
+          }
         });
     }
   }

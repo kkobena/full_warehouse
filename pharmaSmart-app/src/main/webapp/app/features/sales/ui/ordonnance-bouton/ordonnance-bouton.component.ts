@@ -14,8 +14,8 @@ import {OrdonnancePanelService} from '../../data-access/services/ordonnance-pane
   imports: [ButtonComponent, BadgeComponent, NgbTooltip],
   template: `
     <span class="position-relative d-inline-block">
-      <app-button (clicked)="ouvrir()" [ariaLabel]="libelle()" [ngbTooltip]="libelle()" icon="pi pi-file-edit" severity="primary"
-                  size="small" [rounded]="true" [text]="true" />
+      <app-button (clicked)="ouvrir()" [ariaLabel]="libelle()" [ngbTooltip]="libelle()" icon="pi pi-file-edit" severity="help"
+                  size="small" [rounded]="true" [outlined]="true" />
       @if (nombre() > 0) {
         <app-badge [label]="'' + nombre()" severity="success" [rounded]="true" class="position-absolute top-0 end-0" style="transform: scale(0.8); transform-origin: top right; pointer-events: none" />
       }

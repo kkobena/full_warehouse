@@ -8,6 +8,7 @@
     (addComplementaire)="onAddComplementaire()"
     (addCustomer)="onAddCustomer()"
     (customerSelected)="onCustomerSelectedFromBar($event)"
+    (assureBeneficiaire)="onAssureBeneficiaire()"
     (editAyantDroit)="onEditAyantDroit()"
     (editCustomer)="onEditCustomer()"
     (focusProductSearch)="focusProductSearch()"
@@ -17,6 +18,7 @@
     (tiersPayantsChanged)="onTiersPayantsChanged($event)"
     [ayantDroit]="selectedAyantDroit()"
     [customer]="selectedCustomer()"
+    [plafondMessage]="facade.plafondIsReached() ? facade.plafondMessage() : null"
     [hasLines]="(currentSale()?.salesLines?.length ?? 0) > 0"
     [saleType]="'ASSURANCE'"
     [tiersPayants]="currentSale()?.tiersPayants || []">

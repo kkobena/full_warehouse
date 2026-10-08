@@ -139,7 +139,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   });
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   // Services
-  private facade = inject(SalesFacade);
+  protected facade = inject(SalesFacade);
   readonly currentSale = this.facade.currentSale;
   readonly salesLines = this.facade.salesLines;
   readonly selectedCustomer = this.facade.selectedCustomer;

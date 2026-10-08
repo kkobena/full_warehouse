@@ -157,7 +157,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   });
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   // Services
-  private facade = inject(SalesFacade);
+  protected facade = inject(SalesFacade);
   // State depuis le store (signals computed)
   currentSale = this.facade.currentSale;
   thirdPartyDetails = computed(() => {
@@ -608,6 +608,14 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     const ayantDroit = currentSale?.ayantDroit;
     if (ayantDroit) {
       this.openAyantDroitForm(ayantDroit);
+    }
+  }
+
+  /** L'assuré redevient le bénéficiaire : la vente garde un ayant droit (lui-même), la carte se masque. */
+  onAssureBeneficiaire(): void {
+    const customer = this.selectedCustomer();
+    if (customer) {
+      this.facade.setAyantDroit(customer);
     }
   }
 

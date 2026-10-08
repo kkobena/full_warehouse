@@ -296,7 +296,9 @@ export const SalesStore = signalStore(
      * Set selected customer
      */
     setSelectedCustomer(customer: ICustomer | null): void {
-      patchState(store, { selectedCustomer: customer });
+      // Un autre assuré n'hérite pas de l'ayant droit du précédent.
+      const changeDassure = store.selectedCustomer()?.id !== customer?.id;
+      patchState(store, changeDassure ? { selectedCustomer: customer, selectedAyantDroit: null } : { selectedCustomer: customer });
     },
 
     /**

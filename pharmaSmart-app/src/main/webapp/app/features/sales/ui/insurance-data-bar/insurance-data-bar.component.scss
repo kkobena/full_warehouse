@@ -120,6 +120,23 @@ $pharma-warning-light: #fff3cd;
   }
 }
 
+// Les cartes se partagent toute la largeur de la barre (assuré, ayant droit éventuel, 1 à 3 tiers-payants) ;
+// en dessous de leur largeur minimale, la grille défile horizontalement.
+.card-wrapper {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 0;
+
+  > .data-card {
+    width: 100%;
+  }
+
+  // Les tiers-payants portent le bon, le taux et les boutons : un peu plus de place que l'assuré.
+  &.tp-card-wrapper {
+    flex-grow: 1.3;
+  }
+}
+
 // ============================================
 // DATA CARDS (Common Styles)
 // ============================================
@@ -240,7 +257,10 @@ $pharma-warning-light: #fff3cd;
 // ASSURED CARD (Assuré)
 // ============================================
 
-.assured-card {
+.assured-card,
+.ayant-droit-card {
+  // Liseré gauche : plein pour l'assuré (carte principale), pointillé et plus clair pour l'ayant droit.
+  border-left: 5px solid var(--pharma-chrome-tab-dark, #{$pharma-primary-dark});
   .card-header {
     padding: 0;
     background: linear-gradient(135deg, var(--pharma-chrome-tab-tint, #{$pharma-primary-light}) 0%, var(--pharma-chrome-tab-tint, #{lighten($pharma-primary-light, 3%)}) 100%);
@@ -261,26 +281,14 @@ $pharma-warning-light: #fff3cd;
 }
 
 // ============================================
-// AYANT DROIT CARD
+// AYANT DROIT CARD : couleurs du thème comme l'assuré, mais plus claire, liseré pointillé
 // ============================================
 
 .ayant-droit-card {
+  border-left: 5px dotted color-mix(in srgb, var(--pharma-chrome-tab, #{$pharma-primary}) 60%, #fff);
+
   .card-header {
-    padding: 0;
-    background: linear-gradient(135deg, $pharma-success-light 0%, lighten($pharma-success-light, 3%) 100%);
-    border-bottom-color: lighten($pharma-success, 30%);
-
-    .header-title {
-      color: darken($pharma-success, 10%);
-
-      i {
-        color: $pharma-success;
-      }
-    }
-  }
-
-  &:hover {
-    border-color: $pharma-success;
+    background: color-mix(in srgb, var(--pharma-chrome-tab-tint, #{$pharma-primary-light}) 45%, #fff);
   }
 }
 
@@ -289,10 +297,17 @@ $pharma-warning-light: #fff3cd;
 // ============================================
 
 .tiers-payant-card {
+  // Liseré haut : les cartes de tiers-payant se lisent comme une rangée à part, à côté des cartes de personnes.
+  border-top: 4px solid var(--pharma-chrome-tab, #{$pharma-primary});
+
+  &:hover {
+    border-color: var(--pharma-chrome-tab, #{$pharma-primary});
+  }
+
   .tp-header {
     padding: 0.375rem 0.625rem;
-    background: linear-gradient(135deg, $pharma-info-light 0%, lighten($pharma-info-light, 3%) 100%);
-    border-bottom: 1px solid lighten($pharma-info, 30%);
+    background: $gray-50;
+    border-bottom: 1px solid $gray-200;
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
@@ -319,7 +334,7 @@ $pharma-warning-light: #fff3cd;
         flex-shrink: 0;
 
         &.ro-badge {
-          background: linear-gradient(135deg, $pharma-info 0%, darken($pharma-info, 10%) 100%);
+          background: var(--pharma-chrome-tab-dark, #{$pharma-primary-dark});
           color: $pharma-white;
         }
 
@@ -332,7 +347,7 @@ $pharma-warning-light: #fff3cd;
       .tp-name {
         font-size: 0.8125rem;
         font-weight: 600;
-        color: $gray-800;
+        color: var(--pharma-chrome-tab-dark, #{$pharma-primary-dark});
         flex: 1;
         white-space: nowrap;
         overflow: hidden;
@@ -387,7 +402,7 @@ $pharma-warning-light: #fff3cd;
         box-sizing: border-box;
 
         i {
-          color: $pharma-info;
+          color: var(--pharma-chrome-tab, #{$pharma-primary});
           font-size: 0.7rem;
         }
       }
@@ -523,5 +538,29 @@ $pharma-warning-light: #fff3cd;
   // `!important` : la règle d'origine est imbriquée plus profondément, donc plus spécifique.
   .rate-value {
     color: #991b1b !important;
+  }
+}
+
+// Plafond de vente atteint : sous les cartes, sur toute la largeur
+.plafond-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: $pharma-radius-sm;
+  background: lighten($pharma-warning, 42%);
+  border: 1px solid $pharma-warning;
+  color: darken($pharma-warning, 30%);
+  white-space: nowrap;
+
+  i.pi {
+    font-size: 0.875rem;
+    // L'ambre global de l'icône (#d97706) ne fait que 2,97:1 sur ce fond ; elle reprend la couleur du texte (≈ 6:1).
+    color: inherit;
+  }
+
+  span {
+    font-size: 0.85rem;
+    font-weight: 500;
   }
 }

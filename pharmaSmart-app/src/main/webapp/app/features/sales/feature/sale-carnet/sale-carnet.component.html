@@ -12,6 +12,7 @@
     (tiersPayantsChanged)="onTiersPayantsChanged($event)"
     [ayantDroit]="null"
     [customer]="selectedCustomer()"
+    [plafondMessage]="facade.plafondIsReached() ? facade.plafondMessage() : null"
     [hasLines]="(currentSale()?.salesLines?.length ?? 0) > 0"
     [saleType]="'CARNET'"
     [tiersPayants]="currentSale()?.tiersPayants || []">

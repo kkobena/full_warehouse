@@ -50,6 +50,8 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
   /** Au moins un produit au panier : la recherche client se range alors derrière « Changer d'assuré ». */
   readonly hasLines = input<boolean>(false);
   readonly ayantDroit = input<ICustomer | null>(null);
+  /** Message du serveur quand le plafond de vente est atteint ; absent sinon. */
+  readonly plafondMessage = input<string | null>(null);
 
   // Outputs
   readonly tiersPayantsChanged = output<IClientTiersPayant[]>();
@@ -59,6 +61,7 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
   readonly addCustomer = output<void>();
   readonly editAyantDroit = output<void>();
   readonly loadAyantDroits = output<void>();
+  readonly assureBeneficiaire = output<void>();
   readonly addComplementaire = output<void>();
   readonly removeTiersPayant = output<IClientTiersPayant>();
   readonly focusProductSearch = output<void>();
@@ -73,6 +76,11 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
   /** Carte d'assuré dont la date de fin est passée : à signaler avant de servir. */
   protected readonly carteExpiree = IS_ISO_DATE_PAST;
   protected selectedTiersPayants: WritableSignal<IClientTiersPayant[]> = signal<IClientTiersPayant[]>([]);
+  /** L'ayant droit de la vente est une autre personne que l'assuré (par défaut, l'assuré est son propre ayant droit). */
+  protected readonly aUnAyantDroit = computed(() => {
+    const ayantDroit = this.ayantDroit();
+    return !!ayantDroit && ayantDroit.id !== this.customer()?.id;
+  });
   protected divClass: Signal<string> = computed(() => this.getDivClassForCount(this.selectedTiersPayants().length));
   protected divCustomer: Signal<string> = computed(() => this.getDivCustomerClassForCount(this.selectedTiersPayants().length));
   private readonly customerService = inject(CustomerService);
@@ -180,6 +188,10 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
 
   protected loadAyantDoitsClick(): void {
     this.loadAyantDroits.emit();
+  }
+
+  protected assureBeneficiaireClick(): void {
+    this.assureBeneficiaire.emit();
   }
 
   protected onBonEnter(tp: IClientTiersPayant): void {

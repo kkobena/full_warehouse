@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BadgeComponent, ButtonComponent } from '../../shared/ui';
 import { CAHIER_RECETTE, FonctionnaliteRecette, ModuleRecette, ScenarioRecette } from './cahier-recette.model';
-import { CahierRecetteService, CaptureServie, CheminsMenu, IndexCaptures } from './cahier-recette.service';
+import { CahierRecetteService, CaptureServie, CheminsMenu, IndexCaptures, IndexVideos } from './cahier-recette.service';
 import { BlobDownloadService } from 'app/shared/services/blob-download.service';
 
 interface Selection {
@@ -48,6 +48,9 @@ export class CahierRecetteComponent {
    * alors textuel, sans emplacement d'image vide.
    */
   private readonly captures = signal<IndexCaptures>({});
+
+  /** Vidéos des parcours, vides tant que le build n'embarque pas les médias complets. */
+  private readonly videos = signal<IndexVideos>({});
 
   /**
    * Chemins de menu servis par le backend, vides tant que la requête n'a pas répondu — la
@@ -100,6 +103,11 @@ export class CahierRecetteComponent {
       .loadCaptures()
       .pipe(takeUntilDestroyed())
       .subscribe(index => this.captures.set(index));
+
+    this.cahierRecetteService
+      .loadVideos()
+      .pipe(takeUntilDestroyed())
+      .subscribe(index => this.videos.set(index));
 
     this.cahierRecetteService
       .loadNavPaths()
@@ -162,6 +170,11 @@ export class CahierRecetteComponent {
   protected captureDeLEtape(scenario: ScenarioRecette, ordre: number): CaptureServie | null {
     const indexees = this.captures()[scenario.id] ?? scenario.captures;
     return indexees?.find(capture => capture.ordre === ordre) ?? null;
+  }
+
+  /** Vidéo du parcours, ou `null` si le build ne l'embarque pas. */
+  protected videoDuScenario(scenario: ScenarioRecette): string | null {
+    return this.videos()[scenario.id] ?? null;
   }
 
   protected downloadPdf(): void {

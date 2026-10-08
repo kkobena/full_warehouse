@@ -28,6 +28,7 @@ scenario('FAC-43', async ({ etape, page }) => {
     await expect(contenu).toContainText('Palier RFA');
     await expect(contenu).toContainText('CA commandé');
     await expect(contenu).toContainText('% atteint');
-    await expect(page.locator('.progress-bar-rfa').first()).toBeVisible();
+    // La jauge (piste + remplissage) : le remplissage, lui, a une largeur nulle tant que le palier n'est pas entamé.
+    await expect(page.locator('.progress-rfa .progress-track').first()).toBeVisible();
   });
 });

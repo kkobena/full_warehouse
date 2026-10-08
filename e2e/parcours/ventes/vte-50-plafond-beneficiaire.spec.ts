@@ -54,22 +54,22 @@ scenario('VTE-50', async ({ etape, page }) => {
     await bon.press('Enter');
     await expect(page.locator('#produitbox')).toBeFocused();
     await chercherProduit(page, produit);
-    await ajouterAuPanier(page, '2');
+    await ajouterAuPanier(page, '3');
     await expect(lignes.first()).toContainText(produit);
-    await expect(contenu).toContainText('25 950');
+    await expect(contenu).toContainText('25 740');
   });
 
   await etape(3, async () => {
-    // Sans plafond, l'organisme prendrait 70 % de 25 950, soit 18 165. Mais CNAM plafonne
+    // Sans plafond, l'organisme prendrait 70 % de 25 740, soit 18 018. Mais CNAM plafonne
     // chaque bénéficiaire à 50 000 par mois et celui-ci en a déjà consommé 35 000 : il ne lui
     // reste que 15 000 de droit, et c'est ce montant, et lui seul, qui est pris en charge.
     // Ces chiffres sont FIGÉS par 13b_plafonds.sql pour rester citables dans le manuel.
     await expect(contenu).toContainText('15 000');
     // L'assertion qui porte le scénario : le taux ne s'applique plus. Une prise en charge
-    // réduite d'une fraction aurait donné 18 165 ; le plafond, lui, donne le reliquat.
-    await expect(contenu).not.toContainText('18 165');
-    // Et la différence retombe sur le patient : 25 950 − 15 000 = 10 950.
-    await expect(contenu).toContainText('10 950');
+    // réduite d'une fraction aurait donné 18 018 ; le plafond, lui, donne le reliquat.
+    await expect(contenu).not.toContainText('18 018');
+    // Et la différence retombe sur le patient : 25 740 − 15 000 = 10 740.
+    await expect(contenu).toContainText('10 740');
   });
 
   await etape(4, async () => {

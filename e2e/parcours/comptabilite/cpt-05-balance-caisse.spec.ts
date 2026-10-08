@@ -36,26 +36,40 @@ scenario('CPT-05', async ({ etape, page }) => {
     Number((await ligne.locator('td').nth(colonne).innerText()).replace(/[^\d-]/g, ''));
 
   const lignes = table.locator('tbody tr').filter({ visible: true });
-  const nombreDeTypes = await lignes.count();
-  expect(nombreDeTypes, 'une balance sans ligne ne prouve rien').toBeGreaterThan(0);
 
-  // 1. Ligne à ligne : le net est le brut diminué de la remise.
-  let sommeBrut = 0;
-  let sommeRemise = 0;
-  let sommeNet = 0;
-  for (let rang = 0; rang < nombreDeTypes; rang++) {
-    const brut = await nombre(lignes.nth(rang), 2);
-    const remise = await nombre(lignes.nth(rang), 3);
-    const net = await nombre(lignes.nth(rang), 4);
-    expect(net, `net du type n°${rang + 1}`).toBe(brut - remise);
-    sommeBrut += brut;
-    sommeRemise += remise;
-    sommeNet += net;
-  }
+  // Le tableau se rafraîchit à l'arrivée de chaque réponse : lire ses cellules pendant ce
+  // rafraîchissement donne des colonnes de deux calculs différents. On relit donc jusqu'à ce que
+  // le tableau soit stable, et c'est seulement alors que les identités doivent tenir.
+  const ecarts = async (): Promise<string[]> => {
+    const problemes: string[] = [];
+    const nombreDeTypes = await lignes.count();
+    if (nombreDeTypes === 0) {
+      return ['une balance sans ligne ne prouve rien'];
+    }
 
-  // 2. Le pied de table totalise les lignes, sans en oublier ni en inventer.
-  const total = table.locator('tfoot tr').first();
-  expect(await nombre(total, 2), 'total brut').toBe(sommeBrut);
-  expect(await nombre(total, 3), 'total remise').toBe(sommeRemise);
-  expect(await nombre(total, 4), 'total net').toBe(sommeNet);
+    // 1. Ligne à ligne : le net est le brut diminué de la remise.
+    let sommeBrut = 0;
+    let sommeRemise = 0;
+    let sommeNet = 0;
+    for (let rang = 0; rang < nombreDeTypes; rang++) {
+      const brut = await nombre(lignes.nth(rang), 2);
+      const remise = await nombre(lignes.nth(rang), 3);
+      const net = await nombre(lignes.nth(rang), 4);
+      if (net !== brut - remise) {
+        problemes.push(`net du type n°${rang + 1} : ${net} au lieu de ${brut - remise}`);
+      }
+      sommeBrut += brut;
+      sommeRemise += remise;
+      sommeNet += net;
+    }
+
+    // 2. Le pied de table totalise les lignes, sans en oublier ni en inventer.
+    const total = table.locator('tfoot tr').first();
+    const pied = [await nombre(total, 2), await nombre(total, 3), await nombre(total, 4)];
+    if (pied[0] !== sommeBrut) problemes.push(`total brut : ${pied[0]} au lieu de ${sommeBrut}`);
+    if (pied[1] !== sommeRemise) problemes.push(`total remise : ${pied[1]} au lieu de ${sommeRemise}`);
+    if (pied[2] !== sommeNet) problemes.push(`total net : ${pied[2]} au lieu de ${sommeNet}`);
+    return problemes;
+  };
+  await expect.poll(ecarts, { timeout: 15_000, intervals: [500, 1000] }).toEqual([]);
 });

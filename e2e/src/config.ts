@@ -127,3 +127,35 @@ export const MARQUEURS_ACTIONS = process.env.E2E_ACTION_MARKERS !== '0';
  * exécution ciblée sur un seul scénario ne fasse pas disparaître les captures des autres.
  */
 export const REINITIALISER_INDEX = process.env.E2E_CAPTURES_RESET === '1';
+
+/**
+ * Nom du projet Playwright qui filme les parcours. Il rejoue les mêmes fichiers que « parcours »,
+ * sans prendre d'images : une vidéo a son propre rythme (pauses, légende à l'écran), qui ralentirait
+ * inutilement une campagne de captures. `npm run videos`.
+ */
+export const PROJET_VIDEOS = 'videos';
+
+/** Nom du fichier vidéo d'un scénario, dans le dossier des captures : « VTE-01/parcours.webm ». */
+export const NOM_VIDEO = 'parcours.webm';
+
+/** Index des vidéos, à côté de `captures.json` : { "VTE-01": "VTE-01/parcours.webm" }. */
+export const FICHIER_INDEX_VIDEOS = resolve(DOSSIER_CAPTURES, 'videos.json');
+
+/**
+ * Réglages du rythme des vidéos. Un test automatique va bien trop vite pour être suivi : on laisse
+ * le temps de lire la légende avant chaque étape, puis de voir le résultat après.
+ *
+ * - `taille` : définition de la vidéo (la fenêtre est réduite pour y tenir) ; 1280 x 720 garde un
+ *   texte lisible pour ~1 Mo par minute.
+ * - `pauseAvantMs` / `pauseApresMs` : pause autour de chaque étape.
+ * - `ralentiMs` : délai entre deux gestes (`slowMo`), pour voir le pointeur se déplacer.
+ */
+export const VIDEO = {
+  taille: {
+    width: Number(process.env.E2E_VIDEO_WIDTH ?? 1280),
+    height: Number(process.env.E2E_VIDEO_HEIGHT ?? 720),
+  },
+  pauseAvantMs: Number(process.env.E2E_PAUSE_AVANT_MS ?? 1500),
+  pauseApresMs: Number(process.env.E2E_PAUSE_APRES_MS ?? 1200),
+  ralentiMs: Number(process.env.E2E_SLOWMO ?? 200),
+};

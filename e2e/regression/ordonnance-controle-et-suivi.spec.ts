@@ -126,7 +126,7 @@ test('suivi : saisir une ordonnance au comptoir, la reprendre et la rattacher à
   // Rattachement : la vente en cours et sa ligne AMOXICILLINE se lient à l'ordonnance.
   await ouvrirPanneau();
   await panneau.getByRole('button', { name: 'Rattacher à la vente en cours' }).click();
-  await expect(page.getByText(/Vente rattachée/).first()).toBeVisible();
+  await expect(panneau).toContainText('1 vente(s) liée(s)');
   expect(Number(lire('SELECT count(*) FROM ordonnance_vente'))).toBe(1);
   expect(lire("SELECT type_prescription FROM sales WHERE statut = 'ACTIVE' AND customer_id IS NOT NULL ORDER BY created_at DESC LIMIT 1"), 'la vente rattachée est une vente sur ordonnance').toBe('PRESCRIPTION');
   expect(Number(lire('SELECT count(*) FROM ordonnance_delivrance'))).toBe(1);

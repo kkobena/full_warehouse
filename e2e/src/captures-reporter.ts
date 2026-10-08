@@ -10,16 +10,20 @@
  * effacer celles des autres. `E2E_CAPTURES_RESET=1` repart d'un index vide.
  */
 import type { FullResult, Reporter, TestCase, TestResult } from '@playwright/test/reporter';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname } from 'node:path';
-import { DOSSIER_CAPTURES, FICHIER_INDEX, REINITIALISER_INDEX } from './config';
-import { PREFIXE_PIECE_JOINTE, type CaptureIndexee } from './scenario';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join, posix } from 'node:path';
+import { DOSSIER_CAPTURES, FICHIER_INDEX, FICHIER_INDEX_VIDEOS, NOM_VIDEO, REINITIALISER_INDEX } from './config';
+import { PREFIXE_PIECE_JOINTE, PREFIXE_PIECE_VIDEO, type CaptureIndexee } from './scenario';
 
 /** Index du manuel : les captures d'un scénario, dans l'ordre de ses étapes. */
 type IndexCaptures = Record<string, CaptureIndexee[]>;
 
+/** Index des vidéos : « VTE-01 » → « VTE-01/parcours.webm » (relatif au dossier des captures). */
+type IndexVideos = Record<string, string>;
+
 export default class CapturesReporter implements Reporter {
   private readonly collectees = new Map<string, Map<number, CaptureIndexee>>();
+  private readonly videos: IndexVideos = {};
 
   onTestEnd(test: TestCase, result: TestResult): void {
     // Un parcours en échec ne doit rien produire : c'est toute la garantie du dispositif —
@@ -27,6 +31,8 @@ export default class CapturesReporter implements Reporter {
     if (result.status !== 'passed') {
       return;
     }
+
+    this.collecterVideo(result);
 
     for (const piece of result.attachments) {
       if (!piece.name.startsWith(PREFIXE_PIECE_JOINTE) || !piece.body) {
@@ -39,7 +45,26 @@ export default class CapturesReporter implements Reporter {
     }
   }
 
+  /**
+   * Range la vidéo d'un parcours réussi sous `<ID>/parcours.webm`. Même garantie que pour les
+   * images : un parcours en échec ne produit rien, donc aucune vidéo ne montre un écran faux.
+   */
+  private collecterVideo(result: TestResult): void {
+    const marque = result.attachments.find(piece => piece.name.startsWith(PREFIXE_PIECE_VIDEO));
+    const video = result.attachments.find(piece => piece.name === 'video' && piece.path);
+    if (!marque || !video?.path) {
+      return;
+    }
+    const scenarioId = marque.name.slice(PREFIXE_PIECE_VIDEO.length);
+    const relatif = posix.join(scenarioId, NOM_VIDEO);
+    const absolu = join(DOSSIER_CAPTURES, scenarioId, NOM_VIDEO);
+    mkdirSync(dirname(absolu), { recursive: true });
+    copyFileSync(video.path, absolu);
+    this.videos[scenarioId] = relatif;
+  }
+
   onEnd(_result: FullResult): void {
+    this.ecrireIndexVideos();
     if (this.collectees.size === 0) {
       return;
     }
@@ -61,6 +86,27 @@ export default class CapturesReporter implements Reporter {
     process.stdout.write(
       `\nCaptures : ${Object.keys(trie).length} scénario(s), ${nbImages} image(s) — ${DOSSIER_CAPTURES}\n`,
     );
+  }
+
+  private ecrireIndexVideos(): void {
+    const nouvelles = Object.keys(this.videos).length;
+    if (nouvelles === 0) {
+      return;
+    }
+    // Fusion, comme pour les images : une exécution ciblée n'efface pas les vidéos des autres.
+    let existant: IndexVideos = {};
+    if (!REINITIALISER_INDEX && existsSync(FICHIER_INDEX_VIDEOS)) {
+      try {
+        existant = JSON.parse(readFileSync(FICHIER_INDEX_VIDEOS, 'utf8')) as IndexVideos;
+      } catch {
+        existant = {};
+      }
+    }
+    const fusion = { ...existant, ...this.videos };
+    const trie = Object.fromEntries(Object.entries(fusion).sort(([a], [b]) => a.localeCompare(b)));
+    mkdirSync(dirname(FICHIER_INDEX_VIDEOS), { recursive: true });
+    writeFileSync(FICHIER_INDEX_VIDEOS, JSON.stringify(trie, null, 2) + '\n', 'utf8');
+    process.stdout.write(`\nVidéos : ${nouvelles} nouvelle(s), ${Object.keys(trie).length} au total — ${DOSSIER_CAPTURES}\n`);
   }
 
   printsToStdio(): boolean {

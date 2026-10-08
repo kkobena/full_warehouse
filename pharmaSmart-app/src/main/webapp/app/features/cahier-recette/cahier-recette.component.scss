@@ -315,6 +315,26 @@ $doc-primary-bg: #e7f1ff;
   display: block;
 }
 
+.scenario-doc__video {
+  margin: 0.5rem 0 0.75rem;
+
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+}
+
+.scenario-doc__video-lecteur {
+  display: block;
+  width: 100%;
+  max-width: 780px;
+  height: auto;
+  margin-top: 0.45rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  background: #000;
+}
+
 .scenario-doc__capture {
   display: block;
   width: 100%;

@@ -164,6 +164,14 @@
                 </p>
               }
              
+              @if (videoDuScenario(scenario); as video) {
+                <details class="scenario-doc__video">
+                  <summary>Voir le parcours en vidéo</summary>
+                  <video [src]="video" class="scenario-doc__video-lecteur" controls preload="none"
+                         [attr.aria-label]="'Vidéo du parcours : ' + scenario.titre"></video>
+                </details>
+              }
+
               <ol class="scenario-doc__etapes">
                 @for (etape of scenario.etapes; track $index) {
                   <li>

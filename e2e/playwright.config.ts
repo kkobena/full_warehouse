@@ -1,5 +1,5 @@
 import { defineConfig } from '@playwright/test';
-import { BASE_URL, ECHELLE, FENETRE, FICHIER_SESSION, PROJET_CAPTURES, RACINE } from './src/config';
+import { BASE_URL, ECHELLE, FENETRE, FICHIER_SESSION, PROJET_CAPTURES, PROJET_VIDEOS, RACINE, VIDEO } from './src/config';
 import { join } from 'node:path';
 
 /**
@@ -12,6 +12,7 @@ import { join } from 'node:path';
  *   - « authentification »: se connecte une fois et enregistre la session.
  *   - « parcours »        : les parcours, rejouant cette session, sans prise d'images.
  *   - « captures »        : les mêmes fichiers, avec prise d'images.
+ *   - « videos »          : les mêmes fichiers, filmés, avec pauses et légende à l'écran.
  *   - « droits »          : chaque compte non-admin ouvre les écrans et onglets de son menu ;
  *                           échoue sur tout 403 (docs/PLAN-SECURISATION-ENDPOINTS.md).
  *
@@ -109,6 +110,19 @@ export default defineConfig({
       testDir: join(RACINE, 'e2e', 'parcours'),
       dependencies: ['authentification'],
       use: { storageState: FICHIER_SESSION },
+    },
+    {
+      // Vidéos des parcours, montrées aux utilisateurs dans le guide. Voir src/scenario.ts (pauses,
+      // légende) et src/captures-reporter.ts (rattachement à l'index des vidéos).
+      name: PROJET_VIDEOS,
+      testDir: join(RACINE, 'e2e', 'parcours'),
+      dependencies: ['authentification'],
+      timeout: 300_000,
+      use: {
+        storageState: FICHIER_SESSION,
+        video: { mode: 'on', size: VIDEO.taille },
+        launchOptions: { slowMo: VIDEO.ralentiMs },
+      },
     },
   ],
 });

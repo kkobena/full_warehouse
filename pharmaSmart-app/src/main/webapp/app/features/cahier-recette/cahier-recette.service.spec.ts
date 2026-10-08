@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { SERVER_API_URL } from 'app/app.constants';
-import { CahierRecetteService, CheminsMenu, IndexCaptures } from './cahier-recette.service';
+import { CahierRecetteService, CheminsMenu, IndexCaptures, IndexVideos } from './cahier-recette.service';
 
 describe('CahierRecetteService', () => {
   let service: CahierRecetteService;
@@ -65,6 +65,24 @@ describe('CahierRecetteService', () => {
     service.loadCaptures().subscribe(recu => (index = recu));
 
     httpMock.expectOne('content/captures/index.json').flush('', { status: 404, statusText: 'Not Found' });
+
+    expect(index).toEqual({});
+  });
+
+  it("lit l'index des vidéos des parcours", () => {
+    let index: IndexVideos | undefined;
+    service.loadVideos().subscribe(recu => (index = recu));
+
+    httpMock.expectOne('content/captures/videos.json').flush({ 'VTE-01': 'content/captures/VTE-01/parcours.webm' });
+
+    expect(index?.['VTE-01']).toBe('content/captures/VTE-01/parcours.webm');
+  });
+
+  it("traite l'absence de vidéos comme un guide sans lecteur, pas comme une erreur", () => {
+    let index: IndexVideos | undefined;
+    service.loadVideos().subscribe(recu => (index = recu));
+
+    httpMock.expectOne('content/captures/videos.json').flush('', { status: 404, statusText: 'Not Found' });
 
     expect(index).toEqual({});
   });

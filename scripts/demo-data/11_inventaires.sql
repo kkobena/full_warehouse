@@ -67,6 +67,41 @@ LIMIT 80;
 
 CREATE INDEX ON tmp_inv_produits (rang);
 
+-- Périmètre de l'inventaire tournant : huit produits du rayon ANTIBIOTIQUES, les plus riches en lots.
+--
+-- Pris dans le rayon lui-même, et non parmi les 80 produits ci-dessus : ceux-là se suivent par
+-- identifiant, et le rang des antibiotiques dans le catalogue dépend du référentiel BDPM chargé.
+-- Selon lui, aucun antibiotique n'y figurait, et l'inventaire en cours restait sans une ligne —
+-- alors que les parcours de comptage (STK-24 à STK-26) ont besoin d'une grille à remplir.
+CREATE TEMP TABLE tmp_inv_antibio AS
+SELECT DISTINCT ON (sp.produit_id)
+    sp.produit_id,
+    sp.storage_id,
+    sp.qty_stock                                   AS quantite_theorique,
+    COALESCE(fp.prix_achat, 0)                     AS prix_achat,
+    COALESCE(fp.prix_uni, 0)                       AS prix_vente,
+    (SELECT count(*) FROM lot l WHERE l.produit_id = sp.produit_id) AS nb_lots
+FROM stock_produit sp
+JOIN storage s ON s.id = sp.storage_id AND s.storage_type = 'PRINCIPAL'
+JOIN rayon_produit rp ON rp.produit_id = sp.produit_id
+JOIN rayon r ON r.id = rp.rayon_id AND r.libelle = 'ANTIBIOTIQUES'
+LEFT JOIN LATERAL (
+    SELECT x.prix_achat, x.prix_uni
+      FROM fournisseur_produit x
+      JOIN fournisseur f ON f.id = x.fournisseur_id AND f.parent_id IS NULL
+     WHERE x.produit_id = sp.produit_id
+     ORDER BY x.id LIMIT 1
+) fp ON true
+WHERE sp.qty_stock > 0
+ORDER BY sp.produit_id, sp.storage_id;
+
+-- Les huit plus riches en lots, numérotés pour le tiers « non compté » de l'inventaire.
+CREATE TEMP TABLE tmp_inv_antibio_retenus AS
+SELECT t.*, row_number() OVER (ORDER BY t.nb_lots DESC, t.produit_id) AS rang
+  FROM tmp_inv_antibio t
+ ORDER BY t.nb_lots DESC, t.produit_id
+ LIMIT 8;
+
 -- ---------------------------------------------------------------------------
 -- 2. L'inventaire clôturé (il y a 45 jours)
 --
@@ -209,9 +244,7 @@ SELECT
     CASE WHEN p.rang % 3 = 0 THEN NULL
          ELSE (SELECT id FROM app_user WHERE login = 'admin' LIMIT 1) END,
     0
-FROM tmp_inv_produits p
-JOIN rayon_produit rp ON rp.produit_id = p.produit_id
-JOIN rayon r ON r.id = rp.rayon_id AND r.libelle = 'ANTIBIOTIQUES';
+FROM tmp_inv_antibio_retenus p;
 
 -- ---------------------------------------------------------------------------
 -- 4. Le planning d'inventaire tournant
@@ -273,6 +306,6 @@ SELECT setval(pg_get_serial_sequence('store_inventory', 'id'),
 SELECT setval(pg_get_serial_sequence('store_inventory_line', 'id'),
               (SELECT max(id) FROM store_inventory_line));
 
-DROP TABLE tmp_inv_produits;
+DROP TABLE tmp_inv_produits, tmp_inv_antibio, tmp_inv_antibio_retenus;
 
 \echo '   inventaires chargés (1 clôturé, 1 en cours, 1 planning tournant)'

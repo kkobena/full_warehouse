@@ -27,6 +27,8 @@ import {
   MARQUEURS_ACTIONS,
   MARGE_CADRAGE,
   PROJET_CAPTURES,
+  PROJET_VIDEOS,
+  VIDEO,
 } from './config';
 import { resoudreScenario, type ScenarioLocalise } from './cahier-recette';
 
@@ -82,6 +84,103 @@ function installerObservationActions(): void {
       memoriser(event, event.key === 'Enter' ? 'Valider avec Entrée' : 'Activer');
     }
   }, true);
+}
+
+const CLE_LEGENDE = '__pharmaSmartLegende';
+
+/**
+ * Installe, dans chaque document chargé, la légende de l'étape et un pointeur visible — c'est ce que
+ * l'utilisateur lit sur la vidéo.
+ *
+ * La légende vit dans `sessionStorage` : une navigation recharge la page, et sans cela elle
+ * disparaîtrait au milieu de l'étape. Le pointeur, lui, est nécessaire parce que Playwright ne
+ * dessine pas la souris : sans lui, la vidéo montre des écrans qui changent sans qu'on voie pourquoi.
+ */
+function installerLegendeEtPointeur(): void {
+  const cle = '__pharmaSmartLegende';
+  const idLegende = '__pharmaSmartLegendeCalque';
+  const idPointeur = '__pharmaSmartPointeur';
+  const fenetre = window as typeof window & { __pharmaSmartRendreLegende?: () => void };
+
+  const racine = (): HTMLElement => document.body ?? document.documentElement;
+
+  const rendre = (): void => {
+    document.getElementById(idLegende)?.remove();
+    let json: string | null = null;
+    try {
+      json = sessionStorage.getItem(cle);
+    } catch {
+      return;
+    }
+    if (!json) {
+      return;
+    }
+    const { etape, total, texte, titre } = JSON.parse(json) as { etape: number; total: number; texte: string; titre: string };
+    const calque = document.createElement('div');
+    calque.id = idLegende;
+    calque.setAttribute('aria-hidden', 'true');
+    calque.style.cssText =
+      'position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:2147483646;pointer-events:none;' +
+      'max-width:78%;padding:12px 22px;border-radius:12px;background:rgba(17,24,39,.92);color:#fff;' +
+      'font:500 21px/1.35 system-ui,Segoe UI,sans-serif;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.35);';
+    const entete = document.createElement('div');
+    entete.style.cssText = 'font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#fbbf24;margin-bottom:4px;';
+    entete.textContent = `${titre} · étape ${etape}/${total}`;
+    const corps = document.createElement('div');
+    corps.textContent = texte;
+    calque.append(entete, corps);
+    racine().appendChild(calque);
+  };
+  fenetre.__pharmaSmartRendreLegende = rendre;
+
+  const pointeur = (): HTMLElement => {
+    let element = document.getElementById(idPointeur);
+    if (!element) {
+      element = document.createElement('div');
+      element.id = idPointeur;
+      element.setAttribute('aria-hidden', 'true');
+      element.style.cssText =
+        'position:fixed;left:0;top:0;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;' +
+        'border:3px solid #e84b0f;background:rgba(232,75,15,.25);z-index:2147483647;pointer-events:none;' +
+        'transition:transform .08s linear,background .15s;';
+      racine().appendChild(element);
+    }
+    return element;
+  };
+  document.addEventListener(
+    'mousemove',
+    event => {
+      pointeur().style.transform = `translate(${event.clientX}px,${event.clientY}px)`;
+    },
+    true,
+  );
+  document.addEventListener(
+    'pointerdown',
+    () => {
+      const element = pointeur();
+      element.style.background = 'rgba(232,75,15,.7)';
+      setTimeout(() => (element.style.background = 'rgba(232,75,15,.25)'), 250);
+    },
+    true,
+  );
+  window.addEventListener('DOMContentLoaded', rendre);
+}
+
+/** Affiche la légende de l'étape dans la page filmée, et la mémorise pour les navigations qui suivent. */
+async function afficherLegende(page: Page, legende: { etape: number; total: number; texte: string; titre: string }): Promise<void> {
+  await page
+    .evaluate(
+      ({ cle, valeur }) => {
+        try {
+          sessionStorage.setItem(cle, JSON.stringify(valeur));
+        } catch {
+          // stockage indisponible : la légende s'affichera quand même ci-dessous
+        }
+        (window as typeof window & { __pharmaSmartRendreLegende?: () => void }).__pharmaSmartRendreLegende?.();
+      },
+      { cle: CLE_LEGENDE, valeur: legende },
+    )
+    .catch((): undefined => undefined);
 }
 
 async function reinitialiserActions(page: Page): Promise<void> {
@@ -252,6 +351,9 @@ export interface CaptureIndexee {
 /** Préfixe des pièces jointes lues par captures-reporter.ts. */
 export const PREFIXE_PIECE_JOINTE = 'capture:';
 
+/** Pièce jointe qui désigne le scénario filmé : la vidéo elle-même est ajoutée par Playwright. */
+export const PREFIXE_PIECE_VIDEO = 'video-parcours:';
+
 export interface Etape {
   /** Exécute l'action de l'étape `numero`, puis capture l'écran si le mode capture est actif. */
   (numero: number, action: () => Promise<void>): Promise<void>;
@@ -288,6 +390,12 @@ export function scenario(id: string, corps: (ctx: ContexteScenario) => Promise<v
     const anomalies: string[] = [];
     let erreursTolerees: string | null = null;
     const capturer = CAPTURE_FORCEE || testInfo.project.name === PROJET_CAPTURES;
+    const filmer = testInfo.project.name === PROJET_VIDEOS;
+
+    if (filmer) {
+      await page.addInitScript(installerLegendeEtPointeur);
+      await testInfo.attach(`${PREFIXE_PIECE_VIDEO}${id}`, { contentType: 'application/json', body: JSON.stringify({ scenarioId: id }) });
+    }
 
     if (capturer && MARQUEURS_ACTIONS) {
       await page.addInitScript(installerObservationActions);
@@ -321,8 +429,24 @@ export function scenario(id: string, corps: (ctx: ContexteScenario) => Promise<v
       if (capturer && MARQUEURS_ACTIONS) {
         await reinitialiserActions(page);
       }
+      if (filmer) {
+        // Le texte de l'étape est celui du modèle, comme la légende des images : la vidéo ne peut
+        // pas annoncer autre chose que ce qui est joué. La pause laisse le temps de le lire.
+        await afficherLegende(page, {
+          etape: numero,
+          total: nbEtapes,
+          texte: info.scenario.etapes[numero - 1],
+          titre: info.scenario.titre,
+        });
+        await page.waitForTimeout(VIDEO.pauseAvantMs);
+      }
       await action();
       couvertes.set(numero, 'parcourue');
+
+      if (filmer) {
+        // Le temps de voir le résultat avant de passer à la suite.
+        await page.waitForTimeout(VIDEO.pauseApresMs);
+      }
 
       if (!capturer) {
         return;

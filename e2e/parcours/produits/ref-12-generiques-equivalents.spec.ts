@@ -5,8 +5,8 @@ import { scenario } from '../../src/scenario';
 /**
  * Le princeps est en rupture et le client attend : la question n'est pas « qu'ai-je en
  * stock ? » mais « qu'ai-je qui contienne la MÊME MOLÉCULE ? ». L'équivalence se fonde sur la
- * DCI, pas sur le nom commercial — DOLIPRANE, EFFERALGAN et PARACETAMOL GE partagent la même
- * substance et se substituent l'un à l'autre.
+ * DCI, pas sur le nom commercial — ADVIL et les IBUPROFENE partagent la même substance et
+ * se substituent l'un à l'autre.
  *
  * Le modèle annonçait un onglet « Génériques » ; la liste vivait en réalité dans une fenêtre
  * que RIEN n'ouvrait — elle était écrite, son gestionnaire aussi, mais aucune entrée de menu
@@ -15,7 +15,8 @@ import { scenario } from '../../src/scenario';
  * Parcours en LECTURE.
  */
 scenario('REF-12', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500 mg';
+  // Un princeps dont le catalogue porte des génériques de même molécule et même dosage.
+  const produit = 'ADVIL 200 mg, comprimé enrobé';
   const onglet = page.locator('app-produit-generiques-tab');
 
   await etape(1, async () => {
@@ -31,7 +32,7 @@ scenario('REF-12', async ({ etape, page }) => {
     // La liste ne se contente pas de nommer : elle porte de quoi décider — le prix de
     // l'équivalent, son stock disponible, et la nature de l'équivalence (générique ou
     // substitut thérapeutique).
-    await expect(onglet).toContainText(/PARACETAMOL|DOLIPRANE|EFFERALGAN/i);
+    await expect(onglet).toContainText(/IBUPROFENE/i);
     await expect(onglet).toContainText('Prix de vente');
     await expect(onglet).toContainText('Stock');
   });

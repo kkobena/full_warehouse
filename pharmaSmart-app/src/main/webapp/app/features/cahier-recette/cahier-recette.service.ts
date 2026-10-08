@@ -10,6 +10,9 @@ export type CaptureServie = Pick<CaptureEcran, 'ordre' | 'fichier'>;
 /** Captures indexées par identifiant de scénario, telles que produites à la génération. */
 export type IndexCaptures = Record<string, CaptureServie[]>;
 
+/** Vidéos des parcours, indexées par identifiant de scénario : « content/captures/VTE-01/parcours.webm ». */
+export type IndexVideos = Record<string, string>;
+
 /** Chemin d'accès complet d'une entrée de menu, indexé par son code `nav_item`. */
 export type CheminsMenu = Record<string, string>;
 
@@ -32,6 +35,20 @@ export class CahierRecetteService {
 
   loadCaptures(): Observable<IndexCaptures> {
     return this.captures$;
+  }
+
+  /**
+   * Vidéos des parcours, présentes seulement si le build a été fait avec les médias complets
+   * (`GUIDE_MEDIA=all`, profil Maven `avec-guide`). Son absence est un cas normal : le guide
+   * n'affiche alors aucun lecteur.
+   */
+  private readonly videos$ = this.http.get<IndexVideos>('content/captures/videos.json').pipe(
+    catchError(() => of({} as IndexVideos)),
+    shareReplay({ bufferSize: 1, refCount: false }),
+  );
+
+  loadVideos(): Observable<IndexVideos> {
+    return this.videos$;
   }
 
   /**

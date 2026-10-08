@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { ouvrirOnglet, rechercher } from '../../src/actions';
+import { ouvrirMenuActions, ouvrirOnglet, rechercher, trouverLigneAvecAction } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -34,14 +34,11 @@ scenario('FAC-30', async ({ etape, page }) => {
     await rechercher(page);
     // Attendre la ligne issue de la recherche serveur, et non une ancienne ligne encore
     // présente pendant le rafraîchissement du tableau.
-    const certifier = lignes
-      .filter({ hasText: /ASSURANCES SANTE DE COTE D'IVOIRE/ })
-      .filter({ has: page.locator('button:has(.pi-shield)') })
-      .first()
-      .locator('button:has(.pi-shield)')
-      .first();
-    await expect(certifier).toBeVisible();
-    await certifier.click();
+    const lignesOrganisme = lignes.filter({ hasText: /ASSURANCES SANTE DE COTE D'IVOIRE/ });
+    await expect(lignesOrganisme.first()).toBeVisible();
+    const certifiable = await trouverLigneAvecAction(page, lignesOrganisme, 'Certifier FNE');
+    const menu = await ouvrirMenuActions(page, certifiable);
+    await menu.getByRole('button', { name: 'Certifier FNE' }).click();
     await page.locator('.modal-content:visible').getByRole('button', { name: 'Oui' }).click();
 
     // Le refus nomme ce qui manque, sans quoi on chercherait longtemps. Il arrive par une

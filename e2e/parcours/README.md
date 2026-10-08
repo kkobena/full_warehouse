@@ -77,6 +77,7 @@ Complété de cette façon :
 | Manque | Ce que l'écran montrait | Correctif |
 | --- | --- | --- |
 | aucun inventaire | les trois onglets d'`/inventaire` vides | `11_inventaires.sql` : un clôturé avec ses écarts qualifiés, un en cours à 75 %, un planning tournant |
+| inventaire tournant sans une ligne | `STK-24` à `STK-26` n'avaient aucune grille à compter : les antibiotiques tombaient hors des 80 premiers produits en stock, dont dépendait l'inventaire, et leur rang change avec le référentiel BDPM chargé | `11_inventaires.sql` prend huit antibiotiques dans le rayon lui-même, les plus riches en lots |
 | aucun achat daté du jour | « Achats fournisseurs » vide sur l'accueil, qui s'ouvre pourtant sur la journée | `05_commandes.sql` : le rang le plus récent tombe sur `CURRENT_DATE`, et il est CLÔTURÉ |
 | réceptions toutes vieilles de plus d'un mois | « Achats 30 jours » à zéro partout, y compris dans la performance fournisseur | statuts **entrelacés** sur les 180 jours au lieu d'être empilés par ancienneté |
 | factures sans groupe de tiers payant | créances TP à zéro sur l'accueil et dans les rapports | `14_facturation.sql` recopie le groupe du tiers payant sur la facture |

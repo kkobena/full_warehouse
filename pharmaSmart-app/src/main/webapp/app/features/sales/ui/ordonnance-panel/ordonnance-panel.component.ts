@@ -167,7 +167,6 @@ export class OrdonnancePanelComponent {
         this.prescripteurs.set([{id: p.id!, libelle: this.nomPrescripteur(p)}]);
         this.prescripteurId = p.id!;
         this.nouveauPrescripteur = '';
-        this.notificationService.success(`Prescripteur « ${p.nom} » créé`);
       },
       error: err => this.notificationService.error(err?.error?.message ?? 'Création du prescripteur impossible'),
     });
@@ -228,7 +227,6 @@ export class OrdonnancePanelComponent {
       .subscribe({
         next: () => {
           this.enregistrement.set(false);
-          this.notificationService.success('Ordonnance enregistrée');
           this.reinitialiserSaisie();
           this.vue.set('liste');
           this.charger(customerId);
@@ -264,11 +262,7 @@ export class OrdonnancePanelComponent {
       return;
     }
     this.api.apparierVente(ordonnance.id, venteId.id, venteId.saleDate).subscribe({
-      next: ({lignesLiees, lignesGeneriques}) => {
-        const generiques = lignesGeneriques ? `, dont ${lignesGeneriques} générique(s)` : '';
-        this.notificationService.success(lignesLiees ? `Vente rattachée (${lignesLiees} ligne(s) liée(s)${generiques})` : 'Vente rattachée');
-        this.charger(ordonnance.customerId);
-      },
+      next: () => this.charger(ordonnance.customerId),
       error: err => this.notificationService.error(err?.error?.message ?? 'Rattachement impossible'),
     });
   }

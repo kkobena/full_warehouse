@@ -9,7 +9,8 @@ import { scenario } from '../../src/scenario';
  * qui porte les organismes, l'ayant droit qui reçoit les produits.
  *
  * L'écran les tient côte à côte, chacun sur sa carte, et le bénéficiaire retenu est enregistré
- * sur la vente.
+ * sur la vente. La carte « Ayant droit » n'existe que lorsqu'un bénéficiaire autre que l'assuré
+ * est retenu : sinon l'assuré est son propre bénéficiaire et la carte reste masquée.
  *
  * Parcours en LECTURE : il n'ajoute aucun produit et abandonne la vente commencée.
  */
@@ -30,8 +31,10 @@ scenario('VTE-58', async ({ etape, page }) => {
   await expect(bandeau).toContainText(matricule);
 
   await etape(1, async () => {
-    // Tant qu'aucun bénéficiaire n'est choisi, la carte « Ayant droit » n'offre qu'une action :
-    // en désigner un. La liste est celle des ayants droit DE CET ASSURÉ, personne d'autre.
+    // Tant qu'aucun bénéficiaire n'est choisi, il n'y a pas de carte « Ayant droit » : la carte de
+    // l'assuré offre seulement d'en désigner un. La liste est celle des ayants droit DE CET
+    // ASSURÉ, personne d'autre.
+    await expect(bandeau.locator('.ayant-droit-card')).toHaveCount(0);
     await page.getByRole('button', { name: 'Ajouter un ayant droit' }).click();
     await expect(modale).toContainText('LISTE DES AYANTS DROITS DU CLIENT');
     await expect(modale).toContainText('AWA TRAORE');
@@ -48,9 +51,12 @@ scenario('VTE-58', async ({ etape, page }) => {
   await etape(3, async () => {
     // Les deux identités cohabitent : l'assuré et son matricule d'un côté, le bénéficiaire de
     // l'autre. C'est cette lecture côte à côte qui évite de facturer pour la mauvaise personne.
+    await expect(bandeau.locator('.ayant-droit-card')).toHaveCount(1);
     await expect(bandeau).toContainText('AWA TRAORE');
     await expect(bandeau).toContainText(matricule);
     await expect(bandeau).toContainText(ayantDroit);
+    // Le bénéficiaire est désigné : l'ajout n'est plus proposé, on peut en revanche en changer.
+    await expect(bandeau.getByRole('button', { name: 'Choisir un autre ayant droit' })).toBeVisible();
   });
 
   await etape(4, async () => {
@@ -59,5 +65,15 @@ scenario('VTE-58', async ({ etape, page }) => {
     await expect(bandeau).toContainText('ASACI');
     await expect(bandeau).toContainText('SUNU');
     await expect(page.locator('#produitbox')).toBeVisible();
+  });
+
+  await etape(5, async () => {
+    // La vente garde toujours un bénéficiaire : « L'assuré est le bénéficiaire » remplace l'ayant
+    // droit par l'assuré lui-même, la carte disparaît et l'ajout redevient possible.
+    await bandeau.getByRole('button', { name: "L'assuré est le bénéficiaire" }).click();
+    await expect(bandeau.locator('.ayant-droit-card')).toHaveCount(0);
+    await expect(bandeau).not.toContainText(ayantDroit);
+    await expect(bandeau).toContainText(matricule);
+    await expect(page.getByRole('button', { name: 'Ajouter un ayant droit' })).toBeVisible();
   });
 });

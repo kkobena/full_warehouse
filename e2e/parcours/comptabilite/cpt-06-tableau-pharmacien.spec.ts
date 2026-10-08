@@ -99,19 +99,23 @@ scenario('CPT-06', async ({ etape, page }) => {
     await expect(lignes.first()).not.toContainText(/\d{2}\/\d{2}\/\d{4}/);
     await expect(lignes.first()).toContainText(/\d{4}/);
 
-    // 2. Condenser n'est pas recalculer : ce sont les mêmes ventes, donc les mêmes totaux.
-    const totauxMensuels = await totauxDuPied();
-    for (const [rang, [, libelle]] of COLONNES.entries()) {
-      expect(totauxMensuels[rang], `total ${libelle} après regroupement mensuel`).toBe(
-        totauxJournaliers[rang],
-      );
-    }
-
-    // Et le pied continue de totaliser ses lignes, moins nombreuses.
-    for (const [colonne, libelle] of COLONNES) {
-      expect(await nombre(total, colonne), `total mensuel ${libelle}`).toBe(
-        await sommeColonne(colonne),
-      );
-    }
+    // 2. Condenser n'est pas recalculer : ce sont les mêmes ventes, donc les mêmes totaux. Le
+    // tableau se rafraîchit à l'arrivée de la réponse : on relit jusqu'à ce qu'il soit stable.
+    const ecarts = async (): Promise<string[]> => {
+      const problemes: string[] = [];
+      const totauxMensuels = await totauxDuPied();
+      for (const [rang, [colonne, libelle]] of COLONNES.entries()) {
+        if (totauxMensuels[rang] !== totauxJournaliers[rang]) {
+          problemes.push(`total ${libelle} après regroupement mensuel : ${totauxMensuels[rang]} au lieu de ${totauxJournaliers[rang]}`);
+        }
+        // Et le pied continue de totaliser ses lignes, moins nombreuses.
+        const somme = await sommeColonne(colonne);
+        if (totauxMensuels[rang] !== somme) {
+          problemes.push(`total mensuel ${libelle} : ${totauxMensuels[rang]} au lieu de ${somme}`);
+        }
+      }
+      return problemes;
+    };
+    await expect.poll(ecarts, { timeout: 15_000, intervals: [500, 1000] }).toEqual([]);
   });
 });

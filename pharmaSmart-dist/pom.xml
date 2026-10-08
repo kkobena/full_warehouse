@@ -12,7 +12,14 @@
       mvnw.cmd clean package -Pfull-dist -DskipTests            → avec JRE
       mvnw.cmd clean package -Pfull-dist,sans-jre -DskipTests   → sans JRE
 
+      mvnw.cmd clean package -Pfull-dist,avec-guide -DskipTests → + parcours, captures et vidéos
+                                                                   du guide dans le jar
+
     Sortie : target/pharmasmart-<version>-full-<avec|sans>-jre.zip (répertoire racine)
+
+    Le profil avec-guide est déclaré dans le POM racine, pas ici : le jar est produit par
+    pharmaSmart-app, bien avant cet assemblage, et la propriété guide.media doit donc exister
+    pour tout le réacteur. Ce module n'en reprend que le jar, déjà complet.
   -->
 
   <parent>

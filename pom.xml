@@ -154,6 +154,20 @@
         <module>pharmaSmart-dist</module>
       </modules>
     </profile>
+    <!--
+        Parcours, captures et vidéos dans le jar final :
+        mvnw.cmd clean package -Pfull-dist,avec-guide -DskipTests
+        Se combine avec sans-jre. Sans ce profil, le jar n'embarque que les images (guide.media=captures) ;
+        -Dguide.media=none donne un guide purement textuel, le jar le plus léger.
+        Les vidéos viennent de `npm run videos` (e2e/captures/videos.json) : sans campagne préalable,
+        le profil ne trouve rien à embarquer et le dit dans le journal du build.
+    -->
+    <profile>
+      <id>avec-guide</id>
+      <properties>
+        <guide.media>all</guide.media>
+      </properties>
+    </profile>
     <profile>
       <id>sans-jre</id>
       <properties>
@@ -170,6 +184,8 @@
     <!-- Java & Maven -->
     <batik.version>1.19</batik.version>
     <dist.jre.suffix>avec-jre</dist.jre.suffix>
+    <!-- Médias du guide embarqués : none | captures | all (profil avec-guide) -->
+    <guide.media>captures</guide.media>
     <dist.tauri.server>tauri:build:bundled-jre:fast</dist.tauri.server>
     <exec-maven-plugin.version>3.6.3</exec-maven-plugin.version>
     <flyway.version>13.5.0</flyway.version>

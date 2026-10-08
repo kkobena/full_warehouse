@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { ouvrirOnglet } from '../../src/actions';
+import { ouvrirMenuActions, ouvrirOnglet } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -23,8 +23,9 @@ scenario('FAC-10', async ({ etape, page }) => {
   });
 
   await etape(2, async () => {
-    // L'export est offert sur la ligne, sans avoir à ouvrir la facture.
-    const exporter = lignes.first().getByRole('button', { name: 'Exporter la facture en PDF' });
+    // L'export est offert dans le menu d'actions de la ligne, sans avoir à ouvrir la facture.
+    const menu = await ouvrirMenuActions(page, lignes.first());
+    const exporter = menu.getByRole('button', { name: 'Exporter en PDF' });
     await expect(exporter).toBeVisible();
 
     const telechargement = page.waitForEvent('download');

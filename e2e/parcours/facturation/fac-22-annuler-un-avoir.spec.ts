@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { ouvrirOnglet, rechercher } from '../../src/actions';
+import { ouvrirMenuActions, ouvrirOnglet, rechercher, trouverLigneAvecAction } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -22,15 +22,16 @@ scenario('FAC-22', async ({ etape, page }) => {
     await page.goto('/facturation');
     await ouvrirOnglet(page, /Avoirs/);
     await rechercher(page);
-    // Le bouton d'annulation ne porte pas de libellé, seulement une icône et une infobulle —
-    // que `getByRole` ne lit pas. On le désigne donc par sa classe d'icône.
-    const annulable = lignes.filter({ has: page.locator('button:has(.pi-ban)') }).first();
+    // « Annuler l'avoir » n'est proposé, dans le menu d'actions de la ligne, que sur un brouillon ou
+    // un avoir émis : on cherche donc la première ligne dont le menu l'offre.
+    const annulable = await trouverLigneAvecAction(page, lignes, "Annuler l'avoir");
     await expect(annulable).toBeVisible();
   });
 
   await etape(2, async () => {
-    const annulable = lignes.filter({ has: page.locator('button:has(.pi-ban)') }).first();
-    await annulable.locator('button:has(.pi-ban)').first().click();
+    const annulable = await trouverLigneAvecAction(page, lignes, "Annuler l'avoir");
+    const menu = await ouvrirMenuActions(page, annulable);
+    await menu.getByRole('button', { name: "Annuler l'avoir" }).click();
     await expect(modal).toBeVisible();
 
     const confirmer = modal.getByRole('button', { name: 'Confirmer' });

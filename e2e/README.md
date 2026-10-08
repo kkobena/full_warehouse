@@ -130,6 +130,84 @@ fraîchement chargé, pas une base sur laquelle on a travaillé.
 
 Prérequis : le backend (port **9080**) et le serveur Angular (port 4200) démarrés.
 
+## Vidéos des parcours
+
+Pour montrer un parcours à un utilisateur plutôt que de le lui décrire :
+
+```powershell
+npm run videos          # filme les parcours (projet « videos »), mêmes fichiers que « parcours »
+npm run generate:cahier-recette
+```
+
+Chaque parcours réussi produit `e2e/captures/<ID>/parcours.webm`, indexé dans `e2e/captures/videos.json`.
+Comme pour les images, un parcours en échec ne produit aucune vidéo, et une exécution ciblée n'efface pas
+les autres. Pour que la vidéo se lise comme une démonstration et non comme un test :
+
+- la **légende de l'étape** (texte du modèle, « étape n/N ») s'affiche en bas de l'écran et survit aux navigations ;
+- un **pointeur** orange suit la souris et s'épaissit au clic (Playwright ne dessine pas le curseur) ;
+- des **pauses** laissent le temps de lire avant l'étape et de voir son résultat après.
+
+| Variable | Défaut | Rôle |
+| --- | --- | --- |
+| `E2E_PAUSE_AVANT_MS` | 1500 | pause après affichage de la légende, avant le geste |
+| `E2E_PAUSE_APRES_MS` | 1200 | pause après le geste, pour voir le résultat |
+| `E2E_SLOWMO` | 200 | délai entre deux gestes (déplacement visible du pointeur) |
+| `E2E_VIDEO_WIDTH` / `E2E_VIDEO_HEIGHT` | 1280 / 720 | définition de la vidéo |
+
+Une vidéo dure ainsi de une à trois minutes ; les 400 parcours représentent plusieurs heures de campagne
+et quelques centaines de Mo. Filmer un seul parcours : `npx playwright test -c e2e --project=videos -g VTE-58`.
+
+### Une vidéo par fonctionnalité, puis par module
+
+```powershell
+npm run videos:assembler        # lit e2e/captures/videos.json, écrit target/videos-guide/
+```
+
+Les vidéos des parcours sont mises bout à bout : une vidéo **par fonctionnalité**, puis une **par module** (les
+fonctionnalités à la suite). Chacune a ses chapitres (`.vtt`), qui portent les titres du guide — jamais les
+références techniques comme VTE-01 : ni dans la légende de l'écran, ni dans les chapitres, ni dans la page.
+
+```
+target/videos-guide/
+├── index.html                       page autonome : un lecteur par module et par fonctionnalité, chapitres cliquables
+├── guide-videos.json                la même structure, pour un autre support
+├── modules/<module>.mp4 + .vtt
+└── fonctionnalites/<module>--<fonctionnalité>.mp4 + .vtt
+```
+
+**Vitesse.** Un test va bien plus vite qu'un utilisateur : l'assemblage ralentit donc les vidéos d'un facteur
+2 par défaut (`VIDEOS_RALENTI=3` pour aller plus lentement, `1` pour garder la vitesse filmée). Cela allonge
+d'autant les pauses — le temps de lire la légende — et les gestes, sans refilmer : seul `npm run videos:assembler`
+est à relancer. Pour un rythme plus lent *à la source*, augmenter `E2E_PAUSE_AVANT_MS`, `E2E_PAUSE_APRES_MS` et
+`E2E_SLOWMO` avant `npm run videos`.
+
+Ce dossier se copie tel quel sur un serveur de fichiers, une clé USB ou un partage : **il n'est pas dans le jar**,
+quel que soit `guide.media`. Les MP4 sont en H.264, lisibles partout. Seuls les parcours dont la vidéo existe
+sont repris ; un fichier déjà à jour n'est pas refait (`--force` pour tout refaire). L'encodage utilise
+`ffmpeg-static` (installé avec `npm install`) ; sur un poste où ses scripts d'installation sont bloqués,
+renseigner `FFMPEG` avec le chemin d'un ffmpeg.
+
+### Les embarquer dans le build (jar final)
+
+Le contenu du guide embarqué dans le jar se règle par la propriété Maven `guide.media` :
+
+| Valeur | Contenu du jar | Comment |
+| --- | --- | --- |
+| `none` | parcours (textes) seuls | `-Dguide.media=none` |
+| `captures` | + images **(défaut)** | rien à ajouter |
+| `all` | + images et vidéos | profil `avec-guide` |
+
+```powershell
+mvnw.cmd clean package -Pfull-dist,avec-guide -DskipTests              # avec JRE
+mvnw.cmd clean package -Pfull-dist,sans-jre,avec-guide -DskipTests     # sans JRE
+```
+
+Les parcours (titre, besoin, étapes) sont dans `cahier-recette.json`, toujours embarqué. Les médias, eux,
+viennent du dossier `e2e/captures/` : **la campagne (`npm run captures`, `npm run videos`) doit donc avoir
+tourné avant le build**, sans quoi le guide est livré sans illustration ni vidéo. Le guide affiche alors,
+sous chaque scénario filmé, un lecteur « Voir le parcours en vidéo » ; il n'affiche rien si le build
+n'embarque pas les vidéos.
+
 ## Ce que produit une campagne
 
 ```

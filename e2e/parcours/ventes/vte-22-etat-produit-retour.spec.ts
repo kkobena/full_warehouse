@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProduit, ouvrirJournalDuJour, payerEnEspeces } from '../../src/actions';
+import { accepterStockInsuffisant, ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProduit, ouvrirJournalDuJour, payerEnEspeces, renseignerPrescripteurSiDemande } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -33,8 +33,12 @@ scenario('VTE-22', async ({ etape, page }) => {
   // ── Mise en scène : la vente du produit thermosensible. ─────────────────────────────────
   await chercherProduit(page, produit);
   await ajouterAuPanier(page, '1');
+  // Cette insuline n'a pas de stock dans la démonstration : l'écran demande ce qui se passe au comptoir.
+  await accepterStockInsuffisant(page);
   await payerEnEspeces(page, '60000');
   await page.getByRole('button', { name: 'Finaliser' }).click();
+  // Une insuline est sur ordonnance : la clôture demande un prescripteur.
+  await renseignerPrescripteurSiDemande(page);
   await expect(contenu).toContainText(/Panier vide|Ajoutez des produits/i);
 
   await ouvrirJournalDuJour(page);

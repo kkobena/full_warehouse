@@ -63,9 +63,15 @@ scenario('REF-39', async ({ etape, page }) => {
     await page.goto('/produits');
     // Il faut le filtre « désactivés » pour le retrouver : c'est là que vivent les produits
     // en veille, et c'est ce qui les rend récupérables.
-    await chercherAuCatalogue('Produits désactivés');
-    await expect(ligne()).toContainText('Veille');
-    await ligne().getByRole('button', { name: 'Actions' }).click();
+    // La liste est rafraîchie à l'arrivée de sa réponse : un menu ouvert sur la ligne d'avant le
+    // filtre n'offrirait pas « Réactiver ». On recommence le geste jusqu'à ce qu'il tienne.
+    await expect(async () => {
+      await page.keyboard.press('Escape');
+      await chercherAuCatalogue('Produits désactivés');
+      await expect(ligne()).toContainText('Veille', { timeout: 3000 });
+      await ligne().getByRole('button', { name: 'Actions' }).click();
+      await expect(page.getByRole('button', { name: 'Réactiver' })).toBeVisible({ timeout: 3000 });
+    }).toPass({ timeout: 40_000 });
     await page.getByRole('button', { name: 'Réactiver' }).click();
     const confirmation = page.locator('.modal-content');
     await expect(confirmation).toBeVisible();

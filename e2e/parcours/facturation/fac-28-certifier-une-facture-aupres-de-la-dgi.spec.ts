@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { ouvrirOnglet, rechercher } from '../../src/actions';
+import { ouvrirMenuActions, ouvrirOnglet, rechercher, trouverLigneAvecAction } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -24,15 +24,16 @@ scenario('FAC-28', async ({ etape, page }) => {
     await ouvrirOnglet(page, /^Factures/);
     await rechercher(page);
     await expect(lignes.first()).toBeVisible();
-    // Le bouclier ne s'affiche que sur une facture certifiable : définitive, impayée, et
-    // pas encore transmise.
-    const certifiable = lignes.filter({ has: page.locator('button:has(.pi-shield)') }).first();
+    // « Certifier FNE » n'est proposé, dans le menu d'actions de la ligne, que sur une facture
+    // certifiable : définitive, impayée, et pas encore transmise.
+    const certifiable = await trouverLigneAvecAction(page, lignes, 'Certifier FNE');
     await expect(certifiable).toBeVisible();
   });
 
   await etape(2, async () => {
-    const certifiable = lignes.filter({ has: page.locator('button:has(.pi-shield)') }).first();
-    await certifiable.locator('button:has(.pi-shield)').first().click();
+    const certifiable = await trouverLigneAvecAction(page, lignes, 'Certifier FNE');
+    const menu = await ouvrirMenuActions(page, certifiable);
+    await menu.getByRole('button', { name: 'Certifier FNE' }).click();
     const question = page.locator('.modal-content:visible');
     await expect(question).toContainText(/Confirmer la certification/);
     await expect(question).toContainText(/FNE/);

@@ -13,6 +13,13 @@
  * Sans campagne (index absent), le comportement est exactement celui d'avant : le JSON est
  * produit tel quel, sans champ `captures`.
  *
+ * Contenu embarqué dans le build, réglé par la variable d'environnement `GUIDE_MEDIA` (propriété
+ * Maven `guide.media`, profil `avec-guide`) :
+ *   - `none`     : ni images ni vidéos — guide purement textuel, jar le plus léger ;
+ *   - `captures` : les images seulement (défaut, comportement historique) ;
+ *   - `all`      : images et vidéos des parcours.
+ * Le parcours (titre, besoin, étapes) est dans `cahier-recette.json` quel que soit le mode.
+ *
  * Lancé via `npm run generate:cahier-recette`, et automatiquement à chaque build Maven
  * (exec-maven-plugin, phase generate-resources) — cf. pharmaSmart-app/pom.xml.
  */
@@ -29,6 +36,20 @@ const OUT_PATH = resolve(ROOT, 'pharmaSmart-app/src/main/resources/data/cahier-r
 /** Index produit par le reporter Playwright ; absent tant qu'aucune campagne n'a tourné. */
 const CAPTURES_SRC = resolve(ROOT, 'e2e/captures');
 const INDEX_CAPTURES = join(CAPTURES_SRC, 'captures.json');
+/** Index des vidéos produit par le reporter ({ "VTE-01": "VTE-01/parcours.webm" }). */
+const INDEX_VIDEOS = join(CAPTURES_SRC, 'videos.json');
+
+type ModeMedia = 'none' | 'captures' | 'all';
+
+function lireModeMedia(): ModeMedia {
+  const valeur = (process.env.GUIDE_MEDIA ?? 'captures').trim().toLowerCase();
+  if (valeur !== 'none' && valeur !== 'captures' && valeur !== 'all') {
+    throw new Error(`GUIDE_MEDIA="${valeur}" inconnu : valeurs admises none, captures, all.`);
+  }
+  return valeur;
+}
+
+const MODE_MEDIA = lireModeMedia();
 
 /**
  * Destination des images. `content/` est déjà déclaré dans les assets d'angular.json : les
@@ -89,7 +110,7 @@ function fusionnerEcransIdentiques(captures: CaptureEcran[]): CaptureEcran[] {
 
 function lireCaptures(): Map<string, CaptureEcran[]> {
   const parScenario = new Map<string, CaptureEcran[]>();
-  if (!existsSync(INDEX_CAPTURES)) {
+  if (MODE_MEDIA === 'none' || !existsSync(INDEX_CAPTURES)) {
     return parScenario;
   }
 
@@ -146,15 +167,40 @@ function avecCaptures(modules: ModuleRecette[], captures: Map<string, CaptureEcr
  */
 function miroirImages(destination: string): void {
   rmSync(destination, { recursive: true, force: true });
-  if (!existsSync(CAPTURES_SRC)) {
+  if (MODE_MEDIA === 'none' || !existsSync(CAPTURES_SRC)) {
     return;
   }
   mkdirSync(destination, { recursive: true });
   cpSync(CAPTURES_SRC, destination, {
     recursive: true,
-    // L'index reste côté e2e : ce dossier ne sert qu'à servir les images.
-    filter: src => !src.endsWith('captures.json'),
+    // Les index restent côté e2e : ce dossier ne sert qu'à servir les médias. Les vidéos, bien plus
+    // lourdes que les images, ne partent que sur demande expresse (GUIDE_MEDIA=all).
+    filter: src => !/(captures|videos)\.json$/.test(src) && (MODE_MEDIA === 'all' || !src.endsWith('.webm')),
   });
+}
+
+/**
+ * Vidéos à servir : celles de l'index dont le fichier existe encore. Vide hors du mode `all`.
+ * Chemins servis, comme pour les images : « content/captures/VTE-01/parcours.webm ».
+ */
+function lireVideos(): Record<string, string> {
+  if (MODE_MEDIA !== 'all' || !existsSync(INDEX_VIDEOS)) {
+    return {};
+  }
+  const index = JSON.parse(readFileSync(INDEX_VIDEOS, 'utf8')) as Record<string, string>;
+  return Object.fromEntries(
+    Object.entries(index)
+      .filter(([, fichier]) => existsSync(join(CAPTURES_SRC, fichier)))
+      .map(([scenarioId, fichier]) => [scenarioId, `${PREFIXE_SERVI}/${fichier}`]),
+  );
+}
+
+/** Index servi au guide affiché : { "VTE-01": "content/captures/VTE-01/parcours.webm" }. */
+function ecrireIndexVideos(destination: string, videos: Record<string, string>): void {
+  if (!existsSync(destination)) {
+    return;
+  }
+  writeFileSync(join(destination, 'videos.json'), JSON.stringify(videos) + '\n', 'utf8');
 }
 
 /**
@@ -183,6 +229,7 @@ function ecrireIndexServi(destination: string, captures: Map<string, CaptureEcra
 }
 
 const captures = lireCaptures();
+const videos = lireVideos();
 const modules = avecCaptures(CAHIER_RECETTE, captures);
 
 // Le premier miroir est servi par Angular et intégré aux builds frontend. Le second rend les
@@ -193,6 +240,8 @@ miroirImages(CAPTURES_CLASSPATH_DEST);
 // Après le miroir, qui vide le dossier : l'index y serait sinon effacé aussitôt écrit.
 ecrireIndexServi(CAPTURES_DEST, captures);
 ecrireIndexServi(CAPTURES_CLASSPATH_DEST, captures);
+ecrireIndexVideos(CAPTURES_DEST, videos);
+ecrireIndexVideos(CAPTURES_CLASSPATH_DEST, videos);
 
 mkdirSync(dirname(OUT_PATH), { recursive: true });
 writeFileSync(OUT_PATH, JSON.stringify(modules, null, 2) + '\n', 'utf8');
@@ -201,6 +250,7 @@ const nbImages = [...captures.values()].reduce((total, liste) => total + liste.l
 // eslint-disable-next-line no-console
 console.log(
   `cahier-recette.json généré (${modules.length} modules, ` +
-    `${captures.size} scénario(s) illustré(s), ${nbImages} image(s), ` +
+    `médias « ${MODE_MEDIA} » : ${captures.size} scénario(s) illustré(s), ${nbImages} image(s), ` +
+    `${Object.keys(videos).length} vidéo(s), ` +
     `${nbFusionnees} écran(s) répété(s) fusionné(s)) -> ${OUT_PATH}`,
 );

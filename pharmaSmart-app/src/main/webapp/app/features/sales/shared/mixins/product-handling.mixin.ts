@@ -270,10 +270,6 @@ export function createProductHandling(context: ProductHandlingContext) {
           return;
         }
         addProductToSale(produit, ligne.quantityRequested ?? 1);
-        notificationService.info(
-          `« ${produit.libelle} » est ajouté. Supprimez « ${ligne.produitLibelle ?? 'la ligne d\'origine'} » si le client préfère l'équivalent.`,
-          'Équivalent ajouté',
-        );
       });
   }
 

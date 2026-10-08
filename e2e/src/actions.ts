@@ -295,6 +295,24 @@ export async function ajouterAuPanier(page: Page, quantite: string): Promise<voi
 }
 
 /**
+ * Si l'écran demande « Stock insuffisant » (le produit n'a pas de stock dans la démonstration),
+ * répond que le produit est bien en rayon : la ligne entre au panier et la vente se poursuit.
+ *
+ * Depuis que le serveur refuse l'ajout d'un produit sans stock, la mise en scène d'un parcours
+ * qui vend un tel produit doit répondre à cette question. Sans effet si le stock suffit : la
+ * fenêtre n'apparaît pas, et on ne l'attend pas plus de trois secondes.
+ */
+export async function accepterStockInsuffisant(page: Page): Promise<void> {
+  const bouton = page.locator('.modal-content').getByRole('button', { name: /la machine se trompe/ });
+  // `isVisible` ne patiente pas : on attend vraiment la fenêtre, brièvement.
+  const apparue = await bouton.waitFor({ state: 'visible', timeout: 3000 }).then(() => true, () => false);
+  if (apparue) {
+    await bouton.click();
+    await expect(page.locator('.modal-content').filter({ hasText: 'Stock insuffisant' })).toBeHidden();
+  }
+}
+
+/**
  * Garantit que l'écran de vente s'ouvre sur un panier VIDE.
  *
  * La vente en cours vit côté serveur : dès la première ligne, elle existe et l'écran la
@@ -506,7 +524,9 @@ export async function chercherAuCatalogue(page: Page, terme: string, attendu = t
     // Vérifier que le résultat TIENT : le chargement initial de la liste, parti avant la
     // recherche, revient parfois après elle et réaffiche le catalogue entier. Un parcours qui
     // enchaîne aussitôt travaille alors sur le premier produit venu, en croyant tenir le sien.
-    await page.waitForTimeout(400);
+    // 1,2 s et non 400 ms : sous la charge d'une campagne, la réponse du chargement initial arrive
+    // plus tard, et le parcours agissait alors sur le premier produit du catalogue entier.
+    await page.waitForTimeout(1200);
     if (await premiere.filter({ hasText: attendu }).isVisible().catch(() => false)) {
       return;
     }
@@ -973,4 +993,39 @@ export async function renseignerPrescripteurSiDemande(page: Page): Promise<void>
   await modale.getByRole('button', { name: 'Créer' }).click();
   await modale.getByRole('button', { name: 'Valider' }).click();
   await expect(modale).toBeHidden();
+}
+
+/**
+ * Ouvre le menu « Actions » (⋮) d'une ligne de tableau et rend le menu ouvert. Les actions de ligne des
+ * factures et des avoirs n'y sont plus des boutons isolés : elles se lisent dans ce menu, rattaché au
+ * `<body>`, donc hors de la ligne.
+ */
+export async function ouvrirMenuActions(page: Page, ligne: Locator): Promise<Locator> {
+  await ligne.getByRole('button', { name: 'Actions' }).click();
+  const menu = page.locator('.dropdown-menu.show');
+  await expect(menu).toBeVisible();
+  return menu;
+}
+
+/**
+ * Première ligne dont le menu « Actions » propose `libelle`. Le menu ne propose que les actions permises à
+ * la ligne (certifier, annuler…) : on ne peut plus filtrer les lignes sur la présence d'un bouton, il faut
+ * ouvrir le menu pour le savoir. Au plus `max` lignes sont examinées.
+ */
+export async function trouverLigneAvecAction(page: Page, lignes: Locator, libelle: string | RegExp, max = 20): Promise<Locator> {
+  const total = Math.min(await lignes.count(), max);
+  for (let i = 0; i < total; i++) {
+    const ligne = lignes.nth(i);
+    if ((await ligne.getByRole('button', { name: 'Actions' }).count()) === 0) {
+      continue;
+    }
+    const menu = await ouvrirMenuActions(page, ligne);
+    const propose = await menu.getByRole('button', { name: libelle }).isVisible();
+    await page.keyboard.press('Escape');
+    await expect(menu).toBeHidden();
+    if (propose) {
+      return ligne;
+    }
+  }
+  throw new Error(`Aucune des ${total} premières lignes ne propose l'action « ${libelle} »`);
 }

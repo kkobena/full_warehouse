@@ -14,7 +14,8 @@ import { scenario } from '../../src/scenario';
  * Parcours en LECTURE : il décline, aucune boîte n'est ouverte.
  */
 scenario('VTE-43', async ({ etape, page }) => {
-  // La gélule se vend à l'unité (DÉTAIL, stock 0) et se stocke en boîtes (33 en rayon).
+  // La gélule se vend à l'unité (DÉTAIL) et se stocke en boîtes (33 en rayon). L'unité n'a pas de stock
+  // propre tant qu'une boîte n'a pas été ouverte — et STK-20 en ouvre une avant ce parcours.
   const produit = 'ITRACONAZOLE TEVA 100 mg, gélule - UNITE';
   const modale = page.locator('.modal-content');
 
@@ -23,9 +24,11 @@ scenario('VTE-43', async ({ etape, page }) => {
 
   await etape(1, async () => {
     await chercherProduit(page, 'ITRACONAZOLE TEVA', produit);
-    // Le détail est à zéro : c'est le conditionnement parent qui porte le stock.
-    await expect(page.locator('#main-content')).toContainText(/Rayon\s*:\s*0/);
-    await ajouterAuPanier(page, '2');
+    // On en demande deux de plus que ce que le détail porte : c'est le conditionnement parent
+    // qui fournit le reste, après déconditionnement.
+    await expect(page.locator('#main-content')).toContainText(/Rayon\s*:\s*\d+/);
+    const enRayon = Number((await page.locator('#main-content').innerText()).match(/Rayon\s*:\s*(\d+)/)?.[1] ?? '0');
+    await ajouterAuPanier(page, String(enRayon + 2));
   });
 
   await etape(2, async () => {

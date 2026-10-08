@@ -66,6 +66,17 @@ END $$ LANGUAGE plpgsql;
 
 
 -- ===========================================================================
+-- INVENTAIRES
+-- ===========================================================================
+-- L'inventaire tournant en cours doit avoir sa grille à compter : STK-24 à STK-26 l'ouvrent. Ses
+-- produits sont pris dans le rayon lui-même, donc indépendamment du rang des antibiotiques au catalogue.
+SELECT pg_temp.verif_compte('inventaires', 'Lignes de l''inventaire tournant (rayon ANTIBIOTIQUES)', $q$
+    SELECT 1 FROM store_inventory_line l
+      JOIN store_inventory i ON i.id = l.store_inventory_id
+     WHERE i.statut = 'PROCESSING' AND i.description ILIKE '%ANTIBIOTIQUES%'
+$q$, 8);
+
+-- ===========================================================================
 -- ALERTES DE STOCK
 -- ===========================================================================
 -- Les trois types d'alerte doivent avoir des cas : sans quoi le rapport

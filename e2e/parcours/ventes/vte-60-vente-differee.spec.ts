@@ -15,7 +15,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il enregistre une vente et ouvre une créance client.
  */
 scenario('VTE-60', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const client = 'KOUASSI';
   const modale = page.locator('.modal-content');
   const contenu = page.locator('#main-content');
@@ -26,11 +26,11 @@ scenario('VTE-60', async ({ etape, page }) => {
   await etape(1, async () => {
     await chercherProduit(page, produit);
     await ajouterAuPanier(page, '2');
-    await expect(contenu).toContainText('38 620');
+    await expect(contenu).toContainText('11 700');
 
-    // 10 000 sur 38 620 : c'est ce que le client peut régler aujourd'hui. Saisie touche à
+    // 5 000 sur 11 700 : c'est ce que le client peut régler aujourd'hui. Saisie touche à
     // touche — le champ est formaté, et `fill()` sur un champ déjà renseigné concatène.
-await payerEnEspeces(page, '10000');
+await payerEnEspeces(page, '5000');
   });
 
   await etape(2, async () => {
@@ -38,9 +38,9 @@ await payerEnEspeces(page, '10000');
     // L'écran ne se contente pas de demander confirmation : il rappelle les trois montants,
     // et c'est le reste à payer que le client doit entendre avant de partir.
     await expect(modale).toContainText('Vente différée');
-    await expect(modale).toContainText('38 620');
-    await expect(modale).toContainText('10 000');
-    await expect(modale).toContainText('28 620');
+    await expect(modale).toContainText('11 700');
+    await expect(modale).toContainText('5 000');
+    await expect(modale).toContainText('6 700');
   });
 
   await etape(3, async () => {

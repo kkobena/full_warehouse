@@ -15,7 +15,7 @@ import { scenario } from '../../src/scenario';
  * Parcours en LECTURE.
  */
 scenario('REF-10', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const onglet = page.locator('app-produit-ventes-tab');
 
   await etape(1, async () => {
@@ -28,12 +28,12 @@ scenario('REF-10', async ({ etape, page }) => {
 
   await etape(2, async () => {
     await onglet.getByRole('button', { name: '1 an' }).click();
-    await onglet.getByRole('button', { name: 'Actualiser' }).click();
+    // La période choisie recharge la liste d'elle-même : plus de bouton Actualiser.
     await expect(onglet.locator('tbody tr').first()).toBeVisible();
   });
 
   await etape(3, async () => {
-    await onglet.getByRole('button', { name: 'Graphique' }).click();
+    await onglet.locator('app-button[ngbtooltip="Afficher/masquer le graphique"] button').click();
     await expect(onglet.locator('canvas')).toBeVisible();
   });
 });

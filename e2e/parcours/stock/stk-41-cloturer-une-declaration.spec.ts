@@ -17,7 +17,7 @@ scenario('STK-41', async ({ etape, page }) => {
   const lignes = page.locator('tbody tr').filter({ visible: true });
   // Le même produit que les autres parcours de déclaration, avec un lot distinct : ce
   // qui distingue une ligne, c'est le couple produit/lot.
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
 
   await etape(1, async () => {
     // Mise en scène : une déclaration d'une ligne, constituée par le parcours.

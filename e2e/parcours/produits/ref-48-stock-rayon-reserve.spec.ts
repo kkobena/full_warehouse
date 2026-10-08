@@ -16,7 +16,7 @@ scenario('REF-48', async ({ etape, page }) => {
   // `99_verification.sql` échoue au chargement s'il n'en a pas. Sans cela, la réserve
   // dépendrait d'un « un produit sur cinq » calé sur l'ordre d'insertion, et la fiche
   // illustrée changerait d'un chargement à l'autre.
-  const produit = 'ARNICA MONTANA 9CH';
+  const produit = 'ARNICA MONTANA 20DH WELEDA';
   const onglet = page.locator('app-produit-stock-tab');
 
   await etape(1, async () => {

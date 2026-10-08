@@ -44,6 +44,6 @@ scenario('FAC-01', async ({ etape, page }) => {
     await page.keyboard.press('Escape');
     await rechercher(page);
     // Le bouton d'édition attend : c'est lui qui produira la facture.
-    await expect(page.getByRole('button', { name: 'Éditer' }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Valider' }).first()).toBeVisible();
   });
 });

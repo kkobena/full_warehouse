@@ -21,7 +21,7 @@ scenario('ACH-53', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Réceptions/ }).click();
+    await page.getByRole('tab', { name: /^Réceptions/ }).click();
     const liste = page.locator('app-list-bons');
     await expect(liste.locator('tbody tr').first()).toBeVisible();
     // Le retour complet n'est offert que sur un bon CLÔTURÉ, c'est-à-dire réellement entré

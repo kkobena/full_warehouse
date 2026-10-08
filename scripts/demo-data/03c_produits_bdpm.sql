@@ -188,9 +188,18 @@ SELECT
     -- Insulines : chaîne du froid.
     s.libelle ~* 'INSULINE|LANTUS|LEVEMIR|NOVORAPID|HUMALOG|TOUJEO|ABASAGLAR',
     s.homeo,
+    -- Statut légal : le référentiel public chargé ici ne porte pas les conditions de prescription,
+    -- le statut est donc posé par règle. Il suit la MOLÉCULE, jamais le caractère princeps ou
+    -- générique : un princeps et ses génériques se délivrent dans les mêmes conditions.
+    --   * homéopathie et produits de libre accès (antalgiques, antihistaminiques, antiacides…) : SANS_LISTE ;
+    --   * le reste est sur ordonnance : liste I pour quatre molécules sur cinq, liste II pour la cinquième
+    --     (répartition fictive, stable d'un rechargement à l'autre).
+    -- Stupéfiants et psychotropes sont posés plus bas.
     CASE WHEN s.homeo THEN 'SANS_LISTE'
-         WHEN s.tg = 'PRINCEPS' OR s.tg IS NULL THEN 'LISTE_I'
-         ELSE 'LISTE_II' END,
+         WHEN s.libelle ~* '^(DOLIPRANE|EFFERALGAN|DAFALGAN|PARACETAMOL|ADVIL|NUROFEN|IBUPROFENE|ASPIRINE|ASPEGIC|SPASFON|PHLOROGLUCINOL|ZYRTEC|CETIRIZINE|LORATADINE|CLARITYNE|SMECTA|GAVISCON|MAALOX|VOLTARENE EMULGEL|DEXERYL|BEPANTHEN|HEXOMEDINE|BETADINE|VITAMINE|MAGNE|FERVEX|HUMEX|STREPSILS|HELICIDINE|ACTIFED|RHINADVIL|FORLAX|DULCOLAX|IMODIUM|DIFFU-K|SPEDIFEN)'
+              THEN 'SANS_LISTE'
+         WHEN (('x' || substr(md5(a.dci_id::text), 1, 6))::bit(24)::int % 5) = 0 THEN 'LISTE_II'
+         ELSE 'LISTE_I' END,
     CASE WHEN s.rang % 17 = 0 THEN 'A_PLUS' WHEN s.rang % 5 = 0 THEN 'A'
          WHEN s.rang % 3 = 0 THEN 'B' ELSE 'C' END,
     'CODE_0',
@@ -237,7 +246,8 @@ UPDATE produit SET statut_legal = 'STUPEFIANTS'
 UPDATE produit SET statut_legal = 'PSO'
  WHERE (libelle LIKE 'DIAZEPAM%' OR libelle LIKE 'BROMAZEPAM%')
    AND libelle IN (SELECT libelle FROM tmp_bdpm_sel);
--- Les antalgiques courants se délivrent sans ordonnance.
+-- Les antalgiques courants se délivrent sans ordonnance (déjà posé par la règle du statut légal ; conservé
+-- pour les libellés de tête qui ne commenceraient pas par la marque).
 UPDATE produit SET statut_legal = 'SANS_LISTE'
  WHERE libelle ~ '^(DOLIPRANE|EFFERALGAN|ADVIL|SPASFON|PARACETAMOL) '
    AND libelle IN (SELECT libelle FROM tmp_bdpm_sel);

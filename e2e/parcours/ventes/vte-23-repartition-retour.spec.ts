@@ -14,7 +14,7 @@ import { scenario } from '../../src/scenario';
  * retour sans valider.
  */
 scenario('VTE-23', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 1G';
+  const produit = 'DOLIPRANE ADULTES 1000';
   const matricule = 'CIE01-000118';
   const contenu = page.locator('#main-content');
   const modale = page.locator('.modal-content');
@@ -23,7 +23,7 @@ scenario('VTE-23', async ({ etape, page }) => {
   // du jour contient aussi les ventes du jeu de démonstration et celles des autres parcours,
   // dont l'ordre ne se prédit pas. Les ventes annulées sont écartées — leur menu n'offre pas
   // de retour, et pour cause.
-  const venteRetournable = lignes.filter({ hasText: '25 950' }).filter({ hasNotText: 'Annulée' }).first();
+  const venteRetournable = lignes.filter({ hasText: '17 160' }).filter({ hasNotText: 'Annulée' }).first();
 
   await assurerCaisseOuverte(page);
   await assurerPanierVide(page);
@@ -51,19 +51,19 @@ scenario('VTE-23', async ({ etape, page }) => {
     await page.getByRole('button', { name: 'Retour client' }).click();
     await expect(modale).toContainText(produit);
     // La pastille « TP » à côté du prix : la part que l'organisme récupérera. Sans elle, le
-    // caissier croirait devoir rendre 25 950 à un client qui n'en a payé que 7 785.
+    // caissier croirait devoir rendre 17 160 à un client qui n'en a payé que 5 148.
     await expect(modale).toContainText('TP');
   });
 
   await etape(2, async () => {
     await modale.getByRole('button', { name: 'Augmenter' }).first().click();
-    // La vente valait 25 950, dont 18 165 pour l'organisme et 7 785 pour le patient. Au
-    // retour, chacun retrouve exactement sa part : 7 785 remboursables au client, 18 165
-    // repris à l'organisme. Rembourser 25 950 reviendrait à offrir au client l'argent de son
+    // La vente valait 17 160, dont 12 012 pour l'organisme et 5 148 pour le patient. Au
+    // retour, chacun retrouve exactement sa part : 5 148 remboursables au client, 12 012
+    // repris à l'organisme. Rembourser 17 160 reviendrait à offrir au client l'argent de son
     // assurance.
     await expect(modale).toContainText('Total remboursable client');
-    await expect(modale).toContainText('7 785');
-    await expect(modale).toContainText('18 165');
+    await expect(modale).toContainText('5 150');
+    await expect(modale).toContainText('12 010');
   });
 
   // ── Remise en état : rien n'est validé. ─────────────────────────────────────────────────

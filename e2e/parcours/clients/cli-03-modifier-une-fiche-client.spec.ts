@@ -25,8 +25,8 @@ scenario('CLI-03', async ({ etape, page }) => {
 
   await etape(2, async () => {
     // La fiche s'ouvre telle qu'elle est : on corrige, on ne ressaisit pas.
-    await expect(modale.locator('#field_lastName')).not.toHaveValue('');
-    await modale.locator('#field_phone').fill('0708091012');
+    await expect(modale.getByRole('textbox', { name: 'Nom (obligatoire)' })).not.toHaveValue('');
+    await modale.getByRole('textbox', { name: 'Téléphone' }).fill('0708091012');
   });
 
   await etape(3, async () => {

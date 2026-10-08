@@ -30,6 +30,6 @@ scenario('FAC-06', async ({ etape, page }) => {
 
   await etape(3, async () => {
     // Ce qui n'est pas coché reste facturable : rien n'est perdu, tout est reporté.
-    await expect(page.getByRole('button', { name: 'Éditer' }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Valider' }).first()).toBeVisible();
   });
 });

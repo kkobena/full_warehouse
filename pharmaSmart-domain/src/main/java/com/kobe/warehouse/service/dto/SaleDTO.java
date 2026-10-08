@@ -95,6 +95,8 @@ public class SaleDTO implements Serializable {
     private String commentaire;
     private boolean canceled;
     private int itemCount;
+    /** Nom du prescripteur de la vente (déclaré, ou celui de l'ordonnance rattachée) ; renseigné par le détail seulement. */
+    private String prescripteur;
     /**
      * Version de la vente lue par le client. Renvoyée à l'écriture sur les flux longs (encaissement,
      * mise en attente, prévente) : une version périmée y signale une modification concurrente.
@@ -103,6 +105,15 @@ public class SaleDTO implements Serializable {
     private Long version;
 
     public SaleDTO() {
+    }
+
+    public String getPrescripteur() {
+        return prescripteur;
+    }
+
+    public SaleDTO setPrescripteur(String prescripteur) {
+        this.prescripteur = prescripteur;
+        return this;
     }
 
     public SaleDTO(Sales sale) {

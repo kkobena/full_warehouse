@@ -16,7 +16,7 @@ import { scenario } from '../../src/scenario';
  */
 scenario('STK-39', async ({ etape, page }) => {
   const contenu = page.locator('#main-content');
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
 
   await etape(1, async () => {
     await page.goto('/gestion-peremption/edit');

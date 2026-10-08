@@ -29,7 +29,7 @@ scenario('ACH-29', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: 'Commandes fournisseurs' }).click();
+    await page.getByRole('tab', { name: /Commandes fournisseurs/ }).click();
     await expect(liste.locator('tbody tr').first()).toBeVisible();
     // LA commande transmise, repérée par sa PASTILLE — l'élément, pas le texte de la ligne :
     // le menu d'actions rendu dans chaque ligne contient « Envoyer via PharmaML », et un

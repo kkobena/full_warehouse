@@ -16,7 +16,7 @@ scenario('ACH-21', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Propositions d'achat/ }).click();
+    await page.getByRole('tab', { name: /Propositions d'achat/ }).click();
     await expect(liste.locator('tbody tr').first()).toBeVisible();
     // Les actions tiennent dans le menu de la ligne : éditer, valider, commander, exporter
     // dans les deux formats, supprimer.

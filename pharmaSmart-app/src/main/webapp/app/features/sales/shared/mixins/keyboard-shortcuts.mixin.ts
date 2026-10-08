@@ -38,6 +38,8 @@ export interface SaleShortcutCallbacks {
   saveAsPresale?: () => void;
   savePresale?: () => void;
   openCustomerRecord?: () => void;
+  openOrdonnances?: () => void;
+  addAyantDroit?: () => void;
 }
 
 export interface KeyboardShortcutsConfig {
@@ -303,6 +305,26 @@ function buildShortcuts(
       description: 'Voir la fiche client',
       category: 'Navigation Rapide',
       action: () => cb.openCustomerRecord!(),
+    });
+  }
+
+  if (cb.openOrdonnances) {
+    shortcuts.push({
+      key: 'o',
+      alt: true,
+      description: 'Ordonnances du client',
+      category: 'Navigation Rapide',
+      action: () => cb.openOrdonnances!(),
+    });
+  }
+
+  if (cb.addAyantDroit) {
+    shortcuts.push({
+      key: 'a',
+      alt: true,
+      description: 'Ajouter un ayant droit',
+      category: 'Navigation Rapide',
+      action: () => cb.addAyantDroit!(),
     });
   }
 

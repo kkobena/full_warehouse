@@ -69,8 +69,8 @@ import {
 } from "../../../shared/ui";
 
 @Component({
-  selector: "jhi-lot-perimes",
-  imports: [CardComponent, 
+  selector: "app-lot-perimes",
+  imports: [CardComponent,
     CommonModule,
     ToolbarComponent,
     IconFieldComponent,
@@ -130,7 +130,7 @@ export class LotPerimesComponent implements OnInit {
    */
   protected selectedLocationMap = new Map<number, number>();
 
-  protected readonly itemsPerPage = ITEMS_PER_PAGE;
+  protected readonly itemsPerPage = 10;
   protected readonly page = signal<number | undefined>(undefined);
   protected readonly loading = signal<boolean | undefined>(undefined);
   protected readonly totalItems = signal(0);

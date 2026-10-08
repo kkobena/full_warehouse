@@ -22,7 +22,7 @@ scenario('ACH-20', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Propositions d'achat/ }).click();
+    await page.getByRole('tab', { name: /Propositions d'achat/ }).click();
     await expect(ecran).toContainText(/[Bb]udget mensuel/);
   });
 

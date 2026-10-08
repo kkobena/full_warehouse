@@ -241,8 +241,6 @@
   }
 
   <app-card>
-    <hr />
-
     <!-- Bulk action bar -->
     @if (selectedLotPerimes()?.length >= 1) {
       <div class="bulk-action-bar">
@@ -289,14 +287,15 @@
         >
           <ng-template #header>
             <tr class="pharma-table-head">
-              <th appSortableHeader="produitName">Libellé produit</th>
-              <th>Code produit</th>
+              <th appSortableHeader="produitName">Libellé</th>
+              <th>CIP</th>
               <th>Numéro lot</th>
-              <th appSortableHeader="datePeremption">Date de péremption</th>
-              <th appSortableHeader="quantity">Quantité</th>
-              <th appSortableHeader="prixAchat">Prix.Achat</th>
-              <th appSortableHeader="prixVente">Prix.vente</th>
+              <th appSortableHeader="datePeremption">Date</th>
               <th>Statut</th>
+              <th appSortableHeader="quantity">Qté</th>
+              <th appSortableHeader="prixAchat">PA</th>
+              <th appSortableHeader="prixVente">PV</th>
+
               <th>Fournisseur</th>
               <th>Rayon</th>
               <th>Emplacement</th>
@@ -328,6 +327,10 @@
               <td>
                 {{ data.datePeremption }}
               </td>
+              <td>
+                <app-badge [label]="data.peremptionStatut?.libelle ?? ''"
+                           [severity]="getSeverity(data.peremptionStatut)" />
+              </td>
               <td class="text-right amount-column">
                 <span class="pharma-qty-value">{{ data.quantity | number }}</span>
               </td>
@@ -337,17 +340,14 @@
               <td class="text-right amount-column">
                 <span class="pharma-price">{{ data.prixVente | number }}</span>
               </td>
-              <td class="text-center">
-                <app-badge [label]="data.peremptionStatut?.libelle ?? ''"
-                           [severity]="getSeverity(data.peremptionStatut)" />
-              </td>
+
               <td class="pharma-entity-name">
                 {{ data.fournisseur }}
               </td>
               <td class="pharma-entity-name">
                 {{ data.rayonName }}
               </td>
-              <td class="text-center">
+              <td>
                 @if (getSingleLocation(data); as loc) {
                   <!-- Lot dans 1 seul emplacement → retrait automatiquement ciblé -->
                   <span

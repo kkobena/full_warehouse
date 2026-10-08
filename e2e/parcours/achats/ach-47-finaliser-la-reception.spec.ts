@@ -27,7 +27,7 @@ scenario('ACH-47', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Réceptions/ }).click();
+    await page.getByRole('tab', { name: /^Réceptions/ }).click();
     // Un bon déjà COMPTÉ et servi en entier : c'est la finalisation sans histoire. Les
     // autres cas ont leurs propres parcours — le manquant donne un reliquat (ACH-08), le
     // bon jamais compté se valide en masse d'abord (ACH-40).

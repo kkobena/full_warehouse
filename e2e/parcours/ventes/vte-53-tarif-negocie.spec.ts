@@ -14,7 +14,7 @@ import { scenario } from '../../src/scenario';
 scenario('VTE-53', async ({ etape, page }) => {
   // ZYRTEC 250MG B/12 : 23 110 au catalogue, 19 644 en tarif négocié CNAM
   // (04b_remises_plafonds_tarifs.sql pose le prix de référence à 85 % du catalogue).
-  const produit = 'ZYRTEC 250MG';
+  const produit = 'PHLOROGLUCINOL ARROW 160 mg';
   const matricule = 'CNAM01-000050';
   // Le numéro de bon doit être UNIQUE par client : l'application refuse un bon déjà
   // employé (« numBonAlreadyUse »). Un numéro figé rendrait le parcours jouable une
@@ -47,13 +47,13 @@ scenario('VTE-53', async ({ etape, page }) => {
 
   await etape(2, async () => {
     const contenu = page.locator('#main-content');
-    // Le client est facturé au prix catalogue : 23 110.
-    await expect(contenu).toContainText('23 110');
-    // Mais l'organisme rembourse 70 % du TARIF NÉGOCIÉ (19 645), soit 13 752 — et non
-    // 16 177, qui serait 70 % du catalogue. C'est ce décalage qui fait tout le scénario :
+    // Le client est facturé au prix catalogue : 5 745.
+    await expect(contenu).toContainText('5 745');
+    // Mais l'organisme rembourse 70 % du TARIF NÉGOCIÉ (4 885), soit 3 420 — et non
+    // 4 022, qui serait 70 % du catalogue. C'est ce décalage qui fait tout le scénario :
     // le taux affiché n'a pas bougé, la base si.
-    await expect(contenu).toContainText('13 752');
-    await expect(contenu).not.toContainText('16 177');
+    await expect(contenu).toContainText('3 420');
+    await expect(contenu).not.toContainText('4 022');
   });
 
   // ── Remise en état : la vente est abandonnée. ────────────────────────────────────────

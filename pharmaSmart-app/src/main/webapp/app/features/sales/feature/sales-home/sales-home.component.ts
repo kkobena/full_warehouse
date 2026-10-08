@@ -29,8 +29,9 @@ import { SaleCreationComponent } from '../sale-creation/sale-creation.component'
 import { SaleAssuranceComponent } from '../sale-assurance/sale-assurance.component';
 import { SaleCarnetComponent } from '../sale-carnet/sale-carnet.component';
 import { SaleDevisComponent } from '../sale-devis/sale-devis.component';
-import { CustomerOverlayPanelComponent, FicheClientPanelComponent, PendingSalesListComponent } from '../../ui';
+import { CustomerOverlayPanelComponent, FicheClientPanelComponent, OrdonnancePanelComponent, PendingSalesListComponent } from '../../ui';
 import { FicheClientPanelService } from '../../data-access/services/fiche-client-panel.service';
+import { OrdonnancePanelService } from '../../data-access/services/ordonnance-panel.service';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
 import { IUser } from '../../../../core/user/user.model';
@@ -62,8 +63,6 @@ import { AbilityService } from '../../../../core/auth/ability.service';
   styleUrls: ['./sales-home.component.scss'],
   host: {
     '(window:keydown)': 'handleGlobalKeyboardEvent($event)',
-    // Accent du type de vente (styles du comptoir) : posé sur l'hôte pour que les panneaux latéraux, qui sont
-    // hors de `.pharma-sales-layout`, en héritent aussi — voir content/scss/_comptoir-sales.scss.
     '[attr.data-comptoir-mode]': 'comptoirMode()',
     '[attr.data-comptoir-doc]': "isPresaleMode() || isDevisMode() ? 'true' : null",
   },
@@ -72,6 +71,7 @@ import { AbilityService } from '../../../../core/auth/ability.service';
   imports: [SalesHelpPanelComponent,
     HauteurEcranVenteDirective,
     FicheClientPanelComponent,
+    OrdonnancePanelComponent,
     CommonModule,
     FormsModule,
     ButtonComponent,
@@ -98,6 +98,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   showStock = signal(false);
   protected salesFacade = inject(SalesFacade);
   protected readonly ficheClient = inject(FicheClientPanelService);
+  protected readonly ordonnancePanel = inject(OrdonnancePanelService);
   protected userVendeurService = inject(UserVendeurService); // Pour liste vendeurs uniquement
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   // Références aux composants enfants (tabs) pour déléguer l'ajout de produits

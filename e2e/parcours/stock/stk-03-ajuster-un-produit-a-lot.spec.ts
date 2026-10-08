@@ -15,7 +15,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il prépare un ajustement sans le clôturer.
  */
 scenario('STK-03', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const ecran = page.locator('app-ajustement-form');
 
   await etape(1, async () => {

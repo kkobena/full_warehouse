@@ -11,7 +11,7 @@ import { scenario } from '../../src/scenario';
  * côté serveur. Il l'annule une fois la dernière capture prise.
  */
 scenario('VTE-01', async ({ etape, page }) => {
-  const produit = 'PARACETAMOL 1G';
+  const produit = 'PARACETAMOL TEVA 500 mg';
   const lignes = page.locator('tbody tr').filter({ visible: true });
 
   await etape(1, async () => {

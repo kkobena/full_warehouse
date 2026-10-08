@@ -17,7 +17,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il enregistre une utilisation de clé de sécurité.
  */
 scenario('VTE-46', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const modale = page.locator('.modal-content');
   const lignes = page.locator('tbody tr').filter({ visible: true });
 

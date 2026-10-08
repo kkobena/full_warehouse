@@ -39,7 +39,7 @@ const TAILLES = [
   { nom: '24 pouces à 100 %', largeur: 1920, hauteur: 960 },
 ] as const;
 
-const PRODUITS = ['DOLIPRANE 1G', 'PARACETAMOL 1G', 'DOLIPRANE 500MG', 'AMOXI', 'IBUPRO'];
+const PRODUITS = ['DOLIPRANE ADULTES 1000', 'PARACETAMOL TEVA 500 mg', 'DOLIPRANE 500 mg', 'AMOXI', 'IBUPRO'];
 
 async function abandonnerVente(page: Page): Promise<void> {
   const annuler = page.locator('button:has(i.pi-times)').last();

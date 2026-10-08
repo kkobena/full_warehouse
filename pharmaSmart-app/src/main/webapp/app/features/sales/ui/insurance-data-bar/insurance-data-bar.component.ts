@@ -23,11 +23,12 @@ import { ButtonComponent, IconFieldComponent, KeyFilterDirective } from '../../.
 import { IClientTiersPayant } from '../../../../shared/model';
 import { DatePipe } from '@angular/common';
 import { IS_ISO_DATE_PAST } from '../../../../shared/util/warehouse-util';
+import { OrdonnanceBoutonComponent } from '../ordonnance-bouton/ordonnance-bouton.component';
 import { FicheClientPanelService } from '../../data-access/services/fiche-client-panel.service';
 
 @Component({
   selector: 'app-insurance-data-bar',
-  imports: [
+  imports: [OrdonnanceBoutonComponent,
     FormsModule,
     ButtonComponent,
     IconFieldComponent,

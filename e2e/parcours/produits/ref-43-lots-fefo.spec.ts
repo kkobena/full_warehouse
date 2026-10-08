@@ -45,9 +45,10 @@ scenario('REF-43', async ({ etape, page }) => {
     const quantites = (await onglet.locator('.fefo-row:not(.fefo-head) .fefo-qty').allInnerTexts())
       .map(q => Number(q.replace(/[^\d-]/g, '')));
     const sommeDesLots = quantites.reduce((a, b) => a + b, 0);
-    const stockTotal = Number(
-      (await onglet.locator('.stock-total-value').innerText()).replace(/[^\d-]/g, ''),
-    );
+    // Le total n'a plus de zone propre dans l'onglet : on le lit dans l'en-tête du produit
+    // (« Stock 19 u »), qui reste affiché au-dessus des onglets.
+    const entete = await page.locator('#main-content').innerText();
+    const stockTotal = Number(/Stock\s+([\d\s]+)\s*u\b/.exec(entete)?.[1]?.replace(/\s/g, '') ?? NaN);
 
     expect(sommeDesLots, 'des lots sans quantité ne seraient pas des lots').toBeGreaterThan(0);
     expect(sommeDesLots, 'les lots ne peuvent excéder le stock du produit')

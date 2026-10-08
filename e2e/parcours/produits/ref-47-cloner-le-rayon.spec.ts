@@ -15,7 +15,7 @@ import { scenario } from '../../src/scenario';
  * de dépôt dont les parcours de répartition ne s'attendent pas à hériter.
  */
 scenario('REF-47', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const modale = page.locator('.modal-content');
 
   await etape(1, async () => {

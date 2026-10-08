@@ -13,7 +13,7 @@ import {FormsModule} from "@angular/forms";
 import {DecimalPipe} from "@angular/common";
 import {finalize} from "rxjs/operators";
 
-import {NgbDateStruct, NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
+import {NgbDateStruct, NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 
 import {
   DATE_FORMAT_ISO_DATE,
@@ -49,6 +49,18 @@ import {
 import {DeviseDirective} from "../../../../shared/utils/devise";
 import { CardComponent } from 'app/shared/ui';
 
+type AvoirMenuAction = "annuler" | "pdf" | "nouvel-avoir";
+
+interface IMenuEntry {
+  label: string;
+  icon: string;
+  color: string;
+  action: AvoirMenuAction;
+  disabled?: boolean;
+  danger?: boolean;
+  separatorBefore?: boolean;
+}
+
 interface IStatutOption {
   label: string;
   value: string;
@@ -77,7 +89,11 @@ interface IKpiGroup {
     KpiItemComponent,
     PharmaDatePickerComponent,
     DeviseDirective,
-    NgbTooltip
+    NgbTooltip,
+    NgbDropdown,
+    NgbDropdownToggle,
+    NgbDropdownMenu,
+    NgbDropdownItem
   ],
   templateUrl: "./avoir.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -227,6 +243,27 @@ export class AvoirComponent implements OnInit {
       () => {
       },
     );
+  }
+
+  protected menuItemsFor(avoir: IAvoir): IMenuEntry[] {
+    const items: IMenuEntry[] = [
+      {label: "Télécharger PDF", icon: "pi pi-file-pdf", color: "text-warning", action: "pdf", disabled: this.exportingPdf() === avoir.id},
+      {label: "Créer un avoir sur cette facture", icon: "pi pi-plus", color: "text-secondary", action: "nouvel-avoir"},
+    ];
+    if (avoir.statut === "DRAFT" || avoir.statut === "EMIS") {
+      items.push({label: "Annuler l'avoir", icon: "pi pi-ban", color: "text-danger", action: "annuler", danger: true, separatorBefore: true});
+    }
+    return items;
+  }
+
+  protected onMenuAction(avoir: IAvoir, action: AvoirMenuAction): void {
+    if (action === "pdf") {
+      this.onExportPdf(avoir);
+    } else if (action === "nouvel-avoir") {
+      this.openNouvelAvoir(avoir.factureOrigineId, avoir.factureOrigineDate);
+    } else {
+      this.onOpenAnnuler(avoir);
+    }
   }
 
   onEmettre(avoir: IAvoir): void {

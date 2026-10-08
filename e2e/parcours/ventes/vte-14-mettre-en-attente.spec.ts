@@ -20,7 +20,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il supprime sa vente en attente après la dernière capture.
  */
 scenario('VTE-14', async ({ etape, page }) => {
-  const produit = 'PARACETAMOL 1G';
+  const produit = 'PARACETAMOL TEVA 500 mg';
   const lignes = page.locator('tbody tr').filter({ visible: true });
 
   await assurerCaisseOuverte(page);

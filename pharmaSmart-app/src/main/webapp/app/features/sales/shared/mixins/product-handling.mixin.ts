@@ -4,6 +4,7 @@ import {SalesFacade} from '../../data-access/facades/sales.facade';
 import {CustomerDisplayService} from '../../data-access/services/customer-display.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
 import {createSalesLineFromProduct} from '../../data-access/utils/sales-line.utils';
+import {of, switchMap} from 'rxjs';
 import {AlerteSanteGuardService} from '../../data-access/services/alerte-sante-guard.service';
 import {SubstitutionComptoirService} from '../../data-access/services/substitution-comptoir.service';
 
@@ -114,6 +115,27 @@ export function createProductHandling(context: ProductHandlingContext) {
   // Appelé dans l'initialiseur de champ du composant : le contexte d'injection est disponible.
   const alerteSanteGuard = inject(AlerteSanteGuardService);
   const substitution = inject(SubstitutionComptoirService);
+  let ordonnanceRappelee = false;
+
+  /**
+   * Prévient tôt, sans bloquer, qu'un produit sur ordonnance entre au panier : la clôture exigera l'ordonnance
+   * ou le prescripteur. Le statut légal vient du produit déjà chargé par la recherche (aucun appel serveur) ;
+   * un seul rappel par vente.
+   */
+  function rappelerOrdonnanceRequise(product: ProduitSearch): void {
+    if (!currentSale()?.saleId) {
+      // Pas encore de vente : ce produit ouvre la suivante.
+      ordonnanceRappelee = false;
+    }
+    if (ordonnanceRappelee || !product.statutLegal || product.statutLegal === 'SANS_LISTE') {
+      return;
+    }
+    ordonnanceRappelee = true;
+    notificationService.warning(
+      `« ${product.libelle} » est délivré sur ordonnance : pensez à associer l'ordonnance ou le prescripteur avant l'encaissement.`,
+      'Ordonnance requise',
+    );
+  }
 
   /**
    * Met le focus sur le composant de recherche produit
@@ -217,13 +239,18 @@ export function createProductHandling(context: ProductHandlingContext) {
     const sale = currentSale();
     const customerId =
       facade.selectedAyantDroit?.()?.id ?? sale?.ayantDroit?.id ?? sale?.ayantDroitId ?? facade.selectedCustomer?.()?.id ?? sale?.customerId;
-    alerteSanteGuard.verifier(customerId, product).subscribe(autorise => {
-      if (autorise) {
-        ajouterSansControle(product, quantity, codeScan);
-      } else {
-        resetProductSelection();
-      }
-    });
+    const panierIds = (sale?.salesLines ?? []).map(l => l.produitId).filter((id): id is number => id != null);
+    alerteSanteGuard
+      .verifier(customerId, product)
+      .pipe(switchMap(ok => (ok ? alerteSanteGuard.controler(customerId, product, panierIds) : of(false))))
+      .subscribe(autorise => {
+        if (autorise) {
+          rappelerOrdonnanceRequise(product);
+          ajouterSansControle(product, quantity, codeScan);
+        } else {
+          resetProductSelection();
+        }
+      });
   }
 
   /**

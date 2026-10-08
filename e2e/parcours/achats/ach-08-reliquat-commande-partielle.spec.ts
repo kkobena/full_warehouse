@@ -23,7 +23,7 @@ scenario('ACH-08', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Réceptions/ }).click();
+    await page.getByRole('tab', { name: /^Réceptions/ }).click();
     // Un bon COMPTÉ dont le grossiste n'a pas tout servi : son taux de service est
     // entre 1 et 99 %, et c'est lui — et lui seul — qui appellera un reliquat.
     await ouvrirBonDeReception(page, 'partiel');
@@ -43,7 +43,7 @@ scenario('ACH-08', async ({ etape, page }) => {
     // grossiste, et porte la pastille RELIQUAT qui rappelle d'où elle vient.
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: 'Commandes fournisseurs' }).click();
+    await page.getByRole('tab', { name: /Commandes fournisseurs/ }).click();
     const commandes = page.locator('app-commande-requested-home');
     await expect(commandes.locator('tbody tr').first()).toBeVisible();
     await expect(commandes.locator('tbody tr').filter({ hasText: 'RELIQUAT' }).first()).toBeVisible();

@@ -145,6 +145,8 @@ export class SalesHelpPanelComponent {
           { touches: ['Alt', 'Q'], action: 'Quantité' },
           ...(depot ? [] : [{ touches: ['Alt', 'C'], action: 'Client' }]),
           ...(comptant ? [] : [{ touches: ['Alt', 'V'], action: 'Voir la fiche client' }]),
+          ...(depot ? [] : [{ touches: ['Alt', 'O'], action: 'Ordonnances du client' }]),
+          ...(comptant || doc ? [] : [{ touches: ['Alt', 'A'], action: 'Ajouter un ayant droit (assurance)' }]),
           { touches: ['Alt', 'F'], action: doc ? 'Enregistrer' : 'Finaliser' },
           ...(doc ? [] : [{ touches: ['Alt', 'S'], action: 'Mettre en attente' }]),
           { touches: ['Alt', 'T'], action: 'Imprimer le ticket' },
@@ -165,6 +167,22 @@ export class SalesHelpPanelComponent {
           { touches: ['Ctrl', '↑ ↓'], action: 'Dans une cellule : passer à la ligne voisine' },
         ],
       },
+      ...(depot
+        ? []
+        : [
+            {
+              titre: 'Panneau des ordonnances',
+              icone: 'pi pi-file-edit',
+              note: "Actifs quand le panneau est ouvert (Alt + O) et qu'aucune fenêtre n'est au premier plan.",
+              lignes: [
+                { touches: ['Alt', 'N'], action: 'Liste : nouvelle ordonnance' },
+                { touches: ['Alt', 'G'], action: 'Liste : gérer les prescripteurs' },
+                { touches: ['Alt', 'L'], action: "Saisie : ajouter la ligne en cours" },
+                { touches: ['Alt', 'E'], action: "Saisie : enregistrer l'ordonnance" },
+                { touches: ['Alt', 'R'], action: 'Saisie : revenir à la liste sans enregistrer' },
+              ],
+            },
+          ]),
       ...(comptant
         ? []
         : [

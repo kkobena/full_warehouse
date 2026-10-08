@@ -12,7 +12,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : la vente en cours disparaît avec sa dernière ligne.
  */
 scenario('VTE-02', async ({ etape, page }) => {
-  const produit = 'PARACETAMOL 1G';
+  const produit = 'PARACETAMOL TEVA 500 mg';
   const ligne = page.locator('tbody tr').filter({ visible: true }).first();
 
   // Mise en place hors étapes : le scénario commence panier servi, ce que VTE-01 couvre déjà.
@@ -39,10 +39,10 @@ scenario('VTE-02', async ({ etape, page }) => {
     const champ = ligne.locator('input[type="number"]').first();
     await champ.fill('5');
     await champ.press('Enter');
-    // Le total de la ligne suit la quantité — 5 × 1 085. C'est lui qui prouve la prise en
+    // Le total de la ligne suit la quantité — 5 × 4 290. C'est lui qui prouve la prise en
     // compte, la quantité seule pouvant n'être qu'affichée dans un champ non validé.
     await expect(ligne).toContainText('5');
-    await expect(ligne).toContainText('5 425');
+    await expect(ligne).toContainText('21 450');
   });
 
   await etape(3, async () => {

@@ -26,7 +26,7 @@ scenario('VTE-36', async ({ etape, page }) => {
     // qu'on rapprochera du comptage.
     await expect(contenu).toContainText('Liste des mouvements');
     await page.getByRole('button', { name: 'Nouveau' }).click();
-    await expect(modale).toContainText("FORMULAIRE D'AJOUT DE MOUVEMENT DE CAISSE");
+    await expect(modale).toContainText("Mouvement de Caisse");
   });
 
   await etape(2, async () => {

@@ -40,7 +40,7 @@ import { CardComponent } from 'app/shared/ui';
 
 @Component({
   selector: "app-facturation-home",
-  imports: [CardComponent, 
+  imports: [CardComponent,
     HintComponent,
     FormsModule,
     ButtonComponent,
@@ -114,15 +114,7 @@ export class FacturationHomeComponent implements OnInit {
   // Signal transmis à la liste pour déclencher la recherche
   protected readonly currentSearchParams = signal<IInvoiceSearchParams | null>(null);
 
-  /**
-   * Demandes de rechargement des indicateurs.
-   *
-   * <p>Passer par un sujet plutôt que d'appeler l'API directement sert à une chose : une
-   * suppression en lot de N factures signale N mutations, dont les réponses arrivent dans des
-   * tours de boucle distincts. Le `switchMap` de l'abonnement annule alors la demande encore en
-   * vol, de sorte que la bannière ne peut pas afficher le résultat d'une requête périmée arrivée
-   * en retard.
-   */
+
   private readonly kpiReload$ = new Subject<void>();
 
   // Hint premier usage
@@ -145,11 +137,7 @@ export class FacturationHomeComponent implements OnInit {
 
     this.kpiReload$
       .pipe(
-        // Pas de `debounceTime` : l'appel doit partir immédiatement, sans quoi il devient
-        // impossible de le suivre dans l'onglet Réseau. `switchMap` suffit à tenir la rafale
-        // d'une suppression en lot — la demande précédente est annulée, la dernière gagne.
-        // Les filtres sont relus ICI, donc au moment de l'appel : la requête part avec l'état
-        // réellement affiché.
+
         switchMap(() =>
           this.factureApiService.getKpi(this.buildKpiParams()).pipe(
             catchError((err: unknown) => {
@@ -167,10 +155,7 @@ export class FacturationHomeComponent implements OnInit {
       )
       .subscribe(res => this.store.setKpi(res?.body ?? null));
 
-    // Les indicateurs sont faux dès qu'une facture est supprimée ou réglée, y compris depuis
-    // la liste ou le panneau de détail — qui n'ont aucune raison de connaître la bannière.
-    // Le store porte le signalement, cet effet recharge. Le premier passage est ignoré :
-    // `ngOnInit` déclenche déjà la recherche, qui charge les indicateurs.
+
     let premierPassage = true;
     effect(() => {
       this.store.kpiDirty();

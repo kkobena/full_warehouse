@@ -15,8 +15,8 @@ import { scenario } from '../../src/scenario';
  * — il ne laisse donc rien derrière lui.
  */
 scenario('VTE-08', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
-  const ajout = 'PARACETAMOL 1G';
+  const produit = 'DOLIPRANE 500 mg';
+  const ajout = 'PARACETAMOL TEVA 500 mg';
   const lignes = page.locator('tbody tr').filter({ visible: true });
   const modale = page.locator('.modal-content');
 

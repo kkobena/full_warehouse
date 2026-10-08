@@ -3,11 +3,10 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs/operators";
 import { HttpHeaders } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
-import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import {
   AppTableLazyLoadEvent,
   BadgeComponent,
-  ButtonComponent,
   DataTableComponent,
   HeaderCheckboxComponent,
   RowCheckboxComponent, AppBadgeSeverity } from "../../../../shared/ui";
@@ -25,13 +24,27 @@ import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { FneCertificateViewerComponent } from "../fne-certificate-viewer/fne-certificate-viewer.component";
 import { BlobDownloadService } from "../../../../shared/services/blob-download.service";
 
+type FactureMenuAction = "view" | "certify" | "view-fne" | "delete" | "avoir" | "pdf";
+
+interface MenuEntry {
+  label: string;
+  icon: string;
+  action: FactureMenuAction;
+  color: string;
+  danger?: boolean;
+  separatorBefore?: boolean;
+}
+
 @Component({
   selector: "app-facture-list",
   imports: [
     CommonModule,
     NgbTooltip,
+    NgbDropdown,
+    NgbDropdownToggle,
+    NgbDropdownMenu,
+    NgbDropdownItem,
     BadgeComponent,
-    ButtonComponent,
     DataTableComponent,
     HeaderCheckboxComponent,
     RowCheckboxComponent
@@ -73,6 +86,49 @@ export class FactureListComponent {
         this.loadPage(params);
       }
     });
+  }
+
+  protected menuItemsFor(facture: IFacture): MenuEntry[] {
+    const items: MenuEntry[] = [{ label: "Voir détail", icon: "pi pi-eye", action: "view", color: "text-success" }];
+    if (!facture.fneResponse && !facture.factureProvisoire && facture.statut === "NOT_PAID") {
+      items.push({ label: "Certifier FNE", icon: "pi pi-shield", action: "certify", color: "text-info" });
+    }
+    if (facture.fneResponse) {
+      items.push({ label: "Voir certificat FNE", icon: "pi pi-verified", action: "view-fne", color: "text-purple" });
+    }
+    if (facture.statut === "PARTIALLY_PAID") {
+      items.push({ label: "Créer un avoir", icon: "pi pi-file-plus", action: "avoir", color: "text-primary" });
+    }
+    if (this.canExport()) {
+      items.push({ label: "Exporter en PDF", icon: "pi pi-file-pdf", action: "pdf", color: "text-warning" });
+    }
+    if (this.canDelete() && facture.statut === "NOT_PAID" && !facture.factureProvisoire) {
+      items.push({ label: "Supprimer", icon: "pi pi-trash", action: "delete", color: "text-danger", danger: true, separatorBefore: true });
+    }
+    return items;
+  }
+
+  protected onMenuAction(facture: IFacture, action: FactureMenuAction): void {
+    switch (action) {
+      case "view":
+        this.onRowSelect(facture);
+        break;
+      case "certify":
+        this.onConfirmCertification(facture);
+        break;
+      case "view-fne":
+        this.onViewFne(facture);
+        break;
+      case "avoir":
+        this.onCreateAvoir(facture);
+        break;
+      case "pdf":
+        this.exportPdf(facture);
+        break;
+      case "delete":
+        this.onDeleteSingle(facture);
+        break;
+    }
   }
 
   onCreateAvoir(facture: IFacture): void {

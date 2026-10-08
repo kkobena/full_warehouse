@@ -1,0 +1,172 @@
+<app-offcanvas [visible]="visible()" (visibleChange)="visible.set($event)" width="620px">
+  <div appOffcanvasHeader class="d-flex align-items-center gap-2">
+    <i class="pi pi-file-edit text-primary"></i>
+    <span class="fw-bold fs-5">{{ vue() === 'nouvelle' ? 'Nouvelle ordonnance' : 'Ordonnances' }}</span>
+  </div>
+
+  @if (vue() === 'liste') {
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <div class="d-flex gap-2">
+        <app-button (clicked)="nouvelle()" icon="pi pi-plus" label="Nouvelle ordonnance" severity="primary" size="small" />
+        <app-button (clicked)="gererPrescripteurs()" icon="pi pi-users" label="Prescripteurs" severity="info" size="small" [text]="true" />
+      </div>
+      @if (masquees() > 0 || voirToutes()) {
+        <app-button (clicked)="voirToutes.set(!voirToutes())" [text]="true" severity="secondary" size="small"
+                    [label]="voirToutes() ? 'Masquer les terminées et expirées' : 'Afficher les terminées et expirées (' + masquees() + ')'" />
+      }
+    </div>
+
+    @if (chargement() && ordonnances().length === 0) {
+      <div class="text-center text-muted py-4"><span class="spinner-border spinner-border-sm me-2"></span>Chargement…</div>
+    } @else if (affichees().length === 0) {
+      <span class="text-muted small">Aucune ordonnance en cours pour ce client.</span>
+    }
+
+    @for (o of affichees(); track o.id) {
+      <div class="mb-4">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+          <h6 class="mb-0">
+            {{ o.datePrescription | date: 'dd/MM/yyyy' }}
+            @if (o.prescripteurNom) {
+              <span class="text-muted fw-normal">· {{ o.prescripteurNom }}</span>
+            }
+          </h6>
+          <app-badge [label]="statuts[o.statut].libelle" [severity]="statuts[o.statut].severity" />
+          @if (o.renouvellements > 0) {
+            <app-badge [label]="o.renouvellementsRestants + ' renouvellement(s) restant(s)'" icon="pi pi-replay" severity="info" />
+          }
+          @if (o.dateFinValidite) {
+            <span class="text-muted small">valable jusqu'au {{ o.dateFinValidite | date: 'dd/MM/yyyy' }}</span>
+          }
+        </div>
+
+        <app-data-table [value]="o.lignes" [stripedRows]="true" size="small" class="d-block mb-2">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th>Produit</th>
+              <th class="text-end">Prescrit</th>
+              <th class="text-end">Délivré</th>
+              <th class="text-end">Reste</th>
+              <th></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-ligne>
+            <tr>
+              <td>
+                <span class="pharma-product-name">{{ ligne.produitLibelle ?? ligne.texteLu }}</span>
+                @if (ligne.posologie) {
+                  <div class="text-muted small">{{ ligne.posologie }}@if (ligne.dureeJours) { · {{ ligne.dureeJours }} j }</div>
+                }
+              </td>
+              <td class="text-end">{{ ligne.quantitePrescrite }}</td>
+              <td class="text-end">{{ ligne.quantiteDelivree }}</td>
+              <td class="text-end fw-semibold">{{ ligne.resteADelivrer }}</td>
+              <td class="text-end">
+                @if (o.statut === 'EN_COURS' && ligne.produitId && ligne.resteADelivrer > 0) {
+                  <app-button (clicked)="ajouterAuPanier(ligne)" icon="pi pi-cart-plus" severity="primary" size="small" [text]="true"
+                              label="Ajouter" ariaLabel="Ajouter ce produit à la vente" />
+                }
+              </td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+
+        @if (o.statut === 'EN_COURS') {
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            @if (venteEnCours()) {
+              <app-button (clicked)="rattacher(o)" icon="pi pi-link" label="Rattacher à la vente en cours" severity="secondary" size="small" />
+            }
+            <app-button (clicked)="cloturer(o)" icon="pi pi-check" label="Clôturer" severity="primary" size="small" [text]="true" />
+            @if (o.ventes.length > 0) {
+              <span class="text-muted small">{{ o.ventes.length }} vente(s) liée(s)</span>
+            }
+          </div>
+        }
+      </div>
+    }
+  } @else {
+    <div class="d-flex flex-column gap-3">
+      <app-form-field label="Prescripteur" fieldId="ordoPrescripteur">
+        <app-select-search inputId="ordoPrescripteur" [items]="prescripteurs()" bindLabel="libelle" bindValue="id" [clearable]="true"
+                           [typeahead]="recherchePrescripteur$" (searched)="chercherPrescripteur($event)" [minSearchLength]="2"
+                           placeholder="Nom du prescripteur" [(ngModel)]="prescripteurId" />
+      </app-form-field>
+      <div class="d-flex gap-2 align-items-end">
+        <div class="flex-grow-1">
+          <app-input placeholder="Pas dans la liste ? Nom du nouveau prescripteur" size="small" [(ngModel)]="nouveauPrescripteur" />
+        </div>
+        <app-button (clicked)="creerPrescripteur()" [disabled]="!nouveauPrescripteur.trim()" icon="pi pi-user-plus" label="Créer" severity="secondary" size="small" />
+      </div>
+
+      <div class="row g-2">
+        <div class="col-6">
+          <pharma-date-picker id="ordoDate" label="Date de prescription" labelPosition="top" [(ngModel)]="datePrescription" />
+        </div>
+        <div class="col-6">
+          <pharma-date-picker id="ordoFin" label="Valable jusqu'au" labelPosition="top" [(ngModel)]="dateFin" [minDate]="datePrescription" />
+        </div>
+        <div class="col-6">
+          <app-form-field label="Renouvellements" fieldId="ordoRenouvellements" hint="0 si l'ordonnance n'est pas renouvelable">
+            <app-input-number inputId="ordoRenouvellements" [min]="0" [max]="12" [(ngModel)]="renouvellements" />
+          </app-form-field>
+        </div>
+      </div>
+
+      <div>
+        <h6 class="mb-2">Lignes</h6>
+        @if (lignes().length > 0) {
+          <app-data-table [value]="lignes()" [stripedRows]="true" size="small" class="d-block mb-2">
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>Produit</th>
+                <th class="text-end">Qté</th>
+                <th></th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-ligne let-i="rowIndex">
+              <tr>
+                <td>
+                  <span class="pharma-product-name">{{ ligne.libelle }}</span>
+                  @if (ligne.posologie) {
+                    <div class="text-muted small">{{ ligne.posologie }}@if (ligne.dureeJours) { · {{ ligne.dureeJours }} j }</div>
+                  }
+                </td>
+                <td class="text-end">{{ ligne.quantitePrescrite }}</td>
+                <td class="text-end">
+                  <app-button (clicked)="retirerLigne(i)" icon="pi pi-trash" severity="danger" size="small" [text]="true" [iconOnly]="true" ariaLabel="Retirer cette ligne" />
+                </td>
+              </tr>
+            </ng-template>
+          </app-data-table>
+        }
+
+        <div class="d-flex flex-column gap-2">
+          <app-select-search inputId="ordoProduit" [items]="produits()" bindLabel="libelle" bindValue="id" [clearable]="true"
+                             [typeahead]="rechercheProduit$" (searched)="chercherProduit($event)" [minSearchLength]="2"
+                             placeholder="Rechercher un produit du catalogue" [(ngModel)]="ligneProduitId" />
+          @if (!ligneProduitId) {
+            <app-input placeholder="… ou texte libre si le produit n'est pas au catalogue" size="small" [(ngModel)]="ligneTexte" />
+          }
+          <div class="row g-2">
+            <div class="col-5"><app-input placeholder="Posologie (1 cp x 3 /j)" size="small" [(ngModel)]="lignePosologie" /></div>
+            <div class="col-3"><app-input-number placeholder="Durée (j)" size="small" [min]="1" [(ngModel)]="ligneDuree" /></div>
+            <div class="col-2"><app-input-number placeholder="Qté" size="small" [min]="1" [(ngModel)]="ligneQuantite" /></div>
+            <div class="col-2 text-end">
+              <app-button (clicked)="ajouterLigne()" icon="pi pi-plus" severity="secondary" size="small" [iconOnly]="true" ariaLabel="Ajouter la ligne" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label" for="ordoNote">Note</label>
+        <textarea class="form-control" id="ordoNote" rows="2" maxlength="500" [(ngModel)]="note"></textarea>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2">
+        <app-button (clicked)="annulerSaisie()" label="Annuler" severity="secondary" />
+        <app-button (clicked)="enregistrer()" [loading]="enregistrement()" icon="pi pi-save" label="Enregistrer" severity="primary" />
+      </div>
+    </div>
+  }
+</app-offcanvas>

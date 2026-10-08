@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProduit, ouvrirJournalDuJour, payerEnEspeces } from '../../src/actions';
+import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProduit, ouvrirJournalDuJour, payerEnEspeces, renseignerPrescripteurSiDemande } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -16,7 +16,7 @@ import { scenario } from '../../src/scenario';
  */
 scenario('VTE-21', async ({ etape, page }) => {
   // TRAMADOL est classé STUPÉFIANT dans le jeu de démonstration, comme en officine.
-  const produit = 'TRAMADOL 500MG';
+  const produit = 'TRAMADOL TEVA L.P. 150 mg';
   const contenu = page.locator('#main-content');
   const modale = page.locator('.modal-content');
   const lignes = page.locator('tbody tr').filter({ visible: true });
@@ -24,7 +24,7 @@ scenario('VTE-21', async ({ etape, page }) => {
   // du jour contient aussi les ventes du jeu de démonstration et celles des autres parcours,
   // dont l'ordre ne se prédit pas. Les ventes annulées sont écartées — leur menu n'offre pas
   // de retour, et pour cause.
-  const venteRetournable = lignes.filter({ hasText: '5 270' }).filter({ hasNotText: 'Annulée' }).first();
+  const venteRetournable = lignes.filter({ hasText: '1 100' }).filter({ hasNotText: 'Annulée' }).first();
 
   await assurerCaisseOuverte(page);
   await assurerPanierVide(page);
@@ -34,6 +34,7 @@ scenario('VTE-21', async ({ etape, page }) => {
   await ajouterAuPanier(page, '1');
   await payerEnEspeces(page, '50000');
   await page.getByRole('button', { name: 'Finaliser' }).click();
+  await renseignerPrescripteurSiDemande(page);
   await expect(contenu).toContainText(/Panier vide|Ajoutez des produits/i);
 
   await etape(1, async () => {

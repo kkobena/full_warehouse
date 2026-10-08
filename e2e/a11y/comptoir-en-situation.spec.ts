@@ -218,9 +218,9 @@ async function remplirPanierComptant(page: Page): Promise<void> {
   await assurerPanierVide(page);
   await page.goto('/sales-home');
   await expect(page.locator('#produitbox')).toBeVisible();
-  await chercherProduit(page, 'DOLIPRANE 1G');
+  await chercherProduit(page, 'DOLIPRANE ADULTES 1000');
   await ajouterAuPanier(page, '2');
-  await chercherProduit(page, 'PARACETAMOL 1G');
+  await chercherProduit(page, 'PARACETAMOL TEVA 500 mg');
   await ajouterAuPanier(page, '1');
   // Sélectionne la première ligne : c'est l'état « ligne sélectionnée » qu'il faut contrôler.
   await page.locator('tbody tr[data-line-id]').first().click();
@@ -270,7 +270,7 @@ for (const style of STYLES) {
         await bon.pressSequentially(numeroBon, { delay: 30 });
         await bon.press('Enter');
         await expect(page.locator('#produitbox')).toBeFocused();
-        await chercherProduit(page, 'DOLIPRANE 1G');
+        await chercherProduit(page, 'DOLIPRANE ADULTES 1000');
         await ajouterAuPanier(page, '2');
         await expect(page.locator('#main-content')).toContainText(/TOTAL ASSURANCE/i);
         await expect(page.locator('#main-content')).toContainText(matricule);
@@ -299,7 +299,7 @@ for (const style of STYLES) {
         await expect(modale).toBeHidden();
         await expect(page.locator('#main-content')).toContainText(matricule);
 
-        await chercherProduit(page, 'DOLIPRANE 500MG');
+        await chercherProduit(page, 'DOLIPRANE 500 mg');
         await ajouterAuPanier(page, '2');
         await expect(page.locator('#main-content')).toContainText(/Total assurance/i);
         noter('carnet-encart-client', style, await mesurer(page, 'app-sales-home', 'carnet-encart-client', style));
@@ -351,7 +351,7 @@ for (const style of STYLES) {
         await assurerCaisseOuverte(page);
         await page.goto('/sales-home/prevente');
         await expect(page.locator('#produitbox')).toBeVisible();
-        await chercherProduit(page, 'DOLIPRANE 500MG');
+        await chercherProduit(page, 'DOLIPRANE 500 mg');
         await ajouterAuPanier(page, '7');
         await expect(page.locator('#main-content')).toContainText(montant);
         await page.locator('tbody tr[data-line-id]').first().click();
@@ -388,7 +388,7 @@ for (const style of STYLES) {
         await page.locator('.depot-select .ng-select-container').click();
         await page.locator('.ng-option').first().click();
         await expect(page.locator('#produitbox')).toBeEnabled();
-        await chercherProduit(page, 'DOLIPRANE 1G');
+        await chercherProduit(page, 'DOLIPRANE ADULTES 1000');
         await ajouterAuPanier(page, '1');
         await expect(page.locator('tbody tr[data-line-id]').first()).toBeVisible();
         noter('depot', style, await mesurer(page, 'app-vente-depot', 'depot', style));

@@ -14,13 +14,13 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il retire la ligne qu'il a ajoutée.
  */
 scenario('ACH-12', async ({ etape, page }) => {
-  const produit = 'ARNICA MONTANA 9CH';
+  const produit = 'FORMICA RUFA COMPOSE BOIRON';
   const panneau = page.locator('app-suggestion-produit-panel');
 
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Propositions d'achat/ }).click();
+    await page.getByRole('tab', { name: /Propositions d'achat/ }).click();
     const liste = page.locator('app-suggestion-fournisseur-list');
     await expect(liste.locator('tbody tr').first()).toBeVisible();
     await liste.locator('tbody tr').first().click();

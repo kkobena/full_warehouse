@@ -26,7 +26,7 @@ scenario('ACH-78', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Réceptions/ }).click();
+    await page.getByRole('tab', { name: /^Réceptions/ }).click();
     await expect(liste.locator('tbody tr').first()).toBeVisible();
     const clos = liste.locator('tbody tr').filter({ hasText: 'Clôturé' }).first();
     bon = (await clos.innerText()).match(/BL\d+/)?.[0] ?? '';
@@ -73,7 +73,7 @@ scenario('ACH-78', async ({ etape, page }) => {
     // libellé de l'action en dépend.
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Réceptions/ }).click();
+    await page.getByRole('tab', { name: /^Réceptions/ }).click();
     await expect(liste.locator('tbody tr').first()).toBeVisible();
     const ligne = liste.locator('tbody tr').filter({ hasText: bon }).first();
     await ligne.getByRole('button', { name: 'Actions' }).click();

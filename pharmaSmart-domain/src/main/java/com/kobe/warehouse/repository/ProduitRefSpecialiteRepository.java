@@ -1,5 +1,8 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.service.dto.ordonnance.ProduitGroupeDTO;
+import java.util.Collection;
+import com.kobe.warehouse.service.dto.controle.MoleculeProduitDTO;
 import com.kobe.warehouse.domain.ProduitRefSpecialite;
 import com.kobe.warehouse.domain.enumeration.DecisionRapprochement;
 import com.kobe.warehouse.domain.enumeration.NatureSubstance;
@@ -48,4 +51,29 @@ public interface ProduitRefSpecialiteRepository extends JpaRepository<ProduitRef
         "order by case when s.typeGenerique = com.kobe.warehouse.domain.enumeration.TypeGenerique.PRINCEPS then 0 else 1 end, p.regularUnitPrice, p.id"
     )
     List<ProduitReferentielDTO.Substitut> findSubstituts(@Param("groupeId") Integer groupeId, @Param("produitId") Integer produitId);
+
+    /** Groupe générique des produits (spécialité retenue de confiance) ; un produit sans groupe est absent. */
+    @Query(
+        "select new com.kobe.warehouse.service.dto.ordonnance.ProduitGroupeDTO(r.produit.id, s.groupeGenerique.id) " +
+        "from ProduitRefSpecialite r join r.specialite s " +
+        "where r.produit.id in :produitIds and r.decision in :decisions and s.groupeGenerique is not null"
+    )
+    List<ProduitGroupeDTO> findGroupes(
+        @Param("produitIds") Collection<Integer> produitIds,
+        @Param("decisions") Collection<DecisionRapprochement> decisions
+    );
+
+    /**
+     * Molécules des produits par la composition de leur spécialité retenue : seules les décisions de
+     * confiance ({@code decisions}) comptent, et seules les molécules reliées au référentiel.
+     */
+    @Query(
+        "select new com.kobe.warehouse.service.dto.controle.MoleculeProduitDTO(prs.produit.id, d.id, d.libelle) " +
+        "from ProduitRefSpecialite prs, RefSpecialiteComposition c join c.dci d " +
+        "where c.specialite = prs.specialite and prs.decision in :decisions and prs.produit.id in :produitIds"
+    )
+    List<MoleculeProduitDTO> findMoleculesRetenues(
+        @Param("produitIds") Collection<Integer> produitIds,
+        @Param("decisions") Collection<DecisionRapprochement> decisions
+    );
 }

@@ -240,8 +240,40 @@ public class SaleDataService {
     }
 
     public SaleDTO fetchPurchaseBy(@NotNull Long id, @NotNull LocalDate saleDate) {
-        return fetch(new SaleId(id, saleDate), false).orElseThrow(
+        SaleDTO dto = fetch(new SaleId(id, saleDate), false).orElseThrow(
             () -> new RuntimeException("Sale not found"));
+        dto.setPrescripteur(prescripteurDeLaVente(id, saleDate));
+        return dto;
+    }
+
+    /** Prescripteur déclaré sur la vente, à défaut celui de l'ordonnance rattachée ; {@code null} sans l'un ni l'autre. */
+    private String prescripteurDeLaVente(Long id, LocalDate saleDate) {
+        List<String> declare = em
+            .createQuery(
+                "select trim(concat(p.nom, ' ', coalesce(p.prenom, ''))) from VentePrescripteur vp, Prescripteur p " +
+                "where p.id = vp.prescripteurId and vp.id.salesId = :id and vp.id.salesDate = :date",
+                String.class
+            )
+            .setParameter("id", id)
+            .setParameter("date", saleDate)
+            .setMaxResults(1)
+            .getResultList();
+        if (!declare.isEmpty()) {
+            return declare.getFirst();
+        }
+        return em
+            .createQuery(
+                "select trim(concat(p.nom, ' ', coalesce(p.prenom, ''))) from OrdonnanceVente ov, Ordonnance o join o.prescripteur p " +
+                "where o.id = ov.id.ordonnanceId and ov.id.salesId = :id and ov.id.salesDate = :date order by o.id desc",
+                String.class
+            )
+            .setParameter("id", id)
+            .setParameter("date", saleDate)
+            .setMaxResults(1)
+            .getResultList()
+            .stream()
+            .findFirst()
+            .orElse(null);
     }
 
     public Optional<SaleDTO> fetchPurchaseForEditBy(@NotNull Long id, @NotNull LocalDate saleDate) {

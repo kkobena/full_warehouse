@@ -18,9 +18,9 @@ import { scenario } from '../../src/scenario';
  * Parcours en LECTURE : il décline le transfert, les stocks restent en place.
  */
 scenario('VTE-42', async ({ etape, page }) => {
-  // SULFUR 30CH : 12 en rayon, 6 en réserve. Demander 15 dépasse le rayon sans dépasser le
+  // ALLOPURINOL BIOGARAN : 7 en rayon, 9 en réserve. Demander 15 dépasse le rayon sans dépasser le
   // total — c'est exactement la situation que le transfert résout.
-  const produit = 'SULFUR 30CH';
+  const produit = 'ALLOPURINOL BIOGARAN 200 mg';
   const modale = page.locator('.modal-content');
 
   await assurerCaisseOuverte(page);

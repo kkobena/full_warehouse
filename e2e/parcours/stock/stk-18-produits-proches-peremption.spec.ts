@@ -14,7 +14,7 @@ scenario('STK-18', async ({ etape, page }) => {
   });
 
   await etape(2, async () => {
-    await expect(page.getByRole('columnheader', { name: 'Date de péremption' })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: /^Date/ })).toBeVisible();
     await expect(page.locator('tbody tr').first()).toContainText(/\d{2}\/\d{2}\/\d{4}/);
   });
 });

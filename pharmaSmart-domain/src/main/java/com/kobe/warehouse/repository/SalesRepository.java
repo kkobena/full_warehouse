@@ -10,6 +10,7 @@ import com.kobe.warehouse.domain.VenteDepot;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.TypePrescription;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.service.financiel_transaction.dto.SaleInfo;
 import com.kobe.warehouse.service.reglement.differe.dto.ClientDiffere;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import jakarta.persistence.QueryHint;
@@ -347,4 +349,16 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
     )
     List<Object[]> findSalesEncaissementsForCaisse(@Param("crId") Integer cashRegisterId);
 
+    /**
+     * Change le type de prescription d'une vente seulement s'il vaut {@code ancien}. Mise à jour en
+     * masse : la vente est peut-être en cours d'édition à l'écran, on n'en fait pas avancer la version.
+     */
+    @Modifying
+    @Query("update Sales s set s.typePrescription = :nouveau where s.id = :id and s.saleDate = :date and s.typePrescription = :ancien")
+    int changerTypePrescription(
+        @Param("id") Long id,
+        @Param("date") LocalDate date,
+        @Param("ancien") TypePrescription ancien,
+        @Param("nouveau") TypePrescription nouveau
+    );
 }

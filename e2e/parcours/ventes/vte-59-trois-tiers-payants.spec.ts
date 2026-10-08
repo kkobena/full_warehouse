@@ -14,7 +14,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il enregistre une vente et constitue trois créances.
  */
 scenario('VTE-59', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 1G';
+  const produit = 'DOLIPRANE ADULTES 1000';
   // OLIVIER KONE : CNPS 70 % (RO), COLINA 20 % (RC1), CIE SANTE 10 % (RC2).
   const matricule = 'CNPS01-000012';
   const modale = page.locator('.modal-content');
@@ -58,12 +58,12 @@ scenario('VTE-59', async ({ etape, page }) => {
   });
 
   await etape(3, async () => {
-    // 2 × 12 975 = 25 950, répartis en 18 165 + 5 190 + 2 595. La somme des trois parts fait
+    // 2 × 8 580 = 17 160, répartis en 12 012 + 3 432 + 1 716. La somme des trois parts fait
     // le total de la vente : « À ENCAISSER » reste à zéro, et le bouton Finaliser n'attend
     // aucun règlement.
-    await expect(contenu).toContainText('18 165');
-    await expect(contenu).toContainText('5 190');
-    await expect(contenu).toContainText('2 595');
+    await expect(contenu).toContainText('12 012');
+    await expect(contenu).toContainText('3 432');
+    await expect(contenu).toContainText('1 716');
     await expect(contenu).toContainText('À ENCAISSER');
 
     await page.getByRole('button', { name: 'Finaliser' }).click();

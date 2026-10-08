@@ -17,7 +17,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il vend une insuline puis la reprend sans la restocker.
  */
 scenario('VTE-22', async ({ etape, page }) => {
-  const produit = 'INSULINE HUMAINE 100MG';
+  const produit = 'LEVEMIR FLEXPEN';
   const contenu = page.locator('#main-content');
   const modale = page.locator('.modal-content');
   const lignes = page.locator('tbody tr').filter({ visible: true });
@@ -25,7 +25,7 @@ scenario('VTE-22', async ({ etape, page }) => {
   // du jour contient aussi les ventes du jeu de démonstration et celles des autres parcours,
   // dont l'ordre ne se prédit pas. Les ventes annulées sont écartées — leur menu n'offre pas
   // de retour, et pour cause.
-  const venteRetournable = lignes.filter({ hasText: '3 880' }).filter({ hasNotText: 'Annulée' }).first();
+  const venteRetournable = lignes.filter({ hasText: '2 340' }).filter({ hasNotText: 'Annulée' }).first();
 
   await assurerCaisseOuverte(page);
   await assurerPanierVide(page);

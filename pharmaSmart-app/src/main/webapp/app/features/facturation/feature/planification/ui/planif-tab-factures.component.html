@@ -1,4 +1,4 @@
-
+<app-card>
 <!-- Hint premier usage -->
 <app-hint storageKey="planif-factures">
   Cliquez sur une ligne pour afficher le détail .
@@ -43,10 +43,7 @@
             } @else if (!plan.actif) {
               <span class="text-muted fst-italic">— désactivé</span>
             } @else {
-              <!-- Active mais sans date : la prochaine échéance se calcule à l'activation,
-                   et manque donc sur une planification activée hors de l'écran. La cellule
-                   restait vide, ce qui se lisait comme « rien de prévu » alors que la
-                   planification veille. -->
+
               <span class="text-warning fst-italic">à calculer</span>
             }
           </td>
@@ -69,7 +66,7 @@
           <td class="text-center" (click)="$event.stopPropagation()">
             <app-switch #actifSwitch [ngModel]="plan.actif" (ngModelChange)="state.onToggleActif(plan, revertSwitch(actifSwitch, plan))" />
           </td>
-          <td (click)="$event.stopPropagation()">
+          <td (click)="$event.stopPropagation()" class="text-end">
             <div>
               <div class="btn-group" role="group">
                 <app-button
@@ -95,14 +92,7 @@
                   />
                 }
 
-                <!--
-                  Pas de suppression ici. Les six lignes ne sont pas des créations de
-                  l'utilisateur : le système en pose une par périodicité et par nature de
-                  facture (définitive / provisoire), et l'écran n'offre aucun moyen d'en
-                  recréer une. Supprimer « Facturation mensuelle » la faisait donc disparaître
-                  pour de bon. Suspendre une planification, c'est l'interrupteur « Actif » de
-                  la colonne précédente — réversible, lui.
-                -->
+
               </div>
 
             </div>
@@ -130,3 +120,4 @@
   }
 </div>
 
+</app-card>

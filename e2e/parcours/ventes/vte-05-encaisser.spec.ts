@@ -11,7 +11,7 @@ import { scenario } from '../../src/scenario';
  * de l'instantané de référence, ces ventes ne s'accumulent pas d'une édition à l'autre.
  */
 scenario('VTE-05', async ({ etape, page }) => {
-  const produit = 'PARACETAMOL 1G';
+  const produit = 'PARACETAMOL TEVA 500 mg';
   const lignes = page.locator('tbody tr').filter({ visible: true });
 
   // Mise en place hors étapes : une caisse ouverte (VTE-33) et un panier servi (VTE-01).
@@ -37,7 +37,7 @@ scenario('VTE-05', async ({ etape, page }) => {
   await etape(2, async () => {
     // Le montant remis en espèces, saisi dans le mode de règlement correspondant. Deux modes
     // au maximum peuvent être combinés — un seul suffit ici.
-    const remis = 2000;
+    const remis = 5000;
     await page.locator('#CASH').fill(String(remis));
     await expect(page.locator('#main-content')).toContainText(/MONNAIE/i);
 

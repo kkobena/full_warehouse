@@ -56,6 +56,10 @@ public final class EntityConstant {
     public static final String APP_POST_CONFIG = "APP_POST_CONFIG";
     public static final String APP_NTH_MOIS_CONSOMMATION = "APP_NTH_MOIS_CONSOMMATION"; // Nombre de mois de consommation pour les suggestions
     public static final String APP_NTH_MOIS_CONSOMMATION_CACHE = "APP_NTH_MOIS_CONSOMMATION_CACHE";
+    /** Contrôle d'ordonnance : par niveau d'alerte, 1 = l'alerte bloque (modale, motif et droit), 0 = simple avertissement. */
+    public static final String APP_CONTROLE_ORDONNANCE_BLOQUANT_PREFIXE = "APP_CONTROLE_ORDONNANCE_BLOQUANT_";
+    /** Vente d'un produit sur ordonnance : exiger une ordonnance ou un prescripteur à la clôture (1) ou non (0). */
+    public static final String APP_VENTE_ORDONNANCE_OBLIGATOIRE = "APP_VENTE_ORDONNANCE_OBLIGATOIRE";
     public static final String APP_CANCEL_SALE_MAX_DAYS = "APP_CANCEL_SALE_MAX_DAYS"; // Délai maximum (en jours) pour annuler une vente clôturée
     public static final String APP_CANCEL_SALE_MAX_DAYS_CACHE = "APP_CANCEL_SALE_MAX_DAYS_CACHE";
     public static final String APP_PONCTION_ANNULATION_MAX_DAYS = "APP_PONCTION_ANNULATION_MAX_DAYS"; // Délai (en jours) pour annuler une ponction validée

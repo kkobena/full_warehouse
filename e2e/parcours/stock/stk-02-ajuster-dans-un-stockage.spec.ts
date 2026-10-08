@@ -19,7 +19,7 @@ import { scenario } from '../../src/scenario';
 scenario('STK-02', async ({ etape, page }) => {
   // Un produit RÉELLEMENT présent en réserve : la recherche ne propose que ce que le
   // stockage choisi détient, ce qui est tout l'intérêt de l'écran.
-  const produit = 'ARNICA MONTANA 9CH';
+  const produit = 'ARNICA MONTANA 20DH WELEDA';
   const ecran = page.locator('app-ajustement-form');
 
   await etape(1, async () => {

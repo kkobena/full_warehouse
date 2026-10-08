@@ -59,6 +59,8 @@ export interface ISales {
   magasin?: IMagasin;
   canceled?: boolean;
   itemCount?: number;
+  /** Prescripteur de la vente (détail seulement). */
+  prescripteur?: string | null;
   /**
    * Verrou optimiste : version lue sur le serveur, renvoyée telle quelle à l'encaissement, à la
    * mise en attente et à la finalisation de prévente. Ne jamais la calculer ni la conserver

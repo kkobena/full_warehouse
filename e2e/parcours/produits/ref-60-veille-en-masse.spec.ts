@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { choisirDansSelect } from '../../src/actions';
+import { chercherAuCatalogue as chercherDansLeCatalogue, choisirDansSelect } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -15,7 +15,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il réactive les produits qu'il a mis en veille.
  */
 scenario('REF-60', async ({ etape, page }) => {
-  const recherche = 'NUX VOMICA';
+  const recherche = 'ARNICA MONTANA TEINTURE';
   const lignes = page.locator('tbody tr').filter({ visible: true });
   const barre = page.locator('.bulk-action-bar');
   const confirmation = page.locator('.modal-content');

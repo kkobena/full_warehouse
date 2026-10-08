@@ -12,7 +12,7 @@ import { scenario } from '../../src/scenario';
  * basculer n'aurait rien à montrer ; l'écran est illustré tel qu'il se présente.
  */
 scenario('REF-52', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const onglet = page.locator('app-produit-fournisseurs-tab');
 
   await etape(1, async () => {

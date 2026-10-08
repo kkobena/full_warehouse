@@ -20,16 +20,17 @@ scenario('CLI-07', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/customer');
     await expect(lignes.first()).toBeVisible();
-    await lignes.first().locator('app-button[ngbtooltip="Voir détails"] button').first().click();
-    await expect(contenu).toContainText('Achats');
+    await lignes.first().locator('app-button[ngbtooltip="Voir la fiche"] button').first().click();
+    await page.getByRole('tab', { name: /Achats/ }).first().click();
+    await expect(page.locator('app-customer-achats-tab')).toBeVisible();
   });
 
   await etape(2, async () => {
     // Trois colonnes suffisent à retrouver une visite : son numéro, sa date, son montant.
     // Les en-têtes sont traduits à l'affichage — « Numéro », « Modifiée le », « Montant
     // net » — et non rendus depuis les clés du gabarit.
-    await expect(contenu).toContainText('Numéro');
-    await expect(contenu).toContainText('Modifiée le');
-    await expect(contenu).toContainText('Montant net');
+    await expect(contenu).toContainText('N° vente');
+    await expect(contenu).toContainText('Date');
+    await expect(contenu).toContainText('Montant');
   });
 });

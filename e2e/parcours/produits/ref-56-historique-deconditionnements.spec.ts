@@ -14,7 +14,7 @@ import { scenario } from '../../src/scenario';
  * Parcours en LECTURE.
  */
 scenario('REF-56', async ({ etape, page }) => {
-  const boite = 'AMOXICILLINE SIROP';
+  const boite = 'ITRACONAZOLE TEVA 100 mg';
   const onglet = page.locator('app-produit-deconditions-tab');
 
   await etape(1, async () => {

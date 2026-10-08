@@ -33,7 +33,7 @@
       <th class="text-end">Restant</th>
       <th>Statut</th>
       <th>Date édition</th>
-      <th style="width: 7rem"></th>
+      <th style="width: 4rem"></th>
     </tr>
   </ng-template>
 
@@ -70,82 +70,34 @@
         }
       </td>
       <td class="small text-muted">{{ facture.created | date: 'dd/MM/yyyy' }}</td>
-      <td (click)="$event.stopPropagation()" class="text-center">
-        <div class="btn-group" role="group">
-          <app-button
-            (clicked)="onRowSelect(facture)"
-            [rounded]="true"
-            [text]="true"
-            icon="pi pi-eye"
-            ngbTooltip="Voir détail"
+      <td (click)="$event.stopPropagation()" class="text-end">
+        <div container="body" ngbDropdown placement="bottom-end top-end bottom-start top-start">
+          <button
+            aria-label="Actions"
+            class="btn btn-sm btn-link text-secondary app-actions-toggle"
+            ngbDropdownToggle
+            ngbTooltip="Actions"
             placement="left"
-            severity="success"
-            size="small"
-          />
-
-          @if (!facture.fneResponse && !facture.factureProvisoire && facture.statut === 'NOT_PAID') {
-            <app-button
-              (clicked)="onConfirmCertification(facture)"
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-shield"
-              ngbTooltip="Certifier FNE"
-              placement="left"
-              severity="info"
-              size="small"
-            />
-          }
-          @if (facture.fneResponse) {
-            <app-button
-              (clicked)="onViewFne(facture)"
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-verified"
-              ngbTooltip="Voir certificat FNE"
-              placement="left"
-              severity="help"
-              size="small"
-            />
-          }
-          @if (canDelete() && facture.statut === 'NOT_PAID' && !facture.factureProvisoire) {
-            <app-button
-              (clicked)="onDeleteSingle(facture)"
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-trash"
-              ngbTooltip="Supprimer"
-              placement="left"
-              severity="danger"
-              size="small"
-            />
-          }
-          @if (facture.statut === 'PARTIALLY_PAID') {
-            <app-button
-              (clicked)="onCreateAvoir(facture)"
-              [rounded]="true"
-              [text]="true"
-              icon="pi pi-file-plus"
-              ngbTooltip="Créer un avoir"
-              placement="left"
-              severity="primary"
-              size="small"
-            />
-          }
-          @if (canExport()) {
-            <app-button
-              (clicked)="exportPdf(facture)"
-              [rounded]="true"
-              [text]="true"
-              ariaLabel="Exporter la facture en PDF"
-              icon="pi pi-file-pdf"
-              ngbTooltip="Exporter en Pdf"
-              severity="warn"
-              size="small"
-            />
-          }
-
+            type="button"
+          >
+            <i aria-hidden="true" class="pi pi-ellipsis-v"></i>
+          </button>
+          <div ngbDropdownMenu>
+            @for (item of menuItemsFor(facture); track item.action) {
+              @if (item.separatorBefore) {
+                <div class="dropdown-divider"></div>
+              }
+              <button
+                (click)="onMenuAction(facture, item.action)"
+                [class.text-danger]="item.danger"
+                ngbDropdownItem
+                type="button"
+              >
+                <i [class]="item.icon + ' ' + item.color" aria-hidden="true"></i> {{ item.label }}
+              </button>
+            }
+          </div>
         </div>
-
       </td>
     </tr>
   </ng-template>

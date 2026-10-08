@@ -2,9 +2,10 @@ import {inject, Injectable} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {catchError, from, map, Observable, of, switchMap} from 'rxjs';
 import {CustomerService} from 'app/entities/customer/customer.service';
-import {IAlerteSante} from 'app/entities/customer/customer-fiche.model';
+import {IAlerteSante, IControleResultat} from 'app/entities/customer/customer-fiche.model';
 import {NotificationService} from '../../../../shared/services/notification.service';
 import {AlerteSanteModalComponent} from '../../ui/alerte-sante-modal/alerte-sante-modal.component';
+import {ControleOrdonnanceModalComponent} from '../../ui/controle-ordonnance-modal/controle-ordonnance-modal.component';
 
 /**
  * Contrôle santé à l'ajout d'un produit (fiche client, lot 2).
@@ -46,6 +47,46 @@ export class AlerteSanteGuardService {
         modalRef.componentInstance.produitLibelle = produit.libelle ?? '';
         modalRef.componentInstance.alertes = bloquantes;
         modalRef.componentInstance.rappels = rappels;
+        return from(modalRef.result).pipe(
+          map(result => result === true),
+          catchError(() => of(false))
+        );
+      })
+    );
+  }
+
+  /**
+   * Contrôle d'ordonnance du panier une fois le produit ajouté en pensée (lot 2) : interactions,
+   * redondances, contre-indications. Seules les alertes qui concernent CE produit s'affichent, pour ne
+   * pas répéter celles déjà prises en compte aux ajouts précédents. Émet `true` si l'ajout peut se faire.
+   */
+  controler(customerId: number | undefined | null, produit: {id?: number; libelle?: string}, panierIds: number[]): Observable<boolean> {
+    if (!customerId || !produit?.id) {
+      return of(true);
+    }
+    const produitIds = Array.from(new Set([...panierIds, produit.id]));
+    return this.customerService.controlerPanier(customerId, produitIds).pipe(
+      // Un contrôle indisponible ne doit ni arrêter ni gêner le comptoir : on laisse passer, sans message.
+      catchError(() => of(null as IControleResultat | null)),
+      switchMap(resultat => {
+        if (!resultat) {
+          return of(true);
+        }
+        const alertes = resultat.alertes.filter(a => a.produitIds.includes(produit.id as number));
+        if (alertes.length === 0) {
+          return of(true);
+        }
+        // Rien ne bloque sauf un niveau paramétré bloquant : les autres alertes sont de simples avertissements.
+        if (!alertes.some(a => a.bloquant)) {
+          alertes.forEach(a => this.notificationService.warning(a.message + (a.conduite ? ` — ${a.conduite}` : ''), 'Contrôle ordonnance'));
+          return of(true);
+        }
+        const modalRef = this.modalService.open(ControleOrdonnanceModalComponent, {backdrop: 'static', centered: true, size: 'lg'});
+        modalRef.componentInstance.customerId = customerId;
+        modalRef.componentInstance.produitLibelle = produit.libelle ?? '';
+        modalRef.componentInstance.produitIds = produitIds;
+        modalRef.componentInstance.alertes = alertes;
+        modalRef.componentInstance.limite = resultat.limite;
         return from(modalRef.result).pipe(
           map(result => result === true),
           catchError(() => of(false))

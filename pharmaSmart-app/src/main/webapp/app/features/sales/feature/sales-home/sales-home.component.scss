@@ -1625,6 +1625,13 @@ $devis-indigo-light: #e8eaf6;
   ::ng-deep .btn {
     min-height: 44px;
   }
+
+  // Désactivés (vente en cours) : Bootstrap passe le contour à 65 % d'opacité, le libellé tombait à 3:1. Même teinte pleine que « En attente ».
+  ::ng-deep .btn:disabled {
+    --bs-btn-disabled-opacity: 1;
+    --bs-btn-disabled-color: var(--pharma-text-muted);
+    --bs-btn-disabled-border-color: var(--pharma-text-muted);
+  }
 }
 
 // Les boutons du bandeau (Pré-vente, Proforma, Après-vente, En attente) sont en `primary` contour : ils suivent le thème de couleur ; le libellé et l'icône les distinguent.

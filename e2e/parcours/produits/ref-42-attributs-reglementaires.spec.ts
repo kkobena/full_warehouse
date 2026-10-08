@@ -22,7 +22,7 @@ scenario('REF-42', async ({ etape, page }) => {
     await page.goto('/produits');
     await chercherAuCatalogue(page, produit);
     await page.locator('tbody tr').filter({ visible: true }).first().click();
-    const reglementation = synthese.locator('.synthese-section').filter({ hasText: 'RÉGLEMENTATION' }).first();
+    const reglementation = synthese.locator('app-detail-section').filter({ hasText: 'Réglementation' }).first();
     await expect(reglementation).toBeVisible();
     // Les quatre attributs qui se basculent, plus le statut légal qui, lui, se lit seulement.
     await expect(reglementation).toContainText('Thermosensible');

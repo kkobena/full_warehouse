@@ -19,7 +19,7 @@ scenario('ACH-18', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Propositions d'achat/ }).click();
+    await page.getByRole('tab', { name: /Propositions d'achat/ }).click();
     const liste = page.locator('app-suggestion-fournisseur-list');
     await expect(liste.locator('tbody tr').first()).toBeVisible();
     // Un simple clic ouvre la proposition : la ligne est le lien vers son détail.

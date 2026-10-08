@@ -12,7 +12,7 @@ import { scenario } from '../../src/scenario';
  * retour et son avoir — que VTE-27 et VTE-28 iront justement consulter.
  */
 scenario('VTE-25', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const contenu = page.locator('#main-content');
   const modale = page.locator('.modal-content');
   const lignes = page.locator('tbody tr').filter({ visible: true });
@@ -20,7 +20,7 @@ scenario('VTE-25', async ({ etape, page }) => {
   // du jour contient aussi les ventes du jeu de démonstration et celles des autres parcours,
   // dont l'ordre ne se prédit pas. Les ventes annulées sont écartées — leur menu n'offre pas
   // de retour, et pour cause.
-  const venteRetournable = lignes.filter({ hasText: '38 620' }).filter({ hasNotText: 'Annulée' }).first();
+  const venteRetournable = lignes.filter({ hasText: '11 700' }).filter({ hasNotText: 'Annulée' }).first();
 
   await assurerCaisseOuverte(page);
   await assurerPanierVide(page);

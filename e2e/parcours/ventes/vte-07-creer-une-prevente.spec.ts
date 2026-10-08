@@ -14,20 +14,20 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il laisse une pré-vente, que VTE-09 transformera.
  */
 scenario('VTE-07', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const lignes = page.locator('tbody tr').filter({ visible: true });
 
   await assurerCaisseOuverte(page);
 
   await etape(1, async () => {
     await page.goto('/sales-home/prevente');
-    await expect(page.locator('#main-content')).toContainText('Gestion des pré-ventes');
+    await expect(page.locator('#main-content')).toContainText('Pré-vente');
     await chercherProduit(page, produit);
     await ajouterAuPanier(page, '2');
     await expect(lignes.first()).toContainText(produit);
     // Aucun pavé d'encaissement : la pré-vente ne touche pas la caisse. Le total est là pour
     // renseigner le client, pas pour être encaissé.
-    await expect(page.locator('#main-content')).toContainText('38 620');
+    await expect(page.locator('#main-content')).toContainText('11 700');
   });
 
   await etape(2, async () => {
@@ -39,6 +39,6 @@ scenario('VTE-07', async ({ etape, page }) => {
     await page.goto('/sales-home/gestion');
     await page.getByRole('tab', { name: /Pré-ventes/ }).click();
     await expect(page.locator('#main-content')).toContainText('Pré-ventes');
-    await expect(lignes.first()).toContainText('38 620');
+    await expect(lignes.first()).toContainText('11 700');
   });
 });

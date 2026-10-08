@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { choisirDansSelect } from '../../src/actions';
+import { chercherAuCatalogue as chercherDansLeCatalogue, choisirDansSelect } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -14,7 +14,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il réactive le produit qu'il a suspendu.
  */
 scenario('REF-39', async ({ etape, page }) => {
-  const recherche = 'ARNICA';
+  const recherche = 'ARNICA MONTANA TEINTURE';
   const lignes = page.locator('tbody tr').filter({ visible: true });
   const ligne = () => lignes.first();
   let produit = '';

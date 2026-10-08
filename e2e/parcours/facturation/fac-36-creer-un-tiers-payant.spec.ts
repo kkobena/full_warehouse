@@ -20,6 +20,8 @@ scenario('FAC-36', async ({ etape, page }) => {
     await page.goto('/tiers-payant');
     await expect(page.getByRole('button', { name: 'Nouveau tiers payant' })).toBeVisible();
     await page.getByRole('button', { name: 'Nouveau tiers payant' }).click();
+    // Une recherche précède la création, pour ne pas doubler un organisme déjà connu.
+    await page.locator('.modal-content:visible').getByRole('button', { name: 'Créer un nouveau' }).click();
     // Le formulaire s'ouvre en modal, par-dessus la liste.
     await expect(page.locator('.modal-content:visible')).toContainText('Nom abrégé');
   });

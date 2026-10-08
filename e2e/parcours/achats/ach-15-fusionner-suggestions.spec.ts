@@ -20,7 +20,7 @@ scenario('ACH-15', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Propositions d'achat/ }).click();
+    await page.getByRole('tab', { name: /Propositions d'achat/ }).click();
     await expect(liste.locator('tbody tr').first()).toBeVisible();
     // Deux propositions cochées : la barre d'actions groupées apparaît et les compte.
     await liste.locator('tbody tr').nth(0).getByRole('checkbox').check();

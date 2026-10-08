@@ -22,7 +22,7 @@ scenario('ACH-30', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Commandes fournisseurs/ }).click();
+    await page.getByRole('tab', { name: /Commandes fournisseurs/ }).click();
     await expect(lignes.first()).toBeVisible();
     // Le double-clic ouvre le bon : c'est depuis lui que l'échange électronique se pilote.
     await lignes.first().dblclick();

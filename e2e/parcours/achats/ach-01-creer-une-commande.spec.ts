@@ -19,12 +19,12 @@ scenario('ACH-01', async ({ etape, page }) => {
   // L'AGENCE qui livrera, nommée en entier : le sélecteur est groupé, et le grossiste
   // principal n'y est qu'un en-tête de groupe — le viser reviendrait à ne rien choisir.
   const fournisseur = 'LABOREX ABIDJAN COCODY';
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
 
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: 'Commandes fournisseurs' }).click();
+    await page.getByRole('tab', { name: /Commandes fournisseurs/ }).click();
     await page.getByRole('button', { name: 'Nouvelle commande' }).click();
     await expect(page.locator('app-commande-requested')).toBeVisible();
   });

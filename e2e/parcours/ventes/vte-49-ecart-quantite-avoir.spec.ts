@@ -14,7 +14,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il enregistre un avoir réel.
  */
 scenario('VTE-49', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 250MG';
+  const produit = 'DOLIPRANE ADULTES 1000';
   const ligne = page.locator('tbody tr').filter({ visible: true }).first();
 
   await assurerCaisseOuverte(page);

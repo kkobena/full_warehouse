@@ -13,7 +13,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il crée sa pré-vente, la transforme et l'encaisse.
  */
 scenario('VTE-09', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const lignes = page.locator('tbody tr').filter({ visible: true });
   const modale = page.locator('.modal-content');
   const contenu = page.locator('#main-content');
@@ -32,7 +32,7 @@ scenario('VTE-09', async ({ etape, page }) => {
     await page.goto('/sales-home/gestion');
     await page.getByRole('tab', { name: /Pré-ventes/ }).click();
     await expect(lignes.first()).toBeVisible();
-    await expect(lignes.first()).toContainText('38 620');
+    await expect(lignes.first()).toContainText('11 700');
   });
 
   await etape(2, async () => {
@@ -44,7 +44,7 @@ scenario('VTE-09', async ({ etape, page }) => {
     // L'écran de vente reprend la main, panier constitué, prêt à encaisser.
     await expect(page).toHaveURL(/sales-home/);
     await expect(lignes.first()).toContainText(produit);
-    await expect(contenu).toContainText('38 620');
+    await expect(contenu).toContainText('11 700');
   });
 
   await etape(3, async () => {

@@ -21,7 +21,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il finalise la vente reprise.
  */
 scenario('VTE-15', async ({ etape, page }) => {
-  const produit = 'PARACETAMOL 1G';
+  const produit = 'PARACETAMOL TEVA 500 mg';
   const lignes = page.locator('tbody tr').filter({ visible: true });
 
   await assurerCaisseOuverte(page);
@@ -55,7 +55,7 @@ scenario('VTE-15', async ({ etape, page }) => {
   });
 
   await etape(3, async () => {
-    await payerEnEspeces(page, '5000');
+    await payerEnEspeces(page, '20000');
     await page.getByRole('button', { name: 'Finaliser' }).click();
     await expect(page.locator('#main-content')).toContainText(/Panier vide|Ajoutez des produits/i);
   });

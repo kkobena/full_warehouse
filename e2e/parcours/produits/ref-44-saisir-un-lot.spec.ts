@@ -19,7 +19,7 @@ import { scenario } from '../../src/scenario';
  * efface avant la campagne suivante.
  */
 scenario('REF-44', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const numeroLot = `LDEMO${Date.now().toString().slice(-5)}`;
   const modale = page.locator('.modal-content');
   const peremption = new Date();

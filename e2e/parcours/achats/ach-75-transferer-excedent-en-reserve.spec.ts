@@ -23,7 +23,7 @@ scenario('ACH-75', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Réceptions/ }).click();
+    await page.getByRole('tab', { name: /^Réceptions/ }).click();
     await ouvrirBonDeReception(page, 'complet');
     await ecran.getByRole('button', { name: 'Finaliser' }).click();
     await traverserConfirmations(page, { sarreterAvant: /Répartition rayon/ });

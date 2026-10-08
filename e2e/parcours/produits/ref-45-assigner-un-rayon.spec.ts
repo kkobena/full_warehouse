@@ -14,7 +14,7 @@ import { scenario } from '../../src/scenario';
  * produit du catalogue de démonstration dont d'autres parcours citent le rayon.
  */
 scenario('REF-45', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const onglet = page.locator('app-produit-rayons-tab');
 
   await etape(1, async () => {
@@ -28,7 +28,7 @@ scenario('REF-45', async ({ etape, page }) => {
   await etape(2, async () => {
     // L'emplacement se lit par stockage : le nom du stockage, puis le code et le libellé du
     // rayon qu'il y occupe.
-    await expect(onglet.locator('.prt-item').first()).toBeVisible();
+    await expect(onglet.locator('app-detail-section').first()).toBeVisible();
     await expect(onglet).toContainText(/ANTALGIQUES|HOMEOPATHIE|Sans emplacement/i);
   });
 
@@ -36,7 +36,7 @@ scenario('REF-45', async ({ etape, page }) => {
     // Le geste de déplacement est offert sur chaque ligne : c'est lui qui réassigne le rayon
     // sans passer par le formulaire complet du produit.
     await expect(
-      onglet.getByRole('button', { name: /Déplacer vers un autre emplacement|Assigner un emplacement dans ce stockage/ }).first(),
+      onglet.locator('app-button[ngbtooltip="Déplacer vers un autre emplacement"], app-button[ngbtooltip="Assigner un emplacement dans ce stockage"]').first(),
     ).toBeVisible();
   });
 });

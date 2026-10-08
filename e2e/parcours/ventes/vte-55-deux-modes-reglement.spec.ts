@@ -18,7 +18,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il enregistre une vente comptant.
  */
 scenario('VTE-55', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const contenu = page.locator('#main-content');
   const montants = page.locator('.payment-amount-field input');
   const cash = page.locator('#CASH');
@@ -36,14 +36,14 @@ scenario('VTE-55', async ({ etape, page }) => {
   await etape(1, async () => {
     await chercherProduit(page, produit);
     await ajouterAuPanier(page, '2');
-    await expect(contenu).toContainText('38 620');
+    await expect(contenu).toContainText('11 700');
     await expect(contenu).toContainText('À ENCAISSER');
   });
 
   await etape(2, async () => {
-    // 20 000 sur 38 620 : le règlement est incomplet, et c'est cet écart qui fait apparaître
+    // 5 000 sur 11 700 : le règlement est incomplet, et c'est cet écart qui fait apparaître
     // le bouton d'ajout d'un second mode.
-    await saisirMontant('20000');
+    await saisirMontant('5000');
     await expect(page.getByRole('button', { name: 'Ajouter un mode de règlement' })).toBeVisible();
   });
 
@@ -63,21 +63,21 @@ scenario('VTE-55', async ({ etape, page }) => {
   });
 
   await etape(4, async () => {
-    // Le second mode prend le solde sans qu'on l'ait calculé : 38 620 − 20 000 = 18 620.
+    // Le second mode prend le solde sans qu'on l'ait calculé : 11 700 − 5 000 = 6 700.
     await page.locator('.payment-mode-menu').locator('visible=true').getByRole('button', { name: 'ORANGE' }).click();
     await expect(montants).toHaveCount(2);
-    await expect(montants.nth(1)).toHaveValue(/18\s*620/);
+    await expect(montants.nth(1)).toHaveValue(/6\s*700/);
 
-    // Retour au tout espèces pour la monnaie : le client remet 40 000 pour 38 620.
+    // Retour au tout espèces pour la monnaie : le client remet 12 000 pour 11 700.
     // Chaque ligne porte son bouton de suppression ; c'est celui d'ORANGE — la seconde —
     // qu'il faut viser pour revenir au tout espèces.
     await page.getByRole('button', { name: 'Supprimer ce mode de règlement' }).nth(1).click();
     await expect(montants).toHaveCount(1);
-    await saisirMontant('40000');
+    await saisirMontant('12000');
 
     // « Monnaie » est mis en capitales par la feuille de style : viser le texte du DOM.
     await expect(contenu).toContainText('Monnaie');
-    await expect(contenu).toContainText('1 380');
+    await expect(contenu).toContainText('300');
 
     await page.getByRole('button', { name: 'Finaliser' }).click();
     await expect(contenu).toContainText(/Panier vide|Aucun produit dans la vente/i);

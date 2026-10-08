@@ -13,7 +13,7 @@ import { scenario } from '../../src/scenario';
  * Parcours en LECTURE : il produit un PDF, il ne modifie rien.
  */
 scenario('REF-59', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const onglet = page.locator('app-produit-achats-tab');
 
   await etape(1, async () => {
@@ -26,7 +26,7 @@ scenario('REF-59', async ({ etape, page }) => {
 
   await etape(2, async () => {
     await onglet.getByRole('button', { name: '1 an' }).click();
-    await onglet.getByRole('button', { name: 'Actualiser' }).click();
+    // La période choisie recharge la liste d'elle-même : plus de bouton Actualiser.
     await expect(onglet.locator('tbody tr').first()).toBeVisible();
   });
 
@@ -34,13 +34,13 @@ scenario('REF-59', async ({ etape, page }) => {
     await expect(onglet).toContainText('Prix achat');
     await expect(onglet).toContainText('Montant achat');
     await expect(onglet).toContainText(/Totaux/i);
-    await onglet.getByRole('button', { name: 'Graphique' }).click();
+    await onglet.locator('app-button[ngbtooltip="Afficher/masquer le graphique"] button').click();
     await expect(onglet.locator('canvas')).toBeVisible();
   });
 
   await etape(4, async () => {
     const telechargement = page.waitForEvent('download');
-    await onglet.getByRole('button', { name: 'PDF' }).click();
+    await onglet.locator('app-button[ngbtooltip="Exporter en PDF"] button').dispatchEvent('click');
     const fichier = await telechargement;
     expect(fichier.suggestedFilename()).toMatch(/\.pdf$/);
   });

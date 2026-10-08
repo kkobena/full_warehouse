@@ -12,6 +12,7 @@ import { IDiffere, IReglementDiffere } from 'app/features/differes/data-access/m
 import {
   CanalConsentement,
   IAlerteSante,
+  IControleResultat,
   IConsentement,
   ITraitementARenouveler,
   ITraitementChronique,
@@ -200,6 +201,21 @@ export class CustomerService {
   /** Délivrance malgré une alerte : sans le droit, `actionAuthorityKey` porte la clé d'un collègue qui le détient. */
   derogerAlerteSante(customerId: number, derogation: { produitId: number; motif: string; actionAuthorityKey?: string }): Observable<void> {
     return this.http.post<void>(`${this.resourceUrl}/${customerId}/alertes-sante/derogations`, derogation);
+  }
+
+  /** Interactions, redondances et contre-indications du panier pour ce client. */
+  controlerPanier(customerId: number, produitIds: number[]): Observable<IControleResultat> {
+    return this.http.get<IControleResultat>(`${this.resourceUrl}/${customerId}/controle-ordonnance`, {
+      params: { produitIds: produitIds.join(',') },
+    });
+  }
+
+  /** Prise en compte des alertes : motif exigé pour une CI ; sans le droit, `actionAuthorityKey` porte la clé d'un collègue. */
+  prendreEnCompteControle(
+    customerId: number,
+    demande: { produitIds: number[]; motif?: string; actionAuthorityKey?: string },
+  ): Observable<void> {
+    return this.http.post<void>(`${this.resourceUrl}/${customerId}/controle-ordonnance/prises-en-compte`, demande);
   }
 
   // ── Crédit ──

@@ -21,7 +21,7 @@ scenario('ACH-44', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Réceptions/ }).click();
+    await page.getByRole('tab', { name: /^Réceptions/ }).click();
     await ouvrirBonDeReception(page, 'aucun');
     // La grille donne accès, ligne par ligne, à l'historique du couple produit/fournisseur.
     await page.getByRole('button', { name: 'Grille' }).click();

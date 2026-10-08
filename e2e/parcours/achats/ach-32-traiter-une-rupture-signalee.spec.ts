@@ -22,7 +22,7 @@ scenario('ACH-32', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Commandes fournisseurs/ }).click();
+    await page.getByRole('tab', { name: /Commandes fournisseurs/ }).click();
     await expect(lignes.first()).toBeVisible();
     await lignes.first().dblclick();
     await expect(page.locator('#main-content')).toContainText('Retour à la liste');

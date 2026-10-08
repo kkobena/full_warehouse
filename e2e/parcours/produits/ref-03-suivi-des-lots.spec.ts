@@ -15,7 +15,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il rétablit le réglage d'origine.
  */
 scenario('REF-03', async ({ etape, page }) => {
-  const produit = 'ARNICA';
+  const produit = 'ARNICA MONTANA 20DH WELEDA';
   const interrupteur = () => page.getByRole('switch', { name: 'Suivi des lots' });
 
   await etape(1, async () => {

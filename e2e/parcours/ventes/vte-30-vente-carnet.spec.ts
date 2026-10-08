@@ -18,7 +18,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il enregistre une vente portée au compte du carnet.
  */
 scenario('VTE-30', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const matricule = 'CAR01-000045';
   const modale = page.locator('.modal-content');
   const lignes = page.locator('tbody tr').filter({ visible: true });
@@ -44,11 +44,11 @@ scenario('VTE-30', async ({ etape, page }) => {
     await chercherProduit(page, produit);
     await ajouterAuPanier(page, '2');
     await expect(lignes.first()).toContainText(produit);
-    await expect(page.locator('#main-content')).toContainText('38 620');
+    await expect(page.locator('#main-content')).toContainText('11 700');
   });
 
   await etape(3, async () => {
-    // Le carnet prend les 38 620 en entier ; il ne reste rien à encaisser. C'est ce que le
+    // Le carnet prend les 11 700 en entier ; il ne reste rien à encaisser. C'est ce que le
     // caissier doit vérifier avant de finaliser — un montant à encaisser non nul sur un
     // carnet signalerait un taux mal renseigné sur le contrat du porteur.
     const contenu = page.locator('#main-content');
@@ -60,7 +60,7 @@ scenario('VTE-30', async ({ etape, page }) => {
     // le carnet n'aurait couvert qu'une part. Ce que le scénario promet, c'est que le carnet
     // prend le total et qu'il ne reste rien au comptoir.
     const texte = (await contenu.innerText()).replace(/\s+/g, ' ');
-    expect(texte).toMatch(/Total assurance 38\s?620/i);
+    expect(texte).toMatch(/Total assurance 11\s?700/i);
     expect(texte).toMatch(/À ENCAISSER 0(?!\d)/i);
 
     // Le geste réel du comptoir : le champ de recherche produit est vide, Entrée y demande

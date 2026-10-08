@@ -21,7 +21,7 @@ scenario('ACH-40', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Réceptions/ }).click();
+    await page.getByRole('tab', { name: /^Réceptions/ }).click();
     // Un bon dont RIEN n'a encore été compté : taux de service à 0 %. C'est le seul sur
     // lequel « Tout valider » a quelque chose à faire.
     await ouvrirBonDeReception(page, 'aucun');

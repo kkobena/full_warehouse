@@ -15,7 +15,7 @@ import { scenario } from '../../src/scenario';
  * Parcours en LECTURE.
  */
 scenario('REF-08', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const onglet = page.locator('app-produit-mouvements-tab');
 
   await etape(1, async () => {

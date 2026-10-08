@@ -15,7 +15,7 @@ import { scenario } from '../../src/scenario';
  * abandonne la vente ensuite.
  */
 scenario('VTE-47', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const modale = page.locator('.modal-content');
   const lignes = page.locator('tbody tr').filter({ visible: true });
 

@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.settings;
 
 import com.kobe.warehouse.constant.EntityConstant;
+import com.kobe.warehouse.domain.pharmacovigilance.NiveauInteraction;
 import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.enumeration.ParametreValueType;
 import com.kobe.warehouse.domain.Magasin;
@@ -700,6 +701,36 @@ public class AppConfigurationService {
             })
             .orElse(30);
     }
+    /**
+     * Une alerte de ce niveau du contrôle d'ordonnance bloque-t-elle la vente ?
+     *
+     * <p>Un paramètre par niveau ({@code APP_CONTROLE_ORDONNANCE_BLOQUANT_CI}, {@code _AD}, {@code _PE},
+     * {@code _APEC}) : {@code 1} bloque, tout autre valeur n'est qu'un avertissement. Absent, il vaut
+     * {@code 0} : le contrôle aide, il ne bloque rien tant que l'officine ne l'a pas décidé.
+     */
+    @Transactional(readOnly = true)
+    public boolean isControleOrdonnanceBloquant(NiveauInteraction niveau) {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_CONTROLE_ORDONNANCE_BLOQUANT_PREFIXE + niveau.name())
+            .map(AppConfiguration::getValue)
+            .map(valeur -> "1".equals(valeur.trim()))
+            .orElse(false);
+    }
+
+    /**
+     * La clôture d'une vente contenant un produit sur ordonnance exige-t-elle une ordonnance ou un
+     * prescripteur ? {@code 1} oui, tout autre valeur non. Absent, il vaut {@code 1} : c'est la règle
+     * voulue par l'officine, un paramètre à 0 n'est qu'une dérogation d'exploitation.
+     */
+    @Transactional(readOnly = true)
+    public boolean isOrdonnanceObligatoireExigee() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_VENTE_ORDONNANCE_OBLIGATOIRE)
+            .map(AppConfiguration::getValue)
+            .map(valeur -> "1".equals(valeur.trim()))
+            .orElse(true);
+    }
+
     @Transactional
     public void update(AppConfiguration appConfiguration) {
         appConfigurationRepository.save(appConfiguration);

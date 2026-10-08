@@ -10,7 +10,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il crée une vente en cours, qu'il abandonne à la fin.
  */
 scenario('VTE-62', async ({ etape, page }) => {
-  const produit = 'ATORVASTATINE 100MG';
+  const produit = 'ATORVASTATINE VIATRIS SANTE 80 mg';
   const ligne = page.locator('tbody tr').filter({ visible: true }).first();
   const contenu = page.locator('#main-content');
 
@@ -21,7 +21,7 @@ scenario('VTE-62', async ({ etape, page }) => {
   await page.goto('/sales-home');
   await chercherProduit(page, produit);
   await ajouterAuPanier(page, '2');
-  await expect(ligne).toContainText('1 320');
+  await expect(ligne).toContainText('7 270');
   await page.getByRole('button', { name: 'Remise' }).click();
   const choix = page.locator('ngb-popover-window').first();
   await expect(choix).toContainText('Choisir une remise');
@@ -47,7 +47,7 @@ scenario('VTE-62', async ({ etape, page }) => {
     // La preuve que la remise est bien partie : la pastille disparaît et le net à encaisser
     // revient au montant brut de la ligne, à l'arrondi de caisse près.
     await expect(contenu).not.toContainText(/Remise\s*:\s*\d+\s*%/);
-    await expect(ligne).toContainText('1 320');
+    await expect(ligne).toContainText('7 270');
   });
 
   // ── Remise en état, hors étapes : la vente en cours est abandonnée. ───────────────────

@@ -40,6 +40,6 @@ scenario('FAC-04', async ({ etape, page }) => {
   await etape(4, async () => {
     // L'édition produira une facture PAR TIERS PAYANT du groupe, chacune numérotée dans la
     // même séquence annuelle : ce n'est pas une facture globale, mais une seule opération.
-    await expect(page.getByRole('button', { name: 'Éditer' }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Valider' }).first()).toBeVisible();
   });
 });

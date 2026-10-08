@@ -16,7 +16,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il supprime le tarif qu'il a créé.
  */
 scenario('REF-53', async ({ etape, page }) => {
-  const produit = 'ARNICA MONTANA 5CH';
+  const produit = 'ARNICA MONTANA TEINTURE MERE BOIRON';
   // Le select affiche le NOM COMPLET de l'organisme, pas son sigle : on cherche donc sur ce
   // qui est affiché — ng-select refiltre la réponse du serveur sur le libellé visible.
   const recherche = 'CAISSE NATIONALE';

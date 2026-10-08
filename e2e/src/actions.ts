@@ -556,9 +556,10 @@ export async function lireStockProduit(page: Page, libelle: string): Promise<num
   await page.locator('tbody tr').filter({ visible: true }).first().click();
 
   const valeur = page
-    .locator('.kpi-item')
-    .filter({ has: page.locator('.kpi-label', { hasText: 'Stock actuel' }) })
-    .locator('.kpi-value');
+    .locator('app-detail-field')
+    .filter({ has: page.locator('.detail-field-label', { hasText: 'Stock actuel' }) })
+    .locator('span')
+    .last();
   await expect(valeur).toBeVisible();
 
   const texte = await valeur.innerText();
@@ -567,7 +568,7 @@ export async function lireStockProduit(page: Page, libelle: string): Promise<num
   return Number(chiffres);
 }
 
-export async function chercherProduit(page: Page, libelle: string): Promise<void> {
+export async function chercherProduit(page: Page, libelle: string, choix = libelle): Promise<void> {
   const champ = page.locator('#produitbox');
   // Le critère est l'OUVERTURE de la liste, pas le focus. L'écran de vente donne lui-même le
   // focus au champ après la saisie d'un numéro de bon, mais sans ouvrir le ng-select : y
@@ -582,16 +583,18 @@ export async function chercherProduit(page: Page, libelle: string): Promise<void
   };
   await ouvrir();
   await champ.fill(libelle);
-  const suggestion = page.locator('.ng-option').first();
+  // `choix` désigne l'option à retenir quand le terme tapé en ramène plusieurs (boîte et unité) : la
+  // recherche ne tolère ni la virgule ni le tiret d'un libellé complet.
+  const suggestion = choix === libelle ? page.locator('.ng-option').first() : page.locator('.ng-option').filter({ hasText: choix }).first();
   // Une seconde chance : si la frappe n'a rien déclenché, on rouvre et on ressaisit plutôt
   // que d'échouer sur un composant qui n'a simplement pas reçu l'événement.
   try {
-    await expect(suggestion).toContainText(libelle, { timeout: 6000 });
+    await expect(suggestion).toContainText(choix, { timeout: 6000 });
   } catch {
     await champ.fill('');
     await ouvrir();
     await champ.fill(libelle);
-    await expect(suggestion).toContainText(libelle);
+    await expect(suggestion).toContainText(choix);
   }
   await suggestion.click();
 
@@ -783,7 +786,19 @@ export async function traverserConfirmations(
     has: page.getByRole('button', { name: /Oui|Ignorer/ }),
   });
 
+  // L'impression des étiquettes s'ouvre désormais comme un FORMULAIRE (position de départ sur la
+  // planche, boutons Annuler / Enregistrer) et non comme une question Oui / Non. Si le parcours
+  // ne vient pas la montrer, on décline : annuler l'impression ne retient pas la réception.
+  const etiquettes = page.locator('.modal-content:visible').filter({ hasText: /IMPRIMER LES ETIQUETTES/i });
+
   for (let i = 0; i < (options.limite ?? 6); i++) {
+    if (await etiquettes.first().isVisible().catch(() => false)) {
+      if (options.sarreterAvant?.test('étiquettes')) {
+        break;
+      }
+      await etiquettes.first().getByRole('button', { name: 'Annuler' }).click();
+      await etiquettes.first().waitFor({ state: 'hidden', timeout: 10000 }).catch(() => undefined);
+    }
     const visible = await boites.first().waitFor({ state: 'visible', timeout: 8000 })
       .then(() => true)
       .catch(() => false);
@@ -922,4 +937,40 @@ export async function ouvrirFactureARegler(page: Page): Promise<Locator> {
     }
   }
   throw new Error('Aucune facture à régler dans le rapprochement : jeu de démonstration incomplet.');
+}
+
+/** Rattache un client à la vente en cours (le panneau client n'apparaît qu'une fois la vente commencée). */
+export async function rattacherUnClient(page: Page, recherche = 'KOUASSI'): Promise<void> {
+  await page
+    .locator('app-customer-overlay-panel')
+    .filter({ visible: true })
+    .first()
+    .getByRole('button', { name: /Choisir un client|Changer le client/ })
+    .click();
+  await page.getByPlaceholder('Rechercher un client (nom, prénom)...').fill(recherche);
+  const ligne = page.locator('app-customer-search-table tbody tr').filter({ visible: true }).first();
+  await expect(ligne).toBeVisible();
+  await ligne.click();
+  await expect(page.getByRole('button', { name: 'Changer le client' }).first()).toBeVisible();
+}
+
+/**
+ * Clôt la fenêtre « Ordonnance requise » quand elle s'ouvre à la finalisation : produit des
+ * listes ou stupéfiant. Sans effet pour une vente qui n'en a pas besoin. Le prescripteur est créé
+ * à la volée, sous un nom unique.
+ */
+export async function renseignerPrescripteurSiDemande(page: Page): Promise<void> {
+  const modale = page.locator('.modal-content');
+  const demande = await modale
+    .filter({ hasText: 'Ordonnance requise' })
+    .waitFor({ state: 'visible', timeout: 3000 })
+    .then(() => true)
+    .catch(() => false);
+  if (!demande) {
+    return;
+  }
+  await modale.locator('input[placeholder*="nouveau prescripteur"]').fill('ESSAI E2E ' + Date.now().toString().slice(-6));
+  await modale.getByRole('button', { name: 'Créer' }).click();
+  await modale.getByRole('button', { name: 'Valider' }).click();
+  await expect(modale).toBeHidden();
 }

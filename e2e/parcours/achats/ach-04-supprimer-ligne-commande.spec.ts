@@ -15,13 +15,13 @@ import { scenario } from '../../src/scenario';
  * commande telle qu'il l'a trouvée.
  */
 scenario('ACH-04', async ({ etape, page }) => {
-  const produit = 'BELLADONNA 15CH';
+  const produit = 'RIBES NIGRUM MACERAT';
   const grille = page.locator('app-commande-requested');
 
   // Mise en scène : la ligne à supprimer, ajoutée par le parcours lui-même.
   await page.goto('/commande');
   await ouvrirOnglet(page, /Commandes & Réceptions/);
-  await page.getByRole('button', { name: 'Commandes fournisseurs' }).click();
+  await page.getByRole('tab', { name: /Commandes fournisseurs/ }).click();
   const liste = page.locator('app-commande-requested-home');
   await expect(liste.locator('tbody tr').first()).toBeVisible();
   await liste.locator('tbody tr').first().dblclick();

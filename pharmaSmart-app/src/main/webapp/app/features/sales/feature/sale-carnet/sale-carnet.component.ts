@@ -15,6 +15,7 @@ import {
 } from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FicheClientPanelService} from '../../data-access/services/fiche-client-panel.service';
+import {OrdonnancePanelService} from '../../data-access/services/ordonnance-panel.service';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
@@ -148,6 +149,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
   private readonly ficheClient = inject(FicheClientPanelService);
+  private readonly ordonnancePanel = inject(OrdonnancePanelService);
   private customerDisplay = inject(CustomerDisplayService);
   private customerSearchService = inject(CustomerSearchService);
   private spinner = inject(NgxSpinnerService);
@@ -291,6 +293,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
       putOnStandby: () => this.onPutOnHold(),
       cancelSale: () => this.onCancel(),
       openCustomerRecord: () => this.ouvrirFicheClient(),
+      openOrdonnances: () => this.ouvrirOrdonnances(),
       focusPayment: () => this.paymentModeComponent()?.focusFirstMode(),
       saveAsPresale: () => this.onSaveAsPresale(true),
       savePresale: () => this.onSaveAsPresale(false),
@@ -460,6 +463,12 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
    * Focus automatique sur quantité après sélection
    */
   /** Fiche client en panneau, sans quitter la vente ; « Re-délivrer » y présélectionne le produit. */
+  protected ouvrirOrdonnances(): void {
+    if (!this.ordonnancePanel.ouvrir(this.facade.selectedCustomer()?.id)) {
+      this.notificationService.warning('Aucun client sélectionné');
+    }
+  }
+
   protected ouvrirFicheClient(): void {
     if (!this.ficheClient.ouvrir(this.facade.selectedCustomer()?.id)) {
       this.notificationService.warning('Aucun client sélectionné');

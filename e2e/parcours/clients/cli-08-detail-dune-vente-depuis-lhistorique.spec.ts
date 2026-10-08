@@ -20,14 +20,15 @@ scenario('CLI-08', async ({ etape, page }) => {
     await page.goto('/customer');
     await expect(lignes.first()).toBeVisible();
     // Un client qui a des achats : sans vente, il n'y a pas de détail à ouvrir.
-    await lignes.first().locator('app-button[ngbtooltip="Voir détails"] button').first().click();
-    await expect(contenu).toContainText('Achats');
+    await lignes.first().locator('app-button[ngbtooltip="Voir la fiche"] button').first().click();
+    await page.getByRole('tab', { name: /Achats/ }).first().click();
+    await expect(page.locator('app-customer-achats-tab')).toBeVisible();
   });
 
   await etape(2, async () => {
     // Le clic sur une visite déplie ses lignes, sous le tableau des ventes.
-    const ventes = page.locator('tbody tr').filter({ visible: true });
+    const ventes = page.locator('app-customer-achats-tab tbody tr').filter({ visible: true });
     await ventes.first().click();
-    await expect(contenu).toContainText(/Montant net/);
+    await expect(contenu).toContainText('P.U.');
   });
 });

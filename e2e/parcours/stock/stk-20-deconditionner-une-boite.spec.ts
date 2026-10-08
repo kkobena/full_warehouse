@@ -17,7 +17,7 @@ import { scenario } from '../../src/scenario';
 scenario('STK-20', async ({ etape, page }) => {
   const lignes = page.locator('tbody tr').filter({ visible: true });
   const modale = page.locator('.modal-content');
-  const produit = 'AMOXICILLINE SIROP';
+  const produit = 'ITRACONAZOLE TEVA 100 mg';
 
   await etape(1, async () => {
     await page.goto('/produits');

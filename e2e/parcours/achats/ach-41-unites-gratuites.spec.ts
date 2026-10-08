@@ -19,7 +19,7 @@ scenario('ACH-41', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Réceptions/ }).click();
+    await page.getByRole('tab', { name: /^Réceptions/ }).click();
     // Un bon dont rien n'a encore été compté : c'est là que la saisie commence.
     await ouvrirBonDeReception(page, 'aucun');
     await expect(ecran).toBeVisible();

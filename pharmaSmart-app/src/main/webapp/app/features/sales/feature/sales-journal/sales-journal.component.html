@@ -328,6 +328,14 @@
                               <span appDevise class="activity-item-currency"></span>
                             </div>
                           </div>
+                          @if (elRow?.prescripteur) {
+                            <div class="activity-item">
+                              <span class="activity-item-label">Prescripteur</span>
+                              <div class="activity-item-value-wrapper">
+                                <span class="activity-item-value">{{ elRow.prescripteur }}</span>
+                              </div>
+                            </div>
+                          }
                         </div>
                       </div>
 

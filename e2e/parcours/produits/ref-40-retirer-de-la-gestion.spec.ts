@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { choisirDansSelect } from '../../src/actions';
+import { chercherAuCatalogue as chercherDansLeCatalogue, choisirDansSelect } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -17,7 +17,7 @@ import { scenario } from '../../src/scenario';
  * catalogue de démonstration tel qu'il l'a trouvé.
  */
 scenario('REF-40', async ({ etape, page }) => {
-  const recherche = 'BELLADONNA';
+  const recherche = 'ARNICA MONTANA TEINTURE MERE WELEDA';
   const lignes = page.locator('tbody tr').filter({ visible: true });
   const ligne = () => lignes.first();
 

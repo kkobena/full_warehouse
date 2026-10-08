@@ -12,7 +12,7 @@ import { scenario } from '../../src/scenario';
  * vente. Comme toute campagne part de l'instantané de référence, cet état ne s'accumule pas.
  */
 scenario('VTE-51', async ({ etape, page }) => {
-  const produit = 'PARACETAMOL 1G';
+  const produit = 'PARACETAMOL TEVA 500 mg';
   const lignes = page.locator('tbody tr').filter({ visible: true });
   const modale = page.locator('.modal-content');
 
@@ -29,7 +29,7 @@ scenario('VTE-51', async ({ etape, page }) => {
   });
 
   await etape(2, async () => {
-    await page.locator('#CASH').fill('2000');
+    await page.locator('#CASH').fill('20000');
     await page.getByRole('button', { name: 'Finaliser' }).click();
     // L'encaissement ne s'ouvre pas : la caisse manque. L'application le dit et propose de
     // la remédier ici même — c'est ce que la capture doit montrer.

@@ -16,13 +16,13 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il travaille sur une ligne qu'il ajoute, et la retire.
  */
 scenario('ACH-03', async ({ etape, page }) => {
-  const produit = 'PULSATILLA 9CH';
+  const produit = 'FORMICA RUFA COMPOSE BOIRON';
   const grille = page.locator('app-commande-requested');
 
   // Mise en scène : la ligne sur laquelle on corrigera, ajoutée par le parcours.
   await page.goto('/commande');
   await ouvrirOnglet(page, /Commandes & Réceptions/);
-  await page.getByRole('button', { name: 'Commandes fournisseurs' }).click();
+  await page.getByRole('tab', { name: /Commandes fournisseurs/ }).click();
   const liste = page.locator('app-commande-requested-home');
   await expect(liste.locator('tbody tr').first()).toBeVisible();
   await liste.locator('tbody tr').first().dblclick();

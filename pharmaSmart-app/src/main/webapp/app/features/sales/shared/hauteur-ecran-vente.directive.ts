@@ -10,6 +10,7 @@ import { afterNextRender, DestroyRef, Directive, ElementRef, inject } from '@ang
 @Directive({ selector: '[appHauteurEcranVente]' })
 export class HauteurEcranVenteDirective {
   private readonly hote = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     afterNextRender(() => {
@@ -24,7 +25,7 @@ export class HauteurEcranVenteDirective {
           observateur.observe(s);
         }
       }
-      inject(DestroyRef).onDestroy(() => observateur.disconnect());
+      this.destroyRef.onDestroy(() => observateur.disconnect());
     });
   }
 

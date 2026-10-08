@@ -25,7 +25,7 @@ scenario('ACH-79', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Réceptions/ }).click();
+    await page.getByRole('tab', { name: /^Réceptions/ }).click();
     await expect(liste.locator('tbody tr').first()).toBeVisible();
     const clos = liste.locator('tbody tr').filter({ hasText: 'Clôturé' }).first();
     await clos.getByRole('button', { name: 'Actions' }).click();

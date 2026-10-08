@@ -13,7 +13,7 @@ import { scenario } from '../../src/scenario';
  * Parcours en LECTURE : il produit un PDF, il ne modifie rien.
  */
 scenario('REF-07', async ({ etape, page }) => {
-  const produit = 'ARNICA';
+  const produit = 'ARNICA MONTANA 20DH WELEDA';
 
   await etape(1, async () => {
     await page.goto('/produits');

@@ -18,7 +18,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il enregistre une vente réglée par carte.
  */
 scenario('VTE-56', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const contenu = page.locator('#main-content');
   const lignes = page.locator('tbody tr').filter({ visible: true });
 

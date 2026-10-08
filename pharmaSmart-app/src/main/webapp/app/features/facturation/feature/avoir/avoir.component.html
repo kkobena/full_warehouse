@@ -165,7 +165,7 @@
             <span class="avoir-motif-cell">{{ avoir.motif }}</span>
           </td>
           <td class="text-center">
-            <div class="d-flex gap-1 justify-content-center">
+            <div class="d-flex align-items-center justify-content-end gap-1">
               @if (avoir.statut === 'DRAFT') {
                 <app-button
                   (clicked)="onEmettre(avoir)"
@@ -188,33 +188,34 @@
                   size="small"
                 />
               }
-              @if (avoir.statut === 'DRAFT' || avoir.statut === 'EMIS') {
-                <app-button
-                  (clicked)="onOpenAnnuler(avoir)"
-                  [text]="true"
-                  icon="pi pi-ban"
-                  ngbTooltip="Annuler l'avoir"
-                  severity="danger"
-                  size="small"
-                />
-              }
-              <app-button
-                (clicked)="onExportPdf(avoir)"
-                [loading]="exportingPdf() === avoir.id"
-                [text]="true"
-                icon="pi pi-file-pdf"
-                ngbTooltip="Télécharger PDF"
-                severity="warn"
-                size="small"
-              />
-              <app-button
-                (clicked)="openNouvelAvoir(avoir.factureOrigineId, avoir.factureOrigineDate)"
-                [text]="true"
-                icon="pi pi-plus"
-                ngbTooltip="Créer un avoir sur cette facture"
-                severity="secondary"
-                size="small"
-              />
+              <div container="body" ngbDropdown placement="bottom-end top-end bottom-start top-start">
+                <button
+                  aria-label="Actions"
+                  class="btn btn-sm btn-link text-secondary app-actions-toggle"
+                  ngbDropdownToggle
+                  ngbTooltip="Actions"
+                  placement="left"
+                  type="button"
+                >
+                  <i aria-hidden="true" class="pi pi-ellipsis-v"></i>
+                </button>
+                <div ngbDropdownMenu>
+                  @for (item of menuItemsFor(avoir); track item.action) {
+                    @if (item.separatorBefore) {
+                      <div class="dropdown-divider"></div>
+                    }
+                    <button
+                      (click)="onMenuAction(avoir, item.action)"
+                      [class.text-danger]="item.danger"
+                      [disabled]="item.disabled"
+                      ngbDropdownItem
+                      type="button"
+                    >
+                      <i [class]="item.icon + ' ' + item.color" aria-hidden="true"></i> {{ item.label }}
+                    </button>
+                  }
+                </div>
+              </div>
             </div>
           </td>
         </tr>

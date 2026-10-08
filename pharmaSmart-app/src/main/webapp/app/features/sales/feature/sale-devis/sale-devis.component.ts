@@ -16,6 +16,7 @@ import {
 } from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FicheClientPanelService} from '../../data-access/services/fiche-client-panel.service';
+import {OrdonnancePanelService} from '../../data-access/services/ordonnance-panel.service';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {map} from 'rxjs';
@@ -142,6 +143,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
   private readonly ficheClient = inject(FicheClientPanelService);
+  private readonly ordonnancePanel = inject(OrdonnancePanelService);
   private customerDisplay = inject(CustomerDisplayService);
   private customerService = inject(CustomerService);
   private spinner = inject(NgxSpinnerService);
@@ -244,6 +246,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
       putOnStandby: () => this.onPutOnHold(),
       cancelSale: () => this.onCancel(),
       openCustomerRecord: () => this.ouvrirFicheClient(),
+      openOrdonnances: () => this.ouvrirOrdonnances(),
       focusPayment: () => {
       }, // Pas de paiement pour devis
       saveAsPresale: () => this.onSaveAsDevis(),
@@ -320,6 +323,12 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   }
 
   /** Fiche client en panneau, sans quitter la vente ; « Re-délivrer » y présélectionne le produit. */
+  protected ouvrirOrdonnances(): void {
+    if (!this.ordonnancePanel.ouvrir(this.facade.selectedCustomer()?.id)) {
+      this.notificationService.warning('Aucun client sélectionné');
+    }
+  }
+
   protected ouvrirFicheClient(): void {
     if (!this.ficheClient.ouvrir(this.facade.selectedCustomer()?.id)) {
       this.notificationService.warning('Aucun client sélectionné');

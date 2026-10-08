@@ -16,7 +16,7 @@ import { scenario } from '../../src/scenario';
  * transfert, et c'est ce qui rend le parcours rejouable.
  */
 scenario('REF-49', async ({ etape, page }) => {
-  const produit = 'ARNICA MONTANA 9CH';
+  const produit = 'PARACETAMOL TEVA 500 mg';
   const onglet = page.locator('app-produit-stock-tab');
   const modale = page.locator('.modal-content');
 

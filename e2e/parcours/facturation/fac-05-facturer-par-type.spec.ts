@@ -30,6 +30,6 @@ scenario('FAC-05', async ({ etape, page }) => {
 
   await etape(3, async () => {
     await rechercher(page);
-    await expect(page.getByRole('button', { name: 'Éditer' }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Valider' }).first()).toBeVisible();
   });
 });

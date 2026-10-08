@@ -17,7 +17,7 @@ import { scenario } from '../../src/scenario';
  * un déconditionné dont les parcours de stock ne s'attendent pas à hériter.
  */
 scenario('REF-55', async ({ etape, page }) => {
-  const boite = 'AMOXICILLINE SIROP';
+  const boite = 'ITRACONAZOLE TEVA 100 mg';
   const lignes = page.locator('tbody tr').filter({ visible: true });
   const modale = page.locator('.modal-content');
 

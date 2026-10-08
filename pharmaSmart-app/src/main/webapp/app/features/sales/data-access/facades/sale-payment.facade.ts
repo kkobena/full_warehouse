@@ -2,6 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {catchError, EMPTY, finalize, from, map, Observable, of, switchMap, tap} from 'rxjs';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {DepassementLimiteCredit, LimiteCreditModalComponent} from '../../ui/limite-credit-modal/limite-credit-modal.component';
+import {OrdonnanceRequise, OrdonnanceRequiseModalComponent} from '../../ui/ordonnance-requise-modal/ordonnance-requise-modal.component';
 import {SalesStore} from '../store/sales.store';
 import {SalesApiService} from '../services/sales-api.service';
 import {NotificationService} from '../../../../shared/services/notification.service';
@@ -83,6 +84,11 @@ export class SalePaymentFacade {
           this.store.setIsSaving(false);
           return this.demanderDerogationLimiteCredit(error.error.payload).pipe(switchMap(autorise => (autorise ? this.saveSale() : of(null))));
         }
+        // Produit sur ordonnance : ordonnance ou prescripteur obligatoire, puis nouvelle finalisation.
+        if (error?.error?.errorKey === 'ordonnanceRequise' && error.error.payload) {
+          this.store.setIsSaving(false);
+          return this.demanderOrdonnance(error.error.payload).pipe(switchMap(associee => (associee ? this.saveSale() : of(null))));
+        }
         console.error('Error saving sale:', error);
         const {errorMessage} = extractApiError(error, "Erreur lors de l'enregistrement de la vente");
         this.notificationService.error(errorMessage);
@@ -91,6 +97,15 @@ export class SalePaymentFacade {
         this.reloadAfterConflict(error, currentSale.saleId);
         return of(null);
       }),
+    );
+  }
+
+  private demanderOrdonnance(requise: OrdonnanceRequise): Observable<boolean> {
+    const modalRef = this.modalService.open(OrdonnanceRequiseModalComponent, {backdrop: 'static', centered: true, size: 'md'});
+    modalRef.componentInstance.requise = requise;
+    return from(modalRef.result).pipe(
+      map(result => result === true),
+      catchError(() => of(false)),
     );
   }
 

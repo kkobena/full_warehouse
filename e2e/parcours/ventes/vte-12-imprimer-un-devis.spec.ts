@@ -13,7 +13,7 @@ import { scenario } from '../../src/scenario';
  * n'ayant de sens que sur un devis conservé.
  */
 scenario('VTE-12', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const contenu = page.locator('#main-content');
   const lignes = page.locator('tbody tr').filter({ visible: true });
 
@@ -35,7 +35,7 @@ scenario('VTE-12', async ({ etape, page }) => {
     await page.goto('/sales-home/gestion');
     await page.getByRole('tab', { name: /Proformas/ }).click();
     await expect(lignes.first()).toBeVisible();
-    await expect(lignes.first()).toContainText('38 620');
+    await expect(lignes.first()).toContainText('11 700');
   });
 
   await etape(2, async () => {
@@ -53,6 +53,6 @@ scenario('VTE-12', async ({ etape, page }) => {
     expect(onglet.isClosed()).toBe(false);
     await onglet.close();
     // Retour à la liste, où le devis est toujours là : imprimer ne consomme pas le devis.
-    await expect(lignes.first()).toContainText('38 620');
+    await expect(lignes.first()).toContainText('11 700');
   });
 });

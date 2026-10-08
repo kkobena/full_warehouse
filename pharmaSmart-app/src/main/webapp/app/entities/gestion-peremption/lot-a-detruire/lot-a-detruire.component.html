@@ -208,14 +208,15 @@
       >
         <ng-template #header>
           <tr class="pharma-table-head">
-            <th appSortableHeader="produitName">Libellé produit</th>
-            <th>Code produit</th>
+            <th appSortableHeader="produitName">Libellé</th>
+            <th>CIP</th>
             <th>Numéro lot</th>
-            <th appSortableHeader="datePeremption">Date de péremption</th>
-            <th appSortableHeader="quantity">Quantité</th>
-            <th appSortableHeader="prixAchat">Prix.Achat</th>
-            <th appSortableHeader="prixUni">Prix.vente</th>
+            <th appSortableHeader="datePeremption">Date</th>
             <th>Statut</th>
+            <th appSortableHeader="quantity">Qté</th>
+            <th appSortableHeader="prixAchat">PA</th>
+            <th appSortableHeader="prixUni">PV</th>
+
             <th>Fournisseur</th>
 
             <th class="table-all-checkbos">
@@ -240,6 +241,11 @@
             <td>
               {{ data.datePeremption }}
             </td>
+            <td>
+              <app-badge [label]="data.peremptionStatut?.libelle ?? ''"
+                         [severity]="getSeverity(data.peremptionStatut)" />
+            </td>
+
             <td class="text-right amount-column">
               <span class="pharma-qty-value">{{ data.quantity | number }}</span>
             </td>
@@ -248,10 +254,6 @@
             </td>
             <td class="text-right amount-column">
               <span class="pharma-price">{{ data.prixUni | number }}</span>
-            </td>
-            <td class="text-center">
-              <app-badge [label]="data.peremptionStatut?.libelle ?? ''"
-                         [severity]="getSeverity(data.peremptionStatut)" />
             </td>
 
             <td class="pharma-entity-name">

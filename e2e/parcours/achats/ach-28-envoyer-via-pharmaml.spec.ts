@@ -23,13 +23,13 @@ scenario('ACH-28', async ({ etape, page }) => {
   // le code, pas le libellé, et un code inventé ne donnerait ni disponibilité, ni rupture, ni
   // substitution en retour (`98_pharmaml_local.sql`). Prix d'achat 274 F, quantité 1 : la
   // commande d'essai reste très en dessous du plafond convenu de 5 000 F.
-  const produit = 'ARNICA MONTANA 5CH';
+  const produit = 'ARNICA MONTANA TEINTURE MERE BOIRON';
   const grille = page.locator('app-commande-requested');
 
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: 'Commandes fournisseurs' }).click();
+    await page.getByRole('tab', { name: /Commandes fournisseurs/ }).click();
     await page.getByRole('button', { name: 'Nouvelle commande' }).click();
     await chercherDansSelect(page, 'fournisseur-select', fournisseur, fournisseur);
     await chercherDansSelect(page, 'produitbox', produit, produit);

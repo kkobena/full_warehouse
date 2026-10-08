@@ -15,7 +15,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il constitue une vente au clavier, puis l'abandonne.
  */
 scenario('VTE-48', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const contenu = page.locator('#main-content');
   const modale = page.locator('.modal-content');
   const lignes = page.locator('tbody tr').filter({ visible: true });
@@ -37,7 +37,7 @@ scenario('VTE-48', async ({ etape, page }) => {
     await quantite.pressSequentially('2', { delay: 40 });
     await quantite.press('Enter');
     await expect(lignes.first()).toContainText(produit);
-    await expect(contenu).toContainText('38 620');
+    await expect(contenu).toContainText('11 700');
   });
 
   await etape(3, async () => {
@@ -45,16 +45,17 @@ scenario('VTE-48', async ({ etape, page }) => {
     // dans quel environnement on se trouve : ici un navigateur, donc « Mode Web » — et les
     // raccourcis Ctrl+lettre, propres au bureau, sont signalés comme tels.
     await page.keyboard.press('F1');
-    await expect(modale).toContainText('Raccourcis Clavier');
-    await expect(modale).toContainText('Mode Web');
-    await expect(modale).toContainText('F1');
+    // L'aide est désormais un volet latéral (« Aide et raccourcis »), non une fenêtre modale.
+    const aide = page.locator('app-sales-help-panel');
+    await expect(page.getByRole('heading', { name: 'Aide et raccourcis' })).toBeVisible();
+    await expect(aide).toContainText('F1');
     // L'aide reste OUVERTE à la fin de l'étape : c'est elle qu'il faut photographier. La
     // fermer ici rendrait l'image identique à celle de l'étape précédente.
   });
 
   // ── Remise en état : l'aide est refermée, la vente abandonnée. ──────────────────────────
-  await modale.getByRole('button', { name: /Fermer|Close/i }).first().click();
-  await expect(modale).toBeHidden();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('app-sales-help-panel')).toBeHidden();
   await page.locator('app-sale-actions').getByRole('button', { name: 'Annuler' }).click();
   await expect(modale).toBeVisible();
   await modale.getByRole('button', { name: 'Oui' }).click();

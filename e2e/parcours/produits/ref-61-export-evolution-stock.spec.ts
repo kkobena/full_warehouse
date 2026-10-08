@@ -11,7 +11,7 @@ import { scenario } from '../../src/scenario';
  * Parcours en LECTURE : il produit des fichiers, il ne modifie rien.
  */
 scenario('REF-61', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const onglet = page.locator('app-produit-mouvements-tab');
 
   await etape(1, async () => {
@@ -20,14 +20,14 @@ scenario('REF-61', async ({ etape, page }) => {
     await page.locator('tbody tr').filter({ visible: true }).first().click();
     await ouvrirOnglet(page, 'Mouvements');
     await onglet.getByRole('button', { name: '1 an' }).click();
-    await onglet.getByRole('button', { name: 'Actualiser' }).click();
+    // La période choisie recharge la liste d'elle-même : plus de bouton Actualiser.
     await expect(onglet.locator('tbody tr').first()).toBeVisible();
   });
 
   await etape(2, async () => {
     // Le graphique n'est proposé qu'une fois des données chargées : sans mouvement, il n'y
     // aurait rien à tracer, et le bouton n'apparaît pas.
-    await onglet.getByRole('button', { name: 'Graphique' }).click();
+    await onglet.locator(`app-button[ngbtooltip="Afficher/masquer le graphique d'évolution du stock"] button`).click();
     await expect(onglet.locator('canvas')).toBeVisible();
   });
 
@@ -35,7 +35,7 @@ scenario('REF-61', async ({ etape, page }) => {
     // Excel plutôt que PDF pour montrer l'export retravaillable — le PDF est illustré par
     // REF-58 et REF-59. On attend le FICHIER : c'est la seule preuve que l'export a abouti.
     const telechargement = page.waitForEvent('download');
-    await onglet.getByRole('button', { name: 'Excel' }).click();
+    await onglet.locator('app-button[ngbtooltip="Exporter en Excel (.xlsx)"] button').dispatchEvent('click');
     const fichier = await telechargement;
     expect(fichier.suggestedFilename()).toMatch(/\.(xlsx|pdf)$/);
   });

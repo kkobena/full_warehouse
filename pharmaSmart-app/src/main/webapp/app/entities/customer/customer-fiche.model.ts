@@ -49,6 +49,28 @@ export interface IAlerteSante {
   message: string;
 }
 
+export type NiveauControle = 'CI' | 'AD' | 'PE' | 'APEC';
+
+/** Alerte du moteur de contrôle d'un panier (GET /api/customers/{id}/controle-ordonnance). */
+export interface IAlerteControle {
+  niveau: NiveauControle;
+  type: 'INTERACTION' | 'REDONDANCE' | 'REDONDANCE_CLASSE' | 'CONTRE_INDICATION';
+  message: string;
+  conduite?: string | null;
+  source?: string | null;
+  produitIds: number[];
+  /** Niveau paramétré bloquant (APP_CONTROLE_ORDONNANCE_BLOQUANT_*) : modale, motif et droit ; sinon simple avertissement. */
+  bloquant: boolean;
+}
+
+export interface IControleResultat {
+  alertes: IAlerteControle[];
+  nonControles: { produitId: number; libelle: string }[];
+  /** Faux : aucun référentiel d'interactions publié, les interactions ne sont pas contrôlées. */
+  referentielPublie: boolean;
+  limite: string;
+}
+
 /** Situation face à la limite de crédit de l'officine (GET /api/customers/{id}/limite-credit). */
 export interface ISituationCredit {
   /** 0 = aucune limite. */

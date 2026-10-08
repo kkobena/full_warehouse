@@ -14,7 +14,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il rétablit la valeur d'origine.
  */
 scenario('REF-02', async ({ etape, page }) => {
-  const produit = 'ARNICA';
+  const produit = 'ARNICA MONTANA 20DH WELEDA';
   const nomCommercial = 'ARNIGEL DEMONSTRATION';
   let valeurOrigine = '';
 

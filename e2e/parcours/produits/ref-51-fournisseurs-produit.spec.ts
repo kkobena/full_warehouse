@@ -12,7 +12,7 @@ import { scenario } from '../../src/scenario';
  * Parcours en LECTURE : il n'ajoute pas de fournisseur, il montre ce que la fiche en retient.
  */
 scenario('REF-51', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const onglet = page.locator('app-produit-fournisseurs-tab');
 
   await etape(1, async () => {

@@ -25,7 +25,7 @@ scenario('REF-09', async ({ etape, page }) => {
   });
 
   await etape(2, async () => {
-    const carte = synthese.locator('.synthese-section').filter({ hasText: 'INDICATEURS CLÉS' }).first();
+    const carte = synthese.locator('app-detail-section').filter({ hasText: 'Indicateurs clés' }).first();
     await expect(carte).toBeVisible();
     // Les six mesures, nommées : c'est leur ensemble qui fait la décision de réappro.
     await expect(carte).toContainText('Stock actuel');

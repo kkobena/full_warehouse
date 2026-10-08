@@ -14,7 +14,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il laisse une proforma, que VTE-11 à VTE-13 reprendront.
  */
 scenario('VTE-10', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const client = 'AKISSI KOUASSI';
   const contenu = page.locator('#main-content');
   const lignes = page.locator('tbody tr').filter({ visible: true });
@@ -33,7 +33,7 @@ scenario('VTE-10', async ({ etape, page }) => {
     await chercherProduit(page, produit);
     await ajouterAuPanier(page, '2');
     await expect(lignes.first()).toContainText(produit);
-    await expect(contenu).toContainText('38 620');
+    await expect(contenu).toContainText('11 700');
   });
 
   await etape(2, async () => {
@@ -44,6 +44,6 @@ scenario('VTE-10', async ({ etape, page }) => {
     await page.goto('/sales-home/gestion');
     await page.getByRole('tab', { name: /Proformas/ }).click();
     await expect(contenu).toContainText('Liste des Proformas');
-    await expect(lignes.first()).toContainText('38 620');
+    await expect(lignes.first()).toContainText('11 700');
   });
 });

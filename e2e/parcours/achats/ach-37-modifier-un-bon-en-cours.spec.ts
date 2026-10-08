@@ -22,7 +22,7 @@ scenario('ACH-37', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: /Réceptions/ }).click();
+    await page.getByRole('tab', { name: /^Réceptions/ }).click();
     reference = await ouvrirBonDeReception(page, 'aucun');
     await expect(ecran).toBeVisible();
     await expect(page.locator('#rh-qty')).toBeVisible();

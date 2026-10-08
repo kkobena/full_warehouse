@@ -24,7 +24,7 @@ scenario('CLI-02', async ({ etape, page }) => {
     await page.goto('/sales-home');
     // Le panneau client n'apparaît qu'une fois la vente commencée : il n'y a rien à
     // rattacher à un panier vide.
-    await chercherProduit(page, 'DOLIPRANE 500MG');
+    await chercherProduit(page, 'DOLIPRANE 500 mg');
     await ajouterAuPanier(page, '1');
     // Le panneau s'ouvre en popover, et son intitulé dépend de l'état de la vente :
     // « Choisir un client » si aucun n'est rattaché, « Changer le client » sinon. Le bouton
@@ -46,9 +46,9 @@ scenario('CLI-02', async ({ etape, page }) => {
   await etape(2, async () => {
     // Trois champs, et aucun lié à un tiers payant : c'est toute la différence avec la
     // fiche complète.
-    await modale.locator('#field_firstName').fill('KOFFI');
-    await modale.locator('#field_lastName').fill('YAO');
-    await modale.locator('#field_phone').fill('0102030405');
+    await modale.getByRole('textbox', { name: 'Prénom(s) (obligatoire)' }).fill('KOFFI');
+    await modale.getByRole('textbox', { name: 'Nom (obligatoire)' }).fill('YAO');
+    await modale.getByRole('textbox', { name: 'Téléphone' }).fill('0102030405');
     await expect(modale).not.toContainText(/Numéro de sécurité|Taux \(%\)/);
   });
 
@@ -58,5 +58,7 @@ scenario('CLI-02', async ({ etape, page }) => {
 
   // ── Remise en état, hors étapes : la vente en cours est abandonnée. ───────────────────
   await modale.getByRole('button', { name: 'Annuler' }).click();
+  // Le formulaire demande confirmation avant de jeter la saisie.
+  await page.getByRole('button', { name: 'Oui' }).click();
   await page.getByRole('button', { name: 'Annuler' }).last().click();
 });

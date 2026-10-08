@@ -12,7 +12,7 @@ import { scenario } from '../../src/scenario';
  * créer un second emplacement que les parcours de dépôt ne s'attendent pas à trouver.
  */
 scenario('REF-46', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const onglet = page.locator('app-produit-rayons-tab');
   const modale = page.locator('.modal-content');
 

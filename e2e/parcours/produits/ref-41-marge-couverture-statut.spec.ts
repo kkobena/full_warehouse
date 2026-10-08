@@ -32,7 +32,7 @@ scenario('REF-41', async ({ etape, page }) => {
     // La couverture : combien de jours le stock tient au rythme de consommation constaté.
     await expect(synthese).toContainText('Jours de stock');
     // Et le statut légal, en pastille — ce qui décide de l'ordonnance et du droit au retour.
-    const reglementation = synthese.locator('.synthese-section').filter({ hasText: 'RÉGLEMENTATION' }).first();
+    const reglementation = synthese.locator('app-detail-section').filter({ hasText: 'Réglementation' }).first();
     await expect(reglementation).toContainText('Statut légal');
     await expect(reglementation).toContainText(/Sans liste|Liste I|Liste II|Stupéfiants|PSO/i);
   });

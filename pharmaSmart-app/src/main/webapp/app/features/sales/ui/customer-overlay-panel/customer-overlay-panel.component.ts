@@ -6,6 +6,7 @@ import { CustomerSearchTableComponent } from '../customer-search-table/customer-
 import { ICustomer } from '../../../../shared/model';
 import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { CommonModule } from "@angular/common";
+import { OrdonnanceBoutonComponent } from '../ordonnance-bouton/ordonnance-bouton.component';
 import { FicheClientPanelService } from '../../data-access/services/fiche-client-panel.service';
 
 /**
@@ -20,7 +21,7 @@ import { FicheClientPanelService } from '../../data-access/services/fiche-client
  */
 @Component({
   selector: 'app-customer-overlay-panel',
-  imports: [CommonModule, ButtonComponent, FormsModule, NgbPopover, NgbTooltip, CustomerSearchTableComponent],
+  imports: [OrdonnanceBoutonComponent, CommonModule, ButtonComponent, FormsModule, NgbPopover, NgbTooltip, CustomerSearchTableComponent],
   templateUrl: './customer-overlay-panel.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./customer-overlay-panel.component.scss'],

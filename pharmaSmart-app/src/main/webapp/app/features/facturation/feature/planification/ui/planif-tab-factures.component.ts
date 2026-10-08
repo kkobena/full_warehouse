@@ -4,7 +4,7 @@ import { DatePipe } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import {
-  ButtonComponent,
+  ButtonComponent, CardComponent,
   DataTableComponent,
   SelectableRowDirective,
   SwitchComponent
@@ -25,7 +25,8 @@ import { PlanifDetailPanelComponent } from "./planif-detail-panel.component";
     DataTableComponent,
     SelectableRowDirective,
     SwitchComponent,
-    PlanifDetailPanelComponent
+    PlanifDetailPanelComponent,
+    CardComponent
   ],
   templateUrl: "./planif-tab-factures.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,

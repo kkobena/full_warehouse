@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProduit } from '../../src/actions';
+import { ajouterAuPanier, assurerCaisseOuverte, assurerPanierVide, chercherProduit, renseignerPrescripteurSiDemande } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -15,7 +15,7 @@ import { scenario } from '../../src/scenario';
  */
 scenario('VTE-03', async ({ etape, page }) => {
 
-  const produit = 'ATORVASTATINE 100MG';
+  const produit = 'ATORVASTATINE VIATRIS SANTE 80 mg';
   const ligne = page.locator('tbody tr').filter({ visible: true }).first();
 
   await assurerCaisseOuverte(page);
@@ -25,9 +25,9 @@ scenario('VTE-03', async ({ etape, page }) => {
   await page.goto('/sales-home');
     await chercherProduit(page, produit);
     await ajouterAuPanier(page, '2');
-    // Plein tarif à ce stade : 2 × 660. C'est cette valeur que l'étape suivante doit faire
+    // Plein tarif à ce stade : 2 × 3 635. C'est cette valeur que l'étape suivante doit faire
     // bouger — sans elle, on ne saurait pas dire que la remise a fait quelque chose.
-    await expect(ligne).toContainText('1 320');
+    await expect(ligne).toContainText('7 270');
   });
 
   await etape(2, async () => {
@@ -51,7 +51,7 @@ scenario('VTE-03', async ({ etape, page }) => {
     // le bandeau affiche 15. Un montant figé se périmerait au premier ajustement de la
     // grille de démonstration. On vérifie donc ce qui doit rester vrai : une remise non
     // nulle, et un net à encaisser qui en découle exactement.
-    await expect(ligne).toContainText('1 320');
+    await expect(ligne).toContainText('7 270');
     const bandeau = (await page.locator('#main-content').innerText()).replace(/ | /g, ' ');
     // Le libellé est rendu en CAPITALES sous le total (« REMISE »), alors que le bandeau
     // du haut écrit « Remise : » — d'où la recherche insensible à la casse, sans quoi on
@@ -62,12 +62,13 @@ scenario('VTE-03', async ({ etape, page }) => {
     // Le net n'est pas exactement la soustraction : il est arrondi à la dizaine, comme le
     // veut la monnaie en circulation — 1 320 remisés de 199 donnent 1 120 à encaisser, et
     // non 1 121. C'est la caisse qui a raison : on ne rend pas une pièce d'un franc.
-    expect(Math.abs(aEncaisser - (1320 - remise))).toBeLessThanOrEqual(10);
+    expect(Math.abs(aEncaisser - (7270 - remise))).toBeLessThanOrEqual(10);
   });
 
   // ── L'encaissement suit, hors étape : sa capture montrerait un panier vide, alors que la
   //    légende parle du montant remisé. ──────────────────────────────────────────────────
-  await page.locator('#CASH').fill('2000');
+  await page.locator('#CASH').fill('10000');
   await page.getByRole('button', { name: 'Finaliser' }).click();
+  await renseignerPrescripteurSiDemande(page);
   await expect(page.locator('#main-content')).toContainText(/Panier vide|Ajoutez des produits/i);
 });

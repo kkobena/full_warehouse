@@ -1,9 +1,11 @@
+
+<app-card>
 @if (state.loadingFne()) {
-  <div class="d-flex justify-content-center p-5">
+  <div class="d-flex justify-content-center ">
     <i class="pi pi-spin pi-spinner fs-1 text-muted"></i>
   </div>
 } @else if (!state.planificationFne()) {
-  <div class="text-center py-5 text-muted">
+  <div class="text-center  text-muted">
     <i class="pi pi-shield d-block fs-1 mb-3"></i>
     <p>Aucune planification FNE configurée.</p>
     <app-button (clicked)="state.loadFne()" icon="pi pi-refresh" label="Charger" severity="secondary" />
@@ -90,7 +92,7 @@
     </div>
 
     <!-- Historique FNE -->
-    <div class="mt-3">
+    <div>
       <h6 class="text-muted mb-2"><i class="pi pi-history me-2"></i>Historique des certifications</h6>
       @if (state.loadingHistoriqueFne()) {
         <div class="d-flex justify-content-center p-3">
@@ -134,4 +136,4 @@
     </div>
   </div>
 }
-
+</app-card>

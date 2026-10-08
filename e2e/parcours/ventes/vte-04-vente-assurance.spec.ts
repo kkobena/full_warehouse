@@ -19,7 +19,7 @@ import { scenario } from '../../src/scenario';
  * payant réelle.
  */
 scenario('VTE-04', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 1G';
+  const produit = 'DOLIPRANE ADULTES 1000';
   // Un assuré à UN seul organisme, sans plafond mensuel : la répartition est alors la règle
   // nue — 70 % / 30 %. Le plafonnement fait l'objet de VTE-52, la couverture à deux
   // organismes de VTE-44.
@@ -84,13 +84,13 @@ scenario('VTE-04', async ({ etape, page }) => {
     await chercherProduit(page, produit);
     await ajouterAuPanier(page, '2');
 
-    // 2 × 12 975 = 25 950, dont 70 % pour l'organisme : 18 165 d'assurance et 7 785 à la
+    // 2 × 8 580 = 17 160, dont 70 % pour l'organisme : 12 012 d'assurance et 5 148 à la
     // charge du patient. Les trois montants doivent apparaître ENSEMBLE — c'est leur
     // rapprochement qui fait la démonstration.
     await expect(lignes.first()).toContainText(produit);
     await expect(page.locator('#main-content')).toContainText(/TOTAL ASSURANCE/i);
-    await expect(page.locator('#main-content')).toContainText('18 165');
-    await expect(page.locator('#main-content')).toContainText('7 785');
+    await expect(page.locator('#main-content')).toContainText('12 012');
+    await expect(page.locator('#main-content')).toContainText('5 150');
   });
 
   await etape(5, async () => {

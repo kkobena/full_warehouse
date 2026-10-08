@@ -19,7 +19,7 @@ scenario('ACH-05', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: 'Commandes fournisseurs' }).click();
+    await page.getByRole('tab', { name: /Commandes fournisseurs/ }).click();
     await expect(liste.locator('tbody tr').first()).toBeVisible();
     await liste.locator('tbody tr').nth(0).getByRole('checkbox').check();
     await liste.locator('tbody tr').nth(1).getByRole('checkbox').check();

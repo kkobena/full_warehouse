@@ -20,7 +20,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il crée une vente en cours, abandonnée en fin de parcours.
  */
 scenario('VTE-44', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 1G';
+  const produit = 'DOLIPRANE ADULTES 1000';
   // AWA TRAORE : ASACI à 70 % (rang RO) et SUNU à 20 % (rang RC1). Le cumul plafonne à
   // 90 %, il reste donc une part patient — sans elle, le retrait du complémentaire ne se
   // lirait nulle part. Ces contrats sont figés par `04_clients.sql`.
@@ -57,13 +57,13 @@ scenario('VTE-44', async ({ etape, page }) => {
     await ajouterAuPanier(page, '2');
     await expect(lignes.first()).toContainText(produit);
 
-    // 2 × 12 975 = 25 950. ASACI en prend 70 % (18 165), SUNU 20 % (5 190) : le pavé des
-    // totaux nomme chaque organisme et sa part, puis leur somme (23 355), et ne laisse que
-    // 2 595 à encaisser.
-    await expect(totaux).toContainText('18 165');
-    await expect(totaux).toContainText('5 190');
-    await expect(totaux).toContainText('23 355');
-    await expect(totaux).toContainText('2 595');
+    // 2 × 8 580 = 17 160. ASACI en prend 70 % (12 012), SUNU 20 % (3 432) : le pavé des
+    // totaux nomme chaque organisme et sa part, puis leur somme (15 444), et ne laisse que
+    // 1 715 à encaisser.
+    await expect(totaux).toContainText('12 012');
+    await expect(totaux).toContainText('3 432');
+    await expect(totaux).toContainText('15 444');
+    await expect(totaux).toContainText('1 715');
   });
 
   await etape(3, async () => {
@@ -74,11 +74,11 @@ scenario('VTE-44', async ({ etape, page }) => {
     await modale.getByRole('button', { name: 'Oui' }).click();
     await expect(modale).toBeHidden();
 
-    // SUNU quitte le bandeau ET les totaux : l'assurance retombe à 18 165, et les 5 190 que
-    // la mutuelle prenait passent au patient — 7 785 à encaisser au lieu de 2 595.
+    // SUNU quitte le bandeau ET les totaux : l'assurance retombe à 12 012, et les 3 432 que
+    // la mutuelle prenait passent au patient — 5 150 à encaisser au lieu de 1 716.
     await expect(bandeau).not.toContainText('SUNU');
-    await expect(totaux).toContainText('18 165');
-    await expect(totaux).toContainText('7 785');
+    await expect(totaux).toContainText('12 012');
+    await expect(totaux).toContainText('5 150');
   });
 
   await etape(4, async () => {
@@ -92,10 +92,10 @@ scenario('VTE-44', async ({ etape, page }) => {
     await modale.getByRole('button', { name: 'Ajouter' }).click();
     await expect(modale).toBeHidden();
 
-    // Tout revient en place : la mutuelle reprend ses 5 190, le patient ses 2 595.
+    // Tout revient en place : la mutuelle reprend ses 3 432, le patient ses 1 716.
     await expect(bandeau).toContainText('SUNU');
-    await expect(totaux).toContainText('5 190');
-    await expect(totaux).toContainText('2 595');
+    await expect(totaux).toContainText('3 432');
+    await expect(totaux).toContainText('1 715');
   });
 
   // ── Remise en état : la vente est abandonnée. ────────────────────────────────────────

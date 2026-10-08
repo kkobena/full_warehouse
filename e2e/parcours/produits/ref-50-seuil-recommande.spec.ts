@@ -15,7 +15,7 @@ import { scenario } from '../../src/scenario';
  * Parcours en LECTURE.
  */
 scenario('REF-50', async ({ etape, page }) => {
-  const produit = 'ARNICA MONTANA 9CH';
+  const produit = 'ARNICA MONTANA 20DH WELEDA';
   const onglet = page.locator('app-produit-stock-tab');
 
   await etape(1, async () => {

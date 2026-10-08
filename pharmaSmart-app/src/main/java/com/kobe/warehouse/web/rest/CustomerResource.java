@@ -23,6 +23,9 @@ import com.kobe.warehouse.service.customer.FusionClientResultDTO;
 import com.kobe.warehouse.service.customer.FusionClientService;
 import org.springframework.http.MediaType;
 import com.kobe.warehouse.service.customer.DerogationAlerteSanteDTO;
+import com.kobe.warehouse.service.ordonnance.controle.ControleOrdonnanceService;
+import com.kobe.warehouse.service.dto.controle.ControleResultatDTO;
+import com.kobe.warehouse.service.dto.controle.PriseEnCompteControleDTO;
 import com.kobe.warehouse.service.customer.DossierSanteDTO;
 import com.kobe.warehouse.service.customer.DossierSanteService;
 import com.kobe.warehouse.service.customer.DerogationLimiteCreditDTO;
@@ -87,6 +90,7 @@ public class CustomerResource {
     private final ImportationCustomer importationCustomer;
     private final CustomerFicheService customerFicheService;
     private final DossierSanteService dossierSanteService;
+    private final ControleOrdonnanceService controleOrdonnanceService;
     private final LimiteCreditService limiteCreditService;
     private final RelanceDiffereService relanceDiffereService;
     private final CustomerDocumentService customerDocumentService;
@@ -106,6 +110,7 @@ public class CustomerResource {
         ImportationCustomer importationCustomer,
         CustomerFicheService customerFicheService,
         DossierSanteService dossierSanteService,
+        ControleOrdonnanceService controleOrdonnanceService,
         LimiteCreditService limiteCreditService,
         RelanceDiffereService relanceDiffereService,
         CustomerDocumentService customerDocumentService,
@@ -123,6 +128,7 @@ public class CustomerResource {
         this.relanceDiffereService = relanceDiffereService;
         this.customerFicheService = customerFicheService;
         this.dossierSanteService = dossierSanteService;
+        this.controleOrdonnanceService = controleOrdonnanceService;
         this.customerDataService = customerDataService;
         this.saleService = saleService;
         this.uninsuredCustomerService = uninsuredCustomerService;
@@ -270,6 +276,19 @@ public class CustomerResource {
     @PostMapping("/customers/{id}/alertes-sante/derogations")
     public ResponseEntity<Void> derogerAlerteSante(@PathVariable Integer id, @Valid @RequestBody DerogationAlerteSanteDTO derogation) {
         dossierSanteService.deroger(id, derogation);
+        return ResponseEntity.noContent().build();
+    }
+
+    /** Contrôle du panier : interactions, redondances, contre-indications (docs/PLAN-EXTRACTION-ORDONNANCE-OCR.md, lot 2). */
+    @GetMapping("/customers/{id}/controle-ordonnance")
+    public ResponseEntity<ControleResultatDTO> controlerPanier(@PathVariable Integer id, @RequestParam List<Integer> produitIds) {
+        return ResponseEntity.ok(controleOrdonnanceService.controler(id, produitIds));
+    }
+
+    /** Prise en compte des alertes du panier : motif et droit {@code pr-forcer-alerte-sante} (ou clé d'un collègue) pour une CI. */
+    @PostMapping("/customers/{id}/controle-ordonnance/prises-en-compte")
+    public ResponseEntity<Void> prendreEnCompteControle(@PathVariable Integer id, @Valid @RequestBody PriseEnCompteControleDTO demande) {
+        controleOrdonnanceService.prendreEnCompte(id, demande);
         return ResponseEntity.noContent().build();
     }
 

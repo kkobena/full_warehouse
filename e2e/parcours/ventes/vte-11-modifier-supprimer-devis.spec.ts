@@ -11,8 +11,8 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il crée sa propre proforma, la modifie, puis la supprime.
  */
 scenario('VTE-11', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
-  const ajout = 'PARACETAMOL 1G';
+  const produit = 'DOLIPRANE 500 mg';
+  const ajout = 'PARACETAMOL TEVA 500 mg';
   const contenu = page.locator('#main-content');
   const lignes = page.locator('tbody tr').filter({ visible: true });
   const modale = page.locator('.modal-content');

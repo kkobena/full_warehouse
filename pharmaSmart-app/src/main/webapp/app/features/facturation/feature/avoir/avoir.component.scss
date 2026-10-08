@@ -1,6 +1,10 @@
 @use 'app/shared/scss/pharma-toolbar' as *;
 @use 'app/shared/scss/table-common' as *;
 
+.app-actions-toggle::after {
+  display: none;
+}
+
 /* --- KPI bar --- */
 .kpi-bar {
   display: flex;

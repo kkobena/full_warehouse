@@ -1,5 +1,6 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.service.dto.controle.ProduitLibelleDTO;
 import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
@@ -167,4 +168,17 @@ public interface SalesLineRepository
     default Specification<SalesLine> hasAvoir() {
         return (root, query, cb) -> cb.greaterThan(root.<Integer>get("quantityAvoir"), 0);
     }
+
+    /** Produits achetés par un client depuis une date : ventes dans le statut donné, non annulées, quantité vendue positive. */
+    @Query(
+        "select distinct new com.kobe.warehouse.service.dto.controle.ProduitLibelleDTO(p.id, p.libelle) " +
+        "from SalesLine sl join sl.sales s join sl.produit p " +
+        "where s.customer.id = :customerId and s.statut = :statut and s.canceled = false " +
+        "and s.saleDate >= :depuis and sl.quantitySold > 0"
+    )
+    List<ProduitLibelleDTO> findProduitsAchetes(
+        @Param("customerId") Integer customerId,
+        @Param("statut") SalesStatut statut,
+        @Param("depuis") LocalDate depuis
+    );
 }

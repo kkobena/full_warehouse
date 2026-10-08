@@ -21,3 +21,6 @@ export * from './assured-customer-list-modal/assured-customer-list-modal.compone
 export * from './ayant-droit-list-modal/ayant-droit-list-modal.component';
 export * from './force-stock-choice-modal/force-stock-choice-modal.component';
 export * from './fiche-client-panel/fiche-client-panel.component';
+export * from './ordonnance-bouton/ordonnance-bouton.component';
+export * from './ordonnance-panel/ordonnance-panel.component';
+export * from './prescripteurs-modal/prescripteurs-modal.component';

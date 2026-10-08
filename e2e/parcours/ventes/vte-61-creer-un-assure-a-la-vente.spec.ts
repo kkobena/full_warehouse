@@ -73,6 +73,9 @@ scenario('VTE-61', async ({ etape, page }) => {
 
   await etape(3, async () => {
     await modale.getByRole('button', { name: 'Enregistrer' }).first().click();
+    // L'application demande de confirmer la création, en rappelant organisme, matricule et taux.
+    await expect(page.locator('.modal-content').last()).toContainText('Créer ce client ?');
+    await page.locator('.modal-content').last().getByRole('button', { name: 'Oui' }).click();
     await expect(modale).toBeHidden();
 
     // Le client n'est pas seulement créé : il est RATTACHÉ à la vente en cours, avec son

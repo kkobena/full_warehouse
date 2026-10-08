@@ -11,7 +11,7 @@ import { scenario } from '../../src/scenario';
 scenario('HOME-09', async ({ etape, page }) => {
   const bloc = carte(page, 'Achats par fournisseur');
   const periode = (libelle: string) =>
-    page.locator('.dashboard-periode-selector').getByRole('button', { name: libelle, exact: true });
+    page.locator('app-pill-selector').getByRole('button', { name: libelle, exact: true }).first();
 
   await etape(1, async () => {
     await page.goto('/');
@@ -33,20 +33,22 @@ scenario('HOME-09', async ({ etape, page }) => {
 
     // Et un classement DÉCROISSANT sur la période affichée. L'API classe par volume douze
     // mois : la liste montrait, sous « 30 j », un premier moins-disant que le deuxième.
-    const montants = await bloc.locator('li .fs-6').allInnerTexts();
-    const valeurs = montants.map(m => Number(m.replace(/\D/g, '')));
+    // Une ligne se lit en morceaux : rang, nom, score et délai, puis le montant — le dernier.
+    // Aucune classe ne les désigne plus, c'est l'ordre du texte qui fait foi.
+    const morceaux = (texte: string): string[] => texte.split('\n').map(m => m.trim()).filter(Boolean);
+    const montantDeLigne = (texte: string): number => Number(morceaux(texte).at(-1)!.replace(/\D/g, ''));
+    // Le classement se recharge à chaque changement de période : on attend qu'il soit complet.
+    await expect.poll(() => bloc.locator('li').count()).toBeGreaterThan(1);
+    const valeurs = (await bloc.locator('li').allInnerTexts()).map(montantDeLigne);
     expect(valeurs.length).toBeGreaterThan(1);
     expect(valeurs).toEqual([...valeurs].sort((a, b) => b - a));
 
     // Le badge doit désigner le bon fournisseur : « #1 » porte le plus gros montant de la
     // période, sinon le classement se contredit lui-même à la première ligne.
     const premier = bloc.locator('li').filter({ hasText: /#1/ }).first();
-    const nom = (await premier.locator('.fw-semibold').first().innerText()).trim();
+    const nom = morceaux(await premier.innerText())[1];
     const montantDe = async (fournisseur: string) =>
-      Number(
-        (await bloc.locator('li').filter({ hasText: fournisseur }).first()
-          .locator('.fs-6').innerText()).replace(/\D/g, ''),
-      );
+      montantDeLigne(await bloc.locator('li').filter({ hasText: fournisseur }).first().innerText());
 
     const surLAnnee = await montantDe(nom);
     expect(surLAnnee, 'le premier rang porte le plus gros montant').toBe(Math.max(...valeurs));

@@ -14,7 +14,7 @@ import { scenario } from '../../src/scenario';
  * Parcours en LECTURE : il décline le forçage, et le stock n'est pas touché.
  */
 scenario('VTE-41', async ({ etape, page }) => {
-  const produit = 'DOLIPRANE 500MG';
+  const produit = 'DOLIPRANE 500 mg';
   const modale = page.locator('.modal-content');
 
   await assurerCaisseOuverte(page);

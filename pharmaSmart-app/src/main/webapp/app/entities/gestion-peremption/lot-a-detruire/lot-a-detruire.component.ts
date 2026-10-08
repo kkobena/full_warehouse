@@ -61,7 +61,7 @@ import {
 
 @Component({
   selector: "app-lot-a-detruire",
-  imports: [CardComponent, 
+  imports: [CardComponent,
     ButtonComponent,
     FloatLabelComponent,
     IconFieldComponent,
@@ -113,7 +113,7 @@ export class LotADetruireComponent implements OnInit {
   protected readonly storages = signal<Storage[]>([]);
   protected readonly rayons = signal<IRayon[]>([]);
   protected readonly showAdvancedFilters = signal(false);
-  protected readonly itemsPerPage = ITEMS_PER_PAGE;
+  protected readonly itemsPerPage = 10;
   protected readonly page = signal<number | undefined>(undefined);
   protected readonly loading = signal<boolean | undefined>(undefined);
   protected readonly ngbPaginationPage = signal(1);

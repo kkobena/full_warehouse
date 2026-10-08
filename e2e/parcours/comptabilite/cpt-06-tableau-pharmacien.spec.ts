@@ -48,8 +48,13 @@ scenario('CPT-06', async ({ etape, page }) => {
 
   /** Somme d'une colonne sur toutes les lignes visibles. */
   const sommeColonne = async (colonne: number): Promise<number> => {
-    const valeurs = await Promise.all((await lignes.all()).map(ligne => nombre(ligne, colonne)));
-    return valeurs.reduce((cumul, valeur) => cumul + valeur, 0);
+    // Lecture en UN seul passage dans la page : le tableau se redessine après un changement de
+    // regroupement, et une ligne lue après coup n'existe plus.
+    const textes = await lignes.evaluateAll(
+      (rangees, rang) => rangees.map(r => (r.querySelectorAll('td')[rang] as HTMLElement | undefined)?.textContent ?? ''),
+      colonne,
+    );
+    return textes.reduce((cumul, texte) => cumul + Number(texte.replace(/[^\d-]/g, '')), 0);
   };
 
   const totauxDuPied = async (): Promise<number[]> =>

@@ -1,5 +1,13 @@
 @import 'app/shared/scss/table-common';
 
+.text-purple {
+  color: #7c3aed;
+}
+
+.app-actions-toggle::after {
+  display: none;
+}
+
 .bulk-action-bar {
   display: flex;
   align-items: center;

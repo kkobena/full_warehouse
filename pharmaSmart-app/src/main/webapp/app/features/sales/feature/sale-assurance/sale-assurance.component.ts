@@ -15,6 +15,7 @@ import {
 } from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FicheClientPanelService} from '../../data-access/services/fiche-client-panel.service';
+import {OrdonnancePanelService} from '../../data-access/services/ordonnance-panel.service';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -185,6 +186,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
   private readonly ficheClient = inject(FicheClientPanelService);
+  private readonly ordonnancePanel = inject(OrdonnancePanelService);
   private customerDisplay = inject(CustomerDisplayService);
   private modalService = inject(NgbModal);
   private destroyRef = inject(DestroyRef);
@@ -342,6 +344,8 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
       putOnStandby: () => this.putOnStandby(),
       cancelSale: () => this.onCancel(),
       openCustomerRecord: () => this.ouvrirFicheClient(),
+      openOrdonnances: () => this.ouvrirOrdonnances(),
+      addAyantDroit: () => this.ajouterAyantDroitAuClavier(),
       focusPayment: () => this.paymentModeComponent()?.focusFirstMode(),
       printReceipt: () => this.onPrint(),
       saveAsPresale: () => this.onSaveAsPresale(true),
@@ -418,6 +422,12 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
    * Focus automatique sur quantité après sélection
    */
   /** Fiche client en panneau, sans quitter la vente ; « Re-délivrer » y présélectionne le produit. */
+  protected ouvrirOrdonnances(): void {
+    if (!this.ordonnancePanel.ouvrir(this.facade.selectedCustomer()?.id)) {
+      this.notificationService.warning('Aucun client sélectionné');
+    }
+  }
+
   protected ouvrirFicheClient(): void {
     if (!this.ficheClient.ouvrir(this.facade.selectedCustomer()?.id)) {
       this.notificationService.warning('Aucun client sélectionné');
@@ -859,6 +869,14 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
    */
   public focusProductSearch(): void {
     this.productHandling.focusProductSearch();
+  }
+
+  protected ajouterAyantDroitAuClavier(): void {
+    if (!this.selectedCustomer()) {
+      this.notificationService.warning("Sélectionnez d'abord un client assuré", 'Client requis');
+      return;
+    }
+    this.addAyantDroit();
   }
 
   private addAyantDroit(): void {

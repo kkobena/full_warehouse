@@ -35,6 +35,7 @@ import jakarta.persistence.OptimisticLockException;
 import org.springframework.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.kobe.warehouse.service.customer.LimiteCreditService;
+import com.kobe.warehouse.service.ordonnance.OrdonnanceObligatoireService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -64,6 +65,7 @@ public abstract class SaleCommonService {
     private final ObjectMapper objectMapper;
     private final AppConfigurationService appConfigurationService;
     private LimiteCreditService limiteCreditService;
+    private OrdonnanceObligatoireService ordonnanceObligatoireService;
 
 
     public SaleCommonService(
@@ -100,6 +102,18 @@ public abstract class SaleCommonService {
     @Autowired
     public void setLimiteCreditService(LimiteCreditService limiteCreditService) {
         this.limiteCreditService = limiteCreditService;
+    }
+
+    @Autowired
+    public void setOrdonnanceObligatoireService(OrdonnanceObligatoireService ordonnanceObligatoireService) {
+        this.ordonnanceObligatoireService = ordonnanceObligatoireService;
+    }
+
+    /** Produit sur ordonnance : la clôture exige une ordonnance ou un prescripteur. */
+    protected void controlerOrdonnanceObligatoire(Sales vente) {
+        if (ordonnanceObligatoireService != null) {
+            ordonnanceObligatoireService.controlerCloture(vente);
+        }
     }
 
     /** Vente différée au-delà de la limite de crédit de l'officine : refusée sans dérogation. */
@@ -308,6 +322,7 @@ public abstract class SaleCommonService {
             .ifPresent(c::setLastCaisse);
         c.setRestToPay(calculateRestToPay(dto.getPayrollAmount(), dto.getAmountToBePaid()));
         controlerLimiteCredit(c);
+        controlerOrdonnanceObligatoire(c);
         c.setUpdatedAt(LocalDateTime.now());
         c.setMonnaie(dto.getMontantRendu());
         c.setEffectiveUpdateDate(c.getUpdatedAt());
@@ -459,6 +474,7 @@ public abstract class SaleCommonService {
         c.setPayrollAmount(dto.getPayrollAmount());
         c.setRestToPay(dto.getRestToPay());
         controlerLimiteCredit(c);
+        controlerOrdonnanceObligatoire(c);
         c.setUpdatedAt(LocalDateTime.now());
         c.setMonnaie(dto.getMontantRendu());
         c.setEffectiveUpdateDate(c.getUpdatedAt());

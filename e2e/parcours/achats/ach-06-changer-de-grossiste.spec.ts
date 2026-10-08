@@ -24,7 +24,7 @@ scenario('ACH-06', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: 'Commandes fournisseurs' }).click();
+    await page.getByRole('tab', { name: /Commandes fournisseurs/ }).click();
     const liste = page.locator('app-commande-requested-home');
     await expect(liste.locator('tbody tr').first()).toBeVisible();
     // Une commande NON transmise : une commande envoyée au grossiste est verrouillée, son

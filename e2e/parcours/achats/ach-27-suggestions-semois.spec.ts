@@ -20,7 +20,7 @@ scenario('ACH-27', async ({ etape, page }) => {
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
-    await page.getByRole('button', { name: 'Tableau de bord stock' }).click();
+    await page.getByRole('tab', { name: /Tableau de bord stock/ }).click();
     await expect(ecran).toBeVisible();
   });
 

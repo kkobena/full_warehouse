@@ -17,7 +17,7 @@ import { scenario } from '../../src/scenario';
  * Parcours ÉCRIVANT dans la base : il rétablit la classe et le verrou d'origine.
  */
 scenario('REF-14', async ({ etape, page }) => {
-  const produit = 'ARNICA MONTANA 7CH';
+  const produit = 'POMMADE ARNICA TM 4% BOIRON';
   const select = page.locator('ng-select', { has: page.locator('#f_criticite') });
   const verrou = () => page.getByRole('switch').filter({ visible: true }).last();
   let classeOrigine = '';

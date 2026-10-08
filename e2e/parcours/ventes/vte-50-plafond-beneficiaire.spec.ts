@@ -20,7 +20,7 @@ scenario('VTE-50', async ({ etape, page }) => {
   // MOUSSA TRAORE (CNAM01-000098) a déjà consommé une bonne part de son plafond mensuel.
   // Le matricule, et non le nom : cinq assurés se prénomment MOUSSA.
   const matricule = 'CNAM01-000098';
-  const produit = 'DOLIPRANE 1G';
+  const produit = 'DOLIPRANE ADULTES 1000';
   // Le numéro de bon doit être UNIQUE par client : l'application refuse un bon déjà
   // employé (« numBonAlreadyUse »). Un numéro figé rendrait le parcours jouable une
   // seule fois, jusqu'à la prochaine restauration de l'instantané.

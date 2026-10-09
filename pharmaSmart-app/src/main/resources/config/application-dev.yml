@@ -121,4 +121,4 @@ pharma-smart:
   # ne sont créés, la chaîne d'exécution reste celle d'avant l'introduction de la licence.
   license:
     enabled: false
-pharma-ml-env: T # T=text, P=production
+pharma-ml-env: P # T=text, P=production

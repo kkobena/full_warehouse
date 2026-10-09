@@ -53,6 +53,11 @@ public interface PharmaMlHttpClientService {
     List<InfoProduitDTO> sendInfoRequest(CsrpEnveloppe payload, Fournisseur fournisseur);
 
     /**
+     * Variante de {@link #sendInfoRequest} : XML posté en formulaire, dans le champ Content-PharmaML.
+     */
+    List<InfoProduitDTO> sendInfoRequestBis(CsrpEnveloppe payload, Fournisseur fournisseur);
+
+    /**
      * Sérialise un payload en chaîne XML.
      *
      * @param payload l'enveloppe à sérialiser

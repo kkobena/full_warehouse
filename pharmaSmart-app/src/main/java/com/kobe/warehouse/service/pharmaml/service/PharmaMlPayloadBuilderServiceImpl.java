@@ -89,7 +89,7 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
     public CsrpEnveloppe buildInfoPayloadFromSuggestionLines(List<SuggestionLine> lignes,
         Fournisseur fournisseur, String refMessage) {
         CsrpEnveloppe ce = new CsrpEnveloppe();
-        ce.setUsage(PharmaMlUtils.USAGE_VALUE);
+        ce.setUsage(pharmaMlEnv);
         ce.setVersionProtocole(PharmaMlUtils.VERSION_PROTOCLE_VALUE);
         ce.setVersionLogiciel(PharmaMlUtils.VERSION_LOGICIEL_VALUE);
         ce.setIdLogiciel(PharmaMlUtils.ID_LOGICIEL_VALUE);
@@ -103,7 +103,7 @@ public class PharmaMlPayloadBuilderServiceImpl implements PharmaMlPayloadBuilder
     public CsrpEnveloppe buildRetourPayload(Commande commande, Fournisseur fournisseur,
         List<LigneRetourDTO> lignes, String refMessage) {
         CsrpEnveloppe ce = new CsrpEnveloppe();
-        ce.setUsage(PharmaMlUtils.USAGE_VALUE);
+        ce.setUsage(pharmaMlEnv);
         ce.setVersionProtocole(PharmaMlUtils.VERSION_PROTOCLE_VALUE);
         ce.setVersionLogiciel(PharmaMlUtils.VERSION_LOGICIEL_VALUE);
         ce.setIdLogiciel(PharmaMlUtils.ID_LOGICIEL_VALUE);

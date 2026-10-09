@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LigneInfoDemande {
@@ -22,6 +23,10 @@ public class LigneInfoDemande {
 
     @XmlAttribute(name = "Num_Ligne")
     private int numLigne;
+    @XmlTransient
+    private int prixAchat;//prix d'achat du produit en machine
+    @XmlTransient
+    private int prixVente;//prix de vente du produit en machine
 
 
     public String getDesignation() {
@@ -63,6 +68,24 @@ public class LigneInfoDemande {
 
     public int getNumLigne() {
         return numLigne;
+    }
+
+    public int getPrixAchat() {
+        return prixAchat;
+    }
+
+    public LigneInfoDemande setPrixAchat(int prixAchat) {
+        this.prixAchat = prixAchat;
+        return this;
+    }
+
+    public int getPrixVente() {
+        return prixVente;
+    }
+
+    public LigneInfoDemande setPrixVente(int prixVente) {
+        this.prixVente = prixVente;
+        return this;
     }
 
     public LigneInfoDemande setNumLigne(int numLigne) {

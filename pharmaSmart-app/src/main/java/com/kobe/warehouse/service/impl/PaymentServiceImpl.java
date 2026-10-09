@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.SaleId;
@@ -16,15 +15,14 @@ import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.utils.ServiceUtil;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -99,11 +97,15 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public void buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO) {
         removeOldPayment(sales);
-        if (CollectionUtils.isEmpty(saleDTO.getPayments()) || saleDTO.getPayrollAmount() == null || saleDTO.getPayrollAmount() <= 0) {
+        if (CollectionUtils.isEmpty(saleDTO.getPayments()) || saleDTO.getPayrollAmount() == null
+            || saleDTO.getPayrollAmount() <= 0) {
             sales.setPayments(new HashSet<>());
             return;
         }
-        saleDTO.getPayments().stream().filter(paymentDTO -> Objects.nonNull(paymentDTO.getPaidAmount()) && paymentDTO.getPaidAmount() > 0).forEach(paymentDTO -> paymentRepository.save(buildPaymentFromFromPaymentDTO(sales, paymentDTO)));
+        saleDTO.getPayments().stream().filter(
+            paymentDTO -> Objects.nonNull(paymentDTO.getPaidAmount())
+                && paymentDTO.getPaidAmount() > 0).forEach(paymentDTO -> paymentRepository.save(
+            buildPaymentFromFromPaymentDTO(sales, paymentDTO)));
     }
 
     private void removeOldPayment(Sales sales) {
@@ -134,7 +136,8 @@ public class PaymentServiceImpl implements PaymentService {
         int paidAmount = Objects.requireNonNullElse(paymentDTO.getPaidAmount(), 0);
 
         if (paymentDTO.getPaymentMode() != null) {
-            PaymentMode paymentMode = paymentModeRepository.getReferenceById(paymentDTO.getPaymentMode().getCode());
+            PaymentMode paymentMode = paymentModeRepository.getReferenceById(
+                paymentDTO.getPaymentMode().getCode());
             ModePaimentCode modePaimentCode = ModePaimentCode.valueOf(paymentMode.getCode());
 
             if (modePaimentCode == ModePaimentCode.CASH) {
@@ -165,7 +168,8 @@ public class PaymentServiceImpl implements PaymentService {
         return payment;
     }
 
-    private void applyCashPaymentAmounts(SalePayment payment, Sales sales, PaymentDTO paymentDTO, int netAmount) {
+    private void applyCashPaymentAmounts(SalePayment payment, Sales sales, PaymentDTO paymentDTO,
+        int netAmount) {
         int montantVerse = Objects.requireNonNullElse(paymentDTO.getMontantVerse(), 0);
         payment.setMontantVerse(montantVerse);
 

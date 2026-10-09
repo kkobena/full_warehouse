@@ -1,38 +1,45 @@
 <div appModalDeplacable class="modal-header">
   <h2 class="modal-title h5 mb-0"><i class="pi pi-replay me-2"></i>Après-vente</h2>
-  <button (click)="activeModal.dismiss()" aria-label="Fermer" class="btn-close" type="button"></button>
+  <button (click)="activeModal.dismiss()" aria-label="Fermer" class="btn-close"
+          type="button"></button>
 </div>
 
 <div class="modal-body">
   @if (!canRetour() && !canCloturer()) {
-    <p class="text-muted mb-0">Vous n'avez le droit ni de retourner une vente ni de clôturer un avoir.</p>
+    <p class="text-muted mb-0">Vous n'avez le droit ni de retourner une vente ni de clôturer un
+      avoir.</p>
   } @else {
     <app-nav-tabs [nav]="nav">
-      <div #nav="ngbNav" [activeId]="onglet()" (activeIdChange)="choisir($event)" class="nav pharma-nav-tabs" ngbNav>
+      <div #nav="ngbNav" (activeIdChange)="choisir($event)" [activeId]="onglet()"
+           class="nav pharma-nav-tabs" ngbNav>
         @if (canCloturer()) {
           <ng-container ngbNavItem="avoir">
             <a class="pharma-nav-tab-link" ngbNavLink><i class="pi pi-wallet"></i><span>Avoir à clôturer</span></a>
             <ng-template ngbNavContent>
               <form (ngSubmit)="chargerAvoirs()" class="d-flex gap-2 my-3">
-                <input autocomplete="off"
-                  [ngModel]="recherche()"
-                  (ngModelChange)="recherche.set($event)"
-                  name="recherche"
-                  appAutoFocus
-                  aria-label="Rechercher un avoir"
-                  class="form-control"
-                  placeholder="Numéro de vente, client, référence d'avoir…"
+                <input (ngModelChange)="recherche.set($event)"
+                       [ngModel]="recherche()"
+                       appAutoFocus
+                       aria-label="Rechercher un avoir"
+                       autocomplete="off"
+                       class="form-control"
+                       name="recherche"
+                       placeholder="Numéro de vente, client, référence d'avoir…"
                 />
-                <app-button severity="info" [loading]="chargementAvoirs()" icon="pi pi-search" label="Rechercher" type="submit" />
+                <app-button [loading]="chargementAvoirs()" icon="pi pi-search" label="Rechercher"
+                            severity="info" type="submit" />
               </form>
               @if (erreurAvoirs(); as erreur) {
                 <div class="alert alert-danger py-2">{{ erreur }}</div>
               }
               @for (avoir of avoirs(); track avoir.id) {
-                <div class="d-flex align-items-center justify-content-between gap-2 border rounded p-2 mb-2">
+                <div
+                  class="d-flex align-items-center justify-content-between gap-2 border rounded p-2 mb-2">
                   <div class="me-auto">
                     <div class="fw-semibold">
-                      {{ avoir.produitLibelle }} <span class="text-muted fw-normal">× {{ avoir.quantiteRestante ?? avoir.quantite }}</span>
+                      {{ avoir.produitLibelle }} <span class="text-muted fw-normal">× {{
+                        avoir.quantiteRestante ?? avoir.quantite
+                      }}</span>
                     </div>
                     <div class="text-muted small">
                       {{ avoir.reference }}
@@ -42,12 +49,16 @@
                       @if (avoir.customerName) {
                         · {{ avoir.customerName }}
                       }
-                      · reste {{ avoir.montantRestant ?? avoir.montant | number: '1.0-0' }} <span appDevise></span>
+                      · reste {{ avoir.montantRestant ?? avoir.montant | number: '1.0-0' }} <span
+                      appDevise></span>
                     </div>
                   </div>
-                  <app-button (clicked)="cloturer(avoir, 'RETOUR_PRODUIT')" label="Remettre le produit" severity="success" size="small" />
-                  <app-button (clicked)="cloturer(avoir, 'REMBOURSEMENT_ESPECES')" label="Rembourser en espèces" severity="info" size="small" />
-                  <app-button (clicked)="cloturer(avoir)" [text]="true" label="Autres modes" size="small" />
+                  <app-button (clicked)="cloturer(avoir, 'RETOUR_PRODUIT')"
+                              label="Remettre le produit" severity="primary" size="small" />
+                  <app-button (clicked)="cloturer(avoir, 'REMBOURSEMENT_ESPECES')"
+                              label="Rembourser en espèces" severity="info" size="small" />
+                  <app-button (clicked)="cloturer(avoir)" [severity]="'secondary'" [text]="true"
+                              label="Autres modes" size="small" />
                 </div>
               } @empty {
                 @if (!chargementAvoirs() && !erreurAvoirs()) {
@@ -68,15 +79,17 @@
             <ng-template ngbNavContent>
               <form (ngSubmit)="chercherVente()" class="d-flex gap-2 my-3">
                 <input
-                  [ngModel]="reference()"
                   (ngModelChange)="reference.set($event)"
-                  name="reference"
+                  [ngModel]="reference()"
                   appAutoFocus
                   aria-label="Numéro de la vente"
                   class="form-control"
+                  name="reference"
                   placeholder="Numéro de la vente (ticket)…"
                 />
-                <app-button severity="info" [disabled]="!reference().trim()" [loading]="rechercheVente()" icon="pi pi-search" label="Rechercher" type="submit" />
+                <app-button [disabled]="!reference().trim()" [loading]="rechercheVente()"
+                            icon="pi pi-search" label="Rechercher" severity="info"
+                            type="submit" />
               </form>
               @if (venteIntrouvable(); as numero) {
                 <div class="etat-vide" role="status">
@@ -103,7 +116,8 @@
                       }
                     </div>
                   </div>
-                  <app-button (clicked)="retourner()" icon="pi pi-replay" label="Retourner des produits" severity="success" />
+                  <app-button (clicked)="retourner()" icon="pi pi-replay"
+                              label="Retourner des produits" severity="success" />
                 </div>
               }
             </ng-template>

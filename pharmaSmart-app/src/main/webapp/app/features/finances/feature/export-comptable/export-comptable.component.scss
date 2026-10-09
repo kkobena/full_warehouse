@@ -59,15 +59,15 @@
   }
 
   &:hover {
-    border-color: #008cba;
-    color: #008cba;
-    background: rgba(#008cba, 0.04);
+    border-color: var(--pharma-chrome-brand, #008cba);
+    color: var(--pharma-chrome-brand-ink, #008cba);
+    background: color-mix(in srgb, var(--pharma-chrome-brand, #008cba) 4%, transparent);
   }
 
   &.active {
-    border-color: #008cba;
-    background: rgba(#008cba, 0.08);
-    color: #008cba;
+    border-color: var(--pharma-chrome-brand, #008cba);
+    background: color-mix(in srgb, var(--pharma-chrome-brand, #008cba) 8%, transparent);
+    color: var(--pharma-chrome-brand-ink, #008cba);
     font-weight: 600;
   }
 }

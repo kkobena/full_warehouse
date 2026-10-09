@@ -369,6 +369,17 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
     // Si vente en cours avec des lignes
     if (currentSale && currentSale.salesLines && currentSale.salesLines.length > 0) {
+      // Pré-vente : rien à encaisser, Entrée enregistre la pré-vente après confirmation.
+      if (this.isPresale()) {
+        this.confirmDialog.onConfirm(
+          () => this.onSaveAsPresale(false),
+          'Finaliser la pré-vente',
+          'Voulez-vous enregistrer la pré-vente ?',
+          null,
+          () => this.productSearchComponent()?.getFocus(),
+        );
+        return;
+      }
       const total = currentSale.salesAmount || 0;
       this.customerDisplay.updateDisplayForTotal(total);
       setTimeout(() => {

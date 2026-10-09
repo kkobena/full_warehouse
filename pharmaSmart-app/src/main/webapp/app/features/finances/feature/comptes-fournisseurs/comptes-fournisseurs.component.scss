@@ -109,11 +109,11 @@
 
 .pharma-code {
   font-family: 'Courier New', monospace;
-  background: rgba(#008cba, 0.1);
+  background: color-mix(in srgb, var(--pharma-chrome-brand, #008cba) 10%, transparent);
   padding: 0.2rem 0.4rem;
   border-radius: 4px;
   font-weight: 600;
-  color: #008cba;
+  color: var(--pharma-chrome-brand-ink, #008cba);
 }
 
 // ── Responsive : cf. split-panel (partagé) pour l'empilement sous 992px ────

@@ -37,7 +37,7 @@
 <div appHauteurEcranVente [attr.data-comptoir-doc]="isPresaleMode() || isDevisMode() ? 'true' : null" [attr.data-comptoir-mode]="comptoirMode()"
      class="pharma-sales-layout">
   <!-- HEADER TOOLBAR - Actions principales -->
-  <div [class.normal-mode]="!isPresaleMode() && !isDevisMode()" [class.presale-mode]="isPresaleMode()" [ngClass]="devisThemeClass()"
+  <div [class.normal-mode]="!isPresaleMode() && !isDevisMode()" [class.presale-mode]="isPresaleMode()"
        class="pharma-sales-header">
     <div class="header-left">
       <!-- Bouton retour -->
@@ -53,17 +53,9 @@
       <!-- Titre de la page -->
       <div class="page-title">
         <h1>
-          @if (isDevisMode()) {
-            <i class="pi pi-file-edit presale-icon"></i>
-          } @else if (isPresaleMode()) {
-            <i class="pi pi-bookmark presale-icon"></i>
-          } @else if (active() === 'assurance') {
-            <i class="pi pi-shield presale-icon"></i>
-          } @else if (active() === 'carnet') {
-            <i class="pi pi-book presale-icon"></i>
-          } @else {
-            <i class="pi pi-wallet presale-icon"></i>
-          }
+          <!-- Icône du mode ; celle du type de vente est dans la pastille. -->
+          <i [class]="isDevisMode() ? 'pi pi-file-edit' : (isPresaleMode() ? 'pi pi-bookmark' : 'pi pi-shopping-cart')"
+             aria-hidden="true" class="presale-icon"></i>
           @if (isDevisMode()) {
             Proforma
           } @else if (isPresaleMode()) {
@@ -208,14 +200,14 @@
   <div class="pharma-sales-body">
     <!-- LEFT SIDEBAR - Navigation par type de vente -->
     <div [class.collapsed]="sidebarCollapsed() && !navHorizontale()" [class.nav-horizontale]="navHorizontale()"
-         [class.presale-mode]="isPresaleMode()" [ngClass]="devisThemeClass()" class="sales-sidebar pharma-nav-sidebar">
+         [class.presale-mode]="isPresaleMode()" class="sales-sidebar pharma-nav-sidebar">
       <div class="sidebar-card pharma-nav-sidebar-card">
         @if (!navHorizontale()) {
         <div class="sidebar-header pharma-nav-sidebar-header">
           @if (!sidebarCollapsed()) {
             <i
               [class]="isDevisMode() ? 'pi pi-file-edit' : (isPresaleMode() ? 'pi pi-bookmark' : 'pi pi-shopping-cart')"></i>
-            <span>
+            <span class="sidebar-title">
               @if (isDevisMode()) {
                 Types de Proforma
               } @else if (isPresaleMode()) {

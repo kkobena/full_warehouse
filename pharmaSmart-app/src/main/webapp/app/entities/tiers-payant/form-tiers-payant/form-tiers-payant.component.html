@@ -75,7 +75,18 @@
               }
             }
           </div>
+        </div>
+      </app-card>
 
+      <!-- Section 2: Informations Générales -->
+      @if (!modeExpress) {
+      <app-card [variant]="'form'" [withHeader]="true">
+        <div ngProjectAs="[cardHeader]" class="section-header">
+          <i class="pi pi-info-circle"></i>
+          <span>Informations Générales</span>
+        </div>
+
+        <div class="form-grid-compact">
           <!-- Email -->
           <div class="form-field form-field-full">
             <label for="email">Email</label>
@@ -93,18 +104,7 @@
               }
             }
           </div>
-        </div>
-      </app-card>
 
-      <!-- Section 2: Informations Générales -->
-      @if (!modeExpress) {
-      <app-card [variant]="'form'" [withHeader]="true">
-        <div ngProjectAs="[cardHeader]" class="section-header">
-          <i class="pi pi-info-circle"></i>
-          <span>Informations Générales</span>
-        </div>
-
-        <div class="form-grid-compact">
           <!-- Identifiant contribuable -->
           <div class="form-field form-field-full">
             <label for="ncc">Identifiant contribuable</label>
@@ -113,23 +113,25 @@
             <small class="form-text text-muted">Numéro de compte contribuable : identifiant fiscal unique de l'organisme (lettres et chiffres).</small>
           </div>
 
-          <!-- Groupe tiers-payant -->
-          <div class="form-field form-field-full">
-            <label for="groupeTiersPayantId">Groupe tiers-payant</label>
-            <app-select-search
-              (searched)="rechercherGroupes($event)"
-              [typeahead]="saisieGroupe$"
-              [openWhenEmpty]="true"
-              appendTo="body"
-              [clearable]="false"
-              [items]="groupeTiersPayants()"
-              bindLabel="name"
-              bindValue="id"
-              formControlName="groupeTiersPayantId"
-              inputId="groupeTiersPayantId"
-              placeholder="Taper pour rechercher un groupe"
-            />
-          </div>
+          <!-- Groupe tiers-payant : assurances seulement -->
+          @if (categorie === 'ASSURANCE') {
+            <div class="form-field form-field-full">
+              <label for="groupeTiersPayantId">Groupe tiers-payant</label>
+              <app-select-search
+                (searched)="rechercherGroupes($event)"
+                [typeahead]="saisieGroupe$"
+                [openWhenEmpty]="true"
+                appendTo="body"
+                [clearable]="false"
+                [items]="groupeTiersPayants()"
+                bindLabel="name"
+                bindValue="id"
+                formControlName="groupeTiersPayantId"
+                inputId="groupeTiersPayantId"
+                placeholder="Taper pour rechercher un groupe"
+              />
+            </div>
+          }
 
           <!-- Code organisme -->
           <div class="form-field form-field-full">

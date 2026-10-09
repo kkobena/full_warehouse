@@ -3,15 +3,14 @@ import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from "@ang
 import { IMagasin } from "app/shared/model/magasin.model";
 import { MagasinService } from "./magasin.service";
 import { RouterLink } from "@angular/router";
-import { CommonModule } from "@angular/common";
-import { BadgeComponent, ButtonComponent } from "../../shared/ui";
+import { BadgeComponent, ButtonComponent, CardComponent, DetailFieldComponent, ToolbarComponent } from "../../shared/ui";
 
 @Component({
   selector: "app-magasin",
   templateUrl: "./magasin.component.html",
   styleUrls: ["./magasin.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, ButtonComponent, BadgeComponent]
+  imports: [RouterLink, ButtonComponent, BadgeComponent, CardComponent, DetailFieldComponent, ToolbarComponent]
 })
 export class MagasinComponent implements OnInit {
   protected readonly magasin = signal<IMagasin | undefined>(undefined);

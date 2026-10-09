@@ -5,7 +5,6 @@ import {
 import {
   TauriKeyboardService
 } from '../../../../entities/sales/selling-home/racourci/tauri-keyboard.service';
-import {ShortcutsProvider} from '../../../../shared/shortcuts/shortcuts-provider.interface';
 import {SalesHelpService} from '../../data-access/services/sales-help.service';
 
 // ============================================
@@ -47,7 +46,7 @@ export interface KeyboardShortcutsConfig {
   isPresale?: () => boolean;
 }
 
-export interface KeyboardShortcutsMixin extends ShortcutsProvider {
+export interface KeyboardShortcutsMixin {
   handleKeyboardEvent(event: KeyboardEvent): void;
 }
 
@@ -91,8 +90,7 @@ function shouldHandleEvent(event: KeyboardEvent): boolean {
 /**
  * Crée un handler de raccourcis clavier pour un composant de vente.
  *
- * Retourne un objet qui implémente `ShortcutsProvider` (pour la modale d'aide)
- * et expose `handleKeyboardEvent()` (pour le host binding du composant).
+ * Expose `handleKeyboardEvent()` (pour le host binding du composant).
  *
  * @example
  * ```typescript
@@ -138,31 +136,6 @@ export function createKeyboardShortcuts(
         event.preventDefault();
         shortcut.action();
       }
-    },
-
-    getShortcutsByCategory(): Map<string, KeyboardShortcut[]> {
-      const grouped = new Map<string, KeyboardShortcut[]>();
-      const isTauri = tauriService.isRunningInTauri();
-
-      for (const s of shortcuts) {
-        // Filter by environment
-        if (s.environmentRestriction === 'tauri' && !isTauri) {
-          continue;
-        }
-        if (s.environmentRestriction === 'web' && isTauri) {
-          continue;
-        }
-
-        const existing = grouped.get(s.category) || [];
-        existing.push(s);
-        grouped.set(s.category, existing);
-      }
-
-      return grouped;
-    },
-
-    isRunningInTauri(): boolean {
-      return tauriService.isRunningInTauri();
     },
   };
 }

@@ -37,8 +37,8 @@
 
   // Accent color variants
   &.primary-accent {
-    --accent-color-start: #008cba;
-    --accent-color-end: #5bc0de;
+    --accent-color-start: var(--pharma-chrome-brand, #008cba);
+    --accent-color-end: var(--pharma-chrome-brand-light, #5bc0de);
   }
 
   &.danger-accent {

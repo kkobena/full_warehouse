@@ -126,6 +126,12 @@
   --pharma-row-selected-hover-bg: #b9daff;
   --pharma-row-selected-fg: #0a2f5c;
   --pharma-row-selected-accent: #0d6efd;
+  /* Survol des lignes, fond des codes et badge « primaire » des tableaux : redéfinis par les thèmes de couleur. */
+  --pharma-row-hover-bg: #e3f2fd;
+  --pharma-code-bg: #e3f2fd;
+  --pharma-badge-primary-bg: #cfe2ff;
+  --pharma-badge-primary-fg: #084298;
+  --pharma-badge-primary-border: #b6d4fe;
 }
 
 :root,:host {

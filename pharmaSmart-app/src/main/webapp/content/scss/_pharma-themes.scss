@@ -99,7 +99,8 @@ $pharma-themes: (
   }
   --p-primary-color: #{$accent};
 
-  --pharma-focus-ring: 0 0 0 0.2rem #{rgba($accent, 0.15)};
+  // 25 % comme les thèmes de couleur : à 15 %, le halo du champ actif se devinait à peine.
+  --pharma-focus-ring: 0 0 0 0.2rem #{rgba($accent, 0.25)};
 }
 
 // Composants Bootstrap dont la couleur primaire est figée à la compilation : à regénérer

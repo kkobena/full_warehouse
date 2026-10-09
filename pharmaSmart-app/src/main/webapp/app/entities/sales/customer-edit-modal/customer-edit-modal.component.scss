@@ -59,8 +59,8 @@
       --accent-end: var(--pharma-chrome-tab-dark, #4a7189);
     }
     &:nth-child(2) {
-      --accent-start: #008cba;
-      --accent-end: #5bc0de;
+      --accent-start: var(--pharma-chrome-brand, #008cba);
+      --accent-end: var(--pharma-chrome-brand-light, #5bc0de);
     }
     &:nth-child(3) {
       --accent-start: #43ac6a;

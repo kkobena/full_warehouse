@@ -82,3 +82,69 @@ describe('AppToolbar — titre issu de la navigation', () => {
       .toBe('Caisse du jour');
   });
 });
+
+@Component({
+  standalone: true,
+  imports: [ToolbarComponent],
+  template: `
+    <app-toolbar title="Ventes">
+      <ng-container ngProjectAs="[toolbarActions]">
+        <input id="champ" />
+        <button id="a">A</button>
+        <button id="b" disabled>B</button>
+        <button id="c">C</button>
+        <button id="d">D</button>
+      </ng-container>
+    </app-toolbar>
+  `,
+})
+class HoteAvecActions {}
+
+describe('AppToolbar — navigation aux flèches', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [HoteAvecActions],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    }).compileComponents();
+  });
+
+  function monter(): HTMLElement {
+    const f = TestBed.createComponent(HoteAvecActions);
+    f.detectChanges();
+    document.body.appendChild(f.nativeElement);
+    return f.nativeElement as HTMLElement;
+  }
+
+  function appuyer(el: HTMLElement, key: string): void {
+    el.focus();
+    el.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+  }
+
+  it('expose la zone d’actions comme une barre d’outils nommée', () => {
+    const barre = monter().querySelector('.pharma-toolbar-actions')!;
+    expect(barre.getAttribute('role')).toBe('toolbar');
+    expect(barre.getAttribute('aria-label')).toBe('Actions : Ventes');
+  });
+
+  it('passe au bouton suivant actif, et boucle', () => {
+    const hote = monter();
+    appuyer(hote.querySelector('#a')!, 'ArrowRight');
+    expect(document.activeElement?.id).toBe('c');
+    appuyer(hote.querySelector('#d')!, 'ArrowRight');
+    expect(document.activeElement?.id).toBe('a');
+  });
+
+  it('va au premier et au dernier avec Début et Fin', () => {
+    const hote = monter();
+    appuyer(hote.querySelector('#c')!, 'End');
+    expect(document.activeElement?.id).toBe('d');
+    appuyer(hote.querySelector('#d')!, 'Home');
+    expect(document.activeElement?.id).toBe('a');
+  });
+
+  it('laisse les flèches au champ de saisie', () => {
+    const hote = monter();
+    appuyer(hote.querySelector('#champ')!, 'ArrowRight');
+    expect(document.activeElement?.id).toBe('champ');
+  });
+});

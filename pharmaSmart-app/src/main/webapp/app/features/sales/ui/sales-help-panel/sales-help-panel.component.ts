@@ -76,6 +76,9 @@ export class SalesHelpPanelComponent {
     if (this.proforma()) {
       return [{ touches: ['Entrée'], action: 'Dans le champ produit vide, panier rempli : enregistrer le proforma' }];
     }
+    if (this.document()) {
+      return [{ touches: ['Entrée'], action: 'Dans le champ produit vide, panier rempli : enregistrer la pré-vente (après confirmation)' }];
+    }
     if (doc) {
       return [];
     }

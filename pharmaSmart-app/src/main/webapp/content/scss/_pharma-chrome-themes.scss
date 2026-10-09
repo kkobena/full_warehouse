@@ -85,6 +85,10 @@
   --pharma-chrome-bulk-border: #bfdbfe;
   --pharma-chrome-bulk-fg: #1e40af;
   --pharma-chrome-rule: #008cba;
+  // Bleu « primaire » des rapports et cartes d'indicateurs d'avant le chantier : teinte (fonds, filets, icônes), clair (fin de dégradé), encre (texte).
+  --pharma-chrome-brand: #008cba;
+  --pharma-chrome-brand-light: #5bc0de;
+  --pharma-chrome-brand-ink: #008cba;
   // Boîte de confirmation (`ngb-confirm-dialog`) et sélecteur de date : les valeurs d'avant le chantier.
   --pharma-chrome-dlg-a: #f0f7fa;
   --pharma-chrome-dlg-b: #e8f4f8;
@@ -294,6 +298,11 @@ $pharma-chrome-themes: (
     --pharma-row-selected-hover-bg: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-row-selected-hover}, #fff);
     --pharma-row-selected-fg: var(--pharma-chrome-ink);
     --pharma-row-selected-accent: var(--pharma-chrome-seed);
+    --pharma-row-hover-bg: color-mix(in srgb, var(--pharma-chrome-seed) 8%, #fff);
+    --pharma-code-bg: color-mix(in srgb, var(--pharma-chrome-seed) 10%, #fff);
+    --pharma-badge-primary-bg: color-mix(in srgb, var(--pharma-chrome-seed) 14%, #fff);
+    --pharma-badge-primary-fg: var(--pharma-chrome-ink);
+    --pharma-badge-primary-border: color-mix(in srgb, var(--pharma-chrome-seed) 30%, #fff);
 
     // Aide, barre d'actions groupées et filet de total : teinte de l'accent.
     --pharma-chrome-hint-bg: color-mix(in srgb, var(--pharma-chrome-seed) 8%, #fff);
@@ -303,6 +312,9 @@ $pharma-chrome-themes: (
     --pharma-chrome-bulk-border: color-mix(in srgb, var(--pharma-chrome-seed) 30%, #fff);
     --pharma-chrome-bulk-fg: var(--pharma-chrome-ink);
     --pharma-chrome-rule: var(--pharma-chrome-seed);
+    --pharma-chrome-brand: var(--pharma-chrome-seed);
+    --pharma-chrome-brand-light: color-mix(in srgb, var(--pharma-chrome-seed) 55%, #fff);
+    --pharma-chrome-brand-ink: var(--pharma-chrome-ink);
 
     // Boîte de confirmation : en-tête clair du thème, icône et bouton « Oui » à l'encre de l'accent.
     --pharma-chrome-dlg-a: var(--pharma-chrome-head-a);
@@ -328,6 +340,14 @@ $pharma-chrome-themes: (
     --pharma-kpi-bg-end: color-mix(in srgb, var(--pharma-chrome-seed) #{$chrome-kpi-tint-end}, #fff);
     --pharma-kpi-border: var(--pharma-chrome-frame);
     --pharma-kpi-accent: var(--pharma-chrome-seed);
+
+    // En-têtes des sous-tableaux (cyan, ou bleu acier pour `.bg-primary`) : l'en-tête clair du thème. `.bg-info` et `.bg-success` gardent leur gravité.
+    .pharma-sub-table-container .pharma-sub-table-header,
+    .pharma-sub-table-card .card-header:not(.bg-info):not(.bg-success) {
+      background: linear-gradient(135deg, var(--pharma-chrome-head-a) 0%, var(--pharma-chrome-head-b) 100%) !important;
+      color: var(--pharma-chrome-head-fg);
+      box-shadow: inset 0 -2px 0 var(--pharma-chrome-head-line);
+    }
 
     // ag-grid n'a pas d'en-tête coloré sous `actuel` ; les thèmes dérivés lui donnent celui des tableaux.
     .ag-theme-alpine {

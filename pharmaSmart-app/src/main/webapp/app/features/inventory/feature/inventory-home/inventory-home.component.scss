@@ -96,7 +96,7 @@
 }
 
 // ── Expanded row : cartes clôturés ────────────────────────────────────────────
-$primary-blue: #2e7d97;
+$primary-blue: var(--pharma-chrome-head-icon, #2e7d97);
 $primary-light: #5bc0de;
 $success-green: #43ac6a;
 $gray-light: #f8f9fa;
@@ -116,7 +116,7 @@ $white: #fff;
 .activity-card {
   &.activity-card-primary {
     --accent-color-start: #{$primary-blue};
-    --accent-color-end: #{$primary-light};
+    --accent-color-end: var(--pharma-chrome-brand-light, #{$primary-light});
 
     .activity-card-header {
       background: linear-gradient(135deg, $gray-light 0%, $white 100%);
@@ -124,7 +124,7 @@ $white: #fff;
     }
 
     .activity-card-icon {
-      background: linear-gradient(135deg, rgba($primary-blue, 0.1), rgba($primary-light, 0.1));
+      background: linear-gradient(135deg, color-mix(in srgb, $primary-blue 10%, transparent), color-mix(in srgb, var(--pharma-chrome-brand-light, #{$primary-light}) 10%, transparent));
       color: $primary-blue;
     }
   }

@@ -38,7 +38,7 @@
 
   i {
     font-size: 15px;
-    color: #008cba;
+    color: var(--pharma-chrome-brand, #008cba);
   }
 
   span:not(.ae-total-badge) { flex: 1; }

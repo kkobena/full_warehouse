@@ -25,7 +25,7 @@
 // Variables locales, déclarées `!default` : ce partiel est importé par des composants dont
 // les chaînes d'imports diffèrent, et dépendre de l'ordre d'importation le rendrait cassant.
 // Une palette qui définit déjà ces noms les emporte.
-$gc-primary: #5b89a6 !default;
+$gc-primary: var(--pharma-chrome-tab, #5b89a6) !default;
 $gc-success: #5cb85c !default;
 $gc-white: #ffffff !default;
 $gc-border: #dfe3e8 !default;
@@ -55,7 +55,7 @@ $gc-text: #333333 !default;
     gap: 0.35rem;
     padding: 0.15rem 0.6rem;
     border-radius: 999px;
-    background: rgba($gc-primary, 0.1);
+    background: color-mix(in srgb, $gc-primary 10%, transparent);
     color: $gc-primary;
     font-size: 0.8rem;
     white-space: nowrap;

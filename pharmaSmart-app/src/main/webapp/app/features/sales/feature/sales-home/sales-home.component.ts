@@ -24,6 +24,9 @@ import { ApresVenteModalComponent } from '../../ui/apres-vente-modal/apres-vente
 import { SalesHelpPanelComponent } from '../../ui/sales-help-panel/sales-help-panel.component';
 import { SalesHelpService } from '../../data-access/services/sales-help.service';
 import { FormTransactionComponent } from 'app/entities/mvt-caisse/form-transaction/form-transaction.component';
+import { MvtCaisseServiceService } from 'app/entities/mvt-caisse/mvt-caisse-service.service';
+import { PaymentId } from 'app/entities/reglement/model/reglement.model';
+import { TauriPrinterService } from 'app/shared/services/tauri-printer.service';
 import { ButtonComponent, OffcanvasComponent, SelectSearchComponent } from '../../../../shared/ui';
 import { SaleCreationComponent } from '../sale-creation/sale-creation.component';
 import { SaleAssuranceComponent } from '../sale-assurance/sale-assurance.component';
@@ -114,8 +117,6 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
    */
   private readonly largeurNavHorizontale = window.matchMedia('(max-width: 1440px)');
   protected readonly navHorizontale = signal(this.largeurNavHorizontale.matches);
-  // Thème devis: 'purple' | 'teal' | 'indigo' (temporaire pour test)
-  protected devisTheme = signal<'purple' | 'teal' | 'indigo'>('teal');
   protected userSeller = signal<IUser | null>(null);
   protected appendTo = 'body'; // Utilisé dans app-select-search du template
   protected produitSelected: any | null = null;
@@ -127,8 +128,6 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   // Responsive state - passé aux composants enfants
   protected isSmallScreen = signal(false);
   protected isCashRegisterOpen = signal(false);
-  protected showTheme = signal(false);
-  protected devisThemeClass = computed(() => this.isDevisMode() ? `devis-mode-${this.devisTheme()}` : '');
   private router = inject(Router);
   private readonly apiService = inject(SalesApiService);
   private customerDisplayService = inject(CustomerDisplayService);
@@ -146,6 +145,8 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   protected readonly scannerMode = this.salesScanner.scannerMode;
   private produitService = inject(ProduitService);
   private notificationService = inject(NotificationService);
+  private readonly mvtCaisseService = inject(MvtCaisseServiceService);
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   private scanAudio = inject(ScanAudioFeedbackService);
   private authorizationService = inject(AuthorizationService);
   private readonly ability = inject(AbilityService);
@@ -531,15 +532,37 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
     const ref = this.modalService.open(FormTransactionComponent, { size: 'lg', backdrop: 'static',centered: true });
     ref.componentInstance.header = 'Mouvement de Caisse';
     ref.result.then(
-      result => {
-        if (result) {
-          this.notificationService.success('Mouvement enregistré avec succès');
+      (paymentId: PaymentId) => {
+        if (paymentId) {
+          this.proposerRecuMouvement(paymentId);
         }
       },
       () => {
         /* fermé sans enregistrement */
       },
     );
+  }
+
+  /** Reçu du mouvement, après confirmation : comme l'écran des mouvements de caisse. */
+  private proposerRecuMouvement(paymentId: PaymentId): void {
+    this.confirmDialog.onConfirm(
+      () => {
+        if (this.tauriPrinterService.isRunningInTauri()) {
+          this.mvtCaisseService.getEscPosReceiptForTauri(paymentId).subscribe({
+            next: escpos => this.tauriPrinterService.printEscPosFromBuffer(escpos).catch(() => this.signalerEchecRecu()),
+            error: () => this.signalerEchecRecu(),
+          });
+        } else {
+          this.mvtCaisseService.printReceipt(paymentId).subscribe({ error: () => this.signalerEchecRecu() });
+        }
+      },
+      'Reçu du mouvement de caisse',
+      'Mouvement enregistré. Voulez-vous imprimer le reçu ?',
+    );
+  }
+
+  private signalerEchecRecu(): void {
+    this.notificationService.error("Le reçu n'a pas pu être imprimé");
   }
 
   protected openPendingSales(): void {

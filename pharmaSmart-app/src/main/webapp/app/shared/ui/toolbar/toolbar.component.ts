@@ -36,6 +36,8 @@ import { NavStore } from 'app/core/store/nav.store';
  *   <span ngProjectAs="[toolbarHeaderExtra]" class="pharma-badge">{{ total() }}</span>
  * </app-toolbar>
  */
+const CONTROLES_FOCALISABLES = 'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"]):not(button):not(a)';
+
 @Component({
   selector: 'app-toolbar',
   template: `
@@ -65,7 +67,8 @@ import { NavStore } from 'app/core/store/nav.store';
           <ng-content select="[toolbarFilters]" />
         </div>
 
-        <div class="pharma-toolbar-actions">
+        <!-- Flèches gauche / droite, Début et Fin d'un bouton à l'autre ; Tab passe toujours par chacun. -->
+        <div (keydown)="naviguerAuxFleches($event)" [attr.aria-label]="'Actions : ' + resolvedTitle()" class="pharma-toolbar-actions" role="toolbar">
           <ng-content select="[toolbarActions]" />
         </div>
       </div>
@@ -118,6 +121,34 @@ export class ToolbarComponent {
 
   /** Classes additionnelles posées sur la barre. */
   readonly toolbarClass = input<string>('');
+
+  /** Déplace le focus entre les contrôles de la zone d'actions (patron « toolbar » de l'APG), sauf depuis un champ de saisie. */
+  protected naviguerAuxFleches(event: KeyboardEvent): void {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key) || event.altKey || event.ctrlKey || event.metaKey) {
+      return;
+    }
+    const cible = event.target as HTMLElement;
+    if (cible.closest('input, textarea, select, [contenteditable="true"], ng-select')) {
+      return;
+    }
+    const barre = event.currentTarget as HTMLElement;
+    const controles = Array.from(barre.querySelectorAll<HTMLElement>(CONTROLES_FOCALISABLES))
+      // Les boutons masqués par CSS (`d-none` responsive) sont sautés ; sans `checkVisibility` (jsdom), tous comptent.
+      .filter(el => el.checkVisibility?.() ?? true);
+    const courant = controles.findIndex(el => el === cible || el.contains(cible));
+    if (controles.length < 2 || courant < 0) {
+      return;
+    }
+    const dernier = controles.length - 1;
+    const suivant: Record<string, number> = {
+      ArrowLeft: courant === 0 ? dernier : courant - 1,
+      ArrowRight: courant === dernier ? 0 : courant + 1,
+      Home: 0,
+      End: dernier,
+    };
+    event.preventDefault();
+    controles[suivant[event.key]].focus();
+  }
 
   protected toolbarClasses(): string {
     return ['pharma-toolbar', this.compact() ? 'pharma-toolbar-compact' : '', this.toolbarClass()].filter(Boolean).join(' ');

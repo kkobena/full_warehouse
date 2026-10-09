@@ -171,7 +171,7 @@ table {
       }
 
       &:hover {
-        background: #e3f2fd !important;
+        background: var(--pharma-row-hover-bg, #e3f2fd) !important;
       }
 
       td {
@@ -298,7 +298,7 @@ table {
   color: var(--pharma-chrome-tab, #{$pharma-primary});
   font-size: 13px;
   /*  padding: 8px 8px !important;*/
-  background: #e3f2fd;
+  background: var(--pharma-code-bg, #e3f2fd);
   border-radius: 3px;
   display: inline-block;
 }
@@ -372,9 +372,9 @@ table {
   }
 
   &.pharma-badge-primary {
-    background: #cfe2ff;
-    color: #084298;
-    border: 1px solid #b6d4fe;
+    background: var(--pharma-badge-primary-bg, #cfe2ff);
+    color: var(--pharma-badge-primary-fg, #084298);
+    border: 1px solid var(--pharma-badge-primary-border, #b6d4fe);
   }
 
   &.pharma-badge-secondary {
@@ -739,6 +739,11 @@ table {
 tr.ligne-selected {
   > td,
   > th {
+    // Bootstrap pose rayure et survol en ombre interne sur chaque cellule : la première, dont l'ombre devient le liseré,
+    // y échappait seule, d'où des cellules suivantes plus sombres.
+    --bs-table-bg-type: transparent !important;
+    --bs-table-bg-state: transparent !important;
+    --bs-table-accent-bg: transparent !important;
     background-color: var(--pharma-row-selected-bg, #cfe6ff) !important;
     color: var(--pharma-row-selected-fg, #0a2f5c) !important;
     font-weight: 600;

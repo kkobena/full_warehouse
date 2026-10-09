@@ -1,212 +1,58 @@
 <div class="pharma-smart-content">
-  @if (magasin()) {
-    <div class="magasin-detail-container">
-      <!-- Toolbar Header -->
-      <div class="pharma-toolbar">
-        <div class="pharma-toolbar-header">
-          <i class="pi pi-building"></i>
-          <span class="pharma-toolbar-title">{{
-              magasin().fullName || 'Informations du Magasin'
-            }}</span>
-          @if (magasin().typeLibelle) {
-            <span class="pharma-toolbar-subtitle">{{ magasin().typeLibelle }}</span>
+  @if (magasin(); as m) {
+    <app-toolbar [compact]="true" [subtitle]="m.typeLibelle || ''" [title]="m.fullName || 'Informations du Magasin'" icon="pi pi-building">
+      <ng-container ngProjectAs="[toolbarActions]">
+        <app-button [routerLink]="['/magasin', m.id, 'edit']" icon="pi pi-pencil" label="Modifier" severity="primary" />
+      </ng-container>
+    </app-toolbar>
+
+    <div class="magasin-grid">
+      <app-card header="Informations Générales" icon="pi pi-info-circle">
+        <app-detail-field label="Nom complet" [value]="m.fullName" />
+        <app-detail-field label="Nom abrégé" [value]="m.name" />
+        <app-detail-field label="Type de magasin">
+          <app-badge [label]="m.typeLibelle || m.typeMagasin" severity="info" />
+        </app-detail-field>
+      </app-card>
+
+      <app-card header="Informations de Contact" icon="pi pi-phone">
+        <app-detail-field label="Téléphone">
+          @if (m.phone) {
+            <a [href]="'tel:' + m.phone">{{ m.phone }}</a>
+          } @else {
+            —
           }
+        </app-detail-field>
+        <app-detail-field label="Email">
+          @if (m.email) {
+            <a [href]="'mailto:' + m.email">{{ m.email }}</a>
+          } @else {
+            —
+          }
+        </app-detail-field>
+        <app-detail-field label="Adresse" [value]="m.address" />
+      </app-card>
+
+      <app-card header="Informations Administratives" icon="pi pi-file-edit">
+        <app-detail-field label="Registre de commerce" [value]="m.registre" />
+        <app-detail-field label="Compte contribuable" [value]="m.compteContribuable" />
+        <app-detail-field label="Numéro comptable" [value]="m.numComptable" />
+        <app-detail-field label="Compte bancaire" [value]="m.compteBancaire" />
+        <app-detail-field label="Registre d'imposition" [value]="m.registreImposition" />
+        <app-detail-field label="FNE point de vente" [value]="m.fnePointOfSale" />
+        <app-detail-field label="FNE clé secrète" [value]="m.fneSecretKey ? '••••••••' : null" />
+      </app-card>
+
+      <app-card header="Messages et Notes" icon="pi pi-comment">
+        <div class="magasin-texte">
+          <span class="magasin-texte-label">Message de bienvenue</span>
+          <p>{{ m.welcomeMessage || '—' }}</p>
         </div>
-      </div>
-
-      <!-- Content Cards -->
-      <div class="card-grid-2col">
-        <!-- General Information -->
-        <div class="card data-card">
-          <div class="card-header">
-            <div class="section-header">
-              <i class="pi pi-info-circle"></i>
-              <span>Informations Générales</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="detail-grid">
-              <div class="detail-item">
-                <label>Nom Complet</label>
-                <div class="detail-value">
-                  <i class="pi pi-building detail-icon"></i>
-                  <span>{{ magasin().fullName }}</span>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <label>Nom Abrégé</label>
-                <div class="detail-value">
-                  <i class="pi pi-tag detail-icon"></i>
-                  <span>{{ magasin().name }}</span>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <label>Type de Magasin</label>
-                <div class="detail-value">
-                  <i class="pi pi-home detail-icon"></i>
-                  <app-badge [label]="magasin().typeLibelle || magasin().typeMagasin"
-                             severity="info" />
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="magasin-texte">
+          <span class="magasin-texte-label">Notes</span>
+          <p>{{ m.note || '—' }}</p>
         </div>
-
-        <!-- Contact Information -->
-        <div class="card data-card">
-          <div class="card-header">
-            <div class="section-header">
-              <i class="pi pi-phone"></i>
-              <span>Informations de Contact</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="detail-grid">
-              <div class="detail-item">
-                <label>Téléphone</label>
-                <div class="detail-value">
-                  <i class="pi pi-phone detail-icon"></i>
-                  @if (magasin().phone) {
-                    <a [href]="'tel:' + magasin().phone"
-                       class="detail-link">{{ magasin().phone }}</a>
-                  } @else {
-                    <span>-</span>
-                  }
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <label>Email</label>
-                <div class="detail-value">
-                  <i class="pi pi-envelope detail-icon"></i>
-                  @if (magasin().email) {
-                    <a [href]="'mailto:' + magasin().email"
-                       class="detail-link">{{ magasin().email }}</a>
-                  }
-                </div>
-              </div>
-
-              <div class="detail-item detail-item-full">
-                <label>Adresse</label>
-                <div class="detail-value">
-                  <i class="pi pi-map-marker detail-icon"></i>
-                  <span>{{ magasin().address }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card-grid-2col mt-2">
-        <!-- Administrative Information -->
-        <div class="card data-card">
-          <div class="card-header">
-            <div class="section-header">
-              <i class="pi pi-file-edit"></i>
-              <span>Informations Administratives</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="detail-grid">
-              <div class="detail-item">
-                <label>Registre de Commerce</label>
-                <div class="detail-value">
-                  <i class="pi pi-file detail-icon"></i>
-                  <span>{{ magasin().registre }}</span>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <label>Compte Contribuable</label>
-                <div class="detail-value">
-                  <i class="pi pi-id-card detail-icon"></i>
-                  <span>{{ magasin().compteContribuable }}</span>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <label>Numéro Comptable</label>
-                <div class="detail-value">
-                  <i class="pi pi-calculator detail-icon"></i>
-                  <span>{{ magasin().numComptable }}</span>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <label>Compte Bancaire</label>
-                <div class="detail-value">
-                  <i class="pi pi-credit-card detail-icon"></i>
-                  <span>{{ magasin().compteBancaire }}</span>
-                </div>
-              </div>
-
-              <div class="detail-item detail-item-full">
-                <label>Registre d'Imposition</label>
-                <div class="detail-value">
-                  <i class="pi pi-file-edit detail-icon"></i>
-                  <span>{{ magasin().registreImposition }}</span>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <label>FNE Point de vente</label>
-                <div class="detail-value">
-                  <i class="pi pi-shop detail-icon"></i>
-                  <span>{{ magasin().fnePointOfSale }}</span>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <label>FNE Clé secrète</label>
-                <div class="detail-value">
-                  <i class="pi pi-key detail-icon"></i>
-                  <span>{{ magasin().fneSecretKey ? '••••••••' : '' }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card data-card">
-          <div class="card-header">
-            <div class="section-header">
-              <i class="pi pi-comment"></i>
-              <span>Messages et Notes</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="detail-grid">
-              @if (magasin().welcomeMessage) {
-                <div class="detail-item detail-item-full">
-                  <label>Message de Bienvenue</label>
-                  <div class="detail-value detail-value-multiline">
-                    <i class="pi pi-comment detail-icon"></i>
-                    <span>{{ magasin().welcomeMessage }}</span>
-                  </div>
-                </div>
-              }
-
-              @if (magasin().note) {
-                <div class="detail-item detail-item-full">
-                  <label>Notes</label>
-                  <div class="detail-value detail-value-multiline">
-                    <i class="pi pi-file-edit detail-icon"></i>
-                    <span>{{ magasin().note }}</span>
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="form-actions-compact">
-      <app-button [routerLink]="['/magasin', magasin().id, 'edit']" icon="pi pi-pencil"
-                  label="Modifier" severity="primary" />
+      </app-card>
     </div>
   }
 </div>
-

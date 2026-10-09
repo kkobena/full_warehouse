@@ -24,6 +24,13 @@
   }
 }
 
+// Thèmes dérivés : en-tête clair des tableaux, texte à l'encre de l'accent (le blanc ne tient pas sur la teinte).
+:host-context(:root[data-chrome]:not([data-chrome='actuel'])) .tva-summary-header {
+  background: linear-gradient(135deg, var(--pharma-chrome-head-a) 0%, var(--pharma-chrome-head-b) 100%);
+  color: var(--pharma-chrome-head-fg);
+  box-shadow: inset 0 -2px 0 var(--pharma-chrome-head-line);
+}
+
 .tva-summary-body {
   padding: 1rem 1.5rem;
 }
@@ -67,7 +74,7 @@
 
 .tva-table-footer td {
   background: #f8f9fa;
-  border-top: 2px solid #008cba;
+  border-top: 2px solid var(--pharma-chrome-rule, #008cba);
 }
 
 .pharma-empty-message {

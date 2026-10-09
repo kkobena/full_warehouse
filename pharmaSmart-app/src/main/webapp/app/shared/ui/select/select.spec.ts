@@ -183,4 +183,40 @@ describe('MultiSelectComponent', () => {
     debugSelect().triggerEventHandler('ngModelChange', [RAYONS[0], RAYONS[2]]);
     expect(onChange).toHaveBeenCalledWith([RAYONS[0], RAYONS[2]]);
   });
+
+  describe('affichage sur une ligne', () => {
+    const afficher = async (ids: number[]): Promise<HTMLElement> => {
+      fixture.componentRef.setInput('bindLabel', 'nom');
+      fixture.componentRef.setInput('bindValue', 'id');
+      component.writeValue(ids);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      return fixture.nativeElement as HTMLElement;
+    };
+
+    const libelles = (el: HTMLElement): string[] =>
+      Array.from(el.querySelectorAll('.ng-value:not(.ng-value-plus) .ng-value-label')).map(e => e.textContent!.trim());
+
+    it('affiche les deux premiers choix puis « +N », la suite en infobulle', async () => {
+      const el = await afficher([1, 2, 3]);
+      expect(libelles(el)).toEqual(['Antalgiques', 'Antibiotiques']);
+      const plus = el.querySelector('.ng-value-plus')!;
+      expect(plus.textContent!.trim()).toBe('+1');
+      expect(plus.getAttribute('title')).toBe('Dermatologie');
+    });
+
+    it('n’affiche pas de pastille tant que tout tient', async () => {
+      const el = await afficher([1, 2]);
+      expect(libelles(el)).toEqual(['Antalgiques', 'Antibiotiques']);
+      expect(el.querySelector('.ng-value-plus')).toBeNull();
+    });
+
+    it('suit maxLabels', async () => {
+      fixture.componentRef.setInput('maxLabels', 1);
+      const el = await afficher([1, 2, 3]);
+      expect(libelles(el)).toEqual(['Antalgiques']);
+      expect(el.querySelector('.ng-value-plus')!.textContent!.trim()).toBe('+2');
+    });
+  });
 });

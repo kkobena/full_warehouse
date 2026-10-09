@@ -396,10 +396,11 @@ input[type='number'] {
   font-size: 1.2rem;
 }
 
-*.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
-  color: #333;
-  background-color: #eee;
-  font-weight: 777;
+// Texte sélectionné : teinte de l'accent et encre foncée imposée, lisible aussi sur les barres sombres de « Bleu acier »
+// (la sélection par défaut du navigateur y disparaissait sous le texte clair).
+::selection {
+  background: var(--p-primary-200);
+  color: #1f2937;
 }
 
 .form-date-input {

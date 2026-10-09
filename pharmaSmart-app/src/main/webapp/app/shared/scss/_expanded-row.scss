@@ -2,7 +2,7 @@
 // EXPANDED ROW - Shared styles for row expansion cards & tables
 // ====================================
 
-$er-primary-blue: #008cba;
+$er-primary-blue: var(--pharma-chrome-brand, #008cba);
 $er-primary-light: #5bc0de;
 $er-success-green: #43ac6a;
 $er-warning-orange: #e99002;
@@ -196,7 +196,7 @@ $er-gray-border: #e2e8f0;
       }
 
       &:hover > td {
-        background: rgba($er-primary-blue, 0.04);
+        background: color-mix(in srgb, $er-primary-blue 4%, transparent);
       }
 
       &:last-child > td {

@@ -33,15 +33,7 @@ $pharma-footer-border:  #e5e7eb;
   font-weight: 600;
   font-size: 0.8rem;
   color: $pharma-text-body;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
   margin-bottom: 0;
-
-  i {
-    color: $pharma-primary;
-    font-size: 0.8rem;
-  }
 }
 
 .pharma-dp-input {

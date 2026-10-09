@@ -98,6 +98,39 @@
     }
   }
 
+  // --- Mode multiple sur une ligne : les chips ne repoussent plus la hauteur du champ (voir `app-multi-select`, pastille « +N »). ---
+  // `!important` : le CSS de base de ng-select (`flex-wrap: wrap`, même spécificité) est injecté à l'exécution, possiblement après.
+  &.ng-select-multiple .ng-select-container .ng-value-container {
+    flex-wrap: nowrap !important;
+    overflow: hidden;
+
+    .ng-value {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 1 auto;
+      min-width: 0;
+      max-width: 9rem;
+      white-space: nowrap;
+
+      .ng-value-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      &.ng-value-plus {
+        flex-shrink: 0;
+        max-width: none;
+        font-weight: 600;
+      }
+    }
+
+    // La saisie de recherche garde de quoi taper, à droite des chips.
+    .ng-input {
+      flex: 1 0 3rem !important;
+      min-width: 3rem;
+    }
+  }
+
   // --- Taille compacte (équivalent .p-select-sm) ---
   &.app-select-sm {
     font-size: var(--p-form-field-sm-font-size);
@@ -143,9 +176,12 @@
       color: var(--p-list-option-color);
       padding: var(--p-list-option-padding);
 
+      // Option active au clavier ou au survol : teinte de l'accent et liseré. Le gris `surface-100` d'avant
+      // se confondait avec le blanc du panneau (1,1:1).
       &.ng-option-marked {
-        background: var(--p-list-option-focus-background);
-        color: var(--p-list-option-focus-color);
+        background: var(--p-highlight-focus-background);
+        color: var(--p-highlight-focus-color);
+        box-shadow: inset 3px 0 0 var(--p-primary-color);
       }
 
       &.ng-option-selected {
@@ -156,6 +192,7 @@
         &.ng-option-marked {
           background: var(--p-list-option-selected-focus-background);
           color: var(--p-list-option-selected-focus-color);
+          box-shadow: inset 3px 0 0 var(--p-primary-color);
         }
       }
 

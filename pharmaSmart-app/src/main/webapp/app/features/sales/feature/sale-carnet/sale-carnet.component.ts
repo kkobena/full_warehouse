@@ -373,6 +373,17 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
     //  Si vente en cours avec des lignes
     if (currentSale && this.salesLines().length > 0) {
+      // Pré-vente : rien à encaisser, Entrée enregistre la pré-vente après confirmation.
+      if (this.isPresale()) {
+        this.confirmDialog.onConfirm(
+          () => this.onSaveAsPresale(false),
+          'Finaliser la pré-vente',
+          'Voulez-vous enregistrer la pré-vente ?',
+          null,
+          () => this.productSearchComponent()?.getFocus(),
+        );
+        return;
+      }
       const amountToBePaid = currentSale.amountToBePaid || 0;
 
       //  Si montant à payer <= 0, finaliser directement sans paiement

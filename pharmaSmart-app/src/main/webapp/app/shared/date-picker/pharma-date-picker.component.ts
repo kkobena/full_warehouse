@@ -44,15 +44,6 @@ import {FrenchDateParserFormatter} from '../../config/french-date-parser-formatt
  */
 @Component({
   selector: 'pharma-date-picker',
-  // L'entrée s'appelle `id`, qui est AUSSI un attribut HTML natif : `<pharma-date-picker
-  // id="dateDebut">` alimente l'entrée et laisse en même temps l'attribut sur l'hôte. Le
-  // document contient alors DEUX éléments portant `dateDebut` — l'hôte et l'input interne —
-  // ce qui est invalide en HTML, rend `document.getElementById` ambigu et casse la cible du
-  // `<label for>` pour les lecteurs d'écran.
-  //
-  // L'attribut est donc retiré de l'hôte : l'identifiant n'a de sens que sur le champ de
-  // saisie, celui que le label désigne. Corrigé ici plutôt qu'en renommant l'entrée, ce qui
-  // aurait touché les 68 gabarits qui emploient ce composant.
   host: {
     '[attr.id]': 'null',
   },
@@ -71,12 +62,7 @@ import {FrenchDateParserFormatter} from '../../config/french-date-parser-formatt
     <div class="pharma-dp-wrapper" [class.pharma-dp-wrapper--inline]="labelPosition() === 'inline'"
          [ngStyle]="style()">
       @if (label()) {
-        <label class="pharma-dp-label" [for]="id()">
-          @if (icon()) {
-            <i [class]="icon()"></i>
-          }
-          {{ label() }}
-        </label>
+        <label class="pharma-dp-label" [for]="id()">{{ label() }}</label>
       }
       <div class="input-group input-group-sm">
         <input autocomplete="off"
@@ -123,8 +109,6 @@ import {FrenchDateParserFormatter} from '../../config/french-date-parser-formatt
 export class PharmaDatePickerComponent implements ControlValueAccessor {
   /** Texte du label affiché au-dessus de l'input */
   readonly label = input<string>('');
-  /** Icône PrimeIcons affichée dans le label (ex: "pi pi-calendar") */
-  readonly icon = input<string>('pi pi-calendar');
   /** Id de l'input (pour le label `for`) */
   readonly id = input<string>('pharma-dp');
   /** Texte placeholder */

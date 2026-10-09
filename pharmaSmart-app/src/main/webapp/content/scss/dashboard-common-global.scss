@@ -3,7 +3,7 @@
 // ====================================
 
 // Project Colors (Yeti Theme)
-$primary-blue: #008cba;
+$primary-blue: var(--pharma-chrome-brand, #008cba);
 $primary-light: #5bc0de;
 $success-green: #43ac6a;
 $warning-orange: #e99002;
@@ -169,7 +169,7 @@ $gray-border: #e2e8f0;
   // Variants
   &.primary-accent {
     --accent-color-start: #{$primary-blue};
-    --accent-color-end: #{$primary-light};
+    --accent-color-end: var(--pharma-chrome-brand-light, #{$primary-light});
   }
 
   &.danger-accent {
@@ -297,7 +297,7 @@ $gray-border: #e2e8f0;
   }
 
   .pharma-table-head {
-    background: linear-gradient(135deg, $primary-blue 0%, $primary-light 100%);
+    background: linear-gradient(135deg, $primary-blue 0%, var(--pharma-chrome-brand-light, #{$primary-light}) 100%);
 
     th {
       color: $white;
@@ -313,7 +313,7 @@ $gray-border: #e2e8f0;
     transition: all 0.2s ease;
 
     &:hover {
-      background: rgba($primary-blue, 0.05);
+      background: color-mix(in srgb, $primary-blue 5%, transparent);
       transform: scale(1.01);
     }
 
@@ -335,11 +335,11 @@ $gray-border: #e2e8f0;
 
   .pharma-code {
     font-family: 'Courier New', monospace;
-    background: rgba($primary-blue, 0.1);
+    background: color-mix(in srgb, $primary-blue 10%, transparent);
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     font-weight: 600;
-    color: $primary-blue;
+    color: var(--pharma-chrome-brand-ink, #008cba);
   }
 }
 
@@ -352,7 +352,7 @@ $gray-border: #e2e8f0;
 
     &:hover {
       padding-left: 1rem;
-      background: rgba($primary-blue, 0.03);
+      background: color-mix(in srgb, $primary-blue 3%, transparent);
     }
 
     &:last-child {
@@ -580,11 +580,12 @@ $gray-border: #e2e8f0;
 
 // Badge Color Variants
 .bg-primary-subtle {
-  background-color: rgba($primary-blue, 0.1) !important;
+  background-color: color-mix(in srgb, $primary-blue 10%, transparent) !important;
 }
 
+// Encre de l'accent sous un thème dérivé : l'accent seul tombe sous 4,5:1 sur le fond teinté.
 .text-primary {
-  color: $primary-blue !important;
+  color: var(--pharma-chrome-brand-ink, #008cba) !important;
 }
 
 .bg-success-subtle {

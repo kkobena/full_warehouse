@@ -1,0 +1,98 @@
+<section aria-labelledby="achats-stock-ruptures" class="section-onglet">
+  <h3 class="section-titre" id="achats-stock-ruptures">Ruptures & péremptions</h3>
+  <p class="section-note">Deux ruptures, à ne pas additionner : chez le fournisseur (commandé, non livré) et au comptoir (demandé, non servi).</p>
+  @if (ruptures.error()) {
+    <p class="text-danger" role="alert">Les ruptures n'ont pas pu être chargées.</p>
+  }
+  <app-tuiles-cellules [loading]="ruptures.isLoading()" [tuiles]="tuiles()" />
+  @if (ruptures.value(); as r) {
+    @if (r.rupturesParFournisseur.length || r.rupturesParProduit.length || r.ventesManqueesParProduit.length || r.peremptionsAVenir.length) {
+      <div class="section-grille">
+        @if (r.rupturesParFournisseur.length) {
+          <app-card header="Ruptures par fournisseur" icon="pi pi-truck">
+            <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="r.rupturesParFournisseur" emptyMessage="Aucune rupture fournisseur" size="small">
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th scope="col">Fournisseur</th>
+                  <th class="text-end" scope="col">Ruptures</th>
+                  <th class="text-end" scope="col">Quantité</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-ligne>
+                <tr>
+                  <th scope="row">{{ ligne.libelle }}</th>
+                  <td class="text-end">{{ ligne.nombre }}</td>
+                  <td class="text-end">{{ ligne.quantite }}</td>
+                </tr>
+              </ng-template>
+            </app-data-table>
+          </app-card>
+        }
+        @if (r.rupturesParProduit.length) {
+          <app-card header="Ruptures par produit" icon="pi pi-box">
+            <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="r.rupturesParProduit" emptyMessage="Aucune rupture fournisseur" size="small">
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th scope="col">Produit</th>
+                  <th class="text-end" scope="col">Ruptures</th>
+                  <th class="text-end" scope="col">Quantité</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-ligne>
+                <tr>
+                  <th scope="row">{{ ligne.libelle }}</th>
+                  <td class="text-end">{{ ligne.nombre }}</td>
+                  <td class="text-end">{{ ligne.quantite }}</td>
+                </tr>
+              </ng-template>
+            </app-data-table>
+          </app-card>
+        }
+        @if (r.ventesManqueesParProduit.length) {
+          <app-card header="Ventes manquées par produit" icon="pi pi-shopping-cart">
+            <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="r.ventesManqueesParProduit" emptyMessage="Aucune vente manquée" size="small">
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th scope="col">Produit</th>
+                  <th class="text-end" scope="col">Avoirs</th>
+                  <th class="text-end" scope="col">Quantité</th>
+                  <th class="text-end" scope="col">Valeur</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-ligne>
+                <tr>
+                  <th scope="row">{{ ligne.libelle }}</th>
+                  <td class="text-end">{{ ligne.nombre }}</td>
+                  <td class="text-end">{{ ligne.quantite }}</td>
+                  <td class="text-end">{{ ligne.montant | valeurIndicateur: 'MONTANT' : true }}</td>
+                </tr>
+              </ng-template>
+            </app-data-table>
+          </app-card>
+        }
+        @if (r.peremptionsAVenir.length) {
+          <app-card header="Péremptions à venir (6 mois)" icon="pi pi-calendar-times">
+            <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="r.peremptionsAVenir" emptyMessage="Aucun lot à périmer" size="small">
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th scope="col">Mois</th>
+                  <th class="text-end" scope="col">Quantité</th>
+                  <th class="text-end" scope="col">Valeur</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-peremption>
+                <tr>
+                  <th scope="row">{{ libellerMois(peremption) }}</th>
+                  <td class="text-end">{{ peremption.quantite }}</td>
+                  <td class="text-end">{{ peremption.valeur | valeurIndicateur: 'MONTANT' : true }}</td>
+                </tr>
+              </ng-template>
+            </app-data-table>
+          </app-card>
+        }
+      </div>
+    } @else {
+      <p class="section-note">Ni rupture, ni vente manquée, ni lot à périmer dans les six mois sur la période.</p>
+    }
+  }
+</section>

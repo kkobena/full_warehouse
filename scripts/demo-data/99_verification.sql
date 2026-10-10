@@ -2213,19 +2213,113 @@ SELECT pg_temp.verif_vide('mouvements', 'Type de mouvement connu du modèle', $q
         'RETRAIT_PERIME','RETOUR_DEPOT','RETOUR_FOURNISSEUR','RETOUR_CLIENT','DESTRUCTION')
 $q$);
 
--- Le mouvement doit se refermer : après = avant ± quantité.
+-- Le mouvement se referme selon la convention de l'application (InventoryTransactionBuilder) : quantité positive
+-- pour une vente, un retrait, un retour fournisseur, un déconditionnement sortant ; signée pour un ajustement, une
+-- répartition, un inventaire ; une réception ajoute aussi ses UG ; une destruction de retour client ne change rien.
 SELECT pg_temp.verif_vide('mouvements', 'Le mouvement se referme', $q$
     SELECT id FROM inventory_transaction
-     WHERE (mouvement_type IN ('ENTREE_STOCK','RETOUR_DEPOT')
-            AND quantity_after <> quantity_befor + quantity)
-        OR (mouvement_type IN ('SALE','RETRAIT_PERIME')
-            AND quantity_after <> quantity_befor - quantity)
+     WHERE (mouvement_type = 'ENTREE_STOCK' AND quantity_after - quantity_befor < quantity)
+        OR (mouvement_type <> 'ENTREE_STOCK' AND quantity_after - quantity_befor <> CASE
+             WHEN mouvement_type IN ('SALE', 'RETRAIT_PERIME', 'RETOUR_FOURNISSEUR', 'DECONDTION_OUT') THEN -quantity
+             WHEN mouvement_type = 'DESTRUCTION' THEN 0
+             ELSE quantity
+           END)
 $q$);
 
 SELECT pg_temp.verif_vide('mouvements', 'Quantités valides', $q$
     SELECT id FROM inventory_transaction
-     WHERE quantity <= 0 OR quantity_befor < 0 OR quantity_after < 0
+     WHERE quantity_befor < 0 OR quantity_after < 0
+        OR (quantity = 0 AND mouvement_type <> 'INVENTAIRE')
 $q$);
+
+-- Le dernier mouvement de chaque ligne de stock retombe sur son stock réel : « Suivi article » le met sous les yeux.
+SELECT pg_temp.verif_vide('mouvements', 'Le journal retombe sur le stock', $q$
+    SELECT d.produit_id FROM (
+        SELECT DISTINCT ON (it.produit_id, it.storage_id) it.produit_id, it.storage_id, it.quantity_after
+          FROM inventory_transaction it
+         ORDER BY it.produit_id, it.storage_id, it.created_at DESC, it.id DESC) d
+      LEFT JOIN stock_produit sp ON sp.produit_id = d.produit_id AND sp.storage_id = d.storage_id
+     WHERE COALESCE(sp.qty_stock, 0) <> d.quantity_after
+$q$);
+
+SELECT pg_temp.verif_vide('mouvements', 'Stock à date : journal et photos concordent (v_stock_ecart_journal)', $q$
+    SELECT produit_id FROM v_stock_ecart_journal WHERE ecart <> 0
+$q$);
+
+-- Début + entrées - sorties + ajustements + inventaires = fin, sur les trois derniers mois.
+SELECT pg_temp.verif_vide('mouvements', 'Bilan de période sans désaccord (fn_stock_bilan_periode)', $q$
+    SELECT b.produit_id FROM fn_stock_bilan_periode(NULL, NOW() - INTERVAL '90 days', NOW()) b
+     WHERE b.qty_debut + b.entrees - b.sorties + b.ajustements + b.inventaires <> b.qty_fin
+$q$);
+
+-- Plus d'ajustement synthétique : un ajustement vient toujours d'une ligne de bon clôturé.
+SELECT pg_temp.verif_vide('mouvements', 'Tout ajustement vient d''un bon clôturé', $q$
+    SELECT it.id FROM inventory_transaction it
+     WHERE it.mouvement_type IN ('AJUSTEMENT_IN', 'AJUSTEMENT_OUT')
+       AND NOT EXISTS (SELECT 1 FROM ajustement a JOIN ajust aj ON aj.id = a.ajust_id AND aj.statut = 'CLOSED'
+                        WHERE a.id = it.entity_id)
+$q$);
+
+-- Chaque source de mouvement a le sien.
+SELECT pg_temp.verif_vide('mouvements', 'Toute réception a son mouvement', $q$
+    SELECT ol.id FROM order_line ol
+      JOIN commande c ON c.id = ol.commande_id AND c.order_date = ol.commande_order_date
+     WHERE c.order_status IN ('RECEIVED', 'CLOSED') AND ol.quantity_received > 0
+       AND NOT EXISTS (SELECT 1 FROM inventory_transaction it WHERE it.mouvement_type = 'ENTREE_STOCK' AND it.entity_id = ol.id)
+$q$);
+
+SELECT pg_temp.verif_vide('mouvements', 'Toute ligne d''inventaire clôturé a son mouvement', $q$
+    SELECT l.id FROM store_inventory_line l
+      JOIN store_inventory i ON i.id = l.store_inventory_id AND i.statut = 'CLOSED'
+     WHERE l.updated
+       AND NOT EXISTS (SELECT 1 FROM inventory_transaction it WHERE it.mouvement_type = 'INVENTAIRE' AND it.entity_id = l.id)
+$q$);
+
+SELECT pg_temp.verif_vide('mouvements', 'Tout retour fournisseur a son mouvement', $q$
+    SELECT i.id FROM retour_bon_item i
+      JOIN retour_bon rb ON rb.id = i.retour_bon_id AND NOT COALESCE(rb.hors_stock, false)
+     WHERE NOT EXISTS (SELECT 1 FROM inventory_transaction it WHERE it.mouvement_type = 'RETOUR_FOURNISSEUR' AND it.entity_id = i.id)
+$q$);
+
+SELECT pg_temp.verif_vide('mouvements', 'Tout ajustement clôturé a son mouvement', $q$
+    SELECT a.id FROM ajustement a
+      JOIN ajust aj ON aj.id = a.ajust_id AND aj.statut = 'CLOSED'
+     WHERE NOT EXISTS (SELECT 1 FROM inventory_transaction it
+                        WHERE it.mouvement_type IN ('AJUSTEMENT_IN', 'AJUSTEMENT_OUT') AND it.entity_id = a.id)
+$q$);
+
+SELECT pg_temp.verif_vide('mouvements', 'Toute répartition a sa sortie et son entrée', $q$
+    SELECT r.id FROM repartition_stock_produit r
+     WHERE NOT EXISTS (SELECT 1 FROM inventory_transaction it WHERE it.mouvement_type = 'MOUVEMENT_STOCK_OUT' AND it.entity_id = r.id)
+        OR NOT EXISTS (SELECT 1 FROM inventory_transaction it WHERE it.mouvement_type = 'MOUVEMENT_STOCK_IN' AND it.entity_id = r.id)
+$q$);
+
+SELECT pg_temp.verif_vide('mouvements', 'Tout déconditionnement a son mouvement', $q$
+    SELECT d.id FROM decondition d
+     WHERE NOT EXISTS (SELECT 1 FROM inventory_transaction it
+                        WHERE it.mouvement_type = d.type_deconditionnement AND it.entity_id = d.id)
+$q$);
+
+SELECT pg_temp.verif_vide('mouvements', 'Tout retour client a son mouvement', $q$
+    SELECT l.id FROM retour_client_line l
+     WHERE NOT EXISTS (SELECT 1 FROM inventory_transaction it
+                        WHERE it.mouvement_type IN ('RETOUR_CLIENT', 'DESTRUCTION') AND it.entity_id = l.id)
+$q$);
+
+SELECT pg_temp.verif_compte('mouvements', 'Des destructions de produits retournés', $q$
+    SELECT 1 FROM inventory_transaction WHERE mouvement_type = 'DESTRUCTION'
+$q$, 1);
+
+SELECT pg_temp.verif_compte('mouvements', 'Un inventaire d''ouverture et un inventaire annuel', $q$
+    SELECT DISTINCT split_part(description, ' ', 2) FROM store_inventory
+     WHERE statut = 'CLOSED' AND (description LIKE 'Inventaire d''ouverture%' OR description LIKE 'Inventaire annuel%')
+$q$, 2);
+
+-- Objectifs du pilotage : quatre indicateurs, année en cours et précédente.
+SELECT pg_temp.verif_compte('pilotage', 'Objectifs mensuels de l''année en cours et de la précédente', $q$
+    SELECT DISTINCT annee, indicateur FROM pilotage_objectif
+     WHERE annee >= date_part('year', CURRENT_DATE)::int - 1
+$q$, 8);
 
 -- Toute vente doit avoir laissé une trace, sinon « Suivi article » ment.
 SELECT pg_temp.verif_vide('mouvements', 'Toute ligne de vente a son mouvement', $q$

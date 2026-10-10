@@ -1,0 +1,61 @@
+<section aria-labelledby="achats-stock-stock" class="section-onglet">
+  <h3 class="section-titre" id="achats-stock-stock">Stock</h3>
+  @if (stock.error()) {
+    <p class="text-danger" role="alert">Le stock n'a pas pu être chargé.</p>
+  }
+  <app-tuiles-cellules [loading]="stock.isLoading()" [tuiles]="tuiles()" />
+  @if (stock.value(); as s) {
+    <p class="section-note">Fin {{ s.mois | date: 'MMMM yyyy' }} ; valeur au prix d'achat du dernier mouvement, comme la valorisation du stock.</p>
+    <div class="section-grille">
+      <app-card header="Valeur du stock en fin de mois" icon="pi pi-chart-line">
+        <app-courbe-series [libelles]="libelles()" [series]="series()" description="Valeur du stock en fin de mois, et au même mois N-1" />
+      </app-card>
+      <app-card [header]="'Produits dormants (sans vente depuis ' + s.seuilDormant + ' jours)'" icon="pi pi-moon">
+        <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="s.dormants" emptyMessage="Aucun produit dormant" size="small">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th scope="col">Produit</th>
+              <th class="text-end" scope="col">Quantité</th>
+              <th class="text-end" scope="col">Valeur</th>
+              <th scope="col">Dernière vente</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-produit>
+            <tr>
+              <th scope="row">{{ produit.libelle }}</th>
+              <td class="text-end">{{ produit.quantite | valeurIndicateur: 'NOMBRE' }}</td>
+              <td class="text-end">{{ produit.valeur | valeurIndicateur: 'MONTANT' : true }}</td>
+              <td>{{ produit.derniereVente ? (produit.derniereVente | date: 'dd/MM/yyyy') : 'Jamais' }}</td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </app-card>
+    </div>
+    <app-card header="Par famille" icon="pi pi-sitemap">
+      <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="s.familles" emptyMessage="Pas de photographie pour ce mois" size="small">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th scope="col">Famille</th>
+            <th class="text-end" scope="col">Valeur</th>
+            <th class="text-end" scope="col">Part <app-aide texte="Part de la famille dans la valeur du stock." /></th>
+            <th class="text-end" scope="col">Coût des ventes 12 mois <app-aide texte="Coût d'achat des quantités vendues sur les 12 derniers mois." /></th>
+            <th class="text-end" scope="col">Rotation <app-aide texte="Fois par an que le stock est vendu : coût des ventes des 12 derniers mois / valeur du stock." /></th>
+            <th class="text-end" scope="col">Couverture <app-aide texte="Jours de ventes couverts par le stock, au rythme des 12 derniers mois." /></th>
+            <th class="text-end" scope="col">Dormant <app-aide texte="Valeur en stock des produits sans vente depuis le seuil de dormance (90 jours par défaut)." /></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-ligne>
+          <tr>
+            <th scope="row">{{ ligne.libelle }}</th>
+            <td class="text-end">{{ ligne.valeur | valeurIndicateur: 'MONTANT' : true }}</td>
+            <td class="text-end">{{ ligne.part | valeurIndicateur: 'POURCENTAGE' }}</td>
+            <td class="text-end">{{ ligne.coutVentes12Mois | valeurIndicateur: 'MONTANT' : true }}</td>
+            <td class="text-end">{{ ligne.rotation | valeurIndicateur: 'RATIO' }}</td>
+            <td class="text-end">{{ ligne.couvertureJours | valeurIndicateur: 'JOURS' }}</td>
+            <td class="text-end">{{ ligne.valeurDormante | valeurIndicateur: 'MONTANT' : true }}</td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </app-card>
+  }
+</section>

@@ -1,0 +1,20 @@
+<section aria-labelledby="clients-equipe-frequentation" class="section-onglet">
+  <h3 class="section-titre" id="clients-equipe-frequentation">Fréquentation</h3>
+  @if (lectureCreneaux()) {
+    <p class="section-lecture" role="status">{{ lectureCreneaux() }}</p>
+  }
+  <div class="section-grille">
+    <app-card header="Ventes par heure et jour de la semaine" icon="pi pi-th-large">
+      @if (croise(); as c) {
+        <app-carte-chaleur [croise]="c" entete="Heure" legende="Nombre de ventes par heure et par jour de la semaine sur la période" />
+      } @else if (chaleur.isLoading()) {
+        <p aria-live="polite" class="text-muted">Calcul de la fréquentation…</p>
+      }
+    </app-card>
+    <app-card header="Ventes par jour" icon="pi pi-chart-line">
+      @if (serie(); as s) {
+        <app-courbe-indicateur [requete]="requete()" [serie]="s" />
+      }
+    </app-card>
+  </div>
+</section>

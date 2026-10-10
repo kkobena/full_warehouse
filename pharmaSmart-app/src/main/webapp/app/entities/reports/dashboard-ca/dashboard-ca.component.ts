@@ -39,7 +39,7 @@ import {ITopProduct} from "app/shared/model/report/top-product.model";
 import {DashboardCAService} from "../services/dashboard-ca.service";
 import {SalesSummaryReportService} from "../services/sales-summary-report.service";
 import {IDailySalesSummary} from "app/shared/model/report/daily-sales-summary.model";
-import {libelleTypeVente} from "app/shared/constants/type-vente.constants";
+import {libelleTypeVente, TYPE_VENTE_DEPOT} from "app/shared/constants/type-vente.constants";
 import {
   FinancesDashboardApiService
 } from "../../../features/finances/data-access/services/finances-dashboard-api.service";
@@ -569,7 +569,7 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
 
   private agregerParTypeVente(
     lignes: IDailySalesSummary[],
-  ): { typeVente: string; libelle: string; nbVentes: number; caNet: number; part: number }[] {
+  ): { typeVente: string; libelle: string; nbVentes: number; caNet: number; part: number | null }[] {
     const cumul = new Map<string, { nbVentes: number; caNet: number }>();
     for (const ligne of lignes) {
       const type = ligne.typeVente ?? 'Inconnu';
@@ -578,16 +578,19 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
       courant.caNet += ligne.caNet ?? 0;
       cumul.set(type, courant);
     }
-    const total = Array.from(cumul.values()).reduce((somme, item) => somme + item.caNet, 0);
+    // Le dépôt (sorties vers le dépôt) est hors CA : la part se rapporte au CA de l'officine et le dépôt vient en dernier.
+    const total = Array.from(cumul.entries())
+      .filter(([typeVente]) => typeVente !== TYPE_VENTE_DEPOT)
+      .reduce((somme, [, item]) => somme + item.caNet, 0);
     return Array.from(cumul.entries())
       .map(([typeVente, item]) => ({
         typeVente,
         libelle: libelleTypeVente(typeVente),
         nbVentes: item.nbVentes,
         caNet: item.caNet,
-        part: total > 0 ? (item.caNet * 100) / total : 0,
+        part: typeVente === TYPE_VENTE_DEPOT ? null : total > 0 ? (item.caNet * 100) / total : 0,
       }))
-      .sort((a, b) => b.caNet - a.caNet);
+      .sort((a, b) => Number(a.typeVente === TYPE_VENTE_DEPOT) - Number(b.typeVente === TYPE_VENTE_DEPOT) || b.caNet - a.caNet);
   }
 
   private aggregatePaymentMethodData(data: IPaymentMethodCA[]): IPaymentMethodSummary[] {

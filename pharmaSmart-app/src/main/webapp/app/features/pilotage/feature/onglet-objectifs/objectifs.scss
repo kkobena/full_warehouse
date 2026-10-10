@@ -1,0 +1,56 @@
+// États d'un objectif : le texte (« Tenu », « Manqué ») porte l'information, la couleur du thème la souligne.
+.objectif-etat {
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &--tenu {
+    color: var(--pharma-chrome-badge-success);
+  }
+
+  &--manque {
+    color: var(--pharma-chrome-badge-danger);
+  }
+}
+
+.objectif-sous-ligne {
+  font-size: 0.8rem;
+  color: var(--pharma-text-muted);
+}
+
+.objectifs-grille {
+  overflow-x: auto;
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0.25rem;
+  }
+
+  th {
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  td {
+    min-width: 6.5rem;
+  }
+
+  // Mois clos : le cadenas et la case grisée disent qu'il ne se modifie plus.
+  .objectifs-mois-clos {
+    color: var(--pharma-text-muted);
+
+    .pi {
+      margin-right: 0.2rem;
+      font-size: 0.7rem;
+    }
+  }
+}
+
+.objectifs-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}

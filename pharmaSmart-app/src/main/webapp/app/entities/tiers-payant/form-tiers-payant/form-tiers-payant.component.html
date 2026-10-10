@@ -285,11 +285,7 @@
         </div>
 
         <div class="form-grid-compact">
-          <!-- Remise forfaitaire -->
-          <div class="form-field form-field-full">
-            <label for="remiseForfaitaire">Remise forfaitaire</label>
-            <app-input-number [min]="0" [suffix]="devise" formControlName="remiseForfaitaire" inputId="remiseForfaitaire" />
-          </div>
+
 
           @if (categorie !== 'DEPOT') {
             <!-- Taux de couverture par défaut : suggéré à la saisie d'un assuré, jamais imposé -->

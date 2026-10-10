@@ -17,6 +17,9 @@ import { AppBadgeSeverity } from 'app/shared/ui';
  */
 export type CodeTypeVente = 'VNO' | 'VO' | 'VENTES_DEPOTS';
 
+/** Sorties de l'officine vers le dépôt : hors du chiffre d'affaires. */
+export const TYPE_VENTE_DEPOT: CodeTypeVente = 'VENTES_DEPOTS';
+
 /** Libellés d'écran, par code d'affichage. */
 export const LIBELLES_TYPE_VENTE: Record<CodeTypeVente, string> = {
   VNO: 'Comptant',

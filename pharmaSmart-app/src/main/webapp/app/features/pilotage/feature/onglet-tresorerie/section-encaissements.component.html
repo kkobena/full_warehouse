@@ -1,0 +1,62 @@
+<section aria-labelledby="tresorerie-encaissements" class="section-onglet">
+  <h3 class="section-titre" id="tresorerie-encaissements">Encaissements & caisse</h3>
+  <p class="section-note">
+    Écart de caisse et arrondis non affichés : leur définition reste à valider (l'arrondi au multiple de 5 des espèces n'est pas un écart).
+  </p>
+  @if (encaissements.error()) {
+    <p class="text-danger" role="alert">Les encaissements n'ont pas pu être chargés.</p>
+  }
+  <app-tuiles-cellules [loading]="encaissements.isLoading()" [tuiles]="tuiles()" />
+  @if (encaissements.value(); as e) {
+    <div class="section-grille">
+      <app-card [header]="'Encaissé par mode — ' + horizon()" icon="pi pi-chart-bar">
+        <app-barres [empilees]="true" [libelles]="libelles()" [series]="series()" description="Encaissements par période, empilés par mode de paiement" />
+      </app-card>
+      <app-card header="Par mode de paiement" icon="pi pi-wallet">
+        <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="e.modes" emptyMessage="Aucun encaissement sur la période" size="small">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th scope="col">Mode</th>
+              <th class="text-end" scope="col">Encaissé</th>
+              <th class="text-end" scope="col">Part <app-aide texte="Part du mode dans l'encaissé de la période." /></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-mode>
+            <tr>
+              <th scope="row">{{ mode.libelle }}</th>
+              <td class="text-end">
+                <div>{{ mode.montant.valeur | valeurIndicateur: 'MONTANT' : true }}</div>
+                @if (mode.montant.valeurReference !== null) {
+                  <app-variation [ecartPct]="mode.montant.ecartPct" [ecart]="mode.montant.ecart" sensFavorable="NEUTRE" unite="MONTANT" />
+                }
+              </td>
+              <td class="text-end">{{ mode.part | valeurIndicateur: 'POURCENTAGE' }}</td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </app-card>
+    </div>
+    @if (e.caissiers; as caissiers) {
+      <app-card header="Par caissier" icon="pi pi-user">
+        <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="caissiers" emptyMessage="Aucun encaissement sur la période" size="small">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th scope="col">Caissier</th>
+              <th class="text-end" scope="col">Encaissé</th>
+              <th class="text-end" scope="col">Transactions <app-aide texte="Règlements encaissés par le caissier." /></th>
+              <th class="text-end" scope="col">Sessions de caisse <app-aide texte="Sessions de caisse ouvertes par le caissier sur la période." /></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-caissier>
+            <tr>
+              <th scope="row">{{ caissier.libelle }}</th>
+              <td class="text-end">{{ caissier.montant | valeurIndicateur: 'MONTANT' : true }}</td>
+              <td class="text-end">{{ caissier.transactions }}</td>
+              <td class="text-end">{{ caissier.sessions }}</td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </app-card>
+    }
+  }
+</section>

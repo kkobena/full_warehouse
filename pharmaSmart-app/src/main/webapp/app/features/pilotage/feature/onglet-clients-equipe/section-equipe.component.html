@@ -1,0 +1,47 @@
+<section aria-labelledby="clients-equipe-equipe" class="section-onglet">
+  <h3 class="section-titre" id="clients-equipe-equipe">Équipe</h3>
+  @if (equipe.error()) {
+    <p class="text-danger" role="alert">L'équipe n'a pas pu être chargée.</p>
+  }
+  @if (equipe.value(); as e) {
+    <app-card header="Par vendeur" icon="pi pi-users">
+      <p class="section-note">Chaque mesure est comparée à la référence ; la dernière ligne situe l'équipe entière.</p>
+      <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="e.vendeurs" emptyMessage="Aucune vente sur la période" size="small">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th scope="col">Vendeur</th>
+            @for (colonne of colonnes; track colonne.libelle) {
+              <th class="text-end" scope="col">{{ colonne.libelle }}@if (colonne.aide) {<app-aide [texte]="colonne.aide" />}</th>
+            }
+          </tr>
+        </ng-template>
+        <ng-template #body let-vendeur>
+          <tr>
+            <th scope="row">{{ vendeur.libelle }}</th>
+            @for (colonne of colonnes; track colonne.libelle) {
+              <td class="text-end">
+                <div>{{ colonne.lire(vendeur).valeur | valeurIndicateur: colonne.unite : true }}</div>
+                @if (colonne.lire(vendeur).valeurReference !== null) {
+                  <app-variation [ecartPct]="colonne.lire(vendeur).ecartPct" [ecart]="colonne.lire(vendeur).ecart" [sensFavorable]="colonne.sens" [unite]="colonne.unite" />
+                }
+              </td>
+            }
+          </tr>
+        </ng-template>
+        <ng-template #footer>
+          <tr class="fw-semibold">
+            <th scope="row">{{ e.equipe.libelle }}</th>
+            @for (colonne of colonnes; track colonne.libelle) {
+              <td class="text-end">{{ colonne.lire(e.equipe).valeur | valeurIndicateur: colonne.unite : true }}</td>
+            }
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </app-card>
+  }
+  @if (croise(); as c) {
+    <app-card header="CA par vendeur et par heure" icon="pi pi-clock">
+      <app-croise-analyse [avecReference]="false" [croise]="c" [indicateur]="indicateurCa()!" entete="Vendeur / Heure" />
+    </app-card>
+  }
+</section>

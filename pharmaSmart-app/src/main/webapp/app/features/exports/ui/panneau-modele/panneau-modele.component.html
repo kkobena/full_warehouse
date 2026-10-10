@@ -1,0 +1,37 @@
+<app-offcanvas [(visible)]="visible" width="460px">
+  <div appOffcanvasHeader class="d-flex align-items-center gap-2">
+    <i aria-hidden="true" class="pi pi-bookmark"></i>
+    <h2 class="fs-5 fw-bold mb-0">{{ modele()?.id ? 'Modifier le modèle' : 'Nouveau modèle' }}</h2>
+  </div>
+  <form (ngSubmit)="enregistrer()" class="d-flex flex-column gap-3">
+    <label class="d-flex flex-column gap-1">
+      <span class="form-label mb-0">Nom</span>
+      <app-input [(ngModel)]="libelle" [maxlength]="100" [required]="true" name="libelle" />
+    </label>
+    <app-select (selectionChange)="choisir(export.set, $event)" [clearable]="false" [items]="exports()" [ngModel]="export()" ariaLabel="Export" bindLabel="libelle"
+                bindValue="code" inputId="modeleExport" name="export" placeholder="Export…" />
+    <app-pill-selector (selectionChange)="choisir(format.set, $event)" [items]="formats" [ngModel]="format()" ariaLabel="Format" name="format" />
+    @if (periodique()) {
+      <app-select (selectionChange)="choisir(periode.set, $event)" [clearable]="false" [items]="periodes" [ngModel]="periode()" [searchable]="false"
+                  ariaLabel="Période, recalculée à chaque exécution" bindLabel="libelle" bindValue="valeur" inputId="modelePeriode" name="periode" />
+    }
+    <app-checkbox [(ngModel)]="partage" label="Partager avec l'équipe" name="partage" />
+
+    <fieldset class="d-flex flex-column gap-2">
+      <legend class="fs-6 fw-semibold mb-1">Programmation</legend>
+      <app-select (selectionChange)="choisir(frequence.set, $event)" [clearable]="false" [items]="frequences" [ngModel]="frequence()" [searchable]="false"
+                  ariaLabel="Fréquence" bindLabel="libelle" bindValue="valeur" inputId="modeleFrequence" name="frequence" />
+      @if (frequence()) {
+        @if (frequence() !== 'DAILY') {
+          <app-select (selectionChange)="choisir(jour.set, $event)" [clearable]="false" [items]="jours()" [ngModel]="jour()" [searchable]="false" ariaLabel="Jour"
+                      bindLabel="libelle" bindValue="valeur" inputId="modeleJour" name="jour" />
+        }
+        <app-select (selectionChange)="choisir(heure.set, $event)" [clearable]="false" [items]="heures" [ngModel]="heure()" [searchable]="false" ariaLabel="Heure"
+                    bindLabel="libelle" bindValue="valeur" inputId="modeleHeure" name="heure" />
+        <p class="small text-muted mb-0">Le fichier arrive dans l'historique de l'auteur du modèle. Poste éteint à l'heure dite : il part au démarrage suivant.</p>
+      }
+    </fieldset>
+
+    <app-button [disabled]="!valide()" icon="pi pi-check" label="Enregistrer" type="submit" />
+  </form>
+</app-offcanvas>

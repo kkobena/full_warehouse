@@ -1,0 +1,66 @@
+<div class="barre-periode" role="group" aria-label="Période et comparaison">
+  <app-select
+    (selectionChange)="choisirPeriode($event)"
+    [clearable]="false"
+    [items]="periodes"
+    [ngModel]="requete().predefinie"
+    [searchable]="false"
+    ariaLabel="Période"
+    bindLabel="libelle"
+    bindValue="valeur"
+    inputId="pilotagePeriode"
+  />
+
+  @if (requete().predefinie === 'PERSONNALISEE') {
+    <pharma-date-picker (selectionChange)="choisirDu($event)" [ngModel]="du()" id="pilotageDu" label="Du" />
+    <pharma-date-picker (selectionChange)="choisirAu($event)" [ngModel]="au()" id="pilotageAu" label="Au" />
+  }
+
+  <app-select
+    (selectionChange)="choisirComparaison($event)"
+    [clearable]="false"
+    [items]="comparaisons()"
+    [ngModel]="requete().comparaison"
+    [searchable]="false"
+    ariaLabel="Comparer à"
+    bindLabel="libelle"
+    bindValue="valeur"
+    inputId="pilotageComparaison"
+  />
+
+  @if (requete().comparaison === 'ANNEE_N_MOINS_K') {
+    <app-select
+      (selectionChange)="choisirAnnees($event)"
+      [clearable]="false"
+      [items]="annees"
+      [ngModel]="requete().anneesEnArriere"
+      [searchable]="false"
+      ariaLabel="Année de comparaison"
+      bindLabel="libelle"
+      bindValue="valeur"
+      inputId="pilotageAnnees"
+    />
+  }
+
+  <app-checkbox
+    (ngModelChange)="choisirADate($event)"
+    [ngModel]="requete().aDate"
+    [openDelay]="400"
+    container="body"
+    label="À date"
+    ngbTooltip="Une période entamée s'arrête à aujourd'hui, et la référence au même jour : on compare des durées égales."
+    placement="bottom"
+  />
+
+  <app-select
+    (selectionChange)="choisirGranularite($event)"
+    [clearable]="false"
+    [items]="granularites"
+    [ngModel]="requete().granularite"
+    [searchable]="false"
+    ariaLabel="Découpage"
+    bindLabel="libelle"
+    bindValue="valeur"
+    inputId="pilotageGranularite"
+  />
+</div>

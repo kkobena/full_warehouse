@@ -27,10 +27,9 @@
       <th class="text-end">Dossiers</th>
       <th class="text-end">Montant brut</th>
       <th class="text-end">Remise vente</th>
-      <th class="text-end">Remise forfait.</th>
       <th class="text-end">Montant net</th>
-      <th class="text-end">Réglé</th>
-      <th class="text-end">Restant</th>
+      <th class="text-end">Montant Réglé</th>
+      <th class="text-end">Montant Restant</th>
       <th>Statut</th>
       <th>Date édition</th>
       <th style="width: 4rem"></th>
@@ -52,8 +51,6 @@
       <td class="text-end"><span class="pharma-price">{{ facture.montant | number }}</span></td>
       <td class="text-end"><span
         class="pharma-price">{{ facture.montantRemiseVente | number }}</span></td>
-      <td class="text-end"><span class="pharma-price">{{ facture.remiseForfetaire | number }}</span>
-      </td>
       <td class="text-end"><span class="pharma-price">{{ facture.montantNet | number }}</span></td>
       <td class="text-end"><span class="pharma-price">{{ facture.montantRegle | number }}</span>
       </td>

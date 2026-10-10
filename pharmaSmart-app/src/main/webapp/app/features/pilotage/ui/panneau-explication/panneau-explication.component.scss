@@ -1,0 +1,47 @@
+// Mise en page ; les couleurs viennent des jetons du thème.
+.panneau-explication-resume {
+  margin-bottom: 1rem;
+}
+
+.panneau-explication-axe {
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--pharma-border);
+  border-radius: 0.375rem;
+
+  &--propose {
+    border-color: var(--p-primary-color);
+    border-width: 2px;
+  }
+}
+
+.panneau-explication-titre {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.panneau-explication-propose {
+  display: inline-block;
+  margin-left: 0.25rem;
+  padding: 0 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--p-primary-color);
+  border: 1px solid currentColor;
+  border-radius: 1rem;
+}
+
+.panneau-explication-liste {
+  margin: 0 0 0.5rem;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.15rem 0;
+    font-size: 0.85rem;
+  }
+}

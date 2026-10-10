@@ -1,0 +1,74 @@
+<section aria-labelledby="rentabilite-demarque" class="section-onglet">
+  <h3 class="section-titre" id="rentabilite-demarque">Démarque</h3>
+  <p class="section-note">Ajustements de sortie clôturés (périmés, casse, vol…), valorisés au prix d'achat actuel, comme le rapport de démarque.</p>
+
+  @if (demarque.error()) {
+    <p class="text-danger" role="alert">La démarque n'a pas pu être chargée.</p>
+  }
+
+  @if (demarque.value(); as d) {
+    <app-kpi-strip>
+      <app-kpi-item [value]="d.valeur.valeur | valeurIndicateur: 'MONTANT'" label="Valeur perdue">
+        <ng-container ngProjectAs="[kpiSub]">
+          @if (d.valeur.valeurReference !== null) {
+            <app-variation [ecartPct]="d.valeur.ecartPct" [ecart]="d.valeur.ecart" sensFavorable="BAISSE" unite="MONTANT" />
+          }
+        </ng-container>
+      </app-kpi-item>
+      <app-kpi-item [value]="d.partDuCa.valeur | valeurIndicateur: 'POURCENTAGE'" label="En % du CA TTC">
+        <ng-container ngProjectAs="[kpiSub]">
+          @if (d.partDuCa.valeurReference !== null) {
+            <app-variation [ecart]="d.partDuCa.ecart" sensFavorable="BAISSE" unite="POURCENTAGE" />
+          }
+        </ng-container>
+      </app-kpi-item>
+    </app-kpi-strip>
+
+    <div class="section-grille">
+      <app-card header="Par motif" icon="pi pi-tags">
+        <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="d.parMotif" emptyMessage="Aucune démarque sur la période" size="small">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th scope="col">Motif</th>
+              <th class="text-end" scope="col">Quantité</th>
+              <th class="text-end" scope="col">Valeur</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-motif>
+            <tr>
+              <th scope="row">{{ motif.libelle }}</th>
+              <td class="text-end">{{ motif.quantite | valeurIndicateur: 'NOMBRE' }}</td>
+              <td class="text-end">
+                <div>{{ motif.valeur.valeur | valeurIndicateur: 'MONTANT' : true }}</div>
+                @if (motif.valeur.valeurReference !== null) {
+                  <app-variation [ecartPct]="motif.valeur.ecartPct" [ecart]="motif.valeur.ecart" sensFavorable="BAISSE" unite="MONTANT" />
+                }
+              </td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </app-card>
+
+      <app-card header="Produits les plus touchés" icon="pi pi-box">
+        <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="d.produits" emptyMessage="Aucune démarque sur la période" size="small">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th scope="col">Produit</th>
+              <th class="text-end" scope="col">Quantité</th>
+              <th class="text-end" scope="col">Valeur</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-produit>
+            <tr>
+              <th scope="row">{{ produit.libelle }}</th>
+              <td class="text-end">{{ produit.quantite | valeurIndicateur: 'NOMBRE' }}</td>
+              <td class="text-end">{{ produit.valeur | valeurIndicateur: 'MONTANT' : true }}</td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </app-card>
+    </div>
+  } @else if (demarque.isLoading()) {
+    <p aria-live="polite" class="text-muted">Calcul de la démarque…</p>
+  }
+</section>

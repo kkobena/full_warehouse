@@ -22,7 +22,7 @@
 -- 90 jours respectée par construction).
 --
 -- init_stock / after_stock des lignes (de vente comme d'achat) ne sont pas posés
--- ici : 16_mouvements.sql les déduit du grand livre des mouvements, qui est la
+-- ici : 24_mouvements.sql les déduit du grand livre des mouvements, qui est la
 -- seule source qui puisse les rendre cohérents avec le stock courant.
 -- ============================================================================
 
@@ -180,7 +180,7 @@ INSERT INTO order_line (
 SELECT o.id, o.order_date, o.commande_id, o.order_date,
        o.fp_id, o.tva_id,
        o.quantity_requested, o.quantity_received, 0, 0,
-       0, NULL,                       -- recalés par 16_mouvements.sql
+       0, NULL,                       -- recalés par 24_mouvements.sql
        o.prix_uni, o.prix_achat,
        0, 0,
        (o.quantity_received * o.prix_achat

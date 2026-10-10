@@ -1,0 +1,212 @@
+<section aria-labelledby="titreAnalyser" class="analyser">
+  <h2 class="visually-hidden" id="titreAnalyser">Analyser</h2>
+
+  <div aria-label="Réglage de l'analyse" class="analyser-reglage" role="group">
+    <div class="analyser-vues">
+      <app-select
+        (selectionChange)="choisirVue($event)"
+        [items]="vuesGroupees()"
+        [loading]="vues.isLoading()"
+        [ngModel]="vueChoisie()"
+        ariaLabel="Vue enregistrée"
+        bindLabel="libelle"
+        bindValue="id"
+        class="analyser-vue"
+        groupBy="groupe"
+        inputId="pilotageVue"
+        placeholder="Vues enregistrées…"
+        [style]="{ 'min-width': '280px' }"
+      />
+      <app-button
+        (clicked)="panneauVueVisible.set(true)"
+        [ngbTooltip]="vueModifiable() ? infobulleModifierVue : infobulleEnregistrerVue"
+        [openDelay]="300"
+        [outlined]="true"
+        container="body"
+        icon="pi pi-bookmark"
+        label="Enregistrer la vue"
+        placement="bottom"
+        size="small"
+      />
+      @if (vueModifiable(); as vue) {
+        <app-button
+          (clicked)="supprimerVue(vue)"
+          [openDelay]="300"
+          [outlined]="true"
+          container="body"
+          icon="pi pi-trash"
+          label="Supprimer la vue"
+          ngbTooltip="Supprime « {{ vue.libelle }} » de vos vues ; l'analyse affichée reste à l'écran."
+          placement="bottom"
+          severity="danger"
+          size="small"
+        />
+      }
+      <app-button
+        (clicked)="basculerAide()"
+        [label]="aideVisible() ? 'Masquer l\'aide' : 'Comment ça marche ?'"
+        [text]="true"
+        class="analyser-bouton-aide"
+        icon="pi pi-question-circle"
+        size="small"
+      />
+    </div>
+
+    @if (aideVisible()) {
+      <aside aria-label="Aide de l'onglet Analyser" class="analyser-aide">
+        <ol>
+          <li><strong>Choisissez quoi mesurer.</strong> Un à trois indicateurs ; le premier pilote le graphique, la part et la contribution.</li>
+          <li><strong>Ventilez.</strong> « Ventiler par » découpe les chiffres (famille, rayon, fournisseur…) ; « Puis par » ajoute un second découpage, lu dans l'affichage <em>Croisé</em>.</li>
+          <li>
+            <strong>Descendez.</strong> Avec <i aria-hidden="true" class="pi pi-arrow-down-right"></i> sur une ligne du tableau (famille, puis produit, puis ses ventes
+            <i aria-hidden="true" class="pi pi-list"></i>) ; le fil au-dessus du graphique permet de remonter.
+          </li>
+          <li>
+            <strong>Comprenez un écart.</strong> Avec <i aria-hidden="true" class="pi pi-question-circle"></i> : le panneau montre ce qui porte la hausse ou la baisse
+            de l'élément, et propose de le ventiler par l'axe le plus explicatif.
+          </li>
+          <li><strong>Gardez le réglage.</strong> Avec « Enregistrer la vue » ; la période et la comparaison restent celles de la barre du haut.</li>
+        </ol>
+      </aside>
+    }
+
+    <div class="analyser-champs">
+      <app-form-field class="analyser-champ analyser-champ--large" fieldId="pilotageIndicateurs" label="Indicateurs (1 à 3)">
+        <app-multi-select
+          (selectionChange)="choisirIndicateurs($event)"
+          [items]="indicateurs.value() ?? []"
+          [maxSelectedItems]="3"
+          [ngModel]="reglage().indicateurs"
+          ariaLabel="Indicateurs (1 à 3)"
+          bindLabel="libelle"
+          bindValue="code"
+          inputId="pilotageIndicateurs"
+          placeholder="Indicateurs"
+        />
+      </app-form-field>
+      <app-form-field class="analyser-champ" fieldId="pilotageAxe" label="Ventiler par">
+        <app-select
+          (selectionChange)="choisirAxe($event)"
+          [clearable]="false"
+          [items]="axes.value() ?? []"
+          [ngModel]="reglage().axe"
+          ariaLabel="Ventiler par"
+          bindLabel="libelle"
+          bindValue="code"
+          inputId="pilotageAxe"
+        />
+      </app-form-field>
+      <app-form-field class="analyser-champ" fieldId="pilotageAxe2" label="Puis par">
+        <app-select
+          (selectionChange)="choisirAxe2($event)"
+          [clearable]="true"
+          [items]="axesCroisables()"
+          [ngModel]="reglage().axe2"
+          ariaLabel="Puis par"
+          bindLabel="libelle"
+          bindValue="code"
+          inputId="pilotageAxe2"
+          placeholder="Aucun"
+        />
+      </app-form-field>
+      <app-form-field class="analyser-champ analyser-champ--etroit" fieldId="pilotageTop" label="Éléments">
+        <app-select (selectionChange)="choisirTop($event)" [clearable]="false" [items]="tops" [ngModel]="reglage().top" [searchable]="false"
+                    ariaLabel="Nombre d'éléments" bindLabel="libelle" bindValue="valeur" inputId="pilotageTop" />
+      </app-form-field>
+      <app-form-field class="analyser-champ" fieldId="pilotageTri" label="Trier par">
+        <app-select (selectionChange)="choisirTri($event)" [clearable]="false" [items]="tris" [ngModel]="reglage().tri" [searchable]="false" ariaLabel="Trier par"
+                    bindLabel="libelle" bindValue="valeur" inputId="pilotageTri" />
+      </app-form-field>
+      <app-form-field class="analyser-champ analyser-champ--affichage" label="Affichage">
+        <app-pill-selector (selectionChange)="choisirAffichage($event)" [items]="affichages" [ngModel]="reglage().affichage" ariaLabel="Affichage" />
+      </app-form-field>
+    </div>
+  </div>
+
+  @if (reglage().chemin.length) {
+    <app-fil-descente (remonter)="remonter($event)" [chemin]="reglage().chemin" />
+  }
+
+  @if (erreur(); as message) {
+    <p class="text-danger" role="alert">{{ message }}</p>
+  }
+
+  @if (donnees.value(); as analyse) {
+    @if (analyse.indicateursIgnores.length) {
+      <p class="analyser-note" role="status">
+        Non ventilable par {{ analyse.axe.libelle.toLowerCase() }} :
+        @for (indicateur of analyse.indicateursIgnores; track indicateur.code; let dernier = $last) {
+          {{ indicateur.libelle }}{{ dernier ? '.' : ', ' }}
+        }
+      </p>
+    }
+
+    @switch (reglage().affichage) {
+      @case ('BARRES') {
+        <app-card [header]="analyse.indicateurs[0].libelle + ' par ' + analyse.axe.libelle.toLowerCase()" icon="pi pi-chart-bar">
+          <app-graphique-analyse [analyse]="analyse" affichage="BARRES" />
+        </app-card>
+      }
+      @case ('COURBE') {
+        <app-card [header]="analyse.indicateurs[0].libelle + ' — ' + horizonCourbe()" icon="pi pi-chart-line">
+          @if (courbe.value(); as evolution) {
+            <app-graphique-analyse [analyse]="evolution" affichage="COURBE" />
+          } @else if (courbe.isLoading()) {
+            <p aria-live="polite" class="text-muted mb-0">Calcul de la courbe…</p>
+          } @else if (courbe.error()) {
+            <p class="text-danger mb-0" role="alert">La courbe n'a pas pu être calculée.</p>
+          }
+        </app-card>
+      }
+      @case ('CROISE') {
+        <app-card [header]="analyse.indicateurs[0].libelle + ' : tableau croisé'" icon="pi pi-th-large">
+          @if (analyse.croise) {
+            <app-croise-analyse [avecReference]="!!analyse.comparaison.reference" [croise]="analyse.croise" [entete]="analyse.axe.libelle + ' / ' + analyse.axe2?.libelle"
+                                [indicateur]="analyse.indicateurs[0]" />
+          } @else {
+            <p class="text-muted mb-0">Choisissez une seconde ventilation (« Puis par ») pour croiser.</p>
+          }
+        </app-card>
+      }
+    }
+
+    <app-card [header]="'Détail par ' + analyse.axe.libelle.toLowerCase()" icon="pi pi-table">
+      @if (peutExporter()) {
+        <app-button (clicked)="exporter(analyse)" [disabled]="!analyse.elements.length" [outlined]="true" cardActions icon="pi pi-download" label="Exporter (CSV)"
+                    size="small" />
+      }
+      <app-tableau-analyse
+        (descendre)="descendre($event, analyse)"
+        (expliquer)="expliquer($event)"
+        (voirVentes)="voirVentes($event)"
+        [analyse]="analyse"
+        [loading]="donnees.isLoading()"
+        [peutVoirVentes]="peutVoirVentes()"
+      />
+    </app-card>
+  } @else if (donnees.isLoading()) {
+    <p aria-live="polite" class="text-muted">Calcul de l'analyse…</p>
+  }
+</section>
+
+<app-panneau-explication
+  (ventilerPar)="ventilerElementExplique($event)"
+  (visibleChange)="explicationVisible.set($event)"
+  [erreur]="!!explication.error()"
+  [explication]="explication.value()"
+  [libelleElement]="elementExplique()?.libelle ?? ''"
+  [loading]="explication.isLoading()"
+  [visible]="explicationVisible()"
+/>
+
+<app-panneau-ventes-produit (visibleChange)="ventesVisibles.set($event)" [au]="requete().au" [du]="requete().du" [produit]="produitDetaille()" [visible]="ventesVisibles()" />
+
+<app-panneau-vue
+  (enregistrement)="enregistrerVue($event)"
+  (visibleChange)="panneauVueVisible.set($event)"
+  [libellesAxes]="libellesAxes()"
+  [libellesIndicateurs]="libellesIndicateurs()"
+  [reglage]="reglage()"
+  [vueModifiee]="vueModifiable()"
+  [visible]="panneauVueVisible()"
+/>

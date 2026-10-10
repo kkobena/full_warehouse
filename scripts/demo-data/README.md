@@ -132,7 +132,7 @@ ans ; `-v horizon=730` pour deux ans). Deux zones, deux modèles de stock :
 - **au-delà**, `09b_histo_achats.sql` *déduit* les achats des ventes : chaque mois d'achat couvre
   exactement la demande du mois suivant. Le stock ne passe jamais sous zéro, achats et ventes se
   recoupent produit par produit, et chaque ligne vendue pointe son lot (reçu avant la vente).
-  `16_mouvements.sql` en tire le stock avant / après des lignes anciennes.
+  `24_mouvements.sql` en tire le stock avant / après de chaque pièce.
 
 Le stock d'ouverture de la fenêtre récente (lots `LOUV…`, posés par `06`) est rattaché par `09b`
 aux achats du dernier mois de l'historique : pas de creux d'achats à la jointure.
@@ -186,7 +186,8 @@ la fenêtre récente.
 | `13_consommations.sql` | Cumuls mensuels par contrat et par organisme. |
 | `14_facturation.sql` | Factures tiers-payant mensuelles par organisme. |
 | `15_reference.sql` | Compteurs de numérotation par jour et par type. |
-| `16_mouvements.sql` | Historique des mouvements produit. |
+| `24_mouvements.sql` | Journal des mouvements (tous types), inventaires d'ouverture et annuel, photos de stock. En dernier. |
+| `25_objectifs_pilotage.sql` | Objectifs mensuels du pilotage (CA TTC, marge, taux de marge, taux de remise), années N et N-1. |
 | `99_verification.sql` | Contrôles d'intégrité. Sort en erreur si un invariant est violé. |
 | `run_all.sql` | Enchaîne le tout. |
 

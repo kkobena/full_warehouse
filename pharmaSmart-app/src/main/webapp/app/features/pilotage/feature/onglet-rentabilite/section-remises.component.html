@@ -1,0 +1,72 @@
+<section aria-labelledby="rentabilite-remises" class="section-onglet">
+  <div class="section-entete">
+    <h3 class="section-titre" id="rentabilite-remises">Remises</h3>
+    <app-button (clicked)="analyserLesRemises()" [outlined]="true" icon="pi pi-chart-scatter" label="Ventiler les remises (famille, produit, tranche…)" size="small" />
+  </div>
+
+  @if (remises.error()) {
+    <p class="text-danger" role="alert">Les remises n'ont pas pu être chargées.</p>
+  }
+
+  <app-tuiles-cellules [loading]="remises.isLoading()" [tuiles]="tuiles()" />
+
+  @if (remises.value(); as r) {
+    <div class="section-grille">
+      <app-card [header]="'Remises accordées — ' + horizon()" icon="pi pi-chart-line">
+        @if (serie(); as s) {
+          <app-courbe-indicateur [requete]="requete()" [serie]="s" />
+        }
+      </app-card>
+      <app-card header="Comment elles sont accordées" icon="pi pi-key">
+        <app-tableau-remises [lignes]="r.octrois" entete="Octroi" />
+      </app-card>
+    </div>
+
+    <app-card header="Par tranche de remise" icon="pi pi-sliders-h">
+      <p class="section-note">À partir de quelle tranche la marge devient-elle faible ? La marge se lit sur les lignes des ventes de chaque tranche.</p>
+      <app-tableau-remises [lignes]="r.tranches" entete="Tranche" />
+    </app-card>
+
+    @if (r.vendeurs; as vendeurs) {
+      <app-card header="Par vendeur" icon="pi pi-users">
+        <app-tableau-remises [avecAlerte]="true" [lignes]="vendeurs" [multipleAlerte]="r.multipleAlerte" entete="Vendeur" />
+      </app-card>
+    }
+
+    <app-card header="Plus fortes remises" icon="pi pi-sort-amount-down">
+      <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="r.plusFortesRemises" emptyMessage="Aucune remise sur la période" size="small">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th scope="col">Date</th>
+            <th scope="col">Vente</th>
+            <th scope="col">Vendeur</th>
+            <th class="text-end" scope="col">Montant</th>
+            <th class="text-end" scope="col">Remise</th>
+            <th class="text-end" scope="col">Taux <app-aide texte="Remise / montant de la vente. Signalé au-delà du multiple d'alerte du taux moyen des ventes remisées." /></th>
+            <th scope="col">Autorisée par</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-vente>
+          <tr>
+            <td>{{ vente.saleDate | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ vente.numero }}</td>
+            <td>{{ vente.vendeur ?? '—' }}</td>
+            <td class="text-end">{{ vente.montant | valeurIndicateur: 'MONTANT' : true }}</td>
+            <td class="text-end">{{ vente.remise | valeurIndicateur: 'MONTANT' : true }}</td>
+            <td class="text-end">
+              @if (estExcessif(vente.taux, tauxRemisees(), r.multipleAlerte)) {
+                <span [title]="'Plus de ' + r.multipleAlerte + ' fois le taux moyen des ventes remisées'" class="taux-remise taux-remise--excessif">
+                  <app-badge [label]="vente.taux | valeurIndicateur: 'POURCENTAGE'" icon="pi pi-exclamation-triangle" severity="warn" />
+                  <span class="visually-hidden">, plus de {{ r.multipleAlerte }} fois le taux moyen des ventes remisées</span>
+                </span>
+              } @else {
+                <span class="taux-remise">{{ vente.taux | valeurIndicateur: 'POURCENTAGE' }}</span>
+              }
+            </td>
+            <td>{{ vente.autorisePar ?? 'Privilège du vendeur' }}</td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </app-card>
+  }
+</section>

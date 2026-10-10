@@ -1,0 +1,143 @@
+// Mise en page seulement : couleurs et cadres viennent des composants du Design System et des jetons du thème.
+.analyser {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+// Le réglage, posé sur la surface du thème : vues en tête, puis les champs, chacun nommé.
+.analyser-reglage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem 0.75rem;
+  border: 1px solid var(--pharma-surface-border);
+  border-radius: var(--pharma-surface-radius);
+  background: var(--pharma-surface);
+}
+
+.analyser-vues {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--pharma-border);
+}
+
+.analyser-vue {
+  min-width: 16rem;
+}
+
+.analyser-bouton-aide {
+  margin-left: auto;
+}
+
+.analyser-aide {
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--pharma-surface-border);
+  border-left: 4px solid var(--pharma-chrome-tab);
+  border-radius: var(--pharma-surface-radius);
+  background: var(--pharma-surface-alt);
+  color: var(--pharma-text);
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.5;
+
+  ol {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    gap: 0.5rem 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: etape;
+  }
+
+  // Étape numérotée en pastille : le numéro se lit d'un coup d'œil, le texte garde toute sa largeur.
+  li {
+    position: relative;
+    padding-left: 2rem;
+    counter-increment: etape;
+
+    &::before {
+      content: counter(etape);
+      position: absolute;
+      top: 0.1rem;
+      left: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.4rem;
+      height: 1.4rem;
+      border-radius: 50%;
+      background: var(--pharma-chrome-tab);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+  }
+
+  strong {
+    font-weight: 700;
+    color: var(--pharma-text);
+  }
+
+  .pi {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--pharma-chrome-tab);
+  }
+}
+
+// Champs : une grille souple, libellé au-dessus de chaque contrôle ; la marge basse d'app-form-field est faite pour un formulaire.
+.analyser-champs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem 0.75rem;
+}
+
+.analyser-champ {
+  flex: 1 1 10rem;
+  min-width: 10rem;
+  max-width: 15rem;
+
+  &--large {
+    flex: 2 1 20rem;
+    max-width: 30rem;
+
+    // Trois indicateurs au plus : leurs puces ont la place d'un libellé entier (« Chiffre d'affaires TTC »), au lieu de 9rem.
+    ::ng-deep .ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value:not(.ng-value-plus) {
+      max-width: 13rem;
+    }
+  }
+
+  &--etroit {
+    flex: 0 1 8rem;
+    min-width: 8rem;
+  }
+
+  &--affichage {
+    flex: 0 0 auto;
+    max-width: none;
+  }
+
+  ::ng-deep .form-field {
+    gap: 0.15rem;
+    margin-bottom: 0;
+  }
+
+  ::ng-deep .form-field-label {
+    margin-bottom: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--pharma-text-muted);
+  }
+}
+
+.analyser-note {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--pharma-text-muted);
+}

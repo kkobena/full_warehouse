@@ -1,0 +1,119 @@
+<section aria-labelledby="titreTableauDeBord" class="tableau-de-bord">
+  <h2 class="visually-hidden" id="titreTableauDeBord">Tableau de bord</h2>
+
+  @if (contexte()) {
+    <p class="tableau-de-bord-contexte"><i aria-hidden="true" class="pi pi-calendar"></i>{{ contexte() }}</p>
+  }
+
+  <app-bandeau-alertes [alertes]="alertes.value() ?? []" />
+
+  @if (donnees.error()) {
+    <p class="text-danger" role="alert">Les chiffres du pilotage n'ont pas pu être chargés.</p>
+  }
+
+  <app-kpi-strip [loading]="donnees.isLoading()" [skeletonCount]="8">
+    @for (tuile of tuiles(); track tuile.principal.indicateur.code) {
+      <app-kpi-item [label]="tuile.principal.indicateur.libelle" [value]="tuile.principal.valeur | valeurIndicateur: tuile.principal.indicateur.unite"
+                    [info]="tuile.principal.indicateur.definition">
+        <ng-container ngProjectAs="[kpiSub]">
+          <app-variation [ecart]="tuile.principal.ecart" [ecartPct]="tuile.principal.ecartPct" [sensFavorable]="tuile.principal.indicateur.sensFavorable"
+                         [unite]="tuile.principal.indicateur.unite" />
+          @if (tuile.secondaire; as secondaire) {
+            <span class="tableau-de-bord-secondaire">{{ secondaire.indicateur.libelle }} : {{ secondaire.valeur | valeurIndicateur: secondaire.indicateur.unite }}</span>
+          }
+          @if (tuile.principal.objectif != null && !contreObjectif()) {
+            <span class="tableau-de-bord-secondaire">Objectif : {{ tuile.principal.objectif | valeurIndicateur: tuile.principal.indicateur.unite }}</span>
+          }
+          @if (afficherProjection(tuile.principal); as projection) {
+            <span class="tableau-de-bord-secondaire">
+              Fin de mois projetée : {{ projection.projection | valeurIndicateur: tuile.principal.indicateur.unite }}
+              @if (projection.atteinteProjetee != null) {
+                ({{ projection.atteinteProjetee | valeurIndicateur: 'POURCENTAGE' }} de l'objectif)
+              }
+              <app-aide [texte]="projection.methode" />
+            </span>
+          }
+        </ng-container>
+      </app-kpi-item>
+    }
+  </app-kpi-strip>
+
+  <div class="tableau-de-bord-grille">
+    <app-card [header]="'Chiffre d\'affaires TTC — ' + horizon()" icon="pi pi-chart-line">
+      @if (serieCa(); as serie) {
+        <app-courbe-indicateur [contreObjectif]="contreObjectif()" [requete]="requete()" [serie]="serie" hauteur="280" />
+      }
+    </app-card>
+
+    <app-card header="Ce qui a bougé" icon="pi pi-bolt">
+      @if (ecarts(); as e) {
+        @if (effets().length) {
+          <h3 class="tableau-de-bord-sous-titre">
+            Écart de CA :
+            <span [class]="classerMontant(e.ca - e.caReference)"><span aria-hidden="true">{{ e.ca > e.caReference ? '▲' : e.ca < e.caReference ? '▼' : '' }} </span>{{ formaterMontant(e.ca - e.caReference) }}</span>
+          </h3>
+          <ul class="tableau-de-bord-liste">
+            @for (effet of effets(); track effet.libelle) {
+              <li><span>{{ effet.libelle }}</span><strong [class]="classerMontant(effet.valeur)"><span aria-hidden="true">{{ effet.valeur > 0 ? '▲' : effet.valeur < 0 ? '▼' : '' }} </span>{{ formaterMontant(effet.valeur) }}</strong></li>
+            }
+          </ul>
+        } @else {
+          <p class="text-muted mb-2">Pas de référence comparable pour expliquer l'écart.</p>
+        }
+
+        <div class="tableau-de-bord-contributions">
+          <div>
+            <h3 class="tableau-de-bord-sous-titre">Plus fortes hausses</h3>
+            <ul class="tableau-de-bord-liste">
+              @for (c of e.hausses; track c.axe + c.cle) {
+                <li><span>{{ c.libelle }} <small class="text-muted">({{ c.libelleAxe }})</small></span><strong [class]="classerMontant(c.ecart)"><span aria-hidden="true">{{ c.ecart > 0 ? '▲' : c.ecart < 0 ? '▼' : '' }} </span>{{ formaterMontant(c.ecart) }}</strong></li>
+              } @empty {
+                <li class="text-muted">Aucune</li>
+              }
+            </ul>
+          </div>
+          <div>
+            <h3 class="tableau-de-bord-sous-titre">Plus fortes baisses</h3>
+            <ul class="tableau-de-bord-liste">
+              @for (c of e.baisses; track c.axe + c.cle) {
+                <li><span>{{ c.libelle }} <small class="text-muted">({{ c.libelleAxe }})</small></span><strong [class]="classerMontant(c.ecart)"><span aria-hidden="true">{{ c.ecart > 0 ? '▲' : c.ecart < 0 ? '▼' : '' }} </span>{{ formaterMontant(c.ecart) }}</strong></li>
+              } @empty {
+                <li class="text-muted">Aucune</li>
+              }
+            </ul>
+          </div>
+        </div>
+      }
+    </app-card>
+  </div>
+
+  <app-card header="Détail par période" icon="pi pi-table">
+    @if (peutExporter()) {
+      <app-button (clicked)="exporter()" [disabled]="!lignes().length" [outlined]="true" cardActions icon="pi pi-download" label="Exporter (CSV)"
+                  size="small" />
+    }
+    <app-data-table [scrollable]="true" scrollHeight="22rem" [loading]="donnees.isLoading()" [stripedRows]="true" [value]="lignes()" emptyMessage="Aucune vente sur la période" size="small">
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th scope="col">Période</th>
+          @for (serie of colonnes(); track serie.indicateur.code) {
+            <th [title]="serie.indicateur.definition" class="text-end" scope="col">{{ serie.indicateur.libelle }}</th>
+          }
+        </tr>
+      </ng-template>
+      <ng-template #body let-ligne>
+        <tr>
+          <th scope="row">{{ ligne.point.libelle }}</th>
+          @for (serie of colonnes(); track serie.indicateur.code) {
+            <td class="text-end">
+              @if (point(serie, ligne.rang); as p) {
+                <div>{{ p.valeur | valeurIndicateur: serie.indicateur.unite }}</div>
+                <app-variation [ecart]="p.ecart" [ecartPct]="p.ecartPct" [sensFavorable]="serie.indicateur.sensFavorable" [unite]="serie.indicateur.unite" />
+              }
+            </td>
+          }
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </app-card>
+</section>

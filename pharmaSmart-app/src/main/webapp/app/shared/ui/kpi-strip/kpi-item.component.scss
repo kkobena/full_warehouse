@@ -71,6 +71,31 @@
   }
 }
 
+// Icône d'explication : un bouton (atteint au clavier) sans habillage, discret jusqu'au survol ou au focus.
+.kpi-strip-info {
+  display: inline-flex;
+  margin-left: 0.25rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--pharma-text-muted);
+  font-size: 0.8em;
+  line-height: 1;
+  vertical-align: middle;
+  cursor: help;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--pharma-chrome-tab);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--pharma-chrome-tab);
+    outline-offset: 2px;
+    border-radius: 50%;
+  }
+}
+
 // L'unité suit la valeur avec une espace, sans casser de ligne.
 .kpi-strip-suffix {
   margin-left: 0.25rem;

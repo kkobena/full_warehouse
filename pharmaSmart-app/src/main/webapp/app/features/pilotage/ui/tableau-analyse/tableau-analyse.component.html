@@ -1,0 +1,83 @@
+<app-data-table [scrollable]="true" scrollHeight="28rem" [paginator]="lignes().length > 25" [rows]="25" [loading]="loading()" [stripedRows]="true" [value]="lignes()" emptyMessage="Aucune vente sur ce périmètre" size="small">
+  <ng-template #header>
+    <tr class="pharma-table-head">
+      <th scope="col">{{ analyse().axe.libelle }}</th>
+      @for (indicateur of analyse().indicateurs; track indicateur.code) {
+        <th class="text-end" scope="col">
+          {{ indicateur.libelle }}
+          @if (indicateur.definition) {
+            <app-aide [texte]="indicateur.definition" />
+          }
+        </th>
+      }
+      @if (avecPart()) {
+        <th class="text-end" scope="col">Part <app-aide texte="Part de l'élément dans le total du premier indicateur." /></th>
+      }
+      @if (avecContribution()) {
+        <th class="text-end" scope="col">Contribution à l'écart <app-aide texte="Part de l'écart total (période moins référence) portée par l'élément ; négative s'il va à contre-sens." /></th>
+      }
+      <th scope="col"><span class="visually-hidden">Actions</span></th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-element>
+    <tr>
+      <th scope="row">{{ element.libelle }}</th>
+      @for (indicateur of analyse().indicateurs; track indicateur.code; let rang = $index) {
+        <td class="text-end">
+          <div class="tableau-analyse-valeur">{{ element.cellules[rang].valeur | valeurIndicateur: indicateur.unite : true }}</div>
+          @if (avecReference()) {
+            <app-variation [ecartPct]="element.cellules[rang].ecartPct" [ecart]="element.cellules[rang].ecart" [sensFavorable]="indicateur.sensFavorable"
+                           [unite]="indicateur.unite" />
+          }
+        </td>
+      }
+      @if (avecPart()) {
+        <td class="text-end">{{ formaterPart(element.part) }}</td>
+      }
+      @if (avecContribution()) {
+        <td class="text-end">{{ formaterPart(element.contribution) }}</td>
+      }
+      <td>
+        @if (element.cle !== null && filtrable()) {
+          <div class="tableau-analyse-actions">
+            @if (axeSuivant()) {
+              <app-button (clicked)="descendre.emit(element)" [ariaLabel]="'Détailler ' + element.libelle" [iconOnly]="true" [openDelay]="300" [text]="true"
+                          container="body" icon="pi pi-arrow-down-right" ngbTooltip="Détailler : ventiler cet élément au niveau suivant" placement="left" size="small" />
+            } @else if (estProduit() && peutVoirVentes()) {
+              <app-button (clicked)="voirVentes.emit(element)" [ariaLabel]="'Ventes de ' + element.libelle" [iconOnly]="true" [openDelay]="300" [text]="true"
+                          container="body" icon="pi pi-list" ngbTooltip="Voir les ventes de ce produit sur la période" placement="left" size="small" />
+            }
+            @if (avecReference()) {
+              <app-button (clicked)="expliquer.emit(element)" [ariaLabel]="'Expliquer l\'écart de ' + element.libelle" [iconOnly]="true" [openDelay]="300"
+                          [text]="true" container="body" icon="pi pi-question-circle"
+                          ngbTooltip="Expliquer l'écart : ce qui, dans cet élément, porte la hausse ou la baisse" placement="left" size="small" />
+            }
+          </div>
+        }
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #footer>
+    <tr class="tableau-analyse-total">
+      <th scope="row">Total ({{ analyse().nombreElements }})</th>
+      @for (indicateur of analyse().indicateurs; track indicateur.code; let rang = $index) {
+        <td class="text-end">
+          <div class="tableau-analyse-valeur">{{ analyse().total[rang].valeur | valeurIndicateur: indicateur.unite : true }}</div>
+          @if (avecReference()) {
+            <app-variation [ecartPct]="analyse().total[rang].ecartPct" [ecart]="analyse().total[rang].ecart" [sensFavorable]="indicateur.sensFavorable"
+                           [unite]="indicateur.unite" />
+          }
+        </td>
+      }
+      @if (avecPart()) {
+        <td class="text-end">100 %</td>
+      }
+      @if (avecContribution()) {
+        <td class="text-end">100 %</td>
+      }
+      <td></td>
+    </tr>
+  </ng-template>
+</app-data-table>

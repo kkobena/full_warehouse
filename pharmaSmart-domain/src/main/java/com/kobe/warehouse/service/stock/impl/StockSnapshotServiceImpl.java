@@ -14,19 +14,26 @@ public class StockSnapshotServiceImpl implements StockSnapshotService {
 
     private static final Logger LOG = LoggerFactory.getLogger(StockSnapshotServiceImpl.class);
 
-    // DATE_TRUNC('day') + ON CONFLICT = idempotent : safe à appeler plusieurs fois le même jour.
+    // Datée à l'instant de la prise : le stock à une date T s'en déduit en ajoutant les mouvements postérieurs, qui ne
+    // doivent pas y figurer déjà. Une seule photo quotidienne par ligne de stock : idempotent sur la journée.
     private static final String SQL_DAILY_SNAPSHOT = """
         INSERT INTO stock_produit_snapshot
-            (produit_id, storage_id, snapshot_date, qty_stock, source_type)
+            (produit_id, storage_id, snapshot_date, qty_stock, qty_ug, source_type)
         SELECT sp.produit_id,
                sp.storage_id,
-               DATE_TRUNC('day', NOW()),
+               NOW(),
                sp.qty_stock,
+               sp.qty_ug,
                'BATCH_QUOTIDIEN'
         FROM stock_produit sp
         JOIN storage s ON s.id = sp.storage_id
         WHERE s.magasin_id = :magasinId
-        ON CONFLICT ON CONSTRAINT uq_snapshot_produit_storage_date DO NOTHING
+          AND NOT EXISTS (SELECT 1
+                          FROM stock_produit_snapshot sn
+                          WHERE sn.produit_id = sp.produit_id
+                            AND sn.storage_id = sp.storage_id
+                            AND sn.source_type = 'BATCH_QUOTIDIEN'
+                            AND sn.snapshot_date >= DATE_TRUNC('day', NOW()))
         """;
 
     private final EntityManager em;

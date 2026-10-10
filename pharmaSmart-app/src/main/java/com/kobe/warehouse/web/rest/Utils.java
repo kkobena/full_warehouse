@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,14 @@ public final class Utils {
 
     public static ResponseEntity<Resource> exportCsv(Resource resource, HttpServletRequest request) {
         return getDocument(resource, "text/csv", request);
+    }
+
+    /** CSV produit en mémoire, en pièce jointe ; {@code fileName} sans extension. */
+    public static ResponseEntity<byte[]> exportCsv(byte[] csvContent, String fileName) {
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+            .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(fileName + ".csv").build().toString())
+            .body(csvContent);
     }
 
     private static ResponseEntity<Resource> getDocument(Resource resource, String defaultContentType, HttpServletRequest request) {

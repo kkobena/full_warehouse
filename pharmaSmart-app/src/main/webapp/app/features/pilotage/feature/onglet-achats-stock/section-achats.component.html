@@ -1,0 +1,70 @@
+<section aria-labelledby="achats-stock-achats" class="section-onglet">
+  <h3 class="section-titre" id="achats-stock-achats">Achats</h3>
+  @if (achats.error()) {
+    <p class="text-danger" role="alert">Les achats n'ont pas pu être chargés.</p>
+  }
+  <app-tuiles-cellules [loading]="achats.isLoading()" [tuiles]="tuiles()" />
+
+  @if (achats.value(); as a) {
+    <div class="section-grille">
+      <app-card [header]="'Achats TTC — ' + horizon()" icon="pi pi-chart-line">
+        @if (serieAchats(); as s) {
+          <app-courbe-indicateur [requete]="requete()" [serie]="s" />
+        }
+      </app-card>
+      <app-card header="Par famille" icon="pi pi-sitemap">
+      <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="a.familles" emptyMessage="Aucun achat reçu sur la période" size="small">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th scope="col">Famille</th>
+            <th class="text-end" scope="col">Achats TTC</th>
+            <th class="text-end" scope="col">Part <app-aide texte="Part de la ligne dans les achats TTC de la période." /></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-ligne>
+          <tr>
+            <th scope="row">{{ ligne.libelle }}</th>
+            <td class="text-end">
+              <div>{{ ligne.montant.valeur | valeurIndicateur: 'MONTANT' : true }}</div>
+              @if (ligne.montant.valeurReference !== null) {
+                <app-variation [ecartPct]="ligne.montant.ecartPct" [ecart]="ligne.montant.ecart" sensFavorable="NEUTRE" unite="MONTANT" />
+              }
+            </td>
+            <td class="text-end">{{ ligne.part | valeurIndicateur: 'POURCENTAGE' }}</td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+      </app-card>
+    </div>
+    <app-card header="Par fournisseur" icon="pi pi-truck">
+      <p class="section-note">La remise de fin d'année (RFA) n'est pas suivie ici : le contrat fournisseur ne l'enregistre pas encore.</p>
+      <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="a.fournisseurs" emptyMessage="Aucun achat reçu sur la période" size="small">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th scope="col">Fournisseur</th>
+            <th class="text-end" scope="col">Achats TTC</th>
+            <th class="text-end" scope="col">Part <app-aide texte="Part de la ligne dans les achats TTC de la période." /></th>
+            <th class="text-end" scope="col">Bons <app-aide texte="Bons de livraison réceptionnés sur la période." /></th>
+            <th class="text-end" scope="col">Délai <app-aide texte="Jours moyens entre la commande et la réception, pondérés par les bons." /></th>
+            <th class="text-end" scope="col">Conformité <app-aide texte="Quantités reçues / quantités commandées." /></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-ligne>
+          <tr>
+            <th scope="row">{{ ligne.libelle }}</th>
+            <td class="text-end">
+              <div>{{ ligne.montant.valeur | valeurIndicateur: 'MONTANT' : true }}</div>
+              @if (ligne.montant.valeurReference !== null) {
+                <app-variation [ecartPct]="ligne.montant.ecartPct" [ecart]="ligne.montant.ecart" sensFavorable="NEUTRE" unite="MONTANT" />
+              }
+            </td>
+            <td class="text-end">{{ ligne.part | valeurIndicateur: 'POURCENTAGE' }}</td>
+            <td class="text-end">{{ ligne.nbBons }}</td>
+            <td class="text-end">{{ ligne.delaiMoyen | valeurIndicateur: 'JOURS' }}</td>
+            <td class="text-end">{{ ligne.conformite | valeurIndicateur: 'POURCENTAGE' }}</td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </app-card>
+  }
+</section>

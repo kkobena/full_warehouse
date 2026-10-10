@@ -1,0 +1,56 @@
+<section aria-labelledby="tresorerie-tiers-payant" class="section-onglet">
+  <h3 class="section-titre" id="tresorerie-tiers-payant">Tiers payant</h3>
+  @if (tiersPayant.error()) {
+    <p class="text-danger" role="alert">Le tiers payant n'a pas pu être chargé.</p>
+  }
+  <app-tuiles-cellules [loading]="tiersPayant.isLoading()" [tuiles]="tuiles()" />
+  @if (tiersPayant.value(); as tp) {
+    <div class="section-grille">
+      <app-card [header]="'Part du tiers payant dans le CA — ' + horizon()" icon="pi pi-chart-line">
+        @if (serie(); as s) {
+          <app-courbe-indicateur [requete]="requete()" [serie]="s" />
+        }
+      </app-card>
+      <app-card header="Encaissements attendus" icon="pi pi-calendar">
+        <p class="section-note">
+          Échéance de chaque facture : délai observé de l'organisme (au moins {{ tp.seuilHistorique }} factures réglées), sinon celui de son groupe, sinon
+          celui de l'officine.
+        </p>
+        <app-barres [libelles]="libellesEcheancier()" [series]="echeancier()" description="Encaissements tiers payant attendus, par mois d'échéance" />
+      </app-card>
+      <app-card header="Vieillissement de l'encours" icon="pi pi-hourglass">
+        <app-barres [libelles]="libellesVieillissement()" [series]="vieillissement()" description="Encours tiers payant par ancienneté de facture" />
+      </app-card>
+    </div>
+    <app-card header="Organismes" icon="pi pi-building">
+      <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="tp.organismes" emptyMessage="Aucune facture tiers payant" size="small">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th scope="col">Organisme</th>
+            <th class="text-end" scope="col">Facturé</th>
+            <th class="text-end" scope="col">Réglé</th>
+            <th class="text-end" scope="col">Recouvrement <app-aide texte="Réglé / facturé, sur les factures émises dans la période." /></th>
+            <th class="text-end" scope="col">Encours <app-aide texte="Reste dû à ce jour sur les factures non soldées." /></th>
+            <th class="text-end" scope="col">Part <app-aide texte="Part de l'organisme dans l'encours total." /></th>
+            <th class="text-end" scope="col">DSO <app-aide texte="Encours exprimé en jours de chiffre facturé : nombre de jours de facturation que l'organisme vous doit." /></th>
+            <th class="text-end" scope="col">En retard <app-aide texte="Encours dont l'échéance (date de facture + délai retenu) est dépassée." /></th>
+            <th class="text-end" scope="col">Délai retenu <app-aide texte="Délai de paiement de l'échéancier : observé (au moins 3 factures réglées), sinon celui du groupe, sinon celui de l'officine." /></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-organisme>
+          <tr>
+            <th scope="row">{{ organisme.libelle }}</th>
+            <td class="text-end">{{ organisme.facture | valeurIndicateur: 'MONTANT' : true }}</td>
+            <td class="text-end">{{ organisme.regle | valeurIndicateur: 'MONTANT' : true }}</td>
+            <td class="text-end">{{ organisme.tauxRecouvrement | valeurIndicateur: 'POURCENTAGE' }}</td>
+            <td class="text-end">{{ organisme.encours | valeurIndicateur: 'MONTANT' : true }}</td>
+            <td class="text-end">{{ organisme.partEncours | valeurIndicateur: 'POURCENTAGE' }}</td>
+            <td class="text-end">{{ organisme.dso | valeurIndicateur: 'JOURS' }}</td>
+            <td class="text-end">{{ organisme.enRetard | valeurIndicateur: 'MONTANT' : true }}</td>
+            <td [title]="expliquerDelai(organisme)" class="text-end">{{ organisme.origineDelai ? organisme.delaiRetenu + ' j' : '—' }}</td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </app-card>
+  }
+</section>

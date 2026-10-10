@@ -56,6 +56,28 @@ export function formatCurrencyWithUnit(value: number | undefined | null): string
 }
 
 /**
+ * Nombre pour une cellule de tableur : deux décimales au plus, virgule décimale, sans séparateur de milliers ; vide si absent.
+ * @example formatNombreTableur(1250.456) // "1250,46"
+ */
+export function formatNombreTableur(value: number | undefined | null): string {
+  return value === undefined || value === null || isNaN(value) ? '' : String(Math.round(value * 100) / 100).replace('.', ',');
+}
+
+/**
+ * Montant abrégé pour les tuiles et les axes : un chiffre après la virgule, suffixe k ou M.
+ * @example formatMontantAbrege(19194652) // "19,2 M" ; formatMontantAbrege(850000) // "850 k" ; formatMontantAbrege(940) // "940"
+ */
+export function formatMontantAbrege(value: number | undefined | null): string {
+  if (value === undefined || value === null || isNaN(value)) return '—';
+  const absolu = Math.abs(value);
+  const format = (nombre: number, decimales: number): string =>
+    new Intl.NumberFormat('fr-FR', { maximumFractionDigits: decimales }).format(nombre);
+  if (absolu >= 1_000_000) return `${format(value / 1_000_000, 1)} M`;
+  if (absolu >= 10_000) return `${format(value / 1_000, 0)} k`;
+  return format(value, 0);
+}
+
+/**
  * Format a number with French locale formatting
  * @param value - The numeric value to format
  * @returns Formatted number string

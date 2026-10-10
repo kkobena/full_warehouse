@@ -1,0 +1,132 @@
+<section aria-labelledby="titreComparerAnnees" class="annees">
+  <h2 class="visually-hidden" id="titreComparerAnnees">Comparer les années</h2>
+
+  <div aria-label="Réglage de la comparaison" class="annees-reglage" role="group">
+    <div class="annees-champs">
+      <app-form-field class="annees-champ annees-champ--large" fieldId="pilotageAnneesIndicateur" label="Indicateur">
+        <app-select
+          (selectionChange)="choisirIndicateur($event)"
+          [clearable]="false"
+          [items]="indicateurs.value() ?? []"
+          [loading]="indicateurs.isLoading()"
+          [ngModel]="reglage().indicateur"
+          ariaLabel="Indicateur"
+          bindLabel="libelle"
+          bindValue="code"
+          inputId="pilotageAnneesIndicateur"
+        />
+      </app-form-field>
+      <app-form-field class="annees-champ" fieldId="pilotageAnneesNombre" label="Années comparées">
+        <app-select (selectionChange)="choisirNombre($event)" [clearable]="false" [items]="nombres" [ngModel]="reglage().annees" [searchable]="false"
+                    ariaLabel="Nombre d'années comparées" bindLabel="libelle" bindValue="valeur" inputId="pilotageAnneesNombre" />
+      </app-form-field>
+      <app-form-field class="annees-champ annees-champ--auto" label="Lecture des mois">
+        <app-pill-selector (selectionChange)="choisirMode($event)" [items]="modes" [ngModel]="reglage().mode" ariaLabel="Lecture des mois" />
+      </app-form-field>
+      <app-checkbox
+        (ngModelChange)="choisirJourOuvre($event)"
+        [ngModel]="reglage().parJourOuvre"
+        [openDelay]="300"
+        class="annees-jour-ouvre"
+        container="body"
+        label="Par jour ouvré"
+        ngbTooltip="Divise chaque mois par ses jours ouvrés (jours où l'officine a vendu) : un mois plus court ou avec des fermetures se compare à égalité. Sans effet sur un taux ou un ratio."
+        placement="bottom"
+      />
+      @if (reglage().filtre; as filtre) {
+        <app-button (clicked)="retirerFiltre()" [ariaLabel]="'Retirer le filtre ' + filtre.libelle" [label]="filtre.libelle" [outlined]="true" class="annees-filtre"
+                    icon="pi pi-times" iconPos="right" size="small" />
+      }
+    </div>
+
+    <p class="annees-note">
+      <i aria-hidden="true" class="pi pi-info-circle"></i>
+      Années civiles, l'année en cours arrêtée à aujourd'hui ; la période de la barre ne s'applique pas ici.
+      @if (donnees.value() && jourOuvreSansObjet()) {
+        <br />« Par jour ouvré » ne s'applique pas à un taux ou à un ratio.
+      }
+    </p>
+  </div>
+
+  @if (erreur(); as message) {
+    <p class="annees-chargement text-danger" role="alert">{{ message }}</p>
+  }
+
+  @if (donnees.value(); as comparaison) {
+    @if (lecture()) {
+      <p class="annees-lecture" role="status"><i aria-hidden="true" class="pi pi-lightbulb"></i>{{ lecture() }}</p>
+    }
+
+    <app-card [header]="comparaison.indicateur.libelle + ' : une courbe par année'" icon="pi pi-chart-line">
+      <app-graphique-annees [comparaison]="comparaison" graphique="COURBES" />
+    </app-card>
+
+    <div class="annees-grille">
+      <app-card header="Par trimestre" icon="pi pi-chart-bar">
+        <app-graphique-annees [comparaison]="comparaison" graphique="TRIMESTRES" />
+      </app-card>
+      <app-card header="Saisonnalité moyenne des années closes" icon="pi pi-calendar">
+        @if (comparaison.saisonnalite.length) {
+          <app-graphique-annees [comparaison]="comparaison" graphique="SAISONNALITE" />
+        } @else {
+          <p class="text-muted mb-0">Il faut au moins une année close et un indicateur additif (CA, marge, ventes…).</p>
+        }
+      </app-card>
+    </div>
+
+    @if (parMois(); as mois) {
+      <app-card header="Mois × années" icon="pi pi-table">
+        @if (peutExporter()) {
+          <app-button (clicked)="exporter(comparaison)" [outlined]="true" cardActions icon="pi pi-download" label="Exporter (CSV)" size="small" />
+        }
+        <app-croise-analyse [croise]="mois" [indicateur]="comparaison.indicateur" entete="Mois / Année" />
+      </app-card>
+    }
+
+    <app-card header="Synthèse annuelle" icon="pi pi-list">
+      <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="comparaison.synthese" size="small">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th scope="col">Année</th>
+            <th class="text-end" scope="col">CA TTC</th>
+            <th class="text-end" scope="col">Croissance <app-aide texte="CA face à l'année précédente ; l'année en cours se compare à la même date." /></th>
+            <th class="text-end" scope="col">Marge brute</th>
+            <th class="text-end" scope="col">Taux de marge <app-aide texte="Marge brute / CA HT." /></th>
+            <th class="text-end" scope="col">Ventes</th>
+            <th class="text-end" scope="col">Panier moyen</th>
+            <th class="text-end" scope="col">Remises</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-annee>
+          <tr>
+            <th scope="row">{{ annee.annee }}{{ annee.complete ? '' : ' (en cours)' }}</th>
+            <td class="text-end">{{ annee.caTtc | valeurIndicateur: 'MONTANT' : true }}</td>
+            <td class="text-end"><app-variation [ecartPct]="annee.croissanceCa" sensFavorable="HAUSSE" unite="MONTANT" /></td>
+            <td class="text-end">{{ annee.margeBrute | valeurIndicateur: 'MONTANT' : true }}</td>
+            <td class="text-end">{{ annee.tauxMarge | valeurIndicateur: 'POURCENTAGE' }}</td>
+            <td class="text-end">{{ annee.nbVentes | valeurIndicateur: 'NOMBRE' }}</td>
+            <td class="text-end">{{ annee.panierMoyen | valeurIndicateur: 'MONTANT' : true }}</td>
+            <td class="text-end">{{ annee.remises | valeurIndicateur: 'MONTANT' : true }}</td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </app-card>
+
+    <div class="annees-grille">
+      @if (comparaison.parFamille; as familles) {
+        <app-card header="Familles × années" icon="pi pi-sitemap">
+          <app-croise-analyse (ligneChoisie)="filtrerFamille($event)" [croise]="familles" [indicateur]="comparaison.indicateur" actionLibelle="Filtrer sur cette famille"
+                              entete="Famille / Année" />
+        </app-card>
+      }
+      @if (comparaison.parNatureVente; as natures) {
+        <app-card header="Types de vente × années" icon="pi pi-tags">
+          <app-croise-analyse (ligneChoisie)="filtrerNatureVente($event)" [croise]="natures" [indicateur]="comparaison.indicateur"
+                              actionLibelle="Filtrer sur ce type de vente" entete="Type de vente / Année" />
+        </app-card>
+      }
+    </div>
+  } @else if (donnees.isLoading()) {
+    <p aria-live="polite" class="annees-chargement">Calcul de la comparaison…</p>
+  }
+</section>

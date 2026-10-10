@@ -1,0 +1,73 @@
+@use '../../ui/bandeau-lecture' as *;
+
+// Mise en page seulement : couleurs et cadres viennent des composants du Design System et des jetons du thème.
+.tableau-de-bord {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+// Ce qui est comparé : même bandeau que la lecture de « Comparer les années ».
+.tableau-de-bord-contexte {
+  @include bandeau-lecture;
+}
+
+// Écarts de « Ce qui a bougé » : couleurs des variations (pastilles de comptage du thème, ≥ 4,5:1 en texte).
+.montant-ecart {
+  white-space: nowrap;
+
+  &--hausse {
+    color: var(--pharma-chrome-badge-success);
+  }
+
+  &--baisse {
+    color: var(--pharma-chrome-badge-danger);
+  }
+}
+
+.tableau-de-bord-secondaire {
+  display: block;
+  font-size: 0.75rem;
+}
+
+.tableau-de-bord-grille {
+  display: grid;
+  margin-top: -0.35rem;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 0.6rem;
+
+  @media (max-width: 992px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.tableau-de-bord-sous-titre {
+  margin: 0 0 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.tableau-de-bord-liste {
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.2rem 0;
+    font-size: 0.85rem;
+    border-bottom: 1px solid var(--pharma-border);
+
+    strong {
+      white-space: nowrap;
+    }
+  }
+}
+
+.tableau-de-bord-contributions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.6rem;
+}

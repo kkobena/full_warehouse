@@ -1,0 +1,32 @@
+<section aria-labelledby="clients-equipe-clients" class="section-onglet">
+  <h3 class="section-titre" id="clients-equipe-clients">Clients</h3>
+  <p class="section-note">Seules les ventes rattachées à un client se suivent ici ; la segmentation RFM reste dans son rapport.</p>
+  @if (clients.error()) {
+    <p class="text-danger" role="alert">Les clients n'ont pas pu être chargés.</p>
+  }
+  <app-tuiles-cellules [loading]="clients.isLoading()" [tuiles]="tuiles()" />
+  @if (clients.value(); as c) {
+    @if (c.enBaisse.length) {
+      <app-card header="Clients en baisse" icon="pi pi-arrow-down">
+        <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="c.enBaisse" size="small">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th scope="col">Client</th>
+              <th class="text-end" scope="col">CA</th>
+              <th class="text-end" scope="col">CA de référence</th>
+              <th class="text-end" scope="col">Écart <app-aide texte="CA de la période moins CA de référence du client." /></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-client>
+            <tr>
+              <th scope="row">{{ client.libelle }}</th>
+              <td class="text-end">{{ client.valeur | valeurIndicateur: 'MONTANT' : true }}</td>
+              <td class="text-end">{{ client.valeurReference | valeurIndicateur: 'MONTANT' : true }}</td>
+              <td class="text-end">{{ client.ecart | valeurIndicateur: 'MONTANT' : true }}</td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </app-card>
+    }
+  }
+</section>

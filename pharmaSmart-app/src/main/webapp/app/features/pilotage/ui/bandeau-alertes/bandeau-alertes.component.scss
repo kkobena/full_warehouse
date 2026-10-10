@@ -1,0 +1,71 @@
+// Couleurs : jetons du thème (pastilles de comptage, contrastées ≥ 4,5:1) ; la gravité est aussi écrite en toutes lettres.
+.bandeau-alertes {
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--pharma-surface-border);
+  border-left: 4px solid var(--pharma-chrome-badge-warn);
+  border-radius: var(--pharma-surface-radius);
+  background: var(--pharma-surface);
+}
+
+.bandeau-alertes-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.bandeau-alertes-titre {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.bandeau-alertes-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bandeau-alerte a {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.5rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 0.25rem;
+  color: inherit;
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--pharma-surface-alt);
+    text-decoration: underline;
+  }
+}
+
+.bandeau-alerte-gravite {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.bandeau-alerte--haute .bandeau-alerte-gravite {
+  color: var(--pharma-chrome-badge-danger);
+}
+
+.bandeau-alerte--moyenne .bandeau-alerte-gravite {
+  color: var(--pharma-chrome-badge-warn);
+}
+
+.bandeau-alerte-detail,
+.bandeau-alertes-note {
+  font-size: 0.85rem;
+  color: var(--pharma-text-muted);
+}
+
+.bandeau-alertes-note {
+  margin: 0.35rem 0 0;
+}

@@ -1,0 +1,60 @@
+// La page occupe la hauteur de l'écran (mesurée, cf. `--pilotage-hauteur`) : la barre d'onglets reste en place et seul le contenu
+// de l'onglet défile. Conteneur et outlet appartiennent au gabarit d'app-nav-tabs, d'où ::ng-deep.
+.pilotage-page {
+  display: flex;
+  flex-direction: column;
+  height: var(--pilotage-hauteur, calc(100dvh - 9rem));
+  min-height: 24rem;
+}
+
+app-nav-tabs.pilotage-onglets {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+
+  ::ng-deep .pharma-nav-tabs-container {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    margin-bottom: 0;
+  }
+
+  ::ng-deep .pharma-nav-tabs {
+    flex-shrink: 0;
+  }
+
+  ::ng-deep .pharma-nav-tabs-outlet {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+// Cartes du pilotage plus compactes que la carte par défaut (1rem partout, titre en 1,125rem) : un écran de pilotage empile
+// beaucoup de blocs, la hauteur gagnée en montre davantage sans défiler. Les cartes sont dans les onglets, d'où ::ng-deep.
+.pilotage-page ::ng-deep app-card {
+  .card-header {
+    padding: 0.5rem 0.85rem;
+
+    .card-title {
+      gap: 0.5rem;
+      font-size: 1rem;
+
+      i {
+        font-size: 1.05rem;
+      }
+    }
+  }
+
+  .card-body {
+    padding: 0.6rem 0.85rem;
+
+    // La marge basse de Bootstrap (1rem) sous un tableau doublait le bas de la carte.
+    .table {
+      margin-bottom: 0;
+    }
+  }
+}

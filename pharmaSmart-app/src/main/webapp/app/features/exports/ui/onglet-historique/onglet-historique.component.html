@@ -1,0 +1,60 @@
+<section aria-labelledby="titreHistorique">
+  <h2 class="visually-hidden" id="titreHistorique">Historique des exports</h2>
+  @if (enPreparation()) {
+    <p aria-live="polite" class="text-muted">Un fichier est en préparation ; cette liste se met à jour toute seule.</p>
+  }
+  <app-data-table [loading]="historique.isLoading() && !historique.value()" [stripedRows]="true" [value]="fichiers()" emptyMessage="Aucun export pour l'instant"
+                  size="small">
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th scope="col">Demandé le</th>
+        <th scope="col">Export</th>
+        <th scope="col">Période</th>
+        <th scope="col">Format</th>
+        <th scope="col">Statut</th>
+        <th class="text-end" scope="col">Lignes</th>
+        <th class="text-end" scope="col">Taille</th>
+        <th scope="col">Par</th>
+        <th scope="col">Disponible jusqu'au</th>
+        <th scope="col"><span class="visually-hidden">Actions</span></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-fichier>
+      <tr>
+        <td>{{ fichier.demandeLe | date: 'dd/MM/yyyy HH:mm' }}</td>
+        <th scope="row">
+          {{ fichier.libelleExport }}
+          @if (fichier.modele) {
+            <div class="small text-muted">Modèle : {{ fichier.modele }}</div>
+          }
+        </th>
+        <td>{{ fichier.du ? (fichier.du | date: 'dd/MM/yyyy') + ' – ' + (fichier.au | date: 'dd/MM/yyyy') : 'État du jour' }}</td>
+        <td>{{ fichier.format }}</td>
+        <td>
+          <app-badge [label]="libelleStatut(fichier.statut)" [severity]="severite(fichier.statut)" />
+          @if (fichier.erreur) {
+            <div class="small text-danger">{{ fichier.erreur }}</div>
+          }
+        </td>
+        <td class="text-end">{{ fichier.nombreLignes ?? '—' }}</td>
+        <td class="text-end">{{ formaterTaille(fichier.taille) }}</td>
+        <td>{{ fichier.demandePar }}</td>
+        <td>{{ fichier.expireLe ? (fichier.expireLe | date: 'dd/MM/yyyy') : '—' }}</td>
+        <td>
+          @if (fichier.statut === 'TERMINE') {
+            <app-button (clicked)="telecharger(fichier)" [ariaLabel]="'Télécharger ' + fichier.libelleExport" [iconOnly]="true" [text]="true" icon="pi pi-download"
+                        size="small" title="Télécharger" />
+          }
+        </td>
+      </tr>
+    </ng-template>
+  </app-data-table>
+  @if (pages() > 1) {
+    <nav aria-label="Pages de l'historique" class="d-flex align-items-center gap-2 mt-2">
+      <app-button (clicked)="page.set(page() - 1)" [disabled]="page() === 0" [outlined]="true" icon="pi pi-angle-left" label="Plus récents" size="small" />
+      <span>Page {{ page() + 1 }} / {{ pages() }}</span>
+      <app-button (clicked)="page.set(page() + 1)" [disabled]="page() + 1 >= pages()" [outlined]="true" icon="pi pi-angle-right" iconPos="right" label="Plus anciens"
+                  size="small" />
+    </nav>
+  }
+</section>

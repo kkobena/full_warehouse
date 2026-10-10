@@ -1,0 +1,18 @@
+// Couleurs des pastilles de comptage du thème : texte blanc dessus ≥ 4,5:1, donc lisibles aussi en texte sur fond clair.
+.variation {
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &--favorable {
+    color: var(--pharma-chrome-badge-success);
+  }
+
+  &--defavorable {
+    color: var(--pharma-chrome-badge-danger);
+  }
+
+  &--neutre {
+    color: var(--pharma-text-muted);
+  }
+}

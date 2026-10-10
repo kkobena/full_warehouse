@@ -64,11 +64,9 @@
 -- Après 14b : le fond de tiroir se recale sur les lignes de ticket Z, règlements compris.
 \i 14d_mouvements_caisse.sql
 \i 15_reference.sql
-\i 16_mouvements.sql
--- Après 16 : les bons d'ajustement s'écrivent sur un stock stabilisé, dont ils
--- reprennent l'état à l'instant du mouvement.
+-- Les bons d'ajustement décrivent leur mouvement ; le journal (24) leur donne leur stock avant / après.
 \i 16b_ajustements.sql
--- Après 16 : les propositions d'achat s'appuient sur le catalogue et les
+-- Les propositions d'achat s'appuient sur le catalogue et les
 -- fournisseurs déjà chargés.
 \i 17_suggestions.sql
 -- Après 16b : les favoris du comptoir se choisissent dans les ventes et dans le stock stabilisé (la rupture affichée doit le rester).
@@ -86,6 +84,11 @@
 \i 22_clients_suivi.sql
 -- Après 22 : le billetage reprend le fond de tiroir définitif de chaque caisse.
 \i 23_exploitation.sql
+-- En dernier : le journal des mouvements dérive chaque mouvement de sa pièce (réceptions, ventes, retours,
+-- ajustements, répartitions, déconditionnements, inventaires), qui doivent donc toutes exister.
+\i 24_mouvements.sql
+-- Après 24 : les objectifs se fixent sur les ventes définitives.
+\i 25_objectifs_pilotage.sql
 
 \i 99_verification.sql
 

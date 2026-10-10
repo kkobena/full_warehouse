@@ -798,4 +798,88 @@ public class AppConfigurationService {
             appConfiguration.getOptions()
         );
     }
+
+    /** Seuils des tranches de remise du pilotage, croissants (défaut : 5, 10, 20 %). */
+    public List<Integer> getTranchesRemisePilotage() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_PILOTAGE_TRANCHES_REMISE)
+            .map(AppConfiguration::getValue)
+            .map(valeur -> Arrays.stream(valeur.split(",")).map(String::trim).filter(seuil -> !seuil.isEmpty()).map(Integer::parseInt).sorted().toList())
+            .filter(seuils -> !seuils.isEmpty())
+            .orElse(List.of(5, 10, 20));
+    }
+
+    /** Taux de marge (%) sous lequel un produit est dit « à faible marge » dans le pilotage (défaut : 15). */
+    public int getSeuilFaibleMargePilotage() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_PILOTAGE_SEUIL_FAIBLE_MARGE)
+            .map(AppConfiguration::getValue)
+            .map(valeur -> Integer.parseInt(valeur.trim()))
+            .orElse(15);
+    }
+
+    /** Multiple du taux de remise de l'équipe au-delà duquel le taux d'un vendeur est signalé (défaut : 2). */
+    public double getAlerteRemiseVendeurPilotage() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_PILOTAGE_ALERTE_REMISE_VENDEUR)
+            .map(AppConfiguration::getValue)
+            .map(valeur -> Double.parseDouble(valeur.trim().replace(',', '.')))
+            .orElse(2.0);
+    }
+
+    /** Alerte « chute d'activité » : CA des 7 derniers jours sous ce % des mêmes jours N-1 (défaut : 90). */
+    public double getAlerteChuteActivitePilotage() {
+        return lireDecimal(EntityConstant.APP_PILOTAGE_ALERTE_CHUTE_ACTIVITE, 90);
+    }
+
+    /** Alerte « famille en recul » : baisse du CA d'une famille sur le mois, à date, au-delà de ce % (défaut : 15). */
+    public double getAlerteFamilleReculPilotage() {
+        return lireDecimal(EntityConstant.APP_PILOTAGE_ALERTE_FAMILLE_RECUL, 15);
+    }
+
+    /** Alerte « marge qui s'érode » : baisse du taux de marge du mois au-delà de ces points (défaut : 1). */
+    public double getAlerteErosionMargePilotage() {
+        return lireDecimal(EntityConstant.APP_PILOTAGE_ALERTE_EROSION_MARGE, 1);
+    }
+
+    /** Alerte « objectif menacé » : projection de fin de mois sous ce % de l'objectif (défaut : 95). */
+    public double getAlerteObjectifMenacePilotage() {
+        return lireDecimal(EntityConstant.APP_PILOTAGE_ALERTE_OBJECTIF_MENACE, 95);
+    }
+
+    /** Alerte « achats qui dérapent » : ratio ventes / achats sur 30 jours sous cette valeur (défaut : 0,8). */
+    public double getAlerteRatioAchatsPilotage() {
+        return lireDecimal(EntityConstant.APP_PILOTAGE_ALERTE_RATIO_ACHATS, 0.8);
+    }
+
+    /** Alerte « créances » : organisme dont l'encours dépasse ces jours de chiffre (DSO, défaut : 90). */
+    public double getAlerteDsoOrganismePilotage() {
+        return lireDecimal(EntityConstant.APP_PILOTAGE_ALERTE_DSO_ORGANISME, 90);
+    }
+
+    private double lireDecimal(String cle, double defaut) {
+        return appConfigurationRepository
+            .findById(cle)
+            .map(AppConfiguration::getValue)
+            .map(valeur -> Double.parseDouble(valeur.trim().replace(',', '.')))
+            .orElse(defaut);
+    }
+
+    /** Nombre de jours pendant lesquels un fichier exporté reste téléchargeable (défaut : 7). */
+    public int getRetentionExportsJours() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_EXPORT_RETENTION_JOURS)
+            .map(AppConfiguration::getValue)
+            .map(valeur -> Integer.parseInt(valeur.trim()))
+            .orElse(7);
+    }
+
+    /** Jours sans vente au-delà desquels un produit en stock est dit dormant dans le pilotage (défaut : 90). */
+    public int getSeuilStockDormantPilotage() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_PILOTAGE_SEUIL_STOCK_DORMANT)
+            .map(AppConfiguration::getValue)
+            .map(valeur -> Integer.parseInt(valeur.trim()))
+            .orElse(90);
+    }
 }

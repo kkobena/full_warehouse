@@ -1,0 +1,24 @@
+// Bandeau de lecture du pilotage : une phrase posée hors carte (contexte de la comparaison, conclusion d'un onglet), sur la surface
+// du thème pour ne pas se fondre dans le fond de page, soulignée par l'accent ; icône facultative en tête.
+@mixin bandeau-lecture {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: flex-start;
+  gap: 0.5rem;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--pharma-surface-border);
+  border-left: 4px solid var(--pharma-chrome-tab);
+  border-radius: var(--pharma-surface-radius);
+  background: var(--pharma-surface);
+  color: var(--pharma-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.45;
+
+  > .pi {
+    margin-top: 0.2rem;
+    color: var(--pharma-chrome-tab);
+  }
+}

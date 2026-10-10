@@ -31,7 +31,8 @@ import {DeviseDirective} from "../../../shared/utils/devise";
 import {
   libelleTypeVente,
   OPTIONS_FILTRE_TYPE_VENTE,
-  severiteTypeVente
+  severiteTypeVente,
+  TYPE_VENTE_DEPOT
 } from "../../../shared/constants/type-vente.constants";
 
 @Component({
@@ -73,7 +74,7 @@ export default class SalesSummaryComponent implements OnInit {
   /**
    * Ventilation par TYPE DE VENTE des lignes affichées.
    *
-   * Les quatre indicateurs du bandeau totalisent la période, tous types confondus : pour
+   * Les quatre indicateurs du bandeau totalisent le CA de l'officine sur la période : pour
    * savoir ce que pèse le tiers payant, il fallait poser un filtre, relire, en poser un autre
    * et faire la soustraction de tête. Or c'est précisément la question qu'on se pose devant
    * cet écran — quelle part du chiffre d'affaires attend un règlement, et laquelle est déjà
@@ -82,6 +83,20 @@ export default class SalesSummaryComponent implements OnInit {
    * La ventilation se calcule donc sur les lignes DÉJÀ CHARGÉES, sans requête ni filtre : le
    * détail par type est là dès l'ouverture, à côté du total.
    */
+  /**
+   * Les ventes au dépôt sont des sorties de marchandise vers le dépôt, pas des recettes : elles restent hors du CA de
+   * l'officine (comme dans la déclaration de CA) et s'affichent à part.
+   */
+  readonly lignesOfficine = computed(() => this.summaries().filter(ligne => ligne.typeVente !== TYPE_VENTE_DEPOT));
+  readonly totalDepot = computed(() =>
+    this.summaries()
+      .filter(ligne => ligne.typeVente === TYPE_VENTE_DEPOT)
+      .reduce((somme, ligne) => ({nbVentes: somme.nbVentes + (ligne.nbVentes ?? 0), caTotal: somme.caTotal + (ligne.caTotal ?? 0)}), {
+        nbVentes: 0,
+        caTotal: 0,
+      }),
+  );
+
   readonly ventilationParType = computed(() => {
     const cumul = new Map<string, { nbVentes: number; caTotal: number; caNet: number }>();
     for (const ligne of this.summaries()) {
@@ -92,7 +107,10 @@ export default class SalesSummaryComponent implements OnInit {
       courant.caNet += ligne.caNet ?? 0;
       cumul.set(type, courant);
     }
-    const totalNet = Array.from(cumul.values()).reduce((somme, item) => somme + item.caNet, 0);
+    // La part se rapporte au CA de l'officine : le dépôt n'en a pas.
+    const totalNet = Array.from(cumul.entries())
+      .filter(([type]) => type !== TYPE_VENTE_DEPOT)
+      .reduce((somme, [, item]) => somme + item.caNet, 0);
     return Array.from(cumul.entries())
       .map(([type, item]) => ({
         type,
@@ -102,9 +120,9 @@ export default class SalesSummaryComponent implements OnInit {
         caTotal: item.caTotal,
         caNet: item.caNet,
         panierMoyen: item.nbVentes > 0 ? item.caTotal / item.nbVentes : 0,
-        part: totalNet > 0 ? (item.caNet * 100) / totalNet : 0,
+        part: type === TYPE_VENTE_DEPOT ? null : totalNet > 0 ? (item.caNet * 100) / totalNet : 0,
       }))
-      .sort((a, b) => b.caNet - a.caNet);
+      .sort((a, b) => Number(a.type === TYPE_VENTE_DEPOT) - Number(b.type === TYPE_VENTE_DEPOT) || b.caNet - a.caNet);
   });
   private readonly salesSummaryService = inject(SalesSummaryReportService);
 
@@ -157,15 +175,15 @@ export default class SalesSummaryComponent implements OnInit {
   }
 
   getTotalCA(): number {
-    return this.summaries().reduce((sum, item) => sum + (item.caTotal || 0), 0);
+    return this.lignesOfficine().reduce((sum, item) => sum + (item.caTotal || 0), 0);
   }
 
   getTotalCANet(): number {
-    return this.summaries().reduce((sum, item) => sum + (item.caNet || 0), 0);
+    return this.lignesOfficine().reduce((sum, item) => sum + (item.caNet || 0), 0);
   }
 
   getTotalVentes(): number {
-    return this.summaries().reduce((sum, item) => sum + (item.nbVentes || 0), 0);
+    return this.lignesOfficine().reduce((sum, item) => sum + (item.nbVentes || 0), 0);
   }
 
   getAveragePanier(): number {

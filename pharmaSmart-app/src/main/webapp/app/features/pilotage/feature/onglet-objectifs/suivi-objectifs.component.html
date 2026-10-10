@@ -1,0 +1,71 @@
+<section aria-labelledby="objectifs-suivi" class="section-onglet">
+  <h3 class="section-titre" id="objectifs-suivi">Suivi</h3>
+  @if (erreur()) {
+    <p class="text-danger" role="alert">Le suivi des objectifs n'a pas pu être chargé.</p>
+  }
+  @if (lecture()) {
+    <p class="section-lecture" role="status">{{ lecture() }}</p>
+  }
+  @if (projections().length) {
+    <app-kpi-strip [loading]="chargement()" [skeletonCount]="4">
+      @for (suivi of projections(); track suivi.indicateur.code) {
+        <app-kpi-item [label]="suivi.indicateur.libelle + ' — fin de mois'" [info]="suivi.projection!.methode"
+                      [value]="suivi.projection!.projection | valeurIndicateur: suivi.indicateur.unite">
+          <ng-container ngProjectAs="[kpiSub]">
+            <span class="objectif-sous-ligne">
+              À date {{ suivi.projection!.realiseADate | valeurIndicateur: suivi.indicateur.unite }}
+              @if (suivi.projection!.objectif != null) {
+                · objectif {{ suivi.projection!.objectif | valeurIndicateur: suivi.indicateur.unite }}
+                <span [class]="classerEtat(suivi.projection!.tenu)">{{ suivi.projection!.tenu ? '✓ en bonne voie' : '✗ menacé' }}</span>
+              } @else {
+                · pas d'objectif
+              }
+            </span>
+          </ng-container>
+        </app-kpi-item>
+      }
+    </app-kpi-strip>
+    <p class="section-note">Survolez l'icône <i aria-hidden="true" class="pi pi-info-circle"></i> d'une tuile pour savoir comment la fin de mois est projetée ; un taux garde sa valeur à date.</p>
+  }
+
+  @if (choisi(); as suivi) {
+    <app-card header="Mois par mois" icon="pi pi-flag">
+      <app-pill-selector [items]="choixIndicateurs()" [ngModel]="code()" (ngModelChange)="code.set($event)" ariaLabel="Indicateur suivi" cardActions />
+      <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="suivi.mois" size="small">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th scope="col">Mois</th>
+            <th class="text-end" scope="col">Objectif</th>
+            <th class="text-end" scope="col">Réalisé</th>
+            <th class="text-end" scope="col">Écart <app-aide texte="Réalisé moins objectif." /></th>
+            <th class="text-end" scope="col">Atteinte <app-aide texte="Réalisé / objectif." /></th>
+            <th scope="col">État <app-aide texte="Tenu : objectif atteint, ou plafond respecté pour le taux de remise. En cours : le mois n'est pas fini." /></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-mois>
+          <tr>
+            <th scope="row">{{ moisCourts[mois.mois - 1] }}{{ mois.enCours ? ' (à date)' : '' }}</th>
+            <td class="text-end">{{ mois.objectif | valeurIndicateur: suivi.indicateur.unite : true }}</td>
+            <td class="text-end">{{ mois.realise | valeurIndicateur: suivi.indicateur.unite : true }}</td>
+            <td class="text-end">{{ mois.ecart | valeurIndicateur: suivi.indicateur.unite : true }}</td>
+            <td class="text-end">{{ mois.atteinte | valeurIndicateur: 'POURCENTAGE' }}</td>
+            <td><span [class]="classerEtat(mois.enCours ? null : mois.tenu)">{{ libellerEtat(mois) }}</span></td>
+          </tr>
+        </ng-template>
+        <ng-template #footer>
+          @if (suivi.cumul; as cumul) {
+            <tr class="fw-semibold">
+              <th scope="row">Cumul à fin {{ moisCourts[cumul.mois - 1] }}</th>
+              <td class="text-end">{{ cumul.objectif | valeurIndicateur: suivi.indicateur.unite : true }}</td>
+              <td class="text-end">{{ cumul.realise | valeurIndicateur: suivi.indicateur.unite : true }}</td>
+              <td class="text-end">{{ cumul.ecart | valeurIndicateur: suivi.indicateur.unite : true }}</td>
+              <td class="text-end">{{ cumul.atteinte | valeurIndicateur: 'POURCENTAGE' }}</td>
+              <td><span [class]="classerEtat(cumul.tenu)">{{ libellerEtat(cumul) }}</span></td>
+            </tr>
+          }
+        </ng-template>
+      </app-data-table>
+      <p class="section-note">Le cumul ne compte que les mois clos ayant un objectif ; un taux ne se cumule pas.</p>
+    </app-card>
+  }
+</section>

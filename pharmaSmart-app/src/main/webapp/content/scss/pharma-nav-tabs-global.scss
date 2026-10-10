@@ -59,6 +59,12 @@
         }
       }
 
+      // Focus clavier visible (WCAG 2.4.7) à la couleur du thème ; l'onglet défile dans la barre, d'où le décalage interne.
+      &:focus-visible {
+        outline: 2px solid var(--pharma-chrome-tab);
+        outline-offset: -2px;
+      }
+
       &.active {
         color: var(--pharma-chrome-tab);
         border-bottom-color: var(--pharma-chrome-tab);

@@ -80,6 +80,15 @@ export class BlobDownloadService {
   }
 
   /**
+   * Construit puis télécharge un CSV lisible par un tableur réglé en français : séparateur « ; », cellules entre guillemets,
+   * UTF-8 avec BOM (sans lui, Excel lit mal les accents).
+   */
+  downloadCsvRows(rows: readonly (readonly string[])[], fileName: string): void {
+    const csv = rows.map(row => row.map(cell => `"${cell.replaceAll('"', '""')}"`).join(';')).join('\r\n');
+    this.downloadCsv(new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' }), fileName);
+  }
+
+  /**
    * Méthode générique — choisit le comportement selon le format.
    *
    * @param blob     Données binaires reçues du backend

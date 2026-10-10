@@ -1,0 +1,51 @@
+<section aria-labelledby="titreModeles">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+    <h2 class="fs-6 fw-semibold mb-0" id="titreModeles">Modèles d'export</h2>
+    <app-button (clicked)="ouvrir(null)" icon="pi pi-plus" label="Nouveau modèle" size="small" />
+  </div>
+  <app-data-table [loading]="modeles.isLoading()" [stripedRows]="true" [value]="modeles.value() ?? []"
+                  emptyMessage="Aucun modèle : préparez un export dans le catalogue, puis « Enregistrer comme modèle »" size="small">
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th scope="col">Modèle</th>
+        <th scope="col">Export</th>
+        <th scope="col">Période</th>
+        <th scope="col">Format</th>
+        <th scope="col">Programmation</th>
+        <th scope="col">Prochaine exécution</th>
+        <th scope="col">Auteur</th>
+        <th scope="col"><span class="visually-hidden">Actions</span></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-modele>
+      <tr>
+        <th scope="row">
+          {{ modele.libelle }}
+          @if (modele.partage) {
+            <div class="small text-muted">Partagé avec l'équipe</div>
+          }
+        </th>
+        <td>{{ libelleExport(modele) }}</td>
+        <td>{{ libellePeriode(modele) }}</td>
+        <td>{{ modele.format }}</td>
+        <td>{{ libelleProgrammation(modele) }}</td>
+        <td>{{ modele.prochaineExecution ? (modele.prochaineExecution | date: 'dd/MM/yyyy HH:mm') : '—' }}</td>
+        <td>{{ modele.proprietaire }}</td>
+        <td>
+          <div class="d-flex justify-content-end gap-1">
+            <app-button (clicked)="executer(modele)" [ariaLabel]="'Exporter maintenant : ' + modele.libelle" [iconOnly]="true" [text]="true" icon="pi pi-play"
+                        size="small" title="Exporter maintenant" />
+            @if (modele.modifiable) {
+              <app-button (clicked)="ouvrir(modele)" [ariaLabel]="'Modifier ' + modele.libelle" [iconOnly]="true" [text]="true" icon="pi pi-pencil" size="small"
+                          title="Modifier" />
+              <app-button (clicked)="supprimer(modele)" [ariaLabel]="'Supprimer ' + modele.libelle" [iconOnly]="true" [text]="true" icon="pi pi-trash"
+                          severity="danger" size="small" title="Supprimer" />
+            }
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </app-data-table>
+</section>
+
+<app-panneau-modele (enregistrement)="enregistrer($event)" [(visible)]="panneauVisible" [exports]="catalogue.value()?.exports ?? []" [modele]="edite()" />

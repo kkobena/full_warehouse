@@ -263,6 +263,22 @@ const routes: Routes = [
     loadChildren: () => import("../features/finances/finances.routes")
   },
 
+  // ── Pilotage de l'officine (ABAC) ─────────────────────────────────────────
+  {
+    path: "pilotage",
+    data: { pageTitle: "Pilotage de l'officine", abilitySubject: "pilotage" },
+    canActivate: [AuthGuard],
+    loadChildren: () => import("../features/pilotage/pilotage.routes")
+  },
+
+  // ── Exports de données (ABAC) ─────────────────────────────────────────────
+  {
+    path: "exports",
+    data: { pageTitle: "Exports de données", abilitySubject: "exports" },
+    canActivate: [AuthGuard],
+    loadChildren: () => import("../features/exports/exports.routes")
+  },
+
   // ── Comptabilité (ABAC) ───────────────────────────────────────────────────
   {
     path: "comptabilite",

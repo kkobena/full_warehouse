@@ -4,6 +4,10 @@ export function textColor(documentStyle: CSSStyleDeclaration): string {
 export function textColorSecondary(documentStyle: CSSStyleDeclaration): string {
   return documentStyle.getPropertyValue('--p-text-muted-color');
 }
+/** Accent du thème de couleur (série principale d'un graphique). */
+export function accentColor(documentStyle: CSSStyleDeclaration): string {
+  return documentStyle.getPropertyValue('--p-primary-color');
+}
 export function surfaceBorder(documentStyle: CSSStyleDeclaration): string {
   return documentStyle.getPropertyValue('--p-content-border-color');
 }

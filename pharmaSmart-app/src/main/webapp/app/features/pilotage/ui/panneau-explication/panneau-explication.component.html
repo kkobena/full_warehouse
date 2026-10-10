@@ -1,0 +1,38 @@
+<app-offcanvas (visibleChange)="visible.set($event)" [visible]="visible()" width="480px">
+  <div appOffcanvasHeader class="d-flex align-items-center gap-2">
+    <i aria-hidden="true" class="pi pi-question-circle"></i>
+    <h2 class="fs-5 fw-bold mb-0">Pourquoi « {{ libelleElement() }} » bouge</h2>
+  </div>
+
+  @if (loading()) {
+    <p aria-live="polite" class="text-muted">Recherche de ce qui explique l'écart…</p>
+  } @else if (erreur()) {
+    <p class="text-danger" role="alert">L'écart n'a pas pu être expliqué.</p>
+  } @else if (explication(); as e) {
+    <p class="panneau-explication-resume">
+      {{ e.indicateur.libelle }} : <strong>{{ formaterEcart(e.ecart) }}</strong>
+      ({{ e.valeur | valeurIndicateur: e.indicateur.unite : true }} contre {{ e.valeurReference | valeurIndicateur: e.indicateur.unite : true }})
+    </p>
+
+    @for (axe of e.axes; track axe.axe.code; let premier = $first) {
+      <section [attr.aria-labelledby]="'explication-' + axe.axe.code" [class.panneau-explication-axe--propose]="premier" class="panneau-explication-axe">
+        <h3 [id]="'explication-' + axe.axe.code" class="panneau-explication-titre">
+          {{ axe.axe.libelle }} : {{ formaterPart(axe.part) }} de la {{ sens() }}
+          sur {{ axe.principales.length }} élément{{ axe.principales.length > 1 ? 's' : '' }} / {{ axe.nombreElements }}
+          @if (premier) {
+            <span class="panneau-explication-propose">le plus explicatif</span>
+          }
+        </h3>
+        <ul class="panneau-explication-liste">
+          @for (c of axe.principales; track c.cle) {
+            <li><span>{{ c.libelle }}</span><strong>{{ formaterEcart(c.ecart) }}</strong></li>
+          }
+        </ul>
+        <app-button (clicked)="ventilerPar.emit(axe.axe.code)" [label]="'Ventiler par ' + axe.axe.libelle.toLowerCase()" [outlined]="premier" [text]="!premier"
+                    icon="pi pi-sitemap" size="small" />
+      </section>
+    } @empty {
+      <p class="text-muted">Aucune ventilation ne concentre l'écart : il est réparti sur tout le périmètre.</p>
+    }
+  }
+</app-offcanvas>

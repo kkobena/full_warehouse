@@ -39,9 +39,9 @@
   <app-kpi-strip stripClass="mt-2 mb-2">
     <app-kpi-item [accent]="'primary'" [value]="getTotalCA() | number: '1.0-0'" icon="pi pi-dollar"
                   iconClass="text-primary"
-                  label="CA Total" valueClass="text-primary">
+                  label="CA officine" valueClass="text-primary">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
-      <ng-container ngProjectAs="[kpiSub]">chiffre d'affaires</ng-container>
+      <ng-container ngProjectAs="[kpiSub]">hors ventes au dépôt</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'success'" [value]="getTotalCANet() | number: '1.0-0'"
                   icon="pi pi-money-bill"
@@ -61,11 +61,18 @@
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">par transaction</ng-container>
     </app-kpi-item>
+    @if (totalDepot().nbVentes > 0) {
+      <app-kpi-item [accent]="'secondary'" [value]="totalDepot().caTotal | number: '1.0-0'" icon="pi pi-truck"
+                    label="Ventes au dépôt">
+        <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
+        <ng-container ngProjectAs="[kpiSub]">{{ totalDepot().nbVentes | number }} sortie(s), hors CA</ng-container>
+      </app-kpi-item>
+    }
   </app-kpi-strip>
 
   <!--
     Ventilation par type de vente, SANS filtrer : les quatre indicateurs ci-dessus totalisent
-    la période tous types confondus, et la question qu'on se pose devant cet écran est
+    le CA de l'officine (le dépôt à part), et la question qu'on se pose devant cet écran est
     justement la part de chacun — ce qui est encaissé, ce qui attend un règlement, ce qui a
     été transféré. Le détail se calcule sur les lignes déjà chargées.
   -->
@@ -98,7 +105,13 @@
                 <td class="text-end pharma-price">{{ ligne.caTotal | number }}</td>
                 <td class="text-end pharma-price">{{ ligne.caNet | number }}</td>
                 <td class="text-end pharma-price">{{ ligne.panierMoyen | number }}</td>
-                <td class="text-end pharma-price">{{ ligne.part | number: '1.0-1' }} %</td>
+                <td class="text-end pharma-price">
+                  @if (ligne.part === null) {
+                    <span class="text-muted">hors CA</span>
+                  } @else {
+                    {{ ligne.part | number: '1.0-1' }} %
+                  }
+                </td>
               </tr>
             }
           </tbody>

@@ -569,7 +569,7 @@ public class ImportationProduitService {
                 .collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').build().parse(br);
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').get().parse(br);
             records.forEach(record -> {
                 var index = count.get();
                 if (index == 0) {

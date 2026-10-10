@@ -27,7 +27,7 @@
 -- decrivent l'etat au moment du mouvement — sans que le stock courant en soit
 -- affecte une seconde fois.
 --
--- Se place apres 16_mouvements.sql : le stock courant doit etre stabilise.
+-- Le journal (24_mouvements.sql, en fin de chargement) donne a chaque ligne son stock avant / apres.
 -- ============================================================================
 
 \echo '>> 16b_ajustements : bons d ajustement et demarque'

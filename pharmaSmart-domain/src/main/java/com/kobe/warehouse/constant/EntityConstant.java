@@ -62,6 +62,17 @@ public final class EntityConstant {
     public static final String APP_VENTE_ORDONNANCE_OBLIGATOIRE = "APP_VENTE_ORDONNANCE_OBLIGATOIRE";
     public static final String APP_CANCEL_SALE_MAX_DAYS = "APP_CANCEL_SALE_MAX_DAYS"; // Délai maximum (en jours) pour annuler une vente clôturée
     public static final String APP_CANCEL_SALE_MAX_DAYS_CACHE = "APP_CANCEL_SALE_MAX_DAYS_CACHE";
+    public static final String APP_EXPORT_RETENTION_JOURS = "APP_EXPORT_RETENTION_JOURS"; // Jours de conservation d'un fichier exporté
+    public static final String APP_PILOTAGE_SEUIL_STOCK_DORMANT = "APP_PILOTAGE_SEUIL_STOCK_DORMANT"; // Jours sans vente d'un produit dormant
+    public static final String APP_PILOTAGE_TRANCHES_REMISE = "APP_PILOTAGE_TRANCHES_REMISE"; // Seuils des tranches de remise du pilotage (%)
+    public static final String APP_PILOTAGE_SEUIL_FAIBLE_MARGE = "APP_PILOTAGE_SEUIL_FAIBLE_MARGE"; // Taux de marge (%) d'un produit « à faible marge »
+    public static final String APP_PILOTAGE_ALERTE_REMISE_VENDEUR = "APP_PILOTAGE_ALERTE_REMISE_VENDEUR"; // Multiple du taux de remise de l'équipe signalé
+    public static final String APP_PILOTAGE_ALERTE_CHUTE_ACTIVITE = "APP_PILOTAGE_ALERTE_CHUTE_ACTIVITE"; // CA des 7 jours sous ce % de N-1
+    public static final String APP_PILOTAGE_ALERTE_FAMILLE_RECUL = "APP_PILOTAGE_ALERTE_FAMILLE_RECUL"; // Baisse (%) du CA d'une famille sur le mois
+    public static final String APP_PILOTAGE_ALERTE_EROSION_MARGE = "APP_PILOTAGE_ALERTE_EROSION_MARGE"; // Baisse (points) du taux de marge du mois
+    public static final String APP_PILOTAGE_ALERTE_OBJECTIF_MENACE = "APP_PILOTAGE_ALERTE_OBJECTIF_MENACE"; // Projection sous ce % de l'objectif
+    public static final String APP_PILOTAGE_ALERTE_RATIO_ACHATS = "APP_PILOTAGE_ALERTE_RATIO_ACHATS"; // Ratio ventes / achats sur 30 jours
+    public static final String APP_PILOTAGE_ALERTE_DSO_ORGANISME = "APP_PILOTAGE_ALERTE_DSO_ORGANISME"; // Jours de chiffre en encours d'un organisme
     public static final String APP_PONCTION_ANNULATION_MAX_DAYS = "APP_PONCTION_ANNULATION_MAX_DAYS"; // Délai (en jours) pour annuler une ponction validée
     public static final String APP_PONCTION_ANNULATION_MAX_DAYS_CACHE = "APP_PONCTION_ANNULATION_MAX_DAYS_CACHE";
     public static final String APP_PONCTION_PLAFOND_DEFAUT = "APP_PONCTION_PLAFOND_DEFAUT"; // Part maximale d'une vente qu'une ponction peut retirer

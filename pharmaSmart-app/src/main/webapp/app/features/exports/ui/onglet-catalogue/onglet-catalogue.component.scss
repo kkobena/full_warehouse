@@ -1,0 +1,60 @@
+// Mise en page ; couleurs : jetons du thème.
+.catalogue {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.catalogue-rubrique {
+  margin: 0.5rem 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.catalogue-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: 0.75rem;
+}
+
+.catalogue-note,
+.catalogue-description {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--pharma-text-muted);
+}
+
+.catalogue-colonnes {
+  margin: 0.5rem 0;
+  font-size: 0.8rem;
+
+  p {
+    margin: 0.25rem 0 0;
+  }
+}
+
+.catalogue-reglage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.catalogue-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.catalogue-liens {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.2rem 0;
+  }
+}

@@ -1,0 +1,62 @@
+<div #page [style.--pilotage-hauteur]="hauteur()" class="pharma-smart-content pilotage-page">
+  <app-toolbar [compact]="true" code="pilotage" icon="pi pi-gauge" title="Pilotage de l'officine">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <app-barre-periode (requeteChange)="changerRequete($event)" [avecObjectifs]="avecObjectifs()" [requete]="requete()" />
+    </ng-container>
+  </app-toolbar>
+
+  @if (ongletsVisibles().length === 0) {
+    <p class="text-muted">Aucun onglet du pilotage ne vous est ouvert. Demandez l'accès à votre administrateur.</p>
+  } @else {
+    <app-nav-tabs [nav]="nav" class="pilotage-onglets">
+      <div
+        #nav="ngbNav"
+        (activeIdChange)="changerOnglet($event)"
+        [activeId]="ongletActif()"
+        aria-label="Onglets du pilotage"
+        class="nav pharma-nav-tabs"
+        ngbNav
+        orientation="horizontal"
+      >
+        @for (onglet of ongletsVisibles(); track onglet.id) {
+          <ng-container [ngbNavItem]="onglet.id">
+            <a [ngbTooltip]="onglet.question + ' ' + onglet.aide" class="pharma-nav-tab-link" container="body" ngbNavLink [openDelay]="400" placement="bottom">
+              <app-nav-section-link [arrow]="false" [code]="onglet.code" [fallbackIcon]="onglet.icone" [fallbackLabel]="onglet.libelle" />
+            </a>
+            <ng-template ngbNavContent>
+              @switch (onglet.id) {
+                @case ('tableau-de-bord') {
+                  <app-onglet-tableau-de-bord [requete]="requete()" />
+                }
+                @case ('analyser') {
+                  <app-onglet-analyser [requete]="requete()" />
+                }
+                @case ('comparer-annees') {
+                  <app-onglet-comparer-annees [requete]="requete()" />
+                }
+                @case ('rentabilite-remises') {
+                  <app-onglet-rentabilite [requete]="requete()" />
+                }
+                @case ('achats-stock') {
+                  <app-onglet-achats-stock [requete]="requete()" />
+                }
+                @case ('tresorerie-tiers-payant') {
+                  <app-onglet-tresorerie [requete]="requete()" />
+                }
+                @case ('clients-equipe') {
+                  <app-onglet-clients-equipe [requete]="requete()" />
+                }
+                @case ('objectifs') {
+                  <app-onglet-objectifs [requete]="requete()" />
+                }
+                @default {
+                  <app-onglet-a-venir [onglet]="onglet" />
+                }
+              }
+            </ng-template>
+          </ng-container>
+        }
+      </div>
+    </app-nav-tabs>
+  }
+</div>

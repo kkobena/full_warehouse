@@ -39,7 +39,7 @@ export interface AppPillOption {
     multi: true
   }],
   template: `
-    <div class="app-pill-selector" role="group"
+    <div class="app-pill-selector" role="group" [attr.aria-label]="ariaLabel() || null"
          [class.app-pill-selector--disabled]="isDisabled() || disabled()">
       @for (opt of items(); track opt.value) {
         <button
@@ -116,6 +116,8 @@ export class PillSelectorComponent extends ControlValueAccessorBase<unknown> {
   readonly items = input.required<readonly AppPillOption[]>();
 
   readonly disabled = input<boolean>(false);
+  /** Nom du groupe pour les lecteurs d'écran (« Affichage »…). */
+  readonly ariaLabel = input<string>('');
 
   /** Émis après la mise à jour du modèle — voir la note sur `(ngModelChange)` ci-dessus. */
   readonly selectionChange = output<unknown>();

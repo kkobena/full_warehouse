@@ -1,0 +1,105 @@
+<section aria-labelledby="rentabilite-marge" class="section-onglet">
+  <h3 class="section-titre" id="rentabilite-marge">Marge</h3>
+
+  <app-kpi-strip [loading]="series.isLoading()" [skeletonCount]="4">
+    @for (serie of series.value()?.series ?? []; track serie.indicateur.code) {
+      <app-kpi-item [label]="serie.indicateur.libelle" [info]="serie.indicateur.definition" [value]="serie.valeur | valeurIndicateur: serie.indicateur.unite">
+        <ng-container ngProjectAs="[kpiSub]">
+          <app-variation [ecartPct]="serie.ecartPct" [ecart]="serie.ecart" [sensFavorable]="serie.indicateur.sensFavorable" [unite]="serie.indicateur.unite" />
+        </ng-container>
+      </app-kpi-item>
+    }
+  </app-kpi-strip>
+
+  @if (lectureMix()) {
+    <p class="section-lecture" role="status">{{ lectureMix() }}</p>
+  }
+
+  <div class="section-grille">
+    <app-card [header]="'Taux de marge — ' + horizon()" icon="pi pi-chart-line">
+      @if (tauxDansLeTemps(); as serie) {
+        <app-courbe-indicateur [requete]="requete()" [serie]="serie" />
+      }
+    </app-card>
+
+    <app-card [header]="'Faibles marges (sous ' + (marge.value()?.seuilFaibleMarge ?? '') + ' %)'" icon="pi pi-exclamation-circle">
+      <app-data-table [scrollable]="true" scrollHeight="22rem" [loading]="marge.isLoading()" [stripedRows]="true" [value]="marge.value()?.faiblesMarges ?? []" emptyMessage="Aucun produit sous le seuil"
+                      size="small">
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th scope="col">Produit</th>
+            <th class="text-end" scope="col">CA HT</th>
+            <th class="text-end" scope="col">Taux de marge <app-aide texte="Marge / CA HT du produit." /></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-ligne>
+          <tr>
+            <th scope="row">{{ ligne.libelle }}</th>
+            <td class="text-end">{{ ligne.caHt | valeurIndicateur: 'MONTANT' : true }}</td>
+            <td class="text-end">{{ ligne.taux | valeurIndicateur: 'POURCENTAGE' }}</td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </app-card>
+  </div>
+
+  <app-card header="Marge par élément" icon="pi pi-table">
+    <app-select (selectionChange)="choisirAxe($event)" [clearable]="false" [items]="axes" [ngModel]="axe()" [searchable]="false" ariaLabel="Ventiler la marge par"
+                bindLabel="libelle" bindValue="valeur" cardActions inputId="pilotageMargeAxe" [style]="{'min-width': '200px'}" />
+    <app-data-table [scrollable]="true" scrollHeight="22rem" [loading]="marge.isLoading()" [stripedRows]="true" [paginator]="(marge.value()?.lignes?.length ?? 0) > 25" [rows]="25" [value]="marge.value()?.lignes ?? []" emptyMessage="Aucune vente sur la période" size="small">
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th scope="col">{{ marge.value()?.axe?.libelle }}</th>
+          <th class="text-end" scope="col">CA HT</th>
+          <th class="text-end" scope="col">Coût HT</th>
+          <th class="text-end" scope="col">Marge</th>
+          <th class="text-end" scope="col">Taux <app-aide texte="Taux de marge (marge / CA HT) ; dessous, l'écart en points avec la référence." /></th>
+          <th class="text-end" scope="col">Effet volume <app-aide texte="Marge gagnée ou perdue par le CA en plus ou en moins, au taux de marge de référence." /></th>
+          <th class="text-end" scope="col">Effet taux <app-aide texte="Marge gagnée ou perdue par la variation du taux de marge, à CA constant." /></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-ligne>
+        <tr>
+          <th scope="row">{{ ligne.libelle }}</th>
+          <td class="text-end">{{ ligne.caHt | valeurIndicateur: 'MONTANT' : true }}</td>
+          <td class="text-end">{{ ligne.coutHt | valeurIndicateur: 'MONTANT' : true }}</td>
+          <td class="text-end">{{ ligne.marge | valeurIndicateur: 'MONTANT' : true }}</td>
+          <td class="text-end">
+            <div>{{ ligne.taux | valeurIndicateur: 'POURCENTAGE' }}</div>
+            @if (ligne.tauxReference !== null) {
+              <app-variation [ecart]="ligne.ecartTaux" sensFavorable="HAUSSE" unite="POURCENTAGE" />
+            }
+          </td>
+          <td class="text-end">{{ ligne.effetVolume | valeurIndicateur: 'MONTANT' : true }}</td>
+          <td class="text-end">{{ ligne.effetTaux | valeurIndicateur: 'MONTANT' : true }}</td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </app-card>
+
+  <app-card header="Ventes à marge négative" icon="pi pi-arrow-down">
+    <app-data-table [scrollable]="true" scrollHeight="22rem" [loading]="marge.isLoading()" [stripedRows]="true" [paginator]="(marge.value()?.ventesAMargeNegative?.length ?? 0) > 25" [rows]="25" [value]="marge.value()?.ventesAMargeNegative ?? []" emptyMessage="Aucune vente à perte sur la période"
+                    size="small">
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th scope="col">Date</th>
+          <th scope="col">Vente</th>
+          <th scope="col">Vendeur</th>
+          <th class="text-end" scope="col">CA HT</th>
+          <th class="text-end" scope="col">Coût HT</th>
+          <th class="text-end" scope="col">Marge</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-vente>
+        <tr>
+          <td>{{ vente.saleDate | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ vente.numero }}</td>
+          <td>{{ vente.vendeur ?? '—' }}</td>
+          <td class="text-end">{{ vente.caHt | valeurIndicateur: 'MONTANT' : true }}</td>
+          <td class="text-end">{{ vente.coutHt | valeurIndicateur: 'MONTANT' : true }}</td>
+          <td class="text-end">{{ vente.marge | valeurIndicateur: 'MONTANT' : true }}</td>
+        </tr>
+      </ng-template>
+    </app-data-table>
+  </app-card>
+</section>

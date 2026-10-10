@@ -269,7 +269,13 @@
                       <td>{{ ligne.libelle }}</td>
                       <td class="text-end pharma-price">{{ ligne.nbVentes | number }}</td>
                       <td class="text-end pharma-price">{{ ligne.caNet | number }}</td>
-                      <td class="text-end pharma-price">{{ ligne.part | number: '1.0-1' }} %</td>
+                      <td class="text-end pharma-price">
+                        @if (ligne.part === null) {
+                          <span class="text-muted">hors CA</span>
+                        } @else {
+                          {{ ligne.part | number: '1.0-1' }} %
+                        }
+                      </td>
                     </tr>
                   }
                 </tbody>

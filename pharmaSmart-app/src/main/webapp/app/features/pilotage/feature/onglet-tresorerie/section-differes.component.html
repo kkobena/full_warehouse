@@ -1,0 +1,32 @@
+<section aria-labelledby="tresorerie-differes" class="section-onglet">
+  <h3 class="section-titre" id="tresorerie-differes">Différés & crédit</h3>
+  @if (differes.error()) {
+    <p class="text-danger" role="alert">Les différés n'ont pas pu être chargés.</p>
+  }
+  <app-tuiles-cellules [loading]="differes.isLoading()" [tuiles]="tuiles()" />
+  @if (differes.value(); as d) {
+    <div class="section-grille">
+      <app-card header="Ancienneté des différés" icon="pi pi-hourglass">
+        <app-barres [libelles]="libelles()" [series]="series()" description="Reste dû des ventes différées par ancienneté" />
+      </app-card>
+      <app-card header="Clients qui doivent le plus" icon="pi pi-users">
+        <app-data-table [scrollable]="true" scrollHeight="22rem" [stripedRows]="true" [value]="d.clients" emptyMessage="Aucun différé à recouvrer" size="small">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th scope="col">Client</th>
+              <th class="text-end" scope="col">Ventes</th>
+              <th class="text-end" scope="col">Reste dû</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-client>
+            <tr>
+              <th scope="row">{{ client.libelle }}</th>
+              <td class="text-end">{{ client.nombre }}</td>
+              <td class="text-end">{{ client.montant | valeurIndicateur: 'MONTANT' : true }}</td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </app-card>
+    </div>
+  }
+</section>

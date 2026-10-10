@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 import { AppKpiAccent } from './kpi-strip.component';
 
@@ -22,6 +23,7 @@ import { AppKpiAccent } from './kpi-strip.component';
  */
 @Component({
   selector: 'app-kpi-item',
+  imports: [NgbTooltip],
   // Les classes sont portées par l'hôte, pas par un `<div>` interne : `.kpi-strip` est un
   // conteneur flex et `app-kpi-item` en est l'enfant direct. Un div intermédiaire
   // s'interposerait, et c'est l'hôte — non stylé — qui recevrait le `flex: 1`.
@@ -43,6 +45,19 @@ import { AppKpiAccent } from './kpi-strip.component';
       <span class="kpi-strip-label">
         {{ label() }}
         <ng-content select="[kpiLabel]" />
+        @if (info()) {
+          <button
+            [attr.aria-label]="'Explication : ' + info()"
+            [ngbTooltip]="info()"
+            [openDelay]="200"
+            class="kpi-strip-info"
+            container="body"
+            placement="bottom"
+            type="button"
+          >
+            <i aria-hidden="true" class="pi pi-info-circle"></i>
+          </button>
+        }
       </span>
 
       <!--
@@ -86,6 +101,9 @@ export class KpiItemComponent {
 
   /** Couleur de la valeur, ex. `text-success`. */
   readonly valueClass = input<string>('');
+
+  /** Explication de l'indicateur : une icône d'information après le libellé, infobulle au survol ou au focus. */
+  readonly info = input<string | null | undefined>('');
 
   /** Barre verticale colorée à gauche de l'item. */
   readonly accent = input<AppKpiAccent>('none');

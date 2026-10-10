@@ -1,0 +1,33 @@
+<div class="pharma-smart-content">
+  <app-toolbar [compact]="true" code="exports" icon="pi pi-download" title="Exports de données" />
+
+  @if (ongletsVisibles().length === 0) {
+    <p class="text-muted">Aucun onglet des exports ne vous est ouvert. Demandez l'accès à votre administrateur.</p>
+  } @else {
+    <app-nav-tabs [nav]="nav">
+      <div #nav="ngbNav" (activeIdChange)="changerOnglet($event)" [activeId]="ongletActif()" aria-label="Onglets des exports" class="nav pharma-nav-tabs"
+           ngbNav orientation="horizontal">
+        @for (onglet of ongletsVisibles(); track onglet.id) {
+          <ng-container [ngbNavItem]="onglet.id">
+            <a class="pharma-nav-tab-link" ngbNavLink>
+              <app-nav-section-link [arrow]="false" [code]="onglet.code" [fallbackIcon]="onglet.icone" [fallbackLabel]="onglet.libelle" />
+            </a>
+            <ng-template ngbNavContent>
+              @switch (onglet.id) {
+                @case ('catalogue') {
+                  <app-onglet-catalogue (demande)="changerOnglet('historique')" (modele)="preparerModele($event)" />
+                }
+                @case ('historique') {
+                  <app-onglet-historique />
+                }
+                @case ('modeles') {
+                  <app-onglet-modeles (execution)="changerOnglet('historique')" [aPreparer]="modeleAPreparer" />
+                }
+              }
+            </ng-template>
+          </ng-container>
+        }
+      </div>
+    </app-nav-tabs>
+  }
+</div>

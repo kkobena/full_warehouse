@@ -99,6 +99,17 @@ $pharma-themes: (
   }
   --p-primary-color: #{$accent};
 
+  // Séries des graphiques à plusieurs courbes : la première suit l'accent du thème ; toutes tiennent 4,5:1 sur les fonds
+  // clairs (WCAG 1.4.11 en exige 3:1 pour un trait). Les teintes 400 de `--p-*` restent pour les aplats.
+  --pharma-chart-serie-1: #{map-get(map-get($t, accent-scale), 700)};
+  --pharma-chart-serie-2: #c2410c;
+  --pharma-chart-serie-3: #a21caf;
+  --pharma-chart-serie-4: #1d4ed8;
+  --pharma-chart-serie-5: #b45309;
+  --pharma-chart-serie-6: #4338ca;
+  --pharma-chart-serie-7: #b91c1c;
+  --pharma-chart-serie-8: #0e7490;
+
   // 25 % comme les thèmes de couleur : à 15 %, le halo du champ actif se devinait à peine.
   --pharma-focus-ring: 0 0 0 0.2rem #{rgba($accent, 0.25)};
 }

@@ -1,0 +1,98 @@
+@use '../../ui/bandeau-lecture' as *;
+
+// Mise en page seulement : couleurs et cadres viennent des composants du Design System et des jetons du thème.
+// Tout texte hors carte est posé sur la surface du thème : sur le fond de page, il s'y confondait.
+.annees {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.annees-reglage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem 0.75rem;
+  border: 1px solid var(--pharma-surface-border);
+  border-radius: var(--pharma-surface-radius);
+  background: var(--pharma-surface);
+}
+
+// Libellé au-dessus de chaque contrôle ; la marge basse d'app-form-field est faite pour un formulaire.
+.annees-champs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem 0.75rem;
+}
+
+.annees-champ {
+  flex: 1 1 10rem;
+  min-width: 10rem;
+  max-width: 14rem;
+
+  &--large {
+    flex: 2 1 16rem;
+    max-width: 22rem;
+  }
+
+  &--auto {
+    flex: 0 0 auto;
+    max-width: none;
+  }
+
+  ::ng-deep .form-field {
+    gap: 0.15rem;
+    margin-bottom: 0;
+  }
+
+  ::ng-deep .form-field-label {
+    margin-bottom: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--pharma-text-muted);
+  }
+}
+
+// Case et filtre alignés sur la ligne des contrôles, pas sur celle des libellés.
+.annees-jour-ouvre,
+.annees-filtre {
+  align-self: center;
+  margin-top: 1.1rem;
+}
+
+.annees-note {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--pharma-border);
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--pharma-text);
+
+  .pi {
+    margin-top: 0.2rem;
+    color: var(--pharma-chrome-tab);
+  }
+}
+
+// Phrase de lecture : même bandeau que le contexte du tableau de bord.
+.annees-lecture {
+  @include bandeau-lecture;
+}
+
+.annees-chargement {
+  margin: 0;
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--pharma-surface-radius);
+  background: var(--pharma-surface);
+  color: var(--pharma-text-muted);
+}
+
+.annees-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+  gap: 0.6rem;
+}

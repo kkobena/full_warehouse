@@ -1,0 +1,76 @@
+@use 'bandeau-lecture' as *;
+
+// Mise en page commune aux sous-sections des onglets du pilotage (ancres en tête d'onglet) ; couleurs : jetons du thème.
+// Un seul rythme : 0,6rem entre les blocs d'une section (porté par le gap, aucun bloc n'ajoute sa marge), 1rem entre sections,
+// chacune ouverte par un filet.
+.onglet-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-onglet {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  border-top: 1px solid var(--pharma-border);
+  scroll-margin-top: 1rem;
+}
+
+// Le bandeau de KPI garde une marge basse faite pour un écran classique ; ici, le gap suffit.
+app-kpi-strip ::ng-deep .kpi-strip,
+app-tuiles-cellules ::ng-deep .kpi-strip {
+  margin-bottom: 0;
+}
+
+.section-entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.section-titre {
+  margin: 0;
+  // Le titre visé par une ancre s'arrête sous la barre d'ancres, collée en haut de la zone qui défile.
+  scroll-margin-top: 4rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.section-lecture {
+  @include bandeau-lecture;
+}
+
+.section-note {
+  // Dans une carte, rien ne porte d'espacement : la note garde le sien sous elle.
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--pharma-text);
+}
+
+// Hors carte, la note se confondait avec le fond de page : posée sur la surface, avec un filet discret à l'accent du thème.
+.section-onglet > .section-note {
+  margin: 0;
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--pharma-surface-border);
+  border-left: 3px solid var(--pharma-chrome-tab);
+  border-radius: var(--pharma-surface-radius);
+  background: var(--pharma-surface);
+}
+
+.section-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+  gap: 0.6rem;
+}
+
+// Taux de remise d'une vente : au-delà du seuil d'alerte, pastille « warn » du Design System (comme le vendeur en alerte).
+.taux-remise {
+  white-space: nowrap;
+}

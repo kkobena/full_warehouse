@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVendu;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVenduRequestParam;
@@ -19,10 +18,10 @@ public class RecapProduitInvenduPdfService extends AbstractStatistiqueReportServ
     private final SpringTemplateEngine templateEngine;
     private final Map<String, Object> variablesMap = new HashMap<>();
 
-    public RecapProduitInvenduPdfService(FileStorageProperties fileStorageProperties,
-                                         StorageService storageService,
-                                         SpringTemplateEngine templateEngine) {
-        super(fileStorageProperties, storageService);
+    public RecapProduitInvenduPdfService(
+        StorageService storageService,
+        SpringTemplateEngine templateEngine) {
+        super(storageService);
         this.templateEngine = templateEngine;
     }
 
@@ -48,14 +47,14 @@ public class RecapProduitInvenduPdfService extends AbstractStatistiqueReportServ
     }
 
     public byte[] export(Page<RecapProduitVendu> data,
-                        RecapProduitVenduSummary summary,
-                        RecapProduitVenduRequestParam requestParam) {
+                         RecapProduitVenduSummary summary,
+                         RecapProduitVenduRequestParam requestParam) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         String title = "Récapitulatif des Produits Invendus";
         if (requestParam.startDate() != null && requestParam.endDate() != null) {
             title += " du " + requestParam.startDate().format(formatter) +
-                     " au " + requestParam.endDate().format(formatter);
+                " au " + requestParam.endDate().format(formatter);
         }
 
         this.getParameters().put("items", data.getContent());

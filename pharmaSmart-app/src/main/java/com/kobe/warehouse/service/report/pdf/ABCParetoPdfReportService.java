@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.ABCParetoDTO;
 import com.kobe.warehouse.service.dto.report.ABCParetoSummaryDTO;
@@ -20,8 +19,8 @@ public class ABCParetoPdfReportService extends AbstractStatistiqueReportService 
 
     private final ABCParetoReportService abcParetoReportService;
 
-    public ABCParetoPdfReportService(FileStorageProperties fileStorageProperties, StorageService storageService, SpringTemplateEngine templateEngine, ABCParetoReportService abcParetoReportService) {
-        super(fileStorageProperties, storageService);
+    public ABCParetoPdfReportService( StorageService storageService, SpringTemplateEngine templateEngine, ABCParetoReportService abcParetoReportService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.abcParetoReportService = abcParetoReportService;
     }

@@ -7,11 +7,9 @@ import com.kobe.warehouse.service.ImportationProduitService;
 import com.kobe.warehouse.service.dto.InstallationDataDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.web.util.ResponseUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
-import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,8 +64,7 @@ public class ImportationProduitResource {
     }
 
     @GetMapping("/rejet-csv/{nom-fichier}")
-    public ResponseEntity<Resource> getRejetCsv(@PathVariable("nom-fichier") String nomFichier, HttpServletRequest request) {
-        final Resource resource = importationProduitService.getRejets(nomFichier);
-        return Utils.exportCsv(resource, request);
+    public ResponseEntity<byte[]> getRejetCsv(@PathVariable("nom-fichier") String nomFichier) {
+        return Utils.exportCsv(importationProduitService.getRejets(nomFichier), nomFichier);
     }
 }

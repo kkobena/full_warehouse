@@ -1,19 +1,19 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.service.license.DemoWatermark;
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.CompteFournisseurAPDTO;
 import com.kobe.warehouse.service.dto.FournisseurAPSummaryDTO;
 import com.kobe.warehouse.service.dto.LigneFournisseurAPDTO;
+import com.kobe.warehouse.service.license.DemoWatermark;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class AccountsPayableApPdfExportService extends AbstractStatistiqueReportService {
@@ -21,12 +21,8 @@ public class AccountsPayableApPdfExportService extends AbstractStatistiqueReport
     private final SpringTemplateEngine templateEngine;
     private final Map<String, Object> variablesMap = new HashMap<>();
 
-    public AccountsPayableApPdfExportService(
-        FileStorageProperties fileStorageProperties,
-        StorageService storageService,
-        SpringTemplateEngine templateEngine
-    ) {
-        super(fileStorageProperties, storageService);
+    public AccountsPayableApPdfExportService(StorageService storageService, SpringTemplateEngine templateEngine) {
+        super(storageService);
         this.templateEngine = templateEngine;
     }
 
@@ -51,8 +47,7 @@ public class AccountsPayableApPdfExportService extends AbstractStatistiqueReport
         return "comptes_fournisseurs";
     }
 
-    public byte[] exportGlobal(List<CompteFournisseurAPDTO> comptes, FournisseurAPSummaryDTO summary,
-                               LocalDate fromDate, LocalDate toDate) {
+    public byte[] exportGlobal(List<CompteFournisseurAPDTO> comptes, FournisseurAPSummaryDTO summary, LocalDate fromDate, LocalDate toDate) {
         variablesMap.clear();
         variablesMap.put("comptes", comptes);
         variablesMap.put("summary", summary);

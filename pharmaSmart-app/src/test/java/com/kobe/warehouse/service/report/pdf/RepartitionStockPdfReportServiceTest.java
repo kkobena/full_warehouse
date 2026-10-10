@@ -28,7 +28,6 @@ class RepartitionStockPdfReportServiceTest {
     @BeforeEach
     void setUp() {
         service = new RepartitionStockPdfReportService(
-            PdfReportTestSupport.proprietes(),
             PdfReportTestSupport.storageService(),
             PdfReportTestSupport.moteurDeGabarits()
         );

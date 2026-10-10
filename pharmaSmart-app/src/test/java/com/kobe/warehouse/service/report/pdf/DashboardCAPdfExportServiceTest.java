@@ -60,7 +60,7 @@ class DashboardCAPdfExportServiceTest {
         StorageService storageService = mock(StorageService.class);
         when(storageService.getUser()).thenReturn(utilisateur);
 
-        service = new DashboardCAPdfExportService(mock(FileStorageProperties.class), storageService, moteurDeGabarits, dashboardCAService);
+        service = new DashboardCAPdfExportService(storageService, moteurDeGabarits, dashboardCAService);
 
         when(dashboardCAService.getOverallSummary()).thenReturn(resumeVide());
         when(dashboardCAService.getPaymentMethodDistribution(any(), any())).thenReturn(List.of());

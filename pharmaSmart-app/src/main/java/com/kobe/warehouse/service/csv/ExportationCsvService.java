@@ -1,61 +1,30 @@
 package com.kobe.warehouse.service.csv;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.OrderItem;
-import com.kobe.warehouse.service.errors.FileStorageException;
-import com.kobe.warehouse.service.errors.GenericError;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ExportationCsvService {
 
     private final Logger log = LoggerFactory.getLogger(ExportationCsvService.class);
-    private final Path fileStorageLocation;
 
-    public ExportationCsvService(FileStorageProperties fileStorageProperties) {
-        this.fileStorageLocation = Paths.get(fileStorageProperties.getReportsDir()).toAbsolutePath().normalize();
-
-        try {
-            Files.createDirectories(this.fileStorageLocation);
-        } catch (IOException ex) {
-            throw new FileStorageException("Could not create the directory where the uploaded files will be stored.", ex);
-        }
-    }
-
-    public String exportCommandeToCsv(Commande commande) {
-        log.info("Writing data to the csv printer");
-        String filename =
-            this.fileStorageLocation.resolve(
-                    "commande_" +
-                    commande.getOrderReference() +
-                    "_" +
-                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) +
-                    ".csv"
-                )
-                .toFile()
-                .getAbsolutePath();
-        try (final FileWriter writer = new FileWriter(filename); final CSVPrinter printer = new CSVPrinter(writer, CSVFormat.EXCEL)) {
+    /** La commande au format CIP / quantité, produite en mémoire. */
+    public byte[] exportCommandeToCsv(Commande commande) {
+        StringWriter writer = new StringWriter();
+        try (final CSVPrinter printer = new CSVPrinter(writer, CSVFormat.EXCEL)) {
             commande
                 .getOrderLines()
                 .forEach(orderLine -> {
@@ -77,21 +46,13 @@ public class ExportationCsvService {
         } catch (final IOException e) {
             throw new RuntimeException("Csv writing error: " + e.getMessage());
         }
-        return filename;
+        return writer.toString().getBytes(StandardCharsets.UTF_8);
     }
 
-    public void createRuptureFile(String reference, List<OrderItem> items, CommandeModel commandeModel) {
-        log.info("createRuptureFile data to the csv printer");
-        String filename =
-            this.fileStorageLocation.resolve(
-                    "rupture_" + reference + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy_MM_dd")) + ".csv"
-                )
-                .toFile()
-                .getAbsolutePath();
-        try (
-            final FileWriter writer = new FileWriter(filename);
-            final CSVPrinter printer = new CSVPrinter(writer, CSVFormat.EXCEL.builder().setDelimiter(';').get())
-        ) {
+    /** Les lignes non prises en compte d'un import de commande, au format du grossiste, produites en mémoire. */
+    public byte[] exporterRuptures(List<OrderItem> items, CommandeModel commandeModel) {
+        StringWriter writer = new StringWriter();
+        try (final CSVPrinter printer = new CSVPrinter(writer, CSVFormat.EXCEL.builder().setDelimiter(';').get())) {
             switch (commandeModel) {
                 case LABOREX -> printLaborexFormatCsv(printer, items);
                 case DPCI -> printDPCIFormatCsv(printer, items);
@@ -103,6 +64,7 @@ public class ExportationCsvService {
         } catch (final IOException e) {
             throw new RuntimeException("Csv writing error: " + e.getMessage());
         }
+        return writer.toString().getBytes(StandardCharsets.UTF_8);
     }
 
     private void printLaborexFormatCsv(CSVPrinter printer, List<OrderItem> items) throws IOException {
@@ -198,18 +160,6 @@ public class ExportationCsvService {
                 item.getPrixUn(),
                 ""
             );
-        }
-    }
-
-    public Resource getRutureFileByOrderReference(String reference) {
-        Path path =
-            this.fileStorageLocation.resolve(
-                    "rupture_" + reference + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy_MM_dd")) + ".csv"
-                );
-        try {
-            return new UrlResource(path.toUri());
-        } catch (MalformedURLException e) {
-            throw new GenericError("Le fichier n'existe pas ", "duplicateProvider");
         }
     }
 

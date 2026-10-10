@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.stock.impl;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
@@ -25,10 +24,9 @@ public class LotServiceReportServiceImpl extends CommonReportService implements 
 
     public LotServiceReportServiceImpl(
         SpringTemplateEngine templateEngine,
-        FileStorageProperties fileStorageProperties,
         StorageService storageService
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
     }
 

@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.tiketz.service;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.MailService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
@@ -25,12 +24,11 @@ public class TicketZReportServiceImpl extends CommonReportService implements Tic
     private final Map<String, Object> variablesMap = new HashMap<>();
     private final UserService userService;
     public TicketZReportServiceImpl(
-        FileStorageProperties fileStorageProperties,
         SpringTemplateEngine templateEngine,
         StorageService storageService,
         MailService mailService, UserService userService
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
         this.mailService = mailService;
         this.userService = userService;

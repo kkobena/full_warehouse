@@ -1,17 +1,5 @@
 package com.kobe.warehouse.service.sale;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.CashSale;
@@ -22,7 +10,6 @@ import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.TiersPayant;
-import com.kobe.warehouse.domain.VenteDepot;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
@@ -35,6 +22,7 @@ import com.kobe.warehouse.service.ReceiptPrinterService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
+import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.report.SaleInvoiceReportService;
 import jakarta.persistence.EntityManager;
@@ -42,31 +30,52 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 class SaleDataServiceFetchTest {
 
-    @Mock private EntityManager entityManager;
-    @Mock private SaleInvoiceReportService invoiceService;
-    @Mock private SalesLineRepository lineRepository;
-    @Mock private ThirdPartySaleLineRepository thirdPartyLineRepository;
-    @Mock private ReceiptPrinterService printerService;
-    @Mock private SalesRepository salesRepository;
-    @Mock private StorageService storageService;
-    @Mock(answer = org.mockito.Answers.RETURNS_DEEP_STUBS) private CriteriaBuilder criteriaBuilder;
-    @Mock(answer = org.mockito.Answers.RETURNS_DEEP_STUBS) private CriteriaQuery<Sales> criteriaQuery;
-    @Mock(answer = org.mockito.Answers.RETURNS_DEEP_STUBS) private Root<Sales> root;
-    @Mock private TypedQuery<Sales> typedQuery;
+    @Mock
+    private EntityManager entityManager;
+    @Mock
+    private SaleInvoiceReportService invoiceService;
+    @Mock
+    private SalesLineRepository lineRepository;
+    @Mock
+    private ThirdPartySaleLineRepository thirdPartyLineRepository;
+    @Mock
+    private ReceiptPrinterService printerService;
+    @Mock
+    private SalesRepository salesRepository;
+    @Mock
+    private StorageService storageService;
+    @Mock(answer = org.mockito.Answers.RETURNS_DEEP_STUBS)
+    private CriteriaBuilder criteriaBuilder;
+    @Mock(answer = org.mockito.Answers.RETURNS_DEEP_STUBS)
+    private CriteriaQuery<Sales> criteriaQuery;
+    @Mock(answer = org.mockito.Answers.RETURNS_DEEP_STUBS)
+    private Root<Sales> root;
+    @Mock
+    private TypedQuery<Sales> typedQuery;
+    @Mock
+    private TypedQuery<String> prescripteurQuery;
 
     private SaleDataService service;
     private SaleId id;
@@ -87,11 +96,14 @@ class SaleDataServiceFetchTest {
     void getsEntityAndMapsCashPurchaseForReadAndEdit() {
         CashSale sale = cashSale();
         when(typedQuery.getSingleResult()).thenReturn(sale);
+        prescripteurs(List.of(), List.of());
 
         assertSame(sale, service.getOne(id));
         assertEquals(7L, service.findOne(id).getId());
         assertTrue(service.fetchPurchaseForEditBy(7L, id.getSaleDate()).isPresent());
-        assertEquals(7L, service.fetchPurchaseBy(7L, id.getSaleDate()).getId());
+        SaleDTO lu = service.fetchPurchaseBy(7L, id.getSaleDate());
+        assertEquals(7L, lu.getId());
+        assertNull(lu.getPrescripteur());
     }
 
     @Test
@@ -134,6 +146,7 @@ class SaleDataServiceFetchTest {
         when(typedQuery.getSingleResult()).thenReturn(sale);
         when(thirdPartyLineRepository.findAllBySaleIdAndSaleSaleDate(7L, id.getSaleDate()))
             .thenReturn(List.of(thirdPartyLine));
+        prescripteurs(List.of("KONE Awa"));
 
         ThirdPartySaleDTO result = assertInstanceOf(
             ThirdPartySaleDTO.class,
@@ -141,6 +154,7 @@ class SaleDataServiceFetchTest {
         );
 
         assertEquals("BON-7", result.getNumBon());
+        assertEquals("KONE Awa", result.getPrescripteur());
         assertEquals(1, result.getThirdPartySaleLines().size());
         assertEquals(1, result.getTiersPayants().size());
         AssuredCustomerDTO customer = assertInstanceOf(AssuredCustomerDTO.class, result.getCustomer());
@@ -170,6 +184,22 @@ class SaleDataServiceFetchTest {
         assertEquals("BON-7", dto.getNumBon());
         assertEquals("MAT-7", assertInstanceOf(AssuredCustomerDTO.class, dto.getCustomer()).getNum());
         assertEquals(1, dto.getThirdPartySaleLines().size());
+    }
+
+    /**
+     * Prescripteur de la vente : la première liste répond à la requête du prescripteur déclaré sur la vente, la seconde (si
+     * elle est lue) à celle de l'ordonnance rattachée.
+     */
+    @SafeVarargs
+    private void prescripteurs(List<String> declare, List<String>... ordonnance) {
+        when(entityManager.createQuery(anyString(), eq(String.class))).thenReturn(prescripteurQuery);
+        when(prescripteurQuery.setParameter(anyString(), any())).thenReturn(prescripteurQuery);
+        when(prescripteurQuery.setMaxResults(1)).thenReturn(prescripteurQuery);
+        if (ordonnance.length == 0) {
+            when(prescripteurQuery.getResultList()).thenReturn(declare);
+        } else {
+            when(prescripteurQuery.getResultList()).thenReturn(declare, ordonnance[0]);
+        }
     }
 
     private CashSale cashSale() {

@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.ReportPeriode;
@@ -8,11 +7,11 @@ import com.kobe.warehouse.service.financiel_transaction.dto.TaxeDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeWrapperDTO;
 import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
-import java.net.MalformedURLException;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.core.io.Resource;
+
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -30,10 +29,9 @@ public class TvaReportReportService extends CommonReportService {
 
     public TvaReportReportService(
         SpringTemplateEngine templateEngine,
-        FileStorageProperties fileStorageProperties,
         StorageService storageService
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
 
         this.storageService = storageService;

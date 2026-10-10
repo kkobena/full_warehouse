@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.TiersPayantCreancesSummaryDTO;
 import com.kobe.warehouse.service.dto.report.TiersPayantInvoiceDTO;
@@ -20,8 +19,8 @@ public class TiersPayantPdfReportService extends AbstractStatistiqueReportServic
 
     private final TiersPayantReportService tiersPayantReportService;
 
-    public TiersPayantPdfReportService(FileStorageProperties fileStorageProperties, StorageService storageService, SpringTemplateEngine templateEngine, TiersPayantReportService tiersPayantReportService) {
-        super(fileStorageProperties, storageService);
+    public TiersPayantPdfReportService( StorageService storageService, SpringTemplateEngine templateEngine, TiersPayantReportService tiersPayantReportService) {
+        super( storageService);
         this.templateEngine = templateEngine;
         this.tiersPayantReportService = tiersPayantReportService;
     }

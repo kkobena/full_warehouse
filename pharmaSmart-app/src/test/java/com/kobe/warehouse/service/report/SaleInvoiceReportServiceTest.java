@@ -38,13 +38,12 @@ class SaleInvoiceReportServiceTest {
     // quinze secondes qui borne les méthodes de cycle de vie coupait l'amorçage de Mockito.
     private final SpringTemplateEngine templateEngine = mock(SpringTemplateEngine.class);
     private final StorageService storageService = mock(StorageService.class);
-    private final FileStorageProperties fileStorageProperties = mock(FileStorageProperties.class);
+
     private final AppConfigurationService appConfigurationService = mock(AppConfigurationService.class);
 
     private final SaleInvoiceReportService service = new SaleInvoiceReportService(
         templateEngine,
-        storageService,
-        fileStorageProperties
+        storageService
     );
 
     private Magasin magasin;

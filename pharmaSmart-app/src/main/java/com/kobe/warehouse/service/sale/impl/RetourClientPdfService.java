@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.sale.impl;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
@@ -27,10 +26,9 @@ public class RetourClientPdfService extends CommonReportService {
     public RetourClientPdfService(
         RetourClientService retourClientService,
         StorageService storageService,
-        SpringTemplateEngine templateEngine,
-        FileStorageProperties fileStorageProperties
+        SpringTemplateEngine templateEngine
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.retourClientService = retourClientService;
         this.templateEngine = templateEngine;
     }

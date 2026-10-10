@@ -15,7 +15,6 @@ import com.kobe.warehouse.service.stock.CommandeDataService;
 import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -23,7 +22,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -104,13 +102,9 @@ public class CommandeDataResource {
 
     @GetMapping("/commandes/csv/{id}/{orderDate}")
     @RequiresNavAccess(value = { "commande", "depot.achat-depot" }, action = NavAction.EXPORT)
-    public ResponseEntity<Resource> getCsv(
-        @PathVariable("id") Integer id,
-        @PathVariable("orderDate") LocalDate orderDate,
-        HttpServletRequest request
-    ) throws IOException {
-        final Resource resource = commandeDataService.exportCommandeToCsv(new CommandeId(id, orderDate));
-        return Utils.exportCsv(resource, request);
+    public ResponseEntity<byte[]> getCsv(@PathVariable("id") Integer id, @PathVariable("orderDate") LocalDate orderDate)
+        throws IOException {
+        return Utils.exportCsv(commandeDataService.exportCommandeToCsv(new CommandeId(id, orderDate)), "commande_" + id + "_" + orderDate);
     }
 
     @GetMapping("/commandes/pdf/{id}/{orderDate}")
@@ -132,13 +126,6 @@ public class CommandeDataResource {
         Page<OrderLineDTO> page = commandeDataService.filterCommandeLines(new CommandeId(id, orderDate), pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
-    }
-
-    @GetMapping("/commandes/rupture-csv/{reference}")
-    @RequiresNavAccess(value = { "commande", "depot.achat-depot" }, action = NavAction.EXPORT)
-    public ResponseEntity<Resource> getRuptureCsv(@PathVariable("reference") String reference, HttpServletRequest request) {
-        final Resource resource = commandeDataService.getRuptureCsv(reference);
-        return Utils.exportCsv(resource, request);
     }
 
     @GetMapping("/commandes/entree-stock/{id}/{orderDate}")

@@ -53,7 +53,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -76,8 +75,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
@@ -902,12 +899,12 @@ public class ImportationProduitService {
         response.setRejectFileUrl(filename);
     }
 
-    public Resource getRejets(String nomFichier) {
+    public byte[] getRejets(String nomFichier) {
         Path path = this.fileStorageLocation.toAbsolutePath().resolve(nomFichier).normalize();
 
         try {
-            return new UrlResource(path.toUri());
-        } catch (MalformedURLException e) {
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
             throw new GenericError("Le fichier n'existe pas ", "duplicateProvider");
         }
     }

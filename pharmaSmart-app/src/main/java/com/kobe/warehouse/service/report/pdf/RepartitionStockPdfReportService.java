@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.reassort.dto.RepartionSearchQueryDto;
 import com.kobe.warehouse.service.reassort.dto.RepartitionStockProduitDto;
@@ -18,8 +17,8 @@ public class RepartitionStockPdfReportService extends AbstractStatistiqueReportS
     private final SpringTemplateEngine templateEngine;
     private final Map<String, Object> variablesMap = new HashMap<>();
 
-    public RepartitionStockPdfReportService(FileStorageProperties fileStorageProperties, StorageService storageService, SpringTemplateEngine templateEngine) {
-        super(fileStorageProperties, storageService);
+    public RepartitionStockPdfReportService(StorageService storageService, SpringTemplateEngine templateEngine) {
+        super(storageService);
         this.templateEngine = templateEngine;
     }
 

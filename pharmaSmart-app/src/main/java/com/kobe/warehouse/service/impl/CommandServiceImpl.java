@@ -488,9 +488,10 @@ public class CommandServiceImpl implements CommandService {
         this.importationEchoueService.save(commandeId, true, commandeResponse.getItems());
     }
 
-    public void createRuptureFile(String commandeReference, CommandeModel commandeModel, List<OrderItem> items) {
-        if (!CollectionUtils.isEmpty(items)) {
-            exportationCsvService.createRuptureFile(commandeReference, items, commandeModel);
+    /** Joint à la réponse le CSV des lignes non prises en compte : la fenêtre d'import le télécharge tel quel. */
+    public void joindreRuptures(CommandeResponseDTO commandeResponse, CommandeModel commandeModel) {
+        if (!CollectionUtils.isEmpty(commandeResponse.getItems())) {
+            commandeResponse.setRuptureCsv(exportationCsvService.exporterRuptures(commandeResponse.getItems(), commandeModel));
         }
     }
 
@@ -520,7 +521,7 @@ public class CommandServiceImpl implements CommandService {
         CommandeResponseDTO commandeResponseDTO = processCsvWithStrategy(
             commande, multipartFile, items, longOrderLineMap, fournisseurId, strategy
         );
-        createRuptureFile(commande.getOrderReference(), commandeModel, commandeResponseDTO.getItems());
+        joindreRuptures(commandeResponseDTO, commandeModel);
         return commandeResponseDTO;
     }
 

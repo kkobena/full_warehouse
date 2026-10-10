@@ -35,7 +35,6 @@ class CashRegisterPdfReportServiceTest {
     void setUp() {
         cashRegisterReportService = mock(CashRegisterReportService.class);
         service = new CashRegisterPdfReportService(
-            PdfReportTestSupport.proprietes(),
             PdfReportTestSupport.storageService(),
             PdfReportTestSupport.moteurDeGabarits(),
             cashRegisterReportService

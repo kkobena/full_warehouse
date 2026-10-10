@@ -1,16 +1,16 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SuggestionLineDTO;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class SuggestionPdfReportService extends AbstractStatistiqueReportService {
@@ -19,11 +19,10 @@ public class SuggestionPdfReportService extends AbstractStatistiqueReportService
     private final Map<String, Object> variablesMap = new HashMap<>();
 
     public SuggestionPdfReportService(
-        FileStorageProperties fileStorageProperties,
         StorageService storageService,
         SpringTemplateEngine templateEngine
     ) {
-        super(fileStorageProperties, storageService);
+        super(storageService);
         this.templateEngine = templateEngine;
     }
 

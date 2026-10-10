@@ -1,19 +1,11 @@
 package com.kobe.warehouse.service.stock.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.report.Constant;
 import com.kobe.warehouse.service.stock.dto.LotPerimeDTO;
 import com.kobe.warehouse.service.stock.dto.LotPerimeValeurSum;
-import java.time.LocalDate;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,6 +20,14 @@ import org.springframework.http.ResponseEntity;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("LotServiceReportServiceImpl")
@@ -38,8 +38,6 @@ class LotServiceReportServiceImplTest {
     @Mock
     private SpringTemplateEngine templateEngine;
 
-    @Mock
-    private FileStorageProperties fileStorageProperties;
 
     @Mock
     private StorageService storageService;
@@ -50,7 +48,7 @@ class LotServiceReportServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        service = new LotServiceReportServiceImpl(templateEngine, fileStorageProperties, storageService);
+        service = new LotServiceReportServiceImpl(templateEngine, storageService);
         magasin = new Magasin();
         magasin.setId(1);
         magasin.setFullName("PHARMACIE DU PLATEAU");

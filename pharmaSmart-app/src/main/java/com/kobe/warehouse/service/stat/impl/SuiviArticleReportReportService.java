@@ -1,21 +1,18 @@
 package com.kobe.warehouse.service.stat.impl;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Magasin;
-import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingState;
 import com.kobe.warehouse.service.referential.magasin.MagasinService;
 import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
-import java.net.MalformedURLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class SuiviArticleReportReportService extends CommonReportService {
@@ -31,18 +28,17 @@ public class SuiviArticleReportReportService extends CommonReportService {
 
     public SuiviArticleReportReportService(
         SpringTemplateEngine templateEngine,
-        FileStorageProperties fileStorageProperties,
         StorageService storageService,
         MagasinService magasinService
     ) {
-        super(fileStorageProperties, storageService);
+        super(storageService);
         this.templateEngine = templateEngine;
 
         this.storageService = storageService;
         this.magasinService = magasinService;
     }
 
-    private String print(List<ProduitAuditingState> datas, String title) {
+    private byte[] print(List<ProduitAuditingState> datas, String title) {
         Magasin magasin = storageService.getUser().getMagasin();
         this.items = datas;
         int itemSize = items.size();
@@ -87,7 +83,7 @@ public class SuiviArticleReportReportService extends CommonReportService {
         return "suivi_mouvement_article";
     }
 
-    public Resource exportToPdf(List<ProduitAuditingState> datas, String title) throws MalformedURLException {
-        return this.getResource(print(datas, title));
+    public byte[] exportToPdf(List<ProduitAuditingState> datas, String title) {
+        return print(datas, title);
     }
 }

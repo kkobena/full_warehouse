@@ -47,7 +47,6 @@ class ComparativePdfReportServiceTest {
         when(comparativeReportService.getComparisonBySalesType(any(), any())).thenReturn(List.of(parType()));
 
         service = new ComparativePdfReportService(
-            PdfReportTestSupport.proprietes(),
             PdfReportTestSupport.storageService(),
             PdfReportTestSupport.moteurDeGabarits(),
             comparativeReportService

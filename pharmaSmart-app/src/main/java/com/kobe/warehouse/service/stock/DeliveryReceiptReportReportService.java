@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.stock;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.OrderLine;
@@ -28,10 +27,9 @@ public class DeliveryReceiptReportReportService extends CommonReportService {
 
     public DeliveryReceiptReportReportService(
         SpringTemplateEngine templateEngine,
-        StorageService storageService,
-        FileStorageProperties fileStorageProperties
+        StorageService storageService
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }

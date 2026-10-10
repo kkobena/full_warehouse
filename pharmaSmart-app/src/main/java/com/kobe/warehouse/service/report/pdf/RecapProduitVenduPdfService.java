@@ -1,12 +1,10 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVendu;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVenduRequestParam;
 import com.kobe.warehouse.service.stock.dto.RecapProduitVenduSummary;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -20,10 +18,10 @@ public class RecapProduitVenduPdfService extends AbstractStatistiqueReportServic
     private final SpringTemplateEngine templateEngine;
     private final Map<String, Object> variablesMap = new HashMap<>();
 
-    public RecapProduitVenduPdfService(FileStorageProperties fileStorageProperties,
-                                       StorageService storageService,
-                                       SpringTemplateEngine templateEngine) {
-        super(fileStorageProperties, storageService);
+    public RecapProduitVenduPdfService(
+        StorageService storageService,
+        SpringTemplateEngine templateEngine) {
+        super(storageService);
         this.templateEngine = templateEngine;
     }
 
@@ -49,14 +47,14 @@ public class RecapProduitVenduPdfService extends AbstractStatistiqueReportServic
     }
 
     public byte[] export(Page<RecapProduitVendu> data,
-                        RecapProduitVenduSummary summary,
-                        RecapProduitVenduRequestParam requestParam) {
+                         RecapProduitVenduSummary summary,
+                         RecapProduitVenduRequestParam requestParam) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         String title = "Récapitulatif des Produits Vendus";
         if (requestParam.startDate() != null && requestParam.endDate() != null) {
             title += " du " + requestParam.startDate().format(formatter) +
-                     " au " + requestParam.endDate().format(formatter);
+                " au " + requestParam.endDate().format(formatter);
         }
 
         this.getParameters().put("items", data.getContent());

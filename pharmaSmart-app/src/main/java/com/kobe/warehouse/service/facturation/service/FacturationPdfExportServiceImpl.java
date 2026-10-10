@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.facturation.service;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
@@ -31,11 +30,10 @@ public class FacturationPdfExportServiceImpl extends AbstractStatistiqueReportSe
     private static final String TEMPLATE_FILE = Constant.FACTURATION_TEMPLATE_FILE;
 
     public FacturationPdfExportServiceImpl(
-        FileStorageProperties fileStorageProperties,
         SpringTemplateEngine templateEngine,
         StorageService storageService
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
     }
 

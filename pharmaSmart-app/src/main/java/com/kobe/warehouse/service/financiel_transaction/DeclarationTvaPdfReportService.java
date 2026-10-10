@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.financiel_transaction.dto.DeclarationTvaLineDTO;
@@ -27,11 +26,10 @@ public class DeclarationTvaPdfReportService extends AbstractStatistiqueReportSer
     private final Map<String, Object> params = new HashMap<>();
 
     public DeclarationTvaPdfReportService(
-        FileStorageProperties fileStorageProperties,
         StorageService storageService,
         SpringTemplateEngine templateEngine
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }

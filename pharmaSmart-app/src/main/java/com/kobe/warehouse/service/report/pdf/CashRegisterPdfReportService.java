@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.DailyCashRegisterReportDTO;
 import com.kobe.warehouse.service.report.CashRegisterReportService;
@@ -19,8 +18,8 @@ public class CashRegisterPdfReportService extends AbstractStatistiqueReportServi
     private final Map<String, Object> variablesMap = new HashMap<>();
     private final CashRegisterReportService cashRegisterReportService;
 
-    public CashRegisterPdfReportService(FileStorageProperties fileStorageProperties, StorageService storageService, SpringTemplateEngine templateEngine, CashRegisterReportService cashRegisterReportService) {
-        super(fileStorageProperties, storageService);
+    public CashRegisterPdfReportService(StorageService storageService, SpringTemplateEngine templateEngine, CashRegisterReportService cashRegisterReportService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.cashRegisterReportService = cashRegisterReportService;
     }

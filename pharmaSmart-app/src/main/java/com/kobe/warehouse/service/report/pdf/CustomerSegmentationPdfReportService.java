@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.CustomerSegmentationDTO;
 import com.kobe.warehouse.service.report.CustomerSegmentationReportService;
@@ -18,8 +17,8 @@ public class CustomerSegmentationPdfReportService extends AbstractStatistiqueRep
     private final Map<String, Object> variablesMap = new HashMap<>();
     private final CustomerSegmentationReportService customerSegmentationReportService;
 
-    public CustomerSegmentationPdfReportService(FileStorageProperties fileStorageProperties, StorageService storageService, SpringTemplateEngine templateEngine, CustomerSegmentationReportService customerSegmentationReportService) {
-        super(fileStorageProperties, storageService);
+    public CustomerSegmentationPdfReportService(StorageService storageService, SpringTemplateEngine templateEngine, CustomerSegmentationReportService customerSegmentationReportService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.customerSegmentationReportService = customerSegmentationReportService;
     }

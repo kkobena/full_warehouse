@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.enumeration.CategorieABC;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.StockRotationDTO;
@@ -20,8 +19,8 @@ public class StockRotationPdfReportService extends AbstractStatistiqueReportServ
 
     private final StockRotationReportService stockRotationReportService;
 
-    public StockRotationPdfReportService(FileStorageProperties fileStorageProperties, StorageService storageService, SpringTemplateEngine templateEngine, StockRotationReportService stockRotationReportService) {
-        super(fileStorageProperties, storageService);
+    public StockRotationPdfReportService(StorageService storageService, SpringTemplateEngine templateEngine, StockRotationReportService stockRotationReportService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.stockRotationReportService = stockRotationReportService;
     }

@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.StockValuationView;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.StockValuationSummaryDTO;
@@ -22,8 +21,8 @@ public class StockValuationPdfReportService extends AbstractStatistiqueReportSer
 
     private final StockValuationReportService stockValuationReportService;
 
-    public StockValuationPdfReportService(FileStorageProperties fileStorageProperties, StorageService storageService, SpringTemplateEngine templateEngine, StockValuationReportService stockValuationReportService) {
-        super(fileStorageProperties, storageService);
+    public StockValuationPdfReportService(StorageService storageService, SpringTemplateEngine templateEngine, StockValuationReportService stockValuationReportService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.stockValuationReportService = stockValuationReportService;
     }

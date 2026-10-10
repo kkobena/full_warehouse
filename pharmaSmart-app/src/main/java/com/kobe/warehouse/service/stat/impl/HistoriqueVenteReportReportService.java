@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.stat.impl;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.HistoriqueProduitAchatMensuelleWrapper;
 import com.kobe.warehouse.service.dto.HistoriqueProduitAchats;
@@ -18,7 +17,6 @@ import com.kobe.warehouse.service.utils.DateUtil;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -33,14 +31,13 @@ public class HistoriqueVenteReportReportService extends CommonReportService {
 
     public HistoriqueVenteReportReportService(
         SpringTemplateEngine templateEngine,
-        FileStorageProperties fileStorageProperties,
         StorageService storageService
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
     }
 
-    private String print(
+    private byte[] print(
         List<HistoriqueProduitVente> datas,
         HistoriqueProduitVenteSummary historiqueProduitVenteSummary,
         HistoriqueProduitInfo historiqueProduitInfo,
@@ -68,7 +65,7 @@ public class HistoriqueVenteReportReportService extends CommonReportService {
         return super.printOneReceiptPage();
     }
 
-    private String printHistoriquesAchatsMensuel(
+    private byte[] printHistoriquesAchatsMensuel(
         List<HistoriqueProduitAchatMensuelleWrapper> datas,
         HistoriqueProduitAchatsSummary historiqueProduitAchatsSummary,
         HistoriqueProduitInfo historiqueProduitInfo,
@@ -96,7 +93,7 @@ public class HistoriqueVenteReportReportService extends CommonReportService {
         return super.printOneReceiptPage();
     }
 
-    private String printHistoriquesAchats(
+    private byte[] printHistoriquesAchats(
         List<HistoriqueProduitAchats> datas,
         HistoriqueProduitAchatsSummary historiqueProduitAchatsSummary,
         HistoriqueProduitInfo historiqueProduitInfo,
@@ -124,7 +121,7 @@ public class HistoriqueVenteReportReportService extends CommonReportService {
         return super.printOneReceiptPage();
     }
 
-    private String printHistoriquesMensuelles(
+    private byte[] printHistoriquesMensuelles(
         List<HistoriqueProduitVenteMensuelleWrapper> datas,
         HistoriqueProduitVenteMensuelleSummary produitVenteMensuelleSummary,
         HistoriqueProduitInfo historiqueProduitInfo,
@@ -183,58 +180,56 @@ public class HistoriqueVenteReportReportService extends CommonReportService {
         return fileName;
     }
 
-    public Resource exportHistoriqueVenteMensuelleToPdf(
+    public byte[] exportHistoriqueVenteMensuelleToPdf(
         List<HistoriqueProduitVenteMensuelleWrapper> datas,
         HistoriqueProduitVenteMensuelleSummary produitVenteMensuelleSummary,
         HistoriqueProduitInfo historiqueProduitInfo,
         ReportPeriode reportPeriode
     ) throws ReportFileExportException {
         try {
-            return this.getResource(printHistoriquesMensuelles(datas, produitVenteMensuelleSummary, historiqueProduitInfo, reportPeriode));
+            return printHistoriquesMensuelles(datas, produitVenteMensuelleSummary, historiqueProduitInfo, reportPeriode);
         } catch (Exception e) {
             log.error("exportHistoriqueVenteMensuelleToPdf", e);
             throw new ReportFileExportException();
         }
     }
 
-    public Resource exportHistoriqueVenteToPdf(
+    public byte[] exportHistoriqueVenteToPdf(
         List<HistoriqueProduitVente> datas,
         HistoriqueProduitVenteSummary historiqueProduitVenteSummary,
         HistoriqueProduitInfo historiqueProduitInfo,
         ReportPeriode reportPeriode
     ) throws ReportFileExportException {
         try {
-            return this.getResource(print(datas, historiqueProduitVenteSummary, historiqueProduitInfo, reportPeriode));
+            return print(datas, historiqueProduitVenteSummary, historiqueProduitInfo, reportPeriode);
         } catch (Exception e) {
             log.error("exportHistoriqueVenteToPdf", e);
             throw new ReportFileExportException();
         }
     }
 
-    public Resource exportHistoriqueAchatsMensuelToPdf(
+    public byte[] exportHistoriqueAchatsMensuelToPdf(
         List<HistoriqueProduitAchatMensuelleWrapper> datas,
         HistoriqueProduitAchatsSummary historiqueProduitAchatsSummary,
         HistoriqueProduitInfo historiqueProduitInfo,
         ReportPeriode reportPeriode
     ) throws ReportFileExportException {
         try {
-            return this.getResource(
-                    printHistoriquesAchatsMensuel(datas, historiqueProduitAchatsSummary, historiqueProduitInfo, reportPeriode)
-                );
+            return printHistoriquesAchatsMensuel(datas, historiqueProduitAchatsSummary, historiqueProduitInfo, reportPeriode);
         } catch (Exception e) {
             log.error("exportHistoriqueAchatsMensuelToPdf", e);
             throw new ReportFileExportException();
         }
     }
 
-    public Resource exportHistoriqueAchatsToPdf(
+    public byte[] exportHistoriqueAchatsToPdf(
         List<HistoriqueProduitAchats> datas,
         HistoriqueProduitAchatsSummary historiqueProduitAchatsSummary,
         HistoriqueProduitInfo historiqueProduitInfo,
         ReportPeriode reportPeriode
     ) throws ReportFileExportException {
         try {
-            return this.getResource(printHistoriquesAchats(datas, historiqueProduitAchatsSummary, historiqueProduitInfo, reportPeriode));
+            return printHistoriquesAchats(datas, historiqueProduitAchatsSummary, historiqueProduitInfo, reportPeriode);
         } catch (Exception e) {
             log.error("exportHistoriqueVenteToPdf", e);
             throw new ReportFileExportException();

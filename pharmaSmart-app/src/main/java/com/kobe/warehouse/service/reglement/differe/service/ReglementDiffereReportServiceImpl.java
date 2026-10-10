@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.reglement.differe.service;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.errors.ReportFileExportException;
@@ -12,7 +11,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -26,20 +24,19 @@ public class ReglementDiffereReportServiceImpl extends CommonReportService imple
     private String fileName;
 
     public ReglementDiffereReportServiceImpl(
-        FileStorageProperties fileStorageProperties,
         SpringTemplateEngine templateEngine,
         StorageService storageService
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
     }
 
     @Override
-    public Resource printListToPdf(List<DiffereDTO> differe, DiffereSummary differeSummary) throws ReportFileExportException {
+    public byte[] printListToPdf(List<DiffereDTO> differe, DiffereSummary differeSummary) throws ReportFileExportException {
         this.templateFile = Constant.LIST_DIFFERE_PDF_TEMPLATE_FILE;
         this.fileName = "liste_des_differes";
         try {
-            return this.getResource(print(differe, differeSummary));
+            return print(differe, differeSummary);
         } catch (Exception e) {
             log.error("printListToPdf", e);
             throw new ReportFileExportException();
@@ -47,7 +44,7 @@ public class ReglementDiffereReportServiceImpl extends CommonReportService imple
     }
 
     @Override
-    public Resource printReglementToPdf(
+    public byte[] printReglementToPdf(
         List<ReglementDiffereWrapperDTO> reglements,
         DifferePaymentSummaryDTO differePaymentSummary,
         ReportPeriode reportPeriode
@@ -55,7 +52,7 @@ public class ReglementDiffereReportServiceImpl extends CommonReportService imple
         this.fileName = "liste_des_reglements_differes";
         this.templateFile = Constant.REGLEMENT_DIFFERE_PDF_TEMPLATE_FILE;
         try {
-            return this.getResource(printReglement(reglements, differePaymentSummary, reportPeriode));
+            return printReglement(reglements, differePaymentSummary, reportPeriode);
         } catch (Exception e) {
             log.error("printReglementToPdf", e);
             throw new ReportFileExportException();
@@ -93,15 +90,15 @@ public class ReglementDiffereReportServiceImpl extends CommonReportService imple
         return fileName;
     }
 
-    private String print(List<DiffereDTO> differe, DiffereSummary differeSummary) {
+    private byte[] print(List<DiffereDTO> differe, DiffereSummary differeSummary) {
         this.getParameters().put(Constant.ITEMS, differe);
         this.getParameters().put(Constant.REPORT_TITLE, "LISTE DES DIFFERES  AU " + DateUtil.format(LocalDateTime.now()));
         this.getParameters().put(Constant.REPORT_SUMMARY, differeSummary);
         super.getCommonParameters();
-        return super.printOneReceiptPage(getDestFilePath());
+        return super.printOneReceiptPage();
     }
 
-    private String printReglement(
+    private byte[] printReglement(
         List<ReglementDiffereWrapperDTO> reglements,
         DifferePaymentSummaryDTO differePaymentSummary,
         ReportPeriode reportPeriode
@@ -118,6 +115,6 @@ public class ReglementDiffereReportServiceImpl extends CommonReportService imple
         this.getParameters().put(Constant.REPORT_SUMMARY, differePaymentSummary);
 
         super.getCommonParameters();
-        return super.printOneReceiptPage(getDestFilePath());
+        return super.printOneReceiptPage();
     }
 }

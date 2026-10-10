@@ -32,8 +32,6 @@ import com.kobe.warehouse.service.stock.CommandeDataService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,8 +43,6 @@ import java.util.function.BiPredicate;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -138,8 +134,8 @@ public class CommandeDataServiceImpl implements CommandeDataService {
     }
 
     @Override
-    public Resource exportCommandeToCsv(CommandeId id) throws IOException {
-        return getResource(exportationCsvService.exportCommandeToCsv(findId(id)));
+    public byte[] exportCommandeToCsv(CommandeId id) throws IOException {
+        return exportationCsvService.exportCommandeToCsv(findId(id));
     }
 
     @Override
@@ -235,11 +231,6 @@ public class CommandeDataServiceImpl implements CommandeDataService {
             .findByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate(),
                 pageable)
             .map(OrderLineDTO::new);
-    }
-
-    @Override
-    public Resource getRuptureCsv(String reference) {
-        return exportationCsvService.getRutureFileByOrderReference(reference);
     }
 
     @Override
@@ -339,10 +330,6 @@ public class CommandeDataServiceImpl implements CommandeDataService {
             e.getStatut().name(),
             e.getDerniereTentative() != null ? e.getDerniereTentative() : e.getCreatedAt()
         );
-    }
-
-    private Resource getResource(String path) throws MalformedURLException {
-        return new UrlResource(Paths.get(path).toUri());
     }
 
     private Comparator<OrderLineDTO> getSort(Sort sort) {

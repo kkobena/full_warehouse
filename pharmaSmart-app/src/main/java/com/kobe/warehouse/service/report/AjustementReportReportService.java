@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.report;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Ajust;
 import com.kobe.warehouse.domain.Ajustement;
 import com.kobe.warehouse.domain.Magasin;
@@ -25,10 +24,9 @@ public class AjustementReportReportService extends CommonReportService {
 
     public AjustementReportReportService(
         SpringTemplateEngine templateEngine,
-        StorageService storageService,
-        FileStorageProperties fileStorageProperties
+        StorageService storageService
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }

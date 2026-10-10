@@ -53,7 +53,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -82,8 +81,7 @@ class ReglementDataServiceImplTest {
     @Mock
     private InvoiceReceiptService invoiceReceiptService;
 
-    @Mock
-    private Resource resource;
+    private final byte[] pdf = { 1, 2, 3 };
 
     private ReglementDataServiceImpl service;
 
@@ -508,9 +506,9 @@ class ReglementDataServiceImplTest {
         void releveSimple() throws Exception {
             when(invoicePaymentRepository.findAll(any(Specification.class), any(Sort.class)))
                 .thenReturn(List.of(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000)));
-            when(reglementReportService.printToPdf(any(InvoicePaymentWrapper.class))).thenReturn(resource);
+            when(reglementReportService.printToPdf(any(InvoicePaymentWrapper.class))).thenReturn(pdf);
 
-            assertThat(service.printToPdf(new InvoicePaymentParam(null, null, null, null, false))).isSameAs(resource);
+            assertThat(service.printToPdf(new InvoicePaymentParam(null, null, null, null, false))).isSameAs(pdf);
 
             verify(reglementReportService, never()).printToPdf(org.mockito.ArgumentMatchers.<List<InvoicePaymentWrapper>>any());
         }
@@ -526,9 +524,9 @@ class ReglementDataServiceImplTest {
                         paiement(facture(tiersPayant(4, "MUGEFCI"), null), 500, 500)
                     )
                 );
-            when(reglementReportService.printToPdf(org.mockito.ArgumentMatchers.<List<InvoicePaymentWrapper>>any())).thenReturn(resource);
+            when(reglementReportService.printToPdf(org.mockito.ArgumentMatchers.<List<InvoicePaymentWrapper>>any())).thenReturn(pdf);
 
-            assertThat(service.printToPdf(new InvoicePaymentParam(null, null, null, null, false))).isSameAs(resource);
+            assertThat(service.printToPdf(new InvoicePaymentParam(null, null, null, null, false))).isSameAs(pdf);
         }
 
         @Test
@@ -537,7 +535,7 @@ class ReglementDataServiceImplTest {
         void releveGroupe() throws Exception {
             when(invoicePaymentRepository.findAll(any(Specification.class), any(Sort.class)))
                 .thenReturn(List.of(paiement(facture(null, groupeTiersPayant(4, "MUGEFCI")), 1000, 1000)));
-            when(reglementReportService.printToPdf(any(InvoicePaymentWrapper.class))).thenReturn(resource);
+            when(reglementReportService.printToPdf(any(InvoicePaymentWrapper.class))).thenReturn(pdf);
 
             service.printToPdf(new InvoicePaymentParam(null, null, null, null, true));
 
@@ -552,7 +550,7 @@ class ReglementDataServiceImplTest {
         void periodeDUneJournee() throws Exception {
             when(invoicePaymentRepository.findAll(any(Specification.class), any(Sort.class)))
                 .thenReturn(List.of(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000)));
-            when(reglementReportService.printToPdf(any(InvoicePaymentWrapper.class))).thenReturn(resource);
+            when(reglementReportService.printToPdf(any(InvoicePaymentWrapper.class))).thenReturn(pdf);
             LocalDate jour = LocalDate.of(2026, 4, 18);
 
             service.printToPdf(new InvoicePaymentParam(null, null, jour, jour, false));
@@ -568,7 +566,7 @@ class ReglementDataServiceImplTest {
         void periodeIntervalle() throws Exception {
             when(invoicePaymentRepository.findAll(any(Specification.class), any(Sort.class)))
                 .thenReturn(List.of(paiement(facture(tiersPayant(3, "CNAM"), null), 1000, 1000)));
-            when(reglementReportService.printToPdf(any(InvoicePaymentWrapper.class))).thenReturn(resource);
+            when(reglementReportService.printToPdf(any(InvoicePaymentWrapper.class))).thenReturn(pdf);
 
             service.printToPdf(new InvoicePaymentParam(null, null, LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30), false));
 

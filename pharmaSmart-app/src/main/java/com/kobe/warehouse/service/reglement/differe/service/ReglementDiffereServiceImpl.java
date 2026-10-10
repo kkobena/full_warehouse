@@ -46,7 +46,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -270,14 +269,14 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
     }
 
     @Override
-    public Resource printListToPdf(Integer customerId, Set<PaymentStatus> paymentStatuses) {
+    public byte[] printListToPdf(Integer customerId, Set<PaymentStatus> paymentStatuses) {
         DiffereSummary differeSummary = this.getDiffereSummary(customerId, paymentStatuses);
         List<DiffereDTO> differe = this.getDiffere(customerId, paymentStatuses, Pageable.unpaged()).getContent();
         return this.reglementDiffereReportService.printListToPdf(differe, differeSummary);
     }
 
     @Override
-    public Resource printReglementToPdf(Integer customerId, LocalDate startDate, LocalDate endDate) {
+    public byte[] printReglementToPdf(Integer customerId, LocalDate startDate, LocalDate endDate) {
         DifferePaymentSummaryDTO differePaymentSummary = this.getDifferePaymentSummary(customerId, startDate, endDate);
         List<ReglementDiffereWrapperDTO> list = getReglementsDifferes(customerId, startDate, endDate, Pageable.unpaged()).getContent();
         return this.reglementDiffereReportService.printReglementToPdf(list, differePaymentSummary, new ReportPeriode(startDate, endDate));

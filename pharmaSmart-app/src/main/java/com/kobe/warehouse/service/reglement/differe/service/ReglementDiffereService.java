@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -43,9 +42,9 @@ public interface ReglementDiffereService {
 
     DifferePaymentSummaryDTO getDifferePaymentSummary(Integer customerId, LocalDate fromDate, LocalDate toDate);
 
-    Resource printListToPdf(Integer customerId, Set<PaymentStatus> paymentStatuses);
+    byte[] printListToPdf(Integer customerId, Set<PaymentStatus> paymentStatuses);
 
-    Resource printReglementToPdf(Integer customerId, LocalDate fromDate, LocalDate toDate);
+    byte[] printReglementToPdf(Integer customerId, LocalDate fromDate, LocalDate toDate);
 
     Page<ReglementDiffereWrapperDTO> getReglementsDifferes(Integer customerId, LocalDate fromDate, LocalDate toDate, Pageable pageable);
 

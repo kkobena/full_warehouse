@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.reglement.service;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.errors.ReportFileExportException;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentDTO;
@@ -8,13 +7,13 @@ import com.kobe.warehouse.service.reglement.dto.InvoicePaymentWrapper;
 import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class ReglementReportServiceImpl extends CommonReportService implements ReglementReportService {
@@ -26,19 +25,18 @@ public class ReglementReportServiceImpl extends CommonReportService implements R
     private String templateFile;
 
     public ReglementReportServiceImpl(
-        FileStorageProperties fileStorageProperties,
         SpringTemplateEngine templateEngine,
         StorageService storageService
     ) {
-        super(fileStorageProperties, storageService);
+        super(storageService);
         this.templateEngine = templateEngine;
     }
 
     @Override
-    public Resource printToPdf(List<InvoicePaymentWrapper> invoicePaymentWrappers) throws ReportFileExportException {
+    public byte[] printToPdf(List<InvoicePaymentWrapper> invoicePaymentWrappers) throws ReportFileExportException {
         this.templateFile = Constant.REGLEMENT_GROUP_TEMPLATE_FILE;
         try {
-            return this.getResource(print(invoicePaymentWrappers));
+            return print(invoicePaymentWrappers);
         } catch (Exception e) {
             log.error("printToPdf", e);
             throw new ReportFileExportException();
@@ -46,10 +44,10 @@ public class ReglementReportServiceImpl extends CommonReportService implements R
     }
 
     @Override
-    public Resource printToPdf(InvoicePaymentWrapper invoicePayment) throws ReportFileExportException {
+    public byte[] printToPdf(InvoicePaymentWrapper invoicePayment) throws ReportFileExportException {
         this.templateFile = Constant.REGLEMENT_SINGLE_TEMPLATE_FILE;
         try {
-            return this.getResource(print(invoicePayment));
+            return print(invoicePayment);
         } catch (Exception e) {
             log.error("printToPdf", e);
             throw new ReportFileExportException();
@@ -87,7 +85,7 @@ public class ReglementReportServiceImpl extends CommonReportService implements R
         return "releve_reglement";
     }
 
-    private String print(InvoicePaymentWrapper invoicePayment) {
+    private byte[] print(InvoicePaymentWrapper invoicePayment) {
         int itemSize = 0;
         int totalAmount = 0;
         for (InvoicePaymentDTO i : invoicePayment.getInvoicePayments()) {
@@ -98,10 +96,10 @@ public class ReglementReportServiceImpl extends CommonReportService implements R
         this.getParameters().put(Constant.REGLEMENT_PAID_AMOUNT, NumberUtil.formatToString(totalAmount));
         this.getParameters().put(Constant.ENTITY, invoicePayment);
         super.getCommonParameters();
-        return super.printOneReceiptPage(getDestFilePath());
+        return super.printOneReceiptPage();
     }
 
-    private String print(List<InvoicePaymentWrapper> invoicePaymentWrappers) {
+    private byte[] print(List<InvoicePaymentWrapper> invoicePaymentWrappers) {
         int itemSize = 0;
         int totalAmount = 0;
         for (InvoicePaymentWrapper invoicePaymentWrapper : invoicePaymentWrappers) {
@@ -114,6 +112,6 @@ public class ReglementReportServiceImpl extends CommonReportService implements R
         this.getParameters().put(Constant.PERIODE, invoicePaymentWrappers.getFirst().getPeriode());
 
         super.getCommonParameters();
-        return super.printOneReceiptPage(getDestFilePath());
+        return super.printOneReceiptPage();
     }
 }

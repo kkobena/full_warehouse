@@ -11,8 +11,19 @@ public class CommandeResponseDTO {
     private String reference;
     private List<OrderItem> items = new ArrayList<>();
     private DeliveryReceiptLiteDTO entity;
+    /** Lignes non prises en compte, au format du grossiste ; absent s'il n'y en a pas. */
+    private byte[] ruptureCsv;
 
     public CommandeResponseDTO() {}
+
+    public byte[] getRuptureCsv() {
+        return ruptureCsv;
+    }
+
+    public CommandeResponseDTO setRuptureCsv(byte[] ruptureCsv) {
+        this.ruptureCsv = ruptureCsv;
+        return this;
+    }
 
     public DeliveryReceiptLiteDTO getEntity() {
         return entity;

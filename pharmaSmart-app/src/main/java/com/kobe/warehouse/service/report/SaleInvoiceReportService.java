@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.report;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import org.springframework.stereotype.Service;
@@ -26,10 +25,9 @@ public class SaleInvoiceReportService extends CommonReportService {
 
     public SaleInvoiceReportService(
         SpringTemplateEngine templateEngine,
-        StorageService storageService,
-        FileStorageProperties fileStorageProperties
+        StorageService storageService
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }

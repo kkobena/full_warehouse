@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.ComparativeByTypeDTO;
 import com.kobe.warehouse.service.dto.report.ComparativeCADTO;
@@ -21,8 +20,8 @@ public class ComparativePdfReportService extends AbstractStatistiqueReportServic
     private final Map<String, Object> variablesMap = new HashMap<>();
     private final ComparativeReportService comparativeReportService;
 
-    public ComparativePdfReportService(FileStorageProperties fileStorageProperties, StorageService storageService, SpringTemplateEngine templateEngine, ComparativeReportService comparativeReportService) {
-        super(fileStorageProperties, storageService);
+    public ComparativePdfReportService(StorageService storageService, SpringTemplateEngine templateEngine, ComparativeReportService comparativeReportService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.comparativeReportService = comparativeReportService;
     }

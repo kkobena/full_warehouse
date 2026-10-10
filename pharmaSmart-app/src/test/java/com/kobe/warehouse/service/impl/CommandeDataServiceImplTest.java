@@ -36,8 +36,6 @@ import com.kobe.warehouse.service.report.CommandeReportReportService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -49,7 +47,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -58,7 +55,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -256,18 +252,13 @@ class CommandeDataServiceImplTest {
         }
 
         @Test
-        @DisplayName("exportCommandeToCsv expose le fichier produit comme ressource")
-        void exportCsv(@TempDir Path dir) throws IOException {
-            Path fichier = dir.resolve("commande.csv");
-            Files.writeString(fichier, "cip;libelle");
+        @DisplayName("exportCommandeToCsv renvoie le CSV produit en mémoire")
+        void exportCsv() throws IOException {
             Commande commande = commande(troisLignes());
             referenceCommande(commande);
-            when(exportationCsvService.exportCommandeToCsv(commande)).thenReturn(fichier.toString());
+            when(exportationCsvService.exportCommandeToCsv(commande)).thenReturn("cip;libelle".getBytes());
 
-            Resource resource = service.exportCommandeToCsv(COMMANDE_ID);
-
-            assertThat(resource.exists()).isTrue();
-            assertThat(resource.contentLength()).isEqualTo(11L);
+            assertThat(service.exportCommandeToCsv(COMMANDE_ID)).asString().isEqualTo("cip;libelle");
         }
 
         @Test
@@ -277,15 +268,6 @@ class CommandeDataServiceImplTest {
             when(commandeReportService.export(any(CommandeDTO.class))).thenReturn(new byte[] { 1, 2, 3 });
 
             assertThat(service.exportCommandeToPdf(COMMANDE_ID)).containsExactly(1, 2, 3);
-        }
-
-        @Test
-        @DisplayName("getRuptureCsv delegue au service d'exportation")
-        void ruptureCsv() {
-            Resource attendu = new org.springframework.core.io.ByteArrayResource(new byte[] { 9 });
-            when(exportationCsvService.getRutureFileByOrderReference("CMD-001")).thenReturn(attendu);
-
-            assertThat(service.getRuptureCsv("CMD-001")).isSameAs(attendu);
         }
     }
 

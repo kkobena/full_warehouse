@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.activity_summary;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.projection.*;
@@ -28,10 +27,9 @@ public class ActivitySummaryReportService extends CommonReportService {
 
     public ActivitySummaryReportService(
         SpringTemplateEngine templateEngine,
-        StorageService storageService,
-        FileStorageProperties fileStorageProperties
+        StorageService storageService
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }

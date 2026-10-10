@@ -7,6 +7,8 @@ export interface ICommandeResponse {
   failureCount?: number;
   reference?: string;
   entity?: any;
+  /** CSV des lignes non prises en compte (base64) ; absent s'il n'y en a pas. */
+  ruptureCsv?: string;
 }
 
 export class CommandeResponse implements ICommandeResponse {

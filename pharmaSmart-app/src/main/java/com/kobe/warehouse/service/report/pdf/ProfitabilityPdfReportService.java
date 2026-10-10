@@ -1,12 +1,8 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.MargeDTO;
 import com.kobe.warehouse.service.dto.report.MargeSummaryDTO;
-import com.kobe.warehouse.service.dto.report.ProductProfitabilityDTO;
-import com.kobe.warehouse.service.dto.report.ProfitabilitySummaryDTO;
-import com.kobe.warehouse.service.report.ProfitabilityReportService;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -21,8 +17,8 @@ public class ProfitabilityPdfReportService extends AbstractStatistiqueReportServ
     private final Map<String, Object> variablesMap = new HashMap<>();
 
 
-    public ProfitabilityPdfReportService(FileStorageProperties fileStorageProperties, StorageService storageService, SpringTemplateEngine templateEngine) {
-        super(fileStorageProperties, storageService);
+    public ProfitabilityPdfReportService(StorageService storageService, SpringTemplateEngine templateEngine) {
+        super(storageService);
         this.templateEngine = templateEngine;
 
     }

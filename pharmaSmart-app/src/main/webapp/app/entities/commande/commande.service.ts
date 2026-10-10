@@ -193,10 +193,6 @@ export class CommandeService {
     });
   }
 
-  getRuptureCsv(reference: string): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/rupture-csv/${reference}`, { responseType: "blob" });
-  }
-
   updateQuantityReceived(orderLine: IOrderLine): Observable<{}> {
     return this.http.put(this.resourceUrl + "/update-order-line-quantity-received", orderLine, {
       observe: "response"

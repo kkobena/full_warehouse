@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.report;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.InventoryExportWrapper;
 import com.kobe.warehouse.service.dto.StoreInventoryGroupExport;
@@ -28,12 +27,11 @@ public class InventoryReportReportService extends CommonReportService {
     private String templateFile;
 
     public InventoryReportReportService(
-        FileStorageProperties fileStorageProperties,
         SpringTemplateEngine templateEngine,
         StorageService storageService,
         InventoryValuationService valuationService
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
         this.valuationService = valuationService;
     }

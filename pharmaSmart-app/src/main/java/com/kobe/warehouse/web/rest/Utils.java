@@ -1,14 +1,5 @@
 package com.kobe.warehouse.web.rest;
 
-import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -16,13 +7,7 @@ import org.springframework.http.ResponseEntity;
 
 public final class Utils {
 
-    private static final Logger log = LoggerFactory.getLogger(Utils.class);
-
-
-
-    public static ResponseEntity<Resource> printPDF(Resource resource, HttpServletRequest request) {
-        return getDocument(resource, "application/pdf", request);
-    }
+    private Utils() {}
 
     public static ResponseEntity<byte[]> printPDF(byte[] pdfContent, String fileName) {
         return ResponseEntity.ok()
@@ -31,34 +16,16 @@ public final class Utils {
             .body(pdfContent);
     }
 
-    public static ResponseEntity<Resource> exportCsv(Resource resource, HttpServletRequest request) {
-        return getDocument(resource, "text/csv", request);
-    }
-
-    /** CSV produit en mémoire, en pièce jointe ; {@code fileName} sans extension. */
+    /** CSV en pièce jointe ; l'extension est ajoutée à {@code fileName} s'il ne la porte pas. */
     public static ResponseEntity<byte[]> exportCsv(byte[] csvContent, String fileName) {
         return ResponseEntity.ok()
             .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
-            .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(fileName + ".csv").build().toString())
+            .header(
+                HttpHeaders.CONTENT_DISPOSITION,
+                ContentDisposition.attachment().filename(fileName.endsWith(".csv") ? fileName : fileName + ".csv").build().toString()
+            )
             .body(csvContent);
     }
-
-    private static ResponseEntity<Resource> getDocument(Resource resource, String defaultContentType, HttpServletRequest request) {
-        String contentType = null;
-        try {
-            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-        } catch (IOException ex) {
-            log.info("Could not determine file type.");
-        }
-        if (contentType == null) {
-            contentType = defaultContentType;
-        }
-        return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(contentType))
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-            .body(resource);
-    }
-
 
     public static ResponseEntity<byte[]> exportExcel(byte[] excelContent, String fileName) {
         return ResponseEntity.ok()

@@ -55,7 +55,7 @@ class AccountsPayableApPdfExportServiceTest {
         StorageService storageService = mock(StorageService.class);
         when(storageService.getUser()).thenReturn(utilisateur);
 
-        service = new AccountsPayableApPdfExportService(mock(FileStorageProperties.class), storageService, moteurDeGabarits);
+        service = new AccountsPayableApPdfExportService( storageService, moteurDeGabarits);
     }
 
     // ===== vue d'ensemble =====

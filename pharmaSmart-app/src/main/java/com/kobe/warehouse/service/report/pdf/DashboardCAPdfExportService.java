@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.DashboardCASummaryDTO;
 import com.kobe.warehouse.service.dto.report.PaymentMethodCADTO;
@@ -25,8 +24,8 @@ public class DashboardCAPdfExportService extends AbstractStatistiqueReportServic
     private final Map<String, Object> variablesMap = new HashMap<>();
     private final DashboardCAService dashboardCAService;
 
-    public DashboardCAPdfExportService(FileStorageProperties fileStorageProperties, StorageService storageService, SpringTemplateEngine templateEngine, DashboardCAService dashboardCAService) {
-        super(fileStorageProperties, storageService);
+    public DashboardCAPdfExportService(StorageService storageService, SpringTemplateEngine templateEngine, DashboardCAService dashboardCAService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.dashboardCAService = dashboardCAService;
     }

@@ -13,12 +13,10 @@ import com.kobe.warehouse.service.reglement.differe.service.ReglementDiffereServ
 import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -93,22 +91,18 @@ public class DiffereResource {
 
     @GetMapping("/pdf")
     @RequiresNavAccess(value = { "differes", "differes.differes", "differes.historique" }, action = NavAction.EXPORT)
-    public ResponseEntity<Resource> exportList(
-        HttpServletRequest request,
-        @RequestParam(name = "customerId", required = false) Integer customerId
-    ) {
-        return Utils.printPDF(reglementDiffereService.printListToPdf(customerId, Set.of(PaymentStatus.IMPAYE)), request);
+    public ResponseEntity<byte[]> exportList(@RequestParam(name = "customerId", required = false) Integer customerId) {
+        return Utils.printPDF(reglementDiffereService.printListToPdf(customerId, Set.of(PaymentStatus.IMPAYE)), "differes.pdf");
     }
 
     @GetMapping("/reglements/pdf")
     @RequiresNavAccess(value = { "differes", "differes.differes", "differes.historique" }, action = NavAction.EXPORT)
-    public ResponseEntity<Resource> printReglementToPdf(
-        HttpServletRequest request,
+    public ResponseEntity<byte[]> printReglementToPdf(
         @RequestParam(name = "customerId", required = false) Integer customerId,
         @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
         @RequestParam(name = "toDate", required = false) LocalDate toDate
     ) {
-        return Utils.printPDF(reglementDiffereService.printReglementToPdf(customerId, fromDate, toDate), request);
+        return Utils.printPDF(reglementDiffereService.printReglementToPdf(customerId, fromDate, toDate), "reglements_differes.pdf");
     }
 
     @GetMapping("/reglements")

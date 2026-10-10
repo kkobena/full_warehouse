@@ -1,16 +1,16 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.facturation.dto.EtatRapprochementDto;
 import com.kobe.warehouse.service.facturation.dto.RapprochementParams;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 public class RapprochementPdfReportService extends AbstractStatistiqueReportService {
@@ -21,11 +21,10 @@ public class RapprochementPdfReportService extends AbstractStatistiqueReportServ
     private final Map<String, Object> variablesMap = new HashMap<>();
 
     public RapprochementPdfReportService(
-        FileStorageProperties fileStorageProperties,
         StorageService storageService,
         SpringTemplateEngine templateEngine
     ) {
-        super(fileStorageProperties, storageService);
+        super(storageService);
         this.templateEngine = templateEngine;
     }
 

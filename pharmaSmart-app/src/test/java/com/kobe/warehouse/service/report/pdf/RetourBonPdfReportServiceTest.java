@@ -55,7 +55,7 @@ class RetourBonPdfReportServiceTest {
         AppConfigurationService configuration = mock(AppConfigurationService.class);
         when(configuration.getDevise()).thenReturn("EUR");
 
-        service = new RetourBonPdfReportService(mock(FileStorageProperties.class), storageService, moteurDeGabarits);
+        service = new RetourBonPdfReportService( storageService, moteurDeGabarits);
         service.setAppConfigurationService(configuration);
     }
 

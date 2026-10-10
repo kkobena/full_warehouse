@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.product_to_destroy.service;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroyDTO;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroySumDTO;
@@ -23,11 +22,10 @@ public class ProductToDestroyReportServiceImpl extends CommonReportService imple
     private final Map<String, Object> variablesMap = new HashMap<>();
 
     public ProductToDestroyReportServiceImpl(
-        FileStorageProperties fileStorageProperties,
         SpringTemplateEngine templateEngine,
         StorageService storageService
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
     }
 

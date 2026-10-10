@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.enumeration.StockAlertType;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.StockAlertDTO;
@@ -21,8 +20,8 @@ public class StockAlertPdfReportService extends AbstractStatistiqueReportService
 
     private final StockAlertReportService stockAlertReportService;
 
-    public StockAlertPdfReportService(FileStorageProperties fileStorageProperties, StorageService storageService, SpringTemplateEngine templateEngine, StockAlertReportService stockAlertReportService) {
-        super(fileStorageProperties, storageService);
+    public StockAlertPdfReportService(StorageService storageService, SpringTemplateEngine templateEngine, StockAlertReportService stockAlertReportService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.stockAlertReportService = stockAlertReportService;
     }

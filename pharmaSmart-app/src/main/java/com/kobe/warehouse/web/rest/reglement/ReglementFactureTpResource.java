@@ -10,13 +10,11 @@ import com.kobe.warehouse.service.reglement.dto.ReglementParam;
 import com.kobe.warehouse.service.reglement.dto.ResponseReglementDTO;
 import com.kobe.warehouse.service.reglement.service.ReglementDataService;
 import com.kobe.warehouse.web.rest.Utils;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -111,8 +109,7 @@ public class ReglementFactureTpResource {
 
     @GetMapping("/reglements/pdf")
     @RequiresNavAccess(value = { "factures", "facturation.factures", "facturation.historique" }, action = NavAction.EXPORT)
-    public ResponseEntity<Resource> exportAllInvoicesPayment(
-        HttpServletRequest request,
+    public ResponseEntity<byte[]> exportAllInvoicesPayment(
         @RequestParam(required = false, name = "fromDate") LocalDate fromDate,
         @RequestParam(required = false, name = "toDate") LocalDate toDate,
         @RequestParam(required = false, name = "search") String search,
@@ -121,7 +118,7 @@ public class ReglementFactureTpResource {
     ) {
         return Utils.printPDF(
             reglementDataService.printToPdf(new InvoicePaymentParam(search, organismeId, fromDate, toDate, grouped)),
-            request
+            "reglements_factures.pdf"
         );
     }
 

@@ -568,7 +568,8 @@ class CommandServiceImplTest {
             assertThat(captor.getValue().getOrderUnitPrice()).isEqualTo(800);
             assertThat(captor.getValue().getProvisionalCode()).isFalse();
             verifyNoInteractions(importationEchoueService);
-            verify(exportationCsvService, never()).createRuptureFile(anyString(), any(), any());
+            verify(exportationCsvService, never()).exporterRuptures(any(), any());
+            assertThat(reponse.getRuptureCsv()).isNull();
         }
 
         @Test
@@ -592,7 +593,7 @@ class CommandServiceImplTest {
         }
 
         @Test
-        @DisplayName("CSV : un produit inconnu est reporte en echec et declenche le fichier de rupture")
+        @DisplayName("CSV : un produit inconnu est reporte en echec et le CSV des ruptures accompagne la reponse")
         void csvProduitInconnu() {
             when(orderLineService.getFournisseurProduitByCriteria(anyString(), anyInt())).thenReturn(Optional.empty());
 
@@ -600,7 +601,7 @@ class CommandServiceImplTest {
 
             assertThat(reponse.getFailureCount()).isEqualTo(1);
             assertThat(reponse.getItems()).singleElement().extracting(OrderItem::getProduitCip).isEqualTo("9999999");
-            verify(exportationCsvService).createRuptureFile(eq("CMD-2026-001"), any(), eq(CommandeModel.CIP_QTE));
+            verify(exportationCsvService).exporterRuptures(any(), eq(CommandeModel.CIP_QTE));
             verify(importationEchoueService).save(eq(77), eq(true), any());
         }
 
@@ -744,10 +745,13 @@ class CommandServiceImplTest {
         }
 
         @Test
-        @DisplayName("createRuptureFile ne fait rien sans article en rupture")
+        @DisplayName("sans article en rupture, la reponse n'a pas de CSV")
         void ruptureSansArticle() {
-            service.createRuptureFile("CMD-001", CommandeModel.LABOREX, List.of());
+            CommandeResponseDTO reponse = new CommandeResponseDTO();
 
+            service.joindreRuptures(reponse, CommandeModel.LABOREX);
+
+            assertThat(reponse.getRuptureCsv()).isNull();
             verifyNoInteractions(exportationCsvService);
         }
     }

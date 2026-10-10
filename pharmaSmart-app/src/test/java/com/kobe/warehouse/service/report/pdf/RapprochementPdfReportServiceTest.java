@@ -31,7 +31,6 @@ class RapprochementPdfReportServiceTest {
     @BeforeEach
     void setUp() {
         service = new RapprochementPdfReportService(
-            PdfReportTestSupport.proprietes(),
             PdfReportTestSupport.storageService(),
             PdfReportTestSupport.moteurDeGabarits()
         );

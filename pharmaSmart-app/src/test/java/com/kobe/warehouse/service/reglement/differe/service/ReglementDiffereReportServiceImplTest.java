@@ -1,37 +1,32 @@
 package com.kobe.warehouse.service.reglement.differe.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.ReportPeriode;
-import com.kobe.warehouse.service.errors.ReportFileExportException;
-import com.kobe.warehouse.service.reglement.differe.dto.DifferePaymentSummaryDTO;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereDTO;
+import com.kobe.warehouse.service.reglement.differe.dto.DifferePaymentSummaryDTO;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereSummary;
 import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereWrapperDTO;
 import com.kobe.warehouse.service.report.Constant;
-import java.nio.file.Path;
-import java.time.LocalDate;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.core.io.Resource;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -40,11 +35,6 @@ class ReglementDiffereReportServiceImplTest {
 
     private static final String HTML = "<html><head><title>Differes</title></head><body><p>differes</p></body></html>";
 
-    @TempDir
-    Path reportsDir;
-
-    @Mock
-    private FileStorageProperties fileStorageProperties;
 
     @Mock
     private SpringTemplateEngine templateEngine;
@@ -58,7 +48,7 @@ class ReglementDiffereReportServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        service = new ReglementDiffereReportServiceImpl(fileStorageProperties, templateEngine, storageService);
+        service = new ReglementDiffereReportServiceImpl(templateEngine, storageService);
         magasin = new Magasin();
         magasin.setId(1);
         magasin.setFullName("PHARMACIE DU PLATEAU");
@@ -66,7 +56,6 @@ class ReglementDiffereReportServiceImplTest {
         AppUser user = new AppUser();
         user.setMagasin(magasin);
         when(storageService.getUser()).thenReturn(user);
-        when(fileStorageProperties.getReportsDir()).thenReturn(reportsDir.toString());
         when(templateEngine.process(anyString(), any(Context.class))).thenReturn(HTML);
     }
 
@@ -83,13 +72,11 @@ class ReglementDiffereReportServiceImplTest {
     }
 
     @Test
-    @DisplayName("la liste des differes produit un PDF nomme liste_des_differes")
+    @DisplayName("la liste des differes produit un PDF")
     void listeDesDifferes() throws Exception {
-        Resource resource = service.printListToPdf(List.of(differe()), summary());
+        byte[] pdf = service.printListToPdf(List.of(differe()), summary());
 
-        assertThat(resource.exists()).isTrue();
-        assertThat(resource.contentLength()).isPositive();
-        assertThat(resource.getFilename()).startsWith("liste_des_differes").endsWith(".pdf");
+        assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
     }
 
     @Test
@@ -106,16 +93,15 @@ class ReglementDiffereReportServiceImplTest {
     }
 
     @Test
-    @DisplayName("la liste des reglements produit un PDF nomme liste_des_reglements_differes")
+    @DisplayName("la liste des reglements produit un PDF")
     void listeDesReglements() throws Exception {
-        Resource resource = service.printReglementToPdf(
+        byte[] pdf = service.printReglementToPdf(
             List.of(reglement()),
             new DifferePaymentSummaryDTO(4000L, 6000L),
             new ReportPeriode(LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30))
         );
 
-        assertThat(resource.exists()).isTrue();
-        assertThat(resource.getFilename()).startsWith("liste_des_reglements_differes").endsWith(".pdf");
+        assertThat(new String(pdf, 0, 4)).isEqualTo("%PDF");
     }
 
     @Test
@@ -130,28 +116,6 @@ class ReglementDiffereReportServiceImplTest {
         assertThat((String) service.getParameters().get(Constant.REPORT_TITLE))
             .startsWith("LISTE DES REGLEMENTS DIFFERES PERIODE DU ")
             .contains(" AU ");
-    }
-
-    @Test
-    @DisplayName("un repertoire de rapports invalide remonte une erreur d export sur la liste")
-    void repertoireInvalideSurLaListe() {
-        when(fileStorageProperties.getReportsDir()).thenReturn(" ");
-        List<DiffereDTO> differes = List.of(differe());
-        DiffereSummary summary = summary();
-
-        assertThatThrownBy(() -> service.printListToPdf(differes, summary)).isInstanceOf(ReportFileExportException.class);
-    }
-
-    @Test
-    @DisplayName("un repertoire de rapports invalide remonte une erreur d export sur les reglements")
-    void repertoireInvalideSurLesReglements() {
-        when(fileStorageProperties.getReportsDir()).thenReturn(" ");
-        List<ReglementDiffereWrapperDTO> reglements = List.of(reglement());
-        DifferePaymentSummaryDTO summary = new DifferePaymentSummaryDTO(4000L, 6000L);
-        ReportPeriode periode = new ReportPeriode(LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30));
-
-        assertThatThrownBy(() -> service.printReglementToPdf(reglements, summary, periode))
-            .isInstanceOf(ReportFileExportException.class);
     }
 
     @Test

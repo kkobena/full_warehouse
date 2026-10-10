@@ -1,13 +1,5 @@
 package com.kobe.warehouse.service.stock;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -16,9 +8,6 @@ import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.report.Constant;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,12 +19,23 @@ import org.mockito.quality.Strictness;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("DeliveryReceiptReportReportService")
 class DeliveryReceiptReportReportServiceTest {
 
-    /** Gabarit minimal : Flying Saucer rend reellement, il lui faut du XHTML valide. */
+    /**
+     * Gabarit minimal : Flying Saucer rend reellement, il lui faut du XHTML valide.
+     */
     private static final String HTML = "<html><head><title>BL</title></head><body><p>bon de livraison</p></body></html>";
 
     @Mock
@@ -44,8 +44,6 @@ class DeliveryReceiptReportReportServiceTest {
     @Mock
     private StorageService storageService;
 
-    @Mock
-    private FileStorageProperties fileStorageProperties;
 
     private DeliveryReceiptReportReportService service;
 
@@ -53,7 +51,7 @@ class DeliveryReceiptReportReportServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new DeliveryReceiptReportReportService(templateEngine, storageService, fileStorageProperties);
+        service = new DeliveryReceiptReportReportService(templateEngine, storageService);
         magasin = new Magasin();
         magasin.setId(1);
         magasin.setFullName("PHARMACIE DU PLATEAU");

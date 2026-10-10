@@ -12,7 +12,6 @@ import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -21,7 +20,7 @@ public interface CommandeDataService {
 
     Optional<CommandeEntryDTO> getCommandeById(CommandeId id);
 
-    Resource exportCommandeToCsv(CommandeId id) throws IOException;
+    byte[] exportCommandeToCsv(CommandeId id) throws IOException;
 
     byte[] exportCommandeToPdf(CommandeId id);
 
@@ -30,8 +29,6 @@ public interface CommandeDataService {
     Page<CommandeLiteDTO> fetchCommandes(CommandeFilterDTO commandeFilterDTO, Pageable pageable);
 
     Page<OrderLineDTO> filterCommandeLines(CommandeId commandeId, Pageable pageable);
-
-    Resource getRuptureCsv(String reference);
 
     List<AchatDTO> fetchReportTableauPharmacienData(MvtParam mvtParam);
 

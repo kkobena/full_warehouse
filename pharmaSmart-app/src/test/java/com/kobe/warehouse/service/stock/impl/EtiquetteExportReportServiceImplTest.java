@@ -38,8 +38,7 @@ class EtiquetteExportReportServiceImplTest {
 
     private static final String HTML = "<html><head><title>Etiquettes</title></head><body><p>etiquettes</p></body></html>";
 
-    @Mock
-    private FileStorageProperties fileStorageProperties;
+
 
     @Mock
     private SpringTemplateEngine templateEngine;
@@ -53,7 +52,7 @@ class EtiquetteExportReportServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        service = new EtiquetteExportReportServiceImpl(fileStorageProperties, templateEngine, storageService);
+        service = new EtiquetteExportReportServiceImpl( templateEngine, storageService);
         magasin = new Magasin();
         magasin.setId(1);
         magasin.setName("pharmacie du plateau");

@@ -61,7 +61,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -103,9 +102,6 @@ class ReglementDiffereServiceImplTest {
 
     @Mock
     private ReportExcelExportService reportExcelExportService;
-
-    @Mock
-    private Resource resource;
 
     private ReglementDiffereServiceImpl service;
 
@@ -594,9 +590,9 @@ class ReglementDiffereServiceImplTest {
             stubDiffere(10000L, 4000L, 6000L);
             DiffereSummary summary = new DiffereSummary(10000L, 4000L, 6000L);
             when(salesRepository.getDiffereSummary(any())).thenReturn(summary);
-            when(reglementDiffereReportService.printListToPdf(any(), any())).thenReturn(resource);
+            when(reglementDiffereReportService.printListToPdf(any(), any())).thenReturn(new byte[] { 1, 2 });
 
-            assertThat(service.printListToPdf(3, Set.of(PaymentStatus.IMPAYE))).isSameAs(resource);
+            assertThat(service.printListToPdf(3, Set.of(PaymentStatus.IMPAYE))).containsExactly(1, 2);
 
             verify(reglementDiffereReportService).printListToPdf(any(), org.mockito.ArgumentMatchers.eq(summary));
         }
@@ -607,11 +603,11 @@ class ReglementDiffereServiceImplTest {
         void printReglementToPdf() {
             when(differePaymentRepository.getDiffereSummary(any())).thenReturn(new DifferePaymentSummary(4000L));
             when(differePaymentRepository.getDifferePayments(any(), any(Pageable.class))).thenReturn(Page.empty());
-            when(reglementDiffereReportService.printReglementToPdf(any(), any(), any())).thenReturn(resource);
+            when(reglementDiffereReportService.printReglementToPdf(any(), any(), any())).thenReturn(new byte[] { 3 });
             LocalDate debut = LocalDate.of(2026, 4, 1);
             LocalDate fin = LocalDate.of(2026, 4, 30);
 
-            assertThat(service.printReglementToPdf(3, debut, fin)).isSameAs(resource);
+            assertThat(service.printReglementToPdf(3, debut, fin)).containsExactly(3);
 
             verify(reglementDiffereReportService).printReglementToPdf(
                 any(),

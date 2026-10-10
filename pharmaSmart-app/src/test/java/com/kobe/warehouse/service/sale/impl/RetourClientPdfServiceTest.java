@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.lenient;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
@@ -31,7 +30,6 @@ class RetourClientPdfServiceTest {
     @Mock private RetourClientService retourClientService;
     @Mock private StorageService storageService;
     @Mock private SpringTemplateEngine templateEngine;
-    @Mock private FileStorageProperties fileStorageProperties;
 
     private TestableRetourClientPdfService service;
     private Magasin magasin;
@@ -44,7 +42,7 @@ class RetourClientPdfServiceTest {
         user.setMagasin(magasin);
         lenient().when(storageService.getUser()).thenReturn(user);
         service = new TestableRetourClientPdfService(
-            retourClientService, storageService, templateEngine, fileStorageProperties
+            retourClientService, storageService, templateEngine
         );
     }
 
@@ -94,10 +92,9 @@ class RetourClientPdfServiceTest {
         private TestableRetourClientPdfService(
             RetourClientService retourClientService,
             StorageService storageService,
-            SpringTemplateEngine templateEngine,
-            FileStorageProperties fileStorageProperties
+            SpringTemplateEngine templateEngine
         ) {
-            super(retourClientService, storageService, templateEngine, fileStorageProperties);
+            super(retourClientService, storageService, templateEngine);
         }
 
         @Override

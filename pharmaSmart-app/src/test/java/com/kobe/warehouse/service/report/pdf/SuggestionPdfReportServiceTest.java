@@ -27,7 +27,6 @@ class SuggestionPdfReportServiceTest {
     @BeforeEach
     void setUp() {
         service = new SuggestionPdfReportService(
-            PdfReportTestSupport.proprietes(),
             PdfReportTestSupport.storageService(),
             PdfReportTestSupport.moteurDeGabarits()
         );

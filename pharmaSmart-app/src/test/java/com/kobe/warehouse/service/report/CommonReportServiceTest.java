@@ -1,9 +1,5 @@
 package com.kobe.warehouse.service.report;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Magasin;
@@ -11,15 +7,6 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -28,6 +15,18 @@ import org.junit.jupiter.api.io.TempDir;
 import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextRenderer;
+
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * {@link CommonReportService} est le socle dont héritent les vingt-quatre services de rapport du
@@ -57,7 +56,7 @@ class CommonReportServiceTest {
 
     @BeforeEach
     void setUp() {
-        rapport = new RapportDeTest(repertoireDesRapports);
+        rapport = new RapportDeTest();
     }
 
     // ===== pied de page légal =====
@@ -124,7 +123,9 @@ class CommonReportServiceTest {
             assertThat(rapport.buildPeriode("Ventes", periode)).isEqualTo("Ventes du 05/01/2026 au 31/03/2026");
         }
 
-        /** Une borne absente disparaît du libellé plutôt que d'y écrire « au null ». */
+        /**
+         * Une borne absente disparaît du libellé plutôt que d'y écrire « au null ».
+         */
         @Test
         @DisplayName("une borne absente disparaît du libellé")
         void borneAbsente() {
@@ -140,7 +141,9 @@ class CommonReportServiceTest {
             assertThat(rapport.buildPeriode(LocalDate.of(2026, 1, 5), LocalDate.of(2026, 3, 31))).isEqualTo("05-01-2026 au 31-03-2026");
         }
 
-        /** Les rapports de caisse sont horodatés : on y lit l'heure d'ouverture et de fermeture. */
+        /**
+         * Les rapports de caisse sont horodatés : on y lit l'heure d'ouverture et de fermeture.
+         */
         @Test
         @DisplayName("une période horodatée conserve l'heure")
         void periodeHorodatee() {
@@ -188,7 +191,9 @@ class CommonReportServiceTest {
             assertThat(rapport.contexte().getVariable("devise")).isEqualTo("EUR");
         }
 
-        /** Sans configuration injectée — un rapport instancié à la main —, le repli s'applique. */
+        /**
+         * Sans configuration injectée — un rapport instancié à la main —, le repli s'applique.
+         */
         @Test
         @DisplayName("sans configuration, la devise retombe sur le franc CFA")
         void deviseParDefaut() {
@@ -206,42 +211,6 @@ class CommonReportServiceTest {
             assertThat(contexte.getVariable("alerts")).isEqualTo(List.of("A", "B"));
             assertThat(contexte.getVariable("reportTitle")).isEqualTo("Alertes");
             assertThat(contexte.getVariable("devise")).isEqualTo("FCFA");
-        }
-    }
-
-    // ===== fichier de destination =====
-
-    @Nested
-    @DisplayName("Fichier de destination")
-    class FichierDeDestination {
-
-        @Test
-        @DisplayName("le fichier porte le nom du rapport, est horodaté et se termine en .pdf")
-        void nomDuFichier() {
-            String chemin = rapport.cheminDeDestination();
-
-            assertThat(Path.of(chemin).getFileName().toString()).startsWith("rapport_de_test_").endsWith(".pdf");
-        }
-
-        /** Le répertoire des rapports peut ne pas exister à la première impression : il est créé. */
-        @Test
-        @DisplayName("le répertoire des rapports est créé s'il manque")
-        void repertoireCree() throws IOException {
-            Path repertoireAbsent = repertoireDesRapports.resolve("rapports/2026");
-            RapportDeTest rapportAilleurs = new RapportDeTest(repertoireAbsent);
-
-            String chemin = rapportAilleurs.cheminDeDestination();
-
-            assertThat(Files.isDirectory(repertoireAbsent)).isTrue();
-            // Le fichier lui-même n'est pas encore écrit : on compare les chemins, sans les résoudre.
-            assertThat(Path.of(chemin).getParent()).isEqualTo(repertoireAbsent);
-        }
-
-        @Test
-        @DisplayName("deux impressions successives ne se recouvrent pas")
-        void cheminsDistincts() {
-            assertThat(rapport.cheminDeDestination()).isNotBlank();
-            assertThat(Path.of(rapport.cheminDeDestination()).getParent()).isEqualTo(repertoireDesRapports);
         }
     }
 
@@ -284,7 +253,9 @@ class CommonReportServiceTest {
                 .containsExactly("1/4", "2/4", "3/4", "4/4");
         }
 
-        /** Le gabarit s'en sert pour n'imprimer les totaux qu'une fois, au bas du document. */
+        /**
+         * Le gabarit s'en sert pour n'imprimer les totaux qu'une fois, au bas du document.
+         */
         @Test
         @DisplayName("seule la dernière page est signalée comme telle")
         void derniereePageSignalee() {
@@ -379,11 +350,13 @@ class CommonReportServiceTest {
         private int lignesParPage = 10;
         private StorageService storageService;
 
-        private RapportDeTest(Path repertoireDesRapports) {
-            super(proprietes(repertoireDesRapports), mock(StorageService.class));
+        private RapportDeTest() {
+            super(mock(StorageService.class));
         }
 
-        /** Les propriétés de stockage n'ont pas de mutateur : le répertoire se fixe en surchargeant. */
+        /**
+         * Les propriétés de stockage n'ont pas de mutateur : le répertoire se fixe en surchargeant.
+         */
         private static FileStorageProperties proprietes(Path repertoire) {
             return new FileStorageProperties() {
                 @Override
@@ -447,10 +420,6 @@ class CommonReportServiceTest {
 
         Context contexteAvecVariables() {
             return getContextVariables();
-        }
-
-        String cheminDeDestination() {
-            return getDestFilePath();
         }
 
         void exposerParametresCommuns() {

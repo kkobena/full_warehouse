@@ -1,20 +1,20 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.service.license.DemoWatermark;
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
 import com.kobe.warehouse.service.dto.RetourBonItemDTO;
+import com.kobe.warehouse.service.license.DemoWatermark;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.xhtmlrenderer.pdf.ITextRenderer;
+
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.xhtmlrenderer.pdf.ITextRenderer;
 
 @Service
 public class RetourBonPdfReportService extends AbstractStatistiqueReportService {
@@ -27,11 +27,10 @@ public class RetourBonPdfReportService extends AbstractStatistiqueReportService 
     private final Map<String, Object> variablesMap = new HashMap<>();
 
     public RetourBonPdfReportService(
-        FileStorageProperties fileStorageProperties,
         StorageService storageService,
         SpringTemplateEngine templateEngine
     ) {
-        super(fileStorageProperties, storageService);
+        super(storageService);
         this.templateEngine = templateEngine;
     }
 

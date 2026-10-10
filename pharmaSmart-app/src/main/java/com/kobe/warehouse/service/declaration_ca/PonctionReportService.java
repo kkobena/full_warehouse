@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.declaration_ca;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.declaration_ca.dto.ModeCalculPonction;
@@ -30,10 +29,9 @@ public class PonctionReportService extends CommonReportService {
 
     public PonctionReportService(
         SpringTemplateEngine templateEngine,
-        FileStorageProperties fileStorageProperties,
         StorageService storageService
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }

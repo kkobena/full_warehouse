@@ -19,12 +19,9 @@ import com.kobe.warehouse.service.dto.records.ProductStatRecord;
 import com.kobe.warehouse.service.stat.ProductStatService;
 import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.util.List;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -76,12 +73,11 @@ public class ProductStatResource {
     @PostMapping("/transactions/pdf")
     @LicenseExempt("Consultation : export PDF de l'historique produit, la traçabilité doit rester imprimable")
     @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
-    public ResponseEntity<Resource> getTransactionsPdf(
-        @RequestBody @Valid ProduitAuditingParam produitAuditingParam,
-        HttpServletRequest request
-    ) throws MalformedURLException {
-        Resource resource = this.productStatService.printToPdf(produitAuditingParam);
-        return Utils.printPDF(resource, request);
+    public ResponseEntity<byte[]> getTransactionsPdf(@RequestBody @Valid ProduitAuditingParam produitAuditingParam) {
+        return Utils.printPDF(
+            this.productStatService.printToPdf(produitAuditingParam),
+            "mouvements_produit_" + produitAuditingParam.produitId() + ".pdf"
+        );
     }
 
     @GetMapping("/transactions/excel")
@@ -193,61 +189,57 @@ public class ProductStatResource {
 
     @GetMapping("/historique-vente/pdf")
     @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
-    public ResponseEntity<Resource> exportHistoriqueVenteToPdf(
+    public ResponseEntity<byte[]> exportHistoriqueVenteToPdf(
         @RequestParam(name = "produitId") Integer produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy", required = false, defaultValue = "DAILY") TemporalEnum groupBy,
-        HttpServletRequest request
+        @RequestParam(name = "groupBy", required = false, defaultValue = "DAILY") TemporalEnum groupBy
     ) {
         return Utils.printPDF(
             this.productStatService.exportHistoriqueVenteToPdf(getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)),
-            request
+            "historique_ventes_" + produitId + ".pdf"
         );
     }
 
     @GetMapping("/historique-achat/pdf")
     @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
-    public ResponseEntity<Resource> exportHistoriqueAchatToPdf(
+    public ResponseEntity<byte[]> exportHistoriqueAchatToPdf(
         @RequestParam(name = "produitId") Integer produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy", defaultValue = "DAILY") TemporalEnum groupBy,
-        HttpServletRequest request
+        @RequestParam(name = "groupBy", defaultValue = "DAILY") TemporalEnum groupBy
     ) {
         return Utils.printPDF(
             this.productStatService.exportHistoriqueAchatToPdf(getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)),
-            request
+            "historique_achats_" + produitId + ".pdf"
         );
     }
 
     @GetMapping("/historique-vente-mensuelle/pdf")
     @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
-    public ResponseEntity<Resource> exportHistoriqueVenteMensuelleToPdf(
+    public ResponseEntity<byte[]> exportHistoriqueVenteMensuelleToPdf(
         @RequestParam(name = "produitId") Integer produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy", defaultValue = "MONTHLY") TemporalEnum groupBy,
-        HttpServletRequest request
+        @RequestParam(name = "groupBy", defaultValue = "MONTHLY") TemporalEnum groupBy
     ) {
         return Utils.printPDF(
             this.productStatService.exportHistoriqueVenteMensuelleToPdf(getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)),
-            request
+            "historique_ventes_mensuel_" + produitId + ".pdf"
         );
     }
 
     @GetMapping("/historique-achat-mensuelle/pdf")
     @RequiresNavAccess(value = { "catalogue", "ventes.kpi" }, action = NavAction.EXPORT)
-    public ResponseEntity<Resource> exportHistoriqueAchatMensuelToPdf(
+    public ResponseEntity<byte[]> exportHistoriqueAchatMensuelToPdf(
         @RequestParam(name = "produitId") Integer produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy", defaultValue = "MONTHLY") TemporalEnum groupBy,
-        HttpServletRequest request
+        @RequestParam(name = "groupBy", defaultValue = "MONTHLY") TemporalEnum groupBy
     ) {
         return Utils.printPDF(
             this.productStatService.exportHistoriqueAchatMensuelToPdf(getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)),
-            request
+            "historique_achats_mensuel_" + produitId + ".pdf"
         );
     }
 }

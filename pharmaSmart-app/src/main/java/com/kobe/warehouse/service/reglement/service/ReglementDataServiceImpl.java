@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
@@ -195,7 +194,7 @@ public class ReglementDataServiceImpl implements ReglementDataService {
     }
 
     @Override
-    public Resource printToPdf(InvoicePaymentParam invoicePaymentParam)
+    public byte[] printToPdf(InvoicePaymentParam invoicePaymentParam)
         throws ReportFileExportException {
         List<InvoicePaymentWrapper> invoicePaymentWrappers;
         if (invoicePaymentParam.grouped()) {

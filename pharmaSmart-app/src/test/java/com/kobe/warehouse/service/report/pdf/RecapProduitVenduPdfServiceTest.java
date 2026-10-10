@@ -34,12 +34,10 @@ class RecapProduitVenduPdfServiceTest {
     @BeforeEach
     void setUp() {
         vendus = new RecapProduitVenduPdfService(
-            PdfReportTestSupport.proprietes(),
             PdfReportTestSupport.storageService(),
             PdfReportTestSupport.moteurDeGabarits()
         );
         invendus = new RecapProduitInvenduPdfService(
-            PdfReportTestSupport.proprietes(),
             PdfReportTestSupport.storageService(),
             PdfReportTestSupport.moteurDeGabarits()
         );

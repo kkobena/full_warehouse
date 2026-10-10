@@ -37,7 +37,6 @@ import com.kobe.warehouse.service.stat.ProductStatService;
 import com.kobe.warehouse.service.stat.dto.ProductSaleSummary;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +48,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -109,7 +107,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     }
 
     @Override
-    public Resource printToPdf(ProduitAuditingParam produitAuditingParam) throws MalformedURLException {
+    public byte[] printToPdf(ProduitAuditingParam produitAuditingParam) {
         return this.produitAuditingReportSevice.printToPdf(
                 this.fetchProduitDailyTransaction(produitAuditingParam),
                 produitRepository.getReferenceById(produitAuditingParam.produitId()),
@@ -274,7 +272,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     }
 
     @Override
-    public Resource exportHistoriqueVenteToPdf(ProduitHistoriqueParam produitHistorique) {
+    public byte[] exportHistoriqueVenteToPdf(ProduitHistoriqueParam produitHistorique) {
         HistoriqueVenteResult result = fetchHistoriqueVente(produitHistorique, Pageable.unpaged());
         List<HistoriqueProduitVente> content = (result != null) ? result.content() : List.of();
         return this.historiqueVenteReportReportService.exportHistoriqueVenteToPdf(
@@ -286,7 +284,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     }
 
     @Override
-    public Resource exportHistoriqueAchatToPdf(ProduitHistoriqueParam produitHistorique) {
+    public byte[] exportHistoriqueAchatToPdf(ProduitHistoriqueParam produitHistorique) {
         return this.historiqueVenteReportReportService.exportHistoriqueAchatsToPdf(
                 this.orderLineRepository.getHistoriqueAchat(
                         produitHistorique.produitId(),
@@ -302,7 +300,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     }
 
     @Override
-    public Resource exportHistoriqueVenteMensuelleToPdf(ProduitHistoriqueParam produitHistorique) {
+    public byte[] exportHistoriqueVenteMensuelleToPdf(ProduitHistoriqueParam produitHistorique) {
         return this.historiqueVenteReportReportService.exportHistoriqueVenteMensuelleToPdf(
                 this.getHistoriqueVenteMensuelle(produitHistorique),
                 this.getHistoriqueVenteMensuelleSummary(produitHistorique),
@@ -312,7 +310,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     }
 
     @Override
-    public Resource exportHistoriqueAchatMensuelToPdf(ProduitHistoriqueParam produitHistorique) {
+    public byte[] exportHistoriqueAchatMensuelToPdf(ProduitHistoriqueParam produitHistorique) {
         return this.historiqueVenteReportReportService.exportHistoriqueAchatsMensuelToPdf(
                 this.getHistoriqueAchatMensuelle(produitHistorique),
                 this.getHistoriqueAchatSummary(produitHistorique),

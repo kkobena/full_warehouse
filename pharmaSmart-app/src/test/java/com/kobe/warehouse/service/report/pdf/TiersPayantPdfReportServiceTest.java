@@ -35,7 +35,6 @@ class TiersPayantPdfReportServiceTest {
         when(tiersPayantReportService.getUnpaidInvoices(any(), any())).thenReturn(List.of());
 
         service = new TiersPayantPdfReportService(
-            PdfReportTestSupport.proprietes(),
             PdfReportTestSupport.storageService(),
             PdfReportTestSupport.moteurDeGabarits(),
             tiersPayantReportService

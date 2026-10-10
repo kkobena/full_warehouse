@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.stock.impl;
 
 import com.kobe.warehouse.service.license.DemoWatermark;
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.OrderLine;
@@ -40,11 +39,10 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
     private List<EtiquetteDTO> items;
 
     public EtiquetteExportReportServiceImpl(
-        FileStorageProperties fileStorageProperties,
         SpringTemplateEngine templateEngine,
         StorageService storageService
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }

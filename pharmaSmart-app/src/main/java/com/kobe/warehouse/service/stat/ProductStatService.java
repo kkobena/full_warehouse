@@ -14,9 +14,7 @@ import com.kobe.warehouse.service.dto.produit.ProduitAuditingState;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingSum;
 import com.kobe.warehouse.service.dto.records.ProductStatParetoRecord;
 import com.kobe.warehouse.service.dto.records.ProductStatRecord;
-import java.net.MalformedURLException;
 import java.util.List;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -31,7 +29,7 @@ public interface ProductStatService extends CommonStatService {
 
     List<ProductStatParetoRecord> fetch20x80(ProduitRecordParamDTO produitRecordParam);
 
-    Resource printToPdf(ProduitAuditingParam produitAuditingParam) throws MalformedURLException;
+    byte[] printToPdf(ProduitAuditingParam produitAuditingParam);
 
     Page<HistoriqueProduitVente> getHistoriqueVente(ProduitHistoriqueParam produitHistorique, Pageable pageable);
 
@@ -47,11 +45,11 @@ public interface ProductStatService extends CommonStatService {
 
     HistoriqueProduitVenteMensuelleSummary getHistoriqueVenteMensuelleSummary(ProduitHistoriqueParam produitHistorique);
 
-    Resource exportHistoriqueVenteToPdf(ProduitHistoriqueParam produitHistorique);
+    byte[] exportHistoriqueVenteToPdf(ProduitHistoriqueParam produitHistorique);
 
-    Resource exportHistoriqueAchatToPdf(ProduitHistoriqueParam produitHistorique);
+    byte[] exportHistoriqueAchatToPdf(ProduitHistoriqueParam produitHistorique);
 
-    Resource exportHistoriqueVenteMensuelleToPdf(ProduitHistoriqueParam produitHistorique);
+    byte[] exportHistoriqueVenteMensuelleToPdf(ProduitHistoriqueParam produitHistorique);
 
-    Resource exportHistoriqueAchatMensuelToPdf(ProduitHistoriqueParam produitHistorique);
+    byte[] exportHistoriqueAchatMensuelToPdf(ProduitHistoriqueParam produitHistorique);
 }

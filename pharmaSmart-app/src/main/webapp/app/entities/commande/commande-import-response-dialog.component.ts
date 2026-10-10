@@ -1,10 +1,7 @@
-import { Component, inject, OnDestroy, ChangeDetectionStrategy, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ICommandeResponse } from "../../shared/model/commande-response.model";
-import { CommandeService } from "./commande.service";
 import { ButtonComponent } from "../../shared/ui";
-import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
 import { CommonModule } from "@angular/common";
 import { BlobDownloadService } from "../../shared/services/blob-download.service";
 
@@ -15,32 +12,22 @@ import { BlobDownloadService } from "../../shared/services/blob-download.service
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ButtonComponent, CommonModule]
 })
-export class CommandeImportResponseDialogComponent implements OnDestroy {
+export class CommandeImportResponseDialogComponent {
   responseCommande?: ICommandeResponse;
-  protected readonly hiddenInfo = signal(true);
   private activeModal = inject(NgbActiveModal);
-  private commandeService = inject(CommandeService);
-  private destroy$ = new Subject<void>();
   private readonly blobDownloadService = inject(BlobDownloadService);
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   cancel(): void {
     this.activeModal.dismiss();
   }
 
+  /** Le CSV des lignes non prises en compte arrive avec la réponse d'import (base64) : rien à redemander au serveur. */
   onClickLink(): void {
-    this.commandeService
-      .getRuptureCsv(this.responseCommande.reference)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: blod => {
-          this.blobDownloadService.downloadCsv(blod, `${this.responseCommande.reference}`);
-          this.hiddenInfo.set(false);
-        }
-      });
+    const contenu = this.responseCommande?.ruptureCsv;
+    if (!contenu) {
+      return;
+    }
+    const octets = Uint8Array.from(atob(contenu), caractere => caractere.charCodeAt(0));
+    this.blobDownloadService.downloadCsv(new Blob([octets], { type: "text/csv;charset=utf-8" }), `${this.responseCommande?.reference}`);
   }
 }

@@ -22,12 +22,10 @@
             >{{ (responseCommande?.items)!.length | number }} /{{ responseCommande?.totalItemCount | number }}</span
           >
         </p>
-        <div [hidden]="hiddenInfo()" class="alert-warning">
-          <h4>Le fichier sera disponible dans quelques instant.... Veuillez cliquer sur le lien dans queleques secondes</h4>
-        </div>
         <h4>
           <app-button
             (clicked)="onClickLink()"
+            [disabled]="!responseCommande?.ruptureCsv"
             label="Cliquer pour télécharger le fichier des produits qui ne sont pas pris en compte"
             [text]="true"
           />

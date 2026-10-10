@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.facturation.service;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.AvoirTiersPayant;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
@@ -39,10 +38,9 @@ public class AvoirPdfService extends CommonReportService {
     public AvoirPdfService(
         AvoirTiersPayantRepository avoirRepository,
         StorageService storageService,
-        SpringTemplateEngine templateEngine,
-        FileStorageProperties fileStorageProperties
+        SpringTemplateEngine templateEngine
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.avoirRepository = avoirRepository;
         this.templateEngine = templateEngine;
     }

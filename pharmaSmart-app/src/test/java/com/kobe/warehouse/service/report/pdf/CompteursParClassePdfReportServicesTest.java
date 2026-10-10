@@ -47,7 +47,6 @@ class CompteursParClassePdfReportServicesTest {
 
         private final StockAlertReportService reportService = mock(StockAlertReportService.class);
         private final StockAlertPdfReportService service = new StockAlertPdfReportService(
-            PdfReportTestSupport.proprietes(),
             PdfReportTestSupport.storageService(),
             PdfReportTestSupport.moteurDeGabarits(),
             reportService
@@ -118,7 +117,6 @@ class CompteursParClassePdfReportServicesTest {
 
         private final CustomerSegmentationReportService reportService = mock(CustomerSegmentationReportService.class);
         private final CustomerSegmentationPdfReportService service = new CustomerSegmentationPdfReportService(
-            PdfReportTestSupport.proprietes(),
             PdfReportTestSupport.storageService(),
             PdfReportTestSupport.moteurDeGabarits(),
             reportService
@@ -199,7 +197,6 @@ class CompteursParClassePdfReportServicesTest {
 
         private final StockRotationReportService reportService = mock(StockRotationReportService.class);
         private final StockRotationPdfReportService service = new StockRotationPdfReportService(
-            PdfReportTestSupport.proprietes(),
             PdfReportTestSupport.storageService(),
             PdfReportTestSupport.moteurDeGabarits(),
             reportService

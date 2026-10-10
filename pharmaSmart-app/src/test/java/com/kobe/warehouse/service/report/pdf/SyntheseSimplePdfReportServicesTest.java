@@ -1,11 +1,5 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.kobe.warehouse.domain.StockValuationView;
 import com.kobe.warehouse.domain.enumeration.ClassePareto;
 import com.kobe.warehouse.service.dto.report.ABCParetoDTO;
@@ -18,12 +12,16 @@ import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
 import com.kobe.warehouse.service.report.ABCParetoReportService;
 import com.kobe.warehouse.service.report.StockValuationReportService;
 import com.kobe.warehouse.service.report.SupplierPerformanceReportService;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 /**
  * Quatre documents ne calculent rien : ils reprennent une liste et son résumé, y posent un titre, et
@@ -46,7 +44,6 @@ class SyntheseSimplePdfReportServicesTest {
 
         private final ABCParetoReportService reportService = mock(ABCParetoReportService.class);
         private final ABCParetoPdfReportService service = new ABCParetoPdfReportService(
-            PdfReportTestSupport.proprietes(),
             PdfReportTestSupport.storageService(),
             PdfReportTestSupport.moteurDeGabarits(),
             reportService
@@ -100,12 +97,13 @@ class SyntheseSimplePdfReportServicesTest {
     class Rentabilite {
 
         private final ProfitabilityPdfReportService service = new ProfitabilityPdfReportService(
-            PdfReportTestSupport.proprietes(),
             PdfReportTestSupport.storageService(),
             PdfReportTestSupport.moteurDeGabarits()
         );
 
-        /** Ce service reçoit ses données de l'appelant : il ne doit qu'en préserver l'intégralité. */
+        /**
+         * Ce service reçoit ses données de l'appelant : il ne doit qu'en préserver l'intégralité.
+         */
         @Test
         @DisplayName("les marges reçues et leur résumé accompagnent le document")
         void margesEtResume() {
@@ -148,7 +146,6 @@ class SyntheseSimplePdfReportServicesTest {
 
         private final SupplierPerformanceReportService reportService = mock(SupplierPerformanceReportService.class);
         private final SupplierPerformancePdfReportService service = new SupplierPerformancePdfReportService(
-            PdfReportTestSupport.proprietes(),
             PdfReportTestSupport.storageService(),
             PdfReportTestSupport.moteurDeGabarits(),
             reportService
@@ -202,7 +199,6 @@ class SyntheseSimplePdfReportServicesTest {
 
         private final StockValuationReportService reportService = mock(StockValuationReportService.class);
         private final StockValuationPdfReportService service = new StockValuationPdfReportService(
-            PdfReportTestSupport.proprietes(),
             PdfReportTestSupport.storageService(),
             PdfReportTestSupport.moteurDeGabarits(),
             reportService

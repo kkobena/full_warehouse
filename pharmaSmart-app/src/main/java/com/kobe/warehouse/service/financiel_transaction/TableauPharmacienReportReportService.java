@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
@@ -29,10 +28,9 @@ public class TableauPharmacienReportReportService extends CommonReportService {
 
     public TableauPharmacienReportReportService(
         SpringTemplateEngine templateEngine,
-        FileStorageProperties fileStorageProperties,
         StorageService storageService
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
     }

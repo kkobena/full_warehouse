@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.report.pdf;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
@@ -20,8 +19,8 @@ public class SupplierPerformancePdfReportService extends AbstractStatistiqueRepo
 
     private final SupplierPerformanceReportService supplierPerformanceReportService;
 
-    public SupplierPerformancePdfReportService(FileStorageProperties fileStorageProperties, StorageService storageService, SpringTemplateEngine templateEngine, SupplierPerformanceReportService supplierPerformanceReportService) {
-        super(fileStorageProperties, storageService);
+    public SupplierPerformancePdfReportService(StorageService storageService, SpringTemplateEngine templateEngine, SupplierPerformanceReportService supplierPerformanceReportService) {
+        super(storageService);
         this.templateEngine = templateEngine;
         this.supplierPerformanceReportService = supplierPerformanceReportService;
     }

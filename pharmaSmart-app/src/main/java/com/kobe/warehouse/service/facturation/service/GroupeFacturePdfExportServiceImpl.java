@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.facturation.service;
 
-import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.facturation.dto.GroupeFactureDto;
 import com.kobe.warehouse.service.report.Constant;
@@ -28,12 +27,11 @@ public class GroupeFacturePdfExportServiceImpl extends AbstractStatistiqueReport
     private static final String TEMPLATE_FILE = Constant.FACTURATION_GROUPE_TEMPLATE_FILE;
 
     public GroupeFacturePdfExportServiceImpl(
-        FileStorageProperties fileStorageProperties,
         SpringTemplateEngine templateEngine,
         StorageService storageService,
         FacturationPdfExportService facturationPdfExportService
     ) {
-        super(fileStorageProperties, storageService);
+        super( storageService);
         this.templateEngine = templateEngine;
         this.facturationPdfExportService = facturationPdfExportService;
     }

@@ -101,7 +101,7 @@ export class DashboardGridComponent implements AfterViewInit, OnDestroy {
         column: GRID_COLUMNS,
         cellHeight: 80,
         margin: 8,
-        float: false,
+        mode: 'top',
         animate: true,
         staticGrid: !this.editable(),
         // les contrôles de l'en-tête (réglages, menu, agrandir) ne déclenchent pas le déplacement
@@ -110,8 +110,9 @@ export class DashboardGridComponent implements AfterViewInit, OnDestroy {
           cancel: 'input,textarea,button,select,option,app-select,app-button,app-split-button,.ng-select,.dropdown-menu',
         },
       },
-      this.gridEl().nativeElement,
+      this.gridEl().nativeElement as GridItemHTMLElement,
     );
+    if (!grid) return;
     this.grid = grid;
     this.pending.forEach(el => this.makeWidget(el));
     this.pending.clear();

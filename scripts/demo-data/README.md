@@ -188,6 +188,7 @@ la fenêtre récente.
 | `15_reference.sql` | Compteurs de numérotation par jour et par type. |
 | `24_mouvements.sql` | Journal des mouvements (tous types), inventaires d'ouverture et annuel, photos de stock. En dernier. |
 | `25_objectifs_pilotage.sql` | Objectifs mensuels du pilotage (CA TTC, marge, taux de marge, taux de remise), années N et N-1. |
+| `26_agregats_pilotage.sql` | Agrégats du pilotage (ventes, achats, encaissements, stock mensuel) sur tout l'historique : sans lui, les onglets du pilotage ne voient que la dernière semaine. Après 24. |
 | `99_verification.sql` | Contrôles d'intégrité. Sort en erreur si un invariant est violé. |
 | `run_all.sql` | Enchaîne le tout. |
 

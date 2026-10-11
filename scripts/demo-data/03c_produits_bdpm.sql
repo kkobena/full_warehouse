@@ -30,7 +30,15 @@
 
 \i 03c_data_cip_bdpm.sql
 
-SELECT ref_lier_dci() AS dci_reliees;
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_proc p
+               JOIN pg_namespace n ON n.oid = p.pronamespace
+               WHERE p.proname = 'ref_lier_dci' AND n.nspname = current_schema()) THEN
+        PERFORM ref_lier_dci();
+    END IF;
+END;
+$$;
 
 -- ---------------------------------------------------------------------------
 -- 1. Candidats : spécialités commercialisées, au CIP réel, au libellé raisonnable
@@ -126,7 +134,15 @@ SELECT 'BDPM' || lpad(d.id::text, 6, '0'), d.libelle
                   JOIN tmp_bdpm_sel s ON s.cis = c.cis WHERE c.nature = 'SA')
 ON CONFLICT DO NOTHING;
 
-SELECT ref_lier_dci() AS dci_reliees_apres_creation;
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_proc p
+               JOIN pg_namespace n ON n.oid = p.pronamespace
+               WHERE p.proname = 'ref_lier_dci' AND n.nspname = current_schema()) THEN
+        PERFORM ref_lier_dci();
+    END IF;
+END;
+$$;
 
 -- Première substance active de chaque spécialité (ordre du code substance), et liaison.
 CREATE TEMP TABLE tmp_bdpm_sa AS

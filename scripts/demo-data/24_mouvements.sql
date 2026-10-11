@@ -116,14 +116,15 @@ SELECT sl.produit_id, x.rayon_id, sl.created_at, 'SALE',
  WHERE sl.quantity_sold > 0;
 
 -- Ventes dépôt : ce que l'officine cède entre au dépôt (saveVenteDepotExtensionInventoryTransactions).
+-- Le dépôt est celui de la vente (sales.depot_id), jamais « le » magasin de type DEPOT : la remise à zéro
+-- préserve la table magasin, un dépôt créé depuis l'écran y survit, et chaque ligne serait dupliquée sur lui.
 INSERT INTO tmp_jr_mvt
 SELECT sl.produit_id, st.id, sl.created_at, 'ENTREE_STOCK',
        sl.quantity_sold, sl.quantity_sold,
        sl.id, 'vente_depot', s.user_id, COALESCE(sl.cost_amount, 0), COALESCE(sl.regular_unit_price, 0), 1
   FROM sales_line sl
   JOIN sales s ON s.id = sl.sales_id AND s.sale_date = sl.sales_sale_date AND s.dtype = 'VenteDepot'
-  JOIN magasin m ON m.type_magasin = 'DEPOT'
-  JOIN storage st ON st.magasin_id = m.id AND st.storage_type = 'PRINCIPAL'
+  JOIN storage st ON st.magasin_id = s.depot_id AND st.storage_type = 'PRINCIPAL'
  WHERE sl.quantity_sold > 0;
 
 -- Retours du dépôt : réintégrés au rayon de l'officine.
@@ -223,6 +224,16 @@ SELECT l.produit_id, l.storage_id, l.updated_at, 'INVENTAIRE',
  WHERE l.updated;
 
 UPDATE tmp_jr_mvt SET user_id = (SELECT admin_id FROM tmp_jr_ctx) WHERE user_id IS NULL;
+
+-- Aucun mouvement dans le futur. Le journal est lu en UTC (fn_stock_quantites_at_time, V2.1.33), alors que les
+-- pièces sont datées à l'heure de la session : sur un poste à UTC+2, les ventes de l'heure écoulée tombaient
+-- après NOW() ; une réception du jour (10 h) aussi, si le jeu est chargé dans la matinée. v_stock_ecart_journal,
+-- qui compare le stock au journal à NOW(), les ignorait et signalait un écart. Deux minutes de marge : un
+-- comptage d'inventaire peut se placer une minute après le dernier mouvement de sa ligne (§2).
+UPDATE tmp_jr_mvt
+   SET moment = date_trunc('minute', NOW() AT TIME ZONE 'UTC') - INTERVAL '2 minutes'
+ WHERE moment > date_trunc('minute', NOW() AT TIME ZONE 'UTC') - INTERVAL '2 minutes';
+
 CREATE INDEX ON tmp_jr_mvt (produit_id, storage_id, moment);
 
 -- L'inventaire annuel se place dans un creux : aucun mouvement dans la minute qui suit sa clôture.

@@ -2321,6 +2321,19 @@ SELECT pg_temp.verif_compte('pilotage', 'Objectifs mensuels de l''année en cour
      WHERE annee >= date_part('year', CURRENT_DATE)::int - 1
 $q$, 8);
 
+-- Agrégats du pilotage : l'historique entier, pas la seule dernière semaine que l'application rattrape au démarrage.
+SELECT pg_temp.verif_compte('pilotage', 'Ventes agrégées sur au moins 13 mois', $q$
+    SELECT DISTINCT date_trunc('month', jour) FROM pilotage_vente_jour
+$q$, 13);
+
+SELECT pg_temp.verif_compte('pilotage', 'Achats agrégés sur au moins 13 mois', $q$
+    SELECT DISTINCT date_trunc('month', jour) FROM pilotage_achat_jour
+$q$, 13);
+
+SELECT pg_temp.verif_compte('pilotage', 'Stock photographié en fin de mois sur au moins 13 mois', $q$
+    SELECT DISTINCT mois FROM pilotage_stock_mensuel
+$q$, 13);
+
 -- Toute vente doit avoir laissé une trace, sinon « Suivi article » ment.
 SELECT pg_temp.verif_vide('mouvements', 'Toute ligne de vente a son mouvement', $q$
     SELECT sl.id FROM sales_line sl

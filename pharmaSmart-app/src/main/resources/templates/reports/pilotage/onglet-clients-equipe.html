@@ -1,0 +1,39 @@
+<th:block th:fragment="onglet(c)" xmlns:th="http://www.thymeleaf.org">
+  <!-- Fréquentation -->
+  <h2 class="section-titre">Fréquentation</h2>
+  <p class="lecture" th:if="${c.lectureCreneaux != null}" th:text="${c.lectureCreneaux}"></p>
+  <table class="disposition">
+    <tbody>
+      <tr>
+        <td class="moitie">
+          <h2 class="section-titre">Ventes par heure et jour de la semaine</h2>
+          <th:block th:if="${c.frequentation != null}">
+            <th:block th:replace="~{reports/pilotage/fragments :: carteChaleur(${c.frequentation})}"></th:block>
+          </th:block>
+          <p class="vide" th:if="${c.frequentation == null}">Aucune vente sur la période.</p>
+        </td>
+        <td class="moitie">
+          <th:block th:replace="~{reports/pilotage/fragments :: graphe('Ventes par jour', ${c.ventesParJour}, 'graphe-moitie')}"></th:block>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Clients -->
+  <h2 class="section-titre nouvelle-page">Clients</h2>
+  <p class="contexte">Seules les ventes rattachées à un client se suivent ici ; la segmentation RFM reste dans son rapport.</p>
+  <th:block th:replace="~{reports/pilotage/fragments :: tuiles(${c.tuilesClients})}"></th:block>
+  <th:block th:if="${c.enBaisse != null}">
+    <h2 class="section-titre">Clients en baisse</h2>
+    <th:block th:replace="~{reports/pilotage/fragments :: tableau(${c.enBaisse})}"></th:block>
+  </th:block>
+
+  <!-- Équipe -->
+  <h2 class="section-titre">Équipe — par vendeur</h2>
+  <p class="contexte">Chaque mesure est comparée à la référence ; la dernière ligne situe l'équipe entière.</p>
+  <th:block th:replace="~{reports/pilotage/fragments :: tableau(${c.vendeurs})}"></th:block>
+  <th:block th:if="${c.vendeursParHeure != null}">
+    <h2 class="section-titre">CA par vendeur et par heure</h2>
+    <th:block th:replace="~{reports/pilotage/fragments :: tableau(${c.vendeursParHeure})}"></th:block>
+  </th:block>
+</th:block>

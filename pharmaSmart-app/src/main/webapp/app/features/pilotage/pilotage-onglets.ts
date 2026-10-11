@@ -65,3 +65,14 @@ export const ONGLETS_PILOTAGE: readonly OngletPilotage[] = [
   },
   { id: 'objectifs', code: 'pilotage.objectifs', libelle: 'Objectifs', icone: 'pi pi-flag', question: 'Suis-je en avance ou en retard ?', aide: 'Objectifs mensuels du titulaire : suivi mois par mois et projection de la fin du mois.', phase: 7 },
 ];
+
+/** Onglets que sait imprimer le rapport PDF : identifiant de l'onglet → valeur de `OngletRapportPilotage` côté serveur. */
+export const ONGLETS_RAPPORT_PDF: Readonly<Record<string, string>> = {
+  'tableau-de-bord': 'TABLEAU_DE_BORD',
+  analyser: 'ANALYSER',
+  'comparer-annees': 'COMPARER_ANNEES',
+  'rentabilite-remises': 'RENTABILITE_REMISES',
+  'achats-stock': 'ACHATS_STOCK',
+  'tresorerie-tiers-payant': 'TRESORERIE_TIERS_PAYANT',
+  'clients-equipe': 'CLIENTS_EQUIPE',
+};

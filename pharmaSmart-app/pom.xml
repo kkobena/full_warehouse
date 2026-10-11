@@ -398,6 +398,12 @@
       <groupId>org.apache.xmlgraphics</groupId>
       <version>${batik.version}</version>
     </dependency>
+    <!-- Graphes du rapport PDF du pilotage -->
+    <dependency>
+      <artifactId>jfreechart</artifactId>
+      <groupId>org.jfree</groupId>
+      <version>${jfreechart.version}</version>
+    </dependency>
 
     <!-- ==================== -->
     <!-- Serial Communication -->

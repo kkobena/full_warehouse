@@ -1,6 +1,6 @@
 package com.kobe.warehouse.domain.enumeration;
 
-/** Présentation d'une analyse enregistrée. */
+/** Affichage de l'onglet Analyser au-dessus du détail : barres classées, courbes dans le temps, tableau seul ou croisé. */
 public enum AffichageAnalyse {
     BARRES,
     COURBE,

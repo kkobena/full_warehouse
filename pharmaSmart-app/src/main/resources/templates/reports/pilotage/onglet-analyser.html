@@ -1,0 +1,22 @@
+<th:block th:fragment="onglet(an)" xmlns:th="http://www.thymeleaf.org">
+  <p class="contexte" th:text="${an.reglage}"></p>
+  <p class="contexte" th:if="${an.chemin != null}"><strong th:text="${an.chemin}"></strong></p>
+  <p class="mention" th:if="${an.noteIgnores != null}" th:text="${an.noteIgnores}"></p>
+
+  <th:block th:if="${an.titreGraphe != null and an.croise == null}">
+    <div class="bloc-insecable">
+      <th:block th:replace="~{reports/pilotage/fragments :: graphe(${an.titreGraphe}, ${an.graphe}, 'graphe-large-libre')}"></th:block>
+    </div>
+  </th:block>
+
+  <th:block th:if="${an.croise != null}">
+    <h2 class="section-titre" th:text="${an.titreGraphe}"></h2>
+    <p class="vide" th:if="${an.croise.colonnes.isEmpty()}">Choisissez une seconde ventilation (« Puis par ») pour croiser.</p>
+    <th:block th:unless="${an.croise.colonnes.isEmpty()}">
+      <th:block th:replace="~{reports/pilotage/fragments :: tableau(${an.croise})}"></th:block>
+    </th:block>
+  </th:block>
+
+  <h2 class="section-titre" th:text="${an.titreDetail}"></h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tableau(${an.detail})}"></th:block>
+</th:block>

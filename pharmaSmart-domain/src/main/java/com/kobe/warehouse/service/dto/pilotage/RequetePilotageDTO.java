@@ -35,4 +35,9 @@ public record RequetePilotageDTO(
         granularite = granularite == null ? Granularite.MOIS : granularite;
         indicateurs = indicateurs == null || indicateurs.isEmpty() ? Arrays.asList(IndicateurPilotage.values()) : List.copyOf(indicateurs);
     }
+
+    /** La même requête, sur d'autres indicateurs. */
+    public RequetePilotageDTO lireAvecIndicateurs(List<IndicateurPilotage> autres) {
+        return new RequetePilotageDTO(du, au, comparaison, anneesEnArriere, referenceDu, referenceAu, aDate, granularite, autres);
+    }
 }

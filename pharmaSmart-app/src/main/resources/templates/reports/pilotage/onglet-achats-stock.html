@@ -1,0 +1,86 @@
+<th:block th:fragment="onglet(a)" xmlns:th="http://www.thymeleaf.org">
+  <!-- Achats -->
+  <h2 class="section-titre">Achats</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tuiles(${a.tuilesAchats})}"></th:block>
+  <table class="disposition">
+    <tbody>
+      <tr>
+        <td class="moitie">
+          <th:block th:replace="~{reports/pilotage/fragments :: graphe(${a.titreCourbeAchats}, ${a.courbeAchats}, 'graphe-moitie')}"></th:block>
+        </td>
+        <td class="moitie">
+          <h2 class="section-titre">Par famille</h2>
+          <th:block th:replace="~{reports/pilotage/fragments :: tableau(${a.achatsParFamille})}"></th:block>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h2 class="section-titre">Par fournisseur</h2>
+  <p class="contexte">La remise de fin d'année (RFA) n'est pas suivie ici : le contrat fournisseur ne l'enregistre pas encore.</p>
+  <th:block th:replace="~{reports/pilotage/fragments :: tableau(${a.achatsParFournisseur})}"></th:block>
+
+  <!-- Achats / ventes -->
+  <h2 class="section-titre nouvelle-page">Achats / ventes</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tuiles(${a.tuilesAchatsVentes})}"></th:block>
+  <table class="disposition">
+    <tbody>
+      <tr>
+        <td class="moitie">
+          <th:block th:replace="~{reports/pilotage/fragments :: graphe(${a.titreCourbeAchatsVentes}, ${a.courbeAchatsVentes}, 'graphe-moitie')}"></th:block>
+          <p class="mention">Un écart durable, c'est du stock qui gonfle (achats au-dessus) ou qui fond (en dessous).</p>
+        </td>
+        <td class="moitie">
+          <h2 class="section-titre">Par famille</h2>
+          <th:block th:replace="~{reports/pilotage/fragments :: tableau(${a.achatsVentesParFamille})}"></th:block>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Stock -->
+  <h2 class="section-titre nouvelle-page">Stock</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tuiles(${a.tuilesStock})}"></th:block>
+  <p class="contexte" th:text="${a.noteStock}"></p>
+  <table class="disposition">
+    <tbody>
+      <tr>
+        <td class="moitie">
+          <th:block th:replace="~{reports/pilotage/fragments :: graphe('Valeur du stock en fin de mois', ${a.courbeStock}, 'graphe-moitie')}"></th:block>
+        </td>
+        <td class="moitie">
+          <h2 class="section-titre" th:text="${a.titreDormants}"></h2>
+          <th:block th:replace="~{reports/pilotage/fragments :: tableau(${a.dormants})}"></th:block>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h2 class="section-titre">Par famille</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tableau(${a.stockParFamille})}"></th:block>
+
+  <!-- Ruptures & péremptions -->
+  <h2 class="section-titre nouvelle-page">Ruptures &amp; péremptions</h2>
+  <p class="contexte">Deux ruptures, à ne pas additionner : chez le fournisseur (commandé, non livré) et au comptoir (demandé, non servi).</p>
+  <th:block th:replace="~{reports/pilotage/fragments :: tuiles(${a.tuilesRuptures})}"></th:block>
+  <p
+    class="vide"
+    th:if="${a.rupturesParFournisseur == null and a.rupturesParProduit == null and a.ventesManquees == null and a.peremptions == null}"
+  >
+    Ni rupture, ni vente manquée, ni lot à périmer dans les six mois sur la période.
+  </p>
+  <th:block th:if="${a.rupturesParFournisseur != null}">
+    <h2 class="section-titre">Ruptures par fournisseur</h2>
+    <th:block th:replace="~{reports/pilotage/fragments :: tableau(${a.rupturesParFournisseur})}"></th:block>
+  </th:block>
+  <th:block th:if="${a.rupturesParProduit != null}">
+    <h2 class="section-titre">Ruptures par produit</h2>
+    <th:block th:replace="~{reports/pilotage/fragments :: tableau(${a.rupturesParProduit})}"></th:block>
+  </th:block>
+  <th:block th:if="${a.ventesManquees != null}">
+    <h2 class="section-titre">Ventes manquées par produit</h2>
+    <th:block th:replace="~{reports/pilotage/fragments :: tableau(${a.ventesManquees})}"></th:block>
+  </th:block>
+  <th:block th:if="${a.peremptions != null}">
+    <h2 class="section-titre">Péremptions à venir (6 mois)</h2>
+    <th:block th:replace="~{reports/pilotage/fragments :: tableau(${a.peremptions})}"></th:block>
+  </th:block>
+</th:block>

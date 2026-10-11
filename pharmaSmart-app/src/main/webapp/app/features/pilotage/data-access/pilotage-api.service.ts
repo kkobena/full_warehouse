@@ -77,6 +77,34 @@ export class PilotageApiService {
     });
   }
 
+  /** Rapport PDF des onglets choisis ; refusé en entier si l'un d'eux n'est pas exportable par l'utilisateur. */
+  imprimerRapport(
+    requete: RequetePilotage,
+    onglets: readonly string[],
+    reglageAnnees: ReglageAnnees,
+    reglageAnalyse: ReglageAnalyse,
+  ): Observable<HttpResponse<Blob>> {
+    const { du, au, comparaison, anneesEnArriere, aDate, granularite } = requete;
+    const { indicateur, annees, mode, parJourOuvre, filtre } = reglageAnnees;
+    const { indicateurs, axe, axe2, top, tri, affichage, chemin } = reglageAnalyse;
+    return this.http.post(
+      `${this.resourceUrl}/rapport/pdf`,
+      {
+        requete: { du, au, comparaison, anneesEnArriere, aDate, granularite },
+        onglets,
+        annees: { indicateur, annees, mode, parJourOuvre, filtre: filtre ? [`${filtre.axe}:${filtre.cle}`] : [] },
+        libelleFiltreAnnees: filtre?.libelle ?? null,
+        analyse: {
+          indicateurs,
+          analyse: { axe, axe2, top, tri, filtre: chemin.map(etape => `${etape.axe}:${etape.cle}`) },
+          affichage,
+          libellesChemin: chemin.map(etape => etape.libelle),
+        },
+      },
+      { observe: 'response', responseType: 'blob' },
+    );
+  }
+
   exporterAnalyse(requete: RequetePilotage, reglage: ReglageAnalyse): Observable<HttpResponse<Blob>> {
     return this.http.get(`${this.resourceUrl}/analyse/export`, { params: versParametresAnalyse(requete, reglage), observe: 'response', responseType: 'blob' });
   }

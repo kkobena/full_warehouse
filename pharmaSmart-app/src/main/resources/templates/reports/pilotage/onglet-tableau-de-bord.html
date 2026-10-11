@@ -1,0 +1,71 @@
+<th:block th:fragment="onglet(tdb)" xmlns:th="http://www.thymeleaf.org">
+  <p class="contexte" th:text="${tdb.contexte}"></p>
+
+  <th:block th:if="${!tdb.alertes.isEmpty()}">
+    <h2 class="section-titre">Alertes du jour</h2>
+    <div th:each="alerte : ${tdb.alertes}" th:class="'alerte alerte-' + ${alerte.gravite}">
+      <strong th:text="${alerte.titre}"></strong>
+      <span th:if="${alerte.detail != null}" th:text="' — ' + ${alerte.detail}"></span>
+    </div>
+  </th:block>
+
+  <h2 class="section-titre">Chiffres clés</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tuiles(${tdb.tuiles})}"></th:block>
+
+  <table class="disposition">
+    <tbody>
+      <tr>
+        <td class="colonne-graphe">
+          <th:block th:replace="~{reports/pilotage/fragments :: graphe(${tdb.titreCourbe}, ${tdb.courbeCa}, 'graphe')}"></th:block>
+        </td>
+        <td>
+          <h2 class="section-titre">Ce qui a bougé</h2>
+          <th:block th:if="${tdb.ecartCa != null}">
+            <h3 class="sous-titre">
+              <span th:text="${tdb.ecartCa.libelle} + ' : '"></span>
+              <span th:class="${tdb.ecartCa.appreciation}" th:text="${tdb.ecartCa.montant}"></span>
+            </h3>
+            <table class="liste">
+              <tbody>
+                <tr th:each="effet : ${tdb.effets}">
+                  <td th:text="${effet.libelle}"></td>
+                  <td th:class="'montant ' + ${effet.appreciation}" th:text="${effet.montant}"></td>
+                </tr>
+              </tbody>
+            </table>
+          </th:block>
+          <p class="vide" th:if="${tdb.ecartCa == null}">Pas de référence comparable pour expliquer l'écart.</p>
+
+          <h3 class="sous-titre">Plus fortes hausses</h3>
+          <table class="liste">
+            <tbody>
+              <tr th:each="contribution : ${tdb.hausses}">
+                <td th:text="${contribution.libelle}"></td>
+                <td th:class="'montant ' + ${contribution.appreciation}" th:text="${contribution.montant}"></td>
+              </tr>
+              <tr th:if="${tdb.hausses.isEmpty()}">
+                <td class="vide">Aucune</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 class="sous-titre">Plus fortes baisses</h3>
+          <table class="liste">
+            <tbody>
+              <tr th:each="contribution : ${tdb.baisses}">
+                <td th:text="${contribution.libelle}"></td>
+                <td th:class="'montant ' + ${contribution.appreciation}" th:text="${contribution.montant}"></td>
+              </tr>
+              <tr th:if="${tdb.baisses.isEmpty()}">
+                <td class="vide">Aucune</td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="section-titre">Détail par période</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tableau(${tdb.detail})}"></th:block>
+</th:block>

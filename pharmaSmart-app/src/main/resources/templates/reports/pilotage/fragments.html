@@ -1,0 +1,68 @@
+<!-- Briques communes aux onglets du rapport du pilotage -->
+<th:block xmlns:th="http://www.thymeleaf.org">
+  <!-- Tableau générique : TableauRapportDTO -->
+  <th:block th:fragment="tableau(t)">
+    <table class="main-table">
+      <thead>
+        <tr>
+          <th class="libelle-ligne" th:text="${t.entete}"></th>
+          <th class="nombre" th:each="colonne : ${t.colonnes}" th:text="${colonne}"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="ligne : ${t.lignes}" th:class="${ligne.total} ? 'ligne-total' : null">
+          <th class="libelle-ligne" th:text="${ligne.libelle}"></th>
+          <td th:each="cellule : ${ligne.cellules}" th:class="${cellule.texte} ? 'texte' : 'nombre'">
+            <div th:text="${cellule.valeur}"></div>
+            <div
+              th:if="${cellule.variation != null}"
+              th:class="'variation-cellule ' + ${cellule.variation.appreciation}"
+              th:text="${cellule.variation.texte}"
+            ></div>
+          </td>
+        </tr>
+        <tr th:if="${t.lignes.isEmpty()}">
+          <td class="vide" th:colspan="${t.colonnes.size() + 1}">Aucune donnée sur la période</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="mention" th:if="${t.mention != null}" th:text="${t.mention}"></p>
+  </th:block>
+
+  <!-- Tuiles d'indicateurs : List<TuileRapportDTO> -->
+  <th:block th:fragment="tuiles(tuiles)">
+    <div class="tuiles">
+      <div class="tuile" th:each="tuile : ${tuiles}">
+        <div class="tuile-libelle" th:text="${tuile.libelle}"></div>
+        <div class="tuile-valeur" th:text="${tuile.valeur}"></div>
+        <div th:if="${tuile.variation != null}" th:class="${tuile.variation.appreciation}" th:text="${tuile.variation.texte}"></div>
+        <div class="tuile-complement" th:each="complement : ${tuile.complements}" th:text="${complement}"></div>
+      </div>
+    </div>
+  </th:block>
+
+  <!-- Carte de chaleur : CarteChaleurRapportDTO, fond de chaque case calculé côté serveur -->
+  <th:block th:fragment="carteChaleur(carte)">
+    <table class="carte-chaleur">
+      <thead>
+        <tr>
+          <th th:text="${carte.entete}"></th>
+          <th th:each="colonne : ${carte.colonnes}" th:text="${colonne}"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="ligne : ${carte.lignes}">
+          <th th:text="${ligne.libelle}"></th>
+          <td th:each="case : ${ligne.cases}" th:style="'background-color: ' + ${case.fond}" th:text="${case.valeur}"></td>
+        </tr>
+      </tbody>
+    </table>
+  </th:block>
+
+  <!-- Graphe titré ; classe : graphe (deux tiers), graphe-large (pleine largeur), graphe-moitie (demi-largeur) -->
+  <th:block th:fragment="graphe(titre, image, classe)">
+    <h2 class="section-titre" th:text="${titre}"></h2>
+    <img th:if="${image != null}" th:class="${classe}" th:src="${image}" th:alt="${titre}" />
+    <p class="vide" th:if="${image == null}">Aucune donnée à représenter.</p>
+  </th:block>
+</th:block>

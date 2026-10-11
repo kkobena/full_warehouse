@@ -1,0 +1,39 @@
+<th:block th:fragment="onglet(ca)" xmlns:th="http://www.thymeleaf.org">
+  <p class="contexte" th:text="${ca.reglage}"></p>
+  <p class="lecture" th:if="${ca.lecture != null}" th:text="${ca.lecture}"></p>
+
+  <div class="bloc-insecable">
+    <th:block th:replace="~{reports/pilotage/fragments :: graphe(${ca.titreCourbes}, ${ca.courbes}, 'graphe-large')}"></th:block>
+  </div>
+
+  <table class="disposition">
+    <tbody>
+      <tr>
+        <td class="moitie">
+          <th:block th:replace="~{reports/pilotage/fragments :: graphe('Par trimestre', ${ca.trimestres}, 'graphe-moitie')}"></th:block>
+        </td>
+        <td class="moitie">
+          <h2 class="section-titre">Saisonnalité moyenne des années closes</h2>
+          <img class="graphe-moitie" th:if="${ca.saisonnalite != null}" th:src="${ca.saisonnalite}" alt="Saisonnalité moyenne" />
+          <p class="vide" th:if="${ca.saisonnalite == null}">Il faut au moins une année close et un indicateur additif (CA, marge, ventes…).</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="section-titre nouvelle-page">Mois × années</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tableau(${ca.moisAnnees})}"></th:block>
+
+  <h2 class="section-titre">Synthèse annuelle</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tableau(${ca.synthese})}"></th:block>
+
+  <th:block th:if="${ca.familles != null}">
+    <h2 class="section-titre">Familles × années</h2>
+    <th:block th:replace="~{reports/pilotage/fragments :: tableau(${ca.familles})}"></th:block>
+  </th:block>
+
+  <th:block th:if="${ca.natures != null}">
+    <h2 class="section-titre">Types de vente × années</h2>
+    <th:block th:replace="~{reports/pilotage/fragments :: tableau(${ca.natures})}"></th:block>
+  </th:block>
+</th:block>

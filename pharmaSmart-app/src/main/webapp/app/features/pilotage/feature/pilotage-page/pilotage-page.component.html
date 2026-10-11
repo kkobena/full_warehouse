@@ -3,6 +3,9 @@
     <ng-container ngProjectAs="[toolbarFilters]">
       <app-barre-periode (requeteChange)="changerRequete($event)" [avecObjectifs]="avecObjectifs()" [requete]="requete()" />
     </ng-container>
+    <ng-container ngProjectAs="[toolbarActions]">
+      <app-export-rapport [ongletActif]="ongletActif()" [requete]="requete()" />
+    </ng-container>
   </app-toolbar>
 
   @if (ongletsVisibles().length === 0) {

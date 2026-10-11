@@ -1,0 +1,70 @@
+<th:block th:fragment="onglet(t)" xmlns:th="http://www.thymeleaf.org">
+  <!-- Encaissements & caisse -->
+  <h2 class="section-titre">Encaissements &amp; caisse</h2>
+  <p class="contexte">
+    Écart de caisse et arrondis non affichés : leur définition reste à valider (l'arrondi au multiple de 5 des espèces n'est pas un
+    écart).
+  </p>
+  <th:block th:replace="~{reports/pilotage/fragments :: tuiles(${t.tuilesEncaissements})}"></th:block>
+  <table class="disposition">
+    <tbody>
+      <tr>
+        <td class="moitie">
+          <th:block th:replace="~{reports/pilotage/fragments :: graphe(${t.titreEncaissements}, ${t.encaissementsParMode}, 'graphe-moitie')}"></th:block>
+        </td>
+        <td class="moitie">
+          <h2 class="section-titre">Par mode de paiement</h2>
+          <th:block th:replace="~{reports/pilotage/fragments :: tableau(${t.modes})}"></th:block>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <th:block th:if="${t.caissiers != null}">
+    <h2 class="section-titre">Par caissier</h2>
+    <th:block th:replace="~{reports/pilotage/fragments :: tableau(${t.caissiers})}"></th:block>
+  </th:block>
+
+  <!-- Tiers payant -->
+  <h2 class="section-titre nouvelle-page">Tiers payant</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tuiles(${t.tuilesTiersPayant})}"></th:block>
+  <table class="disposition">
+    <tbody>
+      <tr>
+        <td class="moitie">
+          <th:block
+            th:replace="~{reports/pilotage/fragments :: graphe(${t.titreCourbePartTiersPayant}, ${t.courbePartTiersPayant}, 'graphe-moitie')}"
+          ></th:block>
+        </td>
+        <td class="moitie">
+          <th:block th:replace="~{reports/pilotage/fragments :: graphe('Encaissements attendus', ${t.echeancier}, 'graphe-moitie')}"></th:block>
+          <p class="mention" th:text="${t.noteEcheancier}"></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="moitie">
+          <th:block th:replace="~{reports/pilotage/fragments :: graphe('Vieillissement de l’encours', ${t.vieillissementTiersPayant}, 'graphe-moitie')}"></th:block>
+        </td>
+        <td class="moitie"></td>
+      </tr>
+    </tbody>
+  </table>
+  <h2 class="section-titre">Organismes</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tableau(${t.organismes})}"></th:block>
+
+  <!-- Différés & crédit -->
+  <h2 class="section-titre nouvelle-page">Différés &amp; crédit</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tuiles(${t.tuilesDifferes})}"></th:block>
+  <table class="disposition">
+    <tbody>
+      <tr>
+        <td class="moitie">
+          <th:block th:replace="~{reports/pilotage/fragments :: graphe('Ancienneté des différés', ${t.vieillissementDifferes}, 'graphe-moitie')}"></th:block>
+        </td>
+        <td class="moitie">
+          <h2 class="section-titre">Clients qui doivent le plus</h2>
+          <th:block th:replace="~{reports/pilotage/fragments :: tableau(${t.clientsDebiteurs})}"></th:block>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</th:block>

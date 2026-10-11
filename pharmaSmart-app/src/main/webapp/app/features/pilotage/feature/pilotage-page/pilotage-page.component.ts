@@ -10,6 +10,7 @@ import { NavSectionLinkComponent } from 'app/shared/ui/nav-sidebar/nav-section-l
 import { Granularite, PeriodePredefinie, RequetePilotage, TypeComparaison } from '../../models/pilotage.model';
 import { ONGLETS_PILOTAGE } from '../../pilotage-onglets';
 import { BarrePeriodeComponent, calculerPeriode } from '../../ui/barre-periode/barre-periode.component';
+import { ExportRapportComponent } from '../../ui/export-rapport/export-rapport.component';
 import { OngletAVenirComponent } from '../../ui/onglet-a-venir/onglet-a-venir.component';
 import { OngletAchatsStockComponent } from '../onglet-achats-stock/onglet-achats-stock.component';
 import { OngletAnalyserComponent } from '../onglet-analyser/onglet-analyser.component';
@@ -35,6 +36,7 @@ import { OngletTresorerieComponent } from '../onglet-tresorerie/onglet-tresoreri
     NavSectionLinkComponent,
     OngletAVenirComponent,
     BarrePeriodeComponent,
+    ExportRapportComponent,
     OngletTableauDeBordComponent,
     OngletAnalyserComponent,
     OngletComparerAnneesComponent,

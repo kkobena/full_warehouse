@@ -1,0 +1,75 @@
+<th:block th:fragment="onglet(r)" xmlns:th="http://www.thymeleaf.org">
+  <!-- Marge -->
+  <h2 class="section-titre">Marge</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tuiles(${r.tuilesMarge})}"></th:block>
+  <p class="lecture" th:if="${r.lectureMix != null}" th:text="${r.lectureMix}"></p>
+
+  <table class="disposition">
+    <tbody>
+      <tr>
+        <td class="moitie">
+          <th:block th:replace="~{reports/pilotage/fragments :: graphe(${r.titreCourbeMarge}, ${r.courbeTauxMarge}, 'graphe-moitie')}"></th:block>
+        </td>
+        <td class="moitie">
+          <h2 class="section-titre" th:text="${r.titreFaiblesMarges}"></h2>
+          <th:block th:replace="~{reports/pilotage/fragments :: tableau(${r.faiblesMarges})}"></th:block>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="section-titre">Marge par élément</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tableau(${r.margeParFamille})}"></th:block>
+
+  <h2 class="section-titre">Ventes à marge négative</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tableau(${r.ventesAMargeNegative})}"></th:block>
+
+  <!-- Remises -->
+  <h2 class="section-titre nouvelle-page">Remises</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tuiles(${r.tuilesRemises})}"></th:block>
+
+  <table class="disposition">
+    <tbody>
+      <tr>
+        <td class="moitie">
+          <th:block th:replace="~{reports/pilotage/fragments :: graphe(${r.titreCourbeRemises}, ${r.courbeRemises}, 'graphe-moitie')}"></th:block>
+        </td>
+        <td class="moitie">
+          <h2 class="section-titre">Comment elles sont accordées</h2>
+          <th:block th:replace="~{reports/pilotage/fragments :: tableau(${r.octrois})}"></th:block>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="section-titre">Par tranche de remise</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tableau(${r.tranches})}"></th:block>
+
+  <th:block th:if="${r.vendeurs != null}">
+    <h2 class="section-titre">Par vendeur</h2>
+    <th:block th:replace="~{reports/pilotage/fragments :: tableau(${r.vendeurs})}"></th:block>
+  </th:block>
+
+  <h2 class="section-titre">Plus fortes remises</h2>
+  <th:block th:replace="~{reports/pilotage/fragments :: tableau(${r.plusFortesRemises})}"></th:block>
+
+  <!-- Démarque -->
+  <h2 class="section-titre nouvelle-page">Démarque</h2>
+  <p class="contexte">Ajustements de sortie clôturés (périmés, casse, vol…), valorisés au prix d'achat actuel, comme le rapport de démarque.</p>
+  <th:block th:replace="~{reports/pilotage/fragments :: tuiles(${r.tuilesDemarque})}"></th:block>
+
+  <table class="disposition">
+    <tbody>
+      <tr>
+        <td class="moitie">
+          <h2 class="section-titre">Par motif</h2>
+          <th:block th:replace="~{reports/pilotage/fragments :: tableau(${r.demarqueParMotif})}"></th:block>
+        </td>
+        <td class="moitie">
+          <h2 class="section-titre">Produits les plus touchés</h2>
+          <th:block th:replace="~{reports/pilotage/fragments :: tableau(${r.produitsDemarques})}"></th:block>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</th:block>

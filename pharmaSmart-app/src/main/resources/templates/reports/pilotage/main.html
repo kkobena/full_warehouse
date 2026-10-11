@@ -1,0 +1,43 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Pilotage de l'officine</title>
+    <style th:replace="~{common/landscape}"></style>
+    <style th:replace="~{reports/pilotage/css}"></style>
+  </head>
+  <body>
+    <header th:replace="~{common/commonheader}"></header>
+    <div class="invoice">
+      <main>
+        <!-- Un chapitre par onglet demandé, chacun sur sa page -->
+        <div th:each="onglet, etat : ${onglets}" th:class="${etat.first} ? 'onglet' : 'onglet nouvelle-page'">
+          <h1 class="onglet-titre">
+            <span th:text="${onglet.libelle}"></span>
+            <span class="onglet-question" th:text="${onglet.question}"></span>
+          </h1>
+          <th:block th:if="${onglet.name() == 'TABLEAU_DE_BORD'}">
+            <th:block th:replace="~{reports/pilotage/onglet-tableau-de-bord :: onglet(${tableauDeBord})}"></th:block>
+          </th:block>
+          <th:block th:if="${onglet.name() == 'ANALYSER'}">
+            <th:block th:replace="~{reports/pilotage/onglet-analyser :: onglet(${analyser})}"></th:block>
+          </th:block>
+          <th:block th:if="${onglet.name() == 'COMPARER_ANNEES'}">
+            <th:block th:replace="~{reports/pilotage/onglet-comparer-annees :: onglet(${comparerAnnees})}"></th:block>
+          </th:block>
+          <th:block th:if="${onglet.name() == 'RENTABILITE_REMISES'}">
+            <th:block th:replace="~{reports/pilotage/onglet-rentabilite :: onglet(${rentabilite})}"></th:block>
+          </th:block>
+          <th:block th:if="${onglet.name() == 'ACHATS_STOCK'}">
+            <th:block th:replace="~{reports/pilotage/onglet-achats-stock :: onglet(${achatsStock})}"></th:block>
+          </th:block>
+          <th:block th:if="${onglet.name() == 'TRESORERIE_TIERS_PAYANT'}">
+            <th:block th:replace="~{reports/pilotage/onglet-tresorerie :: onglet(${tresorerie})}"></th:block>
+          </th:block>
+          <th:block th:if="${onglet.name() == 'CLIENTS_EQUIPE'}">
+            <th:block th:replace="~{reports/pilotage/onglet-clients-equipe :: onglet(${clientsEquipe})}"></th:block>
+          </th:block>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

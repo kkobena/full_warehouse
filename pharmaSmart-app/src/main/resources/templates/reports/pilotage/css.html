@@ -1,0 +1,213 @@
+<style>
+  .nouvelle-page {
+    page-break-before: always;
+  }
+
+  .bloc-insecable {
+    page-break-inside: avoid;
+  }
+
+  h1.onglet-titre {
+    font-size: 14px;
+    margin: 0 0 2px 0;
+    color: #1f2937;
+  }
+
+  .onglet-question {
+    font-size: 10px;
+    font-weight: normal;
+    font-style: italic;
+    color: #6b7280;
+    margin-left: 6px;
+  }
+
+  h2.section-titre {
+    font-size: 11px;
+    margin: 10px 0 4px 0;
+    padding-bottom: 2px;
+    border-bottom: 0.5px solid #3989c6;
+    color: #1f2937;
+  }
+
+  h3.sous-titre {
+    font-size: 10px;
+    margin: 6px 0 2px 0;
+  }
+
+  .contexte {
+    color: #4b5563;
+    margin: 0 0 6px 0;
+  }
+
+  .alerte {
+    border-left: 3px solid #b45309;
+    background: #fffbeb;
+    padding: 3px 6px;
+    margin-bottom: 3px;
+  }
+
+  .alerte-HAUTE {
+    border-left-color: #b91c1c;
+    background: #fef2f2;
+  }
+
+  /* Quatre par ligne : la largeur ne compte ni la marge intérieure ni la bordure. */
+  .tuile {
+    display: inline-block;
+    width: 21.5%;
+    margin: 0 1% 6px 0;
+    padding: 4px 6px;
+    border: 0.5px solid #d1d5db;
+    vertical-align: top;
+    page-break-inside: avoid;
+  }
+
+  .tuile-libelle {
+    color: #4b5563;
+    font-size: 9px;
+  }
+
+  .tuile-valeur {
+    font-size: 15px;
+    font-weight: bold;
+    margin: 1px 0;
+  }
+
+  .tuile-complement {
+    color: #6b7280;
+    font-size: 8px;
+  }
+
+  .favorable {
+    color: #15803d;
+  }
+
+  .defavorable {
+    color: #b91c1c;
+  }
+
+  .neutre {
+    color: #6b7280;
+  }
+
+  table.disposition {
+    width: 100%;
+    border-collapse: collapse;
+    page-break-inside: avoid;
+  }
+
+  table.disposition > tbody > tr > td {
+    vertical-align: top;
+    padding: 0;
+  }
+
+  /* Tailles absolues : Flying Saucer ne met pas une image à l'échelle d'un pourcentage. */
+  td.colonne-graphe {
+    width: 172mm;
+    padding-right: 4mm;
+  }
+
+  /* Images à 760 × 260 : la hauteur garde ce rapport. */
+  img.graphe {
+    width: 168mm;
+    height: 57.5mm;
+  }
+
+  img.graphe-large {
+    width: 250mm;
+    height: 85.5mm;
+  }
+
+  /* Largeur seule : la hauteur suit l'image, qui grandit avec le nombre d'éléments. */
+  img.graphe-large-libre {
+    width: 250mm;
+  }
+
+  img.graphe-moitie {
+    width: 128mm;
+    height: 43.8mm;
+  }
+
+  td.moitie {
+    width: 50%;
+    padding-right: 4mm;
+  }
+
+  .lecture {
+    border-left: 3px solid #3989c6;
+    background: #f0f7fc;
+    padding: 3px 6px;
+    margin: 4px 0 6px 0;
+  }
+
+  .mention {
+    color: #6b7280;
+    font-style: italic;
+    margin: 2px 0 6px 0;
+  }
+
+  .tuiles {
+    margin-bottom: 2px;
+  }
+
+  table.liste {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  table.liste td {
+    padding: 1px 0;
+    border-bottom: 0.5px solid #e5e7eb;
+  }
+
+  table.liste td.montant {
+    text-align: right;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+
+  table.main-table td.nombre,
+  table.main-table th.nombre {
+    text-align: right;
+  }
+
+  table.main-table tr.ligne-total th,
+  table.main-table tr.ligne-total td {
+    font-weight: bold;
+    background: #f3f4f6;
+  }
+
+  table.main-table th.libelle-ligne {
+    text-align: left;
+    font-weight: bold;
+    border: 0.5px solid #4d4d4d;
+  }
+
+  .variation-cellule {
+    font-size: 7px;
+  }
+
+  table.carte-chaleur {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 1px;
+    -fs-table-paginate: paginate;
+  }
+
+  table.carte-chaleur th {
+    font-size: 8px;
+    padding: 1px 2px;
+    text-align: center;
+  }
+
+  table.carte-chaleur td {
+    font-size: 8px;
+    padding: 2px 1px;
+    text-align: center;
+  }
+
+  .vide {
+    color: #6b7280;
+    font-style: italic;
+  }
+</style>

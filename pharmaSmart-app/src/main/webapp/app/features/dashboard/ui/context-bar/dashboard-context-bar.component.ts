@@ -13,23 +13,25 @@ import { DashboardContext } from '../../data-access/dashboard-context';
     <div class="d-flex flex-wrap align-items-center gap-2">
       <app-select
         class="context-select"
+        [style]="{ 'min-width': '12rem' }"
+        label="Période"
         ariaLabel="Période"
         [items]="periodOptions"
         bindLabel="label"
         bindValue="value"
         [searchable]="false"
-        [small]="true"
         [ngModel]="context.period()"
         (ngModelChange)="setPeriod($event)"
       />
       <app-select
         class="context-select"
+        [style]="{ 'min-width': '15rem' }"
+        label="Rafraîchissement"
         ariaLabel="Rafraîchissement automatique"
         [items]="refreshOptions"
         bindLabel="label"
         bindValue="value"
         [searchable]="false"
-        [small]="true"
         [ngModel]="context.refreshSeconds()"
         (ngModelChange)="setRefresh($event)"
       />

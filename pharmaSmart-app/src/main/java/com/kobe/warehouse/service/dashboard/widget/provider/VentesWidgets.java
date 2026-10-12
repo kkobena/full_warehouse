@@ -91,13 +91,12 @@ public class VentesWidgets extends AbstractWidgets {
             VenteRecord current = closed(dashboardService.getPeridiqueCa(period.toVenteParam()));
             VenteRecord previous = closed(dashboardService.getPeridiqueCa(period.previous().toVenteParam()));
             int net = zeroIfNull(current.netAmount());
-            // même taux que l'accueil pharmacien : marge rapportée au CA net
             double taux = net > 0 ? current.marge() * 100.0 / net : 0;
+            String detail = String.format(Locale.FRANCE, "%.1f %% · coût %s", taux, amount(current.costAmount()));
             return new WidgetData.Kpi(
                 current.marge(), previous.marge(), devise(),
-                null, null,
+                detail, null,
                 List.of(
-                    new WidgetData.Kpi.Secondary("Taux de marge", taux, "%"),
                     new WidgetData.Kpi.Secondary("Coût d'achat", current.costAmount(), devise())
                 ),
                 null

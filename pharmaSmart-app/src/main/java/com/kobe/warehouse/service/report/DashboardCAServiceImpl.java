@@ -18,6 +18,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -113,39 +114,62 @@ public class DashboardCAServiceImpl implements DashboardCAService {
     @Cacheable(value = "dashboardCA", key = "'evolution_' + #period + '_' + #startDate + '_' + #endDate")
     public DashboardCAEvolutionDTO getEvolutionData(String period, LocalDate startDate, LocalDate endDate) {
         List<DailyCADTO> dailyData = getDailySummary(startDate, endDate);
+        long totalDays = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+
+        List<DailyCADTO> prevDailyData = getDailySummary(startDate.minusDays(totalDays), startDate.minusDays(1));
 
         if ("monthly".equals(period)) {
             var byMonth = dailyData.stream().collect(Collectors.groupingBy(
                 d -> d.saleDate().getYear() + "-" + String.format("%02d", d.saleDate().getMonthValue())));
+            var prevByMonth = prevDailyData.stream().collect(Collectors.groupingBy(
+                d -> d.saleDate().getYear() + "-" + String.format("%02d", d.saleDate().getMonthValue())));
             List<String> labels = new ArrayList<>(byMonth.keySet());
+            List<String> prevLabels = new ArrayList<>(prevByMonth.keySet());
             Collections.sort(labels);
+            Collections.sort(prevLabels);
             return new DashboardCAEvolutionDTO(
                 labels,
                 labels.stream().map(m -> byMonth.get(m).stream().mapToLong(DailyCADTO::caNet).sum()).toList(),
-                Collections.emptyList(),
+                positionalValues(labels.size(), prevLabels, prevByMonth),
                 labels.stream().map(m -> byMonth.get(m).stream().mapToInt(DailyCADTO::nbTransactions).sum()).toList(),
                 "monthly"
             );
         } else if ("weekly".equals(period)) {
             var byWeek = dailyData.stream().collect(Collectors.groupingBy(d -> weekLabel(d.saleDate())));
+            var prevByWeek = prevDailyData.stream().collect(Collectors.groupingBy(d -> weekLabel(d.saleDate())));
             List<String> labels = new ArrayList<>(byWeek.keySet());
+            List<String> prevLabels = new ArrayList<>(prevByWeek.keySet());
             Collections.sort(labels);
+            Collections.sort(prevLabels);
             return new DashboardCAEvolutionDTO(
                 labels,
                 labels.stream().map(w -> byWeek.get(w).stream().mapToLong(DailyCADTO::caNet).sum()).toList(),
-                Collections.emptyList(),
+                positionalValues(labels.size(), prevLabels, prevByWeek),
                 labels.stream().map(w -> byWeek.get(w).stream().mapToInt(DailyCADTO::nbTransactions).sum()).toList(),
                 "weekly"
             );
         } else {
+            Map<LocalDate, Long> prevByDate = prevDailyData.stream()
+                .collect(Collectors.toMap(DailyCADTO::saleDate, DailyCADTO::caNet));
             return new DashboardCAEvolutionDTO(
                 dailyData.stream().map(d -> d.saleDate().toString()).toList(),
                 dailyData.stream().map(DailyCADTO::caNet).toList(),
-                Collections.emptyList(),
+                dailyData.stream().map(d -> prevByDate.getOrDefault(d.saleDate().minusDays(totalDays), 0L)).toList(),
                 dailyData.stream().map(DailyCADTO::nbTransactions).toList(),
                 "daily"
             );
         }
+    }
+
+    /** Valeurs de la période précédente alignées par position (padding 0 si moins de points). */
+    private static List<Long> positionalValues(int size, List<String> prevLabels,
+                                               Map<String, List<DailyCADTO>> prevMap) {
+        List<Long> result = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            List<DailyCADTO> group = i < prevLabels.size() ? prevMap.get(prevLabels.get(i)) : null;
+            result.add(group == null ? 0L : group.stream().mapToLong(DailyCADTO::caNet).sum());
+        }
+        return result;
     }
 
     @Override
@@ -217,7 +241,7 @@ public class DashboardCAServiceImpl implements DashboardCAService {
             values.add(basket);
         }
 
-        BigDecimal currentValue  = values.isEmpty() ? BigDecimal.ZERO : values.get(values.size() - 1);
+        BigDecimal currentValue  = values.isEmpty() ? BigDecimal.ZERO : values.getLast();
         BigDecimal previousValue = values.size() > 1 ? values.get(values.size() - 2) : BigDecimal.ZERO;
         BigDecimal evolutionAmount = currentValue.subtract(previousValue);
         BigDecimal evolutionPct = BigDecimal.ZERO;

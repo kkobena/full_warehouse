@@ -62,6 +62,10 @@ export interface DataWidgetSpec {
   chartColumns?: string[];
   /** Paramètres réglables dans la fenêtre de réglages, transmis au serveur. */
   params?: WidgetParamDef[];
+  /** Sens dans lequel la variation est bonne : hausse par défaut. Une baisse des annulations est favorable. */
+  sensFavorable?: 'HAUSSE' | 'BAISSE' | 'NEUTRE';
+  /** Explication de la règle de calcul, affichée dans une infobulle (ⓘ) sur la tuile. */
+  tooltip?: string;
 }
 
 /** Paramètre d'un widget de données ; sa valeur est stockée en texte dans `DashboardItem.params`. */

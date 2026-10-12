@@ -107,6 +107,16 @@ export function formatEvolution(pct: number): string {
   return `${pct > 0 ? '+' : ''}${formatDecimal(pct, 1)} %`;
 }
 
+/**
+ * Convertit la chaîne kpi-detail en HTML : les valeurs numériques (montants, pourcentages, comptages)
+ * sont enveloppées dans `<strong>` pour ressortir visuellement.
+ * Le résultat est sûr : seule la balise `<strong>` est ajoutée, le texte lui-même est laissé intact.
+ */
+const KPI_NUM_RE = /(\d[\d  ]{0,10}(?:,\d+)?(?:\s*(?:%|FCFA|€|XOF|EUR|USD))?)/g;
+export function kpiDetailHtml(text: string): string {
+  return text.replace(KPI_NUM_RE, '<strong>$1</strong>');
+}
+
 export function formatCell(value: unknown, type: ColumnType): string {
   if (value == null || value === '') {
     return '';

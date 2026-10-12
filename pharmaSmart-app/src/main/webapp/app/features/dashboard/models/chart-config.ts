@@ -1,3 +1,4 @@
+import { Plugin } from 'chart.js';
 import { formatDecimal, formatNumber } from 'app/shared/utils/format-utils';
 import { SeriesData, VizType } from './dashboard.model';
 
@@ -10,8 +11,10 @@ const SERIES_LIGHT = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#0
 const SERIES_DARK = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300', '#9085e9', '#e66767'];
 const MAX_SLICES = 8;
 
-/** Série de comparaison : grise et en pointillés, elle s'efface derrière la série principale. */
+/** Préfixe de détection de la série de comparaison (nom envoyé par le backend). */
 export const PREVIOUS_SERIES_PREFIX = 'Période précédente';
+/** Libellé affiché dans la légende : plus explicite que le nom brut de l'API. */
+const PREVIOUS_SERIES_LABEL = 'Période précédente (même durée)';
 
 interface Theme {
   series: string[];
@@ -51,34 +54,36 @@ export interface ChartConfig {
   type: 'line' | 'bar' | 'pie' | 'doughnut';
   data: unknown;
   options: unknown;
+  plugins?: Plugin[];
 }
 
-export function buildChart(viz: VizType, series: SeriesData): ChartConfig {
+export function buildChart(viz: VizType, series: SeriesData, previousLabel?: string): ChartConfig {
   const t = theme();
-  return viz === 'PIE' || viz === 'DOUGHNUT' ? buildPie(viz, series, t) : buildCartesian(viz, series, t);
+  return viz === 'PIE' || viz === 'DOUGHNUT' ? buildPie(viz, series, t) : buildCartesian(viz, series, t, previousLabel);
 }
 
-function buildCartesian(viz: VizType, data: SeriesData, t: Theme): ChartConfig {
+function buildCartesian(viz: VizType, data: SeriesData, t: Theme, previousLabel?: string): ChartConfig {
   const horizontal = viz === 'HBAR';
   const line = viz === 'LINE';
   let slot = 0;
   const datasets = data.series.map(s => {
     const previous = s.name.startsWith(PREVIOUS_SERIES_PREFIX);
     const color = previous ? t.muted : t.series[slot++ % t.series.length];
+    const label = previous ? (previousLabel ?? PREVIOUS_SERIES_LABEL) : s.name;
     return line
       ? {
-          label: s.name,
+          label,
           data: s.values,
           borderColor: color,
           backgroundColor: color,
           borderWidth: 2,
           borderDash: previous ? [4, 4] : undefined,
-          pointRadius: 0,
-          pointHoverRadius: 4,
+          pointRadius: 3,
+          pointHoverRadius: 5,
           tension: 0.25,
         }
       : {
-          label: s.name,
+          label,
           data: s.values,
           backgroundColor: previous ? t.muted : color,
           borderRadius: 4,
@@ -94,6 +99,7 @@ function buildCartesian(viz: VizType, data: SeriesData, t: Theme): ChartConfig {
     ticks: { color: t.text, callback: (v: number | string) => COMPACT.format(Number(v)) },
   };
   const categoryAxis = { grid: { display: false }, border: { display: false }, ticks: { color: t.text, autoSkip: true, maxRotation: 0 } };
+  const legendLabels = { color: t.text, boxWidth: 12, usePointStyle: true, pointStyleWidth: 12 };
 
   return {
     type: line ? 'line' : 'bar',
@@ -103,12 +109,14 @@ function buildCartesian(viz: VizType, data: SeriesData, t: Theme): ChartConfig {
       maintainAspectRatio: false,
       indexAxis: horizontal ? 'y' : 'x',
       interaction: { mode: 'index', intersect: false },
+      layout: line || horizontal ? undefined : { padding: { top: 20 } },
       plugins: {
-        legend: { display: data.series.length >= 2, position: 'bottom', labels: { color: t.text, boxWidth: 12 } },
+        legend: { display: data.series.length >= 2, position: 'bottom', labels: legendLabels },
         tooltip: { callbacks: { label: (ctx: TooltipContext) => `${ctx.dataset.label} : ${formatNumber(Number(ctx.parsed[horizontal ? 'x' : 'y']))}` } },
       },
       scales: horizontal ? { x: valueAxis, y: categoryAxis } : { x: categoryAxis, y: valueAxis },
     },
+    plugins: line ? [] : [buildValueLabelsPlugin(t, horizontal)],
   };
 }
 
@@ -122,6 +130,8 @@ function buildPie(viz: VizType, data: SeriesData, t: Theme): ChartConfig {
     slices = [...kept, others];
     labels = [...labels.slice(0, MAX_SLICES - 1), 'Autres'];
   }
+  const total = slices.reduce((a, b) => a + b, 0);
+  const colors = slices.map((_, i) => t.series[i % t.series.length]);
   return {
     type: viz === 'PIE' ? 'pie' : 'doughnut',
     data: {
@@ -130,7 +140,7 @@ function buildPie(viz: VizType, data: SeriesData, t: Theme): ChartConfig {
         {
           label: data.series[0]?.name ?? '',
           data: slices,
-          backgroundColor: slices.map((_, i) => t.series[i]),
+          backgroundColor: colors,
           borderColor: t.surface,
           borderWidth: 2,
         },
@@ -140,11 +150,33 @@ function buildPie(viz: VizType, data: SeriesData, t: Theme): ChartConfig {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { display: true, position: 'right', labels: { color: t.text, boxWidth: 12 } },
+        legend: {
+          display: true,
+          position: 'right',
+          labels: {
+            color: t.text,
+            boxWidth: 10,
+            usePointStyle: true,
+            pointStyleWidth: 10,
+            generateLabels: (chart: any) => {
+              const dataset = chart.data.datasets[0];
+              return (chart.data.labels as string[]).map((lbl: string, i: number) => {
+                const val = Number(dataset.data[i] ?? 0);
+                const pct = total > 0 ? ` · ${formatDecimal((val * 100) / total, 1)} %` : '';
+                return {
+                  text: `${lbl}${pct}`,
+                  fillStyle: dataset.backgroundColor[i],
+                  strokeStyle: t.surface,
+                  hidden: false,
+                  index: i,
+                };
+              });
+            },
+          },
+        },
         tooltip: {
           callbacks: {
             label: (ctx: TooltipContext) => {
-              const total = slices.reduce((a, b) => a + b, 0);
               const value = Number(ctx.parsed);
               const share = total > 0 ? ` (${formatDecimal((value * 100) / total, 1)} %)` : '';
               return `${ctx.label} : ${formatNumber(value)}${share}`;
@@ -152,6 +184,41 @@ function buildPie(viz: VizType, data: SeriesData, t: Theme): ChartConfig {
           },
         },
       },
+    },
+  };
+}
+
+/** Étiquettes de valeurs sur les barres (verticales ou horizontales), sans plugin externe. */
+function buildValueLabelsPlugin(t: Theme, horizontal: boolean): Plugin {
+  return {
+    id: 'pharma-value-labels',
+    afterDatasetsDraw(chart) {
+      const ctx = chart.ctx;
+      chart.data.datasets.forEach((dataset, datasetIndex) => {
+        if (String(dataset.label ?? '').startsWith(PREVIOUS_SERIES_PREFIX)) return;
+        const meta = (chart as any).getDatasetMeta(datasetIndex);
+        if (meta.hidden) return;
+        ctx.save();
+        ctx.font = '600 11px system-ui, sans-serif';
+        ctx.fillStyle = t.text;
+        (meta.data as any[]).forEach((element: any, index: number) => {
+          const raw = dataset.data[index];
+          if (raw == null) return;
+          const value = Number(raw);
+          if (value === 0) return;
+          const text = COMPACT.format(value);
+          if (horizontal) {
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'left';
+            ctx.fillText(text, element.x + 5, element.y);
+          } else {
+            ctx.textBaseline = 'bottom';
+            ctx.textAlign = 'center';
+            ctx.fillText(text, element.x, element.y - 4);
+          }
+        });
+        ctx.restore();
+      });
     },
   };
 }

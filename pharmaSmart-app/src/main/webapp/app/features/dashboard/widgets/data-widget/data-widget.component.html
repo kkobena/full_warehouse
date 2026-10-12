@@ -21,14 +21,29 @@
             {{ k.alert }}
           </div>
         }
-        <div class="kpi-value">
-          {{ k.value }}
-          @if (k.data.unit && k.data.value != null) {
-            <span class="kpi-unit">{{ k.data.unit }}</span>
+        <div class="kpi-value-row">
+          <div class="kpi-value">
+            {{ k.value }}
+            @if (k.data.unit && k.data.value != null) {
+              <span class="kpi-unit">{{ k.data.unit }}</span>
+            }
+          </div>
+          @if (tooltip(); as tip) {
+            <button
+              class="kpi-info-btn"
+              type="button"
+              container="body"
+              placement="bottom auto"
+              [openDelay]="200"
+              [ngbTooltip]="tip"
+              [attr.aria-label]="'Règle de calcul : ' + tip"
+            >
+              <i class="pi pi-info-circle" aria-hidden="true"></i>
+            </button>
           }
         </div>
         @if (k.pctLabel) {
-          <div class="kpi-evolution" [class.is-up]="k.pct! > 0" [class.is-down]="k.pct! < 0">
+          <div [class]="evolutionClass()">
             <i [class]="k.pct! >= 0 ? 'pi pi-arrow-up-right' : 'pi pi-arrow-down-right'" aria-hidden="true"></i>
             {{ k.pctLabel }} <span class="kpi-evolution-ref">{{ k.data.previousLabel || 'vs période précédente' }}</span>
           </div>
@@ -46,7 +61,7 @@
             </div>
           }
           @if (k.data.detail; as detail) {
-            <div class="kpi-detail">{{ detail }}</div>
+            <div class="kpi-detail" [innerHTML]="kpiDetailHtml(detail)"></div>
           }
         }
         @if (k.data.objective != null) {
@@ -77,7 +92,7 @@
       </div>
     } @else if (chart(); as c) {
       <div class="chart-area">
-        <app-chart [type]="c.type" [data]="c.data" [options]="c.options" height="100%" [ariaLabel]="item().title || item().widgetKey" />
+        <app-chart [type]="c.type" [data]="c.data" [options]="c.options" [plugins]="c.plugins ?? []" height="100%" [ariaLabel]="item().title || item().widgetKey" />
       </div>
     }
     @if (footer(); as f) {

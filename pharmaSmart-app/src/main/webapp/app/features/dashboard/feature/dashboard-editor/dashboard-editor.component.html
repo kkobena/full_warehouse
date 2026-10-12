@@ -16,7 +16,7 @@
     <ng-container ngProjectAs="[toolbarActions]">
       <div class="d-flex flex-wrap gap-2">
         @if (store.editMode()) {
-          <app-button (clicked)="openPanel()" icon="pi pi-plus" label="Ajouter un widget"
+          <app-button (clicked)="openPanel()" icon="pi pi-plus" label="Ajouter une tuile"
                       size="small" />
         }
         <app-button
@@ -59,7 +59,7 @@
         <div class="dashboard-empty">
           <i aria-hidden="true" class="pi pi-th-large"></i>
           <p class="mb-3">Ce tableau de bord est vide.</p>
-          <app-button (clicked)="openPanel()" icon="pi pi-plus" label="Ajouter un widget" />
+          <app-button (clicked)="openPanel()" icon="pi pi-plus" label="Ajouter une tuile" />
           @if (templates().length > 0) {
             <p class="mt-4 mb-2 small">… ou partir d'un modèle :</p>
             <div class="d-flex flex-wrap justify-content-center gap-2">

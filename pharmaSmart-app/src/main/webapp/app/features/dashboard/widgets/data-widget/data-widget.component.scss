@@ -46,11 +46,35 @@
   color: var(--bs-danger-text-emphasis);
 }
 
+.kpi-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
 .kpi-value {
   font-size: 1.75rem;
   font-weight: 700;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
+}
+
+.kpi-info-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  line-height: 1;
+  color: var(--bs-secondary-color);
+  cursor: pointer;
+  font-size: 0.85rem;
+  align-self: center;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--bs-primary);
+    outline: none;
+  }
 }
 
 .kpi-unit {
@@ -65,12 +89,16 @@
   font-weight: 600;
   color: var(--bs-secondary-color);
 
-  &.is-up {
-    color: var(--bs-success-text-emphasis);
+  &.is-favorable {
+    color: var(--pharma-chrome-badge-success);
   }
 
-  &.is-down {
-    color: var(--bs-danger-text-emphasis);
+  &.is-defavorable {
+    color: var(--pharma-chrome-badge-danger);
+  }
+
+  &.is-neutre {
+    color: var(--pharma-text-muted);
   }
 }
 
@@ -125,9 +153,19 @@
 }
 
 .kpi-detail {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 400;
   color: var(--bs-secondary-color);
-  margin-top: 0.1rem;
+  margin-top: 0.2rem;
+  line-height: 1.5;
+  padding: 0.2rem 0.35rem;
+  background: var(--bs-tertiary-bg);
+  border-radius: 4px;
+
+  strong {
+    font-weight: 700;
+    color: var(--bs-body-color);
+  }
 }
 
 .kpi-objective {

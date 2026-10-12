@@ -1,6 +1,10 @@
 import { formatDate } from 'app/shared/utils/format-utils';
 import { DashboardContextSettings, DateRange, PeriodPreset } from './dashboard.model';
 
+const fmtDayShort = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+const fmtDayNum = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' });
+const fmtMonthYear = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' });
+
 export const DEFAULT_CONTEXT: DashboardContextSettings = { period: 'TODAY', refreshSeconds: 0 };
 
 export const PERIOD_OPTIONS: { value: PeriodPreset; label: string }[] = [
@@ -52,4 +56,43 @@ export function parseContextSettings(raw: unknown): DashboardContextSettings {
 
 function range(start: Date, end: Date): DateRange {
   return { start: formatDate(start), end: formatDate(end) };
+}
+
+/**
+ * Libellé de la fenêtre de comparaison (même durée, juste avant la période courante).
+ * Produit une valeur concrète : date, mois nommé ou année — jamais « Période précédente ».
+ */
+export function previousPeriodLabel(preset: PeriodPreset, today: Date = new Date()): string {
+  const d = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const shift = (n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+
+  switch (preset) {
+    case 'TODAY':
+      return cap(fmtDayShort.format(shift(-1)));
+    case 'YESTERDAY':
+      return cap(fmtDayShort.format(shift(-2)));
+    case 'LAST_7_DAYS':
+      return dayRange(shift(-13), shift(-7));
+    case 'LAST_30_DAYS':
+      return dayRange(shift(-59), shift(-30));
+    case 'THIS_MONTH':
+      return cap(fmtMonthYear.format(new Date(d.getFullYear(), d.getMonth() - 1, 1)));
+    case 'LAST_MONTH':
+      return cap(fmtMonthYear.format(new Date(d.getFullYear(), d.getMonth() - 2, 1)));
+    case 'THIS_YEAR':
+      return String(d.getFullYear() - 1);
+    default:
+      return 'Période précédente';
+  }
+}
+
+function cap(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function dayRange(start: Date, end: Date): string {
+  const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
+  return sameMonth
+    ? `${start.getDate()}–${fmtDayNum.format(end)}`
+    : `${fmtDayNum.format(start)} – ${fmtDayNum.format(end)}`;
 }

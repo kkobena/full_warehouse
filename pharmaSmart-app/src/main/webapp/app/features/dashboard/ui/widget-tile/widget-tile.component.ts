@@ -67,7 +67,7 @@ import { widgetLabel } from '../../data-access/store/dashboard.store';
           @case ('NON_AUTORISE') {
             <div class="widget-tile-state">
               <i class="pi pi-lock" aria-hidden="true"></i>
-              <span>Widget non autorisé pour votre profil</span>
+              <span>Tuile non autorisée pour votre profil</span>
             </div>
           }
           @case ('NON_SOUSCRIT') {
@@ -79,7 +79,7 @@ import { widgetLabel } from '../../data-access/store/dashboard.store';
           @default {
             <div class="widget-tile-state">
               <i class="pi pi-question-circle" aria-hidden="true"></i>
-              <span>Widget indisponible{{ editMode() ? ' — retirez-le du tableau de bord' : '' }}</span>
+              <span>Tuile indisponible{{ editMode() ? ' — retirez-la du tableau de bord' : '' }}</span>
             </div>
           }
         }

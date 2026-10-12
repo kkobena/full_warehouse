@@ -24,7 +24,13 @@ function data(
   return { key, label, description, category, icon, defaultSize: { w: size[0], h: size[1] }, data: spec, loadComponent: dataWidget };
 }
 
-const kpi = (usesPeriod: boolean): DataWidgetSpec => ({ visualizations: KPI, defaultViz: 'KPI', usesPeriod });
+const kpi = (usesPeriod: boolean, sensFavorable: 'HAUSSE' | 'BAISSE' | 'NEUTRE' = 'HAUSSE', tooltip?: string): DataWidgetSpec => ({
+  visualizations: KPI,
+  defaultViz: 'KPI',
+  usesPeriod,
+  sensFavorable,
+  tooltip,
+});
 const table = (usesPeriod: boolean, params?: WidgetParamDef[]): DataWidgetSpec => ({
   visualizations: ['TABLE'],
   defaultViz: 'TABLE',
@@ -54,11 +60,16 @@ const TRI: WidgetParamDef = {
 
 export const WIDGET_DEFINITIONS: readonly WidgetDefinition[] = [
   // ── Ventes ────────────────────────────────────────────────────────────────
-  data('ca-net', 'CA net', "Chiffre d'affaires net et son évolution", 'VENTES', 'pi pi-shopping-cart', [3, 2], kpi(true)),
-  data('ca-vs-n1', "CA comparé à l'an dernier", "CA de la période et des mêmes dates de l'an dernier", 'VENTES', 'pi pi-calendar', [3, 2], kpi(true)),
-  data('marge-brute', 'Marge brute', 'Marge sur le CA net, et son taux', 'VENTES', 'pi pi-percentage', [3, 2], kpi(true)),
-  data('panier-moyen', 'Panier moyen', 'Montant HT moyen par vente', 'VENTES', 'pi pi-shopping-bag', [3, 2], kpi(true)),
-  data('ventes-annulees', 'Ventes annulées', 'Montant et nombre de ventes annulées', 'VENTES', 'pi pi-ban', [3, 2], kpi(true)),
+  data('ca-net', 'CA net', "Chiffre d'affaires net et son évolution", 'VENTES', 'pi pi-shopping-cart', [3, 2],
+    kpi(true, 'HAUSSE', 'CA net = somme des ventes TTC, hors annulations. La comparaison porte sur la même durée juste avant la période.')),
+  data('ca-vs-n1', "CA comparé à l'an dernier", "CA de la période et des mêmes dates de l'an dernier", 'VENTES', 'pi pi-calendar', [3, 2],
+    kpi(true, 'HAUSSE', "Compare le CA de la période aux mêmes dates de l'an dernier : neutralise les effets saisonniers.")),
+  data('marge-brute', 'Marge brute', 'Marge sur le CA net, et son taux', 'VENTES', 'pi pi-percentage', [3, 2],
+    kpi(true, 'HAUSSE', "Marge brute = CA net − coût d'achat des articles vendus. Le taux = marge ÷ CA net.")),
+  data('panier-moyen', 'Panier moyen', 'Montant HT moyen par vente', 'VENTES', 'pi pi-shopping-bag', [3, 2],
+    kpi(true, 'HAUSSE', 'Montant HT moyen par acte de vente : CA net ÷ nombre de ventes (hors annulations).')),
+  data('ventes-annulees', 'Ventes annulées', 'Montant et nombre de ventes annulées', 'VENTES', 'pi pi-ban', [3, 2],
+    kpi(true, 'BAISSE', "Total des ventes annulées sur la période : montant et nombre d'actes. Une baisse est favorable.")),
   data('ca-evolution', 'Évolution du CA', 'CA au fil de la période, comparé à la période précédente', 'VENTES', 'pi pi-chart-line', [8, 4], {
     visualizations: ['LINE', 'BAR', 'TABLE'],
     defaultViz: 'LINE',
@@ -97,7 +108,8 @@ export const WIDGET_DEFINITIONS: readonly WidgetDefinition[] = [
   }),
 
   // ── Caisse ────────────────────────────────────────────────────────────────
-  data('ma-caisse', 'Ma caisse', 'Espèces théoriques de ma caisse ouverte', 'CAISSE', 'pi pi-wallet', [3, 2], kpi(false)),
+  data('ma-caisse', 'Ma caisse', 'Espèces théoriques de ma caisse ouverte', 'CAISSE', 'pi pi-wallet', [3, 2],
+    kpi(false, 'NEUTRE', "Espèces théoriques = cumul des entrées − cumul des sorties depuis l'ouverture de la caisse.")),
   data('mes-encaissements', 'Mes encaissements', 'Encaissements de ma session, par mode', 'CAISSE', 'pi pi-money-bill', [4, 4], {
     visualizations: PARTS,
     defaultViz: 'HBAR',
@@ -135,7 +147,8 @@ export const WIDGET_DEFINITIONS: readonly WidgetDefinition[] = [
   }),
 
   data('a-faire', "À faire aujourd'hui", 'Commander, relancer, écouler : les actions prioritaires', 'STOCK', 'pi pi-check-square', [6, 5], table(false, [limite(10, 50)])),
-  data('peremptions-valorisees', 'Péremptions valorisées', 'Valeur des lots qui périment dans les six mois', 'STOCK', 'pi pi-hourglass', [3, 2], kpi(false)),
+  data('peremptions-valorisees', 'Péremptions valorisées', 'Valeur des lots qui périment dans les six mois', 'STOCK', 'pi pi-hourglass', [3, 2],
+    kpi(false, 'BAISSE', "Valeur au prix d'achat des lots dont la date de péremption est dans les 6 prochains mois.")),
   data('stock-dormant', 'Stock dormant', 'Produits lents classés par valeur immobilisée', 'STOCK', 'pi pi-pause-circle', [6, 5], {
     visualizations: ['TABLE', 'HBAR'],
     defaultViz: 'TABLE',
@@ -143,7 +156,8 @@ export const WIDGET_DEFINITIONS: readonly WidgetDefinition[] = [
     chartColumns: ['valeur'],
     params: [limite(10, 50)],
   }),
-  data('stock-valorise', 'Stock valorisé', "Valeur d'achat du stock et marge potentielle", 'STOCK', 'pi pi-box', [3, 2], kpi(false)),
+  data('stock-valorise', 'Stock valorisé', "Valeur d'achat du stock et marge potentielle", 'STOCK', 'pi pi-box', [3, 2],
+    kpi(false, 'NEUTRE', "Valeur du stock = quantité × prix d'achat moyen pondéré (PAMP) par article.")),
 
   // ── Achats ────────────────────────────────────────────────────────────────
   data('achats-par-fournisseur', 'Achats par fournisseur', 'Montants achetés sur la période, par fournisseur', 'ACHATS', 'pi pi-truck', [6, 5], {
@@ -153,9 +167,12 @@ export const WIDGET_DEFINITIONS: readonly WidgetDefinition[] = [
     chartColumns: ['montant'],
     params: [limite(10, 50)],
   }),
-  data('qualite-fournisseurs', 'Qualité fournisseurs', 'Conformité et délai moyen sur 12 mois', 'ACHATS', 'pi pi-verified', [3, 2], kpi(false)),
-  data('achats-periode', 'Achats de la période', 'Montant des réceptions fournisseurs', 'ACHATS', 'pi pi-truck', [3, 2], kpi(true)),
-  data('commandes-en-cours', 'Commandes en cours', 'Commandes en attente et à réceptionner', 'ACHATS', 'pi pi-inbox', [3, 2], kpi(false)),
+  data('qualite-fournisseurs', 'Qualité fournisseurs', 'Conformité et délai moyen sur 12 mois', 'ACHATS', 'pi pi-verified', [3, 2],
+    kpi(false, 'HAUSSE', 'Taux de conformité = lignes reçues conformes ÷ lignes commandées, sur 12 mois glissants.')),
+  data('achats-periode', 'Achats de la période', 'Montant des réceptions fournisseurs', 'ACHATS', 'pi pi-truck', [3, 2],
+    kpi(true, 'HAUSSE', 'Montant total des réceptions fournisseurs validées (bons de livraison confirmés) sur la période.')),
+  data('commandes-en-cours', 'Commandes en cours', 'Commandes en attente et à réceptionner', 'ACHATS', 'pi pi-inbox', [3, 2],
+    kpi(false, 'NEUTRE', 'Commandes passées et non encore réceptionnées en totalité (lignes en attente de livraison).')),
   data('suggestions-reappro', 'Suggestions de commande', 'Produits à réapprovisionner', 'ACHATS', 'pi pi-lightbulb', [6, 5], table(false)),
   data('performance-fournisseurs', 'Performance fournisseurs', 'Délai, conformité et note des fournisseurs', 'ACHATS', 'pi pi-chart-bar', [6, 4], {
     visualizations: ['TABLE', 'HBAR'],
@@ -167,7 +184,8 @@ export const WIDGET_DEFINITIONS: readonly WidgetDefinition[] = [
   data('livraisons-du-jour', 'Livraisons du jour', "Commandes attendues aujourd'hui", 'ACHATS', 'pi pi-box', [4, 3], table(false)),
 
   // ── Finances ──────────────────────────────────────────────────────────────
-  data('marge-12-mois', 'Marge sur 12 mois', 'Marge brute et taux moyen, 12 mois glissants', 'FINANCES', 'pi pi-chart-line', [3, 2], kpi(false)),
+  data('marge-12-mois', 'Marge sur 12 mois', 'Marge brute et taux moyen, 12 mois glissants', 'FINANCES', 'pi pi-chart-line', [3, 2],
+    kpi(false, 'HAUSSE', 'Marge brute cumulée sur les 12 derniers mois glissants, avec taux moyen sur la période.')),
   data('creances-tp', 'Créances tiers payant', "Encours des organismes par ancienneté", 'FINANCES', 'pi pi-credit-card', [4, 4], {
     visualizations: ['BAR', 'HBAR', 'TABLE'],
     defaultViz: 'BAR',
@@ -179,7 +197,8 @@ export const WIDGET_DEFINITIONS: readonly WidgetDefinition[] = [
     usesPeriod: false,
     chartColumns: ['encours'],
   }),
-  data('differes-encours', 'Différés clients', 'Montant restant dû sur les ventes différées', 'FINANCES', 'pi pi-users', [3, 2], kpi(false)),
+  data('differes-encours', 'Différés clients', 'Montant restant dû sur les ventes différées', 'FINANCES', 'pi pi-users', [3, 2],
+    kpi(false, 'BAISSE', 'Montant restant dû sur toutes les ventes à crédit (différés) non encore soldées.')),
 
   // ── Mise en page ──────────────────────────────────────────────────────────
   {

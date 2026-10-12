@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { ChartComponent } from 'app/shared/chart/chart.component';
 import { ButtonComponent, DataTableComponent, SkeletonComponent } from 'app/shared/ui';
 import { DashboardItem, PeriodPreset, VizType, WidgetComponent } from '../../models/dashboard.model';
-import { evolutionPct, formatCell, formatEvolution, formatKpiValue, formatSecondaryValue, isEmpty, kpiAlert, toSeries, toTable } from '../../models/widget-data';
-import { resolvePeriod } from '../../models/period';
+import { evolutionPct, formatCell, formatEvolution, formatKpiValue, formatSecondaryValue, isEmpty, kpiAlert, kpiDetailHtml, toSeries, toTable } from '../../models/widget-data';
+import { previousPeriodLabel, resolvePeriod } from '../../models/period';
 import { buildChart } from '../../models/chart-config';
 import { findWidgetDefinition } from '../widget-registry';
 import { DashboardContext } from '../../data-access/dashboard-context';
@@ -20,7 +21,7 @@ import { errorMessage } from '../../data-access/error-message';
  */
 @Component({
   selector: 'app-data-widget',
-  imports: [ChartComponent, SkeletonComponent, ButtonComponent, DataTableComponent],
+  imports: [ChartComponent, SkeletonComponent, ButtonComponent, DataTableComponent, NgbTooltip],
   templateUrl: './data-widget.component.html',
   styleUrl: './data-widget.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,11 +43,14 @@ export class DataWidgetComponent implements WidgetComponent {
     return chosen && spec?.visualizations.includes(chosen) ? chosen : (spec?.defaultViz ?? 'TABLE');
   });
 
-  /** Période propre à la tuile si elle en a une, sinon celle du tableau de bord. */
-  private readonly range = computed(() => {
+  /** Preset actif : celui de la tuile si elle en a un, sinon celui du tableau de bord. */
+  private readonly activePreset = computed<PeriodPreset>(() => {
     const own = this.item().params?.['periode'] as PeriodPreset | undefined;
-    return own ? resolvePeriod(own) : this.context.range();
+    return own ?? this.context.period();
   });
+
+  /** Période propre à la tuile si elle en a une, sinon celle du tableau de bord. */
+  private readonly range = computed(() => resolvePeriod(this.activePreset()));
 
   protected readonly resource = rxResource({
     params: () => ({
@@ -84,6 +88,13 @@ export class DataWidgetComponent implements WidgetComponent {
     };
   });
 
+  protected readonly evolutionClass = computed(() => {
+    const pct = this.kpi()?.pct ?? null;
+    if (pct == null) return 'kpi-evolution';
+    if (pct === 0) return 'kpi-evolution is-neutre';
+    return `kpi-evolution ${pct > 0 ? 'is-favorable' : 'is-defavorable'}`;
+  });
+
   protected readonly table = computed(() => {
     const data = this.data();
     return data && this.viz() === 'TABLE' ? toTable(data) : null;
@@ -97,7 +108,9 @@ export class DataWidgetComponent implements WidgetComponent {
       return null;
     }
     const series = toSeries(data, this.spec()?.chartColumns);
-    return series ? buildChart(viz, series) : null;
+    if (!series) return null;
+    const prevLabel = this.spec()?.usesPeriod ? previousPeriodLabel(this.activePreset()) : undefined;
+    return buildChart(viz, series, prevLabel);
   });
 
   protected readonly footer = computed(() => {
@@ -105,9 +118,12 @@ export class DataWidgetComponent implements WidgetComponent {
     return data && data.kind !== 'KPI' ? data.footer : null;
   });
 
+  protected readonly tooltip = computed(() => this.spec()?.tooltip ?? null);
+
   protected readonly formatCell = formatCell;
   protected readonly formatKpiValue = formatKpiValue;
   protected readonly formatSecondaryValue = formatSecondaryValue;
+  protected readonly kpiDetailHtml = kpiDetailHtml;
 
   protected isNumeric(type: string): boolean {
     return type === 'number' || type === 'amount' || type === 'percent';

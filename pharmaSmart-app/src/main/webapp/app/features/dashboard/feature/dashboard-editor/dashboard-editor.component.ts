@@ -68,8 +68,8 @@ export class DashboardEditorComponent {
     });
   }
 
-  protected onAdd(definition: WidgetDefinition): void {
-    this.facade.addWidget(definition);
+  protected onAdd(definitions: WidgetDefinition[]): void {
+    definitions.forEach(d => this.facade.addWidget(d));
     this.panelVisible.set(false);
   }
 

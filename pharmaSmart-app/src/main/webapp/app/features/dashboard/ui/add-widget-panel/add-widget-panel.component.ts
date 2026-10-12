@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, model, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input, model, output, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonComponent, CheckboxComponent, InputComponent, OffcanvasComponent } from 'app/shared/ui';
 import { WIDGET_CATEGORY_LABELS, WidgetCategory, WidgetDefinition } from '../../models/dashboard.model';
@@ -43,7 +43,12 @@ export interface CatalogueEntry {
         <h3 class="catalogue-category">{{ group.label }}</h3>
         <ul class="list-unstyled mb-3">
           @for (entry of group.entries; track entry.definition.key) {
-            <li class="catalogue-entry" [class.is-locked]="!entry.licensed" [class.is-added]="entry.alreadyAdded">
+            <li
+              class="catalogue-entry"
+              [class.is-locked]="!entry.licensed"
+              [class.is-added]="entry.alreadyAdded"
+              [class.is-pending]="isPending(entry.definition.key)"
+            >
               <i [class]="entry.definition.icon + ' catalogue-icon'" aria-hidden="true"></i>
               <div class="flex-fill">
                 <div class="catalogue-entry-label">
@@ -58,9 +63,15 @@ export interface CatalogueEntry {
               </div>
               @if (entry.licensed) {
                 @if (entry.alreadyAdded) {
-                  <app-button label="Ajouter en double" icon="pi pi-clone" size="small" severity="secondary" [outlined]="true" (clicked)="add.emit(entry.definition)" />
+                  <app-button label="Ajouter en double" icon="pi pi-clone" size="small" severity="secondary" [outlined]="true" (clicked)="addDuplicate(entry.definition)" />
                 } @else {
-                  <app-button label="Ajouter" icon="pi pi-plus" size="small" [outlined]="true" (clicked)="add.emit(entry.definition)" />
+                  <input
+                    type="checkbox"
+                    class="form-check-input catalogue-check"
+                    [checked]="isPending(entry.definition.key)"
+                    (change)="togglePending(entry.definition.key)"
+                    [attr.aria-label]="'Sélectionner ' + entry.definition.label"
+                  />
                 }
               } @else {
                 <i class="pi pi-lock text-body-secondary" aria-label="Non inclus dans votre abonnement"></i>
@@ -81,6 +92,21 @@ export interface CatalogueEntry {
           }
         </p>
       }
+
+      @if (pendingCount() > 0) {
+        <div class="catalogue-batch-bar">
+          <span class="catalogue-batch-count">{{ pendingCount() }} tuile{{ pendingCount() > 1 ? 's' : '' }} sélectionnée{{ pendingCount() > 1 ? 's' : '' }}</span>
+          <div class="d-flex gap-2">
+            <app-button label="Annuler" severity="secondary" [text]="true" size="small" (clicked)="clearPending()" />
+            <app-button
+              [label]="'Ajouter ' + pendingCount()"
+              icon="pi pi-check"
+              size="small"
+              (clicked)="confirmBatch()"
+            />
+          </div>
+        </div>
+      }
     </app-offcanvas>
   `,
   styleUrl: './add-widget-panel.component.scss',
@@ -89,10 +115,48 @@ export interface CatalogueEntry {
 export class AddWidgetPanelComponent {
   readonly visible = model.required<boolean>();
   readonly entries = input.required<CatalogueEntry[]>();
-  readonly add = output<WidgetDefinition>();
+  /** Émet le tableau des tuiles à ajouter (1 élément pour un ajout en double direct). */
+  readonly add = output<WidgetDefinition[]>();
 
   protected readonly search = signal('');
   protected readonly toutAfficher = signal(false);
+  protected readonly pendingKeys = signal<string[]>([]);
+
+  private readonly pendingSet = computed(() => new Set(this.pendingKeys()));
+  protected readonly pendingCount = computed(() => this.pendingKeys().length);
+
+  constructor() {
+    effect(() => {
+      if (!this.visible()) untracked(() => this.pendingKeys.set([]));
+    });
+  }
+
+  protected togglePending(key: string): void {
+    const keys = this.pendingKeys();
+    this.pendingKeys.set(keys.includes(key) ? keys.filter(k => k !== key) : [...keys, key]);
+  }
+
+  protected isPending(key: string): boolean {
+    return this.pendingSet().has(key);
+  }
+
+  protected confirmBatch(): void {
+    const defs = this.entries()
+      .filter(e => this.pendingSet().has(e.definition.key))
+      .map(e => e.definition);
+    if (defs.length > 0) {
+      this.add.emit(defs);
+      this.pendingKeys.set([]);
+    }
+  }
+
+  protected addDuplicate(definition: WidgetDefinition): void {
+    this.add.emit([definition]);
+  }
+
+  protected clearPending(): void {
+    this.pendingKeys.set([]);
+  }
 
   private readonly filtrees = computed(() => {
     const term = normalize(this.search());

@@ -70,6 +70,8 @@ export const WIDGET_DEFINITIONS: readonly WidgetDefinition[] = [
     kpi(true, 'HAUSSE', 'Montant HT moyen par acte de vente : CA net ÷ nombre de ventes (hors annulations).')),
   data('ventes-annulees', 'Ventes annulées', 'Montant et nombre de ventes annulées', 'VENTES', 'pi pi-ban', [3, 2],
     kpi(true, 'BAISSE', "Total des ventes annulées sur la période : montant et nombre d'actes. Une baisse est favorable.")),
+  data('synthese-activite', "Synthèse d'activité", 'CA, marge, panier et annulations en une tuile', 'VENTES', 'pi pi-chart-line', [3, 3],
+    kpi(true, 'HAUSSE', "CA net, marge brute, panier moyen et annulations : toute l'activité de vente en un coup d'œil.")),
   data('ca-evolution', 'Évolution du CA', 'CA au fil de la période, comparé à la période précédente', 'VENTES', 'pi pi-chart-line', [8, 4], {
     visualizations: ['LINE', 'BAR', 'TABLE'],
     defaultViz: 'LINE',
@@ -158,6 +160,8 @@ export const WIDGET_DEFINITIONS: readonly WidgetDefinition[] = [
   }),
   data('stock-valorise', 'Stock valorisé', "Valeur d'achat du stock et marge potentielle", 'STOCK', 'pi pi-box', [3, 2],
     kpi(false, 'NEUTRE', "Valeur du stock = quantité × prix d'achat moyen pondéré (PAMP) par article.")),
+  data('sante-stock', 'Santé du stock', 'Stock valorisé, péremptions à risque et marge potentielle', 'STOCK', 'pi pi-box', [3, 3],
+    kpi(false, 'NEUTRE', "Valeur du stock, produits à risque péremption (6 mois) et marge potentielle à la revente.")),
 
   // ── Achats ────────────────────────────────────────────────────────────────
   data('achats-par-fournisseur', 'Achats par fournisseur', 'Montants achetés sur la période, par fournisseur', 'ACHATS', 'pi pi-truck', [6, 5], {
@@ -173,6 +177,8 @@ export const WIDGET_DEFINITIONS: readonly WidgetDefinition[] = [
     kpi(true, 'HAUSSE', 'Montant total des réceptions fournisseurs validées (bons de livraison confirmés) sur la période.')),
   data('commandes-en-cours', 'Commandes en cours', 'Commandes en attente et à réceptionner', 'ACHATS', 'pi pi-inbox', [3, 2],
     kpi(false, 'NEUTRE', 'Commandes passées et non encore réceptionnées en totalité (lignes en attente de livraison).')),
+  data('synthese-achats', 'Synthèse achats', 'Achats de la période, commandes en cours et qualité fournisseurs', 'ACHATS', 'pi pi-truck', [3, 3],
+    kpi(true, 'HAUSSE', 'Réceptions de la période, commandes non livrées et taux de conformité fournisseurs en une tuile.')),
   data('suggestions-reappro', 'Suggestions de commande', 'Produits à réapprovisionner', 'ACHATS', 'pi pi-lightbulb', [6, 5], table(false)),
   data('performance-fournisseurs', 'Performance fournisseurs', 'Délai, conformité et note des fournisseurs', 'ACHATS', 'pi pi-chart-bar', [6, 4], {
     visualizations: ['TABLE', 'HBAR'],
@@ -199,6 +205,8 @@ export const WIDGET_DEFINITIONS: readonly WidgetDefinition[] = [
   }),
   data('differes-encours', 'Différés clients', 'Montant restant dû sur les ventes différées', 'FINANCES', 'pi pi-users', [3, 2],
     kpi(false, 'BAISSE', 'Montant restant dû sur toutes les ventes à crédit (différés) non encore soldées.')),
+  data('bilan-finances', 'Bilan financier', 'Différés, marge 12 mois et créances tiers payant', 'FINANCES', 'pi pi-wallet', [3, 3],
+    kpi(false, 'BAISSE', 'Différés clients non soldés, marge brute des 12 derniers mois et encours créances tiers payant.')),
 
   // ── Mise en page ──────────────────────────────────────────────────────────
   {

@@ -21,11 +21,28 @@ interface Theme {
   surface: string;
 }
 
+/**
+ * Lit les jetons Bootstrap posés par le thème courant (`data-theme` sur `<html>`).
+ * Appelée à chaque construction de graphique : le signal `ThemeService.theme()` doit
+ * figurer dans le computed qui appelle `buildChart` pour déclencher un recalcul.
+ */
 function theme(): Theme {
   const dark = typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-  return dark
-    ? { series: SERIES_DARK, muted: '#8a8984', grid: 'rgba(255,255,255,0.08)', text: '#c3c2b7', surface: '#1a1a19' }
-    : { series: SERIES_LIGHT, muted: '#9a9994', grid: 'rgba(0,0,0,0.06)', text: '#52514e', surface: '#ffffff' };
+  const series = dark ? SERIES_DARK : SERIES_LIGHT;
+  if (typeof document === 'undefined') {
+    return dark
+      ? { series, muted: '#8a8984', grid: 'rgba(255,255,255,0.08)', text: '#c3c2b7', surface: '#1a1a19' }
+      : { series, muted: '#9a9994', grid: 'rgba(0,0,0,0.06)', text: '#52514e', surface: '#ffffff' };
+  }
+  const css = getComputedStyle(document.documentElement);
+  const get = (v: string, fallback: string) => css.getPropertyValue(v).trim() || fallback;
+  return {
+    series,
+    muted:   get('--bs-secondary-color',          dark ? '#8a8984' : '#9a9994'),
+    grid:    get('--bs-border-color-translucent',  dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'),
+    text:    get('--bs-body-color',                dark ? '#c3c2b7' : '#52514e'),
+    surface: get('--bs-body-bg',                   dark ? '#1a1a19' : '#ffffff'),
+  };
 }
 
 const COMPACT = new Intl.NumberFormat('fr-FR', { notation: 'compact', maximumFractionDigits: 1 });

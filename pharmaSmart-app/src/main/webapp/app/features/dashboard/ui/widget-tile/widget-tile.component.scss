@@ -1,0 +1,77 @@
+:host {
+  display: block;
+  height: 100%;
+}
+/* Cadre, fond, ombre et dégradé d'en-tête : ceux d'app-card (.card.data-card, globaux et
+   surchargés par les thèmes). Seules les dimensions sont resserrées ici. */
+.widget-tile {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+.widget-tile.frameless {
+  background: transparent;
+}
+/* Fond du thème : mêmes jetons que le bandeau d'app-toolbar (le dégradé de .data-card est fixe). */
+.widget-tile > .widget-tile-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2rem;
+  padding: 0.2rem 0.5rem 0.2rem 0.75rem;
+  background: linear-gradient(
+    135deg,
+    var(--pharma-chrome-toolbar-a, var(--pharma-chrome-head-a)) 0%,
+    var(--pharma-chrome-toolbar-b, var(--pharma-chrome-head-b)) 100%
+  );
+  color: var(--pharma-chrome-head-fg);
+  border-bottom: none;
+  box-shadow: inset 0 -2px 0 var(--pharma-chrome-head-line);
+}
+.widget-tile > .widget-tile-header.is-draggable {
+  cursor: grab;
+}
+.widget-tile-drag {
+  opacity: 0.8;
+}
+/* Boutons de l'en-tête (agrandir, réglages) : lisibles sur le fond du thème. */
+.widget-tile-header ::ng-deep .btn {
+  color: var(--pharma-chrome-head-fg);
+  border-color: color-mix(in srgb, var(--pharma-chrome-head-fg) 45%, transparent);
+}
+.widget-tile-header > .widget-tile-title {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.widget-tile-period {
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+.widget-tile-body {
+  flex: 1;
+  min-height: 0;
+  padding: 0.4rem 0.75rem;
+  overflow: auto;
+}
+.frameless .widget-tile-body {
+  padding: 0;
+}
+.widget-tile-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 100%;
+  color: var(--bs-secondary-color);
+  text-align: center;
+}

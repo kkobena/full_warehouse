@@ -8,6 +8,7 @@ import { DashboardContext } from '../../data-access/dashboard-context';
 import { DashboardGridComponent } from '../../ui/dashboard-grid/dashboard-grid.component';
 import { AddWidgetPanelComponent } from '../../ui/add-widget-panel/add-widget-panel.component';
 import { DashboardContextBarComponent } from '../../ui/context-bar/dashboard-context-bar.component';
+import { DashboardViewportDirective } from '../../ui/dashboard-viewport.directive';
 
 /** Éditeur du dashboard personnalisable (`/dashboard` et `/dashboard/:id`). */
 @Component({
@@ -21,6 +22,7 @@ import { DashboardContextBarComponent } from '../../ui/context-bar/dashboard-con
     DashboardGridComponent,
     AddWidgetPanelComponent,
     DashboardContextBarComponent,
+    DashboardViewportDirective,
   ],
   providers: [DashboardStore, DashboardContext, DashboardFacade],
   templateUrl: './dashboard-editor.component.html',

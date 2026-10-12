@@ -1,0 +1,9 @@
+@use 'app/shared/scss/modal-theme' as *;
+
+:host {
+  @include modal-theme;
+}
+
+.expanded-body {
+  height: 70vh;
+}

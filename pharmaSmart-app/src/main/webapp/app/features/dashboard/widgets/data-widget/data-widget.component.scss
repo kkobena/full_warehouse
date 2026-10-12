@@ -79,9 +79,70 @@
   color: var(--bs-secondary-color);
 }
 
-.kpi-detail {
+.kpi-divider {
+  margin: 0.3rem 0;
+  border-color: var(--bs-border-color-translucent);
+  opacity: 1;
+}
+
+// Grille de métriques secondaires : 1 colonne par défaut, compressée à 3 colonnes si ≥ 3 items
+.kpi-secondaries {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.15rem 0.5rem;
+
+  &.kpi-secondaries-sm {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.kpi-secondary {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.25rem;
   font-size: 0.8rem;
+
+  .kpi-secondaries-sm & {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+.kpi-secondary-label {
   color: var(--bs-secondary-color);
+  font-size: 0.7rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kpi-secondary-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-size: 0.8rem;
+}
+
+.kpi-detail {
+  font-size: 0.75rem;
+  color: var(--bs-secondary-color);
+  margin-top: 0.1rem;
+}
+
+.kpi-objective {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.72rem;
+  color: var(--bs-secondary-color);
+  margin-top: 0.2rem;
+}
+
+.kpi-objective-value {
+  font-weight: 600;
+  color: var(--bs-body-color);
+  font-variant-numeric: tabular-nums;
 }
 
 // ── Tableau et graphique ───────────────────────────────────────────────────

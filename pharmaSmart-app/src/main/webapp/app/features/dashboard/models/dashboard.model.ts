@@ -86,6 +86,12 @@ export type KpiAlertDirection = 'DESSOUS' | 'DESSUS';
 
 // ── Réponse de GET /api/dashboard-widgets/{key} (cf. WidgetData.java) ──────────
 
+export interface KpiSecondary {
+  label: string;
+  value: number | null;
+  unit: string | null;
+}
+
 export interface KpiData {
   kind: 'KPI';
   value: number | null;
@@ -94,6 +100,10 @@ export interface KpiData {
   detail: string | null;
   /** À quoi la valeur est comparée ; absent : la période précédente de même durée. */
   previousLabel?: string | null;
+  /** Métriques secondaires affichées sous la valeur principale (taux, comptages…). */
+  secondary?: KpiSecondary[] | null;
+  /** Objectif de la période : repère visuel, non utilisé pour l'alerte. */
+  objective?: number | null;
 }
 
 export interface SeriesData {

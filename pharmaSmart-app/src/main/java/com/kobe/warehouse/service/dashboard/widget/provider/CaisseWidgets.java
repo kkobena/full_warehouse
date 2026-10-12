@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.dashboard.widget.provider;
 
-import static com.kobe.warehouse.service.dashboard.widget.provider.WidgetFormat.nz;
-import static com.kobe.warehouse.service.dashboard.widget.provider.WidgetFormat.row;
+import static com.kobe.warehouse.service.dashboard.widget.provider.WidgetFormat.buildRow;
+import static com.kobe.warehouse.service.dashboard.widget.provider.WidgetFormat.zeroIfNull;
 
 import com.kobe.warehouse.service.dashboard.CaissierDashboardService;
 import com.kobe.warehouse.service.dashboard.widget.WidgetData;
@@ -35,7 +35,7 @@ public class CaisseWidgets extends AbstractWidgets {
                 return new WidgetData.Kpi(null, null, devise(), "Caisse fermée");
             }
             return new WidgetData.Kpi(
-                nz(caisse.especesTheoriques()),
+                zeroIfNull(caisse.especesTheoriques()),
                 null,
                 devise(),
                 "Espèces théoriques · fond %s · ouverte à %s".formatted(amount(caisse.fondOuverture()), caisse.heureOuverture())
@@ -53,8 +53,8 @@ public class CaisseWidgets extends AbstractWidgets {
             }
             return new WidgetData.Series(
                 session.lignes().stream().map(l -> l.libelle()).toList(),
-                List.of(new SeriesItem("Montant", session.lignes().stream().map(l -> nz(l.montant())).toList())),
-                "Total encaissé : %s · %d transaction(s)".formatted(amount(session.totalEncaisse()), nz(session.nombreTransactions()))
+                List.of(new SeriesItem("Montant", session.lignes().stream().map(l -> zeroIfNull(l.montant())).toList())),
+                "Total encaissé : %s · %d transaction(s)".formatted(amount(session.totalEncaisse()), zeroIfNull(session.nombreTransactions()))
             );
         });
     }
@@ -75,7 +75,7 @@ public class CaisseWidgets extends AbstractWidgets {
                     .getVentesRecentes(WidgetPeriods.intParam(params, "limite", 8, 1, 30))
                     .stream()
                     .map(v ->
-                        row("date", v.dateVente(), "recu", v.numeroRecu(), "client", v.clientNom(), "type", v.typeVente(), "montant", v.montant())
+                        buildRow("date", v.dateVente(), "recu", v.numeroRecu(), "client", v.clientNom(), "type", v.typeVente(), "montant", v.montant())
                     )
                     .toList(),
                 null
@@ -93,7 +93,7 @@ public class CaisseWidgets extends AbstractWidgets {
                     .differes()
                     .stream()
                     .map(d ->
-                        row(
+                        buildRow(
                             "client",
                             d.clientNom(),
                             "telephone",
@@ -118,7 +118,7 @@ public class CaisseWidgets extends AbstractWidgets {
                 rows,
                 resume == null
                     ? null
-                    : "%d échéance(s) aujourd'hui · total dû %s".formatted(nz(resume.nombreEcheancesAujourdhui()), amount(resume.montantTotalDu()))
+                    : "%d échéance(s) aujourd'hui · total dû %s".formatted(zeroIfNull(resume.nombreEcheancesAujourdhui()), amount(resume.montantTotalDu()))
             );
         });
     }
@@ -128,7 +128,7 @@ public class CaisseWidgets extends AbstractWidgets {
         return WidgetDataProvider.of("livraisons-du-jour", (context, params) ->
             new WidgetData.Table(
                 List.of(Column.text("fournisseur", "Fournisseur"), Column.number("references", "Références")),
-                service.getLivraisonsJour().stream().map(l -> row("fournisseur", l.fournisseurNom(), "references", l.nombreReferences())).toList(),
+                service.getLivraisonsJour().stream().map(l -> buildRow("fournisseur", l.fournisseurNom(), "references", l.nombreReferences())).toList(),
                 null
             )
         );

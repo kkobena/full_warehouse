@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.dashboard.widget.provider;
 
-import static com.kobe.warehouse.service.dashboard.widget.provider.WidgetFormat.nz;
-import static com.kobe.warehouse.service.dashboard.widget.provider.WidgetFormat.row;
+import static com.kobe.warehouse.service.dashboard.widget.provider.WidgetFormat.buildRow;
+import static com.kobe.warehouse.service.dashboard.widget.provider.WidgetFormat.zeroIfNull;
 
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.service.dashboard.widget.WidgetData;
@@ -45,14 +45,14 @@ public class FinancesWidgets extends AbstractWidgets {
                 return new WidgetData.Kpi(null, null, devise(), null);
             }
             return new WidgetData.Kpi(
-                nz(marge.margeBruteGlobale()),
+                zeroIfNull(marge.margeBruteGlobale()),
                 null,
                 devise(),
                 String.format(
                     Locale.FRANCE,
                     "%.1f %% · %d référence(s) · 12 mois glissants",
                     marge.tauxMargeMoyen() == null ? 0 : marge.tauxMargeMoyen().doubleValue(),
-                    nz(marge.totalProduits())
+                    zeroIfNull(marge.totalProduits())
                 )
             );
         });
@@ -97,7 +97,7 @@ public class FinancesWidgets extends AbstractWidgets {
                 safe(tiersPayantReportService.getCreancesSummary())
                     .stream()
                     .map(c ->
-                        row(
+                        buildRow(
                             "organisme",
                             c.groupeTiersPayantLibelle(),
                             "factures",
@@ -123,7 +123,7 @@ public class FinancesWidgets extends AbstractWidgets {
                 return new WidgetData.Kpi(0L, null, devise(), null);
             }
             return new WidgetData.Kpi(
-                nz(differes.rest()),
+                zeroIfNull(differes.rest()),
                 null,
                 devise(),
                 "accordé %s · remboursé %s".formatted(amount(differes.saleAmount()), amount(differes.paidAmount()))
@@ -132,7 +132,7 @@ public class FinancesWidgets extends AbstractWidgets {
     }
 
     private static int sum(List<TiersPayantCreancesSummaryDTO> creances, Function<TiersPayantCreancesSummaryDTO, Integer> montant) {
-        return safe(creances).stream().mapToInt(c -> nz(montant.apply(c))).sum();
+        return safe(creances).stream().mapToInt(c -> zeroIfNull(montant.apply(c))).sum();
     }
 
     private static <T> List<T> safe(List<T> list) {

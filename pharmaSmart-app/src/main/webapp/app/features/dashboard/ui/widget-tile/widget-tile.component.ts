@@ -26,13 +26,13 @@ import { widgetLabel } from '../../data-access/store/dashboard.store';
   selector: 'app-widget-tile',
   imports: [ButtonComponent, SplitButtonComponent],
   template: `
-    <div class="widget-tile" [class.frameless]="frameless()">
+    <div class="widget-tile" [class.card]="!frameless()" [class.data-card]="!frameless()" [class.frameless]="frameless()">
       @if ((!frameless() || editMode()) && !inModal()) {
-        <div class="widget-tile-header" [class.is-draggable]="editMode()">
+        <div class="widget-tile-header card-header" [class.is-draggable]="editMode()">
           @if (editMode()) {
             <i class="pi pi-arrows-alt widget-tile-drag" aria-hidden="true"></i>
           }
-          <span class="widget-tile-title">{{ title() }}</span>
+          <h5 class="widget-tile-title card-title">{{ title() }}</h5>
           @if (ownPeriod(); as period) {
             <span class="widget-tile-period" title="Période propre à cette tuile">{{ period }}</span>
           }
@@ -86,75 +86,7 @@ import { widgetLabel } from '../../data-access/store/dashboard.store';
       </div>
     </div>
   `,
-  styles: `
-    :host {
-      display: block;
-      height: 100%;
-    }
-    .widget-tile {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      background: var(--bs-body-bg);
-      border: 1px solid var(--bs-border-color);
-      border-radius: var(--bs-border-radius-lg);
-      box-shadow: var(--bs-box-shadow-sm);
-      overflow: hidden;
-    }
-    .widget-tile.frameless {
-      background: transparent;
-      border-color: transparent;
-      box-shadow: none;
-    }
-    .widget-tile-header {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      min-height: 2.25rem;
-      padding: 0.25rem 0.5rem 0.25rem 0.75rem;
-      border-bottom: 1px solid var(--bs-border-color-translucent);
-      font-weight: 600;
-    }
-    .widget-tile-header.is-draggable {
-      cursor: grab;
-      background: var(--bs-tertiary-bg);
-    }
-    .widget-tile-drag {
-      color: var(--bs-secondary-color);
-    }
-    .widget-tile-title {
-      flex: 1;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .widget-tile-period {
-      font-size: 0.75rem;
-      font-weight: 400;
-      color: var(--bs-secondary-color);
-      white-space: nowrap;
-    }
-    .widget-tile-body {
-      flex: 1;
-      min-height: 0;
-      padding: 0.75rem;
-      overflow: auto;
-    }
-    .frameless .widget-tile-body {
-      padding: 0;
-    }
-    .widget-tile-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      height: 100%;
-      color: var(--bs-secondary-color);
-      text-align: center;
-    }
-  `,
+  styleUrl: './widget-tile.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WidgetTileComponent {

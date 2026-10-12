@@ -4,12 +4,13 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { ChartComponent } from 'app/shared/chart/chart.component';
 import { ButtonComponent, DataTableComponent, SkeletonComponent } from 'app/shared/ui';
 import { DashboardItem, PeriodPreset, VizType, WidgetComponent } from '../../models/dashboard.model';
-import { evolutionPct, formatCell, formatEvolution, formatKpiValue, isEmpty, kpiAlert, toSeries, toTable } from '../../models/widget-data';
+import { evolutionPct, formatCell, formatEvolution, formatKpiValue, formatSecondaryValue, isEmpty, kpiAlert, toSeries, toTable } from '../../models/widget-data';
 import { resolvePeriod } from '../../models/period';
 import { buildChart } from '../../models/chart-config';
 import { findWidgetDefinition } from '../widget-registry';
 import { DashboardContext } from '../../data-access/dashboard-context';
 import { DashboardWidgetApiService } from '../../data-access/services/dashboard-widget-api.service';
+import { ThemeService } from 'app/core/theme/theme.service';
 import { errorMessage } from '../../data-access/error-message';
 
 /**
@@ -31,6 +32,7 @@ export class DataWidgetComponent implements WidgetComponent {
 
   private readonly context = inject(DashboardContext);
   private readonly api = inject(DashboardWidgetApiService);
+  private readonly themeService = inject(ThemeService);
 
   private readonly spec = computed(() => findWidgetDefinition(this.item().widgetKey)?.data);
 
@@ -88,6 +90,7 @@ export class DataWidgetComponent implements WidgetComponent {
   });
 
   protected readonly chart = computed(() => {
+    this.themeService.theme(); // dépendance : reconstruit le graphique à chaque changement de thème
     const data = this.data();
     const viz = this.viz();
     if (!data || viz === 'TABLE' || viz === 'KPI') {
@@ -103,6 +106,8 @@ export class DataWidgetComponent implements WidgetComponent {
   });
 
   protected readonly formatCell = formatCell;
+  protected readonly formatKpiValue = formatKpiValue;
+  protected readonly formatSecondaryValue = formatSecondaryValue;
 
   protected isNumeric(type: string): boolean {
     return type === 'number' || type === 'amount' || type === 'percent';

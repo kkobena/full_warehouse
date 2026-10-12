@@ -65,6 +65,7 @@ import { errorMessage } from '../../data-access/error-message';
       <app-button label="Fermer" severity="secondary" [text]="true" (clicked)="activeModal.dismiss()" />
     </div>
   `,
+  styleUrl: './open-dashboard-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OpenDashboardModalComponent implements OnInit {

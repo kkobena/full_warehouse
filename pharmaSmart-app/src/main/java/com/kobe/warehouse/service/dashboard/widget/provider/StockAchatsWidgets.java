@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.dashboard.widget.provider;
 
-import static com.kobe.warehouse.service.dashboard.widget.provider.WidgetFormat.nz;
-import static com.kobe.warehouse.service.dashboard.widget.provider.WidgetFormat.row;
+import static com.kobe.warehouse.service.dashboard.widget.provider.WidgetFormat.buildRow;
+import static com.kobe.warehouse.service.dashboard.widget.provider.WidgetFormat.zeroIfNull;
 
 import com.kobe.warehouse.service.DashboardAlertService;
 import com.kobe.warehouse.service.dashboard.ResponsableCommandeDashboardService;
@@ -10,21 +10,21 @@ import com.kobe.warehouse.service.dashboard.widget.WidgetData.Column;
 import com.kobe.warehouse.service.dashboard.widget.WidgetData.SeriesItem;
 import com.kobe.warehouse.service.dashboard.widget.WidgetDataProvider;
 import com.kobe.warehouse.service.dashboard.widget.WidgetPeriods;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dashboard.widget.WidgetPeriods.Period;
 import com.kobe.warehouse.service.dto.AchatRecordParamDTO;
 import com.kobe.warehouse.service.dto.DashboardAlertCountDTO;
 import com.kobe.warehouse.service.dto.dashboard.AnalyseABCDTO;
 import com.kobe.warehouse.service.dto.records.AchatRecord;
+import com.kobe.warehouse.service.dto.report.StockRotationDTO;
 import com.kobe.warehouse.service.dto.report.StockValuationSummaryDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
-import com.kobe.warehouse.service.dto.report.StockRotationDTO;
 import com.kobe.warehouse.service.mobile.MobileTodoService;
 import com.kobe.warehouse.service.report.StockRotationReportService;
 import com.kobe.warehouse.service.report.StockValuationReportService;
-import java.util.Comparator;
 import com.kobe.warehouse.service.report.SupplierPerformanceReportService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stat.DashboardService;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import org.springframework.context.annotation.Bean;
@@ -37,21 +37,59 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class StockAchatsWidgets extends AbstractWidgets {
 
+    private static final java.util.Map<String, String> PRIORITES = java.util.Map.of("URGENT",
+        "Urgent", "IMPORTANT", "Important", "NORMAL", "Normal");
+
     public StockAchatsWidgets(AppConfigurationService appConfigurationService) {
         super(appConfigurationService);
     }
 
-    /** Valeur des lots qui périment dans les six mois : la perte à éviter (retour, mise en avant). */
+    private static java.util.Map<String, Object> abcRow(String classe,
+        AnalyseABCDTO.ClasseABCItem item) {
+        if (item == null) {
+            return buildRow("classe", classe, "produits", 0, "partProduits", 0, "partCa", 0,
+                "valeur", 0);
+        }
+        return buildRow(
+            "classe",
+            classe,
+            "produits",
+            item.nombreProduits(),
+            "partProduits",
+            item.pourcentageProduits(),
+            "partCa",
+            item.pourcentageCA(),
+            "valeur",
+            item.valeur()
+        );
+    }
+
+    private static AchatRecordParamDTO achatParam(Period period) {
+        AchatRecordParamDTO param = new AchatRecordParamDTO();
+        param.setFromDate(period.start());
+        param.setToDate(period.end());
+        return param;
+    }
+
+    private static Long receipt(AchatRecord record) {
+        return record == null ? 0L : zeroIfNull(record.receiptAmount());
+    }
+
+    /**
+     * Valeur des lots qui périment dans les six mois : la perte à éviter (retour, mise en avant).
+     */
     @Bean
     WidgetDataProvider peremptionsValoriseesWidget(ResponsableCommandeDashboardService service) {
         return WidgetDataProvider.of("peremptions-valorisees", (context, params) -> {
             var p = service.getPeremptions();
-            int produits = nz(p.unMois()) + nz(p.unATroisMois()) + nz(p.troisASixMois());
+            int produits = zeroIfNull(p.unMois()) + zeroIfNull(p.unATroisMois()) + zeroIfNull(
+                p.troisASixMois());
             return new WidgetData.Kpi(
-                nz(p.valeurTotale()),
+                zeroIfNull(p.valeurTotale()),
                 null,
                 devise(),
-                "%d produit(s) · dont %d à moins d'1 mois".formatted(produits, nz(p.unMois()))
+                "%d produit(s) · dont %d à moins d'1 mois".formatted(produits,
+                    zeroIfNull(p.unMois()))
             );
         });
     }
@@ -80,9 +118,11 @@ public class StockAchatsWidgets extends AbstractWidgets {
                 lents
                     .stream()
                     .limit(WidgetPeriods.intParam(params, "limite", 10, 1, 50))
-                    .map(s -> row("produit", s.libelle(), "stock", s.stockQuantity(), "valeur", s.stockValue(), "jours", s.avgDaysInStock()))
+                    .map(s -> buildRow("produit", s.libelle(), "stock", s.stockQuantity(), "valeur",
+                        s.stockValue(), "jours", s.avgDaysInStock()))
                     .toList(),
-                "%d produit(s) dormant(s) · %s immobilisés".formatted(lents.size(), amount(valeurTotale))
+                "%d produit(s) dormant(s) · %s immobilisés".formatted(lents.size(),
+                    amount(valeurTotale))
             );
         });
     }
@@ -95,47 +135,60 @@ public class StockAchatsWidgets extends AbstractWidgets {
     WidgetDataProvider aFaireWidget(MobileTodoService mobileTodoService) {
         return WidgetDataProvider.of("a-faire", (context, params) ->
             new WidgetData.Table(
-                List.of(Column.text("priorite", "Priorité"), Column.text("tache", "Tâche"), Column.text("detail", "Détail")),
+                List.of(Column.text("priorite", "Priorité"), Column.text("tache", "Tâche"),
+                    Column.text("detail", "Détail")),
                 mobileTodoService
                     .getAllTodoItems()
                     .stream()
                     .limit(WidgetPeriods.intParam(params, "limite", 10, 1, 50))
-                    .map(t -> row("priorite", PRIORITES.getOrDefault(t.priority().name(), t.priority().name()), "tache", t.title(), "detail", t.description()))
+                    .map(t -> buildRow("priorite",
+                        PRIORITES.getOrDefault(t.priority().name(), t.priority().name()), "tache",
+                        t.title(), "detail", t.description()))
                     .toList(),
                 null
             )
         );
     }
 
-    private static final java.util.Map<String, String> PRIORITES = java.util.Map.of("URGENT", "Urgent", "IMPORTANT", "Important", "NORMAL", "Normal");
-
-    /** Valeur d'achat du stock au jour, et marge potentielle à la revente. */
+    /**
+     * Valeur d'achat du stock au jour, et marge potentielle à la revente.
+     */
     @Bean
-    WidgetDataProvider stockValoriseWidget(StockValuationReportService stockValuationReportService) {
+    WidgetDataProvider stockValoriseWidget(
+        StockValuationReportService stockValuationReportService) {
         return WidgetDataProvider.of("stock-valorise", (context, params) -> {
             StockValuationSummaryDTO stock = stockValuationReportService.getStockValuationSummary();
             if (stock == null) {
                 return new WidgetData.Kpi(null, null, devise(), null);
             }
             return new WidgetData.Kpi(
-                nz(stock.totalPurchaseValue()),
+                zeroIfNull(stock.totalPurchaseValue()),
                 null,
                 devise(),
                 String.format(
                     Locale.FRANCE,
                     "%d référence(s) · marge potentielle %.1f %%",
                     stock.totalProducts() == null ? 0 : stock.totalProducts(),
-                    stock.averageMarginPercentage() == null ? 0 : stock.averageMarginPercentage().doubleValue()
+                    stock.averageMarginPercentage() == null ? 0
+                        : stock.averageMarginPercentage().doubleValue()
                 )
             );
         });
     }
 
-    /** Paramètre : {@code limite} = 10. */
+    /**
+     * Paramètre : {@code limite} = 10.
+     */
     @Bean
-    WidgetDataProvider achatsParFournisseurWidget(SupplierPerformanceReportService supplierService) {
+    WidgetDataProvider achatsParFournisseurWidget(
+        SupplierPerformanceReportService supplierService) {
         return WidgetDataProvider.of("achats-par-fournisseur", (context, params) -> {
             Period period = WidgetPeriods.of(context);
+            int limite = WidgetPeriods.intParam(params, "limite", 10, 1, 50);
+            var fournisseurs = supplierService.getTopSuppliersByPeriode(period.start(),
+                period.end(), limite);
+            long totalMontant = fournisseurs.stream()
+                .mapToLong(f -> f.montantAchat() == null ? 0L : f.montantAchat()).sum();
             return new WidgetData.Table(
                 List.of(
                     Column.text("fournisseur", "Fournisseur"),
@@ -144,11 +197,10 @@ public class StockAchatsWidgets extends AbstractWidgets {
                     Column.number("delai", "Délai (j)"),
                     Column.number("score", "Score")
                 ),
-                supplierService
-                    .getTopSuppliersByPeriode(period.start(), period.end(), WidgetPeriods.intParam(params, "limite", 10, 1, 50))
+                fournisseurs
                     .stream()
                     .map(f ->
-                        row(
+                        buildRow(
                             "fournisseur",
                             f.fournisseurName(),
                             "commandes",
@@ -162,12 +214,16 @@ public class StockAchatsWidgets extends AbstractWidgets {
                         )
                     )
                     .toList(),
-                null
+                fournisseurs.isEmpty() ? null
+                    : "%d fournisseur(s) · total %s".formatted(fournisseurs.size(),
+                        amount(totalMontant))
             );
         });
     }
 
-    /** Qualité des livraisons sur douze mois : conformité moyenne et délai. */
+    /**
+     * Qualité des livraisons sur douze mois : conformité moyenne et délai.
+     */
     @Bean
     WidgetDataProvider qualiteFournisseursWidget(SupplierPerformanceReportService supplierService) {
         return WidgetDataProvider.of("qualite-fournisseurs", (context, params) -> {
@@ -193,17 +249,24 @@ public class StockAchatsWidgets extends AbstractWidgets {
     WidgetDataProvider alertesOfficineWidget(DashboardAlertService dashboardAlertService) {
         return WidgetDataProvider.of("alertes-officine", (context, params) -> {
             DashboardAlertCountDTO a = dashboardAlertService.getAlertCounts();
+            long peremptions    = zeroIfNull(a.peremptionCount());
+            long ruptures       = zeroIfNull(a.ruptureCount());
+            long urgents        = zeroIfNull(a.urgentCount());
+            long ajustements    = zeroIfNull(a.ajustementCount());
+            long prixModifs     = zeroIfNull(a.prixModifCount());
+            long facturesEchues = zeroIfNull(a.facturationOverdueCount());
+            long total = peremptions + ruptures + urgents + ajustements + prixModifs + facturesEchues;
             return new WidgetData.Table(
                 List.of(Column.text("alerte", "Alerte"), Column.number("nombre", "Nombre")),
                 List.of(
-                    row("alerte", "Péremptions proches", "nombre", nz(a.peremptionCount())),
-                    row("alerte", "Ruptures de stock", "nombre", nz(a.ruptureCount())),
-                    row("alerte", "À commander en urgence", "nombre", nz(a.urgentCount())),
-                    row("alerte", "Ajustements (24 h)", "nombre", nz(a.ajustementCount())),
-                    row("alerte", "Modifications de prix (24 h)", "nombre", nz(a.prixModifCount())),
-                    row("alerte", "Factures tiers payant échues", "nombre", nz(a.facturationOverdueCount()))
+                    buildRow("alerte", "Péremptions proches",          "nombre", peremptions),
+                    buildRow("alerte", "Ruptures de stock",            "nombre", ruptures),
+                    buildRow("alerte", "À commander en urgence",       "nombre", urgents),
+                    buildRow("alerte", "Ajustements (24 h)",           "nombre", ajustements),
+                    buildRow("alerte", "Modifications de prix (24 h)", "nombre", prixModifs),
+                    buildRow("alerte", "Factures tiers payant échues", "nombre", facturesEchues)
                 ),
-                null
+                total > 0 ? "%d alerte(s) en cours".formatted(total) : "Aucune alerte"
             );
         });
     }
@@ -214,7 +277,9 @@ public class StockAchatsWidgets extends AbstractWidgets {
             var a = service.getStockAlerts();
             return new WidgetData.Series(
                 List.of("Rupture", "Stock critique", "Bientôt en rupture", "Réassort rayon"),
-                List.of(new SeriesItem("Produits", List.of(nz(a.rupture()), nz(a.stockCritique()), nz(a.bientotEnRupture()), nz(a.reassortStockRayon())))),
+                List.of(new SeriesItem("Produits",
+                    List.of(zeroIfNull(a.rupture()), zeroIfNull(a.stockCritique()),
+                        zeroIfNull(a.bientotEnRupture()), zeroIfNull(a.reassortStockRayon())))),
                 null
             );
         });
@@ -226,7 +291,9 @@ public class StockAchatsWidgets extends AbstractWidgets {
             var p = service.getPeremptions();
             return new WidgetData.Series(
                 List.of("Moins d'1 mois", "1 à 3 mois", "3 à 6 mois"),
-                List.of(new SeriesItem("Produits", List.of(nz(p.unMois()), nz(p.unATroisMois()), nz(p.troisASixMois())))),
+                List.of(new SeriesItem("Produits",
+                    List.of(zeroIfNull(p.unMois()), zeroIfNull(p.unATroisMois()),
+                        zeroIfNull(p.troisASixMois())))),
                 "Valeur totale : " + amount(p.valeurTotale())
             );
         });
@@ -238,8 +305,10 @@ public class StockAchatsWidgets extends AbstractWidgets {
             var r = service.getRotationStock();
             return new WidgetData.Series(
                 List.of("Rapide (> 4×)", "Normale (2 à 4×)", "Lente (< 2×)"),
-                List.of(new SeriesItem("Produits", List.of(nz(r.rapide()), nz(r.normal()), nz(r.lent())))),
-                r.rotationMoyenne() == null ? null : String.format(Locale.FRANCE, "Rotation moyenne : %.1f×", r.rotationMoyenne())
+                List.of(new SeriesItem("Produits",
+                    List.of(zeroIfNull(r.rapide()), zeroIfNull(r.normal()), zeroIfNull(r.lent())))),
+                r.rotationMoyenne() == null ? null
+                    : String.format(Locale.FRANCE, "Rotation moyenne : %.1f×", r.rotationMoyenne())
             );
         });
     }
@@ -256,7 +325,8 @@ public class StockAchatsWidgets extends AbstractWidgets {
                     new Column("partCa", "% CA", "percent"),
                     Column.amount("valeur", "Valeur")
                 ),
-                List.of(abcRow("A", abc.classeA()), abcRow("B", abc.classeB()), abcRow("C", abc.classeC())),
+                List.of(abcRow("A", abc.classeA()), abcRow("B", abc.classeB()),
+                    abcRow("C", abc.classeC())),
                 null
             );
         });
@@ -272,7 +342,9 @@ public class StockAchatsWidgets extends AbstractWidgets {
                 receipt(current),
                 receipt(previous),
                 devise(),
-                current == null ? null : "%d commande(s) · HT %s".formatted(nz(current.achatCount()), amount(current.netAmount()))
+                current == null ? null
+                    : "%d commande(s) · HT %s".formatted(zeroIfNull(current.achatCount()),
+                        amount(current.netAmount()))
             );
         });
     }
@@ -282,10 +354,11 @@ public class StockAchatsWidgets extends AbstractWidgets {
         return WidgetDataProvider.of("commandes-en-cours", (context, params) -> {
             var c = service.getCommandesEnCours();
             return new WidgetData.Kpi(
-                nz(c.totalMontant()),
+                zeroIfNull(c.totalMontant()),
                 null,
                 devise(),
-                "%d à réceptionner · %d en attente".formatted(nz(c.aReceptionner()), nz(c.enAttente()))
+                "%d à réceptionner · %d en attente".formatted(zeroIfNull(c.aReceptionner()),
+                    zeroIfNull(c.enAttente()))
             );
         });
     }
@@ -303,14 +376,17 @@ public class StockAchatsWidgets extends AbstractWidgets {
                 service
                     .getSuggestionsReappro()
                     .stream()
-                    .map(s -> row("produit", s.produitLibelle(), "stock", s.stockActuel(), "quantite", s.quantiteSuggeree(), "fournisseur", s.fournisseurName()))
+                    .map(s -> buildRow("produit", s.produitLibelle(), "stock", s.stockActuel(),
+                        "quantite", s.quantiteSuggeree(), "fournisseur", s.fournisseurName()))
                     .toList(),
                 null
             )
         );
     }
 
-    /** Paramètre : {@code limite} = 5. */
+    /**
+     * Paramètre : {@code limite} = 5.
+     */
     @Bean
     WidgetDataProvider performanceFournisseursWidget(ResponsableCommandeDashboardService service) {
         return WidgetDataProvider.of("performance-fournisseurs", (context, params) ->
@@ -326,7 +402,7 @@ public class StockAchatsWidgets extends AbstractWidgets {
                     .getPerformanceFournisseurs(WidgetPeriods.intParam(params, "limite", 5, 1, 20))
                     .stream()
                     .map(f ->
-                        row(
+                        buildRow(
                             "fournisseur",
                             f.fournisseurName(),
                             "commandes",
@@ -343,34 +419,5 @@ public class StockAchatsWidgets extends AbstractWidgets {
                 null
             )
         );
-    }
-
-    private static java.util.Map<String, Object> abcRow(String classe, AnalyseABCDTO.ClasseABCItem item) {
-        if (item == null) {
-            return row("classe", classe, "produits", 0, "partProduits", 0, "partCa", 0, "valeur", 0);
-        }
-        return row(
-            "classe",
-            classe,
-            "produits",
-            item.nombreProduits(),
-            "partProduits",
-            item.pourcentageProduits(),
-            "partCa",
-            item.pourcentageCA(),
-            "valeur",
-            item.valeur()
-        );
-    }
-
-    private static AchatRecordParamDTO achatParam(Period period) {
-        AchatRecordParamDTO param = new AchatRecordParamDTO();
-        param.setFromDate(period.start());
-        param.setToDate(period.end());
-        return param;
-    }
-
-    private static Long receipt(AchatRecord record) {
-        return record == null ? 0L : nz(record.receiptAmount());
     }
 }

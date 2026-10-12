@@ -64,6 +64,7 @@ export interface SaveDashboardResult {
       <app-button label="Enregistrer" icon="pi pi-check" [disabled]="!name().trim()" (clicked)="save()" />
     </div>
   `,
+  styleUrl: './save-dashboard-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SaveDashboardModalComponent {

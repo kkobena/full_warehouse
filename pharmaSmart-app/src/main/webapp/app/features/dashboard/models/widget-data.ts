@@ -1,5 +1,5 @@
 import { formatCurrency, formatDateFR, formatDecimal, formatNumber } from 'app/shared/utils/format-utils';
-import { ColumnType, KpiData, SeriesData, TableData, WidgetData } from './dashboard.model';
+import { ColumnType, KpiData, KpiSecondary, SeriesData, TableData, WidgetData } from './dashboard.model';
 
 const NUMERIC: ColumnType[] = ['number', 'amount', 'percent'];
 
@@ -78,6 +78,28 @@ export function evolutionPct(kpi: KpiData): number | null {
 /** Valeur d'un indicateur : montant sans décimale, « — » quand il n'y a rien à afficher. */
 export function formatKpiValue(value: number | null | undefined): string {
   return value == null ? '—' : formatCurrency(value);
+}
+
+/**
+ * Formatte la valeur d'une métrique secondaire.
+ * — `%` : une décimale (ex. « 12,5 % »)
+ * — unité monétaire (FCFA, €…) : `formatCurrency` (l'unité est intégrée)
+ * — autre unité : entier + unité
+ * — sans unité : entier formaté
+ */
+export function formatSecondaryValue(s: KpiSecondary): string {
+  if (s.value == null) return '—';
+  const unit = s.unit;
+  if (unit === '%') return `${formatDecimal(s.value, 1)} %`;
+  if (unit && isMonetary(unit)) return formatCurrency(s.value);
+  const num = formatNumber(Math.round(s.value));
+  return unit ? `${num} ${unit}` : num;
+}
+
+const MONETARY_UNITS = new Set(['FCFA', '€', '$', 'XOF', 'EUR', 'USD']);
+
+function isMonetary(unit: string): boolean {
+  return MONETARY_UNITS.has(unit);
 }
 
 /** Évolution signée à une décimale : « +12,5 % ». */

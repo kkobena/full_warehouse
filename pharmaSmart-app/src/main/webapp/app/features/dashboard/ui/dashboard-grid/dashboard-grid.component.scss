@@ -1,0 +1,21 @@
+:host {
+  display: block;
+}
+.grid-stack {
+  min-height: 120px;
+}
+.grid-stack.is-editing {
+  background-image: radial-gradient(var(--bs-border-color) 1px, transparent 1px);
+  background-size: calc(100% / 12) 88px;
+  border-radius: var(--bs-border-radius-lg);
+}
+/* La tuile (.data-card) porte son propre overflow ; ici il couperait son ombre. */
+.grid-stack-item > .grid-stack-item-content {
+  overflow: visible;
+}
+/* Emplacement fantôme créé par GridStack (hors gabarit, d'où ::ng-deep) : au rayon d'app-card. */
+:host ::ng-deep .grid-stack-placeholder > .placeholder-content {
+  background: var(--bs-tertiary-bg);
+  border: 2px dashed var(--bs-border-color);
+  border-radius: 16px;
+}

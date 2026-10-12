@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Données d'un widget, dans une forme indépendante de la visualisation : la même série s'affiche
- * en courbe, en barres ou en tableau.
+ * Données d'un widget, dans une forme indépendante de la visualisation : la même série s'affiche en
+ * courbe, en barres ou en tableau.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "kind")
 @JsonSubTypes(
@@ -18,25 +18,50 @@ import java.util.Map;
     }
 )
 public sealed interface WidgetData {
+
     /**
      * Une valeur, et la valeur de comparaison pour calculer l'évolution ({@code null} si elle n'a
-     * pas de sens). {@code detail} : ligne de contexte sous la valeur. {@code previousLabel} : à quoi
-     * la valeur est comparée ; nul, c'est la période précédente de même durée.
+     * pas de sens). {@code detail} : ligne de contexte sous la valeur (texte libre).
+     * {@code secondary} : métrique secondaire structurée affichée avec son libellé (remplace ou
+     * complète {@code detail}). {@code objective} : objectif de la période ; affiché comme repère,
+     * jamais comme seuil d'alerte.
      */
-    record Kpi(Number value, Number previousValue, String unit, String detail, String previousLabel) implements WidgetData {
+    record Kpi(Number value, Number previousValue, String unit, String detail, String previousLabel,
+               List<Secondary> secondary, Number objective) implements WidgetData {
+
         public Kpi(Number value, Number previousValue, String unit, String detail) {
-            this(value, previousValue, unit, detail, null);
+            this(value, previousValue, unit, detail, null, null, null);
+        }
+
+        public Kpi(Number value, Number previousValue, String unit, String detail,
+            String previousLabel) {
+            this(value, previousValue, unit, detail, previousLabel, null, null);
+        }
+
+        public record Secondary(String label, Number value, String unit) {
+
         }
     }
 
-    record Series(List<String> labels, List<SeriesItem> series, String footer) implements WidgetData {}
+    record Series(List<String> labels, List<SeriesItem> series, String footer) implements
+        WidgetData {
 
-    record SeriesItem(String name, List<? extends Number> values) {}
+    }
 
-    record Table(List<Column> columns, List<Map<String, Object>> rows, String footer) implements WidgetData {}
+    record SeriesItem(String name, List<? extends Number> values) {
 
-    /** {@code type} : string, number, amount, percent, date, datetime. */
+    }
+
+    record Table(List<Column> columns, List<Map<String, Object>> rows, String footer) implements
+        WidgetData {
+
+    }
+
+    /**
+     * {@code type} : string, number, amount, percent, date, datetime.
+     */
     record Column(String field, String header, String type) {
+
         public static Column text(String field, String header) {
             return new Column(field, header, "string");
         }

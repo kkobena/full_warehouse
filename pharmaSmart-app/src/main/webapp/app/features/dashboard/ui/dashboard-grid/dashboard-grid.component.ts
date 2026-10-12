@@ -49,22 +49,7 @@ export const GRID_COLUMNS = 12;
       }
     </div>
   `,
-  styles: `
-    :host {
-      display: block;
-    }
-    .grid-stack {
-      min-height: 120px;
-    }
-    .grid-stack.is-editing {
-      background-image: radial-gradient(var(--bs-border-color) 1px, transparent 1px);
-      background-size: calc(100% / 12) 88px;
-      border-radius: var(--bs-border-radius-lg);
-    }
-    .grid-stack-item-content {
-      overflow: hidden;
-    }
-  `,
+  styleUrl: './dashboard-grid.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardGridComponent implements AfterViewInit, OnDestroy {
@@ -100,7 +85,8 @@ export class DashboardGridComponent implements AfterViewInit, OnDestroy {
       {
         column: GRID_COLUMNS,
         cellHeight: 80,
-        margin: 8,
+        // haut / côtés : l'espacement vertical est resserré, le latéral garde la place de l'ombre
+        margin: '4px 8px',
         mode: 'top',
         animate: true,
         staticGrid: !this.editable(),

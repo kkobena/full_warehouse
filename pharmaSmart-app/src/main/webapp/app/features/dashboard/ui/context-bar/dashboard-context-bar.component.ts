@@ -44,11 +44,7 @@ import { DashboardContext } from '../../data-access/dashboard-context';
       />
     </div>
   `,
-  styles: `
-    .context-select {
-      min-width: 11rem;
-    }
-  `,
+  styleUrl: './dashboard-context-bar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardContextBarComponent {

@@ -22,11 +22,7 @@ import { WidgetTileComponent } from '../widget-tile/widget-tile.component';
       }
     </div>
   `,
-  styles: `
-    .expanded-body {
-      height: 70vh;
-    }
-  `,
+  styleUrl: './widget-expanded-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WidgetExpandedModalComponent {

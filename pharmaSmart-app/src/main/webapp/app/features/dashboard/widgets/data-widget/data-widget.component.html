@@ -33,8 +33,27 @@
             {{ k.pctLabel }} <span class="kpi-evolution-ref">{{ k.data.previousLabel || 'vs période précédente' }}</span>
           </div>
         }
-        @if (k.data.detail; as detail) {
-          <div class="kpi-detail">{{ detail }}</div>
+        @if ((k.data.secondary?.length ?? 0) > 0 || k.data.detail) {
+          <hr class="kpi-divider" />
+          @if (k.data.secondary?.length) {
+            <div class="kpi-secondaries" [class.kpi-secondaries-sm]="k.data.secondary.length >= 3">
+              @for (s of k.data.secondary; track s.label) {
+                <div class="kpi-secondary">
+                  <span class="kpi-secondary-label">{{ s.label }}</span>
+                  <span class="kpi-secondary-value">{{ formatSecondaryValue(s) }}</span>
+                </div>
+              }
+            </div>
+          }
+          @if (k.data.detail; as detail) {
+            <div class="kpi-detail">{{ detail }}</div>
+          }
+        }
+        @if (k.data.objective != null) {
+          <div class="kpi-objective">
+            <span>Objectif</span>
+            <span class="kpi-objective-value">{{ formatKpiValue(k.data.objective) }}{{ k.data.unit ? ' ' + k.data.unit : '' }}</span>
+          </div>
         }
       </div>
     } @else if (table(); as t) {

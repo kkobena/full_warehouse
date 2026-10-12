@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.dashboard.widget.provider;
 
-import static com.kobe.warehouse.service.dashboard.widget.provider.WidgetFormat.nz;
+import static com.kobe.warehouse.service.dashboard.widget.provider.WidgetFormat.buildRow;
+import static com.kobe.warehouse.service.dashboard.widget.provider.WidgetFormat.zeroIfNull;
 
 import com.kobe.warehouse.service.dashboard.widget.WidgetData;
 import com.kobe.warehouse.service.dashboard.widget.WidgetData.Column;
@@ -19,7 +20,6 @@ import com.kobe.warehouse.service.dto.report.DashboardCAEvolutionDTO;
 import com.kobe.warehouse.service.report.DashboardCAService;
 import com.kobe.warehouse.service.stat.DashboardService;
 import com.kobe.warehouse.service.stat.ProductStatService;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -51,7 +51,18 @@ public class VentesWidgets extends AbstractWidgets {
             Period period = WidgetPeriods.of(context);
             VenteRecord current = closed(dashboardService.getPeridiqueCa(period.toVenteParam()));
             VenteRecord previous = closed(dashboardService.getPeridiqueCa(period.previous().toVenteParam()));
-            return new WidgetData.Kpi(nz(current.netAmount()), nz(previous.netAmount()), devise(), "%d vente(s)".formatted(nzl(current.saleCount())));
+            int net = zeroIfNull(current.netAmount());
+            double tauxMarge = net > 0 ? current.marge() * 100.0 / net : 0;
+            return new WidgetData.Kpi(
+                net, zeroIfNull(previous.netAmount()), devise(),
+                null, null,
+                List.of(
+                    new WidgetData.Kpi.Secondary("Ventes", zeroIfNull(current.saleCount()), null),
+                    new WidgetData.Kpi.Secondary("Taux marge", tauxMarge, "%"),
+                    new WidgetData.Kpi.Secondary("Panier", current.panierMoyen(), devise())
+                ),
+                null
+            );
         });
     }
 
@@ -64,8 +75,8 @@ public class VentesWidgets extends AbstractWidgets {
             VenteRecord current = closed(dashboardService.getPeridiqueCa(period.toVenteParam()));
             VenteRecord previous = closed(dashboardService.getPeridiqueCa(anneePrecedente.toVenteParam()));
             return new WidgetData.Kpi(
-                nz(current.netAmount()),
-                nz(previous.netAmount()),
+                zeroIfNull(current.netAmount()),
+                zeroIfNull(previous.netAmount()),
                 devise(),
                 "%s l'an dernier aux mêmes dates".formatted(amount(previous.netAmount())),
                 "vs l'an dernier"
@@ -79,14 +90,17 @@ public class VentesWidgets extends AbstractWidgets {
             Period period = WidgetPeriods.of(context);
             VenteRecord current = closed(dashboardService.getPeridiqueCa(period.toVenteParam()));
             VenteRecord previous = closed(dashboardService.getPeridiqueCa(period.previous().toVenteParam()));
-            int net = nz(current.netAmount());
+            int net = zeroIfNull(current.netAmount());
             // même taux que l'accueil pharmacien : marge rapportée au CA net
             double taux = net > 0 ? current.marge() * 100.0 / net : 0;
             return new WidgetData.Kpi(
-                current.marge(),
-                previous.marge(),
-                devise(),
-                String.format(Locale.FRANCE, "%.1f %% · coût %s", taux, amount(current.costAmount()))
+                current.marge(), previous.marge(), devise(),
+                null, null,
+                List.of(
+                    new WidgetData.Kpi.Secondary("Taux de marge", taux, "%"),
+                    new WidgetData.Kpi.Secondary("Coût d'achat", current.costAmount(), devise())
+                ),
+                null
             );
         });
     }
@@ -97,7 +111,16 @@ public class VentesWidgets extends AbstractWidgets {
             Period period = WidgetPeriods.of(context);
             VenteRecord current = closed(dashboardService.getPeridiqueCa(period.toVenteParam()));
             VenteRecord previous = closed(dashboardService.getPeridiqueCa(period.previous().toVenteParam()));
-            return new WidgetData.Kpi(current.panierMoyen(), previous.panierMoyen(), devise(), "HT, sur %d vente(s)".formatted(nzl(current.saleCount())));
+            return new WidgetData.Kpi(
+                current.panierMoyen(), previous.panierMoyen(), devise(),
+                "HT",
+                null,
+                List.of(
+                    new WidgetData.Kpi.Secondary("Ventes", zeroIfNull(current.saleCount()), null),
+                    new WidgetData.Kpi.Secondary("CA net", zeroIfNull(current.netAmount()), devise())
+                ),
+                null
+            );
         });
     }
 
@@ -107,7 +130,7 @@ public class VentesWidgets extends AbstractWidgets {
             Period period = WidgetPeriods.of(context);
             VenteRecord current = canceled(dashboardService.getPeridiqueCa(period.toVenteParam()));
             VenteRecord previous = canceled(dashboardService.getPeridiqueCa(period.previous().toVenteParam()));
-            return new WidgetData.Kpi(nz(current.netAmount()), nz(previous.netAmount()), devise(), "%d vente(s) annulée(s)".formatted(nzl(current.saleCount())));
+            return new WidgetData.Kpi(zeroIfNull(current.netAmount()), zeroIfNull(previous.netAmount()), devise(), "%d vente(s) annulée(s)".formatted(zeroIfNull(current.saleCount())));
         });
     }
 
@@ -116,7 +139,7 @@ public class VentesWidgets extends AbstractWidgets {
         return WidgetDataProvider.of("ventes-par-type", (context, params) -> {
             var records = dashboardService.getCaGroupingByType(WidgetPeriods.of(context).toVenteParam());
             List<String> labels = records.stream().map(r -> TYPES_VENTE.getOrDefault(r.typeVente(), r.typeVente())).toList();
-            List<Integer> values = records.stream().map(r -> nz(r.venteRecord().netAmount())).toList();
+            List<Integer> values = records.stream().map(r -> zeroIfNull(r.venteRecord().netAmount())).toList();
             return new WidgetData.Series(labels, List.of(new SeriesItem("CA net", values)), null);
         });
     }
@@ -126,7 +149,7 @@ public class VentesWidgets extends AbstractWidgets {
         return WidgetDataProvider.of("modes-reglement", (context, params) -> {
             var records = dashboardService.getCaGroupingByPaimentMode(WidgetPeriods.of(context).toVenteParam());
             List<String> labels = records.stream().map(r -> r.libelle()).toList();
-            List<Integer> values = records.stream().map(r -> nz(r.paidAmount())).toList();
+            List<Integer> values = records.stream().map(r -> zeroIfNull(r.paidAmount())).toList();
             return new WidgetData.Series(labels, List.of(new SeriesItem("Montant encaissé", values)), null);
         });
     }
@@ -159,13 +182,7 @@ public class VentesWidgets extends AbstractWidgets {
                 .fetchProductStat(param, PageRequest.of(0, limite))
                 .getContent()
                 .stream()
-                .map(p -> {
-                    Map<String, Object> row = new LinkedHashMap<>();
-                    row.put("libelle", p.libelle());
-                    row.put("quantite", p.quantitySold());
-                    row.put("montant", p.salesAmount());
-                    return row;
-                })
+                .map(p -> buildRow("libelle", p.libelle(), "quantite", p.quantitySold(), "montant", p.salesAmount()))
                 .toList();
             return new WidgetData.Table(
                 List.of(Column.text("libelle", "Produit"), Column.number("quantite", "Quantité"), Column.amount("montant", "Montant")),
@@ -186,7 +203,7 @@ public class VentesWidgets extends AbstractWidgets {
                 tiersPayantService
                     .fetchAchatTiersPayant(param)
                     .stream()
-                    .map(tp -> WidgetFormat.row("tiersPayant", tp.tiersPayantName(), "montant", tp.montantTtc()))
+                    .map(tp -> buildRow("tiersPayant", tp.tiersPayantName(), "montant", tp.montantTtc()))
                     .toList(),
                 null
             );
@@ -211,7 +228,7 @@ public class VentesWidgets extends AbstractWidgets {
             List<Map<String, Object>> rows = produits
                 .stream()
                 .limit(PARETO_MAX_LIGNES)
-                .map(p -> WidgetFormat.row("libelle", p.libelle(), "cip", p.codeCip(), "total", p.total(), "part", p.pourcentage()))
+                .map(p -> buildRow("libelle", p.libelle(), "cip", p.codeCip(), "total", p.total(), "part", p.pourcentage()))
                 .toList();
             return new WidgetData.Table(
                 List.of(
@@ -236,7 +253,4 @@ public class VentesWidgets extends AbstractWidgets {
         return Optional.ofNullable(wrapper).map(VenteRecordWrapper::canceled).orElse(WidgetFormat.EMPTY_VENTE);
     }
 
-    private static long nzl(Long value) {
-        return value == null ? 0 : value;
-    }
 }

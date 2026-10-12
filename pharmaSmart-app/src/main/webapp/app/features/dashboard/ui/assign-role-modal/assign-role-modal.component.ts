@@ -36,6 +36,7 @@ import { ButtonComponent, SelectComponent } from 'app/shared/ui';
       <app-button label="Attribuer" icon="pi pi-check" [disabled]="!role()" (clicked)="activeModal.close(role())" />
     </div>
   `,
+  styleUrl: './assign-role-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssignRoleModalComponent {

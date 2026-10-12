@@ -44,6 +44,7 @@ import { ChangeDetectionStrategy, Component, input, model } from '@angular/core'
       </div>
     </div>
   `,
+  styleUrl: './offcanvas.component.scss',
   // Échap referme le panneau (WCAG 2.1.2 : un panneau ouvert doit se quitter au clavier), sauf si une modale est ouverte par-dessus.
   host: { '(document:keydown.escape)': 'fermerAuClavier()' },
   changeDetection: ChangeDetectionStrategy.OnPush,

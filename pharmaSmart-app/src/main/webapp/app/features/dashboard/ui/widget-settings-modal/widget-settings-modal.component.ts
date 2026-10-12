@@ -121,6 +121,7 @@ const ALERT_DIRECTIONS: { value: KpiAlertDirection; label: string }[] = [
       <app-button label="Appliquer" icon="pi pi-check" (clicked)="apply()" />
     </div>
   `,
+  styleUrl: './widget-settings-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WidgetSettingsModalComponent {

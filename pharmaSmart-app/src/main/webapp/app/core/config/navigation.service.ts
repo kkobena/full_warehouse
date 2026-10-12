@@ -86,6 +86,13 @@ export const NAV_ACCENTS = [
   'pink',
 ].map(hue => `var(--nav-hue-${hue})`);
 
+/**
+ * Entrées nav_item de premier niveau rangées dans « Mon compte » plutôt que dans la barre :
+ * « Mon compte » est construit ici et n'a pas de ligne nav_item pour les accueillir
+ * (cf. migration V2.1.43).
+ */
+const ACCOUNT_MENU_CODES = new Set(['dashboard-perso']);
+
 export interface NavigationOptions {
   includeNewSale?: boolean;
   additionalAccountMenuItems?: NavItem[];
@@ -219,8 +226,9 @@ export class NavigationService {
     if (!tree.length) {
       return [];
     }
-    const items = this.mapNodesToNavItems(tree);
-    items.push(this.buildAccountMenu(options));
+    const items = this.mapNodesToNavItems(tree.filter(n => !ACCOUNT_MENU_CODES.has(n.code)));
+    const accountEntries = this.mapNodesToNavItems(tree.filter(n => ACCOUNT_MENU_CODES.has(n.code)));
+    items.push(this.buildAccountMenu(options, accountEntries));
     return this.applyNavAccents(items);
   }
 
@@ -325,9 +333,13 @@ export class NavigationService {
       });
   }
 
-  /** Construit le menu Compte (toujours présent, non issu du NavStore). */
-  private buildAccountMenu(options: NavigationOptions): NavItem {
+  /**
+   * Construit le menu Compte (toujours présent, non issu du NavStore). `fromStore` : entrées
+   * nav_item rangées ici (cf. ACCOUNT_MENU_CODES), placées en tête, droits déjà appliqués.
+   */
+  private buildAccountMenu(options: NavigationOptions, fromStore: NavItem[] = []): NavItem {
     const accountChildren: NavItem[] = [
+      ...fromStore,
       {
         id: 'account.settings',
         label: this.translateLabel('account.settings'),

@@ -12,16 +12,16 @@ final class WidgetFormat {
 
     private WidgetFormat() {}
 
-    static int nz(Integer value) {
+    static int zeroIfNull(Integer value) {
         return value == null ? 0 : value;
     }
 
-    static long nz(Long value) {
+    static long zeroIfNull(Long value) {
         return value == null ? 0 : value;
     }
 
     /** Ligne de tableau à partir de paires champ / valeur, dans l'ordre donné. */
-    static Map<String, Object> row(Object... fieldsAndValues) {
+    static Map<String, Object> buildRow(Object... fieldsAndValues) {
         Map<String, Object> row = new LinkedHashMap<>();
         for (int i = 0; i + 1 < fieldsAndValues.length; i += 2) {
             row.put((String) fieldsAndValues[i], fieldsAndValues[i + 1]);

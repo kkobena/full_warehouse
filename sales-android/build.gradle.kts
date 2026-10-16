@@ -112,7 +112,7 @@ base {
 
 dependencies {
     // Jetpack Compose BOM (Bill of Materials)
-    implementation(platform("androidx.compose:compose-bom:2026.08.00"))
+    implementation(platform("androidx.compose:compose-bom:2026.09.00"))
 
     // Jetpack Compose dependencies
     implementation("androidx.compose.ui:ui")

@@ -11,7 +11,10 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.enumeration.FormatEtiquette;
+import com.kobe.warehouse.domain.enumeration.ResolutionEtiquette;
 import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.etiquette.zpl.impl.ZplEtiquetteServiceImpl;
 import com.kobe.warehouse.service.dto.EtiquetteDTO;
 import com.kobe.warehouse.service.report.Constant;
 import java.time.LocalDate;
@@ -52,7 +55,7 @@ class EtiquetteExportReportServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        service = new EtiquetteExportReportServiceImpl( templateEngine, storageService);
+        service = new EtiquetteExportReportServiceImpl(templateEngine, storageService, new ZplEtiquetteServiceImpl());
         magasin = new Magasin();
         magasin.setId(1);
         magasin.setName("pharmacie du plateau");
@@ -160,10 +163,25 @@ class EtiquetteExportReportServiceImplTest {
         void avecEtiquettesBlanches() {
             service.export(List.of(orderLine("1234567", 1500)), 3);
 
+            // startAt est la case de la PREMIERE etiquette : deux cases sautees pour un depart a 3,
+            // comme l'etiquette produit et l'etiquette de lot. Le gabarit en sautait trois.
             List<EtiquetteDTO> etiquettes = etiquettesRendues();
-            assertThat(etiquettes).hasSize(4);
-            assertThat(etiquettes.subList(0, 3)).allSatisfy(e -> assertThat(e.isPrint()).isFalse());
+            assertThat(etiquettes).hasSize(3);
+            assertThat(etiquettes.subList(0, 2)).allSatisfy(e -> assertThat(e.isPrint()).isFalse());
             assertThat(etiquettes.getLast().isPrint()).isTrue();
+        }
+
+        @Test
+        @DisplayName("les trois chemins d impression sautent le meme nombre de cases")
+        void memeCaseDeDepartQueLesAutresChemins() {
+            service.export(List.of(orderLine("1234567", 1500)), 5);
+            long blanchesDuBon = etiquettesRendues().stream().filter(e -> !e.isPrint()).count();
+
+            service.exportForProduit(produit("1234567", 1500), 1, 5);
+            long blanchesDuProduit = etiquettesRendues().stream().filter(e -> !e.isPrint()).count();
+
+            assertThat(blanchesDuBon).isEqualTo(4);
+            assertThat(blanchesDuBon).isEqualTo(blanchesDuProduit);
         }
 
         @Test
@@ -252,6 +270,39 @@ class EtiquetteExportReportServiceImplTest {
 
             assertThat(pdf).isNotEmpty();
             assertThat(etiquettesRendues()).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("genererZpl")
+    class GenererZpl {
+
+        @Test
+        @DisplayName("rend un bloc par etiquette de l article")
+        void unBlocParEtiquette() {
+            String zpl = service.genererZplPourProduit(
+                produit("1234567", 1500),
+                3,
+                FormatEtiquette.ROULEAU_40X30,
+                ResolutionEtiquette.DPI_203
+            );
+
+            assertThat(zpl).startsWith("^XA");
+            assertThat(zpl.lastIndexOf("^XA")).isGreaterThan(zpl.indexOf("^XZ"));
+            assertThat(zpl).contains("^PW320");
+        }
+
+        @Test
+        @DisplayName("un bon rend une etiquette par ligne, sans case de depart")
+        void unBonSansCaseDeDepart() {
+            String zpl = service.genererZplPourBon(
+                List.of(orderLine("1234567", 1500), orderLine("7654321", 2000)),
+                FormatEtiquette.ROULEAU_40X30,
+                ResolutionEtiquette.DPI_203
+            );
+
+            assertThat(zpl).contains("1234567");
+            assertThat(zpl).contains("7654321");
         }
     }
 

@@ -90,17 +90,19 @@ describe('NavigationService', () => {
     it('coche la couleur de l’application courante et bascule au clic', () => {
       localStorage.clear();
       const chromes = () => find(service.buildNavItems(noopActions), 'chrome')!.children!;
+      // CHROMES garde le défaut du poste en tête : Indigo depuis le choix du thème par défaut.
       expect(chromes().map(c => c.id)).toEqual([
+        'chrome.prevente-comptant',
         'chrome.actuel',
         'chrome.comptant',
         'chrome.assurance',
-        'chrome.prevente-comptant',
         'chrome.prevente-carnet',
       ]);
-      expect(chromes().filter(c => c.faIcon).map(c => c.id)).toEqual(['chrome.actuel']);
+      expect(chromes().filter(c => c.faIcon).map(c => c.id)).toEqual(['chrome.prevente-comptant']);
       expect(chromes().every(c => !!c.swatch)).toBe(true);
 
-      chromes()[2].click!();
+      // Désigné par son identifiant : l'ajout d'une couleur ne doit pas déplacer ce test.
+      chromes().find(c => c.id === 'chrome.assurance')!.click!();
 
       expect(chromes().filter(c => c.faIcon).map(c => c.id)).toEqual(['chrome.assurance']);
       expect(document.documentElement.getAttribute('data-chrome')).toBe('assurance');

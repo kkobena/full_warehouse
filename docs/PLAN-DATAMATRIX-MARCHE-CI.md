@@ -134,14 +134,19 @@ CREATE TABLE produit_barcode_alias
     source      varchar(20)  NOT NULL DEFAULT 'MANUAL', -- 'MANUAL' | 'AUTO_LEARNED' | 'IMPORT'
     created_at  timestamptz  NOT NULL DEFAULT now(),
     CONSTRAINT uq_alias_code UNIQUE (code)
+    -- ⚠ Un code ne peut référencer qu'un seul produit. Si deux conditionnements
+    -- partagent le même EAN chez un fournisseur CI, l'insertion du second alias
+    -- échouera : traiter via saveAlias avec gestion de l'exception UniqueViolation.
 );
 
 CREATE INDEX idx_alias_code    ON produit_barcode_alias (code);
 CREATE INDEX idx_alias_produit ON produit_barcode_alias (produit_id);
 ```
 
-> Les codes EAN existants dans la table `produit` (champ `codeEan`) sont copiés ici à la migration
-> pour que le lookup soit unifié.
+> Les codes EAN existants dans la table `produit` (champ `codeEan`) sont copiés dans
+> `produit_barcode_alias` pour que le lookup soit unifié. Ce script d'import est décrit
+> en section 3.6 — il peut être intégré dans la même migration Flyway ou dans une
+> migration V_xxx+1 dédiée.
 
 ---
 
@@ -168,9 +173,10 @@ public interface ProductCodeResolverService {
 
 public record ProductResolveResult(
     Produit produit,
-    String matchedCode,     // le code qui a permis la correspondance
-    String matchedBy,       // 'CIP13' | 'EAN13' | 'GTIN' | 'ALIAS' | 'FUZZY'
-    boolean isNewAlias      // true si la correspondance est nouvelle → à confirmer
+    String matchedCode,       // le code qui a permis la correspondance
+    String matchedBy,         // comment trouvé : 'CIP13' | 'EAN13' | 'GTIN' | 'ALIAS'
+    String resolvedCodeType,  // valeur pour code_type en base : 'EAN13' | 'GTIN' | 'CIP13' | 'CUSTOM'
+    boolean isNewAlias        // true si la correspondance est nouvelle → à confirmer
 ) {}
 ```
 
@@ -184,29 +190,31 @@ public class ProductCodeResolverServiceImpl implements ProductCodeResolverServic
     public Optional<ProductResolveResult> resolve(DataMatrixInfo parsed) {
         // 1. CIP13 (AI 711 — marché français)
         if (parsed.cip13() != null) {
-            var p = findByCode(parsed.cip13());
-            if (p.isPresent()) return result(p.get(), parsed.cip13(), "CIP13");
+            var p = findByCodeEan(parsed.cip13());
+            if (p.isPresent()) return result(p.get(), parsed.cip13(), "CIP13", "CIP13");
         }
 
         // 2. EAN13 extrait du GTIN (AI 01 → leading 0 supprimé)
         if (parsed.ean13() != null) {
-            var p = findByCode(parsed.ean13());
-            if (p.isPresent()) return result(p.get(), parsed.ean13(), "EAN13");
+            var p = findByCodeEan(parsed.ean13());
+            if (p.isPresent()) return result(p.get(), parsed.ean13(), "EAN13", "EAN13");
         }
 
         // 3. GTIN brut 14 chiffres (moins probable mais possible pour certains grossistes)
         if (parsed.gtin() != null) {
-            var p = findByCode(parsed.gtin());
-            if (p.isPresent()) return result(p.get(), parsed.gtin(), "GTIN");
+            var p = findByCodeEan(parsed.gtin());
+            if (p.isPresent()) return result(p.get(), parsed.gtin(), "GTIN", "GTIN");
         }
 
         // 4. Recherche dans la table d'alias (codes appris lors de réceptions précédentes)
+        //    Distinct des étapes 1-3 qui cherchent uniquement dans produit.codeEan
         String[] candidates = { parsed.cip13(), parsed.ean13(), parsed.gtin() };
         for (String code : candidates) {
             if (code == null) continue;
             var alias = aliasRepository.findByCode(code);
             if (alias.isPresent()) {
-                return result(alias.get().getProduit(), code, "ALIAS");
+                return result(alias.get().getProduit(), code, "ALIAS",
+                              alias.get().getCodeType());
             }
         }
 
@@ -214,9 +222,9 @@ public class ProductCodeResolverServiceImpl implements ProductCodeResolverServic
         return Optional.empty();
     }
 
-    private Optional<Produit> findByCode(String code) {
-        // Cherche dans produit.codeEan ET dans produit_barcode_alias
-        return produitRepository.findByCodeEanOrAlias(code);
+    private Optional<Produit> findByCodeEan(String code) {
+        // Cherche uniquement dans produit.codeEan — les alias sont traités à l'étape 4
+        return produitRepository.findByCodeEan(code);
     }
 }
 ```
@@ -252,11 +260,11 @@ if (resolveResult.isEmpty()) {
 ProductResolveResult resolved = resolveResult.get();
 Produit produit = resolved.produit();
 
-// Si la correspondance est nouvelle (via ALIAS nouvellement appris ou fuzzy confirmé),
+// Si la correspondance est nouvelle (via alias ou code direct non encore enregistré),
 // enregistrer l'alias pour les prochains scans
 if (resolved.isNewAlias()) {
     productCodeResolverService.saveAlias(
-        resolved.matchedCode(), resolved.matchedBy(), produit.getId(), "AUTO_LEARNED"
+        resolved.matchedCode(), resolved.resolvedCodeType(), produit.getId(), "AUTO_LEARNED"
     );
 }
 
@@ -264,6 +272,33 @@ if (resolved.isNewAlias()) {
 OrderLine line = orderLineRepository
     .findFirstByCommandeIdAndProduitId(commandeId, produit.getId())
     .orElse(null);
+```
+
+#### Structure de `DataMatrixHintDTO`
+
+À ajouter dans `service/dto/ReceptionScanResultDTO.java` (nouveau champ référencé par `.withDataMatrixHint(parsed)` ci-dessus) :
+
+```java
+public record DataMatrixHintDTO(
+    String scannedCode,   // code brut scanné
+    String numLot,        // AI 10, null si absent
+    LocalDate expiryDate, // AI 17, null si absent
+    int qty               // AI 30 ou 1 par défaut
+) {}
+```
+
+Dans `ReceptionScanResultDTO`, ajouter :
+
+```java
+private DataMatrixHintDTO dataMatrixHint;
+
+public ReceptionScanResultDTO withDataMatrixHint(DataMatrixInfo parsed) {
+    this.dataMatrixHint = new DataMatrixHintDTO(
+        parsed.getProductCode(), parsed.batchNumber(),
+        parsed.expiryDate(), parsed.scannedQty()
+    );
+    return this;
+}
 ```
 
 ---
@@ -315,6 +350,9 @@ Pour les pharmacies qui ont déjà un historique de produits avec leurs propres 
 
 ```sql
 -- Copier les codeEan existants vers la table d'alias (idempotent)
+-- ⚠ Vérifier le nom de colonne réel avec \d produit avant d'écrire la migration :
+--   avec la stratégie Standard (preserves field names as-is), PostgreSQL stocke
+--   le champ JPA "codeEan" en minuscules non-quotés → "codeean". Adapter si besoin.
 INSERT INTO produit_barcode_alias (produit_id, code, code_type, source)
 SELECT id, code_ean, 'EAN13', 'IMPORT'
 FROM produit
@@ -347,7 +385,7 @@ WHERE code_ean IS NOT NULL
 | `repository/ProduitBarcodeAliasRepository.java` | **Créer** |
 | `service/stock/ProductCodeResolverService.java` | **Créer** — interface |
 | `service/stock/impl/ProductCodeResolverServiceImpl.java` | **Créer** — implémentation |
-| `service/dto/ReceptionScanResultDTO.java` | **Modifier** — ajouter `dataMatrixHint` |
+| `service/dto/ReceptionScanResultDTO.java` | **Modifier** — ajouter `DataMatrixHintDTO` (record interne) et la méthode `withDataMatrixHint` |
 | `service/stock/impl/StockEntryServiceImpl.java` | **Modifier** — utiliser `ProductCodeResolverService` |
 | `service/sale/impl/SalesLineServiceImpl.java` | **Modifier** — même refactorisation |
 | `web/rest/ProduitResource.java` | **Modifier** — ajouter endpoints alias |
@@ -367,6 +405,27 @@ WHERE code_ean IS NOT NULL
 7. **Endpoints admin** + import en lot des alias existants (1 jour)
 
 **Durée totale estimée** : ~10–14 jours développement.
+
+---
+
+## 7. Bénéfice pour la vente comptoir en CI
+
+Après implémentation, le scan d'un DataMatrix en caisse fonctionnera ainsi :
+
+```
+Pharmacien scanne une boîte avec DataMatrix
+          │
+          ▼
+EAN-13 ou GTIN extrait → lookup → produit trouvé (alias ou code direct)
+          │
+          ▼
+Vente créée + lot pré-sélectionné depuis DataMatrix (si gestion lot active)
++ date de péremption vérifiée automatiquement
++ numéro de lot sur le ticket de caisse
+```
+
+Même sans FMD, la pharmacie gagne la **traçabilité des lots à la vente** — ce qui est
+une valeur ajoutée différenciante sur le marché ivoirien.
 
 ---
 
@@ -421,12 +480,11 @@ Code EAN catalogue   : 3400933399934
 Lot                  : ABC101
 Péremption           : 2025-01-31
 
-→ Chaîne GS1 encodée : è01034009333999341ABC101\u001D17250131
-  ou en notation lisible : (01)03400933399934(10)ABC101(17)250131
+→ Chaîne GS1 encodée : (01)03400933399934(10)ABC101(17)250131
 ```
 
-> Le `è` est le caractère FNC1 (Function 1), indiquant qu'il s'agit d'un message GS1.
-> Le `\u001D` (ASCII 29) est le Group Separator (GS), séparateur de champs variables.
+> Le FNC1 (Function 1) est inséré automatiquement par ZXing via `EncodeHintType.GS1_FORMAT = true`.
+> Le `\u001D` (ASCII 29, Group Separator) sépare les champs de longueur variable.
 
 ### 8.3 Implémentation Java — `EtiquetteDataMatrixService`
 
@@ -437,8 +495,8 @@ Le projet dispose déjà de **ZXing** (`com.google.zxing`). Aucune dépendance �
 @Service
 public class EtiquetteDataMatrixService {
 
-    private static final char FNC1 = 'è';
-    private static final char GS   = '\u001D';
+    // ZXing insère le FNC1 automatiquement via GS1_FORMAT = true — ne pas l'ajouter manuellement
+    private static final char GS = '\u001D';
 
     /**
      * Génère un DataMatrix GS1 en PNG (base64) pour une étiquette lot.
@@ -452,7 +510,7 @@ public class EtiquetteDataMatrixService {
         Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
         hints.put(EncodeHintType.DATA_MATRIX_SHAPE, SymbolShapeHint.FORCE_SQUARE);
         hints.put(EncodeHintType.GS1_FORMAT, true);
-        hints.put(EncodeHintType.CHARACTER_SET, "ISO-8859-1");  // requis pour FNC1/GS
+        hints.put(EncodeHintType.CHARACTER_SET, "ISO-8859-1");  // requis pour GS
 
         BitMatrix matrix = new DataMatrixWriter().encode(
             content,
@@ -489,9 +547,9 @@ public class EtiquetteDataMatrixService {
 
     private String buildGs1Content(String ean13, String numLot, LocalDate expiry) {
         StringBuilder sb = new StringBuilder();
-        sb.append(FNC1);  // identifiant GS1
 
         // AI 01 — GTIN-14 = "0" + EAN-13
+        // ZXing ajoute le FNC1 automatiquement (GS1_FORMAT = true) — ne pas l'ajouter ici
         sb.append("01").append("0").append(ean13);
 
         // AI 10 — lot (champ variable → GS séparateur si suivi d'un autre AI)
@@ -768,7 +826,10 @@ public BarcodeType detectBarcodeType(String code) {
             case 8  -> isValidEan8(n)  ? BarcodeType.EAN_8  : BarcodeType.UNKNOWN;
             case 13 -> n.startsWith("340") ? BarcodeType.CIP_13
                        : isValidEan13(n)   ? BarcodeType.EAN_13 : BarcodeType.UNKNOWN;
-            case 14 -> BarcodeType.DATAMATRIX;  // GTIN-14 brut sans AI
+            // 14 chiffres : GTIN-14 (issu d'un DataMatrix, AI 01 sans en-tête GS1)
+            // ou ITF-14 (code 1D de carton). Sans préfixe AIM la distinction est impossible ;
+            // on suppose GTIN-14 car l'ITF-14 est rare au comptoir pharmaceutique.
+            case 14 -> BarcodeType.DATAMATRIX;
             default -> BarcodeType.UNKNOWN;
         };
     }
@@ -859,24 +920,3 @@ private Optional<DataMatrixInfo> parseHeuristic(String code) {
 1. Configurer le scanner → fiabilité au niveau matériel
 2. `normalizeCode()` renforcé → tolérance aux variations de sortie scanner
 3. Pipeline GS1 → heuristique → raw → robustesse aux formats non-standard
-
----
-
-## 7. Bénéfice pour la vente comptoir en CI
-
-Après implémentation, le scan d'un DataMatrix en caisse fonctionnera ainsi :
-
-```
-Pharmacien scanne une boîte avec DataMatrix
-          │
-          ▼
-EAN-13 ou GTIN extrait → lookup → produit trouvé (alias ou code direct)
-          │
-          ▼
-Vente créée + lot pré-sélectionné depuis DataMatrix (si gestion lot active)
-+ date de péremption vérifiée automatiquement
-+ numéro de lot sur le ticket de caisse
-```
-
-Même sans FMD, la pharmacie gagne la **traçabilité des lots à la vente** — ce qui est
-une valeur ajoutée différenciante sur le marché ivoirien.

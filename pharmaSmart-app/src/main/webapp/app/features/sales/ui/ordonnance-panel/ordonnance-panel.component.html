@@ -38,6 +38,8 @@
           @if (o.dateFinValidite) {
             <span class="text-muted small">valable jusqu'au {{ o.dateFinValidite | date: 'dd/MM/yyyy' }}</span>
           }
+          <app-button (clicked)="imprimerPosologie(o)" icon="pi pi-tag" label="Étiquettes" severity="secondary" size="small"
+                      [text]="true" class="ms-auto" />
         </div>
 
         <app-data-table [value]="o.lignes" [stripedRows]="true" size="small" class="d-block mb-2">

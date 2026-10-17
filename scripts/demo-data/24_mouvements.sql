@@ -399,6 +399,17 @@ SELECT i.id, c.produit_id, c.storage_id,
   JOIN produit p ON p.id = c.produit_id
  CROSS JOIN tmp_jr_ctx x;
 
+-- Ces inventaires portent des identifiants posés À LA MAIN (max(id) + rang), au-dessus de ceux
+-- de 11_inventaires.sql — qui recale bien la séquence, mais AVANT ce script. Sans ce rappel, la
+-- séquence reste sous les identifiants écrits ici, et la première création d'inventaire depuis
+-- l'application échoue sur « duplicate key value violates unique constraint
+-- store_inventory_pkey » : un HTTP 500, donc un écran qui reste muet. Trouvé le 2026-10-17 par
+-- la campagne e2e — STK-04, STK-08, STK-10 et RPT-35 tombaient tous les quatre là-dessus.
+--
+-- `store_inventory_line` est inséré SANS identifiant explicite : sa séquence suit d'elle-même.
+SELECT setval(pg_get_serial_sequence('store_inventory', 'id'),
+              (SELECT max(id) FROM store_inventory));
+
 -- Les écarts de l'inventaire annuel sont qualifiés, une cause par ligne (même rotation que 11).
 INSERT INTO inventory_gap_analysis (store_inventory_line_id, cause, quantity, commentaire, created_at)
 SELECT l.id,

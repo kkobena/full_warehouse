@@ -392,7 +392,9 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         String codeScan = salesLine.getCodeScan();
         if (codeScan != null) {
             dataMatrixParserService.parse(codeScan)
-                .filter(DataMatrixInfo::hasBatchInfo).flatMap(info -> lotService.findByProduitIdAndNumLot(salesLine.getProduit().getId(), info.batchNumber())).ifPresent(lot -> {
+                // Lot certain seulement : cibler un lot d'après un numéro deviné reviendrait à
+                // débiter le mauvais lot, donc à fausser la traçabilité et le FEFO.
+                .filter(DataMatrixInfo::hasBatchInfoCertaine).flatMap(info -> lotService.findByProduitIdAndNumLot(salesLine.getProduit().getId(), info.batchNumber())).ifPresent(lot -> {
                     if (remaining.get() > 0 && lot.getCurrentQuantity() > 0) {
                         int toTake = Math.min(remaining.get(), lot.getCurrentQuantity());
                         salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), toTake, lot.getExpiryDate()));

@@ -19,29 +19,201 @@
     }
   </div>
 
+  <div class="mb-3">
+    <label class="form-label et-label">Type d'étiquette</label>
+    <div>
+      <app-pill-selector
+        [items]="typeOptions"
+        [ngModel]="typeEtiquette()"
+        (selectionChange)="onTypeChange($event)"
+        ariaLabel="Type d'étiquette"
+      />
+    </div>
+    <small class="text-muted" style="font-size: 0.7rem">
+      @switch (typeEtiquette()) {
+        @case ('LOT') {
+          Code-barres GS1 DataMatrix portant le lot et la péremption.
+        }
+        @case ('REGLETTE') {
+          Réglette d'étagère : le prix en gros, le code en petit, pas de lot.
+        }
+        @case ('PREPARATION') {
+          Étiquette du pot : composition et dates, saisies ici. Rien n'est conservé.
+        }
+        @default {
+          Code-barres du code article, sans lot ni péremption.
+        }
+      }
+    </small>
+  </div>
+
+  @if (typeEtiquette() === 'LOT') {
+    <div class="mb-3">
+      <label class="form-label et-label" for="etiquetteLot">Lot <span class="text-danger">*</span></label>
+      @if (lots().length) {
+        <app-select
+          inputId="etiquetteLot"
+          [items]="lots()"
+          bindLabel="libelle"
+          bindValue="id"
+          appendTo="body"
+          placeholder="Sélectionner un lot"
+          [ngModel]="lotId()"
+          (ngModelChange)="lotId.set($event)"
+        />
+      } @else if (etatLots() === 'PRET') {
+        <div class="alert alert-warning py-1 px-2 mb-0" style="font-size: 0.75rem">
+          Aucun lot en stock pour cet article : seule l'étiquette standard est imprimable.
+        </div>
+      } @else {
+        <small class="text-muted" style="font-size: 0.7rem">Chargement des lots…</small>
+      }
+    </div>
+  }
+
+  @if (typeEtiquette() === 'PREPARATION') {
+    <div class="mb-3">
+      <label class="form-label et-label" for="prepLibelle">Nom de la préparation <span class="text-danger">*</span></label>
+      <input id="prepLibelle" class="form-control form-control-sm" [(ngModel)]="preparation.libelle" autocomplete="off" />
+
+      <label class="form-label et-label mt-2" for="prepComposition">Composition <span class="text-danger">*</span></label>
+      <textarea id="prepComposition" class="form-control form-control-sm" rows="2"
+                [(ngModel)]="preparation.composition"
+                placeholder="Acide salicylique 5 g, vaseline qsp 100 g"></textarea>
+
+      <div class="row g-2 mt-1">
+        <div class="col-6">
+          <label class="form-label et-label" for="prepPatient">Patient</label>
+          <input id="prepPatient" class="form-control form-control-sm" [(ngModel)]="preparation.patient" autocomplete="off" />
+        </div>
+        <div class="col-6">
+          <label class="form-label et-label" for="prepPrescripteur">Prescripteur</label>
+          <input id="prepPrescripteur" class="form-control form-control-sm" [(ngModel)]="preparation.prescripteur" autocomplete="off" />
+        </div>
+      </div>
+
+      <label class="form-label et-label mt-2" for="prepPosologie">Posologie</label>
+      <textarea id="prepPosologie" class="form-control form-control-sm" rows="2" [(ngModel)]="preparation.posologie"></textarea>
+
+      <div class="row g-2 mt-1">
+        <div class="col-6">
+          <pharma-date-picker id="prepDate" label="Préparé le" labelPosition="top" [(ngModel)]="datePreparation" />
+        </div>
+        <div class="col-6">
+          <pharma-date-picker id="prepPeremption" label="À utiliser avant le" labelPosition="top" [(ngModel)]="peremption" [minDate]="datePreparation" />
+        </div>
+      </div>
+
+      <label class="form-label et-label mt-2" for="prepMention">Mention</label>
+      <input id="prepMention" class="form-control form-control-sm" [(ngModel)]="preparation.mention"
+             placeholder="À usage externe" autocomplete="off" />
+    </div>
+  }
+
+  @if (formats().length) {
+    <div class="mb-3">
+      <label class="form-label et-label" for="etiquetteFormat">Format de planche</label>
+      <app-select
+        inputId="etiquetteFormat"
+        [items]="formats()"
+        bindLabel="libelle"
+        bindValue="code"
+        groupBy="supportLibelle"
+        appendTo="body"
+        placeholder="Sélectionner un format"
+        [ngModel]="formatCode()"
+        (ngModelChange)="onFormatChange($event)"
+      />
+      @if (formatChoisi()) {
+        <small class="text-muted" style="font-size: 0.7rem">
+          @if (estRouleau()) {
+            {{ formatChoisi()!.reference }} — une étiquette par page, {{ formatChoisi()!.largeurMm }} × {{ formatChoisi()!.hauteurMm }} mm
+          } @else {
+            {{ formatChoisi()!.reference }} — {{ formatChoisi()!.colonnes }} × {{ formatChoisi()!.rangees }},
+            {{ formatChoisi()!.capacite }} étiquettes par planche
+          }
+        </small>
+      }
+    </div>
+  }
+
+  @if (zplPossible()) {
+    <div class="mb-3">
+      <label class="form-label et-label">Chemin d'impression</label>
+      <div>
+        <app-pill-selector
+          [items]="modeOptions"
+          [ngModel]="modeImpression()"
+          (selectionChange)="onModeChange($event)"
+          ariaLabel="Chemin d'impression"
+        />
+      </div>
+      <small class="text-muted" style="font-size: 0.7rem">
+        @if (estZpl()) {
+          Le flux part directement dans l'imprimante, qui trace elle-même le code-barres.
+        } @else {
+          Un PDF au format de l'étiquette, imprimé par le pilote Windows.
+        }
+      </small>
+    </div>
+
+    @if (estZpl()) {
+      <div class="row g-3 mb-3">
+        <div class="col-7">
+          <label class="form-label et-label" for="etiquetteImprimante">Imprimante</label>
+          <app-select
+            inputId="etiquetteImprimante"
+            [items]="imprimantes()"
+            bindLabel="name"
+            bindValue="name"
+            appendTo="body"
+            placeholder="Imprimante d'étiquettes"
+            [ngModel]="imprimante()"
+            (ngModelChange)="imprimante.set($event)"
+          />
+        </div>
+        <div class="col-5">
+          <label class="form-label et-label" for="etiquetteResolution">Résolution</label>
+          <app-select
+            inputId="etiquetteResolution"
+            [items]="resolutions"
+            bindLabel="libelle"
+            bindValue="code"
+            appendTo="body"
+            [ngModel]="resolution()"
+            (ngModelChange)="resolution.set($event)"
+          />
+        </div>
+      </div>
+    }
+  }
+
   <div class="row g-3">
-    <div class="col-6">
+    <div [class]="estRouleau() ? 'col-12' : 'col-6'">
       <label class="form-label et-label" for="etiquetteQty">Nombre d'étiquettes <span
         class="text-danger">*</span></label>
       <app-input-number #qtyInput
         inputId="etiquetteQty"
         [(ngModel)]="qty"
         [min]="1"
-        [max]="64"
+        [max]="qtyMax()"
         [showButtons]="true"
       />
     </div>
-    <div class="col-6">
-      <label class="form-label et-label" for="etiquetteStartAt">Position de départ</label>
-      <app-input-number
-        inputId="etiquetteStartAt"
-        [(ngModel)]="startAt"
-        [min]="1"
-        [max]="65"
-        [showButtons]="true"
-      />
-      <small class="text-muted" style="font-size: 0.7rem">Planche A4 de 65 étiquettes</small>
-    </div>
+    <!-- La case de départ n'a pas de sens sur un rouleau : elle est masquée, pas grisée. -->
+    @if (!estRouleau()) {
+      <div class="col-6">
+        <label class="form-label et-label" for="etiquetteStartAt">Position de départ</label>
+        <app-input-number
+          inputId="etiquetteStartAt"
+          [(ngModel)]="startAt"
+          [min]="1"
+          [max]="capacite()"
+          [showButtons]="true"
+        />
+        <small class="text-muted" style="font-size: 0.7rem">Case de 1 à {{ capacite() }}</small>
+      </div>
+    }
   </div>
 </app-card>
 </div>
@@ -56,11 +228,11 @@
     [disabled]="loading()"
   />
   <app-button severity="warn"
-    label="Imprimer"
-    icon="pi pi-download"
+    [label]="estZpl() ? 'Envoyer à l’imprimante' : 'Imprimer'"
+    [icon]="estZpl() ? 'pi pi-print' : 'pi pi-download'"
     size="small"
     [loading]="loading()"
-    [disabled]="qty < 1"
+    [disabled]="!peutImprimer()"
     (clicked)="onPrint()"
   />
 </div>

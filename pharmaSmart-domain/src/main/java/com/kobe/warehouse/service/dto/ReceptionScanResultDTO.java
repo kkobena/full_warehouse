@@ -16,6 +16,9 @@ import com.kobe.warehouse.service.stock.DataMatrixParserService.BarcodeType;
  * @param barcodeType    type de code-barres détecté
  * @param serialNumber   numéro de série FMD (AI 21) — null si scan 1D ou absent du DataMatrix
  * @param fmdStatus      statut FMD : PRESENT, ABSENT, DUPLICATE
+ * @param scannedQty     quantité scannée (AI 37), 1 par défaut
+ * @param dataMatrixHint données lues sur la boîte quand le produit n'a pas été retrouvé —
+ *                       null dès que {@code found} est vrai
  */
 public record ReceptionScanResultDTO(
     boolean found,
@@ -29,7 +32,8 @@ public record ReceptionScanResultDTO(
     BarcodeType barcodeType,
     String serialNumber,
     FmdStatus fmdStatus,
-    int scannedQty
+    int scannedQty,
+    DataMatrixHintDTO dataMatrixHint
 ) {
     public enum FmdStatus {
         /** Numéro de série présent et unique — traçabilité FMD assurée. */

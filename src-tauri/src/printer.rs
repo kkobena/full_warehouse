@@ -63,6 +63,29 @@ pub async fn print_escpos(escpos_data: String, printer_name: String) -> Result<(
     }
 }
 
+/// Envoie un flux ZPL à une imprimante d'étiquettes (Zebra, TSC, Godex, Xprinter).
+///
+/// Le ZPL est du texte ASCII : contrairement à l'ESC/POS il voyage tel quel, sans base64. La file
+/// d'impression le reçoit en RAW, donc sans que le pilote ne le réinterprète — c'est tout l'intérêt
+/// du chemin : l'imprimante trace elle-même le code-barres et le DataMatrix.
+#[command]
+pub async fn print_zpl(zpl_data: String, printer_name: String) -> Result<(), String> {
+    if zpl_data.trim().is_empty() {
+        return Err("Flux ZPL vide".to_string());
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        windows_printer::send_raw_named(zpl_data.as_bytes(), &printer_name, "Etiquettes ZPL")
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        let _ = (zpl_data, printer_name);
+        Err("ZPL printing not implemented for this platform".to_string())
+    }
+}
+
 #[cfg(target_os = "windows")]
 mod windows_printer {
   use super::PrinterInfo;
@@ -275,6 +298,12 @@ mod windows_printer {
     /// Send raw bytes directly to printer (for ESC/POS commands).
     /// I6 : `PrinterGuard` garantit que `ClosePrinter` est appelé dans tous les chemins.
     pub fn send_raw_to_printer(data: &[u8], printer_name: &str) -> Result<(), String> {
+        send_raw_named(data, printer_name, "POS Receipt")
+    }
+
+    /// Idem, en nommant le travail d'impression : la file d'attente affiche « Etiquettes ZPL »
+    /// plutôt que « POS Receipt », et un travail bloqué se reconnaît.
+    pub fn send_raw_named(data: &[u8], printer_name: &str, job_name: &str) -> Result<(), String> {
         unsafe {
             let printer_name_wide = string_to_wide(printer_name);
             let mut printer_handle = PRINTER_HANDLE::default();
@@ -293,7 +322,7 @@ mod windows_printer {
             let _guard = PrinterGuard(printer_handle);
 
             // Start print job
-            let doc_name = string_to_wide("POS Receipt");
+            let doc_name = string_to_wide(job_name);
             let datatype = string_to_wide("RAW");
             let doc_info = DOC_INFO_1W {
                 pDocName: PWSTR(doc_name.as_ptr() as *mut u16),

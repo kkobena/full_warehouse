@@ -165,28 +165,87 @@
         </div>
       }
 
-      <!-- AX-23d — Bandeau CIP provisoire en mode séquentiel -->
-      @if (currentLine()?.provisionalCode) {
-        <div class="rh-seq__provisional-cip-banner">
-          <i class="pi pi-exclamation-triangle"></i>
-          <span>Code CIP provisoire — à mettre à jour</span>
-          @if (pendingCipAssociation()) {
-            <span class="rh-seq__prov-scanned">Code scanné : <strong>{{ pendingCipAssociation() }}</strong></span>
-            <app-button size="small" severity="warn" icon="pi pi-check"
-                      label="Associer" (clicked)="onConfirmCipAssociation()" />
-          } @else if (!isEditingCip()) {
-            <app-button size="small" severity="secondary" icon="pi pi-pencil"
-                      label="Modifier CIP" (clicked)="isEditingCip.set(true)" />
-          } @else {
-            <input type="text" class="form-control rh-seq__prov-cip-input" [ngModel]="draftCip()" (ngModelChange)="draftCip.set($event)"
-                   placeholder="Nouveau CIP"
-                   (keydown.enter)="onSaveDraftCip()"
-                   (keydown.escape)="isEditingCip.set(false)" />
-            <app-button size="small" severity="success" icon="pi pi-check"
-                      label="Sauver" (clicked)="onSaveDraftCip()" />
-            <app-button size="small" severity="secondary" icon="pi pi-times"
-                      (clicked)="isEditingCip.set(false)" />
+      <!-- Bandeau du code de la ligne : l'état provisoire et le code inconnu scanné partagent
+           la même coque, seule l'action change (onAssocierCodeALaLigneCourante). -->
+      @if (currentLine()?.provisionalCode || scanInconnu()) {
+        <div class="rh-seq__code-banner">
+          <div class="rh-seq__code-banner-head">
+            @if (scanInconnu(); as inconnu) {
+              <i class="pi pi-question-circle"></i>
+              <span>Code inconnu</span>
+              <code class="rh-seq__code-banner-code">{{ inconnu.code }}</code>
+            } @else {
+              <i class="pi pi-exclamation-triangle"></i>
+              <span>Code CIP provisoire — à mettre à jour</span>
+            }
+          </div>
+
+          @if (scanInconnu()?.hint; as donnees) {
+            @if (donnees.numLot || donnees.expiryDate) {
+              <div class="rh-seq__code-banner-hint">
+                @if (donnees.numLot) {
+                  <span>Lot {{ donnees.numLot }}</span>
+                }
+                @if (donnees.expiryDate) {
+                  <span>Exp. {{ donnees.expiryDate | date: 'dd/MM/yyyy' }}</span>
+                }
+                <span class="rh-seq__code-banner-origine">
+                  @if (donnees.proposition) {
+                    (déduits, à vérifier)
+                  } @else {
+                    (lus sur la boîte)
+                  }
+                </span>
+              </div>
+            }
           }
+
+          <div class="rh-seq__code-banner-actions">
+            @if (scanInconnu()) {
+              <app-button
+                [label]="associationEcraseLeCip() ? 'Associer (devient le CIP)' : 'Associer à cet article'"
+                icon="pi pi-link"
+                severity="warn"
+                size="small"
+                (clicked)="onAssocierCodeALaLigneCourante()"
+              />
+              <app-button
+                icon="pi pi-search"
+                label="Autre ligne…"
+                severity="secondary"
+                size="small"
+                (clicked)="onDemanderAutreLigne()"
+              />
+              <app-button
+                label="Ignorer"
+                severity="secondary"
+                size="small"
+                [text]="true"
+                (clicked)="scanInconnu.set(null)"
+              />
+              <span class="rh-seq__code-banner-touches">Entrée · A · Échap</span>
+            } @else if (!isEditingCip()) {
+              <app-button
+                icon="pi pi-pencil"
+                label="Modifier CIP"
+                severity="secondary"
+                size="small"
+                (clicked)="isEditingCip.set(true)"
+              />
+            } @else {
+              <input
+                type="text"
+                class="form-control rh-seq__code-banner-input"
+                placeholder="Nouveau CIP"
+                [ngModel]="draftCip()"
+                (ngModelChange)="draftCip.set($event)"
+                (keydown.enter)="onSaveDraftCip()"
+                (keydown.escape)="isEditingCip.set(false)"
+              />
+              <app-button icon="pi pi-check" label="Sauver" severity="success" size="small" (clicked)="onSaveDraftCip()" />
+              <app-button icon="pi pi-times" severity="secondary" size="small" (clicked)="isEditingCip.set(false)" />
+            }
+          </div>
         </div>
       }
 

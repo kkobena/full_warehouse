@@ -10,6 +10,7 @@ import { IProduitIndicateurs } from "../../models/produit-indicateurs.model";
 import { IVenteMois } from "../../models/vente-mois.model";
 import { ILot } from "app/shared/model/lot.model";
 import { IProduitMergePreview, IProduitMergeRequest, IProduitMergeResult } from "../../models/produit-merge.model";
+import { IProductResolveResult, IProduitCodeAlias } from "app/shared/model/reception-scan-result.model";
 
 export interface IDeconditionRecord {
   id?: number;
@@ -18,6 +19,36 @@ export interface IDeconditionRecord {
   stockBefore?: number;
   stockAfter?: number;
   user?: { firstName?: string; lastName?: string; login?: string };
+}
+
+/** Un format de planche du catalogue serveur. */
+export type SupportEtiquette = "PLANCHE_A4" | "ROULEAU";
+
+/** Étiquette de préparation magistrale, saisie au moment de l'impression. */
+export interface IEtiquettePreparation {
+  libelle: string;
+  composition: string;
+  patient?: string | null;
+  prescripteur?: string | null;
+  posologie?: string | null;
+  datePreparation?: string | null;
+  peremption?: string | null;
+  mention?: string | null;
+}
+
+export interface IFormatEtiquette {
+  code: string;
+  libelle: string;
+  reference: string;
+  /** Une planche a une grille et une case de depart ; un rouleau, ni l'une ni l'autre. */
+  support: SupportEtiquette;
+  supportLibelle: string;
+  largeurMm: number;
+  hauteurMm: number;
+  colonnes: number;
+  rangees: number;
+  capacite: number;
+  parDefaut: boolean;
 }
 
 export interface ILotProduit {
@@ -84,9 +115,101 @@ export class ProductsApiService {
       .pipe(map(res => res.body ?? []));
   }
 
-  getEtiquettes(id: number, qty = 1, startAt = 1): Observable<Blob> {
+  /** Codes alternatifs d'un produit, du plus récent au plus ancien. */
+  getCodesAlias(id: number): Observable<IProduitCodeAlias[]> {
+    return this.http
+      .get<IProduitCodeAlias[]>(`${this.resourceUrl}/${id}/codes-alias`, { observe: "response" })
+      .pipe(map(res => res.body ?? []));
+  }
+
+  /**
+   * Mémorise un code scanné pour ce produit : les scans suivants le résoudront sans
+   * intervention. Le type du code est déduit côté serveur.
+   */
+  createCodeAlias(id: number, code: string): Observable<IProduitCodeAlias> {
+    return this.http
+      .post<IProduitCodeAlias>(`${this.resourceUrl}/${id}/codes-alias`, { code }, { observe: "response" })
+      .pipe(map(res => res.body!));
+  }
+
+  deleteCodeAlias(aliasId: number): Observable<void> {
+    return this.http
+      .delete<void>(`${this.resourceUrl}/codes-alias/${aliasId}`, { observe: "response" })
+      .pipe(map((): void => undefined));
+  }
+
+  /** Produits portant ce code, codes alternatifs compris. Vide = aucune correspondance. */
+  resoudreCode(code: string): Observable<IProductResolveResult[]> {
+    return this.http
+      .get<IProductResolveResult[]>(`${this.resourceUrl}/resoudre-code`, {
+        params: { code },
+        observe: "response"
+      })
+      .pipe(map(res => res.body ?? []));
+  }
+
+  getEtiquettes(id: number, qty = 1, startAt = 1, format?: string): Observable<Blob> {
     return this.http.get(`${this.resourceUrl}/${id}/etiquettes`, {
-      params: { qty: qty.toString(), startAt: startAt.toString() },
+      params: { qty: qty.toString(), startAt: startAt.toString(), ...(format ? { format } : {}) },
+      responseType: "blob"
+    });
+  }
+
+  /** Catalogue des formats de planche. Lu au serveur, jamais recopié dans le bundle. */
+  /** La même étiquette en ZPL : du texte, envoyé tel quel à l'imprimante à rouleau. */
+  getEtiquettesZpl(id: number, qty = 1, format?: string, resolution?: string): Observable<string> {
+    return this.http.get(`${this.resourceUrl}/${id}/etiquettes/zpl`, {
+      params: { qty: qty.toString(), ...(format ? { format } : {}), ...(resolution ? { resolution } : {}) },
+      responseType: "text"
+    });
+  }
+
+  /** Étiquette de lot en ZPL : le GS1 DataMatrix est tracé par l'imprimante. */
+  getEtiquettesLotZpl(id: number, lotId: number, qty = 1, format?: string, resolution?: string): Observable<string> {
+    return this.http.get(`${this.resourceUrl}/${id}/lots/${lotId}/etiquettes/zpl`, {
+      params: { qty: qty.toString(), ...(format ? { format } : {}), ...(resolution ? { resolution } : {}) },
+      responseType: "text"
+    });
+  }
+
+  /** Réglette de gondole : le prix en gros, le code en petit — elle se colle sur l'étagère. */
+  getReglettes(id: number, qty = 1, startAt = 1, format?: string): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/${id}/etiquettes/reglette`, {
+      params: { qty: qty.toString(), startAt: startAt.toString(), ...(format ? { format } : {}) },
+      responseType: "blob"
+    });
+  }
+
+  getReglettesZpl(id: number, qty = 1, format?: string, resolution?: string): Observable<string> {
+    return this.http.get(`${this.resourceUrl}/${id}/etiquettes/reglette/zpl`, {
+      params: { qty: qty.toString(), ...(format ? { format } : {}), ...(resolution ? { resolution } : {}) },
+      responseType: "text"
+    });
+  }
+
+  /** Préparation magistrale : le contenu est saisi à l'impression, rien n'est conservé. */
+  imprimerPreparation(saisie: IEtiquettePreparation, qty = 1, startAt = 1, format?: string): Observable<Blob> {
+    return this.http.post(`${SERVER_API_URL}api/etiquettes/preparation`, saisie, {
+      params: { qty: qty.toString(), startAt: startAt.toString(), ...(format ? { format } : {}) },
+      responseType: "blob"
+    });
+  }
+
+  imprimerPreparationZpl(saisie: IEtiquettePreparation, qty = 1, format?: string, resolution?: string): Observable<string> {
+    return this.http.post(`${SERVER_API_URL}api/etiquettes/preparation/zpl`, saisie, {
+      params: { qty: qty.toString(), ...(format ? { format } : {}), ...(resolution ? { resolution } : {}) },
+      responseType: "text"
+    });
+  }
+
+  listerFormatsEtiquette(): Observable<IFormatEtiquette[]> {
+    return this.http.get<IFormatEtiquette[]>(`${SERVER_API_URL}api/etiquettes/formats`);
+  }
+
+  /** Second type d'étiquette : celle d'un lot, avec sa péremption et un GS1 DataMatrix. */
+  getEtiquettesLot(id: number, lotId: number, qty = 1, startAt = 1, format?: string): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/${id}/lots/${lotId}/etiquettes`, {
+      params: { qty: qty.toString(), startAt: startAt.toString(), ...(format ? { format } : {}) },
       responseType: "blob"
     });
   }

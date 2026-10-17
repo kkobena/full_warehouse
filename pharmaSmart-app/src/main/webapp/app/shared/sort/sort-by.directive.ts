@@ -20,15 +20,19 @@ export class SortByDirective {
 
   constructor() {
     effect(() => {
-      if (this.iconComponent()) {
-        let icon: IconDefinition = this.sortIcon;
-        const { predicate, order } = this.sort.sortState();
-        if (predicate === this.jhiSortBy() && order !== undefined) {
-          icon = order === 'asc' ? this.sortAscIcon : this.sortDescIcon;
-        }
-        // this.iconComponent().icon = icon.iconName;
-        //  this.iconComponent().render();
+      const icone = this.iconComponent();
+      if (!icone) {
+        return;
       }
+      let icon: IconDefinition = this.sortIcon;
+      const { predicate, order } = this.sort.sortState();
+      if (predicate === this.jhiSortBy() && order !== undefined) {
+        icon = order === 'asc' ? this.sortAscIcon : this.sortDescIcon;
+      }
+      // `icon` est un model() depuis angular-fontawesome 5 : il s'écrit, là où l'ancienne
+      // affectation d'@Input ne compilait plus. La colonne triée affichait donc toujours la
+      // même icône neutre.
+      icone.icon.set(icon);
     });
   }
 

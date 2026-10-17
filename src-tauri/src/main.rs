@@ -442,6 +442,7 @@ fn main() {
             printer::get_printers,
             printer::print_image,
             printer::print_escpos,
+            printer::print_zpl,
             check_backend_health,
             get_backend_url_command,
             check_for_client_update,

@@ -50,6 +50,13 @@ public final class Constant {
     public static final String SUIVI_ARTICLE_TEMPLATE_FILE = "suiviarticle/main";
     public static final String HAS_DEPOT = "hasDepot";
     public static final String ETIQUETES_TEMPLATE_FILE = "etiquetes/main";
+    public static final String ETIQUETES_LOT_TEMPLATE_FILE = "etiquetes/lot";
+    public static final String ETIQUETES_ROULEAU_TEMPLATE_FILE = "etiquetes/rouleau";
+    public static final String ETIQUETES_ROULEAU_LOT_TEMPLATE_FILE = "etiquetes/rouleau-lot";
+    public static final String ETIQUETES_USAGE_TEMPLATE_FILE = "etiquetes/usage";
+    public static final String ETIQUETES_ROULEAU_USAGE_TEMPLATE_FILE = "etiquetes/rouleau-usage";
+    public static final String ETIQUETTES_TYPE = "type";
+    public static final String ETIQUETTES_FORMAT = "format";
     public static final String ETIQUETES_BEGIN = "begin";
     public static final String INVOICE_TEMPLATE_FILE = "facture/saleInvoice";
     public static final String REGLEMENT_RECEIPT_TEMPLATE_FILE = "reglement/receipt/main";

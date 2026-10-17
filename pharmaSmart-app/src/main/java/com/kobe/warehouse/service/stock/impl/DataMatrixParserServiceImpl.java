@@ -2,9 +2,11 @@ package com.kobe.warehouse.service.stock.impl;
 
 import com.kobe.warehouse.service.dto.DataMatrixInfo;
 import com.kobe.warehouse.service.stock.DataMatrixParserService;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,6 +24,7 @@ import org.springframework.util.StringUtils;
  *   <li>EAN-13: 13-digit barcode with check digit</li>
  *   <li>CIP-7: 7-digit French pharmaceutical code</li>
  *   <li>CIP-13: 13-digit French pharmaceutical code (starts with 340)</li>
+ *   <li>GTIN-14: contenu d'un AI 01 scanné sans en-tête GS1</li>
  *   <li>GS1 DataMatrix with Application Identifiers (AI)</li>
  * </ul>
  *
@@ -59,6 +62,9 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
     private static final String AI_NHRN_SPAIN = "712";
     private static final String AI_NHRN_BRAZIL = "713";
     private static final String AI_NHRN_PORTUGAL = "714";
+    // Identification additionnelle du fabricant : AI des étiquettes internes de l'officine, où le
+    // code du catalogue (dix caractères, non numérique) ne peut pas tenir dans un GTIN-14.
+    private static final String AI_IDENTIFIANT_ADDITIONNEL = "240";
 
     // Fixed-length AI data lengths
     private static final int GTIN_LENGTH = 14;
@@ -67,8 +73,26 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
     // Date formatter for YYMMDD format
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyMMdd");
 
-    // Pattern for detecting GS1 DataMatrix symbology identifier
-    private static final Pattern GS1_PREFIX_PATTERN = Pattern.compile("^(\\]d2|\\]C1|\\x1D)?(.*)$");
+    // Identifiants de symbologie AIM : ]d2/]d1 DataMatrix, ]C1 Code 128 GS1, ]Q3 QR GS1, ]e0 DataBar
+    private static final Pattern GS1_PREFIX_PATTERN = Pattern.compile("^(\\]d2|\\]d1|\\]C1|\\]Q3|\\]e0)?(.*)$", Pattern.DOTALL);
+
+    // FNC1 émis comme caractère imprimable par certains scanners (Datalogic)
+    private static final char FNC1_IMPRIMABLE = 'è';
+
+    // ── Motifs du mode proposition (codes en texte libre, sans AI GS1) ──────────────────────
+    // Les bornes (?<!\d) et (?!\d) évitent de découper une suite de chiffres plus longue.
+    private static final Pattern GTIN_14_NU_PATTERN = Pattern.compile("(?<!\\d)(\\d{14})(?!\\d)");
+    private static final Pattern EAN_13_NU_PATTERN = Pattern.compile("(?<!\\d)(\\d{13})(?!\\d)");
+    private static final Pattern DATE_AAAAMMJJ_PATTERN = Pattern.compile("(?<!\\d)(20\\d{2}(?:0[1-9]|1[0-2])(?:0\\d|[12]\\d|3[01]))(?!\\d)");
+    private static final Pattern DATE_AAMMJJ_PATTERN = Pattern.compile("(?<!\\d)(\\d{2}(?:0[1-9]|1[0-2])(?:0\\d|[12]\\d|3[01]))(?!\\d)");
+    // Le lot doit être étiqueté : deviner un lot dans une suite alphanumérique quelconque
+    // reviendrait à inventer une traçabilité.
+    // La barre oblique est exclue du lot : elle sépare les champs dans ces formats
+    // (« LOT:ABC123/EXP:... »), l'inclure ferait avaler l'étiquette suivante.
+    private static final Pattern LOT_ETIQUETE_PATTERN = Pattern.compile(
+        "(?:LOT|BATCH|CHARGE)\\s*[:=#]?\\s*([A-Za-z0-9][A-Za-z0-9.\\-]{2,19})",
+        Pattern.CASE_INSENSITIVE
+    );
 
     @Override
     public Optional<DataMatrixInfo> parse(String barcodeData) {
@@ -76,16 +100,20 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
             return Optional.empty();
         }
 
-        String code = barcodeData.trim();
-        BarcodeType type = detectBarcodeType(code);
+        // Normalisé une seule fois : les sous-parseurs recevaient la chaîne brute et stockaient
+        // l'identifiant de symbologie avec le code (]C13400930000000 rangé tel quel dans cip13).
+        String code = normalizeCode(barcodeData);
 
-        return switch (type) {
+        return switch (detectBarcodeType(code)) {
             case EAN_8 -> parseEan8(code);
             case EAN_13 -> parseEan13(code);
             case CIP_7 -> parseCip7(code);
             case CIP_13 -> parseCip13(code);
+            case GTIN_14 -> parseGtin14(code);
             case DATAMATRIX -> parseDataMatrix(code);
-            case UNKNOWN -> Optional.empty();
+            // Code hors nomenclature connue : on tente d'y reconnaître des motifs (fabricants
+            // asiatiques et africains encodent parfois en texte libre), puis on remonte le code brut pour que l'utilisateur puisse le mémoriser.
+            case UNKNOWN -> parseHeuristique(code).or(() -> parseCodeBrut(code));
         };
     }
 
@@ -95,30 +123,49 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
             return BarcodeType.UNKNOWN;
         }
 
-        String trimmed = code.trim();
+        String normalized = normalizeCode(code);
 
-        // Check for DataMatrix first (contains non-numeric or AI prefixes)
-        if (isValidDataMatrix(trimmed)) {
+        // Les longueurs d'un code 1D passent avant la détection GS1 : sans cela un EAN-8 ou un
+        // EAN-13 dont les deux premiers chiffres forment un AI connu (préfixes GS1 01x, 10x, 11x)
+        // serait pris pour un DataMatrix, puis échouerait au parsing.
+        BarcodeType code1D = detecterCode1D(normalized);
+        if (code1D != BarcodeType.UNKNOWN) {
+            return code1D;
+        }
+
+        if (normalized.indexOf(GS_CHAR) >= 0 || isValidDataMatrix(normalized)) {
             return BarcodeType.DATAMATRIX;
         }
 
-        // Check numeric-only codes by length
-        if (trimmed.matches("\\d+")) {
-            int length = trimmed.length();
-            if (length == 7) {
-                return BarcodeType.CIP_7;
-            } else if (length == 8 && isValidEan8(trimmed)) {
-                return BarcodeType.EAN_8;
-            } else if (length == 13) {
-                if (trimmed.startsWith(CIP_13_PREFIX)) {
-                    return BarcodeType.CIP_13;
-                } else if (isValidEan13(trimmed)) {
-                    return BarcodeType.EAN_13;
-                }
-            }
+        // Le CIP-7 vient après : sept chiffres débutant par un AI connu sont le plus souvent un
+        // GTIN tronqué (0134009), pas un code national.
+        if (isValidCip7(normalized)) {
+            return BarcodeType.CIP_7;
         }
 
         return BarcodeType.UNKNOWN;
+    }
+
+    /**
+     * Type d'un code purement numérique dont la longueur est celle d'un code 1D connu.
+     * La clé de contrôle sert d'arbitre : un EAN invalide rend UNKNOWN, ce qui laisse la main
+     * à la détection GS1 (une trame « AI 17 + date » fait aussi huit chiffres).
+     */
+    private BarcodeType detecterCode1D(String code) {
+        if (!code.matches("\\d+")) {
+            return BarcodeType.UNKNOWN;
+        }
+        return switch (code.length()) {
+            case 8 -> isValidEan8(code) ? BarcodeType.EAN_8 : BarcodeType.UNKNOWN;
+            case 13 -> code.startsWith(CIP_13_PREFIX)
+                ? BarcodeType.CIP_13
+                : isValidEan13(code) ? BarcodeType.EAN_13 : BarcodeType.UNKNOWN;
+            // Quatorze chiffres : GTIN-14 issu d'un AI 01 sans en-tête, ou ITF-14 de carton.
+            // Sans identifiant de symbologie la distinction est impossible ; on retient le
+            // GTIN-14, l'ITF-14 étant rare au comptoir pharmaceutique.
+            case 14 -> BarcodeType.GTIN_14;
+            default -> BarcodeType.UNKNOWN;
+        };
     }
 
     @Override
@@ -190,6 +237,149 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
             .cip13(code)
             .ean13(code)
             .build());
+    }
+
+    /**
+     * Lit un code encodé en texte libre, sans Application Identifier GS1 : certains fabricants
+     * asiatiques et africains impriment {@code "LOT:ABC123/EXP:20250131/EAN:3400933399931"} ou
+     * {@code "ABC123|250131|3400933399931"}.
+     *
+     * <p><b>Mode proposition.</b> Tout ce qui est reconnu ici l'est par motif, donc faillible :
+     * le résultat porte {@code proposition = true}, ce qui interdit la création automatique de
+     * lot et le ciblage d'un lot à la vente. Les valeurs ne servent qu'à pré-remplir l'écran,
+     * où un humain les confirme.
+     *
+     * @return vide si aucun motif n'est reconnu, à charge de l'appelant de se rabattre sur le
+     *     code brut
+     */
+    private Optional<DataMatrixInfo> parseHeuristique(String code) {
+        if (!StringUtils.hasText(code)) {
+            return Optional.empty();
+        }
+
+        DataMatrixInfo.Builder builder = DataMatrixInfo.builder().proposition(true);
+        boolean codeProduitTrouve = false;
+        boolean donneeTrouvee = false;
+
+        // GTIN-14 avant EAN-13 : les quatorze chiffres contiennent treize chiffres valides.
+        Matcher gtin = GTIN_14_NU_PATTERN.matcher(code);
+        if (gtin.find()) {
+            String valeur = gtin.group(1);
+            builder.gtin(valeur);
+            String ean13 = extractEan13FromGtin(valeur);
+            if (ean13 != null) {
+                builder.ean13(ean13);
+            }
+            codeProduitTrouve = true;
+        } else {
+            Matcher ean = EAN_13_NU_PATTERN.matcher(code);
+            while (ean.find() && !codeProduitTrouve) {
+                String candidat = ean.group(1);
+                // La clé de contrôle évite de prendre un numéro de dossier pour un code produit.
+                if (isValidEan13(candidat)) {
+                    builder.ean13(candidat);
+                    if (candidat.startsWith(CIP_13_PREFIX)) {
+                        builder.cip13(candidat);
+                    }
+                    codeProduitTrouve = true;
+                }
+            }
+        }
+        donneeTrouvee = codeProduitTrouve;
+
+        String lot = extraireLot(code);
+        if (lot != null) {
+            builder.batchNumber(lot);
+            donneeTrouvee = true;
+        }
+
+        LocalDate peremption = extrairePeremption(code);
+        if (peremption != null) {
+            builder.expiryDate(peremption);
+            donneeTrouvee = true;
+        }
+
+        if (!donneeTrouvee) {
+            return Optional.empty();
+        }
+
+        // Sans code produit, le scan ne peut rien résoudre : la chaîne entière est remontée pour
+        // que l'utilisateur puisse la mémoriser comme code alternatif.
+        if (!codeProduitTrouve) {
+            builder.rawCode(code);
+        }
+        return Optional.of(builder.build());
+    }
+
+    /** Numéro de lot explicitement étiqueté. Un lot deviné sans étiquette serait trop risqué. */
+    private String extraireLot(String code) {
+        Matcher lot = LOT_ETIQUETE_PATTERN.matcher(code);
+        return lot.find() ? lot.group(1).toUpperCase(Locale.ROOT) : null;
+    }
+
+    /**
+     * Date de péremption : la plus proche parmi les dates futures reconnues, aux deux formats
+     * rencontrés (AAMMJJ et AAAAMMJJ). Une date passée est ignorée — c'est plus probablement une
+     * date de fabrication ou un numéro qui ressemble à une date.
+     */
+    private LocalDate extrairePeremption(String code) {
+        LocalDate meilleure = null;
+        LocalDate aujourdhui = LocalDate.now();
+
+        Matcher annee4 = DATE_AAAAMMJJ_PATTERN.matcher(code);
+        while (annee4.find()) {
+            meilleure = plusProche(meilleure, parseDateSure(annee4.group(1), 4), aujourdhui);
+        }
+        Matcher annee2 = DATE_AAMMJJ_PATTERN.matcher(code);
+        while (annee2.find()) {
+            meilleure = plusProche(meilleure, parseDateSure(annee2.group(1), 2), aujourdhui);
+        }
+        return meilleure;
+    }
+
+    private LocalDate plusProche(LocalDate meilleure, LocalDate candidate, LocalDate aujourdhui) {
+        if (candidate == null || !candidate.isAfter(aujourdhui)) {
+            return meilleure;
+        }
+        return meilleure == null || candidate.isBefore(meilleure) ? candidate : meilleure;
+    }
+
+    /** Lit une date sans lever : un motif reconnu n'est pas forcément une date valide (3002). */
+    private LocalDate parseDateSure(String valeur, int chiffresAnnee) {
+        try {
+            int annee = Integer.parseInt(valeur.substring(0, chiffresAnnee));
+            int mois = Integer.parseInt(valeur.substring(chiffresAnnee, chiffresAnnee + 2));
+            int jour = Integer.parseInt(valeur.substring(chiffresAnnee + 2));
+            LocalDate premierDuMois = LocalDate.of(chiffresAnnee == 2 ? 2000 + annee : annee, mois, 1);
+            // Comme pour l'AI 17, un jour à 00 désigne la fin du mois.
+            return jour == 0 ? premierDuMois.withDayOfMonth(premierDuMois.lengthOfMonth()) : premierDuMois.withDayOfMonth(jour);
+        } catch (DateTimeException | NumberFormatException e) {
+            LOG.debug("Motif de date non exploitable : {}", valeur);
+            return null;
+        }
+    }
+
+    /**
+     * Remonte un code qu'aucune nomenclature ne reconnaît, pour que l'appelant puisse quand même
+     * le chercher en base. Rien n'en est déduit : ni lot, ni péremption, ni type de code.
+     */
+    private Optional<DataMatrixInfo> parseCodeBrut(String code) {
+        if (!StringUtils.hasText(code)) {
+            return Optional.empty();
+        }
+        return Optional.of(DataMatrixInfo.builder().rawCode(code).build());
+    }
+
+    /**
+     * Lit un GTIN-14 nu : le contenu d'un AI 01 scanné sans son en-tête GS1.
+     */
+    private Optional<DataMatrixInfo> parseGtin14(String code) {
+        DataMatrixInfo.Builder builder = DataMatrixInfo.builder().gtin(code);
+        String ean13 = extractEan13FromGtin(code);
+        if (ean13 != null) {
+            builder.ean13(ean13);
+        }
+        return Optional.of(builder.build());
     }
 
     /**
@@ -281,22 +471,46 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
     }
 
     /**
-     * Normalizes the DataMatrix code by removing symbology identifiers and standardizing separators.
+     * Retire les identifiants de symbologie et ramène toutes les écritures du séparateur de
+     * groupe au caractère GS réel. Idempotente : la chaîne peut être renormalisée sans dommage.
      */
     private String normalizeCode(String code) {
         String normalized = code.trim();
 
-        // Remove GS1 symbology identifiers (]d2 for DataMatrix, ]C1 for Code 128)
+        // Caractères de transmission : FNC1 rendu imprimable (è, Datalogic) et caractères de
+        // contrôle ajoutés par certains scanners (STX en tête, ETX en fin). Les données GS1
+        // étant imprimables, les retirer ne peut pas amputer un lot ni un numéro de série.
+        while (!normalized.isEmpty() && estCaractereDeTransmission(normalized.charAt(0))) {
+            normalized = normalized.substring(1);
+        }
+        while (!normalized.isEmpty() && normalized.charAt(normalized.length() - 1) < ' ') {
+            normalized = normalized.substring(0, normalized.length() - 1);
+        }
+
+        // Identifiant de symbologie AIM
         Matcher matcher = GS1_PREFIX_PATTERN.matcher(normalized);
         if (matcher.matches()) {
             normalized = matcher.group(2);
         }
 
-        // Replace common GS representations with actual GS char
-        normalized = normalized.replace("<GS>", GS_STRING);
-        normalized = normalized.replace("{GS}", GS_STRING);
+        // Toutes les notations textuelles du séparateur
+        normalized = normalized
+            .replace("<GS>", GS_STRING)
+            .replace("{GS}", GS_STRING)
+            .replace("^029", GS_STRING) // échappement décimal Honeywell
+            .replace("%1D", GS_STRING); // URL-encodé, imports par fichier
+
+        // GS en tête : Code 128 GS1 émis sans identifiant de symbologie
+        while (!normalized.isEmpty() && normalized.charAt(0) == GS_CHAR) {
+            normalized = normalized.substring(1);
+        }
 
         return normalized;
+    }
+
+    /** Le caractère est-il un artefact de transmission du scanner, et non une donnée ? */
+    private boolean estCaractereDeTransmission(char caractere) {
+        return caractere == FNC1_IMPRIMABLE || caractere < ' ';
     }
 
     /**
@@ -327,8 +541,12 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
         if (code.length() >= 3) {
             String ai3 = code.substring(0, 3);
             result = switch (ai3) {
-                case AI_NHRN_GERMANY, AI_NHRN_FRANCE, AI_NHRN_SPAIN, AI_NHRN_BRAZIL, AI_NHRN_PORTUGAL ->
-                    parseVariableLength(code, ai3);
+                case AI_NHRN_GERMANY,
+                    AI_NHRN_FRANCE,
+                    AI_NHRN_SPAIN,
+                    AI_NHRN_BRAZIL,
+                    AI_NHRN_PORTUGAL,
+                    AI_IDENTIFIANT_ADDITIONNEL -> parseVariableLength(code, ai3);
                 default -> null;
             };
         }
@@ -431,6 +649,12 @@ public class DataMatrixParserServiceImpl implements DataMatrixParserService {
             case AI_NHRN_GERMANY, AI_NHRN_SPAIN, AI_NHRN_BRAZIL, AI_NHRN_PORTUGAL -> {
                 // Other NHRN codes - store as CIP13 if no CIP already set
                 builder.cip13(result.data());
+                yield true;
+            }
+            case AI_IDENTIFIANT_ADDITIONNEL -> {
+                // Code propre au fabricant — ici, celui du catalogue sur une étiquette interne.
+                // Il n'appartient à aucune nomenclature : la résolution le confronte au catalogue.
+                builder.rawCode(result.data());
                 yield true;
             }
             default -> false;

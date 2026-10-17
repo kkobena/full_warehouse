@@ -152,6 +152,22 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             resultatAttendu: 'La ligne apparaît dans le panier avec son prix net, sa quantité et son total, et le curseur revient à la recherche produit pour l’article suivant.',
           },
           {
+            id: 'VTE-74',
+            titre: 'Retrouver un article au comptoir par un code mémorisé',
+            besoin:
+              'Scanner la boîte telle qu’elle arrive — avec le code du fabricant ou celui du grossiste — et trouver l’article, sans avoir à le chercher par son nom.',
+            fonctionnement:
+              'La recherche du comptoir interroge les codes de la fiche fournisseur et l’EAN laboratoire, puis les codes alternatifs mémorisés sur l’article. Un code alternatif compte autant qu’un code de la fiche : l’article remonte en tête, comme s’il avait toujours porté ce code. C’est l’apprentissage fait à la réception qui sert ici — un code retenu une fois sur un carton sert à toutes les ventes suivantes.',
+            prerequis: 'Un code alternatif a déjà été mémorisé pour l’article.',
+            etapes: [
+              'Ouvrir l’écran de vente',
+              'Saisir le code de la boîte dans la recherche produit',
+              'Retenir l’article proposé',
+            ],
+            resultatAttendu:
+              'L’article est trouvé par son code alternatif et son prix s’affiche, sans aucune recherche par le nom.',
+          },
+          {
             id: 'VTE-02',
             titre: 'Modifier la quantité ou supprimer une ligne du panier',
             besoin: 'Corriger une erreur de saisie avant l’encaissement (mauvaise quantité, produit ajouté par erreur).',
@@ -602,6 +618,22 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
               'Ajouter de nouveau le produit et le maintenir en indiquant un motif',
             ],
             resultatAttendu: 'Le refus laisse le panier inchangé ; le maintien ajoute la ligne et conserve le motif de la décision.',
+          },
+          {
+            id: 'VTE-75',
+            titre: 'Imprimer les étiquettes de posologie d’une ordonnance',
+            besoin:
+              'Remettre au patient une boîte qui porte ce qu’il doit en faire : combien, combien de fois, pendant combien de jours — et de qui vient la prescription.',
+            fonctionnement:
+              'Les étiquettes se demandent depuis l’ordonnance elle-même : patient, prescripteur, instructions et durée en sont tirés, rien n’est à ressaisir et rien ne peut donc différer de ce qui a été délivré. Une étiquette par ligne prescrite par défaut, ou une seule quand on n’étiquette qu’une boîte. Une étiquette de posologie ne porte jamais de prix.',
+            prerequis: 'Le client a une ordonnance en cours, dont les lignes portent leur posologie.',
+            etapes: [
+              'Ouvrir les ordonnances du client depuis l’écran de vente',
+              'Demander les étiquettes de l’ordonnance',
+              'Choisir la ligne à étiqueter, ou les laisser toutes, puis lancer l’impression',
+            ],
+            resultatAttendu:
+              'Les étiquettes produites reprennent le patient, le prescripteur, la posologie et la durée de l’ordonnance, sans aucun prix.',
           },
         ],
       },
@@ -2106,6 +2138,38 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             resultatAttendu: 'Chaque scan valide incrémente la bonne ligne et, si les données sont présentes, crée ou pré-remplit le lot ; un code non reconnu, un CIP absent de la commande ou un numéro de série déjà enregistré déclenche une alerte au lieu d’incrémenter silencieusement.',
           },
           {
+            id: 'ACH-85',
+            titre: 'Désigner l’article d’un code que le catalogue ne connaît pas',
+            besoin:
+              'Réceptionner une boîte dont le code imprimé par le fabricant n’est pas celui du catalogue — le cas ordinaire en Côte d’Ivoire, où les grossistes ne reprennent pas les codes du DataMatrix — sans perdre le lot ni la péremption lus sur la boîte.',
+            fonctionnement:
+              'Un code que ni les codes de la fiche fournisseur ni les codes alternatifs déjà mémorisés ne reconnaissent n’est pas simplement rejeté : l’écran rappelle le code tel qu’il a été lu, affiche ce que la boîte portait (lot, péremption, quantité) et présente les lignes du bon parmi lesquelles désigner l’article. La case « Mémoriser ce code » est cochée d’avance : le code devient alors un code alternatif de l’article, reconnu seul aux réceptions suivantes comme au comptoir. Le scan est ensuite rejoué, de sorte que la quantité et le lot suivent le chemin ordinaire, sans rien appliquer deux fois. Quand la trame ne respecte pas le standard, les valeurs déduites de sa forme sont annoncées comme telles : elles pré-remplissent la saisie, elles ne créent aucun lot.',
+            prerequis: 'Un bon de réception en cours de saisie, ouvert en vue tableau.',
+            etapes: [
+              'Scanner une boîte dont le code est absent de la commande',
+              'Lire le code scanné et ce que la boîte portait : lot, péremption, quantité',
+              'Désigner la ligne du bon en laissant la mémorisation cochée, confirmer, puis accepter l’excédent si l’écran le demande',
+            ],
+            resultatAttendu:
+              'Le code est mémorisé pour l’article désigné et le scan est rejoué : la ligne reçoit sa quantité, et la même boîte passera seule la prochaine fois.',
+          },
+          {
+            id: 'ACH-86',
+            titre: 'Associer un code inconnu à la ligne courante en saisie séquentielle',
+            besoin:
+              'Reconnaître une boîte au code inattendu sans lâcher le carton : en saisie ligne par ligne, l’opérateur est déjà sur la bonne ligne — lui présenter un sélecteur lui ferait refaire un choix déjà fait.',
+            fonctionnement:
+              'Un code inconnu ouvre un bandeau sur la ligne courante, qui rappelle le code lu et, s’il en portait, le lot et la péremption. Trois touches suffisent : Entrée associe le code à l’article de la ligne, A ouvre le sélecteur de ligne pour le cas où la boîte n’est pas celle affichée, Échap ignore le scan. L’association n’écrit pas la même chose selon la ligne : une ligne qui n’avait qu’un code provisoire reçoit le code scanné comme code catalogue, une ligne déjà codée garde le sien et le code scanné devient un code alternatif. Dans les deux cas le scan est rejoué après mémorisation ; si l’écriture échoue, le bandeau reste, pour ne pas perdre le scan.',
+            prerequis: 'Un bon de réception en cours de saisie, ouvert en saisie ligne par ligne.',
+            etapes: [
+              'Scanner, sur la ligne courante, une boîte dont le code est absent de la commande',
+              'Lire le bandeau : le code, ce que la boîte portait, et les trois touches offertes',
+              'Associer le code à l’article de la ligne courante',
+            ],
+            resultatAttendu:
+              'Le code est retenu pour l’article de la ligne courante — code catalogue si la ligne n’en avait qu’un provisoire, code alternatif sinon — et le scan est rejoué sans quitter la ligne.',
+          },
+          {
             id: 'ACH-46',
             titre: 'Prévisualiser le rangement avant finalisation',
             besoin: 'Savoir à l’avance où seront rangés les produits reçus (rayon, emplacement) avant de valider définitivement la réception.',
@@ -2172,9 +2236,15 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             id: 'ACH-76',
             titre: 'Imprimer les étiquettes des produits d’un bon reçu',
             besoin: 'Étiqueter rapidement les produits réceptionnés sans rechercher et imprimer chaque article séparément.',
-            fonctionnement: 'Depuis le bon reçu, l’impression génère les étiquettes liées à la réception. L’utilisateur peut choisir la position de départ sur la planche ; le document est téléchargé dans le navigateur ou transmis au circuit d’impression de l’application desktop.',
+            fonctionnement: 'Depuis le bon reçu, l’impression génère les étiquettes liées à la réception. L’utilisateur choisit le type d’étiquette, le format de planche et la position de départ ; le document est téléchargé dans le navigateur ou transmis au circuit d’impression de l’application desktop.',
             prerequis: 'Le bon a été réceptionné.',
-            etapes: ['Ouvrir les actions du bon clôturé', 'Choisir Étiquettes', 'Indiquer la position de départ sur la planche (1 à 64)'],
+            etapes: [
+              'Ouvrir les actions du bon clôturé',
+              'Choisir Étiquettes',
+              'Choisir le type d’étiquette : standard, ou lot avec son code DataMatrix',
+              'Choisir le format de planche',
+              'Indiquer la position de départ, dans les limites de la planche choisie',
+            ],
             resultatAttendu: 'Le fichier d’étiquettes de la réception est généré à partir de la position choisie et prêt à être imprimé.',
           },
         ],
@@ -2511,6 +2581,66 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             resultatAttendu: 'L’étiquette imprimée est fidèle aux données actuelles de la fiche produit (code, prix).',
           },
           {
+            id: 'REF-65',
+            titre: 'Imprimer l’étiquette d’un lot, avec son code DataMatrix',
+            besoin:
+              'Rendre lisible par l’application une boîte dont le marquage du fabricant ne l’est pas : l’étiquette interne réencode le code du catalogue, le numéro de lot et la péremption dans un symbole que le comptoir et l’inventaire savent relire.',
+            fonctionnement:
+              'À côté de l’étiquette standard — le code article seul — un second type d’étiquette porte le lot. Le type se choisit à l’impression, et l’étiquette standard n’est pas modifiée pour autant. Le type « Lot » demande le lot à étiqueter, pris dans la liste des lots en stock avec sa péremption et sa quantité ; un article sans lot n’offre que le standard, et l’écran le dit. Un lot qui n’aurait ni numéro ni péremption se replie sur le code-barres simple, pour ne jamais imprimer une trame incomplète.',
+            prerequis: 'L’article est suivi par lot et détient au moins un lot en stock.',
+            etapes: [
+              'Ouvrir les actions de l’article et lancer l’impression des étiquettes',
+              'Choisir le type « Lot », puis le lot à étiqueter',
+              'Lancer l’impression',
+            ],
+            resultatAttendu:
+              'Les étiquettes du lot choisi sont produites, chacune portant le code de l’article, son numéro de lot et sa date de péremption.',
+          },
+          {
+            id: 'REF-66',
+            titre: 'Choisir le format de planche ou le rouleau d’étiquettes',
+            besoin:
+              'Imprimer droit sur le consommable réellement acheté : une planche du commerce a sa propre grille, et une imprimante à rouleau n’a pas de page à remplir.',
+            fonctionnement:
+              'Le catalogue des formats est servi par l’application : planches A4 de 14 à 65 étiquettes et rouleaux d’imprimante d’étiquettes, groupés par support dans la même liste. Le format choisi commande la grille imprimée et la borne de la position de départ : passer à une planche plus petite ramène la position à la première case plutôt que de laisser une valeur hors bornes. Sur un rouleau, la position de départ disparaît — l’imprimante déroule, il n’y a pas de planche entamée à reprendre — et le nombre d’étiquettes n’est plus plafonné par la planche.',
+            etapes: [
+              'Ouvrir l’impression des étiquettes d’un article',
+              'Choisir une planche plus petite et constater la nouvelle borne de la position de départ',
+              'Choisir un rouleau : la position de départ n’a plus lieu d’être',
+            ],
+            resultatAttendu:
+              'Le format retenu décide de la grille imprimée, de la capacité annoncée et de la présence même de la position de départ.',
+          },
+          {
+            id: 'REF-67',
+            titre: 'Imprimer une réglette de gondole',
+            besoin:
+              'Afficher le prix au rayon, sur l’étagère et non sur la boîte : le client lit le prix, le vendeur lit le libellé.',
+            fonctionnement:
+              'La réglette est un type d’étiquette à part : prix en gros, libellé, code en petit, et jamais de numéro de lot. Elle se demande au même endroit que les autres étiquettes et s’imprime sur le même catalogue de formats — les planches les plus larges lui conviennent mieux.',
+            etapes: [
+              'Ouvrir l’impression des étiquettes d’un article',
+              'Choisir le type « Réglette »',
+              'Lancer l’impression',
+            ],
+            resultatAttendu: 'La réglette produite porte le prix en évidence et le libellé de l’article, sans numéro de lot.',
+          },
+          {
+            id: 'REF-68',
+            titre: 'Imprimer l’étiquette d’une préparation magistrale',
+            besoin:
+              'Étiqueter le pot d’une préparation réalisée à l’officine : ce qu’il contient, pour qui, préparé quand, à utiliser avant quand.',
+            fonctionnement:
+              'Le contenu de l’étiquette est saisi au moment de l’impression : nom de la préparation — prérempli avec l’article d’où l’on part —, composition, patient, prescripteur, posologie, date de préparation, date limite d’utilisation et mention particulière. La composition est exigée : une étiquette de préparation sans composition n’en est pas une. Rien n’est conservé — l’étiquette est une sortie, pas un enregistrement ; le registre des préparations reste un chantier à part.',
+            etapes: [
+              'Ouvrir l’impression des étiquettes d’un article',
+              'Choisir le type « Préparation » et constater que l’impression attend la composition',
+              'Saisir la composition, puis lancer l’impression',
+            ],
+            resultatAttendu:
+              'L’étiquette du pot porte la composition saisie et ses dates ; tant que la composition manque, l’impression reste refusée.',
+          },
+          {
             id: 'REF-39',
             titre: 'Suspendre puis réactiver un produit sans le supprimer',
             besoin: 'Rendre un produit temporairement invendable (rupture prolongée, litige) sans perdre sa fiche ni son historique, contrairement à une suppression.',
@@ -2696,6 +2826,31 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
               'Le graphique des mouvements combine le stock final, les entrées et les sorties au fil du temps. Les données filtrées peuvent être exportées en PDF ou en Excel pour contrôle, archivage ou analyse complémentaire.',
             etapes: ['Filtrer les mouvements du produit', 'Afficher le graphique d’évolution', 'Lancer l’export PDF ou Excel'],
             resultatAttendu: 'Le graphique et les fichiers exportés correspondent au même périmètre de mouvements que celui analysé à l’écran.',
+          },
+        ],
+      },
+      {
+        nom: 'Codes alternatifs du produit',
+        accesCode: 'catalogue',
+        accesSuffixe: 'produit sélectionné ▸ onglet « Codes alternatifs »',
+        description:
+          'Les codes supplémentaires sous lesquels un article est reconnu au scan, quand la boîte livrée ne porte pas le code du catalogue.',
+        version: '2.1.45',
+        scenarios: [
+          {
+            id: 'REF-69',
+            titre: 'Consulter et compléter les codes alternatifs d’un article',
+            besoin:
+              'Savoir sous quels codes un article est reconnu au scan, et en ajouter un sans attendre la prochaine réception : le code du fabricant, l’EAN d’une autre boîte, le code interne d’un grossiste.',
+            fonctionnement:
+              'L’onglet liste les codes mémorisés du plus récent au plus ancien, avec la nature de chacun, la date de mémorisation et qui l’a posée. Les codes de la fiche fournisseur et l’EAN laboratoire restent reconnus sans y figurer : ces codes les complètent, ils ne les recopient pas. Un code s’ajoute en le scannant ou en le saisissant — sa nature est déduite de sa forme, il n’y a rien d’autre à renseigner. Le retrait demande confirmation et ne touche pas la fiche : le code cesse simplement d’être reconnu. Un article désactivé n’en reçoit plus.',
+            etapes: [
+              'Ouvrir le panneau de détail de l’article, puis l’onglet « Codes alternatifs »',
+              'Ajouter un code en le scannant ou en le saisissant',
+              'Retirer ce code et confirmer',
+            ],
+            resultatAttendu:
+              'Le code ajouté figure en tête de la liste avec sa nature et sa date ; retiré, il en disparaît sans que la fiche de l’article ait changé.',
           },
         ],
       },

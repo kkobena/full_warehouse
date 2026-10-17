@@ -7,8 +7,9 @@ import { scenario } from '../../src/scenario';
  * réimprime depuis la fiche, et elle reprend EXACTEMENT ce que la fiche contient — code et
  * prix. C'est ce qui garantit que le scan au comptoir retrouvera le bon produit au bon prix.
  *
- * Le second champ vaut la peine d'être connu : les planches A4 comptent 65 étiquettes, et une
- * planche entamée se reprend à la position voulue plutôt que de partir de la première case.
+ * Le second champ vaut la peine d'être connu : une planche entamée se reprend à la position
+ * voulue plutôt que de partir de la première case. La borne n'est plus écrite en dur — elle
+ * vient du format de planche choisi, 65 cases sur le format par défaut (REF-66).
  *
  * Parcours en LECTURE : il produit un PDF, il ne modifie rien.
  */
@@ -26,7 +27,10 @@ scenario('REF-07', async ({ etape, page }) => {
     // tels qu'ils sont AUJOURD'HUI dans la fiche.
     await expect(modale).toContainText(produit);
     await expect(modale).toContainText("Nombre d'étiquettes");
-    await expect(modale).toContainText('Planche A4 de 65 étiquettes');
+    // Le format par défaut reproduit le calage en place avant le catalogue des formats :
+    // ce qui s'imprimait droit hier s'imprime droit aujourd'hui.
+    await expect(modale).toContainText(/65 étiquettes par planche/i);
+    await expect(modale).toContainText(/Case de 1 à 65/i);
   });
 
   await etape(2, async () => {

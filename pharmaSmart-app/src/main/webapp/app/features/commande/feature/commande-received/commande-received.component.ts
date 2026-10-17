@@ -25,6 +25,7 @@ import {
   BadgeComponent,
   ButtonComponent,
   IconFieldComponent,
+  ModalComponent,
   SelectComponent,
   SplitButtonComponent,
 } from "../../../../shared/ui";
@@ -57,7 +58,9 @@ import {ConfigurationService} from "../../../../shared/configuration.service";
 import {TauriPrinterService} from "../../../../shared/services/tauri-printer.service";
 import {handleBlobForTauri} from "../../../../shared/util/tauri-util";
 import {IStockEntryResult} from "../../../../shared/model/stock-entry-result.model";
-import {IReceptionScanResult} from "../../../../shared/model/reception-scan-result.model";
+import {IDataMatrixHint, IReceptionScanResult} from "../../../../shared/model/reception-scan-result.model";
+import {CodeResolutionChoice, CodeResolutionComponent} from "../../ui/code-resolution/code-resolution.component";
+import {ProductsApiService} from "../../../products/data-access/services/products-api.service";
 import {ScanEvent, ScanOrchestratorService} from "../../../../shared/scanner";
 import {ReceptionScannerService} from "./reception-scanner.service";
 import {
@@ -119,7 +122,7 @@ ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
     ReceptionConcordanceComponent,
     AgGridAngular,
     ReceptionSequentialComponent
-  , DevisePipe]
+  , DevisePipe, ModalComponent, CodeResolutionComponent]
 })
 export class CommandeReceivedComponent implements OnInit {
   /** Libellés français d'AG Grid — voir shared/ui/ag-grid. */
@@ -195,6 +198,15 @@ export class CommandeReceivedComponent implements OnInit {
   private readonly deliveryService = inject(DeliveryService);
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
+  private readonly productsApi = inject(ProductsApiService);
+
+  /** Modale de résolution d'un code inconnu, et son formulaire. */
+  private readonly codeResolutionModal = viewChild<ModalComponent>("codeResolutionModal");
+  private readonly codeResolutionForm = viewChild<CodeResolutionComponent>("codeResolutionForm");
+  protected readonly codeAResoudre = signal("");
+  protected readonly hintAResoudre = signal<IDataMatrixHint | null>(null);
+  /** Code brut du scan en attente de résolution, rejoué après mémorisation. */
+  private scanAResoudre: string | null = null;
   private readonly configurationService = inject(ConfigurationService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly destroyRef = inject(DestroyRef);
@@ -674,6 +686,16 @@ export class CommandeReceivedComponent implements OnInit {
               .map(l => ({id: l.id!, libelle: l.produitLibelle!}));
             this.lastScanResult.set({...result, provisionalLines, scannedCode: raw});
             this.scheduleClearScanResult();
+            // Le code n'est dans aucun catalogue : proposer de désigner la ligne et de
+            // mémoriser le code, pour que le prochain scan de la même boîte passe seul.
+            //
+            // En saisie séquentielle, NON : l'opérateur est déjà positionné sur une ligne, et
+            // l'écran lui ouvre un bandeau sur cette ligne. Lui présenter en plus le sélecteur
+            // lui ferait refaire un choix déjà fait — et la modale recouvrait le bandeau.
+            // C'est le bandeau qui ouvre le sélecteur, à la demande (touche « A »).
+            if (this.viewMode() !== "sequential") {
+              this.ouvrirResolutionDeCode(raw, result);
+            }
             return;
           }
 
@@ -733,6 +755,62 @@ export class CommandeReceivedComponent implements OnInit {
       });
   }
 
+
+  /**
+   * Résolution manuelle d'un code que le catalogue ne connaît pas : l'utilisateur désigne la
+   * ligne du bon, le code est mémorisé, puis le scan est rejoué pour que la quantité et le lot
+   * soient traités par le chemin normal — rien n'est appliqué deux fois.
+   */
+  private ouvrirResolutionDeCode(raw: string, result: IReceptionScanResult): void {
+    this.codeAResoudre.set(result.dataMatrixHint?.scannedCode ?? raw);
+    this.hintAResoudre.set(result.dataMatrixHint ?? null);
+    this.scanAResoudre = raw;
+    this.codeResolutionForm()?.reinitialiser();
+    // L'abandon de la modale est une fin normale : la ligne reste à saisir à la main.
+    void this.codeResolutionModal()?.open().catch((): void => undefined);
+  }
+
+  /** Confirmation de la modale : mémoriser le code si demandé, puis rejouer le scan. */
+  protected onCodeResolu(choix: CodeResolutionChoice): void {
+    const raw = this.scanAResoudre;
+    const code = this.codeAResoudre();
+    this.codeResolutionModal()?.close();
+    if (!raw) {
+      return;
+    }
+    if (!choix.memoriser || !choix.ligne.produitId) {
+      this.rejouerScan(raw);
+      return;
+    }
+    this.productsApi.createCodeAlias(choix.ligne.produitId, code).subscribe({
+      next: () => this.rejouerScan(raw),
+      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur"),
+    });
+  }
+
+  protected onCodeResolutionAnnulee(): void {
+    this.codeResolutionModal()?.dismiss();
+  }
+
+  /**
+   * Mode séquentiel : la boîte scannée n'est pas la ligne courante. On ouvre le sélecteur de
+   * ligne, le reste du traitement étant identique au mode grille.
+   */
+  protected onAutreLigneDemandee(demande: { code: string; hint: IDataMatrixHint | null }): void {
+    this.codeAResoudre.set(demande.code);
+    this.hintAResoudre.set(demande.hint);
+    this.scanAResoudre = demande.code;
+    this.codeResolutionForm()?.reinitialiser();
+    void this.codeResolutionModal()?.open().catch((): void => undefined);
+  }
+
+  /** Rejoue un scan en neutralisant l'anti-rebond, le code venant d'être mémorisé. */
+  protected rejouerScan(raw: string): void {
+    this.lastReceptionScan = null;
+    this.lastScanResult.set(null);
+    this.scanValue.set(raw);
+    this.onScanReception();
+  }
 
   // ── Lot inline editor ─────────────────────────────────────────────────────
 

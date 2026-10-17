@@ -91,6 +91,9 @@
 \i 25_objectifs_pilotage.sql
 -- Après 24 : le stock mensuel du pilotage se reconstitue depuis le journal des mouvements.
 \i 26_agregats_pilotage.sql
+-- Après 06 : les codes alternatifs des boîtes se posent sur le catalogue, et le récapitulatif
+-- nomme les lots sur lesquels imprimer l'étiquette interne à DataMatrix.
+\i 27_codes_alias_datamatrix.sql
 
 \i 99_verification.sql
 

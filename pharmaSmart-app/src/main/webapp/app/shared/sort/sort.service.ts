@@ -20,13 +20,17 @@ export class SortService {
   }
 
   public parseSortParam(sortParam: string | undefined): SortState {
+    // Le paramètre vient de l'URL : absent au premier affichage d'un écran trié.
+    if (!sortParam) {
+      return {};
+    }
     if (sortParam.includes(',')) {
       const split = sortParam.split(',');
       if (split[0]) {
         return { predicate: split[0], order: split[1] as any };
       }
     }
-    return { predicate: sortParam.length ? sortParam : undefined };
+    return { predicate: sortParam };
   }
 
   public buildSortParam({ predicate, order }: SortState, fallback?: string): string[] {

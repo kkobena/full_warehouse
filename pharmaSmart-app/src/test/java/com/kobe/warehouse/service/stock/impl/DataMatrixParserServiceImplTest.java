@@ -27,6 +27,15 @@ class DataMatrixParserServiceImplTest {
     /** EAN-8 dont la clé de contrôle est juste. */
     private static final String EAN_8_VALIDE = "96385074";
 
+    /** EAN-13 a cle juste dont les deux premiers chiffres forment l AI 01 (prefixe GS1 americain). */
+    private static final String EAN_13_PREFIXE_AI = "0112345678902";
+
+    /** EAN-8 a cle juste dont les deux premiers chiffres forment l AI 10. */
+    private static final String EAN_8_PREFIXE_AI = "10234563";
+
+    /** GTIN-14 dont le chiffre indicateur est zero : l EAN-13 s en deduit. */
+    private static final String GTIN_14_INDICATEUR_ZERO = "03400930000000";
+
     private DataMatrixParserServiceImpl service;
 
     @BeforeEach
@@ -91,6 +100,73 @@ class DataMatrixParserServiceImplTest {
         @DisplayName("un identifiant d application GS1 prime sur la detection par longueur")
         void aiPrimeSurLaLongueur() {
             assertThat(service.detectBarcodeType("0103400930000000")).isEqualTo(BarcodeType.DATAMATRIX);
+        }
+
+        @Test
+        @DisplayName("quatorze chiffres : GTIN-14")
+        void gtin14() {
+            assertThat(service.detectBarcodeType(GTIN_14_INDICATEUR_ZERO)).isEqualTo(BarcodeType.GTIN_14);
+        }
+
+        @Test
+        @DisplayName("un EAN-13 debutant par un AI connu reste un EAN-13")
+        void ean13DebutantParUnAi() {
+            assertThat(service.detectBarcodeType(EAN_13_PREFIXE_AI)).isEqualTo(BarcodeType.EAN_13);
+        }
+
+        @Test
+        @DisplayName("un EAN-8 debutant par un AI connu reste un EAN-8")
+        void ean8DebutantParUnAi() {
+            assertThat(service.detectBarcodeType(EAN_8_PREFIXE_AI)).isEqualTo(BarcodeType.EAN_8);
+        }
+
+        @Test
+        @DisplayName("une trame AI 17 plus date, de meme longueur qu un EAN-8, reste un DataMatrix")
+        void datePeremptionNEstPasUnEan8() {
+            assertThat(service.detectBarcodeType("17270630")).isEqualTo(BarcodeType.DATAMATRIX);
+        }
+
+        @Test
+        @DisplayName("sept chiffres debutant par un AI connu : GTIN tronque, donc inconnu")
+        void gtinTronqueNEstPasUnCip7() {
+            assertThat(service.detectBarcodeType("0134009")).isEqualTo(BarcodeType.DATAMATRIX);
+        }
+
+        @Test
+        @DisplayName("le FNC1 imprimable en tete est retire avant la detection")
+        void fnc1Imprimable() {
+            assertThat(service.detectBarcodeType("è" + EAN_13_VALIDE)).isEqualTo(BarcodeType.EAN_13);
+        }
+
+        @Test
+        @DisplayName("un separateur de groupe en tete est retire avant la detection")
+        void separateurEnTete() {
+            assertThat(service.detectBarcodeType(GS + EAN_13_VALIDE)).isEqualTo(BarcodeType.EAN_13);
+        }
+    }
+
+    @Nested
+    @DisplayName("parse : GTIN-14 nu")
+    class ParseGtin14 {
+
+        @Test
+        @DisplayName("un GTIN-14 a indicateur zero donne le GTIN et l EAN-13")
+        void indicateurZero() {
+            DataMatrixInfo info = service.parse(GTIN_14_INDICATEUR_ZERO).orElseThrow();
+
+            assertThat(info.gtin()).isEqualTo(GTIN_14_INDICATEUR_ZERO);
+            assertThat(info.ean13()).isEqualTo("3400930000000");
+            assertThat(info.getProductCode()).isEqualTo("3400930000000");
+        }
+
+        @Test
+        @DisplayName("un GTIN-14 a indicateur non nul ne donne que le GTIN")
+        void indicateurNonNul() {
+            DataMatrixInfo info = service.parse("13400930000000").orElseThrow();
+
+            assertThat(info.gtin()).isEqualTo("13400930000000");
+            assertThat(info.ean13()).isNull();
+            assertThat(info.getProductCode()).isEqualTo("13400930000000");
         }
     }
 
@@ -208,9 +284,144 @@ class DataMatrixParserServiceImplTest {
 
         @ParameterizedTest(name = "[{0}] ne donne aucun resultat")
         @NullAndEmptySource
-        @ValueSource(strings = { "   ", "abcdef", "12345" })
+        @ValueSource(strings = { "   " })
         void aucunResultat(String code) {
             assertThat(service.parse(code)).isEmpty();
+        }
+
+        @ParameterizedTest(name = "[{0}] remonte en code brut")
+        @ValueSource(strings = { "abcdef", "12345", "GROS/A-7788" })
+        @DisplayName("un code hors nomenclature est remonte brut, sans etre interprete")
+        void codeBrut(String code) {
+            DataMatrixInfo info = service.parse(code).orElseThrow();
+
+            assertThat(info.rawCode()).isEqualTo(code);
+            assertThat(info.getProductCode()).isEqualTo(code);
+            assertThat(info.cip13()).isNull();
+            assertThat(info.ean13()).isNull();
+            assertThat(info.gtin()).isNull();
+            assertThat(info.batchNumber()).isNull();
+            assertThat(info.expiryDate()).isNull();
+        }
+
+        @Test
+        @DisplayName("un code brut reste de type inconnu : rien n en est deduit")
+        void codeBrutResteInconnu() {
+            assertThat(service.detectBarcodeType("GROS/A-7788")).isEqualTo(BarcodeType.UNKNOWN);
+        }
+    }
+
+    @Nested
+    @DisplayName("parse : mode proposition (texte libre sans AI GS1)")
+    class ParseHeuristique {
+
+        /** EAN-13 a cle juste, utilise dans les chaines en texte libre. */
+        private static final String EAN_LIBRE = "3400933399931";
+
+        @Test
+        @DisplayName("lit code, lot et peremption d une chaine etiquetee")
+        void chaineEtiquetee() {
+            DataMatrixInfo info = service.parse("LOT:ABC123/EXP:20270131/EAN:" + EAN_LIBRE).orElseThrow();
+
+            assertThat(info.ean13()).isEqualTo(EAN_LIBRE);
+            assertThat(info.cip13()).isEqualTo(EAN_LIBRE);
+            assertThat(info.batchNumber()).isEqualTo("ABC123");
+            assertThat(info.expiryDate()).isEqualTo(LocalDate.of(2027, 1, 31));
+            assertThat(info.proposition()).isTrue();
+        }
+
+        @Test
+        @DisplayName("les valeurs deduites ne sont jamais certaines")
+        void jamaisCertaine() {
+            DataMatrixInfo info = service.parse("LOT:ABC123/EXP:20270131/EAN:" + EAN_LIBRE).orElseThrow();
+
+            assertThat(info.hasBatchInfo()).isTrue();
+            assertThat(info.hasBatchInfoCertaine()).isFalse();
+        }
+
+        @Test
+        @DisplayName("un lot lu dans un AI GS1 reste certain")
+        void gs1ResteCertain() {
+            DataMatrixInfo info = service.parse("10LOT2026A" + GS + "17270630").orElseThrow();
+
+            assertThat(info.proposition()).isFalse();
+            assertThat(info.hasBatchInfoCertaine()).isTrue();
+        }
+
+        @Test
+        @DisplayName("lit une chaine separee par des barres verticales, au format AAMMJJ")
+        void chaineSepareeParBarres() {
+            DataMatrixInfo info = service.parse("LOT ABC123|270131|" + EAN_LIBRE).orElseThrow();
+
+            assertThat(info.ean13()).isEqualTo(EAN_LIBRE);
+            assertThat(info.batchNumber()).isEqualTo("ABC123");
+            assertThat(info.expiryDate()).isEqualTo(LocalDate.of(2027, 1, 31));
+        }
+
+        @Test
+        @DisplayName("un GTIN-14 en texte libre donne aussi l EAN-13")
+        void gtin14EnTexteLibre() {
+            DataMatrixInfo info = service.parse("BATCH=XY9/0" + EAN_LIBRE).orElseThrow();
+
+            assertThat(info.gtin()).isEqualTo("0" + EAN_LIBRE);
+            assertThat(info.ean13()).isEqualTo(EAN_LIBRE);
+            assertThat(info.batchNumber()).isEqualTo("XY9");
+        }
+
+        @Test
+        @DisplayName("un lot non etiquete n est pas devine")
+        void lotNonEtiqueteIgnore() {
+            DataMatrixInfo info = service.parse("ABC123 " + EAN_LIBRE).orElseThrow();
+
+            assertThat(info.ean13()).isEqualTo(EAN_LIBRE);
+            assertThat(info.batchNumber()).isNull();
+        }
+
+        @Test
+        @DisplayName("treize chiffres a cle fausse ne sont pas pris pour un code produit")
+        void cleFausseRefusee() {
+            DataMatrixInfo info = service.parse("LOT:ABC123/EAN:4006381333932").orElseThrow();
+
+            assertThat(info.ean13()).isNull();
+            assertThat(info.batchNumber()).isEqualTo("ABC123");
+            // Sans code produit, la chaine entiere est remontee pour pouvoir etre memorisee.
+            assertThat(info.rawCode()).isEqualTo("LOT:ABC123/EAN:4006381333932");
+        }
+
+        @Test
+        @DisplayName("une date passee est ignoree : c est une fabrication ou un faux positif")
+        void datePasseeIgnoree() {
+            DataMatrixInfo info = service.parse("LOT:ABC123/EXP:20100131/EAN:" + EAN_LIBRE).orElseThrow();
+
+            assertThat(info.expiryDate()).isNull();
+            assertThat(info.batchNumber()).isEqualTo("ABC123");
+        }
+
+        @Test
+        @DisplayName("entre deux dates futures, la plus proche est retenue")
+        void dateLaPlusProche() {
+            DataMatrixInfo info = service.parse("LOT:A1/20300131/20270630/EAN:" + EAN_LIBRE).orElseThrow();
+
+            assertThat(info.expiryDate()).isEqualTo(LocalDate.of(2027, 6, 30));
+        }
+
+        @Test
+        @DisplayName("un motif de date impossible ne fait pas echouer la lecture")
+        void dateImpossibleIgnoree() {
+            DataMatrixInfo info = service.parse("LOT:ABC123/EXP:20270230/EAN:" + EAN_LIBRE).orElseThrow();
+
+            assertThat(info.expiryDate()).isNull();
+            assertThat(info.ean13()).isEqualTo(EAN_LIBRE);
+        }
+
+        @Test
+        @DisplayName("sans aucun motif reconnu, le code reste brut et non propose")
+        void aucunMotifReconnu() {
+            DataMatrixInfo info = service.parse("GROS/A-7788").orElseThrow();
+
+            assertThat(info.rawCode()).isEqualTo("GROS/A-7788");
+            assertThat(info.proposition()).isFalse();
+            assertThat(info.batchNumber()).isNull();
         }
 
         @Test
@@ -254,6 +465,24 @@ class DataMatrixParserServiceImplTest {
         @DisplayName("les espaces autour du code sont ignores")
         void espacesIgnores() {
             assertThat(service.parse("  " + EAN_13_VALIDE + "  ").orElseThrow().ean13()).isEqualTo(EAN_13_VALIDE);
+        }
+
+        @Test
+        @DisplayName("l identifiant de symbologie n est pas range avec le code")
+        void symbologieRetireeAvantRangement() {
+            DataMatrixInfo info = service.parse("]C13400930000000").orElseThrow();
+
+            assertThat(info.cip13()).isEqualTo("3400930000000");
+            assertThat(info.ean13()).isEqualTo("3400930000000");
+        }
+
+        @Test
+        @DisplayName("un EAN-13 debutant par un AI connu est lu comme un EAN-13")
+        void ean13DebutantParUnAi() {
+            DataMatrixInfo info = service.parse(EAN_13_PREFIXE_AI).orElseThrow();
+
+            assertThat(info.ean13()).isEqualTo(EAN_13_PREFIXE_AI);
+            assertThat(info.gtin()).isNull();
         }
     }
 
@@ -371,6 +600,36 @@ class DataMatrixParserServiceImplTest {
         }
 
         @Test
+        @DisplayName("retire l identifiant de symbologie ]Q3 des QR Code GS1")
+        void symbologieQ3() {
+            assertThat(service.parse("]Q30103400930000000").orElseThrow().gtin()).isEqualTo("03400930000000");
+        }
+
+        @Test
+        @DisplayName("retire le FNC1 imprimable emis par certains scanners")
+        void fnc1Imprimable() {
+            assertThat(service.parse("è0103400930000000").orElseThrow().gtin()).isEqualTo("03400930000000");
+        }
+
+        @Test
+        @DisplayName("retire un separateur de groupe en tete, Code 128 GS1 sans identifiant")
+        void separateurEnTete() {
+            assertThat(service.parse(GS + "0103400930000000").orElseThrow().gtin()).isEqualTo("03400930000000");
+        }
+
+        @Test
+        @DisplayName("accepte l echappement decimal ^029 du separateur")
+        void separateurEchappementDecimal() {
+            assertThat(service.parse("10LOT1^02921SN1").orElseThrow().serialNumber()).isEqualTo("SN1");
+        }
+
+        @Test
+        @DisplayName("accepte la notation URL-encodee %1D du separateur")
+        void separateurUrlEncode() {
+            assertThat(service.parse("10LOT1%1D21SN1").orElseThrow().serialNumber()).isEqualTo("SN1");
+        }
+
+        @Test
         @DisplayName("accepte la notation textuelle <GS> du separateur")
         void separateurTextuelChevrons() {
             DataMatrixInfo info = service.parse("10LOT1<GS>21SN1").orElseThrow();
@@ -473,6 +732,52 @@ class DataMatrixParserServiceImplTest {
             assertThat(info).isPresent();
             assertThat(info.orElseThrow().batchNumber()).isEqualTo("LOT1");
             assertThat(info.orElseThrow().expiryDate()).isNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("parse : AI 240, etiquette interne de l officine")
+    class ParseIdentifiantAdditionnel {
+
+        @Test
+        @DisplayName("le code du catalogue est remonte en code brut, non interprete")
+        void codeDuCatalogueEnCodeBrut() {
+            DataMatrixInfo info = service.parse("240A-7788" + GS + "10LOT9").orElseThrow();
+
+            assertThat(info.rawCode()).isEqualTo("A-7788");
+            assertThat(info.getProductCode()).isEqualTo("A-7788");
+            assertThat(info.cip13()).isNull();
+            assertThat(info.ean13()).isNull();
+            assertThat(info.gtin()).isNull();
+        }
+
+        @Test
+        @DisplayName("lot et peremption y sont certains : ils viennent d un identifiant GS1")
+        void lotEtPeremptionCertains() {
+            DataMatrixInfo info = service.parse("240A-7788" + GS + "10LOT9" + GS + "17261231").orElseThrow();
+
+            assertThat(info.batchNumber()).isEqualTo("LOT9");
+            assertThat(info.expiryDate()).isEqualTo(LocalDate.of(2026, 12, 31));
+            assertThat(info.proposition()).isFalse();
+            assertThat(info.hasBatchInfoCertaine()).isTrue();
+        }
+
+        @Test
+        @DisplayName("un code purement numerique passe aussi par l AI 240")
+        void codeNumerique() {
+            DataMatrixInfo info = service.parse("2401234567" + GS + "17270630").orElseThrow();
+
+            assertThat(info.rawCode()).isEqualTo("1234567");
+            assertThat(info.expiryDate()).isEqualTo(LocalDate.of(2027, 6, 30));
+        }
+
+        @Test
+        @DisplayName("un AI 240 vide est ignore sans faire perdre les identifiants suivants")
+        void ai240Vide() {
+            DataMatrixInfo info = service.parse("240" + GS + "10LOT9").orElseThrow();
+
+            assertThat(info.rawCode()).isNull();
+            assertThat(info.batchNumber()).isEqualTo("LOT9");
         }
     }
 }

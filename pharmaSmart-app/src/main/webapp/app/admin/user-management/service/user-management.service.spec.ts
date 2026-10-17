@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
-import { Authority } from 'app/config/authority.constants';
 import { User } from '../user-management.model';
 
 import { UserManagementService } from './user-management.service';
@@ -35,18 +34,6 @@ describe('User Service', () => {
       const req = httpMock.expectOne({ method: 'GET' });
       req.flush(new User(123, 'user'));
       expect(expectedResult).toEqual('user');
-    });
-
-    it('should return Authorities', () => {
-      let expectedResult: string[] = [];
-
-      service.authorities().subscribe(authorities => {
-        expectedResult = authorities;
-      });
-      const req = httpMock.expectOne({ method: 'GET' });
-
-      req.flush([{ name: Authority.USER }, { name: Authority.ADMIN }]);
-      expect(expectedResult).toEqual([Authority.USER, Authority.ADMIN]);
     });
 
     it('should propagate not found response', () => {

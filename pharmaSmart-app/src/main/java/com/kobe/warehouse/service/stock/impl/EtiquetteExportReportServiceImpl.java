@@ -4,7 +4,11 @@ import com.kobe.warehouse.service.license.DemoWatermark;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.enumeration.FormatEtiquette;
+import com.kobe.warehouse.domain.enumeration.ResolutionEtiquette;
+import com.kobe.warehouse.domain.enumeration.TypeEtiquette;
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.service.etiquette.zpl.ZplEtiquetteService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.EtiquetteDTO;
 import com.kobe.warehouse.service.pdf.EtiquetteBarcodeReplacedElement;
@@ -33,6 +37,7 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
 
     private final SpringTemplateEngine templateEngine;
     private final StorageService storageService;
+    private final ZplEtiquetteService zplEtiquetteService;
     private final Map<String, Object> variablesMap = new HashMap<>();
 
     private String templateFile;
@@ -40,11 +45,13 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
 
     public EtiquetteExportReportServiceImpl(
         SpringTemplateEngine templateEngine,
-        StorageService storageService
+        StorageService storageService,
+        ZplEtiquetteService zplEtiquetteService
     ) {
         super( storageService);
         this.templateEngine = templateEngine;
         this.storageService = storageService;
+        this.zplEtiquetteService = zplEtiquetteService;
     }
 
     @Override
@@ -78,13 +85,15 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
         return "etiquettes";
     }
 
-    private byte[] printEtiquettes(List<EtiquetteDTO> items, int startAt) {
+    private byte[] printEtiquettes(List<EtiquetteDTO> items, int startAt, FormatEtiquette format) {
         Magasin magasin = storageService.getUser().getMagasin();
         this.items = items;
-        templateFile = Constant.ETIQUETES_TEMPLATE_FILE;
+        // Un rouleau n'a pas de planche : son gabarit fixe la page a la taille de l'etiquette.
+        templateFile = format.isRouleau() ? Constant.ETIQUETES_ROULEAU_TEMPLATE_FILE : Constant.ETIQUETES_TEMPLATE_FILE;
         getParameters().put(Constant.MAGASIN, magasin);
-        getParameters().put(Constant.ITEMS, ListUtils.partition(items, 5));
+        getParameters().put(Constant.ITEMS, ListUtils.partition(items, format.getColonnes()));
         getParameters().put(Constant.ETIQUETES_BEGIN, startAt);
+        getParameters().put(Constant.ETIQUETTES_FORMAT, format);
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             ITextRenderer renderer = new ITextRenderer();
             SharedContext sharedContext = renderer.getSharedContext();
@@ -105,8 +114,13 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
     }
 
     public byte[] export(List<OrderLine> orderLines, int startAt) {
+        return export(orderLines, startAt, FormatEtiquette.parDefaut());
+    }
+
+    public byte[] export(List<OrderLine> orderLines, int startAt, FormatEtiquette format) {
         var magasin = storageService.getConnectedUserMagasin().getName().toUpperCase();
-        return printEtiquettes(buildEtiquettes(orderLines, magasin, startAt), startAt);
+        int depart = format.normaliserCaseDeDepart(startAt);
+        return printEtiquettes(buildEtiquettes(orderLines, magasin, depart), depart, format);
     }
 
     private List<EtiquetteDTO> buildEtiquettes(List<OrderLine> orderLines, String rasionSociale, int startAt) {
@@ -114,13 +128,10 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
         List<EtiquetteDTO> etiquettes = new ArrayList<>();
 
         var finalItems = orderLines.stream().filter(e -> StringUtils.isNotEmpty(e.getFournisseurProduit().getCodeCip())).toList();
-        //   int index = 1;
-        if (startAt > 1) {
-            for (int i = 1; i <= startAt; i++) {
-                etiquettes.add(new EtiquetteDTO().setPrint(false));
-                //  index++;
-            }
-            // return getEtiquetteDTOS(rasionSociale, date, etiquettes, finalItems, index, Comparator.comparing(EtiquetteDTO::getOrder));
+        // startAt est la case de la PREMIERE etiquette : on saute les cases qui la precedent, donc
+        // startAt - 1. La borne <= en sautait une de trop et decalait tout le bon d'une case.
+        for (int i = 1; i < startAt; i++) {
+            etiquettes.add(new EtiquetteDTO().setPrint(false));
         }
         return getEtiquetteDTOS(rasionSociale, date, finalItems, etiquettes);
     }
@@ -140,14 +151,34 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
     }
 
     public byte[] exportForProduit(Produit produit, int qty, int startAt) {
+        return exportForProduit(produit, qty, startAt, FormatEtiquette.parDefaut());
+    }
+
+    public byte[] exportForProduit(Produit produit, int qty, int startAt, FormatEtiquette format) {
+        int depart = format.normaliserCaseDeDepart(startAt);
+        List<EtiquetteDTO> etiquettes = new ArrayList<>();
+        for (int i = 1; i < depart; i++) {
+            etiquettes.add(new EtiquetteDTO().setPrint(false));
+        }
+        etiquettes.addAll(construireEtiquettesDuProduit(produit, qty));
+        return printEtiquettes(etiquettes, depart, format);
+    }
+
+    /** Flux ZPL des étiquettes d'un bon : pour une imprimante à rouleau sans pilote exploitable. */
+    public String genererZplPourBon(List<OrderLine> orderLines, FormatEtiquette format, ResolutionEtiquette resolution) {
+        String magasin = storageService.getConnectedUserMagasin().getName().toUpperCase();
+        // Pas de case de départ : un rouleau n'a pas de planche entamée à reprendre.
+        return zplEtiquetteService.rendreEtiquettes(buildEtiquettes(orderLines, magasin, 1), TypeEtiquette.STANDARD, format, resolution);
+    }
+
+    /** Idem pour l'étiquette d'un article du catalogue, répétée {@code qty} fois. */
+    public String genererZplPourProduit(Produit produit, int qty, FormatEtiquette format, ResolutionEtiquette resolution) {
+        return zplEtiquetteService.rendreEtiquettes(construireEtiquettesDuProduit(produit, qty), TypeEtiquette.STANDARD, format, resolution);
+    }
+
+    private List<EtiquetteDTO> construireEtiquettesDuProduit(Produit produit, int qty) {
         String magasin = storageService.getConnectedUserMagasin().getName().toUpperCase();
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        List<EtiquetteDTO> etiquettes = new ArrayList<>();
-        if (startAt > 1) {
-            for (int i = 1; i < startAt; i++) {
-                etiquettes.add(new EtiquetteDTO().setPrint(false));
-            }
-        }
         FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
         EtiquetteDTO dto = new EtiquetteDTO()
             .setCode(fournisseurProduit.getCodeCip())
@@ -156,10 +187,11 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
             .setDate(date)
             .setLibelle(produit.getLibelle())
             .setMagasin(magasin);
+        List<EtiquetteDTO> etiquettes = new ArrayList<>(Math.max(qty, 0));
         for (int i = 0; i < qty; i++) {
             etiquettes.add(dto);
         }
-        return printEtiquettes(etiquettes, startAt);
+        return etiquettes;
     }
 
     private EtiquetteDTO buildEtiquetteDTO(OrderLine item, String date, String rasionSociale) {

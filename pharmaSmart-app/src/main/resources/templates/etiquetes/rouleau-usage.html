@@ -1,0 +1,99 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Etiquetes usage rouleau</title>
+    <style th:inline="css">
+      /* Une etiquette par page : voir etiquetes/rouleau.html. */
+      @page {
+        size: [[${format.largeurMm}]]mm [[${format.hauteurMm}]]mm;
+        margin: 1mm;
+        padding: 0;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        font-weight: 700;
+      }
+
+      main {
+        margin: 0;
+        padding: 0;
+      }
+
+      .etiquette {
+        width: 100%;
+      }
+
+      /* Saut AVANT chaque etiquette sauf la premiere : un saut apres la derniere ferait
+         derouler une etiquette blanche. */
+      .saut {
+        page-break-before: always;
+      }
+
+      table {
+        margin: 0;
+        padding: 0;
+        border-collapse: collapse;
+        table-layout: fixed;
+        width: 100%;
+      }
+
+      td {
+        font-size: 8px;
+        vertical-align: top;
+      }
+
+      p {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        text-align: left;
+      }
+
+      .texte-long {
+        white-space: normal;
+      }
+
+      .une-ligne {
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
+      .prix-gondole {
+        font-size: 18px;
+        text-align: center;
+      }
+
+      .code-discret {
+        font-size: 7px;
+        font-weight: 400;
+      }
+
+      .intitule {
+        font-weight: 400;
+      }
+
+      td img {
+        height: auto;
+        width: [[${format.largeurCodeBarresMm}]]mm;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <th:block th:each="paquet, paquetStat : ${items}">
+        <div th:each="itm : ${paquet}" th:class="${paquetStat.first}?'etiquette':'etiquette saut'">
+          <table>
+            <tbody>
+              <th:block th:replace="~{etiquetes/usage-contenu :: contenu(${itm}, ${type})}"></th:block>
+            </tbody>
+          </table>
+        </div>
+      </th:block>
+    </main>
+  </body>
+</html>

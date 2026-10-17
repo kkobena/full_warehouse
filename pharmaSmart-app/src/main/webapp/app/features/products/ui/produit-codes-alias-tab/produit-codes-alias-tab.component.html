@@ -1,0 +1,84 @@
+<app-detail-grid>
+  <app-detail-section
+    header="Codes alternatifs"
+    icon="pi pi-barcode"
+    [accent]="'cyan'"
+    [width]="'full'"
+    [layout]="'block'"
+    [count]="alias().length"
+    storageKey="produit.codes-alias.tab"
+  >
+    <div class="pca">
+      <p class="pca__intro">
+        Codes supplémentaires sous lesquels cet article est reconnu au scan : GTIN du fabricant, EAN
+        d'une autre boîte, code interne d'un grossiste. Les codes de la fiche fournisseur et l'EAN
+        laboratoire restent reconnus sans figurer ici.
+      </p>
+
+      @if (!estDesactive()) {
+        <div class="pca__ajout">
+          <label class="pca__ajout-label" for="pca-nouveau-code">Ajouter un code</label>
+          <div class="pca__ajout-row">
+            <input
+              id="pca-nouveau-code"
+              type="text"
+              class="form-control"
+              placeholder="Scannez la boîte ou saisissez le code…"
+              autocomplete="off"
+              maxlength="20"
+              [ngModel]="nouveauCode()"
+              (ngModelChange)="nouveauCode.set($event)"
+              (keyup.enter)="ajouter()"
+            />
+            <app-button
+              label="Ajouter"
+              icon="pi pi-plus"
+              [disabled]="!peutAjouter()"
+              (clicked)="ajouter()"
+            />
+          </div>
+          <p class="pca__ajout-hint">
+            Le type du code est déduit de sa forme : rien d'autre à renseigner.
+          </p>
+        </div>
+      }
+
+      @if (chargement()) {
+        <p class="pca__empty">Chargement…</p>
+      } @else if (alias().length === 0) {
+        <p class="pca__empty">
+          Aucun code alternatif. Un code inconnu scanné à la réception peut être mémorisé depuis
+          l'écran de réception.
+        </p>
+      } @else {
+        <ul class="pca__list">
+          @for (item of alias(); track item.id) {
+            <li class="pca__item">
+              <code class="pca__code">{{ item.code }}</code>
+              <app-badge [label]="libelleType(item.codeType)" severity="info" />
+              <span class="pca__origine">
+                @if (item.createdAt) {
+                  {{ item.createdAt | date: 'dd/MM/yyyy' }}
+                }
+                @if (item.createdBy) {
+                  · {{ item.createdBy }}
+                }
+              </span>
+              @if (!estDesactive()) {
+                <app-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [iconOnly]="true"
+                  [text]="true"
+                  ariaLabel="Retirer ce code"
+                  ngbTooltip="Retirer ce code"
+                  (clicked)="supprimer(item)"
+                />
+              }
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </app-detail-section>
+</app-detail-grid>

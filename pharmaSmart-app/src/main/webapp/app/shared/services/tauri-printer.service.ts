@@ -187,6 +187,32 @@ export class TauriPrinterService {
    * @param escposBuffer ArrayBuffer containing ESC/POS commands from backend
    * @param printerName Name of the printer (optional, uses default if not specified)
    */
+  /**
+   * Envoie un flux ZPL à une imprimante d'étiquettes.
+   *
+   * Pas de base64 : le ZPL est du texte, et la file d'impression le reçoit en RAW — le pilote ne
+   * le réinterprète pas, l'imprimante trace elle-même code-barres et DataMatrix.
+   */
+  async printZpl(zplData: string, printerName?: string): Promise<void> {
+    if (!this.isRunningInTauri()) {
+      throw new Error("ZPL printing is only available in Tauri application");
+    }
+
+    const invoke = await this.getInvoke();
+    if (!printerName) {
+      const defaultPrinter = await this.getDefaultPrinter();
+      if (!defaultPrinter) {
+        throw new Error("No printer available");
+      }
+      printerName = defaultPrinter.name;
+    }
+
+    await invoke("print_zpl", {
+      zplData,
+      printerName
+    });
+  }
+
   async printEscPosFromBuffer(escposBuffer: ArrayBuffer, printerName?: string): Promise<void> {
     const base64Data = this.arrayBufferToBase64(escposBuffer);
     await this.printEscPos(base64Data, printerName);

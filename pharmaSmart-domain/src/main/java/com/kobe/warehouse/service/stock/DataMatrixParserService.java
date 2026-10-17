@@ -11,6 +11,7 @@ import java.util.Optional;
  *   <li>EAN-13 (13 digits)</li>
  *   <li>CIP-7 (7 digits)</li>
  *   <li>CIP-13 (13 digits, starts with 340)</li>
+ *   <li>GTIN-14 (14 digits, AI 01 content scanned without its GS1 header)</li>
  *   <li>GS1 DataMatrix with Application Identifiers (AI)</li>
  * </ul>
  *
@@ -90,6 +91,8 @@ public interface DataMatrixParserService {
         EAN_13,
         CIP_7,
         CIP_13,
+        /** GTIN-14 nu : AI 01 scanné sans en-tête GS1, fréquent sur les boîtes hors circuit français. */
+        GTIN_14,
         DATAMATRIX,
         UNKNOWN
     }

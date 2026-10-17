@@ -14,14 +14,26 @@ public record DataMatrixInfo(
     LocalDate expiryDate,
     LocalDate manufacturingDate,
     String serialNumber,
-    int scannedQty
+    int scannedQty,
+    String rawCode,
+    boolean proposition
 ) {
     public boolean hasProductCode() {
-        return gtin != null || cip13 != null || ean13 != null;
+        return gtin != null || cip13 != null || ean13 != null || rawCode != null;
     }
 
     public boolean hasBatchInfo() {
         return batchNumber != null;
+    }
+
+    /**
+     * Lot et péremption sûrs, c'est-à-dire lus dans un Application Identifier GS1.
+     *
+     * <p>Les valeurs d'un code non-GS1 sont déduites par reconnaissance de motif : elles ne
+     * valent que comme proposition à l'écran, jamais comme source d'une écriture de stock.
+     */
+    public boolean hasBatchInfoCertaine() {
+        return batchNumber != null && !proposition;
     }
 
     public boolean hasExpiryDate() {
@@ -29,7 +41,11 @@ public record DataMatrixInfo(
     }
 
     /**
-     * Returns the best available product code (CIP13 > EAN13 > GTIN).
+     * Meilleur code produit disponible : CIP-13, puis EAN-13, puis GTIN-14, puis le code brut.
+     *
+     * <p>Le code brut n'est renseigné que pour un code hors nomenclature connue — typiquement le
+     * code interne d'un grossiste ivoirien. Il n'est pas interprété : c'est à l'appelant de le
+     * confronter au catalogue et aux codes alternatifs.
      */
     public String getProductCode() {
         if (cip13 != null) {
@@ -38,7 +54,7 @@ public record DataMatrixInfo(
         if (ean13 != null) {
             return ean13;
         }
-        return gtin;
+        return gtin != null ? gtin : rawCode;
     }
 
     public static Builder builder() {
@@ -54,6 +70,8 @@ public record DataMatrixInfo(
         private LocalDate manufacturingDate;
         private String serialNumber;
         private int scannedQty = 1;
+        private String rawCode;
+        private boolean proposition;
 
         public Builder gtin(String gtin) {
             this.gtin = gtin;
@@ -95,8 +113,30 @@ public record DataMatrixInfo(
             return this;
         }
 
+        public Builder rawCode(String rawCode) {
+            this.rawCode = rawCode;
+            return this;
+        }
+
+        /** Marque les valeurs comme déduites par motif, donc à confirmer par un humain. */
+        public Builder proposition(boolean proposition) {
+            this.proposition = proposition;
+            return this;
+        }
+
         public DataMatrixInfo build() {
-            return new DataMatrixInfo(gtin, cip13, ean13, batchNumber, expiryDate, manufacturingDate, serialNumber, scannedQty);
+            return new DataMatrixInfo(
+                gtin,
+                cip13,
+                ean13,
+                batchNumber,
+                expiryDate,
+                manufacturingDate,
+                serialNumber,
+                scannedQty,
+                rawCode,
+                proposition
+            );
         }
     }
 }

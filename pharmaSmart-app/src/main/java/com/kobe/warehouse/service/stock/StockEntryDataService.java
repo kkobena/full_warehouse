@@ -1,6 +1,8 @@
 package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.domain.CommandeId;
+import com.kobe.warehouse.domain.enumeration.FormatEtiquette;
+import com.kobe.warehouse.domain.enumeration.ResolutionEtiquette;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
 import com.kobe.warehouse.service.dto.DeliveryTotalsDTO;
@@ -23,7 +25,16 @@ public interface StockEntryDataService {
 
     Optional<DeliveryReceiptDTO> findOneById(CommandeId id);
 
-    byte[] printEtiquette(CommandeId id, int startAt);
+    byte[] printEtiquette(CommandeId id, int startAt, FormatEtiquette format);
+
+    /** Second type d'étiquette : une par lot reçu, avec lot, péremption et GS1 DataMatrix. */
+    byte[] printEtiquetteLot(CommandeId id, int startAt, FormatEtiquette format);
+
+    /** Étiquettes standard du bon en ZPL, pour une imprimante à rouleau pilotée en direct. */
+    String printEtiquetteZpl(CommandeId id, FormatEtiquette format, ResolutionEtiquette resolution);
+
+    /** Étiquettes « lot » du bon en ZPL. */
+    String printEtiquetteLotZpl(CommandeId id, FormatEtiquette format, ResolutionEtiquette resolution);
 
     byte[] exportToPdf(CommandeId id);
 

@@ -25,6 +25,8 @@ import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptItemProjection;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptProjection;
 import com.kobe.warehouse.service.stock.DeliveryReceiptReportReportService;
+import com.kobe.warehouse.domain.enumeration.FormatEtiquette;
+import com.kobe.warehouse.service.stock.EtiquetteLotExportService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.Tuple;
@@ -87,6 +89,9 @@ class StockEntryDataServiceImplTest {
     private EtiquetteExportReportServiceImpl etiquetteExportService;
 
     @Mock
+    private EtiquetteLotExportService etiquetteLotExportService;
+
+    @Mock
     private CriteriaBuilder cb;
 
     @Mock
@@ -128,7 +133,8 @@ class StockEntryDataServiceImplTest {
             commandeRepository,
             receiptReportService,
             orderLineRepository,
-            etiquetteExportService
+            etiquetteExportService,
+            etiquetteLotExportService
         );
 
         when(em.getCriteriaBuilder()).thenReturn(cb);
@@ -372,13 +378,23 @@ class StockEntryDataServiceImplTest {
         }
 
         @Test
-        @DisplayName("printEtiquette passe les lignes du bon au service d etiquettes")
+        @DisplayName("printEtiquette passe les lignes du bon et le format au service d etiquettes")
         void printEtiquette() {
             List<OrderLine> lignes = List.of(new OrderLine());
             when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE)).thenReturn(lignes);
-            when(etiquetteExportService.export(lignes, 4)).thenReturn(new byte[] { 9 });
+            when(etiquetteExportService.export(lignes, 4, FormatEtiquette.A4_21_63X38)).thenReturn(new byte[] { 9 });
 
-            assertThat(service.printEtiquette(COMMANDE_ID, 4)).containsExactly(9);
+            assertThat(service.printEtiquette(COMMANDE_ID, 4, FormatEtiquette.A4_21_63X38)).containsExactly(9);
+        }
+
+        @Test
+        @DisplayName("printEtiquetteLot passe les lignes du bon au service du second type")
+        void printEtiquetteLot() {
+            List<OrderLine> lignes = List.of(new OrderLine());
+            when(orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(12, ORDER_DATE)).thenReturn(lignes);
+            when(etiquetteLotExportService.exporterPourBon(lignes, 2, FormatEtiquette.parDefaut())).thenReturn(new byte[] { 7 });
+
+            assertThat(service.printEtiquetteLot(COMMANDE_ID, 2, FormatEtiquette.parDefaut())).containsExactly(7);
         }
 
         @Test

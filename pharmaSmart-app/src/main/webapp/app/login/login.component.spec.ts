@@ -2,7 +2,7 @@ jest.mock('app/core/auth/account.service');
 jest.mock('app/login/login.service');
 
 import { ElementRef, signal } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { Navigation, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -85,7 +85,7 @@ describe('LoginComponent', () => {
   });
 
   describe('ngAfterViewInit', () => {
-    it('should set focus to username input after the view has been initialized', () => {
+    it('should set focus to username input after the view has been initialized', fakeAsync(() => {
       // GIVEN
       const node = {
         focus: jest.fn(),
@@ -94,10 +94,12 @@ describe('LoginComponent', () => {
 
       // WHEN
       comp.ngAfterViewInit();
+      // Le focus est différé de 100 ms : posé tout de suite, il est repris par le rendu.
+      tick(100);
 
       // THEN
       expect(node.focus).toHaveBeenCalled();
-    });
+    }));
   });
 
   describe('login', () => {
@@ -125,8 +127,9 @@ describe('LoginComponent', () => {
     });
 
     it('should authenticate the user but not navigate to home page if authentication process is already routing to cached url from localstorage', () => {
-      // GIVEN
-      jest.spyOn(mockRouter, 'getCurrentNavigation').mockReturnValue({} as Navigation);
+      // GIVEN `getCurrentNavigation()` est déprécié depuis Angular 20.2 et le composant lit
+      // désormais le signal `currentNavigation()` : stubber l'ancienne API ne changeait plus rien.
+      jest.spyOn(mockRouter, 'currentNavigation' as never).mockReturnValue({} as Navigation as never);
 
       // WHEN
       comp.login();

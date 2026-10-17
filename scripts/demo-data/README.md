@@ -189,6 +189,7 @@ la fenêtre récente.
 | `24_mouvements.sql` | Journal des mouvements (tous types), inventaires d'ouverture et annuel, photos de stock. En dernier. |
 | `25_objectifs_pilotage.sql` | Objectifs mensuels du pilotage (CA TTC, marge, taux de marge, taux de remise), années N et N-1. |
 | `26_agregats_pilotage.sql` | Agrégats du pilotage (ventes, achats, encaissements, stock mensuel) sur tout l'historique : sans lui, les onglets du pilotage ne voient que la dernière semaine. Après 24. |
+| `27_codes_alias_datamatrix.sql` | Codes alternatifs des boîtes (`produit_code_alias`) : GTIN du fabricant, code interne de grossiste, EAN d'un reconditionnement. Nomme aussi les lots sur lesquels imprimer l'étiquette interne à DataMatrix. |
 | `99_verification.sql` | Contrôles d'intégrité. Sort en erreur si un invariant est violé. |
 | `run_all.sql` | Enchaîne le tout. |
 
@@ -378,6 +379,58 @@ Trois particularités du modèle :
 
 La réserve se remplit par **transfert** depuis le rayon, jamais directement : les lots entrent
 toujours par le stockage principal.
+
+### Codes alternatifs et étiquette interne à DataMatrix
+
+En Côte d'Ivoire les grossistes n'intègrent pas les codes du DataMatrix du fabricant : **le code
+encodé sur la boîte n'est pas celui du catalogue**. `produit_code_alias` mémorise cet écart, et
+l'étiquette interne réencode le code du catalogue — avec le lot et la péremption — dans un GS1
+DataMatrix que l'application sait relire (voir
+[docs/PLAN-DATAMATRIX-MARCHE-CI-V2.md](../../docs/PLAN-DATAMATRIX-MARCHE-CI-V2.md)).
+
+**Unicité `(produit_id, code)`, pas `(code)`.** Deux produits peuvent porter le même code, et
+c'est voulu : deux conditionnements d'une même molécule se partagent parfois un EAN chez le
+grossiste. L'écran demande alors lequel est le bon.
+
+Environ 330 codes, sur trois fractions disjointes du catalogue suivi par lot, plus sept **cas
+nommés** ancrés sur des libellés de produits de tête — jamais sur des identifiants, qui ne sont
+pas stables d'un chargement à l'autre :
+
+| Produit | Code | Type | Ce qu'il démontre |
+|---|---|---|---|
+| DOLIPRANE ADULTES 1000 mg | `17353163006038` | `GTIN_14` | chiffre indicateur non nul : aucun EAN-13 ne s'en extrait, seul l'alias résout le scan |
+| EFFERALGAN 500 mg | `6181234567898` | `EAN_13` | boîte conditionnée en CI (préfixe GS1 **618** — `611` est le Maroc) |
+| TRAMADOL ARROW L.P. 150 mg | `GROS/A-7788` | `CUSTOM` | code interne de grossiste, hors nomenclature : remonté en code brut |
+| METFORMINE VIATRIS 1000 mg | `3400933399931` | `CIP_13` | CIP français d'un produit d'import, repris d'un fichier fournisseur (`source = IMPORT`) |
+| AMOXICILLINE TEVA 1 g **et** ZENTIVA LAB 1 g | `6189876543218` | `EAN_13` | **un code, deux produits** : la modale de résolution propose les deux |
+| AUGMENTIN 1 g/125 mg | `96385074` | `EAN_8` | code court d'une boîte d'échantillon |
+
+**Les clés de contrôle sont calculées, pas écrites à la main** : les scripts posent le corps du
+code et `pg_temp.cle_gs1()` ajoute la clé. Un EAN à clé fausse serait rejeté par le parser avant
+toute recherche, et le cas nommé ne démontrerait rien — c'est l'erreur qu'avait faite la v1 du
+plan. `99_verification.sql` recalcule chaque clé.
+
+#### Imprimer l'étiquette interne
+
+Les deux types d'étiquette se choisissent **à la génération**, dans la modale d'impression.
+L'étiquette standard (Code 39, code article seul) est inchangée ; le type « Lot » porte le
+DataMatrix.
+
+| Où | Comment | Planche |
+|---|---|---|
+| Fiche produit → « Imprimer étiquettes » | type « Lot (DataMatrix) », puis choisir le lot | courte, maîtrisée — **à préférer** |
+| Bon de livraison clôturé → « Impression des étiquettes » | type « Lot (DataMatrix) » | une étiquette par lot reçu, donc longue sur un gros bon |
+
+`27_codes_alias_datamatrix.sql` termine en **nommant les cibles calculées sur les données
+réellement chargées** : les lots imprimables de METFORMINE VIATRIS 1000 mg, et les bons de
+livraison dont la planche tient en 2 à 12 étiquettes. Les dates étant relatives au jour du
+chargement, ces valeurs changent d'une exécution à l'autre : lire la sortie du script plutôt que
+de recopier un numéro de lot d'hier.
+
+> **Le code imprimé est `fournisseur_produit.code_cip`, un `varchar(10)`.** C'est pourquoi la
+> trame emploie l'**AI 240** (identification additionnelle du fabricant) et non l'AI 01 : un
+> GTIN-14 n'accepte que quatorze chiffres, et bourrer un CIP-7 de zéros donnerait un code
+> introuvable au scan.
 
 ### Ventes, tiers-payant et dépôt
 

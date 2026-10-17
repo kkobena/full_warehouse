@@ -48,7 +48,7 @@ describe('IconFieldComponent', () => {
 });
 
 describe('FloatLabelComponent', () => {
-  it('rend .form-floating et lie le label au champ projeté', async () => {
+  it('lie le label au champ projeté', async () => {
     await TestBed.configureTestingModule({ imports: [FloatLabelComponent] }).compileComponents();
     const fixture = TestBed.createComponent(FloatLabelComponent);
     fixture.componentRef.setInput('label', 'Nom');
@@ -56,7 +56,9 @@ describe('FloatLabelComponent', () => {
     fixture.detectChanges();
 
     const host: HTMLElement = fixture.nativeElement;
-    expect([...host.classList]).toContain('form-floating');
+    // Plus de .form-floating : les sélecteurs de Bootstrap exigent un .form-control en enfant
+    // direct, ce que nos champs (app-select, pharma-date-picker…) ne sont pas. L'état flottant
+    // est porté par float-label.component.scss ; ce qui compte ici, c'est le lien label ↔ champ.
     expect(host.querySelector('label')!.htmlFor).toBe('produit-nom');
     expect(host.querySelector('label')!.textContent?.trim()).toBe('Nom');
   });

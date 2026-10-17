@@ -72,9 +72,15 @@ describe('Home Component', () => {
   });
 
   describe('login', () => {
-    it('Should navigate to /login on login', () => {
+    it('Should navigate to /login when there is no account', () => {
+      // GIVEN l'accueil n'a plus de bouton login() : il renvoie lui-même vers l'écran de
+      // connexion dès que l'état d'authentification retombe à null.
+      const authenticationState = new Subject<Account | null>();
+      mockAccountService.getAuthenticationState = jest.fn(() => authenticationState.asObservable());
+      comp.ngOnInit();
+
       // WHEN
-      comp.login();
+      authenticationState.next(null);
 
       // THEN
       expect(mockRouter.navigate).toHaveBeenCalledWith(['/login']);

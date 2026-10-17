@@ -40,4 +40,10 @@ public interface FournisseurProduitRepository extends JpaRepository<FournisseurP
     List<FournisseurProduit> findByCodeCipContainingOrCodeEanContaining(String codeCip, String codeEan);
 
     Optional<FournisseurProduit> findFirstByCodeCip(String codeCip);
+
+    /** Fiches fournisseur portant ce CIP. Plusieurs produits possibles : le CIP n'est unique que par fournisseur. */
+    List<FournisseurProduit> findAllByCodeCip(String codeCip);
+
+    /** Fiches fournisseur portant cet EAN. L'EAN n'est contraint par aucune unicité. */
+    List<FournisseurProduit> findAllByCodeEan(String codeEan);
 }

@@ -86,9 +86,10 @@ describe('ButtonComponent', () => {
       expect(classes()).toContain('rounded-pill');
     });
 
-    it('raised ajoute .shadow-sm', () => {
+    it('raised ajoute .app-btn-raised', () => {
       fixture.componentRef.setInput('raised', true);
-      expect(classes()).toContain('shadow-sm');
+      // L'élévation est maison (box-shadow à trois couches) et non le .shadow-sm de Bootstrap.
+      expect(classes()).toContain('app-btn-raised');
     });
 
     it('buttonClass est reporté sur le <button>', () => {

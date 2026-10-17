@@ -257,6 +257,15 @@ chaque étape du modèle soit parcourue.
 **Corriger `cahier-recette.model.ts`, jamais contourner le contrôle.** Un parcours qui se
 plie à une étape fausse produit une capture qui illustre autre chose que sa légende.
 
+L'inverse se produit aussi : **l'écran change, et c'est le parcours qui devient faux.** Le
+catalogue des formats d'étiquette (`docs/PLAN-FORMATS-ETIQUETTES.md`) en a périmé deux d'un
+coup, et aucun des deux ne l'aurait signalé autrement qu'en échouant :
+
+| Parcours | Ce qu'il attendait | Ce que l'écran dit depuis |
+| --- | --- | --- |
+| `REF-07` | « Planche A4 de 65 étiquettes », libellé écrit en dur | la planche est NOMMÉE (« Avery L7651 », « calage maison ») et sa capacité annoncée — « 65 étiquettes par planche » |
+| `ACH-76` | « comprise entre 1 et 64 » | la borne vient du format choisi : 65 sur la planche par défaut, 24 sur une planche de 24. Le 64 était de surcroît un défaut — la planche en compte 65 |
+
 Corrections déjà faites de cette façon :
 
 | Scénario | Ce que disait le modèle | Ce que montre l'écran |
@@ -301,6 +310,7 @@ chaque parcours — et se redécouvrent à chaque fois par un délai dépassé d
 | `chercherDansSelect(page, id, terme)` | un `app-select-search` n'a AUCUNE option tant qu'on n'a pas tapé : ouvrir la liste ne montre rien, et l'attente expire sur un composant sain |
 | `seConnecterEnTantQue(page, login, mdp)` | les autorisations ne se déclenchent que pour un compte DÉPOURVU du privilège : jouées en administrateur, elles ne montreraient rien |
 | `ajouterAuPanier(page, qté)` | l'écran donne le focus au champ quantité PUIS y écrit sa valeur par défaut : saisir entre les deux, c'est vendre la quantité par défaut sans le voir |
+| `ouvrirEtiquettesProduit(page, libellé)` | l'impression des étiquettes n'est PAS dans la fiche : elle vit dans le menu « Actions » de la ligne du catalogue, et le type d'étiquette — standard, lot, réglette, préparation — se choisit dans la fenêtre, pas avant de l'ouvrir |
 
 Chacun a été trouvé par un échec, en écrivant un parcours. Quand un parcours bute plus de
 quelques secondes sur un composant du Design System, la cause est plus souvent de cet ordre
@@ -311,6 +321,37 @@ coûte 90 secondes par tentative.
 
 Un contournement dans un parcours cache un défaut que les utilisateurs subissent aussi. Tous
 ont donc été corrigés à la source, jamais ici. Ils se rangent en trois familles.
+
+**Trouvés en JOUANT la campagne du 2026-10-17** — ni l'un ni l'autre ne se voyait en écrivant
+un parcours, seulement en les enchaînant tous :
+
+| Défaut | Ce qu'il produisait | Correction |
+| --- | --- | --- |
+| `24_mouvements.sql` insère des inventaires avec des identifiants posés À LA MAIN et ne recale pas la séquence — `11_inventaires.sql` le fait, mais il passe avant | la PREMIÈRE création d'inventaire depuis l'application violait la clé primaire : `duplicate key value violates unique constraint "store_inventory_pkey"`, donc un HTTP 500 et un écran muet. Quatre parcours tombaient dessus — `STK-04`, `STK-08`, `STK-10`, `RPT-35` — pour une seule cause, et les 384 contrôles de volume n'y voyaient rien, les données chargées étant parfaitement cohérentes | `setval` ajouté après l'insertion, et un contrôle GÉNÉRIQUE dans `99_verification.sql` : toute séquence d'identité du schéma doit être au-dessus de son `max(id)` |
+| `scripts/essai-ordonnance/nettoyer.sql` appelé par cinq specs, **et absent du dépôt** | `ENOENT` avant la première étape : `VTE-71`, `VTE-72`, `VTE-73` et les deux contrôles de thème a11y échouaient sans jamais ouvrir un écran | le script est écrit, pendant de `preparer.sql` : version d'interactions fictive, prescripteurs et ordonnances d'essai, dans l'ordre que les clés étrangères imposent |
+
+**Ce que le contrôle générique a révélé en plus, et qui reste à traiter** : `tva`, `categorie` et
+`tableau` sont dans le même cas, mais leurs lignes viennent des MIGRATIONS (`V1.0.2`, `V1.0.3`),
+pas des scripts de démonstration. Le défaut touche donc le produit livré — `Tva` est en
+`GenerationType.IDENTITY`, sa séquence est intacte sous des identifiants 1 à 3, et la première
+création d'un taux de TVA depuis l'écran violerait la clé sur n'importe quelle installation. Si
+`RFD-05` ne l'a jamais révélé, c'est qu'il remplit le formulaire **sans enregistrer**,
+délibérément. La réparation est une migration : les trois tables sont écartées du contrôle, avec
+le motif écrit à côté.
+
+**Le stock partagé décide du résultat de la campagne.** `DOLIPRANE 500 mg` arrive à **7** en
+stock sur une base fraîchement rechargée, et **39 parcours** le vendent. Les premiers passent,
+les suivants tombent sur « Stock insuffisant » : une vingtaine d'échecs qui ne disent rien du
+code. C'est la recommandation « préférer des produits bien approvisionnés » qui n'est pas suivie
+pour ce produit-là — à trancher entre relever son stock dans `07_stock.sql` et répartir les
+parcours sur plusieurs produits.
+
+**Trouvé en écrivant `ACH-86`** : un code inconnu scanné en saisie SÉQUENTIELLE ouvrait le
+sélecteur de ligne — la fenêtre de la vue tableau — **par-dessus** le bandeau de la ligne
+courante. Les deux chemins étaient donc offerts en même temps, et le geste conçu pour le mode
+séquentiel (une touche sur la ligne déjà affichée) était recouvert par celui qu'il devait
+remplacer. `commande-received` n'ouvre plus la fenêtre qu'en vue tableau ; en séquentiel, c'est
+le bandeau qui l'ouvre, à la demande (touche « A »).
 
 **Le Design System, découvert par un parcours qui butait :**
 

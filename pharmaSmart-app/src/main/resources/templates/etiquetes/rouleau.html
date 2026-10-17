@@ -1,0 +1,78 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Etiquetes rouleau</title>
+    <style th:inline="css">
+      /* Une etiquette par page, et la page EST l'etiquette : une imprimante a rouleau n'a pas de
+         A4, elle a une laize et un capteur de decoupe. Le pilote y envoie une page par etiquette. */
+      @page {
+        size: [[${format.largeurMm}]]mm [[${format.hauteurMm}]]mm;
+        margin: 1mm;
+        padding: 0;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        font-weight: 700;
+      }
+
+      main {
+        margin: 0;
+        padding: 0;
+      }
+
+      .etiquette {
+        width: 100%;
+        text-align: center;
+      }
+
+      /* Saut AVANT chaque etiquette sauf la premiere : un saut apres la derniere ferait
+         derouler une etiquette blanche, donc du consommable perdu a chaque impression. */
+      .saut {
+        page-break-before: always;
+      }
+
+      p {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        font-size: 8px;
+        white-space: nowrap;
+      }
+
+      .text-left {
+        text-align: left;
+      }
+
+      .prix {
+        font-size: 10px;
+      }
+
+      img {
+        /* Hauteur declaree : seule sur sa page, l'image prendrait sinon toute la place et
+           chasserait le prix hors de l'etiquette. */
+        width: [[${format.largeurCodeBarresMm}]]mm;
+        height: [[${format.hauteurCodeBarresMm}]]mm;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <th:block th:each="paquet, paquetStat : ${items}">
+        <div th:each="itm : ${paquet}" th:class="${paquetStat.first}?'etiquette':'etiquette saut'">
+          <!-- Le nom de l'officine ne tient qu'a partir de 25 mm de haut : en dessous, il
+               pousserait le prix hors de la decoupe. -->
+          <p class="text-left" th:if="${format.hauteurMm >= 25}" th:text="${itm.magasin}"></p>
+          <p class="text-left" th:text="${itm.libelle}"></p>
+          <img th:id="${itm.code}" />
+          <p th:text="${itm.code}"></p>
+          <p class="prix" th:text="${itm.prix}"></p>
+        </div>
+      </th:block>
+    </main>
+  </body>
+</html>

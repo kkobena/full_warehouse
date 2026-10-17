@@ -1,0 +1,114 @@
+<div class="modal-header">
+  <h5 class="modal-title"><i class="pi pi-tag me-2"></i>Étiquettes de posologie</h5>
+  <button type="button" class="btn-close" (click)="annuler()" aria-label="Fermer"></button>
+</div>
+
+<div class="modal-body">
+  <app-card [variant]="'form'">
+    <div class="mb-3">
+      <label class="form-label" for="posoLigne">Ligne de l'ordonnance</label>
+      <app-select
+        inputId="posoLigne"
+        [items]="lignes()"
+        bindLabel="libelle"
+        bindValue="id"
+        appendTo="body"
+        placeholder="Toutes les lignes"
+        [ngModel]="ligneId()"
+        (ngModelChange)="ligneId.set($event)"
+      />
+      <small class="text-muted" style="font-size: 0.7rem">Sans choix, une étiquette par ligne prescrite.</small>
+    </div>
+
+    @if (formats().length) {
+      <div class="mb-3">
+        <label class="form-label" for="posoFormat">Format</label>
+        <app-select
+          inputId="posoFormat"
+          [items]="formats()"
+          bindLabel="libelle"
+          bindValue="code"
+          groupBy="supportLibelle"
+          appendTo="body"
+          placeholder="Sélectionner un format"
+          [ngModel]="formatCode()"
+          (ngModelChange)="onFormatChange($event)"
+        />
+        <small class="text-muted" style="font-size: 0.7rem">
+          Une posologie se lit : les formats les plus larges lui vont mieux.
+        </small>
+      </div>
+    }
+
+    @if (zplPossible()) {
+      <div class="mb-3">
+        <label class="form-label">Chemin d'impression</label>
+        <div>
+          <app-pill-selector
+            [items]="modeOptions"
+            [ngModel]="modeImpression()"
+            (selectionChange)="onModeChange($event)"
+            ariaLabel="Chemin d'impression"
+          />
+        </div>
+      </div>
+      @if (estZpl()) {
+        <div class="row g-3 mb-3">
+          <div class="col-7">
+            <label class="form-label" for="posoImprimante">Imprimante</label>
+            <app-select
+              inputId="posoImprimante"
+              [items]="imprimantes()"
+              bindLabel="name"
+              bindValue="name"
+              appendTo="body"
+              placeholder="Imprimante d'étiquettes"
+              [ngModel]="imprimante()"
+              (ngModelChange)="imprimante.set($event)"
+            />
+          </div>
+          <div class="col-5">
+            <label class="form-label" for="posoResolution">Résolution</label>
+            <app-select
+              inputId="posoResolution"
+              [items]="resolutions"
+              bindLabel="libelle"
+              bindValue="code"
+              appendTo="body"
+              [ngModel]="resolution()"
+              (ngModelChange)="resolution.set($event)"
+            />
+          </div>
+        </div>
+      }
+    }
+
+    <div class="row g-3">
+      <div [class]="estRouleau() ? 'col-12' : 'col-6'">
+        <label class="form-label" for="posoQty">Exemplaires par ligne</label>
+        <app-input-number inputId="posoQty" [(ngModel)]="qty" [min]="1" [max]="50" [showButtons]="true" />
+      </div>
+      <!-- La case de départ n'a pas de sens sur un rouleau : elle est masquée, pas grisée. -->
+      @if (!estRouleau()) {
+        <div class="col-6">
+          <label class="form-label" for="posoStartAt">Position de départ</label>
+          <app-input-number inputId="posoStartAt" [(ngModel)]="startAt" [min]="1" [max]="capacite()" [showButtons]="true" />
+          <small class="text-muted" style="font-size: 0.7rem">Case de 1 à {{ capacite() }}</small>
+        </div>
+      }
+    </div>
+  </app-card>
+</div>
+
+<div class="modal-footer">
+  <app-button label="Annuler" severity="secondary" [outlined]="true" size="small" (clicked)="annuler()" [disabled]="loading()" />
+  <app-button
+    severity="primary"
+    [label]="estZpl() ? 'Envoyer à l’imprimante' : 'Imprimer'"
+    [icon]="estZpl() ? 'pi pi-print' : 'pi pi-download'"
+    size="small"
+    [loading]="loading()"
+    [disabled]="!peutImprimer()"
+    (clicked)="imprimer()"
+  />
+</div>

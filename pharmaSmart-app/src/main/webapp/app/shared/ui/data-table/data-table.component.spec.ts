@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 
 import { DataTableComponent } from './data-table.component';
 import { RowTogglerDirective } from './row-toggler.directive';
@@ -240,11 +241,15 @@ describe('DataTableComponent', () => {
 
     it('propose le sélecteur de taille de page', () => {
       host.rowsPerPageOptions = [2, 5];
-      const select = render().querySelector('.app-table__page-size') as HTMLSelectElement;
-      expect(select.options).toHaveLength(2);
+      render();
 
-      select.value = '5';
-      select.dispatchEvent(new Event('change'));
+      // Le sélecteur est un app-select du Design System : ng-select rend sa liste en DOM,
+      // il n'y a plus de <option> à compter ni de change natif à déclencher.
+      const selecteur = fixture.debugElement.query(By.css('app-select.app-table__page-size'));
+      expect(selecteur).not.toBeNull();
+      expect(selecteur.componentInstance.items()).toEqual([2, 5]);
+
+      selecteur.triggerEventHandler('selectionChange', 5);
       expect(labels()).toHaveLength(3);
       expect(host.pageEvents.at(-1)).toEqual({ first: 0, rows: 5 });
     });

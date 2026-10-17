@@ -18,7 +18,8 @@ import { ButtonComponent } from "../../../../../shared/ui";
 import { forkJoin } from "rxjs";
 
 import { IOrderLine } from "../../../../../shared/model/order-line.model";
-import { IReceptionScanResult } from "../../../../../shared/model/reception-scan-result.model";
+import { IDataMatrixHint, IReceptionScanResult } from "../../../../../shared/model/reception-scan-result.model";
+import { ProductsApiService } from "../../../../products/data-access/services/products-api.service";
 import { ILot } from "../../../../../shared/model/lot.model";
 import { DeliveryService } from "../../../../../entities/commande/delevery/delivery.service";
 import { CommandeService } from "../../../../../entities/commande/commande.service";
@@ -46,6 +47,10 @@ export class ReceptionSequentialComponent {
   allLinesProcessed = output<void>();
   /** AX-23g — Émis quand le CIP d'une ligne est mis à jour manuellement. */
   cipUpdated = output<number>();
+  /** Rejoue un scan après mémorisation d'un code : la quantité et le lot suivent le chemin normal. */
+  rejouerScan = output<string>();
+  /** La boîte scannée n'est pas la ligne courante : le parent ouvre le sélecteur de ligne. */
+  autreLigneDemandee = output<{ code: string; hint: IDataMatrixHint | null }>();
 
   // ── Étape active ─────────────────────────────────────────────────────────
   protected readonly step = signal<"qty" | "lot">("qty");
@@ -71,7 +76,12 @@ export class ReceptionSequentialComponent {
 
   // ── AX-23d — CIP provisoire ───────────────────────────────────────────────
   /** Code scanné en attente d'association au CIP de la ligne courante. */
-  protected readonly pendingCipAssociation = signal<string | null>(null);
+
+  /**
+   * Code inconnu scanné alors que la ligne courante porte déjà un vrai code. Le code ne doit
+   * pas écraser ce dernier : il est mémorisé comme code alternatif.
+   */
+  protected readonly scanInconnu = signal<{ code: string; hint: IDataMatrixHint | null; raw: string } | null>(null);
   protected readonly isEditingCip = signal(false);
   protected readonly draftCip = signal("");
 
@@ -199,6 +209,7 @@ export class ReceptionSequentialComponent {
   private readonly lotService = inject(LotService);
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
+  private readonly productsApi = inject(ProductsApiService);
 
   constructor() {
 
@@ -246,20 +257,42 @@ export class ReceptionSequentialComponent {
       });
     });
 
-    // AX-23d — Capturer le code scanné inconnu si la ligne courante est provisoire
+    // AX-23d — Capturer tout code scanné que le catalogue n'a pas reconnu. Ce que l'on
+    // écrira ensuite dépend de la ligne, pas du scan : cf. onAssocierCodeALaLigneCourante.
     effect(() => {
       const scan = this.lastScanResult();
       untracked(() => {
-        if (!scan || scan.found) return;
-        if (this.currentLine()?.provisionalCode && scan.scannedCode) {
-          this.pendingCipAssociation.set(scan.scannedCode);
-        }
+        if (!scan || scan.found || !scan.scannedCode) return;
+        this.scanInconnu.set({
+          code: scan.dataMatrixHint?.scannedCode ?? scan.scannedCode,
+          hint: scan.dataMatrixHint ?? null,
+          raw: scan.scannedCode,
+        });
       });
     });
   }
 
   // ── Clavier global ────────────────────────────────────────────────────────
   protected onKeydown(event: KeyboardEvent): void {
+    // Un code inconnu attend une décision : il capte les touches avant les autres raccourcis,
+    // l'opérateur ayant une boîte dans une main et le scanner dans l'autre.
+    if (this.scanInconnu()) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        this.onAssocierCodeALaLigneCourante();
+        return;
+      }
+      if (event.key === "a" || event.key === "A") {
+        event.preventDefault();
+        this.onDemanderAutreLigne();
+        return;
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        this.scanInconnu.set(null);
+        return;
+      }
+    }
     if (event.key === "F8") {
       event.preventDefault();
       this.goPrev();
@@ -520,23 +553,70 @@ export class ReceptionSequentialComponent {
     this.goNext();
   }
 
-  // ── AX-23d — Association CIP provisoire ──────────────────────────────────
+  // ── Code inconnu scanné sur la ligne courante ────────────────────────────
 
-  protected onConfirmCipAssociation(): void {
-    const newCip = this.pendingCipAssociation();
-    const line = this.currentLine();
-    if (!newCip || !line) return;
-    line.produitCip = newCip;
-    this.commandeService.updateCip(line).subscribe({
+  /**
+   * Associer écrase-t-il le code de la ligne ? Oui pour une ligne au code provisoire : le
+   * grossiste n'en a jamais donné, le code scanné devient donc le code catalogue. Non pour une
+   * ligne déjà codée : son CIP reste, le code n'est qu'un code alternatif de plus.
+   */
+  protected readonly associationEcraseLeCip = computed(() => !!this.currentLine()?.provisionalCode);
+
+  /**
+   * Associe le code scanné à la ligne courante, puis rejoue le scan : la quantité, le lot et le
+   * contrôle FMD passent par le chemin normal, rien n'est appliqué deux fois.
+   *
+   * <p>Le bandeau reste affiché si l'écriture échoue, pour ne pas perdre le scan.
+   */
+  protected onAssocierCodeALaLigneCourante(): void {
+    const inconnu = this.scanInconnu();
+    const ligne = this.currentLine();
+    if (!inconnu || !ligne) {
+      return;
+    }
+    if (this.associationEcraseLeCip()) {
+      this.remplacerLeCipProvisoire(ligne, inconnu.code, inconnu.raw);
+      return;
+    }
+    if (!ligne.produitId) {
+      return;
+    }
+    this.productsApi.createCodeAlias(ligne.produitId, inconnu.code).subscribe({
       next: () => {
-        this.pendingCipAssociation.set(null);
-        if (line.id) this.cipUpdated.emit(line.id);
-        this.lineChanged.emit(line);
-        this.notificationService.success(`CIP mis à jour : ${newCip}`, "CIP");
+        this.scanInconnu.set(null);
+        this.notificationService.success(`Code ${inconnu.code} associé à ${ligne.produitLibelle}`, "Code reconnu");
+        this.rejouerScan.emit(inconnu.raw);
       },
-      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "CIP")
+      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Code"),
     });
   }
+
+  /** Ligne au code provisoire : le code scanné devient le code catalogue (circuit AX-23). */
+  private remplacerLeCipProvisoire(ligne: IOrderLine, code: string, raw: string): void {
+    ligne.produitCip = code;
+    this.commandeService.updateCip(ligne).subscribe({
+      next: () => {
+        this.scanInconnu.set(null);
+        if (ligne.id) this.cipUpdated.emit(ligne.id);
+        this.lineChanged.emit(ligne);
+        this.notificationService.success(`CIP mis à jour : ${code}`, "CIP");
+        this.rejouerScan.emit(raw);
+      },
+      error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "CIP"),
+    });
+  }
+
+  /** La boîte n'est pas la ligne courante : le parent ouvre le sélecteur de ligne. */
+  protected onDemanderAutreLigne(): void {
+    const inconnu = this.scanInconnu();
+    if (!inconnu) {
+      return;
+    }
+    this.scanInconnu.set(null);
+    this.autreLigneDemandee.emit({ code: inconnu.code, hint: inconnu.hint });
+  }
+
+  // ── AX-23d — Saisie manuelle du CIP provisoire ───────────────────────────
 
   protected onSaveDraftCip(): void {
     const line = this.currentLine();

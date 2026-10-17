@@ -5,22 +5,121 @@
 <div class="modal-body">
   <app-card [variant]="'form'">
     <div class="p-fluid p-formgrid p-grid">
-      <div class="p-field p-col">
-        <!-- Ce champ n'est pas une quantité mais la CASE de départ sur la planche : on
-             reprend une planche entamée là où elle s'est arrêtée, plutôt que d'en gâcher
-             une entière. Le libellé « Quantité » faisait saisir un nombre d'étiquettes. -->
-        <label class="col-auto col-form-label" for="etiquette-start">Position de départ sur la planche<span
-          style="font-weight: 900; color: red">*</span></label>
-        <input #startInput id="etiquette-start" [(ngModel)]="startAt" [appKeyFilter]="'int'"
-               autocomplete="off" class="form-control" type="text" />
-        <small class="form-text text-muted">Case de la première étiquette, de 1 à 64.</small>
-        @if (startAt === 0 || startAt > 64) {
+      <div class="p-field p-col mb-3">
+        <label class="col-auto col-form-label">Type d'étiquette</label>
+        <div>
+          <app-pill-selector
+            [items]="typeOptions"
+            [ngModel]="typeEtiquette()"
+            (selectionChange)="onTypeChange($event)"
+            ariaLabel="Type d'étiquette"
+          />
+        </div>
+        <small class="form-text text-muted">
+          @if (typeEtiquette() === 'LOT') {
+            Une étiquette par lot reçu, avec un GS1 DataMatrix portant lot et péremption.
+          } @else {
+            Une étiquette par ligne reçue, code-barres du code article seul.
+          }
+        </small>
+      </div>
+      @if (formats().length) {
+        <div class="p-field p-col mb-3">
+          <label class="col-auto col-form-label" for="etiquette-format">Format de planche</label>
+          <app-select
+            inputId="etiquette-format"
+            [items]="formats()"
+            bindLabel="libelle"
+            bindValue="code"
+            groupBy="supportLibelle"
+            appendTo="body"
+            placeholder="Sélectionner un format"
+            [ngModel]="formatCode()"
+            (ngModelChange)="onFormatChange($event)"
+          />
+          @if (formatChoisi()) {
+            <small class="form-text text-muted">
+              @if (estRouleau()) {
+                {{ formatChoisi()!.reference }} — une étiquette par page, {{ formatChoisi()!.largeurMm }} × {{ formatChoisi()!.hauteurMm }} mm
+              } @else {
+                {{ formatChoisi()!.reference }} — {{ formatChoisi()!.colonnes }} × {{ formatChoisi()!.rangees }},
+                {{ formatChoisi()!.capacite }} étiquettes par planche
+              }
+            </small>
+          }
+        </div>
+      }
+      @if (zplPossible()) {
+        <div class="p-field p-col mb-3">
+          <label class="col-auto col-form-label">Chemin d'impression</label>
           <div>
-            <small class="form-text text-danger" style="color: red"> La position doit être
-              comprise entre 1 et 64 </small>
+            <app-pill-selector
+              [items]="modeOptions"
+              [ngModel]="modeImpression()"
+              (selectionChange)="onModeChange($event)"
+              ariaLabel="Chemin d'impression"
+            />
+          </div>
+          <small class="form-text text-muted">
+            @if (estZpl()) {
+              Le flux part directement dans l'imprimante, qui trace elle-même le code-barres.
+            } @else {
+              Un PDF au format de l'étiquette, imprimé par le pilote Windows.
+            }
+          </small>
+        </div>
+        @if (estZpl()) {
+          <div class="p-field p-col mb-3">
+            <label class="col-auto col-form-label" for="etiquette-imprimante">Imprimante</label>
+            <app-select
+              inputId="etiquette-imprimante"
+              [items]="imprimantes()"
+              bindLabel="name"
+              bindValue="name"
+              appendTo="body"
+              placeholder="Imprimante d'étiquettes"
+              [ngModel]="imprimante()"
+              (ngModelChange)="imprimante.set($event)"
+            />
+          </div>
+          <div class="p-field p-col mb-3">
+            <label class="col-auto col-form-label" for="etiquette-resolution">Résolution</label>
+            <app-select
+              inputId="etiquette-resolution"
+              [items]="resolutions"
+              bindLabel="libelle"
+              bindValue="code"
+              appendTo="body"
+              [ngModel]="resolution()"
+              (ngModelChange)="resolution.set($event)"
+            />
           </div>
         }
-      </div>
+      }
+
+      <!-- La case de départ n'a pas de sens sur un rouleau : elle est masquée, pas grisée. -->
+      @if (!estRouleau()) {
+        <div class="p-field p-col">
+          <!-- Ce champ n'est pas une quantité mais la CASE de départ sur la planche : on
+               reprend une planche entamée là où elle s'est arrêtée, plutôt que d'en gâcher
+               une entière. Le libellé « Quantité » faisait saisir un nombre d'étiquettes. -->
+          <label class="col-auto col-form-label" for="etiquette-start">Position de départ sur la planche<span
+            style="font-weight: 900; color: red">*</span></label>
+          <input #startInput id="etiquette-start" [(ngModel)]="startAt" [appKeyFilter]="'int'"
+                 autocomplete="off" class="form-control" type="text" />
+          <small class="form-text text-muted">Case de la première étiquette, de 1 à {{ capacite() }}.</small>
+          @if (!departValide()) {
+            <div>
+              <small class="form-text text-danger" style="color: red"> La position doit être
+                comprise entre 1 et {{ capacite() }} </small>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="p-field p-col">
+          <small class="form-text text-muted">Une étiquette par page, au format de l'étiquette : l'imprimante déroule.</small>
+        </div>
+      }
     </div>
   </app-card>
 </div>
@@ -37,7 +136,7 @@
   ></app-button>
   <app-button
     (clicked)="save()"
-    [disabled]="isSaving() || startAt === 0 || startAt > 64"
+    [disabled]="isSaving() || !departValide()"
     [raised]="true"
     icon="pi pi-check"
     label="Enregistrer"

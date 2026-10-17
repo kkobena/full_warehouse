@@ -1,0 +1,115 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Etiquetes lot rouleau</title>
+    <style th:inline="css">
+      /* Une etiquette par page : voir etiquetes/rouleau.html. */
+      @page {
+        size: [[${format.largeurMm}]]mm [[${format.hauteurMm}]]mm;
+        margin: 1mm;
+        padding: 0;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        font-weight: 700;
+      }
+
+      main {
+        margin: 0;
+        padding: 0;
+      }
+
+      .etiquette {
+        width: 100%;
+      }
+
+      /* Saut AVANT chaque etiquette sauf la premiere : un saut apres la derniere ferait
+         derouler une etiquette blanche. */
+      .saut {
+        page-break-before: always;
+      }
+
+      table {
+        margin: 0;
+        padding: 0;
+        border-collapse: collapse;
+        table-layout: fixed;
+        width: 100%;
+      }
+
+      td {
+        font-size: 8px;
+        white-space: nowrap;
+        vertical-align: top;
+      }
+
+      p {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        font-size: 8px;
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      /* Le DataMatrix est carre. 11 mm, soit 0,55 mm par module sur une trame de 20 x 20 :
+         largement au-dessus du minimum GS1 de 0,255 mm. */
+      .dm-cell {
+        width: 12mm;
+      }
+
+      .dm-cell img {
+        width: 11mm;
+        height: 11mm;
+        margin: 0;
+        padding: 0;
+      }
+
+      .dm-infos {
+        padding-left: 1mm;
+      }
+
+      /* Repli quand le lot ne porte pas de quoi construire une trame GS1 : Code 39 comme ailleurs. */
+      .code39-cell img {
+        width: [[${format.largeurCodeBarresMm}]]mm;
+        height: [[${format.hauteurCodeBarresMm}]]mm;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <th:block th:each="paquet, paquetStat : ${items}">
+        <div th:each="itm : ${paquet}" th:class="${paquetStat.first}?'etiquette':'etiquette saut'">
+          <!-- Le nom de l'officine ne tient qu'a partir de 25 mm de haut. -->
+          <p th:if="${format.hauteurMm >= 25}" th:text="${itm.magasin}"></p>
+          <p th:text="${itm.libelle}"></p>
+          <table>
+            <tbody>
+              <tr th:if="${itm.codeDataMatrix != null}">
+                <td class="dm-cell">
+                  <img th:id="${itm.codeDataMatrix}" />
+                </td>
+                <td class="dm-infos">
+                  <p th:text="${itm.code}"></p>
+                  <p th:if="${itm.numLot != null}" th:text="'Lot ' + ${itm.numLot}"></p>
+                  <p th:if="${itm.expiryDate != null}" th:text="'Exp ' + ${itm.expiryDate}"></p>
+                  <p th:text="${itm.prix}"></p>
+                </td>
+              </tr>
+              <tr th:if="${itm.codeDataMatrix == null}">
+                <td class="code39-cell" colspan="2">
+                  <div><img th:id="${itm.code}" /></div>
+                  <p th:text="${itm.code}"></p>
+                  <p th:text="${itm.prix}"></p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </th:block>
+    </main>
+  </body>
+</html>

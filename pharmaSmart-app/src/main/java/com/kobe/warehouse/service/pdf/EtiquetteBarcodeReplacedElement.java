@@ -63,11 +63,17 @@ public class EtiquetteBarcodeReplacedElement implements ReplacedElementFactory {
     }
 
     private FSImage getBarcodeImage(String barcodeData, int cssWidth, int cssHeight) throws IOException {
-        Barcode39 code = new Barcode39();
-        code.setCode(barcodeData);
-        java.awt.Image image = code.createAwtImage(Color.BLACK, Color.WHITE);
+        java.awt.Image image = barcodeData.startsWith(Gs1DataMatrixEncoder.PREFIXE_DATA_MATRIX)
+            ? Gs1DataMatrixEncoder.encoder(barcodeData)
+            : createCode39Image(barcodeData);
         FSImage fsImage = new ITextFSImage(Image.getInstance(image, Color.WHITE));
         return fsImage.scale(cssWidth, cssHeight);
+    }
+
+    private java.awt.Image createCode39Image(String barcodeData) {
+        Barcode39 code = new Barcode39();
+        code.setCode(barcodeData);
+        return code.createAwtImage(Color.BLACK, Color.WHITE);
     }
 
     //e EAN-13 barcode 6*19 mm

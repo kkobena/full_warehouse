@@ -30,6 +30,7 @@ import {
 import {ProduitVentesTabComponent} from '../produit-ventes-tab/produit-ventes-tab.component';
 import {ProduitAchatsTabComponent} from '../produit-achats-tab/produit-achats-tab.component';
 import {ProduitRayonsTabComponent} from '../produit-rayons-tab/produit-rayons-tab.component';
+import {ProduitCodesAliasTabComponent} from '../produit-codes-alias-tab/produit-codes-alias-tab.component';
 import {
   ProduitGeneriquesTabComponent
 } from '../produit-generiques-tab/produit-generiques-tab.component';
@@ -54,6 +55,7 @@ import {
     ProduitVentesTabComponent,
     ProduitAchatsTabComponent,
     ProduitRayonsTabComponent,
+    ProduitCodesAliasTabComponent,
     ProduitGeneriquesTabComponent,
   ],
 })

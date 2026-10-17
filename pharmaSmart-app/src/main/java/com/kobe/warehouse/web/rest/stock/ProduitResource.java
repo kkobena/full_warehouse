@@ -1,12 +1,20 @@
 package com.kobe.warehouse.web.rest.stock;
 
+import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.enumeration.FormatEtiquette;
+import com.kobe.warehouse.domain.enumeration.ResolutionEtiquette;
+import com.kobe.warehouse.service.etiquette.EtiquetteUsageService;
 import com.kobe.warehouse.domain.enumeration.ProduitFlag;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.ProductActivityService;
 import com.kobe.warehouse.service.dto.ProductActivityDTO;
+import com.kobe.warehouse.domain.enumeration.CodeAliasSource;
+import com.kobe.warehouse.service.dto.ProductResolveResult;
+import com.kobe.warehouse.service.dto.ProduitCodeAliasDTO;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import org.springframework.util.StringUtils;
+import com.kobe.warehouse.service.dto.etiquette.FormatEtiquetteDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.SubstitutDTO;
@@ -15,12 +23,16 @@ import com.kobe.warehouse.service.dto.VenteMoisDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.stock.ProduitIndicateursService;
 import com.kobe.warehouse.service.stock.ProduitService;
+import com.kobe.warehouse.service.stock.ProductCodeResolverService;
+import com.kobe.warehouse.service.stock.EtiquetteLotExportService;
 import com.kobe.warehouse.service.stock.impl.EtiquetteExportReportServiceImpl;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.http.HttpStatus;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +69,9 @@ public class ProduitResource {
     /** Réponse retournée après la création d'un produit. */
     public record ProduitCreatedResponse(Long id) {}
 
+    /** Code scanné à mémoriser pour un produit. Son type est déduit de sa forme. */
+    public record CodeAliasRequest(@NotBlank String code) {}
+
     private static final String ENTITY_NAME = "produit";
     private final Logger log = LoggerFactory.getLogger(ProduitResource.class);
     private final ProduitRepository produitRepository;
@@ -64,6 +79,9 @@ public class ProduitResource {
     private final ProductActivityService productActivityService;
     private final ProduitIndicateursService produitIndicateursService;
     private final EtiquetteExportReportServiceImpl etiquetteExportReportService;
+    private final ProductCodeResolverService productCodeResolverService;
+    private final EtiquetteLotExportService etiquetteLotExportService;
+    private final EtiquetteUsageService etiquetteUsageService;
 
     @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
@@ -73,13 +91,19 @@ public class ProduitResource {
         ProduitService produitService,
         ProductActivityService productActivityService,
         ProduitIndicateursService produitIndicateursService,
-        EtiquetteExportReportServiceImpl etiquetteExportReportService
+        EtiquetteExportReportServiceImpl etiquetteExportReportService,
+        ProductCodeResolverService productCodeResolverService,
+        EtiquetteLotExportService etiquetteLotExportService,
+        EtiquetteUsageService etiquetteUsageService
     ) {
         this.produitRepository = produitRepository;
         this.produitService = produitService;
         this.productActivityService = productActivityService;
         this.produitIndicateursService = produitIndicateursService;
         this.etiquetteExportReportService = etiquetteExportReportService;
+        this.productCodeResolverService = productCodeResolverService;
+        this.etiquetteLotExportService = etiquetteLotExportService;
+        this.etiquetteUsageService = etiquetteUsageService;
     }
 
     /**
@@ -354,14 +378,183 @@ public class ProduitResource {
     public ResponseEntity<byte[]> getEtiquettes(
         @PathVariable Integer id,
         @RequestParam(defaultValue = "1") int qty,
-        @RequestParam(defaultValue = "1") int startAt
+        @RequestParam(defaultValue = "1") int startAt,
+        @RequestParam(required = false) FormatEtiquette format
     ) {
         var produit = produitRepository.findById(id)
             .orElseThrow(() -> new BadRequestAlertException("Produit introuvable", ENTITY_NAME, "idnotfound"));
-        byte[] pdf = etiquetteExportReportService.exportForProduit(produit, qty, startAt);
+        byte[] pdf = etiquetteExportReportService.exportForProduit(produit, qty, startAt, formatOuDefaut(format));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDispositionFormData("attachment", "etiquettes-" + id + ".pdf");
         return ResponseEntity.ok().headers(headers).body(pdf);
+    }
+
+    /**
+     * {@code GET /produits/{id}/lots/{lotId}/etiquettes} : second type d'étiquette, portant le lot,
+     * la péremption et un GS1 DataMatrix. L'étiquette standard reste sur {@code /etiquettes}.
+     */
+    @GetMapping("/produits/{id}/lots/{lotId}/etiquettes")
+    @NavAccessExempt("impression d'étiquettes, comme l'étiquette standard du catalogue")
+    public ResponseEntity<byte[]> getEtiquettesLot(
+        @PathVariable Integer id,
+        @PathVariable Integer lotId,
+        @RequestParam(defaultValue = "1") int qty,
+        @RequestParam(defaultValue = "1") int startAt,
+        @RequestParam(required = false) FormatEtiquette format
+    ) {
+        byte[] pdf = etiquetteLotExportService.exporterPourLot(lotId, qty, startAt, formatOuDefaut(format));
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "etiquettes-lot-" + id + "-" + lotId + ".pdf");
+        return ResponseEntity.ok().headers(headers).body(pdf);
+    }
+
+    /**
+     * {@code GET /produits/{id}/etiquettes/reglette} : réglette de gondole — le prix en gros, le
+     * code en petit, pas de lot. Elle se colle sur l'étagère, pas sur la boîte.
+     */
+    @GetMapping("/produits/{id}/etiquettes/reglette")
+    @NavAccessExempt("impression d'étiquettes, comme l'étiquette standard du catalogue")
+    public ResponseEntity<byte[]> getReglette(
+        @PathVariable Integer id,
+        @RequestParam(defaultValue = "1") int qty,
+        @RequestParam(defaultValue = "1") int startAt,
+        @RequestParam(required = false) FormatEtiquette format
+    ) {
+        byte[] pdf = etiquetteUsageService.imprimerReglette(chargerProduit(id), qty, startAt, formatOuDefaut(format));
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "reglettes-" + id + ".pdf");
+        return ResponseEntity.ok().headers(headers).body(pdf);
+    }
+
+    /** La même réglette, en ZPL. */
+    @GetMapping(value = "/produits/{id}/etiquettes/reglette/zpl", produces = MediaType.TEXT_PLAIN_VALUE)
+    @NavAccessExempt("impression d'étiquettes, comme l'étiquette standard du catalogue")
+    public ResponseEntity<String> getRegletteZpl(
+        @PathVariable Integer id,
+        @RequestParam(defaultValue = "1") int qty,
+        @RequestParam(required = false) FormatEtiquette format,
+        @RequestParam(required = false) ResolutionEtiquette resolution
+    ) {
+        return ResponseEntity.ok()
+            .body(etiquetteUsageService.genererZplReglette(chargerProduit(id), qty, formatOuDefaut(format), resolutionOuDefaut(resolution)));
+    }
+
+    /**
+     * {@code GET /produits/{id}/etiquettes/zpl} : la même étiquette, en ZPL, pour une imprimante à
+     * rouleau sans pilote exploitable. Le poste envoie le flux tel quel à l'imprimante.
+     */
+    @GetMapping(value = "/produits/{id}/etiquettes/zpl", produces = MediaType.TEXT_PLAIN_VALUE)
+    @NavAccessExempt("impression d'étiquettes, comme l'étiquette standard du catalogue")
+    public ResponseEntity<String> getEtiquettesZpl(
+        @PathVariable Integer id,
+        @RequestParam(defaultValue = "1") int qty,
+        @RequestParam(required = false) FormatEtiquette format,
+        @RequestParam(required = false) ResolutionEtiquette resolution
+    ) {
+        var produit = produitRepository.findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Produit introuvable", ENTITY_NAME, "idnotfound"));
+        return ResponseEntity.ok()
+            .body(etiquetteExportReportService.genererZplPourProduit(produit, qty, formatOuDefaut(format), resolutionOuDefaut(resolution)));
+    }
+
+    /** Étiquette « lot » en ZPL : le GS1 DataMatrix est tracé par l'imprimante, pas par nous. */
+    @GetMapping(value = "/produits/{id}/lots/{lotId}/etiquettes/zpl", produces = MediaType.TEXT_PLAIN_VALUE)
+    @NavAccessExempt("impression d'étiquettes, comme l'étiquette standard du catalogue")
+    public ResponseEntity<String> getEtiquettesLotZpl(
+        @PathVariable Integer id,
+        @PathVariable Integer lotId,
+        @RequestParam(defaultValue = "1") int qty,
+        @RequestParam(required = false) FormatEtiquette format,
+        @RequestParam(required = false) ResolutionEtiquette resolution
+    ) {
+        return ResponseEntity.ok()
+            .body(etiquetteLotExportService.genererZplPourLot(lotId, qty, formatOuDefaut(format), resolutionOuDefaut(resolution)));
+    }
+
+    /**
+     * {@code GET /produits/{id}/codes-alias} : codes alternatifs d'un produit.
+     */
+    @GetMapping("/produits/{id}/codes-alias")
+    @NavAccessExempt("lecture du catalogue, nécessaire à la réception et à la vente pour tous les rôles")
+    public ResponseEntity<List<ProduitCodeAliasDTO>> getCodesAlias(@PathVariable Integer id) {
+        return ResponseEntity.ok().body(productCodeResolverService.listerAlias(id));
+    }
+
+    /**
+     * {@code POST /produits/{id}/codes-alias} : mémorise un code scanné pour ce produit, afin que
+     * les scans suivants le résolvent sans intervention.
+     *
+     * <p>Le type du code est déduit de sa forme : il n'est pas demandé à l'utilisateur.
+     */
+    @PostMapping("/produits/{id}/codes-alias")
+    public ResponseEntity<ProduitCodeAliasDTO> createCodeAlias(
+        @PathVariable Integer id,
+        @Valid @RequestBody CodeAliasRequest request
+    ) {
+        if (!produitRepository.existsById(id)) {
+            throw new BadRequestAlertException("Produit introuvable", ENTITY_NAME, "idnotfound");
+        }
+        ProduitCodeAliasDTO alias = productCodeResolverService.enregistrerAlias(
+            id,
+            request.code(),
+            productCodeResolverService.deduireType(request.code()),
+            CodeAliasSource.MANUAL
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(alias);
+    }
+
+    /**
+     * {@code DELETE /produits/codes-alias/{aliasId}} : retire un code alternatif erroné.
+     */
+    @DeleteMapping("/produits/codes-alias/{aliasId}")
+    public ResponseEntity<Void> deleteCodeAlias(@PathVariable Integer aliasId) {
+        productCodeResolverService.supprimerAlias(aliasId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * {@code GET /etiquettes/formats} : catalogue des formats de planche.
+     *
+     * <p>Le front lit la liste au lieu de l'embarquer : un format ajouté ici apparaît dans les
+     * modales d'impression sans redéploiement du bundle, et la case de départ s'y borne seule.
+     */
+    @GetMapping("/etiquettes/formats")
+    @NavAccessExempt("catalogue de formats d'étiquette, sans donnée métier")
+    public ResponseEntity<List<FormatEtiquetteDTO>> listerFormatsEtiquette() {
+        List<FormatEtiquetteDTO> formats = new java.util.ArrayList<>();
+        for (FormatEtiquette format : FormatEtiquette.values()) {
+            formats.add(FormatEtiquetteDTO.depuis(format));
+        }
+        return ResponseEntity.ok().body(formats);
+    }
+
+    private Produit chargerProduit(Integer id) {
+        return produitRepository.findById(id)
+            .orElseThrow(() -> new BadRequestAlertException("Produit introuvable", ENTITY_NAME, "idnotfound"));
+    }
+
+    /** 203 dpi tant que l'appelant ne dit rien : la résolution des rouleaux d'entrée de gamme. */
+    private ResolutionEtiquette resolutionOuDefaut(ResolutionEtiquette resolution) {
+        return resolution == null ? ResolutionEtiquette.parDefaut() : resolution;
+    }
+
+    /** Un format absent de la requête vaut le format par défaut, pour ne rien casser des appels en place. */
+    private FormatEtiquette formatOuDefaut(FormatEtiquette format) {
+        return format == null ? FormatEtiquette.parDefaut() : format;
+    }
+
+    /**
+     * {@code GET /produits/resoudre-code} : produits portant ce code, codes alternatifs compris.
+     *
+     * <p>Alimente l'écran de résolution manuelle d'un scan : une liste vide impose la recherche
+     * textuelle, plusieurs résultats imposent un choix.
+     */
+    @GetMapping("/produits/resoudre-code")
+    @NavAccessExempt("lecture du catalogue, nécessaire à la réception et à la vente pour tous les rôles")
+    public ResponseEntity<List<ProductResolveResult>> resoudreCode(@RequestParam(name = "code") String code) {
+        return ResponseEntity.ok().body(productCodeResolverService.resoudreCode(code));
     }
 }

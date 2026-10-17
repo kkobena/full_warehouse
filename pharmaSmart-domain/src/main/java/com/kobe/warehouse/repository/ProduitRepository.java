@@ -115,6 +115,9 @@ public interface ProduitRepository
     String searchProductsByStorage(@Param("qtext") String qtext,
         @Param("storageId") Integer storageId, @Param("limitResult") Integer limitResult);
 
+    /** Produits portant cet EAN laboratoire. La colonne n'a qu'un index non unique. */
+    List<Produit> findAllByCodeEanLaboratoire(String codeEanLaboratoire);
+
     Produit findFirstByParentId(Integer parentId);
 
     List<Produit> findAllByParentId(Integer parentId);

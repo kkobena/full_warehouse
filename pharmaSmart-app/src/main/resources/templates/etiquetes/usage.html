@@ -1,0 +1,126 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Etiquetes</title>
+    <style th:inline="css">
+      @page {
+        size: A4 portrait;
+        padding: 0;
+        margin: [[${format.margeHautMm}]]mm [[${format.margeCoteMm}]]mm;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      main {
+        padding: 0;
+      }
+
+      table {
+        margin: 0;
+        padding: 0;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-family: Arial, sans-serif;
+        font-weight: 700;
+      }
+
+      /* Largeur explicite : sans elle, la table prend toute la page et repartit ses colonnes a
+         parts egales, ce qui ecrase les cotes declarees pour les cases. */
+      table.container {
+        width: [[${format.largeurGrilleMm}]]mm;
+      }
+
+      /* Case porteuse d'un pas, etiquette a sa largeur exacte : voir etiquetes/main.html. */
+      .container-tr-td {
+        width: [[${format.largeurCaseContenuMm}]]mm;
+        height: [[${format.pasVerticalMm}]]mm;
+        padding: 1mm;
+        vertical-align: top;
+        page-break-inside: avoid;
+        -fs-page-break-inside: avoid;
+      }
+
+      .container-tr-td.last-item {
+        width: [[${format.largeurDerniereCaseContenuMm}]]mm;
+      }
+
+      .etiquette-table {
+        width: 100%;
+      }
+
+      .container-tr td {
+        font-size: 8px;
+      }
+
+      tr {
+        margin: 0;
+        padding: 0;
+      }
+
+      p {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        text-align: left;
+      }
+
+      /* Une posologie ou une composition se lit en plusieurs lignes : contrairement au reste des
+         etiquettes, ce texte ne peut pas etre tenu sur une ligne. */
+      .texte-long {
+        white-space: normal;
+      }
+
+      .une-ligne {
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
+      /* La reglette se lit de loin, debout devant le rayon : le prix est ce qu'on y cherche. */
+      .prix-gondole {
+        font-size: 18px;
+        text-align: center;
+      }
+
+      .code-discret {
+        font-size: 7px;
+        font-weight: 400;
+      }
+
+      .intitule {
+        font-weight: 400;
+      }
+
+      td img {
+        height: auto;
+        width: [[${format.largeurCodeBarresMm}]]mm;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <table class="container">
+        <tbody>
+          <tr class="container-tr" th:each="partitions ,partitionsStat : ${items}" th:with="countTr=${#lists.size(partitions)}">
+            <td th:class="${itmStat.last and format.derniereColonneRognee}?'last-item container-tr-td':'container-tr-td'"
+                th:each="itm, itmStat : ${partitions}">
+              <table class="etiquette-table" th:if="${itm.print}">
+                <tbody>
+                  <th:block th:replace="~{etiquetes/usage-contenu :: contenu(${itm}, ${type})}"></th:block>
+                </tbody>
+              </table>
+            </td>
+            <th:block th:with="gap=${format.colonnes - countTr}">
+              <td th:if="${gap >0}" class="container-tr-td" th:each="i : ${#numbers.sequence(1, gap )}"></td>
+            </th:block>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+  </body>
+</html>

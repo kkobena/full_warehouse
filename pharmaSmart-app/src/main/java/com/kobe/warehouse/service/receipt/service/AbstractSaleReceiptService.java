@@ -28,7 +28,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
     private final AppConfigurationService appConfigurationService;
 
-    private static final DateTimeFormatter PEREMPTION_FORMAT = DateTimeFormatter.ofPattern("MM/yyyy");
+    private static final DateTimeFormatter PEREMPTION_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     protected AbstractSaleReceiptService(AppConfigurationService appConfigurationService) {
         super(appConfigurationService);

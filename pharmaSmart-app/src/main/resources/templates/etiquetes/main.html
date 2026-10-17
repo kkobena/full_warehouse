@@ -6,7 +6,8 @@
       @page {
         size: A4 portrait;
         padding: 0;
-        margin: 5mm;
+        /* Marges de la planche : haut/bas puis gauche/droite. */
+        margin: [[${format.margeHautMm}]]mm [[${format.margeCoteMm}]]mm;
       }
 
       body {
@@ -27,6 +28,12 @@
         font-weight: 700;
       }
 
+      /* Largeur explicite : sans elle, la table prend toute la page et repartit ses colonnes a
+         parts egales, ce qui ecrase les cotes declarees pour les cases. */
+      table.container {
+        width: [[${format.largeurGrilleMm}]]mm;
+      }
+
       .text-left {
         text-align: left;
       }
@@ -35,14 +42,20 @@
         text-align: right;
       }
 
-      .etiquette-table {
-        width: 100%;
+      /* La case PORTEUSE fait un pas (etiquette + gouttiere) ; l'etiquette, elle, occupe
+         exactement sa largeur a l'interieur. C'est ce qui garde l'impression alignee sur la
+         decoupe quand le format a une gouttiere. */
+      .container-tr-td {
+        width: [[${format.largeurCaseContenuMm}]]mm;
+        height: [[${format.pasVerticalMm}]]mm;
+        /* 1 mm de retrait : zone de silence a l'interieur de la decoupe, et c'est le retrait
+           qu'appliquait le gabarit d'avant le catalogue. */
+        padding: 1mm;
+        vertical-align: top;
       }
 
-      .container-tr-td {
-        width: 38mm;
-        height: 21.2mm;
-        padding: 1mm 1mm;
+      .etiquette-table {
+        width: 100%;
       }
 
       .container-tr td {
@@ -59,7 +72,8 @@
 
       td img {
         height: auto;
-        width: 37mm;
+        /* Le code-barres suit la case, moins une zone de silence. */
+        width: [[${format.largeurCodeBarresMm}]]mm;
         margin: 0;
         padding: 0;
       }
@@ -67,6 +81,11 @@
       .container-tr-td {
         page-break-inside: avoid;
         -fs-page-break-inside: avoid;
+      }
+
+      .container-tr-td.last-item {
+        /* Derniere colonne : pas de gouttiere a droite, elle sortirait de la page. */
+        width: [[${format.largeurDerniereCaseContenuMm}]]mm;
       }
 
       div {
@@ -88,7 +107,8 @@
       <table class="container">
         <tbody>
           <tr class="container-tr" th:each="partitions ,partitionsStat : ${items}" th:with="countTr=${#lists.size(partitions)}">
-            <td th:class="${partitionsStat.index eq 4}?'last-item container-tr-td':'container-tr-td'" th:each="itm : ${partitions}">
+            <td th:class="${itmStat.last and format.derniereColonneRognee}?'last-item container-tr-td':'container-tr-td'"
+                th:each="itm, itmStat : ${partitions}">
               <table class="etiquette-table" th:if="${itm.print}">
                 <tbody>
                   <tr>
@@ -112,7 +132,7 @@
                 </tbody>
               </table>
             </td>
-            <th:block th:with="gap=${5 - countTr}">
+            <th:block th:with="gap=${format.colonnes - countTr}">
               <td th:if="${gap >0}" class="container-tr-td" th:each="i : ${#numbers.sequence(1, gap )}"></td>
             </th:block>
           </tr>

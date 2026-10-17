@@ -63,24 +63,28 @@ describe('ApresVenteModalComponent', () => {
   });
 
   it("donne le focus au champ de recherche affiché, à l'ouverture puis à chaque changement d'onglet", async () => {
-    jest.useFakeTimers();
+    // La directive veille en `setInterval(30 ms)` jusqu'à ce que le champ soit affiché. Les
+    // minuteurs factices de Jest et `whenStable()` se bloquent l'un l'autre sous zone.js : on
+    // laisse donc tourner deux tours de veille réels.
+    const veille = () => new Promise(resolve => setTimeout(resolve, 80));
     // jsdom ne calcule aucune mise en page : `offsetParent` y est toujours nul, ce que la directive lit comme « masqué ».
     const original = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetParent')!;
     Object.defineProperty(HTMLElement.prototype, 'offsetParent', { configurable: true, get: function (this: HTMLElement) { return this.parentElement; } });
     ouvrir(true, true);
     document.body.appendChild(el());
     fixture.detectChanges();
-    await fixture.whenStable();
-    jest.runAllTimers();
+    await veille();
     expect(document.activeElement?.getAttribute('aria-label')).toBe('Rechercher un avoir');
 
     (el().querySelectorAll('a.nav-link')[1] as HTMLElement).click();
     fixture.detectChanges();
-    await fixture.whenStable();
-    jest.runAllTimers();
+    // Le panneau sortant n'est retiré qu'au terme de la transition de ngbNav : tant qu'il est
+    // là, son champ garde le focus et la veille du nouveau champ s'interdit de le voler.
+    await veille();
+    fixture.detectChanges();
+    await veille();
     expect(document.activeElement?.getAttribute('aria-label')).toBe('Numéro de la vente');
     Object.defineProperty(HTMLElement.prototype, 'offsetParent', original);
-    jest.useRealTimers();
     el().remove();
   });
 

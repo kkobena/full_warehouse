@@ -20,6 +20,9 @@ import com.kobe.warehouse.service.dto.projection.DeliveryReceiptItemProjection;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptProjection;
 import com.kobe.warehouse.service.settings.FileResourceService;
 import com.kobe.warehouse.service.stock.DeliveryReceiptReportReportService;
+import com.kobe.warehouse.domain.enumeration.FormatEtiquette;
+import com.kobe.warehouse.domain.enumeration.ResolutionEtiquette;
+import com.kobe.warehouse.service.stock.EtiquetteLotExportService;
 import com.kobe.warehouse.service.stock.StockEntryDataService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
@@ -60,13 +63,15 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
     private final DeliveryReceiptReportReportService receiptReportService;
     private final OrderLineRepository orderLineRepository;
     private final EtiquetteExportReportServiceImpl etiquetteExportService;
+    private final EtiquetteLotExportService etiquetteLotExportService;
 
     public StockEntryDataServiceImpl(
         EntityManager em,
         CommandeRepository commandeRepository,
         DeliveryReceiptReportReportService receiptReportService,
         OrderLineRepository orderLineRepository,
-        EtiquetteExportReportServiceImpl etiquetteExportService
+        EtiquetteExportReportServiceImpl etiquetteExportService,
+        EtiquetteLotExportService etiquetteLotExportService
     ) {
         this.em = em;
         this.commandeRepository = commandeRepository;
@@ -74,6 +79,7 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
         this.receiptReportService = receiptReportService;
         this.orderLineRepository = orderLineRepository;
         this.etiquetteExportService = etiquetteExportService;
+        this.etiquetteLotExportService = etiquetteLotExportService;
     }
 
     @Override
@@ -194,10 +200,38 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
     }
 
     @Override
-    public byte[] printEtiquette(CommandeId commandeId, int startAt) {
+    public byte[] printEtiquette(CommandeId commandeId, int startAt, FormatEtiquette format) {
         return this.etiquetteExportService.export(
             this.orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate()),
-            startAt
+            startAt,
+            format
+        );
+    }
+
+    @Override
+    public byte[] printEtiquetteLot(CommandeId commandeId, int startAt, FormatEtiquette format) {
+        return this.etiquetteLotExportService.exporterPourBon(
+            this.orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate()),
+            startAt,
+            format
+        );
+    }
+
+    @Override
+    public String printEtiquetteZpl(CommandeId commandeId, FormatEtiquette format, ResolutionEtiquette resolution) {
+        return this.etiquetteExportService.genererZplPourBon(
+            this.orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate()),
+            format,
+            resolution
+        );
+    }
+
+    @Override
+    public String printEtiquetteLotZpl(CommandeId commandeId, FormatEtiquette format, ResolutionEtiquette resolution) {
+        return this.etiquetteLotExportService.genererZplPourBon(
+            this.orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate()),
+            format,
+            resolution
         );
     }
 

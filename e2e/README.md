@@ -7,7 +7,7 @@ non-régression ensuite. Conception, arbitrages et découpage :
 ## Le principe en une phrase
 
 Un parcours ne redécrit pas ses étapes : il se **rattache** à un identifiant de scénario du
-cahier de recette (`cahier-recette.model.ts`, 476 scénarios). Les légendes des images sont
+cahier de recette (`cahier-recette.model.ts`, 486 scénarios). Les légendes des images sont
 prises dans le modèle — le manuel ne peut donc pas décrire autre chose que ce qui a été exécuté.
 
 ## Commandes
@@ -75,7 +75,7 @@ e2e/
 ├── droits/                  contrôle des droits par rôle (endpoints en ENFORCE)
 └── src/
     ├── config.ts            réglages
-    ├── cahier-recette.ts    index des 476 scénarios, résolution par identifiant
+    ├── cahier-recette.ts    index des 486 scénarios, résolution par identifiant
     ├── scenario.ts          la fixture scenario() et ses garde-fous
     └── captures-reporter.ts assemble captures/captures.json
 ```
@@ -107,7 +107,7 @@ Deux échappatoires, explicites et tracées dans le rapport :
 | 2 — liage au cahier de recette | fait, vérifié par `npm run e2e:liage` |
 | 3 — captures et index | fait |
 | 4 — injection des images dans le guide | fait |
-| 5 — volume (50 à 70 scénarios) | **objectif dépassé — 402 parcours sur 11 modules ; 35 scénarios masqués, motif documenté dans le modèle (écran non branché, entrée de navigation désactivée, fonctionnalité sans interface) ; le jeu de démonstration est complété au fil des parcours, chaque manque étant doublé d'un contrôle dans `99_verification.sql`** |
+| 5 — volume (50 à 70 scénarios) | **objectif dépassé — 426 parcours sur 11 modules ; 35 scénarios masqués, motif documenté dans le modèle (écran non branché, entrée de navigation désactivée, fonctionnalité sans interface) ; le jeu de démonstration est complété au fil des parcours, chaque manque étant doublé d'un contrôle dans `99_verification.sql`** |
 
 ## Avant chaque campagne
 

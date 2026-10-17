@@ -7,7 +7,9 @@ const {
 module.exports = {
   // gridstack est publié en ESM (.js) : sans transformation, tout test qui atteint la grille du
   // dashboard (l'accueil l'importe) échoue à l'import.
-  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|dayjs/esm|gridstack/)'],
+  // Les locales d'Angular sont dans le meme cas : `app.component.ts` importe
+  // `@angular/common/locales/fr`, ce qui faisait tomber toute suite remontant jusqu'a lui.
+  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|dayjs/esm|gridstack/|@angular/common/locales/)'],
   // `__VERSION__` et `SERVER_API_URL` sont injectées à la compilation par le builder Angular.
   // Jest ne les connaît pas : sans elles, tout test montant un composant qui atteint un service
   // les utilisant échoue à l'import, avant même d'exécuter la moindre assertion.

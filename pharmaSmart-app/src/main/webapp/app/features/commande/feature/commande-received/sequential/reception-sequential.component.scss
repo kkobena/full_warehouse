@@ -361,37 +361,74 @@
 }
 
 // ── AX-23d — Bandeau CIP provisoire ──────────────────────────────────────────
-.rh-seq__provisional-cip-banner {
+// Bandeau du code de la ligne : etat provisoire et code inconnu scanne.
+// Jetons du theme (`--pharma-*`, `--icon-*`) : aucune couleur en dur, le bandeau suit le
+// theme du poste. L'ambre de l'avertissement vient de `--icon-warning`, reglee a 3:1 sur blanc.
+.rh-seq__code-banner {
   flex-shrink: 0;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 5px 1rem;
-  background: #fffbeb;
-  border-bottom: 1px solid #fde68a;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.4rem 1rem;
+  background: var(--pharma-surface-alt);
+  border-bottom: 1px solid var(--pharma-border);
+  border-left: 3px solid var(--icon-warning);
   font-size: 0.78rem;
-  color: #92400e;
-  font-weight: 600;
+  color: var(--pharma-text);
+}
+
+.rh-seq__code-banner-head {
+  display: flex;
+  align-items: baseline;
   flex-wrap: wrap;
+  gap: 0.4rem;
+  font-weight: 600;
 
-  i { color: #d97706; flex-shrink: 0; }
+  i {
+    color: var(--icon-warning);
+    flex-shrink: 0;
+  }
 }
 
-.rh-seq__prov-scanned {
-  display: inline-flex;
+.rh-seq__code-banner-code {
+  font-family: var(--bs-font-monospace);
+  font-weight: 600;
+  word-break: break-all;
+  color: var(--pharma-text);
+}
+
+.rh-seq__code-banner-hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.9rem;
+  color: var(--pharma-text-muted);
+}
+
+.rh-seq__code-banner-origine {
+  font-style: italic;
+}
+
+.rh-seq__code-banner-actions {
+  display: flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: 0.76rem;
-  strong { font-family: monospace; color: #78350f; }
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
 
-.rh-seq__prov-cip-input {
+.rh-seq__code-banner-touches {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-family: var(--bs-font-monospace);
+  color: var(--pharma-text-muted);
+}
+
+.rh-seq__code-banner-input {
   width: 160px !important;
   height: 28px !important;
   font-size: 0.82rem !important;
-  font-family: monospace;
+  font-family: var(--bs-font-monospace);
   padding: 2px 8px !important;
-  border-radius: 6px !important;
+  border-radius: var(--pharma-surface-radius, 6px) !important;
 }
 
 // ── Corps scrollable ──────────────────────────────────────────────────────────

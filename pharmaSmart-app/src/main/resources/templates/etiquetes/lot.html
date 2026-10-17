@@ -1,0 +1,163 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title>Etiquetes lot</title>
+    <style th:inline="css">
+      @page {
+        size: A4 portrait;
+        padding: 0;
+        margin: [[${format.margeHautMm}]]mm [[${format.margeCoteMm}]]mm;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      main {
+        padding: 0;
+      }
+
+      table {
+        margin: 0;
+        padding: 0;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-family: Arial, sans-serif;
+        font-weight: 700;
+      }
+
+      /* Largeur explicite : sans elle, la table prend toute la page et repartit ses colonnes a
+         parts egales, ce qui ecrase les cotes declarees pour les cases. */
+      table.container {
+        width: [[${format.largeurGrilleMm}]]mm;
+      }
+
+      .text-left {
+        text-align: left;
+      }
+
+      .text-right {
+        text-align: right;
+      }
+
+      /* Case porteuse d'un pas, etiquette a sa largeur exacte : voir etiquetes/main.html. */
+      .container-tr-td {
+        width: [[${format.largeurCaseContenuMm}]]mm;
+        height: [[${format.pasVerticalMm}]]mm;
+        /* 1 mm de retrait : zone de silence a l'interieur de la decoupe, et c'est le retrait
+           qu'appliquait le gabarit d'avant le catalogue. */
+        padding: 1mm;
+        vertical-align: top;
+        page-break-inside: avoid;
+        -fs-page-break-inside: avoid;
+      }
+
+      .container-tr-td.last-item {
+        width: [[${format.largeurDerniereCaseContenuMm}]]mm;
+      }
+
+      .etiquette-table {
+        width: 100%;
+      }
+
+      .container-tr td {
+        font-size: 8px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: clip;
+      }
+
+      tr {
+        margin: 0;
+        padding: 0;
+      }
+
+      div {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+      }
+
+      p {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        text-align: left;
+      }
+
+      /* Le DataMatrix est carré : il tient dans la hauteur de l'étiquette, le texte à sa droite. */
+      .dm-cell {
+        width: 12mm;
+        vertical-align: top;
+      }
+
+      .dm-cell img {
+        width: 11mm;
+        height: 11mm;
+        margin: 0;
+        padding: 0;
+      }
+
+      .dm-infos {
+        vertical-align: top;
+        padding-left: 1mm;
+      }
+
+      /* Repli quand le lot ne porte pas de quoi construire une trame GS1 : Code 39 comme avant. */
+      .code39-cell img {
+        width: [[${format.largeurCodeBarresMm}]]mm;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <table class="container">
+        <tbody>
+          <tr class="container-tr" th:each="partitions ,partitionsStat : ${items}" th:with="countTr=${#lists.size(partitions)}">
+            <td th:class="${itmStat.last and format.derniereColonneRognee}?'last-item container-tr-td':'container-tr-td'"
+                th:each="itm, itmStat : ${partitions}">
+              <table class="etiquette-table" th:if="${itm.print}">
+                <tbody>
+                  <tr>
+                    <td class="text-left" colspan="2" th:text="${itm.magasin}"></td>
+                  </tr>
+                  <tr>
+                    <td class="text-left" colspan="2" th:text="${itm.libelle}"></td>
+                  </tr>
+                  <tr th:if="${itm.codeDataMatrix != null}">
+                    <td class="dm-cell">
+                      <img th:id="${itm.codeDataMatrix}" />
+                    </td>
+                    <td class="dm-infos">
+                      <p th:text="${itm.code}"></p>
+                      <p th:if="${itm.numLot != null}" th:text="'Lot ' + ${itm.numLot}"></p>
+                      <p th:if="${itm.expiryDate != null}" th:text="'Exp ' + ${itm.expiryDate}"></p>
+                      <p th:text="${itm.prix}"></p>
+                    </td>
+                  </tr>
+                  <tr th:if="${itm.codeDataMatrix == null}">
+                    <td class="code39-cell" colspan="2">
+                      <div><img th:id="${itm.code}" /></div>
+                      <div>
+                        <p th:text="${itm.code}"></p>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr th:if="${itm.codeDataMatrix == null}">
+                    <td class="text-left" th:text="${itm.date}"></td>
+                    <td class="text-right" th:text="${itm.prix}"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+            <th:block th:with="gap=${format.colonnes - countTr}">
+              <td th:if="${gap >0}" class="container-tr-td" th:each="i : ${#numbers.sequence(1, gap )}"></td>
+            </th:block>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+  </body>
+</html>

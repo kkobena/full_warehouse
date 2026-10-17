@@ -234,8 +234,10 @@
     @if (viewMode() === 'sequential') {
       <app-reception-sequential
         (allLinesProcessed)="onSequentialAllDone()"
+        (autreLigneDemandee)="onAutreLigneDemandee($event)"
         (cipUpdated)="onCipUpdated($event)"
         (lineChanged)="onSequentialLineChanged($event)"
+        (rejouerScan)="rejouerScan($event)"
         [lastScanResult]="lastScanResult()"
         [lotPrefill]="scanLotPrefill()"
         [orderLines]="orderLines()"
@@ -360,4 +362,22 @@
 </div>
 
 <jhi-spinner #spinner />
+
+<!-- Résolution manuelle d'un code que le catalogue ne connaît pas (marché ivoirien) -->
+<app-modal
+  #codeResolutionModal
+  header="Code non reconnu — désignez l'article"
+  icon="pi pi-question-circle"
+  size="lg"
+  [scrollable]="true"
+>
+  <app-code-resolution
+    #codeResolutionForm
+    [hint]="hintAResoudre()"
+    [lignes]="orderLines()"
+    [scannedCode]="codeAResoudre()"
+    (annule)="onCodeResolutionAnnulee()"
+    (valide)="onCodeResolu($event)"
+  />
+</app-modal>
 

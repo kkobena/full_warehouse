@@ -166,6 +166,16 @@
         </ng-template>
       </ng-container>
 
+      <ng-container ngbNavItem="codes-alias">
+        <a class="pharma-nav-tab-link" ngbNavLink>
+          <i class="pi pi-barcode"></i>
+          <span>Codes alternatifs</span>
+        </a>
+        <ng-template ngbNavContent>
+          <app-produit-codes-alias-tab [produit]="richProduit()" />
+        </ng-template>
+      </ng-container>
+
       <ng-container ngbNavItem="generiques">
         <a class="pharma-nav-tab-link" ngbNavLink>
           <i class="pi pi-sync"></i>

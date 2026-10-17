@@ -67,6 +67,33 @@ export class DeliveryService {
     });
   }
 
+  /** Second type d'étiquette : une par lot reçu, avec lot, péremption et GS1 DataMatrix. */
+  printEtiquetteLot(commandeId: CommandeId, req: any): Observable<Blob> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/etiquettes-lot/${commandeId.id}/${commandeId.orderDate}`, {
+      params: options,
+      responseType: "blob"
+    });
+  }
+
+  /** Le même bon en ZPL : du texte, envoyé tel quel à l'imprimante à rouleau par le poste. */
+  printEtiquetteZpl(commandeId: CommandeId, req: any): Observable<string> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/etiquettes/${commandeId.id}/${commandeId.orderDate}/zpl`, {
+      params: options,
+      responseType: "text"
+    });
+  }
+
+  /** Étiquettes « lot » du bon en ZPL. */
+  printEtiquetteLotZpl(commandeId: CommandeId, req: any): Observable<string> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/etiquettes-lot/${commandeId.id}/${commandeId.orderDate}/zpl`, {
+      params: options,
+      responseType: "text"
+    });
+  }
+
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
     return this.http.get<IDelivery[]>(this.resourceUrlQuery, {

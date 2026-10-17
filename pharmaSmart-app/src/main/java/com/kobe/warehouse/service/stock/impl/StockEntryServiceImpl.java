@@ -31,6 +31,7 @@ import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
+import com.kobe.warehouse.service.dto.DataMatrixHintDTO;
 import com.kobe.warehouse.service.dto.DataMatrixInfo;
 import com.kobe.warehouse.service.dto.DeliveryReceiptItemLiteDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptLiteDTO;
@@ -51,6 +52,7 @@ import com.kobe.warehouse.service.rupture.service.RuptureService;
 import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.DataMatrixParserService;
+import com.kobe.warehouse.service.stock.ProductCodeResolverService;
 import com.kobe.warehouse.service.stock.DataMatrixParserService.BarcodeType;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
 import com.kobe.warehouse.service.stock.LotStockLocationService;
@@ -119,6 +121,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     private final SuggestionReassortService suggestionReassortService;
     private final RuptureService ruptureService;
     private final DataMatrixParserService dataMatrixParserService;
+    private final ProductCodeResolverService productCodeResolverService;
     private final AvoirClientDocumentService avoirClientDocumentService;
 
     private final Predicate<OrderLine> canEntreeStockIsAuthorize2 = orderLine -> {
@@ -162,6 +165,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         SuggestionReassortService suggestionReassortService,
         RuptureService ruptureService,
         DataMatrixParserService dataMatrixParserService,
+        ProductCodeResolverService productCodeResolverService,
         AvoirClientDocumentService avoirClientDocumentService
     ) {
         this.commandeRepository = commandeRepository;
@@ -185,6 +189,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         this.suggestionReassortService = suggestionReassortService;
         this.ruptureService = ruptureService;
         this.dataMatrixParserService = dataMatrixParserService;
+        this.productCodeResolverService = productCodeResolverService;
         this.avoirClientDocumentService = avoirClientDocumentService;
     }
 
@@ -338,7 +343,7 @@ public class StockEntryServiceImpl implements StockEntryService {
             TransactionType.ENTREE_STOCK,
             "order.entry",
             new Object[]{deliveryReceipt.getReceiptReference()},
-            deliveryReceipt.getId().getId().toString()
+            Objects.requireNonNull(deliveryReceipt.getId()).getId().toString()
         );
         deliveryReceipt.setOrderStatus(OrderStatut.CLOSED);
         deliveryReceipt.setUpdatedAt(LocalDateTime.now());
@@ -430,7 +435,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                     "modelimportation"
                 );
             };
-        saveLignesBonEchouees(commandeResponse, commande.getId().getId());
+        saveLignesBonEchouees(commandeResponse, Objects.requireNonNull(commande.getId()).getId());
         return commandeResponse;
     }
 
@@ -488,7 +493,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         if (parsedOpt.isEmpty()) {
             return new ReceptionScanResultDTO(false, null, null, null,
                 false, null, null, "Format de code non reconnu", barcodeType,
-                null, ReceptionScanResultDTO.FmdStatus.ABSENT, 1);
+                null, ReceptionScanResultDTO.FmdStatus.ABSENT, 1, null);
         }
 
         DataMatrixInfo parsed = parsedOpt.get();
@@ -497,15 +502,26 @@ public class StockEntryServiceImpl implements StockEntryService {
         if (cip == null || cip.isBlank()) {
             return new ReceptionScanResultDTO(false, null, null, null,
                 false, null, null, "Aucun code produit identifié dans le scan", barcodeType,
-                null, ReceptionScanResultDTO.FmdStatus.ABSENT, 1);
+                null, ReceptionScanResultDTO.FmdStatus.ABSENT, 1, DataMatrixHintDTO.fromParsed(parsed));
         }
 
-        //Identifier la ligne de commande par CIP
-        OrderLine line = orderLineRepository.findFirstByCommandeIdAndCip(commandeId, cip).orElse(null);
+        // Identifier la ligne de commande : chaque code candidat du scan est confronté aux codes
+        // du catalogue et aux codes alternatifs mémorisés aux réceptions précédentes.
+        OrderLine line = null;
+        for (String code : productCodeResolverService.listerCodesCandidats(parsed)) {
+            line = orderLineRepository.findFirstByCommandeIdAndAnyCode(commandeId, code).orElse(null);
+            if (line != null) {
+                break;
+            }
+        }
         if (line == null) {
+            // Le produit n'est pas identifié, mais le lot et la péremption lus sur la boîte le
+            // sont : ils sont remontés pour pré-remplir la résolution manuelle.
             return new ReceptionScanResultDTO(false, null, null, cip,
-                false, null, null, "CIP " + cip + " absent de la commande", barcodeType,
-                null, ReceptionScanResultDTO.FmdStatus.ABSENT, 1);
+                false, parsed.batchNumber(), null,
+                "Code " + cip + " absent de la commande", barcodeType,
+                parsed.serialNumber(), ReceptionScanResultDTO.FmdStatus.ABSENT, parsed.scannedQty(),
+                DataMatrixHintDTO.fromParsed(parsed));
         }
 
         // Vérification FMD — numéro de série (AI 21)
@@ -540,7 +556,9 @@ public class StockEntryServiceImpl implements StockEntryService {
         boolean gestionLotActif = appConfigurationService.useLot().orElse(false);
         if (parsed.hasBatchInfo() && parsed.hasExpiryDate()) {
             lotNumero = parsed.batchNumber();
-            if (gestionLotActif) {
+            // Un lot déduit par motif d'un code non-GS1 ne crée rien : il n'est que proposé à
+            // l'écran, où le pharmacien le confirme. Une date mal lue fausserait le FEFO.
+            if (gestionLotActif && parsed.hasBatchInfoCertaine()) {
                 Lot lot = new Lot();
                 lot.setOrderLine(line);
                 lot.setNumLot(parsed.batchNumber());
@@ -560,7 +578,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                 lotDTO = new LotDTO(lotRepository.save(lot));
                 lotCreated = true;
             } else {
-                // DataMatrix a des infos de lot mais la gestion de lot n'est pas active :
+                // Gestion de lot inactive, ou valeurs seulement proposées :
                 // retourner le lot parsé pour pré-remplir le formulaire côté UI
                 lotDTO = new LotDTO()
                     .setNumLot(parsed.batchNumber())
@@ -574,7 +592,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
         return new ReceptionScanResultDTO(
             true,
-            (long) line.getId().getId(),
+            (long) Objects.requireNonNull(line.getId()).getId(),
             produitLibelle,
             cip,
             lotCreated,
@@ -584,7 +602,8 @@ public class StockEntryServiceImpl implements StockEntryService {
             barcodeType,
             serialNumber,
             fmdStatus,
-            increment
+            increment,
+            null
         );
     }
 
@@ -638,8 +657,8 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     private DeliveryReceiptLiteDTO fromEntity(Commande commande) {
         return new DeliveryReceiptLiteDTO()
-            .setCommandeId(commande.getId())
-            .setId(commande.getId().getId())
+            .setCommandeId(Objects.requireNonNull(commande.getId()))
+            .setId(Objects.requireNonNull(commande.getId()).getId())
             .setHtAmount(commande.getHtAmount())
             .setReceiptAmount(commande.getGrossAmount())
             .setFinalAmount(commande.getFinalAmount())

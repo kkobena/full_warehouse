@@ -15,6 +15,7 @@ import {OrdonnanceApiService} from '../../data-access/services/ordonnance-api.se
 import {OrdonnancePanelService} from '../../data-access/services/ordonnance-panel.service';
 import {ProductSearchService} from '../../data-access/services/product-search.service';
 import {PrescripteursModalComponent} from '../prescripteurs-modal/prescripteurs-modal.component';
+import {PosologieEtiquetteModalComponent} from '../posologie-etiquette-modal/posologie-etiquette-modal.component';
 
 type Severite = 'success' | 'info' | 'danger';
 
@@ -110,6 +111,12 @@ export class OrdonnancePanelComponent {
 
   protected gererPrescripteurs(): void {
     this.modalService.open(PrescripteursModalComponent, {centered: true, size: 'lg'});
+  }
+
+  /** Étiquettes de posologie : patient, prescripteur et instructions viennent de l'ordonnance. */
+  protected imprimerPosologie(ordonnance: IOrdonnance): void {
+    const modale = this.modalService.open(PosologieEtiquetteModalComponent, {centered: true});
+    modale.componentInstance.ordonnance = ordonnance;
   }
 
   /** Alt+N : nouvelle ordonnance ; Alt+E : enregistrer ; Alt+L : ajouter la ligne ; Alt+G : prescripteurs ; Alt+R : retour à la liste. */

@@ -1,0 +1,72 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <!-- Contenu des trois usages du lot 3, partagé par le gabarit de planche et celui de rouleau :
+         une seule place où lire ce que porte une réglette, une posologie ou une préparation.
+         Les conditions sont posées sur la rangée : une cellule absente laisserait une rangée vide,
+         qui prend quand même sa hauteur. -->
+    <th:block th:fragment="contenu(itm, type)">
+      <th:block th:if="${type.name() == 'REGLETTE'}">
+        <tr>
+          <td class="une-ligne" th:text="${itm.libelle}"></td>
+        </tr>
+        <tr>
+          <td class="prix-gondole" th:text="${itm.prix}"></td>
+        </tr>
+        <tr th:if="${itm.code != null}">
+          <td>
+            <div><img th:id="${itm.code}" /></div>
+            <p class="code-discret" th:text="${itm.code}"></p>
+          </td>
+        </tr>
+      </th:block>
+
+      <th:block th:if="${type.name() == 'POSOLOGIE'}">
+        <tr th:if="${itm.patient != null}">
+          <td class="une-ligne" th:text="${itm.patient}"></td>
+        </tr>
+        <tr>
+          <td class="une-ligne" th:text="${itm.libelle}"></td>
+        </tr>
+        <tr th:if="${itm.posologie != null}">
+          <td class="texte-long" th:text="${itm.posologie}"></td>
+        </tr>
+        <tr th:if="${itm.duree != null}">
+          <td class="une-ligne" th:text="${itm.duree}"></td>
+        </tr>
+        <tr th:if="${itm.prescripteur != null}">
+          <td class="une-ligne intitule" th:text="${itm.prescripteur}"></td>
+        </tr>
+        <tr th:if="${itm.date != null}">
+          <td class="une-ligne intitule" th:text="${itm.magasin} + ' — ' + ${itm.date}"></td>
+        </tr>
+      </th:block>
+
+      <th:block th:if="${type.name() == 'PREPARATION'}">
+        <tr>
+          <td class="une-ligne" th:text="${itm.libelle}"></td>
+        </tr>
+        <tr th:if="${itm.composition != null}">
+          <td class="texte-long" th:text="${itm.composition}"></td>
+        </tr>
+        <tr th:if="${itm.patient != null}">
+          <td class="une-ligne" th:text="${itm.patient}"></td>
+        </tr>
+        <tr th:if="${itm.posologie != null}">
+          <td class="texte-long" th:text="${itm.posologie}"></td>
+        </tr>
+        <tr th:if="${itm.date != null}">
+          <td class="une-ligne intitule" th:text="'Préparé le ' + ${itm.date}"></td>
+        </tr>
+        <tr th:if="${itm.expiryDate != null}">
+          <td class="une-ligne intitule" th:text="'À utiliser avant le ' + ${itm.expiryDate}"></td>
+        </tr>
+        <tr th:if="${itm.prescripteur != null}">
+          <td class="une-ligne intitule" th:text="${itm.prescripteur}"></td>
+        </tr>
+        <tr th:if="${itm.mention != null}">
+          <td class="une-ligne" th:text="${itm.mention}"></td>
+        </tr>
+      </th:block>
+    </th:block>
+  </body>
+</html>

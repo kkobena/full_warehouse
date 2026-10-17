@@ -64,6 +64,7 @@ import com.kobe.warehouse.service.rupture.service.RuptureService;
 import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.DataMatrixParserService;
+import com.kobe.warehouse.service.stock.ProductCodeResolverService;
 import com.kobe.warehouse.service.stock.DataMatrixParserService.BarcodeType;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
 import com.kobe.warehouse.service.stock.LotStockLocationService;
@@ -167,6 +168,9 @@ class StockEntryServiceImplTest {
     private DataMatrixParserService dataMatrixParserService;
 
     @Mock
+    private ProductCodeResolverService productCodeResolverService;
+
+    @Mock
     private AvoirClientDocumentService avoirClientDocumentService;
 
     @Mock
@@ -203,6 +207,7 @@ class StockEntryServiceImplTest {
             suggestionReassortService,
             ruptureService,
             dataMatrixParserService,
+            productCodeResolverService,
             avoirClientDocumentService
         );
 
@@ -1070,13 +1075,32 @@ class StockEntryServiceImplTest {
         private OrderLine ligneDeCommande() {
             Commande commande = commande(OrderStatut.RECEIVED);
             OrderLine line = orderLine(commande, produit(), 10, 2);
-            when(orderLineRepository.findFirstByCommandeIdAndCip(12, "3400930000000")).thenReturn(Optional.of(line));
+            when(orderLineRepository.findFirstByCommandeIdAndAnyCode(12, "3400930000000")).thenReturn(Optional.of(line));
             return line;
         }
 
         private void stubScan(DataMatrixInfo info, BarcodeType type) {
             when(dataMatrixParserService.parse(anyString())).thenReturn(Optional.ofNullable(info));
             when(dataMatrixParserService.detectBarcodeType(anyString())).thenReturn(type);
+            if (info != null) {
+                when(productCodeResolverService.listerCodesCandidats(info)).thenReturn(codesCandidats(info));
+            }
+        }
+
+        /** Même ordre que ProductCodeResolverServiceImpl : CIP-13, EAN-13, GTIN-14, sans doublon. */
+        private List<String> codesCandidats(DataMatrixInfo info) {
+            List<String> candidats = new ArrayList<>();
+            for (String code : List.of(
+                Optional.ofNullable(info.cip13()).orElse(""),
+                Optional.ofNullable(info.ean13()).orElse(""),
+                Optional.ofNullable(info.gtin()).orElse("")
+            )) {
+                String normalise = code.trim();
+                if (!normalise.isEmpty() && !candidats.contains(normalise)) {
+                    candidats.add(normalise);
+                }
+            }
+            return candidats;
         }
 
         @Test
@@ -1118,13 +1142,56 @@ class StockEntryServiceImplTest {
         @DisplayName("CIP absent de la commande")
         void cipAbsentDeLaCommande() {
             stubScan(DataMatrixInfo.builder().cip13("3400930000000").build(), BarcodeType.CIP_13);
-            when(orderLineRepository.findFirstByCommandeIdAndCip(12, "3400930000000")).thenReturn(Optional.empty());
+            when(orderLineRepository.findFirstByCommandeIdAndAnyCode(12, "3400930000000")).thenReturn(Optional.empty());
 
             ReceptionScanResultDTO result = service.processScanReception(12, "3400930000000");
 
             assertThat(result.found()).isFalse();
             assertThat(result.produitCip()).isEqualTo("3400930000000");
             assertThat(result.warningMessage()).contains("absent de la commande");
+        }
+
+        @Test
+        @DisplayName("code absent de la commande : le lot et la peremption lus sur la boite sont conserves")
+        void codeAbsentConserveLesDonneesDuDataMatrix() {
+            DataMatrixInfo parsed = DataMatrixInfo.builder()
+                .gtin("07353163006031")
+                .ean13("7353163006031")
+                .batchNumber("ABC101")
+                .expiryDate(LocalDate.of(2025, 1, 31))
+                .serialNumber("SER42")
+                .scannedQty(3)
+                .build();
+            stubScan(parsed, BarcodeType.DATAMATRIX);
+            when(orderLineRepository.findFirstByCommandeIdAndAnyCode(anyInt(), anyString())).thenReturn(Optional.empty());
+
+            ReceptionScanResultDTO result = service.processScanReception(12, "0107353163006031");
+
+            assertThat(result.found()).isFalse();
+            assertThat(result.lotNumero()).isEqualTo("ABC101");
+            assertThat(result.serialNumber()).isEqualTo("SER42");
+            assertThat(result.scannedQty()).isEqualTo(3);
+            assertThat(result.dataMatrixHint()).isNotNull();
+            assertThat(result.dataMatrixHint().scannedCode()).isEqualTo("7353163006031");
+            assertThat(result.dataMatrixHint().numLot()).isEqualTo("ABC101");
+            assertThat(result.dataMatrixHint().expiryDate()).isEqualTo(LocalDate.of(2025, 1, 31));
+            assertThat(result.dataMatrixHint().qty()).isEqualTo(3);
+        }
+
+        @Test
+        @DisplayName("le code EAN est essaye quand le CIP ne donne rien")
+        void replieSurLeCodeSuivant() {
+            DataMatrixInfo parsed = DataMatrixInfo.builder().cip13("3400930000000").ean13("7353163006031").build();
+            stubScan(parsed, BarcodeType.DATAMATRIX);
+            when(orderLineRepository.findFirstByCommandeIdAndAnyCode(12, "3400930000000")).thenReturn(Optional.empty());
+            Commande commande = commande(OrderStatut.RECEIVED);
+            OrderLine line = orderLine(commande, produit(), 10, 2);
+            when(orderLineRepository.findFirstByCommandeIdAndAnyCode(12, "7353163006031")).thenReturn(Optional.of(line));
+
+            ReceptionScanResultDTO result = service.processScanReception(12, "…");
+
+            assertThat(result.found()).isTrue();
+            assertThat(result.dataMatrixHint()).isNull();
         }
 
         @Test

@@ -7,6 +7,16 @@ import type { BarcodeType } from '../model/reception-scan-result.model';
 
 export type { BarcodeType };
 
+/** Séparateur de groupe GS1 (ASCII 29). */
+const GS = '\u001D';
+
+/**
+ * Identifiants d'application GS1 reconnus par le parser.
+ * Miroir de DataMatrixParserServiceImpl.isValidDataMatrix : les codes à trois chiffres
+ * (NHRN) passent avant les codes à deux, pour éviter qu'un préfixe court ne les masque.
+ */
+const AI_GS1_CONNUS = ['710', '711', '712', '713', '714', '01', '10', '11', '17', '21'];
+
 /** Code scanné avec son type détecté côté client (sans appel réseau). */
 export interface BarcodeScanEvent {
   raw: string;
@@ -651,25 +661,74 @@ export class ScanOrchestratorService {
    */
   static detectBarcodeType(code: string): BarcodeType {
     if (!code) return 'UNKNOWN';
-    // DataMatrix : identifiant de symbologie ]d2, séparateur GS (ASCII 29),
-    // préfixe STX () ou placeholders texte émis par certains décodeurs.
-    if (
-      code.startsWith(']d2') ||
-      code.includes('') ||
-      code.startsWith('') ||
-      code.includes('<GS>') ||
-      code.includes('{GS}')
-    ) {
-      return 'DATAMATRIX';
-    }
-    // Supprime un éventuel identifiant de symbologie (ex: ]C1, ]E0, ]d1)
-    const stripped = code.replace(/^\][A-Za-z]\d/, '');
-    if (!/^\d+$/.test(stripped)) return 'UNKNOWN';
-    if (stripped.length === 7) return 'CIP_7';
-    if (stripped.length === 8) return 'EAN_8';
-    if (stripped.length === 13 && stripped.startsWith('340')) return 'CIP_13';
-    if (stripped.length === 13) return 'EAN_13';
+
+    const n = ScanOrchestratorService.normalizeCode(code);
+
+    // Les longueurs d'un code 1D passent avant la detection GS1 : sans cela un EAN-8 ou un
+    // EAN-13 dont les deux premiers chiffres forment un AI connu serait pris pour un DataMatrix.
+    const code1D = ScanOrchestratorService.detect1D(n);
+    if (code1D !== 'UNKNOWN') return code1D;
+
+    if (n.includes(GS) || ScanOrchestratorService.debuteParUnAi(n)) return 'DATAMATRIX';
+
+    // Le CIP-7 vient apres : sept chiffres debutant par un AI connu sont un GTIN tronque.
+    if (/^\d{7}$/.test(n)) return 'CIP_7';
+
     return 'UNKNOWN';
+  }
+
+  /**
+   * Retire les identifiants de symbologie et ramene toutes les ecritures du separateur de
+   * groupe au caractere GS reel. Miroir de DataMatrixParserServiceImpl.normalizeCode.
+   */
+  private static normalizeCode(code: string): string {
+    let s = code.trim();
+    // Caractères de transmission : FNC1 rendu imprimable (è, Datalogic) et caractères de
+    // contrôle ajoutés par certains scanners (STX en tête, ETX en fin). Les données GS1
+    // étant imprimables, les retirer ne peut pas amputer un lot ni un numéro de série.
+    s = s.replace(/^[\u0000-\u001Fè]+/, '').replace(/[\u0000-\u001F]+$/, '');
+    // Identifiant de symbologie AIM : ]d2, ]d1, ]C1, ]Q3, ]e0
+    s = s.replace(/^\][A-Za-z]\d/, '');
+    s = s
+      .replace(/<GS>/g, GS)
+      .replace(/\{GS\}/g, GS)
+      .replace(/\^029/g, GS)
+      .replace(/%1D/g, GS);
+    // GS en tete : Code 128 GS1 emis sans identifiant de symbologie
+    while (s.startsWith(GS)) s = s.slice(GS.length);
+    return s;
+  }
+
+  /** Type d'un code purement numerique dont la longueur est celle d'un code 1D connu. */
+  private static detect1D(code: string): BarcodeType {
+    if (!/^\d+$/.test(code)) return 'UNKNOWN';
+    switch (code.length) {
+      case 8:
+        return ScanOrchestratorService.cleEanJuste(code) ? 'EAN_8' : 'UNKNOWN';
+      case 13:
+        if (code.startsWith('340')) return 'CIP_13';
+        return ScanOrchestratorService.cleEanJuste(code) ? 'EAN_13' : 'UNKNOWN';
+      // Quatorze chiffres : GTIN-14 issu d'un AI 01 sans en-tete, ou ITF-14 de carton.
+      case 14:
+        return 'GTIN_14';
+      default:
+        return 'UNKNOWN';
+    }
+  }
+
+  /** Cle de controle EAN-8 / EAN-13. Miroir de validateEanCheckDigit (Java). */
+  private static cleEanJuste(code: string): boolean {
+    const longueur = code.length;
+    let somme = 0;
+    for (let i = 0; i < longueur - 1; i++) {
+      somme += Number(code[i]) * ((longueur - 1 - i) % 2 === 0 ? 1 : 3);
+    }
+    return (10 - (somme % 10)) % 10 === Number(code[longueur - 1]);
+  }
+
+  /** La chaine debute-t-elle par un identifiant d'application GS1 connu ? */
+  private static debuteParUnAi(code: string): boolean {
+    return AI_GS1_CONNUS.some(ai => code.startsWith(ai));
   }
 
   private formatScanErrorMessage(payload: ScanErrorPayload): string {

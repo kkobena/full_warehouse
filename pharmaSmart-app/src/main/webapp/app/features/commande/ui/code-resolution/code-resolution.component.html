@@ -1,0 +1,88 @@
+<div class="cr-scanned">
+  <span class="cr-scanned__label">Code scanné</span>
+  <code class="cr-scanned__code">{{ scannedCode() }}</code>
+</div>
+
+@if (hint(); as donnees) {
+  <div class="cr-hint" [class.cr-hint--proposition]="donnees.proposition">
+    <span class="cr-hint__title">
+      @if (donnees.proposition) {
+        Déduit de la boîte — à vérifier
+      } @else {
+        Lu sur la boîte
+      }
+    </span>
+    <div class="cr-hint__fields">
+      @if (donnees.numLot) {
+        <div class="cr-hint__field">
+          <span class="cr-hint__key">Lot</span>
+          <span class="cr-hint__value">{{ donnees.numLot }}</span>
+        </div>
+      }
+      @if (donnees.expiryDate) {
+        <div class="cr-hint__field">
+          <span class="cr-hint__key">Péremption</span>
+          <span class="cr-hint__value">{{ donnees.expiryDate | date: 'dd/MM/yyyy' }}</span>
+        </div>
+      }
+      <div class="cr-hint__field">
+        <span class="cr-hint__key">Quantité</span>
+        <span class="cr-hint__value">{{ donnees.qty }}</span>
+      </div>
+    </div>
+    @if (donnees.proposition) {
+      <p class="cr-hint__note cr-hint__note--warn">
+        Ce code ne suit pas le standard GS1 : ces valeurs sont déduites de sa forme, pas lues.
+        Vérifiez-les sur la boîte — elles pré-rempliront le lot, sans le créer.
+      </p>
+    } @else {
+      <p class="cr-hint__note">Ces valeurs seront reprises après confirmation : rien n'est perdu.</p>
+    }
+  </div>
+} @else {
+  <p class="cr-no-hint">Le code ne portait ni lot ni péremption : seul le code produit a été lu.</p>
+}
+
+<label class="cr-filter" for="cr-filter-input">
+  <span class="cr-filter__label">Filtrer les lignes du bon</span>
+  <input
+    id="cr-filter-input"
+    type="text"
+    class="form-control"
+    placeholder="Libellé ou code…"
+    autocomplete="off"
+    [ngModel]="filtre()"
+    (ngModelChange)="filtre.set($event)"
+  />
+</label>
+
+<div class="cr-lines" role="listbox" aria-label="Lignes du bon">
+  @for (ligne of lignesFiltrees(); track ligne.id) {
+    <button
+      type="button"
+      class="cr-line"
+      role="option"
+      [class.cr-line--selected]="estChoisie(ligne)"
+      [attr.aria-selected]="estChoisie(ligne)"
+      (click)="choisir(ligne)"
+    >
+      <span class="cr-line__libelle">{{ ligne.produitLibelle }}</span>
+      <span class="cr-line__code">{{ ligne.produitCip }}</span>
+      <span class="cr-line__qty">{{ ligne.quantityReceived ?? 0 }} / {{ ligne.quantityRequested ?? 0 }}</span>
+    </button>
+  } @empty {
+    <p class="cr-lines__empty">Aucune ligne ne correspond à ce filtre.</p>
+  }
+</div>
+
+<app-checkbox
+  label="Mémoriser ce code pour cet article"
+  [ngModel]="memoriser()"
+  (ngModelChange)="memoriser.set($event)"
+/>
+<p class="cr-memo-note">Mémorisé, ce code sera reconnu seul aux prochaines réceptions et au comptoir.</p>
+
+<div class="cr-actions">
+  <app-button label="Annuler" severity="secondary" [text]="true" (clicked)="annuler()" />
+  <app-button label="Confirmer" icon="pi pi-check" [disabled]="!peutConfirmer()" (clicked)="confirmer()" />
+</div>

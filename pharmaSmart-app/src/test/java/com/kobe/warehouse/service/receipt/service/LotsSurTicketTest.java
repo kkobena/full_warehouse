@@ -12,11 +12,11 @@ import org.junit.jupiter.api.Test;
 class LotsSurTicketTest {
 
     @Test
-    void ticket_unSeulLotSansQuantiteEtPeremptionAuMois() {
+    void ticket_unSeulLotSansQuantiteEtPeremptionAuJour() {
         SaleLineDTO ligne = new SaleLineDTO();
         ligne.setLots(List.of(new LotSold(1, "A123", 2, LocalDate.of(2027, 3, 15))));
 
-        assertEquals(List.of("Lot A123 exp. 03/2027"), AbstractSaleReceiptService.formaterLots(ligne));
+        assertEquals(List.of("Lot A123 exp. 15/03/2027"), AbstractSaleReceiptService.formaterLots(ligne));
     }
 
     @Test
@@ -24,7 +24,7 @@ class LotsSurTicketTest {
         SaleLineDTO ligne = new SaleLineDTO();
         ligne.setLots(List.of(new LotSold(1, "A123", 2, LocalDate.of(2027, 3, 15)), new LotSold(2, "B456", 1, null)));
 
-        assertEquals(List.of("Lot A123 (2) exp. 03/2027", "Lot B456 (1)"), AbstractSaleReceiptService.formaterLots(ligne));
+        assertEquals(List.of("Lot A123 (2) exp. 15/03/2027", "Lot B456 (1)"), AbstractSaleReceiptService.formaterLots(ligne));
     }
 
     @Test

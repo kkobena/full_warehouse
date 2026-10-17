@@ -2620,6 +2620,175 @@ $q$);
 
 
 -- ===========================================================================
+-- CODES ALTERNATIFS ET ÉTIQUETTE INTERNE  (27_codes_alias_datamatrix.sql)
+--
+-- La table vient de la migration V2.1.45 : un chargement antérieur au premier
+-- démarrage du backend ne l'a pas remplie, et les contrôles se taisent alors
+-- plutôt que d'échouer sur une absence attendue.
+-- ===========================================================================
+SELECT to_regclass('produit_code_alias') IS NOT NULL AS table_alias \gset
+\if :table_alias
+
+SELECT pg_temp.verif_compte('codes alternatifs', 'Des codes alternatifs existent', $q$
+    SELECT 1 FROM produit_code_alias
+$q$, 100);
+
+-- Les trois natures que la réception rencontre réellement : le GTIN du fabricant, le code
+-- interne du grossiste, l'EAN d'un reconditionnement. Une seule d'entre elles et l'onglet
+-- « Codes alternatifs » ne montrerait qu'un cas sur trois.
+SELECT pg_temp.verif_compte('codes alternatifs', 'Au moins trois natures de code représentées', $q$
+    SELECT DISTINCT code_type FROM produit_code_alias
+$q$, 3);
+
+SELECT pg_temp.verif_compte('codes alternatifs', 'Un code hors nomenclature (code interne de grossiste)', $q$
+    SELECT 1 FROM produit_code_alias WHERE code_type = 'CUSTOM'
+$q$, 10);
+
+-- Cas nommé : la modale de résolution doit pouvoir proposer DEUX produits pour un même code.
+SELECT pg_temp.verif_compte('codes alternatifs', 'Cas nommé : un code partagé par deux produits', $q$
+    SELECT code FROM produit_code_alias
+     GROUP BY code HAVING count(DISTINCT produit_id) > 1
+$q$, 1);
+
+-- Les cas nommés sont CITÉS par les parcours e2e (REF-69 ouvre GROS/A-7788, VTE-74 scanne
+-- 6181234567898). Un cas qui disparaîtrait — libellé de produit absent du référentiel chargé,
+-- conflit d'unicité — ferait échouer le parcours sur une attente de sélecteur, et le défaut
+-- serait imputé à l'interface. On contrôle donc ici que chacun est bien posé.
+SELECT pg_temp.verif_vide('codes alternatifs', 'Les codes des cas nommés sont tous posés', $q$
+    SELECT attendu.code
+      FROM (VALUES ('17353163006038'), ('6181234567898'), ('GROS/A-7788'),
+                   ('3400933399931'),  ('6189876543218'), ('96385074')) AS attendu(code)
+     WHERE NOT EXISTS (SELECT 1 FROM produit_code_alias a WHERE a.code = attendu.code)
+$q$);
+
+-- Les clés de contrôle : un EAN-13 ou un GTIN-14 à clé fausse serait rejeté par le parser
+-- avant toute recherche, et le cas nommé ne démontrerait rien.
+SELECT pg_temp.verif_vide('codes alternatifs', 'Clé de contrôle juste sur les codes numériques', $q$
+    SELECT a.id
+      FROM produit_code_alias a
+     WHERE a.code_type IN ('GTIN_14', 'EAN_13', 'EAN_8', 'CIP_13')
+       AND a.code ~ '^[0-9]+$'
+       AND right(a.code, 1) <> (
+           SELECT ((10 - (sum(substring(c.corps FROM i FOR 1)::int
+                              * CASE WHEN (length(c.corps) - i) % 2 = 0 THEN 3 ELSE 1 END)::int % 10)) % 10)::text
+             FROM (SELECT left(a.code, length(a.code) - 1) AS corps) c,
+                  generate_series(1, length(a.code) - 1) AS g(i)
+       )
+$q$);
+
+SELECT pg_temp.verif_vide('codes alternatifs', 'Longueur conforme au type déclaré', $q$
+    SELECT id FROM produit_code_alias
+     WHERE (code_type = 'GTIN_14' AND length(code) <> 14)
+        OR (code_type IN ('EAN_13', 'CIP_13') AND length(code) <> 13)
+        OR (code_type = 'EAN_8'  AND length(code) <> 8)
+        OR (code_type = 'CIP_7'  AND length(code) <> 7)
+$q$);
+
+-- Un alias qui répète un code déjà porté par la fiche produit n'apporte rien et ferait croire
+-- à une liaison apprise là où la recherche standard suffisait (plan §7, hors périmètre).
+SELECT pg_temp.verif_vide('codes alternatifs', 'Aucun alias ne double un code déjà en fiche', $q$
+    SELECT a.id
+      FROM produit_code_alias a
+      JOIN produit p ON p.id = a.produit_id
+      LEFT JOIN fournisseur_produit fp ON fp.produit_id = p.id
+     WHERE a.code IN (fp.code_cip, fp.code_ean, p.code_ean_labo)
+$q$);
+
+SELECT pg_temp.verif_vide('codes alternatifs', 'Toute mémorisation porte son auteur et sa date', $q$
+    SELECT id FROM produit_code_alias
+     WHERE created_by IS NULL OR created_at IS NULL OR created_at > now()
+$q$);
+
+-- ===========================================================================
+-- SÉQUENCES D'IDENTITÉ
+--
+-- Un script qui pose des identifiants À LA MAIN doit laisser la séquence au-dessus. Sinon la
+-- PREMIÈRE création depuis l'application viole la clé primaire : un HTTP 500 qu'aucun contrôle
+-- de volume ne voit, parce que les données chargées sont parfaitement cohérentes — c'est la
+-- suite qui ne l'est plus. Quatre parcours e2e sont tombés là-dessus le 2026-10-17
+-- (`store_inventory`, posé par 24_mouvements.sql après le recalage de 11_inventaires.sql).
+--
+-- Le contrôle est GÉNÉRIQUE, et c'est voulu : nommer les tables concernées serait les nommer
+-- une par une à chaque fois qu'un script en ajoute.
+-- ===========================================================================
+CREATE OR REPLACE FUNCTION pg_temp.sequences_en_retard() RETURNS TABLE (nom text)
+LANGUAGE plpgsql AS $fn$
+DECLARE
+    r        record;
+    max_id   bigint;
+    derniere bigint;
+BEGIN
+    FOR r IN
+        SELECT c.table_name AS table_nom,
+               pg_get_serial_sequence(quote_ident(c.table_schema) || '.' || quote_ident(c.table_name), 'id') AS seq
+          FROM information_schema.columns c
+          JOIN information_schema.tables t
+            ON t.table_schema = c.table_schema AND t.table_name = c.table_name AND t.table_type = 'BASE TABLE'
+         WHERE c.table_schema = current_schema()
+           AND c.column_name = 'id'
+           -- Trois tables de référence sont ÉCARTÉES : leurs lignes viennent des migrations
+           -- Flyway (`tva` et `categorie` de V1.0.2, `tableau` de V1.0.3), pas des scripts de
+           -- démonstration, et leur séquence est restée intacte sous des identifiants déjà
+           -- posés. Le défaut est réel — la première création d'un taux de TVA depuis l'écran
+           -- violerait la clé — mais sa réparation est une MIGRATION, pas une donnée de démo :
+           -- un script de démonstration n'a pas à recaler ce que Flyway possède. À traiter à
+           -- part ; retirer ces noms d'ici le jour où la migration existe.
+           AND c.table_name NOT IN ('tva', 'categorie', 'tableau')
+    LOOP
+        CONTINUE WHEN r.seq IS NULL;
+        EXECUTE format('SELECT max(id) FROM %I', r.table_nom) INTO max_id;
+        CONTINUE WHEN max_id IS NULL;
+        SELECT s.last_value INTO derniere
+          FROM pg_sequences s
+         WHERE quote_ident(s.schemaname) || '.' || quote_ident(s.sequencename) = r.seq;
+        -- `last_value` est NULL tant que la séquence n'a jamais servi : des lignes posées à la
+        -- main sur une séquence intacte sont exactement le cas qu'on traque.
+        IF derniere IS NULL OR max_id > derniere THEN
+            nom := r.table_nom;
+            RETURN NEXT;
+        END IF;
+    END LOOP;
+END $fn$;
+
+SELECT pg_temp.verif_vide('séquences', 'Toute séquence d''identité est au-dessus de son max(id)', $q$
+    SELECT nom FROM pg_temp.sequences_en_retard()
+$q$);
+
+-- De quoi imprimer l'étiquette interne : sans lot au numéro ET à la péremption, la trame GS1
+-- n'aurait rien à porter et l'étiquette se replierait sur le Code 39 — la fonction du lot 3
+-- ne se démontrerait pas.
+SELECT pg_temp.verif_compte('codes alternatifs', 'Des lots imprimables depuis la fiche produit', $q$
+    SELECT 1
+      FROM lot l
+      JOIN produit p ON p.id = l.produit_id
+      JOIN fournisseur_produit fp ON fp.id = p.fournisseur_produit_principal_id
+     WHERE l.statut = 'AVAILABLE'
+       AND l.current_quantity > 0
+       AND l.num_lot IS NOT NULL
+       AND l.expiry_date > CURRENT_DATE
+       AND coalesce(fp.code_cip, '') <> ''
+$q$, 100);
+
+-- Un bon de livraison de planche courte : la fonction se vérifie sur quelques étiquettes,
+-- pas sur les quarante d'un gros bon.
+SELECT pg_temp.verif_compte('codes alternatifs', 'Un bon de livraison à planche courte', $q$
+    SELECT c.id
+      FROM commande c
+      JOIN order_line ol ON ol.commande_id = c.id AND ol.commande_order_date = c.order_date
+      JOIN lot l ON l.order_line_id = ol.id
+      JOIN fournisseur_produit fp ON fp.id = ol.fournisseur_produit_id
+     WHERE c.order_status = 'CLOSED'
+       AND coalesce(fp.code_cip, '') <> ''
+       AND l.num_lot IS NOT NULL
+       AND l.expiry_date IS NOT NULL
+     GROUP BY c.id
+    HAVING count(l.id) BETWEEN 2 AND 12
+$q$, 1);
+
+\endif
+
+
+-- ===========================================================================
 -- Restitution
 -- ===========================================================================
 \echo ''

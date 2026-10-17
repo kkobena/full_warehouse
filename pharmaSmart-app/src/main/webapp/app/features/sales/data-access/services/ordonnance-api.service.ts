@@ -19,6 +19,35 @@ export class OrdonnanceApiService {
     return this.http.get<IOrdonnance[]>(this.ordonnancesUrl, {params});
   }
 
+  /**
+   * Étiquettes de posologie : une par ligne, ou une seule avec `ligneId`. Patient, prescripteur
+   * et instructions viennent de l'ordonnance — rien à ressaisir au comptoir.
+   */
+  etiquettesPosologie(id: number, req: {ligneId?: number; qty?: number; startAt?: number; format?: string}): Observable<Blob> {
+    return this.http.get(`${this.ordonnancesUrl}/${id}/etiquettes/posologie`, {
+      params: this.parametresEtiquette(req),
+      responseType: 'blob',
+    });
+  }
+
+  /** Les mêmes, en ZPL, pour une imprimante à rouleau pilotée en direct. */
+  etiquettesPosologieZpl(id: number, req: {ligneId?: number; qty?: number; format?: string; resolution?: string}): Observable<string> {
+    return this.http.get(`${this.ordonnancesUrl}/${id}/etiquettes/posologie/zpl`, {
+      params: this.parametresEtiquette(req),
+      responseType: 'text',
+    });
+  }
+
+  private parametresEtiquette(req: Record<string, string | number | undefined>): HttpParams {
+    let params = new HttpParams();
+    for (const [nom, valeur] of Object.entries(req)) {
+      if (valeur !== undefined && valeur !== null) {
+        params = params.set(nom, valeur);
+      }
+    }
+    return params;
+  }
+
   creer(ordonnance: IOrdonnanceCreation): Observable<IOrdonnance> {
     return this.http.post<IOrdonnance>(this.ordonnancesUrl, ordonnance);
   }

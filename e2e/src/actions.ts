@@ -1029,3 +1029,21 @@ export async function trouverLigneAvecAction(page: Page, lignes: Locator, libell
   }
   throw new Error(`Aucune des ${total} premières lignes ne propose l'action « ${libelle} »`);
 }
+
+/**
+ * Ouvre la fenêtre d'impression des étiquettes d'un article, depuis le catalogue, et rend la
+ * modale.
+ *
+ * Le chemin n'est pas évident : l'action vit dans le menu « Actions » de la ligne, et non dans
+ * la fiche. Quatre parcours la prennent — étiquette standard, étiquette de lot, réglette,
+ * préparation magistrale — et le type se choisit DANS la fenêtre, pas avant de l'ouvrir.
+ */
+export async function ouvrirEtiquettesProduit(page: Page, libelle: string): Promise<Locator> {
+  await page.goto('/produits');
+  await chercherAuCatalogue(page, libelle);
+  await page.locator('tbody tr').filter({ visible: true }).first().getByRole('button', { name: 'Actions' }).click();
+  await page.getByRole('button', { name: 'Imprimer étiquette' }).click();
+  const modale = page.locator('.modal-content');
+  await expect(modale).toContainText(/Imprimer étiquettes/i);
+  return modale;
+}

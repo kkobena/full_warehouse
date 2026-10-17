@@ -25,6 +25,7 @@ import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ParetoAnalysisRepository;
 import com.kobe.warehouse.repository.PrixReferenceRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
+import com.kobe.warehouse.repository.ProduitCodeAliasRepository;
 import com.kobe.warehouse.repository.RayonProduitRepository;
 import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.repository.ReferenceRepository;
@@ -54,6 +55,7 @@ import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionServic
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
 import com.kobe.warehouse.service.report.excel.CsvExportService;
 import com.kobe.warehouse.service.stock.DeliveryReceiptReportReportService;
+import com.kobe.warehouse.service.stock.EtiquetteLotExportService;
 import com.kobe.warehouse.service.report.pdf.RetourBonPdfReportService;
 import com.kobe.warehouse.service.report.pdf.SuggestionPdfReportService;
 import com.kobe.warehouse.service.reassort.RepartitionStockService;
@@ -62,6 +64,7 @@ import com.kobe.warehouse.service.rupture.service.RuptureService;
 import com.kobe.warehouse.service.sale.AvoirClientDocumentService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.DataMatrixParserService;
+import com.kobe.warehouse.service.stock.ProductCodeResolverService;
 import com.kobe.warehouse.service.stock.GapAnalysisService;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
 import com.kobe.warehouse.service.stock.LotService;
@@ -81,6 +84,7 @@ import com.kobe.warehouse.service.stock.StockEntryDataService;
 import com.kobe.warehouse.service.stock.StockEntryService;
 import com.kobe.warehouse.service.stock.StockProduitService;
 import com.kobe.warehouse.service.stock.impl.DataMatrixParserServiceImpl;
+import com.kobe.warehouse.service.stock.impl.ProductCodeResolverServiceImpl;
 import com.kobe.warehouse.service.stock.impl.GapAnalysisServiceImpl;
 import com.kobe.warehouse.service.stock.impl.LotStockLocationServiceImpl;
 import com.kobe.warehouse.service.stock.impl.AvoirFournisseurServiceImpl;
@@ -146,6 +150,7 @@ final class StockServicesUnderTest {
     final SuggestionPdfReportService suggestionPdfReportService = mock(SuggestionPdfReportService.class);
     final DeliveryReceiptReportReportService deliveryReceiptReportService = mock(DeliveryReceiptReportReportService.class);
     final EtiquetteExportReportServiceImpl etiquetteExportService = mock(EtiquetteExportReportServiceImpl.class);
+    final EtiquetteLotExportService etiquetteLotExportService = mock(EtiquetteLotExportService.class);
     final EtatProduitService etatProduitService = mock(EtatProduitService.class);
     final CommandService commandService = mock(CommandService.class);
     final CsvExportService csvExportService = mock(CsvExportService.class);
@@ -202,6 +207,7 @@ final class StockServicesUnderTest {
     final ProduitService produitService;
     final ReferenceService referenceService;
     final DataMatrixParserService dataMatrixParserService;
+    final ProductCodeResolverService productCodeResolverService;
 
     StockServicesUnderTest(EntityManager entityManager) {
         this.lotRepository = IntegrationPostgresDatabase.bean(LotRepository.class);
@@ -240,6 +246,12 @@ final class StockServicesUnderTest {
         this.orderLineIdGeneratorService = new OrderLineIdGeneratorService(entityManager);
         this.referenceService = new ReferenceService(IntegrationPostgresDatabase.bean(ReferenceRepository.class));
         this.dataMatrixParserService = new DataMatrixParserServiceImpl();
+        this.productCodeResolverService = new ProductCodeResolverServiceImpl(
+            fournisseurProduitRepository,
+            produitRepository,
+            IntegrationPostgresDatabase.bean(ProduitCodeAliasRepository.class),
+            dataMatrixParserService
+        );
 
         brancherOrderLineServiceSurSonRepository();
 
@@ -385,7 +397,8 @@ final class StockServicesUnderTest {
             commandeRepository,
             deliveryReceiptReportService,
             orderLineRepository,
-            etiquetteExportService
+            etiquetteExportService,
+            etiquetteLotExportService
         );
 
         FournisseurProduitService fournisseurProduitService = new FournisseurProduitService(
@@ -416,6 +429,7 @@ final class StockServicesUnderTest {
             suggestionReassortService,
             ruptureService,
             dataMatrixParserService,
+            productCodeResolverService,
             avoirClientDocumentService
         );
     }

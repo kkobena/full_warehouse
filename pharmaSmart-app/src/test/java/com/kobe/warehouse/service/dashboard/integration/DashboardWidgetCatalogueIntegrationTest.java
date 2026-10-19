@@ -5,15 +5,14 @@ import static org.mockito.Mockito.mock;
 
 import com.kobe.warehouse.service.dashboard.widget.WidgetAuthorizationService;
 import com.kobe.warehouse.service.dashboard.widget.WidgetDataProvider;
-import com.kobe.warehouse.service.dashboard.widget.provider.CaisseWidgets;
-import com.kobe.warehouse.service.dashboard.widget.provider.FinancesWidgets;
-import com.kobe.warehouse.service.dashboard.widget.provider.StockAchatsWidgets;
 import com.kobe.warehouse.service.dashboard.widget.provider.VentesWidgets;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.test.IntegrationPostgresDatabase;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -22,7 +21,11 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.orm.jpa.SharedEntityManagerCreator;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -51,7 +54,7 @@ class DashboardWidgetCatalogueIntegrationTest {
     @Test
     @DisplayName("chaque fournisseur a son nav_item, et chaque nav_item de données son fournisseur")
     void fournisseursEtNavItemsConcordent() throws Exception {
-        Set<String> fournisseurs = cleDesFournisseurs();
+        Set<String> fournisseurs = lireLesClesDesFournisseurs();
         Set<String> enBase = em
             .createQuery("SELECT n.code FROM NavItem n WHERE n.targetType = com.kobe.warehouse.domain.enumeration.NavTargetType.WIDGET", String.class)
             .getResultList()
@@ -104,10 +107,14 @@ class DashboardWidgetCatalogueIntegrationTest {
             .collect(Collectors.toSet());
     }
 
-    /** Appelle chaque méthode {@code @Bean} des configurations avec des services simulés, pour lire sa clé. */
-    private static Set<String> cleDesFournisseurs() throws Exception {
+    /**
+     * Appelle chaque méthode {@code @Bean} des configurations de widgets avec des services simulés,
+     * pour lire sa clé. Les configurations sont découvertes par balayage du paquet : en ajouter une
+     * ne demande rien ici.
+     */
+    private static Set<String> lireLesClesDesFournisseurs() throws Exception {
         Set<String> keys = new HashSet<>();
-        for (Object configuration : List.of(new VentesWidgets(DEVISE), new StockAchatsWidgets(DEVISE), new CaisseWidgets(DEVISE), new FinancesWidgets(DEVISE))) {
+        for (Object configuration : instancierLesConfigurations()) {
             for (Method method : configuration.getClass().getDeclaredMethods()) {
                 if (method.isAnnotationPresent(Bean.class) && WidgetDataProvider.class.isAssignableFrom(method.getReturnType())) {
                     method.setAccessible(true);
@@ -117,5 +124,19 @@ class DashboardWidgetCatalogueIntegrationTest {
             }
         }
         return keys;
+    }
+
+    /** Les {@code @Configuration} du paquet des fournisseurs, construites avec la devise simulée. */
+    private static List<Object> instancierLesConfigurations() throws Exception {
+        var scanner = new ClassPathScanningCandidateComponentProvider(false);
+        scanner.addIncludeFilter(new AnnotationTypeFilter(Configuration.class));
+        List<Object> configurations = new ArrayList<>();
+        for (BeanDefinition definition : scanner.findCandidateComponents(VentesWidgets.class.getPackageName())) {
+            Constructor<?> constructor = Class.forName(definition.getBeanClassName()).getDeclaredConstructor(AppConfigurationService.class);
+            constructor.setAccessible(true);
+            configurations.add(constructor.newInstance(DEVISE));
+        }
+        assertThat(configurations).hasSizeGreaterThanOrEqualTo(5);
+        return configurations;
     }
 }

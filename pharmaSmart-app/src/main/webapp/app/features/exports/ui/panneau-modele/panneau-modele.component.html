@@ -8,27 +8,42 @@
       <span class="form-label mb-0">Nom</span>
       <app-input [(ngModel)]="libelle" [maxlength]="100" [required]="true" name="libelle" />
     </label>
-    <app-select (selectionChange)="choisir(export.set, $event)" [clearable]="false" [items]="exports()" [ngModel]="export()" ariaLabel="Export" bindLabel="libelle"
+    <app-select (selectionChange)="choisirExport($event)" [clearable]="false" [items]="exports()" [ngModel]="export()" ariaLabel="Export" bindLabel="libelle"
                 bindValue="code" inputId="modeleExport" name="export" placeholder="Export…" />
-    <app-pill-selector (selectionChange)="choisir(format.set, $event)" [items]="formats" [ngModel]="format()" ariaLabel="Format" name="format" />
+    <app-pill-selector (selectionChange)="choisir(format.set, $event)" [items]="formats()" [ngModel]="format()" ariaLabel="Format" name="format" />
     @if (periodique()) {
       <app-select (selectionChange)="choisir(periode.set, $event)" [clearable]="false" [items]="periodes" [ngModel]="periode()" [searchable]="false"
                   ariaLabel="Période, recalculée à chaque exécution" bindLabel="libelle" bindValue="valeur" inputId="modelePeriode" name="periode" />
+    }
+    @if (filtresDuModele().length) {
+      <fieldset class="d-flex flex-column gap-2">
+        <legend class="fs-6 fw-semibold mb-1">Réglages</legend>
+        <p class="small text-muted mb-0">Rejoués à chaque exécution ; sans choix, les valeurs par défaut de l'écran d'origine.</p>
+        <app-reglages-export (reglage)="regler($event)" [filtres]="filtresDuModele()" [valeurs]="filtres()" prefixe="modele" />
+      </fieldset>
     }
     <app-checkbox [(ngModel)]="partage" label="Partager avec l'équipe" name="partage" />
 
     <fieldset class="d-flex flex-column gap-2">
       <legend class="fs-6 fw-semibold mb-1">Programmation</legend>
-      <app-select (selectionChange)="choisir(frequence.set, $event)" [clearable]="false" [items]="frequences" [ngModel]="frequence()" [searchable]="false"
-                  ariaLabel="Fréquence" bindLabel="libelle" bindValue="valeur" inputId="modeleFrequence" name="frequence" />
-      @if (frequence()) {
-        @if (frequence() !== 'DAILY') {
-          <app-select (selectionChange)="choisir(jour.set, $event)" [clearable]="false" [items]="jours()" [ngModel]="jour()" [searchable]="false" ariaLabel="Jour"
-                      bindLabel="libelle" bindValue="valeur" inputId="modeleJour" name="jour" />
+      @if (!programmable()) {
+        <p class="small text-muted mb-0">
+          Cette édition ne se programme pas : son service la bâtit avec vos droits. Enregistrée, elle se rejoue d'un clic.
+        </p>
+      } @else {
+        <app-select (selectionChange)="choisir(frequence.set, $event)" [clearable]="false" [items]="frequences" [ngModel]="frequence()" [searchable]="false"
+                    ariaLabel="Fréquence" bindLabel="libelle" bindValue="valeur" inputId="modeleFrequence" name="frequence" />
+        @if (frequence()) {
+          @if (frequence() !== 'DAILY') {
+            <app-select (selectionChange)="choisir(jour.set, $event)" [clearable]="false" [items]="jours()" [ngModel]="jour()" [searchable]="false"
+                        ariaLabel="Jour" bindLabel="libelle" bindValue="valeur" inputId="modeleJour" name="jour" />
+          }
+          <app-select (selectionChange)="choisir(heure.set, $event)" [clearable]="false" [items]="heures" [ngModel]="heure()" [searchable]="false"
+                      ariaLabel="Heure" bindLabel="libelle" bindValue="valeur" inputId="modeleHeure" name="heure" />
+          <p class="small text-muted mb-0">
+            Le fichier arrive dans l'historique de l'auteur du modèle. Poste éteint à l'heure dite : il part au démarrage suivant.
+          </p>
         }
-        <app-select (selectionChange)="choisir(heure.set, $event)" [clearable]="false" [items]="heures" [ngModel]="heure()" [searchable]="false" ariaLabel="Heure"
-                    bindLabel="libelle" bindValue="valeur" inputId="modeleHeure" name="heure" />
-        <p class="small text-muted mb-0">Le fichier arrive dans l'historique de l'auteur du modèle. Poste éteint à l'heure dite : il part au démarrage suivant.</p>
       }
     </fieldset>
 

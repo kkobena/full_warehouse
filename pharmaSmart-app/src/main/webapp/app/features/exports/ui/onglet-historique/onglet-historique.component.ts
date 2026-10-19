@@ -7,7 +7,7 @@ import { AppBadgeSeverity, BadgeComponent, ButtonComponent, DataTableComponent }
 import { BlobDownloadService } from 'app/shared/services/blob-download.service';
 import { formatNumber } from 'app/shared/utils/format-utils';
 import { ExportsApiService } from '../../data-access/exports-api.service';
-import { ExportFichier, StatutExport } from '../../models/exports.model';
+import { ExportFichier, StatutExport, TELECHARGEMENT } from '../../models/exports.model';
 
 const TAILLE_PAGE = 20;
 /** Tant qu'un fichier se prépare, l'historique se relit à ce rythme. */
@@ -72,7 +72,7 @@ export class OngletHistoriqueComponent {
   protected telecharger(fichier: ExportFichier): void {
     this.api.telecharger(fichier.id).subscribe(blob => {
       const base = fichier.export.toLowerCase().replaceAll('_', '-') + (fichier.du ? `_${fichier.du}_${fichier.au}` : '');
-      this.telechargement.download(blob, base, fichier.format === 'XLSX' ? 'excel' : 'csv');
+      this.telechargement.download(blob, base, TELECHARGEMENT[fichier.format]);
     });
   }
 }

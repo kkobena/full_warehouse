@@ -1,0 +1,14 @@
+<div class="reglages-grille">
+  @for (filtre of filtres(); track filtre.code) {
+    <label class="reglage">
+      <span class="reglage-libelle">{{ filtre.libelle }}</span>
+      @if (filtre.multiple) {
+        <app-multi-select (selectionChange)="choisirPlusieurs(filtre, $event)" [inputId]="prefixe() + '-' + filtre.code" [items]="filtre.options"
+                          [ngModel]="retenues(filtre)" [small]="true" appendTo="body" bindLabel="libelle" bindValue="valeur" placeholder="Tout" />
+      } @else {
+        <app-select (selectionChange)="choisirUne(filtre, $event)" [clearable]="true" [inputId]="prefixe() + '-' + filtre.code" [items]="filtre.options"
+                    [ngModel]="unique(filtre)" [small]="true" appendTo="body" bindLabel="libelle" bindValue="valeur" placeholder="Par défaut" />
+      }
+    </label>
+  }
+</div>

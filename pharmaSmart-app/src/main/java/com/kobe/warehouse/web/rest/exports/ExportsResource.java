@@ -3,6 +3,7 @@ package com.kobe.warehouse.web.rest.exports;
 import com.kobe.warehouse.security.navaccess.NavAction;
 import com.kobe.warehouse.security.navaccess.RequiresNavAccess;
 import com.kobe.warehouse.service.dto.exports.CatalogueExportsDTO;
+import com.kobe.warehouse.service.dto.exports.ContenuExportDTO;
 import com.kobe.warehouse.service.dto.exports.DemandeExportDTO;
 import com.kobe.warehouse.service.dto.exports.ExportFichierDTO;
 import com.kobe.warehouse.service.dto.exports.ExportModeleDTO;
@@ -56,6 +57,17 @@ public class ExportsResource {
     @GetMapping("/catalogue")
     public ResponseEntity<CatalogueExportsDTO> lireCatalogue() {
         return ResponseEntity.ok(catalogueExportsService.lireCatalogue());
+    }
+
+    /** Le fichier part dans la réponse : rien n'est inscrit, il n'y a rien à aller rechercher ensuite. */
+    @PostMapping("/contenu")
+    @RequiresNavAccess(value = "exports", action = NavAction.ACCESS)
+    public ResponseEntity<byte[]> exporter(@Valid @RequestBody DemandeExportDTO demande) {
+        ContenuExportDTO fichier = exportsFichiersService.produire(demande);
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(fichier.typeMime()))
+            .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(fichier.nom()).build().toString())
+            .body(fichier.contenu());
     }
 
     @PostMapping("/fichiers")

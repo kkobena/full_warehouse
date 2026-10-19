@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.exports.impl;
 
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.ExportModele;
+import com.kobe.warehouse.domain.enumeration.SujetExport;
 import com.kobe.warehouse.repository.ExportModeleRepository;
 import com.kobe.warehouse.security.navaccess.NavAccessService;
 import com.kobe.warehouse.security.navaccess.NavAction;
@@ -22,7 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Un modèle programmé s'exécute au nom de son propriétaire, sans session : le droit d'export est vérifié à l'enregistrement et à
- * chaque exécution manuelle ; le fichier rejoint l'historique du propriétaire.
+ * chaque exécution manuelle ; le fichier rejoint l'historique du propriétaire. Une édition n'étant bâtie qu'avec les droits de
+ * qui la demande, elle s'enregistre pour être rejouée d'un clic mais ne se programme pas.
  */
 @Service
 @Transactional
@@ -57,17 +59,27 @@ public class ModelesExportServiceImpl implements ModelesExportService {
     @Override
     public ExportModeleDTO enregistrerModele(ExportModeleDTO dto) {
         AppUser utilisateur = userService.getUser();
-        verifierDroit(dto);
-        if (dto.export().isPeriodique() && dto.periode() == null) {
+        SujetExport export = ExportsFichiersServiceImpl.lireSujet(dto.export());
+        verifierDroit(export);
+        if (export.isPeriodique() && dto.periode() == null) {
             throw new GenericError("Choisissez la période du modèle");
+        }
+        if (!export.getFormats().contains(dto.format())) {
+            throw new GenericError(export.getLibelle() + " ne se produit pas en " + dto.format().name());
+        }
+        if (dto.frequence() != null && !export.estProgrammable()) {
+            throw new GenericError(
+                export.getLibelle() + " ne se programme pas : cette édition est bâtie avec les droits de qui la demande"
+            );
         }
         ExportModele modele = dto.id() == null ? new ExportModele().setProprietaire(utilisateur) : lireModifiable(dto.id(), utilisateur);
         modele
             .setLibelle(dto.libelle().trim())
-            .setExport(dto.export())
+            .setExport(export)
             .setFormat(dto.format())
-            .setPeriode(dto.export().isPeriodique() ? dto.periode() : null)
+            .setPeriode(export.isPeriodique() ? dto.periode() : null)
             .setPartage(dto.partage())
+            .setFiltres(FiltresDemandes.retenir(export, dto.filtres()))
             .setFrequence(dto.frequence())
             .setHeure(dto.frequence() == null ? null : Objects.requireNonNullElse(dto.heure(), ProgrammationExport.HEURE_PAR_DEFAUT))
             .setJour(dto.frequence() == null ? null : dto.jour())
@@ -89,8 +101,8 @@ public class ModelesExportServiceImpl implements ModelesExportService {
         if (!modele.isPartage() && !Objects.equals(modele.getProprietaire().getId(), utilisateur.getId())) {
             throw new ForbiddenOperationException("Ce modèle n'est pas partagé", "exportModelePrive");
         }
-        if (!navAccessService.isAllowed(List.of(modele.getExport().getRubrique().getDroit()), NavAction.EXPORT)) {
-            throw new ForbiddenOperationException("Export non autorisé : " + modele.getExport().getRubrique().getLibelle(), "exportInterdit");
+        if (!navAccessService.isAllowed(modele.getExport().getDroits(), NavAction.EXPORT)) {
+            throw new ForbiddenOperationException("Export non autorisé : " + modele.getExport().getLibelle(), "exportInterdit");
         }
         return exportsFichiersService.lancerModele(modele, utilisateur, LocalDateTime.now().toLocalDate());
     }
@@ -104,9 +116,9 @@ public class ModelesExportServiceImpl implements ModelesExportService {
         }
     }
 
-    private void verifierDroit(ExportModeleDTO dto) {
-        if (!navAccessService.isAllowed(List.of(dto.export().getRubrique().getDroit()), NavAction.EXPORT)) {
-            throw new ForbiddenOperationException("Export non autorisé : " + dto.export().getRubrique().getLibelle(), "exportInterdit");
+    private void verifierDroit(SujetExport export) {
+        if (!navAccessService.isAllowed(export.getDroits(), NavAction.EXPORT)) {
+            throw new ForbiddenOperationException("Export non autorisé : " + export.getLibelle(), "exportInterdit");
         }
     }
 
@@ -123,7 +135,7 @@ public class ModelesExportServiceImpl implements ModelesExportService {
         return new ExportModeleDTO(
             modele.getId(),
             modele.getLibelle(),
-            modele.getExport(),
+            modele.getExport().name(),
             modele.getFormat(),
             modele.getPeriode(),
             modele.isPartage(),
@@ -132,7 +144,8 @@ public class ModelesExportServiceImpl implements ModelesExportService {
             modele.getJour(),
             modele.getProchaineExecution(),
             proprietaire.getFirstName() + " " + proprietaire.getLastName(),
-            Objects.equals(proprietaire.getId(), utilisateur.getId())
+            Objects.equals(proprietaire.getId(), utilisateur.getId()),
+            modele.getFiltres()
         );
     }
 }

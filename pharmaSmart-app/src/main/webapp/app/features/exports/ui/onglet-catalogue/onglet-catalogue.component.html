@@ -1,63 +1,65 @@
 <section aria-labelledby="titreCatalogue" class="catalogue">
   <h2 class="visually-hidden" id="titreCatalogue">Catalogue des exports</h2>
-  <p class="catalogue-note">
-    Les fichiers se préparent en tâche de fond : vous pouvez continuer à travailler, ils apparaissent dans l'historique. Les exports de
-    données personnelles sont tracés.
-  </p>
 
   @if (catalogue.error()) {
     <p class="text-danger" role="alert">Le catalogue n'a pas pu être chargé.</p>
   }
 
-  @for (rubrique of rubriques(); track rubrique.libelle) {
-    <h3 class="catalogue-rubrique">{{ rubrique.libelle }}</h3>
-    <div class="catalogue-grille">
-      @for (export_ of rubrique.elements; track export_.code) {
-        <app-card [header]="export_.libelle" icon="pi pi-table">
-          <p class="catalogue-description">{{ export_.description }}</p>
+  <div class="catalogue-grille">
+    @for (entree of entrees(); track entree.code) {
+      <app-card [header]="entree.libelle" icon="pi pi-table">
+        <p class="catalogue-description">{{ entree.description }}</p>
+        @if (entree.colonnes.length) {
           <details class="catalogue-colonnes">
-            <summary>{{ export_.colonnes.length }} colonnes</summary>
-            <p>{{ export_.colonnes.join(' · ') }}</p>
+            <summary>{{ entree.colonnes.length }} colonnes</summary>
+            <p>{{ entree.colonnes.join(' · ') }}</p>
           </details>
+        }
 
-          @if (choisi()?.code === export_.code) {
-            <div aria-label="Réglage de l'export" class="catalogue-reglage" role="group">
-              @if (export_.periodique) {
-                <pharma-date-picker (selectionChange)="du.set($event)" [ngModel]="du()" [id]="'du-' + export_.code" label="Du" />
-                <pharma-date-picker (selectionChange)="au.set($event)" [ngModel]="au()" [id]="'au-' + export_.code" label="Au" />
-              } @else {
-                <p class="catalogue-note mb-0">L'état d'aujourd'hui, sans période.</p>
-              }
-              <app-pill-selector (selectionChange)="choisirFormat($event)" [items]="formats" [ngModel]="format()" ariaLabel="Format du fichier" />
-              @if (erreur(); as message) {
-                <p class="text-danger mb-0" role="alert">{{ message }}</p>
-              }
-              <div class="catalogue-actions">
-                <app-button (clicked)="exporter(export_)" [loading]="envoi()" icon="pi pi-download" label="Exporter" size="small" />
-                <app-button (clicked)="enregistrerCommeModele(export_)" [outlined]="true" icon="pi pi-bookmark" label="Enregistrer comme modèle" size="small" />
+        @if (choisi()?.code === entree.code) {
+          <div aria-label="Réglage de l'export" class="catalogue-reglage" role="group">
+            @if (entree.periodique) {
+              <div class="catalogue-periode">
+                <pharma-date-picker (selectionChange)="du.set($event)" [ngModel]="du()" [id]="'du-' + entree.code" label="Du" />
+                <pharma-date-picker (selectionChange)="au.set($event)" [ngModel]="au()" [id]="'au-' + entree.code" label="Au" />
               </div>
-            </div>
-          } @else {
-            <app-button (clicked)="choisir(export_)" [outlined]="true" icon="pi pi-sliders-h" label="Préparer l'export" size="small" />
-          }
-        </app-card>
-      }
-    </div>
-  } @empty {
-    @if (!catalogue.isLoading()) {
-      <p class="text-muted">Aucun export de données ne vous est ouvert.</p>
-    }
-  }
+            } @else {
+              <p class="catalogue-note mb-0">Sans période : l'état du jour.</p>
+            }
 
-  @for (rubrique of liens(); track rubrique.libelle) {
-    <h3 class="catalogue-rubrique">{{ rubrique.libelle }}</h3>
-    <ul class="catalogue-liens">
-      @for (lien of rubrique.elements; track lien.libelle) {
-        <li>
-          <app-button (clicked)="ouvrir(lien)" [label]="lien.libelle" [text]="true" icon="pi pi-external-link" iconPos="right" size="small" />
-          <span class="catalogue-description">{{ lien.description }}</span>
-        </li>
+            @if (entree.filtres.length) {
+              <details class="catalogue-filtres" [open]="nombreDeFiltres() > 0">
+                <summary>
+                  Réglages
+                  @if (nombreDeFiltres(); as regles) {
+                    <span class="catalogue-compteur">{{ regles }}</span>
+                  }
+                </summary>
+                <p class="catalogue-note">Les mêmes qu'à l'écran d'origine ; sans choix, ses valeurs par défaut.</p>
+                <app-reglages-export (reglage)="regler($event)" [filtres]="entree.filtres" [prefixe]="entree.code" [valeurs]="filtres()" />
+                @if (nombreDeFiltres() > 0) {
+                  <app-button (clicked)="viderFiltres()" [text]="true" icon="pi pi-filter-slash" label="Tout retirer" size="small" />
+                }
+              </details>
+            }
+
+            <app-pill-selector (selectionChange)="choisirFormat($event)" [items]="formats()" [ngModel]="format()" ariaLabel="Format du fichier" />
+            @if (erreur(); as message) {
+              <p class="text-danger mb-0" role="alert">{{ message }}</p>
+            }
+            <div class="catalogue-actions">
+              <app-button (clicked)="exporter(entree)" [loading]="envoi()" icon="pi pi-download" label="Exporter" size="small" />
+              <app-button (clicked)="enregistrerCommeModele(entree)" [outlined]="true" icon="pi pi-bookmark" label="Enregistrer comme modèle" size="small" />
+            </div>
+          </div>
+        } @else {
+          <app-button (clicked)="choisir(entree)" [outlined]="true" icon="pi pi-sliders-h" label="Préparer l'export" size="small" />
+        }
+      </app-card>
+    } @empty {
+      @if (!catalogue.isLoading()) {
+        <p class="text-muted">Aucun export ne vous est ouvert.</p>
       }
-    </ul>
-  }
+    }
+  </div>
 </section>

@@ -1,4 +1,5 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
@@ -50,8 +51,10 @@ export default class MainComponent implements OnInit {
   private readonly rootRenderer = inject(RendererFactory2);
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly peremptionAlertService = inject(PeremptionAlertService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly ALERT_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
   private readonly LICENSE_REFRESH_INTERVAL_MS = 60 * 60 * 1000; // 1 heure
+  private hautChrome = "";
 
   constructor() {
     this.renderer = this.rootRenderer.createRenderer(document.querySelector("html"), null);
@@ -67,6 +70,32 @@ export default class MainComponent implements OnInit {
         e.preventDefault();
         void this.router.navigate(["/sales-home"]);
       });
+
+    afterNextRender(() => this.suivreHauteurChrome());
+  }
+
+  /**
+   * Publie le bas de la barre de navigation dans `--pharma-haut-chrome` : c'est là que s'arrêtent
+   * les barres d'outils collantes des écrans (`toolbar.component.scss`).
+   *
+   * La valeur n'est pas fixe — la barre se replie sous `xl`, descend de 32 px sous Tauri, et le mode
+   * sidebar n'en affiche aucune : elle est mesurée, et suivie par un observateur de taille. On
+   * n'écrit que sur changement, pour qu'une mesure ne puisse pas se rappeler elle-même.
+   */
+  private suivreHauteurChrome(): void {
+    const poser = (): void => {
+      const barre = document.querySelector(".sticky-navbar");
+      const bas = `${barre ? barre.getBoundingClientRect().bottom : 0}px`;
+      if (bas !== this.hautChrome) {
+        this.hautChrome = bas;
+        document.documentElement.style.setProperty("--pharma-haut-chrome", bas);
+      }
+    };
+
+    poser();
+    const observateur = new ResizeObserver(() => poser());
+    observateur.observe(document.body);
+    this.destroyRef.onDestroy(() => observateur.disconnect());
   }
 
   ngOnInit(): void {

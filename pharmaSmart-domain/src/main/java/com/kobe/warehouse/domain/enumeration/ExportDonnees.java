@@ -5,10 +5,11 @@ import static com.kobe.warehouse.domain.enumeration.TypeColonneExport.*;
 import java.util.List;
 
 /**
- * Catalogue des exports de données brutes. Les colonnes suivent, dans l'ordre, ce que lit la requête de l'export
- * ({@code ExportDonneesRepository}) ; leur type décide du format des cellules.
+ * Exports de données brutes : des lignes lues en flux, que le pharmacien retravaille dans un tableur. Les colonnes suivent, dans l'ordre, ce que lit la requête de l'export
+ * ({@code RequeteExport}) ; leur type décide du format des cellules. Les filtres annoncés sont ceux des écrans d'où les données
+ * viennent : le pharmacien exporte d'ici ce qu'il aurait filtré là-bas.
  */
-public enum ExportDonnees {
+public enum ExportDonnees implements SujetExport {
     VENTES(
         RubriqueExport.DONNEES,
         "Ventes",
@@ -26,6 +27,13 @@ public enum ExportDonnees {
             new ColonneExport("Montant HT", MONTANT),
             new ColonneExport("Remise", MONTANT),
             new ColonneExport("Net à payer", MONTANT)
+        ),
+        List.of(
+            FiltreExport.NATURE_VENTE,
+            FiltreExport.TYPE_PRESCRIPTION,
+            FiltreExport.VENDEUR,
+            FiltreExport.CAISSIER,
+            FiltreExport.MAGASIN
         )
     ),
     LIGNES_VENTE(
@@ -45,6 +53,15 @@ public enum ExportDonnees {
             new ColonneExport("Montant TTC", MONTANT),
             new ColonneExport("Remise", MONTANT),
             new ColonneExport("Prix d'achat unitaire", MONTANT)
+        ),
+        List.of(
+            FiltreExport.FAMILLE,
+            FiltreExport.LABORATOIRE,
+            FiltreExport.FOURNISSEUR,
+            FiltreExport.NATURE_VENTE,
+            FiltreExport.TYPE_PRESCRIPTION,
+            FiltreExport.VENDEUR,
+            FiltreExport.MAGASIN
         )
     ),
     ENCAISSEMENTS(
@@ -61,7 +78,8 @@ public enum ExportDonnees {
             new ColonneExport("Montant", MONTANT),
             new ColonneExport("Caissier", TEXTE),
             new ColonneExport("Référence", TEXTE)
-        )
+        ),
+        List.of(FiltreExport.MODE_PAIEMENT, FiltreExport.TYPE_TRANSACTION, FiltreExport.CAISSIER)
     ),
     ACHATS(
         RubriqueExport.DONNEES,
@@ -78,7 +96,8 @@ public enum ExportDonnees {
             new ColonneExport("Unités gratuites", ENTIER),
             new ColonneExport("Prix d'achat unitaire", MONTANT),
             new ColonneExport("Montant", MONTANT)
-        )
+        ),
+        List.of(FiltreExport.FOURNISSEUR, FiltreExport.FAMILLE, FiltreExport.LABORATOIRE)
     ),
     MOUVEMENTS_STOCK(
         RubriqueExport.DONNEES,
@@ -96,6 +115,13 @@ public enum ExportDonnees {
             new ColonneExport("Prix d'achat", MONTANT),
             new ColonneExport("Prix de vente", MONTANT),
             new ColonneExport("Utilisateur", TEXTE)
+        ),
+        List.of(
+            FiltreExport.TYPE_MOUVEMENT,
+            FiltreExport.UTILISATEUR,
+            FiltreExport.FAMILLE,
+            FiltreExport.LABORATOIRE,
+            FiltreExport.MAGASIN
         )
     ),
     PRODUITS(
@@ -112,7 +138,8 @@ public enum ExportDonnees {
             new ColonneExport("Prix de vente", MONTANT),
             new ColonneExport("Prix d'achat", MONTANT),
             new ColonneExport("Stock", ENTIER)
-        )
+        ),
+        List.of(FiltreExport.FAMILLE, FiltreExport.LABORATOIRE, FiltreExport.FOURNISSEUR, FiltreExport.FORME, FiltreExport.GAMME)
     ),
     CLIENTS(
         RubriqueExport.NOMINATIF,
@@ -128,7 +155,8 @@ public enum ExportDonnees {
             new ColonneExport("Date de naissance", DATE),
             new ColonneExport("Sexe", TEXTE),
             new ColonneExport("Créé le", DATE_HEURE)
-        )
+        ),
+        List.of(FiltreExport.SEXE, FiltreExport.STATUT_CLIENT)
     ),
     VENTES_JOUR_PRODUIT(
         RubriqueExport.BI,
@@ -157,42 +185,95 @@ public enum ExportDonnees {
             new ColonneExport("Remise", MONTANT),
             new ColonneExport("Coût HT", MONTANT),
             new ColonneExport("Marge HT", MONTANT)
+        ),
+        List.of(
+            FiltreExport.FAMILLE,
+            FiltreExport.LABORATOIRE,
+            FiltreExport.FOURNISSEUR,
+            FiltreExport.FORME,
+            FiltreExport.GAMME,
+            FiltreExport.NATURE_VENTE,
+            FiltreExport.TYPE_PRESCRIPTION,
+            FiltreExport.VENDEUR,
+            FiltreExport.MAGASIN
         )
     );
+
+    /** Une ligne de données s'écrit dans n'importe lequel des trois formats. */
+    private static final List<FormatExport> TOUS_FORMATS = List.of(FormatExport.XLSX, FormatExport.CSV, FormatExport.PDF);
 
     private final RubriqueExport rubrique;
     private final String libelle;
     private final String description;
     private final boolean periodique;
     private final List<ColonneExport> colonnes;
+    private final List<FiltreExport> filtres;
 
-    ExportDonnees(RubriqueExport rubrique, String libelle, String description, boolean periodique, List<ColonneExport> colonnes) {
+    ExportDonnees(
+        RubriqueExport rubrique,
+        String libelle,
+        String description,
+        boolean periodique,
+        List<ColonneExport> colonnes,
+        List<FiltreExport> filtres
+    ) {
         this.rubrique = rubrique;
         this.libelle = libelle;
         this.description = description;
         this.periodique = periodique;
         this.colonnes = colonnes;
+        this.filtres = filtres;
     }
 
     public RubriqueExport getRubrique() {
         return rubrique;
     }
 
+    @Override
+    public String getLibelleRubrique() {
+        return rubrique.getLibelle();
+    }
+
+    /** Le droit de la rubrique : c'est lui qui ouvre tous les exports de données qu'elle contient. */
+    @Override
+    public List<String> getDroits() {
+        return List.of(rubrique.getDroit());
+    }
+
+    @Override
+    public List<FormatExport> getFormats() {
+        return TOUS_FORMATS;
+    }
+
+    @Override
+    public boolean estProgrammable() {
+        return true;
+    }
+
+    @Override
     public String getLibelle() {
         return libelle;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
 
     /** Lu sur une période (du / au) ; sinon, l'état du jour. */
+    @Override
     public boolean isPeriodique() {
         return periodique;
     }
 
     public List<ColonneExport> getColonnes() {
         return colonnes;
+    }
+
+    /** Filtres que l'export accepte ; tout autre filtre reçu est ignoré. */
+    @Override
+    public List<FiltreExport> getFiltres() {
+        return filtres;
     }
 
     public record ColonneExport(String libelle, TypeColonneExport type) {}

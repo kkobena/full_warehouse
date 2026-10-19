@@ -9,8 +9,33 @@
 // sa mise en forme.
 //
 // La portée reste bornée par `:host` : aucune fuite hors de la barre d'outils.
+// La barre reste visible pendant que la page défile : elle nomme l'écran et porte ses filtres et
+// ses actions, qu'on ne veut pas aller rechercher en haut d'une longue liste.
+//
+// ⚠ Le collant va ici, sur l'élément que l'écran pose, et non sur le `.pharma-toolbar` du gabarit :
+// un élément collant ne se déplace que dans son bloc conteneur, et ce conteneur-là épouse sa
+// hauteur — la règle y serait silencieusement sans effet. (Les écrans qui écrivent encore le
+// markup à la main n'ont pas cette enveloppe : `pharma-toolbar-global.scss` les traite à part.)
+//
+// `--pharma-haut-collant` donne l'arrêt : par défaut le bas de la barre de navigation, mesuré une
+// fois pour toute l'application par `MainComponent` dans `--pharma-haut-chrome`. Tout conteneur qui
+// défile pour son propre compte redéfinit la variable — voir `.modal-content` dans `global.scss`.
+//
+// Sur un écran dont la barre est dans un conteneur en `overflow: hidden` à hauteur fixe (pilotage,
+// catalogue produits, inventaire…), rien ne défile sous elle : la règle est inerte.
 :host {
   display: block;
+  position: sticky;
+  top: var(--pharma-haut-collant, var(--pharma-haut-chrome, 0px));
+
+  // Au-dessus des en-têtes de tableaux collants (z-index 2), sous la barre de navigation (1020)
+  // et les panneaux superposés (1052).
+  z-index: 5;
+}
+
+/** Échappatoire d'écran : `<app-toolbar class="toolbar-statique">` rend la barre au fil du contenu. */
+:host(.toolbar-statique) {
+  position: static;
 }
 
 :host ::ng-deep {

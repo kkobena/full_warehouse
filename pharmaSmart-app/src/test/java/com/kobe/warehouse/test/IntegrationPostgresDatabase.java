@@ -12,6 +12,7 @@ import org.hibernate.cfg.AvailableSettings;
 import org.postgresql.Driver;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
@@ -144,8 +145,10 @@ public final class IntegrationPostgresDatabase {
         }
     }
 
+    /** Les repositories écrits à la main (exports) ne sont pas des interfaces Spring Data : il faut les scanner. */
     @Configuration
     @EnableJpaRepositories(basePackages = "com.kobe.warehouse.repository")
+    @ComponentScan(basePackages = "com.kobe.warehouse.repository.exports")
     @EnableTransactionManagement
     static class JpaTestConfiguration {
 

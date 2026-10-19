@@ -8,6 +8,15 @@
 // MAIN TOOLBAR CONTAINER
 // ====================================
 .pharma-toolbar {
+  // La barre reste visible pendant que la page défile, comme dans `app-toolbar` (voir le long
+  // commentaire de `toolbar.component.scss`). Cette règle sert les écrans qui écrivent encore la
+  // barre à la main : leur `.pharma-toolbar` est enfant direct du conteneur de page, donc son bloc
+  // conteneur est assez haut pour qu'elle coulisse. Sous `app-toolbar`, où le collant est déjà posé
+  // sur l'élément hôte, elle est inerte — le conteneur épouse la hauteur de la barre.
+  position: sticky;
+  top: var(--pharma-haut-collant, var(--pharma-haut-chrome, 0px));
+  z-index: 5;
+
   background: $pharma-white;
   border-top-left-radius: $pharma-radius;
   border-top-right-radius: $pharma-radius;

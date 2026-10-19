@@ -1,10 +1,14 @@
 package com.kobe.warehouse.domain;
 
-import com.kobe.warehouse.domain.enumeration.ExportDonnees;
+import com.kobe.warehouse.domain.enumeration.FiltreExport;
+import com.kobe.warehouse.domain.enumeration.FiltresExportConverter;
 import com.kobe.warehouse.domain.enumeration.FormatExport;
+import com.kobe.warehouse.domain.enumeration.SujetExport;
+import com.kobe.warehouse.domain.enumeration.SujetExportConverter;
 import com.kobe.warehouse.domain.enumeration.PeriodeRelative;
 import com.kobe.warehouse.domain.enumeration.ScheduledReportFrequency;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,6 +23,8 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Modèle d'export enregistré : rejouable en un clic, et programmable (fréquence, heure, jour de la semaine ou du mois). Sa période
@@ -38,9 +44,10 @@ public class ExportModele implements Serializable {
     @Column(name = "libelle", nullable = false, length = 100)
     private String libelle;
 
-    @Enumerated(EnumType.STRING)
+    /** Export de données ou édition : la colonne porte le nom de la constante, dans l'une ou l'autre énumération. */
+    @Convert(converter = SujetExportConverter.class)
     @Column(name = "export", nullable = false, length = 40)
-    private ExportDonnees export;
+    private SujetExport export;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "format", nullable = false, length = 10)
@@ -50,6 +57,11 @@ public class ExportModele implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "periode", length = 30)
     private PeriodeRelative periode;
+
+    /** Filtres rejoués à chaque exécution du modèle. */
+    @Convert(converter = FiltresExportConverter.class)
+    @Column(name = "filtres", length = 1000)
+    private Map<FiltreExport, List<String>> filtres;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "proprietaire_id")
@@ -86,11 +98,11 @@ public class ExportModele implements Serializable {
         return this;
     }
 
-    public ExportDonnees getExport() {
+    public SujetExport getExport() {
         return export;
     }
 
-    public ExportModele setExport(ExportDonnees export) {
+    public ExportModele setExport(SujetExport export) {
         this.export = export;
         return this;
     }
@@ -110,6 +122,15 @@ public class ExportModele implements Serializable {
 
     public ExportModele setPeriode(PeriodeRelative periode) {
         this.periode = periode;
+        return this;
+    }
+
+    public Map<FiltreExport, List<String>> getFiltres() {
+        return filtres == null ? Map.of() : filtres;
+    }
+
+    public ExportModele setFiltres(Map<FiltreExport, List<String>> filtres) {
+        this.filtres = filtres;
         return this;
     }
 

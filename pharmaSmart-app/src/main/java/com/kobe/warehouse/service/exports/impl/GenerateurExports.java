@@ -1,12 +1,8 @@
 package com.kobe.warehouse.service.exports.impl;
 
 import com.kobe.warehouse.domain.ExportFichier;
-import com.kobe.warehouse.domain.enumeration.ExportDonnees;
-import com.kobe.warehouse.domain.enumeration.FormatExport;
 import com.kobe.warehouse.domain.enumeration.StatutExport;
 import com.kobe.warehouse.repository.ExportFichierRepository;
-import com.kobe.warehouse.service.exports.EcrivainExport;
-import com.kobe.warehouse.service.exports.FabriqueEcrivainsExport;
 import com.kobe.warehouse.service.exports.modele.TravailExport;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.io.BufferedOutputStream;
@@ -15,19 +11,23 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * Génère un fichier d'export en tâche de fond : lecture en flux (lot de 500), écriture ligne à ligne, statut tenu à jour dans
- * l'historique. Un échec garde sa trace (message) et ne laisse pas de fichier partiel.
+ * Génère un fichier d'export en tâche de fond : un export de données se lit en flux (lot de 500) et s'écrit ligne à ligne, une
+ * édition est bâtie d'un bloc par le service de son écran. Le statut est tenu à jour dans l'historique ; un échec garde sa trace
+ * (message) et ne laisse pas de fichier partiel.
+ *
+ * <p>Le contexte de sécurité du demandeur est reporté sur le fil de la tâche : les services du pilotage n'ouvrent que les
+ * indicateurs et les axes que ses droits autorisent, et une édition doit être bâtie avec les droits de qui l'a demandée.
  */
 @Component
 class GenerateurExports {
@@ -36,8 +36,7 @@ class GenerateurExports {
     private static final int ERREUR_MAX = 500;
 
     private final ExportFichierRepository exportFichierRepository;
-    private final LecteurExports lecteurExports;
-    private final FabriqueEcrivainsExport fabriqueEcrivainsExport;
+    private final EcritureExport ecritureExport;
     private final RepertoireExports repertoireExports;
     private final AppConfigurationService appConfigurationService;
     private final TransactionTemplate ecriture;
@@ -45,15 +44,13 @@ class GenerateurExports {
 
     GenerateurExports(
         ExportFichierRepository exportFichierRepository,
-        LecteurExports lecteurExports,
-        FabriqueEcrivainsExport fabriqueEcrivainsExport,
+        EcritureExport ecritureExport,
         RepertoireExports repertoireExports,
         AppConfigurationService appConfigurationService,
         PlatformTransactionManager transactionManager
     ) {
         this.exportFichierRepository = exportFichierRepository;
-        this.lecteurExports = lecteurExports;
-        this.fabriqueEcrivainsExport = fabriqueEcrivainsExport;
+        this.ecritureExport = ecritureExport;
         this.repertoireExports = repertoireExports;
         this.appConfigurationService = appConfigurationService;
         this.ecriture = new TransactionTemplate(transactionManager);
@@ -61,8 +58,23 @@ class GenerateurExports {
         this.lecture.setReadOnly(true);
     }
 
+    /**
+     * @param contexte le contexte de sécurité du demandeur, ou {@code null} pour un export programmé — une édition n'étant pas
+     *     programmable, elle ne se génère jamais sans contexte
+     */
     @Async
-    public void generer(Long id) {
+    public void generer(Long id, SecurityContext contexte) {
+        if (contexte != null) {
+            SecurityContextHolder.setContext(contexte);
+        }
+        try {
+            produire(id);
+        } finally {
+            SecurityContextHolder.clearContext();
+        }
+    }
+
+    private void produire(Long id) {
         TravailExport travail = ecriture.execute(statut -> commencer(id));
         if (travail == null) {
             return;
@@ -85,24 +97,23 @@ class GenerateurExports {
             return null;
         }
         fichier.setStatut(StatutExport.EN_COURS);
-        return new TravailExport(fichier.getExport(), fichier.getFormat(), fichier.getDu(), fichier.getAu(), fichier.getFichier());
+        return new TravailExport(
+            fichier.getExport(),
+            fichier.getFormat(),
+            fichier.getDu(),
+            fichier.getAu(),
+            fichier.getFiltres(),
+            fichier.getFichier()
+        );
     }
 
+    /** @return le nombre de lignes écrites, inconnu (et donc vide) pour une édition bâtie d'un bloc */
     private Long ecrire(TravailExport travail, Path chemin) {
-        long lignes = 0;
-        try (
-            OutputStream sortie = new BufferedOutputStream(Files.newOutputStream(chemin));
-            EcrivainExport ecrivain = fabriqueEcrivainsExport.ouvrir(travail.format(), travail.export().getColonnes(), sortie);
-            Stream<Object[]> flux = lecteurExports.lire(travail.export(), travail.du(), travail.au())
-        ) {
-            for (Object[] ligne : (Iterable<Object[]>) flux::iterator) {
-                ecrivain.ecrire(ligne);
-                lignes++;
-            }
+        try (OutputStream sortie = new BufferedOutputStream(Files.newOutputStream(chemin))) {
+            return ecritureExport.ecrire(travail.export(), travail.format(), travail.du(), travail.au(), travail.filtres(), sortie);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return lignes;
     }
 
     private void terminer(Long id, Long lignes, long taille) {

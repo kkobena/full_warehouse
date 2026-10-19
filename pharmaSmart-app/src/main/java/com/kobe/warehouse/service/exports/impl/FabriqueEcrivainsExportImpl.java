@@ -13,10 +13,11 @@ import org.springframework.stereotype.Component;
 public class FabriqueEcrivainsExportImpl implements FabriqueEcrivainsExport {
 
     @Override
-    public EcrivainExport ouvrir(FormatExport format, List<ColonneExport> colonnes, OutputStream sortie) throws IOException {
+    public EcrivainExport ouvrir(FormatExport format, List<ColonneExport> colonnes, String titre, OutputStream sortie) throws IOException {
         return switch (format) {
             case CSV -> new EcrivainCsv(colonnes, sortie);
             case XLSX -> new EcrivainXlsx(colonnes, sortie);
+            case PDF -> new EcrivainPdf(colonnes, titre, sortie);
         };
     }
 }

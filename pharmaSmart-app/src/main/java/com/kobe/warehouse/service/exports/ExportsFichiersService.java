@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.exports;
 
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.ExportModele;
+import com.kobe.warehouse.service.dto.exports.ContenuExportDTO;
 import com.kobe.warehouse.service.dto.exports.DemandeExportDTO;
 import com.kobe.warehouse.service.dto.exports.ExportFichierDTO;
 import com.kobe.warehouse.service.dto.exports.FichierExporteDTO;
@@ -10,8 +11,14 @@ import java.time.LocalDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-/** Fichiers d'export : demande (générée en tâche de fond), historique, téléchargement, expiration. */
+/** Fichiers d'export : production immédiate, exports programmés (tâche de fond), historique, téléchargement, expiration. */
 public interface ExportsFichiersService {
+    /**
+     * Produit l'export et le rend tout de suite, sans rien inscrire : le fichier part dans la réponse. Refusé (403) sans le
+     * droit de l'entrée, et une édition est bâtie avec les droits de qui la demande, le fil de la requête étant le sien.
+     */
+    ContenuExportDTO produire(DemandeExportDTO demande);
+
     /** Inscrit l'export dans l'historique et lance sa génération ; refusé (403) sans le droit de la rubrique. */
     ExportFichierDTO demander(DemandeExportDTO demande);
 

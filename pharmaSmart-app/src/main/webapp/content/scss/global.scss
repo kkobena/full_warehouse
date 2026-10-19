@@ -1386,3 +1386,11 @@ table tfoot tr td {
 app-nav-tabs .pharma-nav-tabs {
   background: var(--pharma-surface);
 }
+
+// Une barre d'outils collante s'arrête sous la barre de navigation de l'application
+// (`--pharma-haut-chrome`, mesurée par `MainComponent`). Dans une modale, ce n'est pas la page qui
+// défile mais le corps de la modale : l'arrêt y est en haut du conteneur. Tout autre conteneur qui
+// défile pour son propre compte se traite de la même façon, en redéfinissant cette variable.
+.modal-content {
+  --pharma-haut-collant: 0px;
+}

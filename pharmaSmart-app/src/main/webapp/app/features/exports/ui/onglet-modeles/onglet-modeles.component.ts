@@ -26,7 +26,7 @@ export class OngletModelesComponent {
 
   protected readonly modeles = rxResource({ stream: () => this.api.listerModeles() });
   protected readonly catalogue = rxResource({ stream: () => this.api.lireCatalogue() });
-  private readonly libellesExports = computed(() => new Map((this.catalogue.value()?.exports ?? []).map(export_ => [export_.code, export_.libelle])));
+  private readonly entreesParCode = computed(() => new Map((this.catalogue.value()?.exports ?? []).map(entree => [entree.code, entree])));
 
   protected readonly edite = signal<ExportModele | null>(null);
   protected readonly panneauVisible = signal(false);
@@ -41,11 +41,15 @@ export class OngletModelesComponent {
   }
 
   protected libelleExport(modele: ExportModele): string {
-    return this.libellesExports().get(modele.export) ?? modele.export;
+    return this.entreesParCode().get(modele.export)?.libelle ?? modele.export;
   }
 
+  /** Une entrée sans période n'a rien à dire ici : l'état du jour pour un référentiel, l'exercice civil pour une édition. */
   protected libellePeriode(modele: ExportModele): string {
-    return PERIODES_RELATIVES.find(periode => periode.valeur === modele.periode)?.libelle ?? 'État du jour';
+    if (!this.entreesParCode().get(modele.export)?.periodique) {
+      return '—';
+    }
+    return PERIODES_RELATIVES.find(periode => periode.valeur === modele.periode)?.libelle ?? '—';
   }
 
   protected libelleProgrammation(modele: ExportModele): string {

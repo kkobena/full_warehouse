@@ -5,15 +5,11 @@
   gap: 0.75rem;
 }
 
-.catalogue-rubrique {
-  margin: 0.5rem 0 0;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
+// Toutes les entrées dans une seule grille, sans rubriques : elle remplit la largeur disponible,
+// quatre cartes de front sur un écran large, une seule sur un téléphone.
 .catalogue-grille {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
   gap: 0.75rem;
 }
 
@@ -45,16 +41,33 @@
   gap: 0.5rem;
 }
 
-.catalogue-liens {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.catalogue-periode {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
 
-  li {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.5rem;
-    padding: 0.2rem 0;
+.catalogue-filtres {
+  font-size: 0.85rem;
+
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .catalogue-note {
+    margin: 0.25rem 0 0.5rem;
   }
 }
+
+.catalogue-compteur {
+  display: inline-block;
+  min-width: 1.25rem;
+  margin-left: 0.25rem;
+  padding: 0 0.3rem;
+  border-radius: 0.75rem;
+  background: var(--pharma-surface-muted, rgba(0, 0, 0, 0.08));
+  text-align: center;
+  font-weight: 600;
+}
+

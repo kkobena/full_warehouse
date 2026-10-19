@@ -1,0 +1,16 @@
+// La barre d'onglets reste visible pendant que la page défile, juste sous la barre d'outils — qui
+// est collante pour toute l'application (voir `toolbar.component.scss`) : le catalogue comme
+// l'historique dépassent l'écran, et on change d'onglet sans remonter.
+//
+// L'arrêt est donc celui de la barre d'outils plus sa hauteur, mesurée par le composant
+// (`--exports-haut-toolbar`) car elle change quand ses filtres passent à la ligne.
+//
+// La barre et ses onglets sont écrits ici (contenu projeté dans `app-nav-tabs`) : ils portent
+// l'encapsulation de ce composant, pas celle de `app-nav-tabs` — pas de `::ng-deep` à prévoir.
+.exports-onglets .pharma-nav-tabs {
+  position: sticky;
+  top: calc(var(--pharma-haut-collant, var(--pharma-haut-chrome, 0px)) + var(--exports-haut-toolbar, 0px));
+
+  // Juste sous la barre d'outils (z-index 5), au-dessus des en-têtes de tableaux collants (2).
+  z-index: 4;
+}

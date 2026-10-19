@@ -14,6 +14,11 @@ export class ExportsApiService {
     return this.http.get<CatalogueExports>(`${this.resourceUrl}/catalogue`);
   }
 
+  /** Produit l'export et rend le fichier tout de suite : rien n'est inscrit, il n'y a rien à aller rechercher. */
+  exporter(demande: DemandeExport): Observable<Blob> {
+    return this.http.post(`${this.resourceUrl}/contenu`, demande, { responseType: 'blob' });
+  }
+
   demander(demande: DemandeExport): Observable<ExportFichier> {
     return this.http.post<ExportFichier>(`${this.resourceUrl}/fichiers`, demande);
   }

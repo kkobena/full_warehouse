@@ -1,5 +1,9 @@
 <section aria-labelledby="titreHistorique">
   <h2 class="visually-hidden" id="titreHistorique">Historique des exports</h2>
+  <p class="text-muted">
+    Les fichiers des modèles — exécutés d'un clic ou programmés la nuit. Un export demandé depuis le catalogue, lui, se
+    télécharge aussitôt et ne passe pas par ici.
+  </p>
   @if (enPreparation()) {
     <p aria-live="polite" class="text-muted">Un fichier est en préparation ; cette liste se met à jour toute seule.</p>
   }
@@ -10,6 +14,7 @@
         <th scope="col">Demandé le</th>
         <th scope="col">Export</th>
         <th scope="col">Période</th>
+        <th scope="col">Filtres</th>
         <th scope="col">Format</th>
         <th scope="col">Statut</th>
         <th class="text-end" scope="col">Lignes</th>
@@ -29,6 +34,15 @@
           }
         </th>
         <td>{{ fichier.du ? (fichier.du | date: 'dd/MM/yyyy') + ' – ' + (fichier.au | date: 'dd/MM/yyyy') : 'État du jour' }}</td>
+        <td>
+          @if (fichier.filtres.length) {
+            @for (filtre of fichier.filtres; track filtre) {
+              <div class="small">{{ filtre }}</div>
+            }
+          } @else {
+            <span class="text-muted">Tout</span>
+          }
+        </td>
         <td>{{ fichier.format }}</td>
         <td>
           <app-badge [label]="libelleStatut(fichier.statut)" [severity]="severite(fichier.statut)" />

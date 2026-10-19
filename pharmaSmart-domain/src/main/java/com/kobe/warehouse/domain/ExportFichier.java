@@ -1,9 +1,13 @@
 package com.kobe.warehouse.domain;
 
-import com.kobe.warehouse.domain.enumeration.ExportDonnees;
+import com.kobe.warehouse.domain.enumeration.FiltreExport;
+import com.kobe.warehouse.domain.enumeration.FiltresExportConverter;
 import com.kobe.warehouse.domain.enumeration.FormatExport;
+import com.kobe.warehouse.domain.enumeration.SujetExport;
+import com.kobe.warehouse.domain.enumeration.SujetExportConverter;
 import com.kobe.warehouse.domain.enumeration.StatutExport;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -18,6 +22,8 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Un export demandé : le fichier généré en tâche de fond et sa trace (qui, quand, quoi, sur quelle période, combien de lignes),
@@ -34,9 +40,10 @@ public class ExportFichier implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
+    /** Export de données ou édition : la colonne porte le nom de la constante, dans l'une ou l'autre énumération. */
+    @Convert(converter = SujetExportConverter.class)
     @Column(name = "export", nullable = false, length = 40)
-    private ExportDonnees export;
+    private SujetExport export;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "format", nullable = false, length = 10)
@@ -47,6 +54,11 @@ public class ExportFichier implements Serializable {
 
     @Column(name = "au")
     private LocalDate au;
+
+    /** Filtres retenus à la demande ; gardés pour rejouer l'export et pour dire, dans l'historique, sur quoi il portait. */
+    @Convert(converter = FiltresExportConverter.class)
+    @Column(name = "filtres", length = 1000)
+    private Map<FiltreExport, List<String>> filtres;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false, length = 20)
@@ -86,11 +98,11 @@ public class ExportFichier implements Serializable {
         return id;
     }
 
-    public ExportDonnees getExport() {
+    public SujetExport getExport() {
         return export;
     }
 
-    public ExportFichier setExport(ExportDonnees export) {
+    public ExportFichier setExport(SujetExport export) {
         this.export = export;
         return this;
     }
@@ -119,6 +131,15 @@ public class ExportFichier implements Serializable {
 
     public ExportFichier setAu(LocalDate au) {
         this.au = au;
+        return this;
+    }
+
+    public Map<FiltreExport, List<String>> getFiltres() {
+        return filtres == null ? Map.of() : filtres;
+    }
+
+    public ExportFichier setFiltres(Map<FiltreExport, List<String>> filtres) {
+        this.filtres = filtres;
         return this;
     }
 

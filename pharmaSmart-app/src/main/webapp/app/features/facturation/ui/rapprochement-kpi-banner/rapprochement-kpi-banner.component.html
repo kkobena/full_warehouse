@@ -1,24 +1,28 @@
 <app-kpi-strip [loading]="loading()" [skeletonCount]="4" stripClass="mt-1">
   @if (kpi(); as k) {
     <app-kpi-item [accent]="'primary'" [value]="k.totalFacture | number" icon="pi pi-building"
-                  iconClass="text-primary" label="Total facturé" valueClass="text-primary">
+                  iconClass="text-primary" label="Total facturé"
+                  info="Montant net des factures du périmètre filtré, regroupées par organisme. Le compteur dessous est le nombre d'organismes concernés, pas celui des factures." valueClass="text-primary">
       <ng-container ngProjectAs="[kpiSub]">{{ k.countOrganismes }} organisme(s)</ng-container>
     </app-kpi-item>
 
     <app-kpi-item [accent]="'success'" [value]="k.totalRegle | number" icon="pi pi-check-circle"
-                  iconClass="text-success" label="Total réglé" valueClass="text-success">
+                  iconClass="text-success" label="Total réglé"
+                  info="Somme encaissée sur ces factures. Le taux est ce réglé rapporté au total facturé." valueClass="text-success">
       <ng-container ngProjectAs="[kpiSub]">Taux {{ k.tauxRecouvrement | number }} %</ng-container>
     </app-kpi-item>
 
     <app-kpi-item [accent]="'danger'" [valueClass]="k.ecartTotal === 0 ? 'text-success' : (k.ecartTotal > 0 ? 'text-danger' : '')" icon="pi pi-arrows-h"
                   iconClass="text-danger"
-                  label="Écart global">
+                  label="Écart global"
+                  info="Facturé moins réglé, tous organismes confondus : ce qu'il reste à recouvrer sur le périmètre affiché.">
       <ng-container ngProjectAs="[kpiValue]">{{ k.ecartTotal | number }}</ng-container>
       <ng-container ngProjectAs="[kpiSub]">Restant dû</ng-container>
     </app-kpi-item>
 
     <app-kpi-item [accent]="'warning'" [value]="k.countLignesEnRetard | number" icon="pi pi-clock"
                   iconClass="text-warning" label="En retard"
+                  info="Factures non soldées dont l'échéance est dépassée. L'échéance est la date de facture plus le délai de règlement de l'organisme — à défaut, celui du paramétrage général."
                   valueClass="text-warning">
       <ng-container ngProjectAs="[kpiSub]">Délai dépassé</ng-container>
     </app-kpi-item>

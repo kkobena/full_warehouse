@@ -35,7 +35,7 @@
               <td th:text="${item.groupeTiersPayantLibelle}"></td>
               <td class="text-right" th:text="${item.nombreFactures}"></td>
               <td class="text-right">
-                <strong th:text="${#numbers.formatDecimal(item.montantTotal, 1, 'DEFAULT', 0, 'DEFAULT')}"></strong>
+                <strong th:text="${#numbers.formatDecimal(item.montantEncours, 1, 'DEFAULT', 0, 'DEFAULT')}"></strong>
               </td>
               <td class="text-right text-green" th:text="${#numbers.formatDecimal(item.montantMoinsDe30Jours, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>
               <td class="text-right text-orange" th:text="${#numbers.formatDecimal(item.montantEntre30Et60Jours, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>

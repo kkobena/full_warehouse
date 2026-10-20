@@ -998,6 +998,19 @@ class LotServiceImplTest {
         }
 
         @Test
+        @DisplayName("la quantite rendue est celle qui reste, non celle recue a l entree du lot")
+        void quantiteRestanteEtNonRecue() {
+            Lot partiellementVendu = lotAvecCommande("L1", LocalDate.of(2026, 5, 1));
+            partiellementVendu.setQuantity(10);
+            partiellementVendu.setCurrentQuantity(3);
+            stubPage(partiellementVendu);
+
+            LotPerimeDTO dto = service.findLotsPerimes(new LotFilterParam(), Pageable.unpaged()).getContent().getFirst();
+
+            assertThat(dto.getQuantity()).isEqualTo(3);
+        }
+
+        @Test
         @DisplayName("sans filtre d emplacement, tous les emplacements disponibles sont listes")
         void tousLesEmplacements() {
             stubPage(lotAvecCommande("L1", LocalDate.of(2026, 5, 1)));

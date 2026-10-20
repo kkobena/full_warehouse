@@ -167,11 +167,17 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             TiersPayantCreancesSummaryDTO synthese = services.tiersPayantReportService.getCreancesSummary().getFirst();
 
             assertThat(synthese.nombreFactures()).isEqualTo(4);
-            assertThat(synthese.montantTotal()).isEqualTo(1_000_000);
+            assertThat(synthese.montantEncours()).isEqualTo(1_000_000);
             assertThat(synthese.montantMoinsDe30Jours()).isEqualTo(100_000);
             assertThat(synthese.montantEntre30Et60Jours()).isEqualTo(200_000);
             assertThat(synthese.montantEntre60Et90Jours()).isEqualTo(300_000);
             assertThat(synthese.montantPlusDe90Jours()).isEqualTo(400_000);
+            assertThat(synthese.montantEncours()).isEqualTo(
+                synthese.montantMoinsDe30Jours() +
+                synthese.montantEntre30Et60Jours() +
+                synthese.montantEntre60Et90Jours() +
+                synthese.montantPlusDe90Jours()
+            );
         }
 
         /**
@@ -189,6 +195,8 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
 
             assertThat(synthese.montantMoinsDe30Jours()).isEqualTo(300_000);
             assertThat(synthese.montantMoinsDe30Jours()).isNotNegative();
+            // Le total est un encours : il sommait le TTC entier, soit 500 000, et dépassait sa tranche.
+            assertThat(synthese.montantEncours()).isEqualTo(300_000);
         }
 
         @Test
@@ -204,7 +212,7 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             assertThat(synthese).hasSize(1);
             assertThat(synthese.getFirst().groupeTiersPayantLibelle()).startsWith("RESEAU");
             assertThat(synthese.getFirst().nombreFactures()).isEqualTo(2);
-            assertThat(synthese.getFirst().montantTotal()).isEqualTo(300_000);
+            assertThat(synthese.getFirst().montantEncours()).isEqualTo(300_000);
         }
 
         /** Un tiers payant sans groupe garde son propre nom : il ne doit pas se fondre dans les autres. */
@@ -229,7 +237,7 @@ class TiersPayantReportServiceIntegrationTest extends AbstractReportIntegrationT
             viderLeCache();
 
             assertThat(services.tiersPayantReportService.getCreancesSummary())
-                .extracting(TiersPayantCreancesSummaryDTO::montantTotal)
+                .extracting(TiersPayantCreancesSummaryDTO::montantEncours)
                 .containsExactly(900_000, 100_000);
         }
 

@@ -53,7 +53,7 @@ public class TiersPayantPdfReportService extends AbstractStatistiqueReportServic
         List<TiersPayantInvoiceDTO> invoices = tiersPayantReportService.getUnpaidInvoices(null, null);
 
         // Calculate total
-        int totalCreances = summary.stream().mapToInt(s -> s.montantTotal() != null ? s.montantTotal() : 0).sum();
+        int totalCreances = summary.stream().mapToInt(s -> s.montantEncours() != null ? s.montantEncours() : 0).sum();
 
         this.getParameters().put("summary", summary);
         this.getParameters().put("invoices", invoices);

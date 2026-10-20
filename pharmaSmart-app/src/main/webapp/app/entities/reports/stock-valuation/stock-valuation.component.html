@@ -45,6 +45,7 @@
     <app-kpi-item [accent]="'primary'" [value]="formatCurrency(summary()!.totalPurchaseValue)"
                   icon="pi pi-shopping-cart"
                   iconClass="text-primary" label="Valeur d'achat"
+                  info="Stock disponible des produits actifs du périmètre filtré, gratuités incluses, au prix d'achat du fournisseur principal. Un produit à stock nul n'est pas compté."
                   valueClass="text-primary">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">Coût total</ng-container>
@@ -52,6 +53,7 @@
     <app-kpi-item [accent]="'success'" [value]="formatCurrency(summary()!.totalSalesValue)"
                   icon="pi pi-money-bill"
                   iconClass="text-success" label="Valeur de vente"
+                  info="Le même stock valorisé au prix de vente en vigueur : ce qu'il rapporterait écoulé en entier au tarif actuel."
                   valueClass="text-success">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">Prix de vente</ng-container>
@@ -60,6 +62,7 @@
                   icon="pi pi-percentage"
                   iconClass="text-warning"
                   label="Marge potentielle"
+                  info="Valeur de vente moins valeur d'achat. Marge non réalisée : elle suppose tout le stock vendu, sans remise ni démarque."
                   valueClass="text-warning">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">Gain possible</ng-container>
@@ -68,6 +71,7 @@
                   icon="pi pi-chart-line"
                   iconClass="text-danger"
                   label="Marge moyenne"
+                  info="Moyenne des taux par référence, chaque produit comptant pour un, sans pondération par la valeur en stock. Chaque taux rapporte l'écart entre prix de vente et prix d'achat au prix de vente."
                   valueClass="text-danger">
       <span ngProjectAs="[kpiValue]">&ngsp;<small>%</small></span>
       <ng-container ngProjectAs="[kpiSub]">{{ summary()!.totalProducts }} produits</ng-container>

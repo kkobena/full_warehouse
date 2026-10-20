@@ -33,14 +33,17 @@
 
   <!-- KPI Strip -->
   <app-kpi-strip stripClass="mt-2 mb-3">
-    <app-kpi-item [accent]="'danger'" icon="pi pi-credit-card" iconClass="text-danger" label="Total créances" [value]="formatCurrency(totalCreances())" valueClass="text-danger">
+    <app-kpi-item [accent]="'danger'" icon="pi pi-credit-card" iconClass="text-danger" label="Total créances"
+                  info="Reste dû des factures tiers payant non soldées, toutes périodes : TTC facturé moins ce qui a été réglé. Ce total vaut la somme des tranches d'ancienneté." [value]="formatCurrency(totalCreances())" valueClass="text-danger">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(totalNbFactures()) }} factures · {{ summary().length }} assureurs</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'warning'" icon="pi pi-exclamation-triangle" iconClass="text-warning" label="31 – 90 jours" [value]="formatCurrency(summary().reduce((s, c) => s + (c.montantEntre30Et60Jours ?? 0) + (c.montantEntre60Et90Jours ?? 0), 0))" valueClass="text-warning">
+    <app-kpi-item [accent]="'warning'" icon="pi pi-exclamation-triangle" iconClass="text-warning" label="31 – 90 jours"
+                  info="Reste dû des factures émises il y a 31 à 90 jours, l'ancienneté se comptant depuis la date de facture." [value]="formatCurrency(summary().reduce((s, c) => s + (c.montantEntre30Et60Jours ?? 0) + (c.montantEntre60Et90Jours ?? 0), 0))" valueClass="text-warning">
       <ng-container ngProjectAs="[kpiSub]">Surveillance</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'danger'" icon="pi pi-times-circle" iconClass="text-danger" label="&gt; 90 jours" [value]="formatCurrency(totalPlusDe90j())" valueClass="text-danger">
+    <app-kpi-item [accent]="'danger'" icon="pi pi-times-circle" iconClass="text-danger" label="&gt; 90 jours"
+                  info="Reste dû des factures de plus de 90 jours. Le pourcentage le rapporte à l'encours total affiché à gauche : c'est la part la plus difficile à recouvrer." [value]="formatCurrency(totalPlusDe90j())" valueClass="text-danger">
       <ng-container ngProjectAs="[kpiSub]">{{ pctRisque() }}% du total — Risque élevé</ng-container>
     </app-kpi-item>
   </app-kpi-strip>
@@ -73,7 +76,7 @@
           <td class="text-end text-warning">{{ formatCurrency(row.montantEntre30Et60Jours) }}</td>
           <td class="text-end text-warning">{{ formatCurrency(row.montantEntre60Et90Jours) }}</td>
           <td class="text-end text-danger fw-semibold">{{ formatCurrency(row.montantPlusDe90Jours) }}</td>
-          <td class="text-end fw-bold">{{ formatCurrency(row.montantTotal) }}</td>
+          <td class="text-end fw-bold">{{ formatCurrency(row.montantEncours) }}</td>
         </tr>
       </ng-template>
       <ng-template #footer>

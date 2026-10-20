@@ -74,6 +74,7 @@
     <app-kpi-strip stripClass="mt-2 mb-2">
       <app-kpi-item [accent]="'primary'" [value]="summary()!.caTotalGlobal | number: '1.0-0'" icon="pi pi-chart-bar"
                     iconClass="text-primary" label="CA Total"
+                    info="Chiffre d'affaires des douze derniers mois, produit par produit — cet écran travaille sur une année glissante, quel que soit le filtre de famille appliqué."
                     valueClass="text-primary">
         <span ngProjectAs="[kpiValue]">&ngsp;<small>F CFA</small></span>
         <ng-container ngProjectAs="[kpiSub]">chiffre d'affaires</ng-container>
@@ -81,18 +82,21 @@
       <app-kpi-item [accent]="'success'" [value]="summary()!.margeBruteGlobale | number: '1.0-0'" icon="pi pi-money-bill"
                     iconClass="text-success"
                     label="Marge brute globale"
+                    info="CA moins le coût d'achat des quantités vendues sur ces douze mois."
                     valueClass="text-success">
         <span ngProjectAs="[kpiValue]">&ngsp;<small>F CFA</small></span>
         <ng-container ngProjectAs="[kpiSub]">profit brut</ng-container>
       </app-kpi-item>
       <app-kpi-item [accent]="'warning'" [value]="summary()!.tauxMargeMoyen | number: '1.2-2'" icon="pi pi-percentage"
                     iconClass="text-warning"
-                    label="Taux de marge moyen" valueClass="text-warning">
+                    label="Taux de marge moyen"
+                    info="Marge globale rapportée au CA global : un taux d'ensemble, non la moyenne des taux produit par produit." valueClass="text-warning">
         <span ngProjectAs="[kpiValue]">&ngsp;<small>%</small></span>
         <ng-container ngProjectAs="[kpiSub]">rentabilité moyenne</ng-container>
       </app-kpi-item>
       <app-kpi-item [accent]="'danger'" [value]="summary()!.totalProduits | number" icon="pi pi-box"
                     iconClass="text-danger" label="Produits analysés"
+                    info="Références retenues par l'analyse. Un produit sans vente sur l'année y figure, avec un CA et une marge nuls."
                     valueClass="text-danger">
         <ng-container ngProjectAs="[kpiSub]">références</ng-container>
       </app-kpi-item>

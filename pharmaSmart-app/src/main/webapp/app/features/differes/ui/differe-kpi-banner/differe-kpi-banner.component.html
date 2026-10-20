@@ -6,6 +6,7 @@
       icon="pi pi-credit-card"
       iconClass="text-primary"
       label="Total différé"
+      info="Montant des ventes à crédit encore non soldées — du client filtré, ou de tous les clients à défaut de filtre. Une vente entièrement réglée n'y figure plus."
       [suffix]="'' | devise"
       valueClass="text-primary"
     />
@@ -16,6 +17,7 @@
       icon="pi pi-check-circle"
       iconClass="text-success"
       label="Total payé"
+      info="Ce qui a déjà été remboursé sur ces mêmes ventes."
       [suffix]="'' | devise"
       valueClass="text-success"
     />
@@ -26,6 +28,7 @@
       icon="pi pi-exclamation-circle"
       iconClass="text-danger"
       label="Reste à payer"
+      info="Encours à recouvrer : le reste dû porté par chaque vente. Il peut s'écarter du total différé moins le total payé, ces deux montants n'ayant pas la même assiette."
       [suffix]="'' | devise"
       valueClass="text-danger"
     />

@@ -222,20 +222,27 @@ export default class CustomerSegmentationComponent implements OnInit {
     }
   }
 
-  getRFMScoreSeverity(score: number | undefined): AppBadgeSeverity {
-    if (!score) {
+  /** Seuils sur la somme des trois notes : le code valant au moins 111, des seuils de 9 ou 6 rendaient tous les badges verts. */
+  getRFMScoreSeverity(code: number | undefined): AppBadgeSeverity {
+    if (!code) {
       return "secondary";
     }
-    if (score >= 9) {
+    const somme = this.sommeNotesRfm(code);
+    if (somme >= 12) {
       return "success";
     }
-    if (score >= 6) {
+    if (somme >= 9) {
       return "info";
     }
-    if (score >= 3) {
+    if (somme >= 6) {
       return "warn";
     }
     return "danger";
+  }
+
+  /** Les trois notes du code RFM additionnées : de 3 (111) à 15 (555). */
+  private sommeNotesRfm(code: number): number {
+    return Math.floor(code / 100) + (Math.floor(code / 10) % 10) + (code % 10);
   }
 
   getRecencySeverity(days: number | undefined): AppBadgeSeverity {

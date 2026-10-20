@@ -26,7 +26,7 @@ export default class SituationCreancesComponent implements OnInit {
   protected readonly isLoading   = signal(false);
   protected readonly exportLoading = signal(false);
 
-  protected readonly totalCreances    = computed(() => this.summary().reduce((s, c) => s + (c.montantTotal ?? 0), 0));
+  protected readonly totalCreances    = computed(() => this.summary().reduce((s, c) => s + (c.montantEncours ?? 0), 0));
   protected readonly totalPlusDe90j   = computed(() => this.summary().reduce((s, c) => s + (c.montantPlusDe90Jours ?? 0), 0));
   protected readonly totalNbFactures  = computed(() => this.summary().reduce((s, c) => s + (c.nombreFactures ?? 0), 0));
   protected readonly pctRisque        = computed(() => {

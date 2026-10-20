@@ -46,23 +46,27 @@
     <app-kpi-strip stripClass="mt-2 mb-3">
       <app-kpi-item [accent]="'success'" [value]="formatNumber(stats()?.produitsGeneriques)" icon="pi pi-sync"
                     iconClass="text-success"
-                    label="Produits génériques vendus" valueClass="text-success">
+                    label="Produits génériques vendus" valueClass="text-success"
+                    info="Produits vendus sur la période qui sont référencés comme génériques d'un princeps. Le pourcentage les rapporte au nombre de produits distincts vendus, non aux quantités.">
         <ng-container ngProjectAs="[kpiSub]">{{ tauxGeneriques() }}% des produits</ng-container>
       </app-kpi-item>
       <app-kpi-item [accent]="'warning'" [value]="formatNumber(stats()?.princepsAvecGenerique)" icon="pi pi-exclamation-triangle"
                     iconClass="text-warning"
                     label="Princeps substituables vendus"
+                    info="Produits vendus qui ont un générique référencé : autant d'occasions de substitution. Un produit peut être à la fois générique d'un autre et substituable, et compter dans les deux tuiles."
                     valueClass="text-warning">
         <ng-container ngProjectAs="[kpiSub]">{{ tauxSubstituables() }}% des produits</ng-container>
       </app-kpi-item>
       <app-kpi-item [accent]="'primary'" [value]="formatCurrency(stats()?.caGeneriques)" icon="pi pi-chart-pie"
                     iconClass="text-primary" label="CA Génériques"
+                    info="Chiffre d'affaires réalisé par les produits génériques, et sa part dans le CA total de la période."
                     valueClass="text-primary">
         <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
         <ng-container ngProjectAs="[kpiSub]">{{ tauxCaGeneriques() }}% du CA total</ng-container>
       </app-kpi-item>
       <app-kpi-item [value]="formatNumber(stats()?.totalProduits)" icon="pi pi-wallet" iconClass="text-secondary"
-                    label="Total produits distincts">
+                    label="Total produits distincts"
+                    info="Références différentes vendues sur la période, génériques ou non, avec le CA total correspondant.">
         <ng-container ngProjectAs="[kpiSub]">CA: {{
             formatCurrency(stats()?.caTotal)
           }}

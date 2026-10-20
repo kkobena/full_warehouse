@@ -60,6 +60,7 @@
     icon="pi pi-list"
     iconClass="text-primary"
     label="Lignes concernées"
+    info="Lignes de vente portant ce motif d'exclusion sur la période et les filtres en vigueur, et nombre de ventes distinctes où elles apparaissent. Compté sur tout l'ensemble filtré, pas sur les seules lignes affichées."
     valueClass="text-primary"
   >
     <ng-container ngProjectAs="[kpiSub]">{{ kpi()?.nombreVentes | number }} vente(s)</ng-container>
@@ -72,6 +73,7 @@
       icon="pi pi-gift"
       iconClass="text-info"
       label="Unités gratuites"
+      info="Unités cédées en gratuité sur ces lignes, et quantité totale sortie pour mémoire. Seule la part gratuite quitte le CA déclaré, le reste de la ligne y demeure."
       valueClass="text-info"
     >
       <ng-container ngProjectAs="[kpiSub]">sur {{ kpi()?.quantite | number }} unités vendues
@@ -84,6 +86,7 @@
       icon="pi pi-box"
       iconClass="text-info"
       label="Quantité vendue"
+      info="Unités sorties sur les lignes exclues, gratuités comprises."
       valueClass="text-info"
     />
   }
@@ -94,6 +97,7 @@
     icon="pi pi-tag"
     iconClass="text-secondary"
     label="Valeur TTC"
+    info="Quantité sortie au prix de vente unitaire, avant remise : ce que ces lignes valent au tarif."
     suffix="F"
   />
 
@@ -107,6 +111,7 @@
     icon="pi pi-minus-circle"
     iconClass="text-danger"
     label="Retiré du CA déclaré"
+    info="Valeur au tarif moins la part réellement prise en compte dans le CA. Pour une gratuité, seules les unités offertes sortent ; pour les autres motifs, la ligne entière sort et ce montant rejoint la valeur TTC."
     suffix="F"
     valueClass="text-danger"
   />
@@ -117,6 +122,7 @@
     icon="pi pi-percentage"
     iconClass="text-success"
     label="Marge brute"
+    info="Montant encaissé sur ces lignes moins le coût d'achat des quantités sorties. Le taux rapporte cette marge à la valeur TTC affichée ci-contre."
     suffix="F"
     valueClass="text-success"
   >

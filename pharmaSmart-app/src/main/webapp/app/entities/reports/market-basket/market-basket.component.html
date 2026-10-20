@@ -56,6 +56,7 @@
       <app-kpi-strip stripClass="mt-2 mb-2">
         <app-kpi-item [accent]="'primary'" [value]="formatNumber(sum.totalTransactions)" icon="pi pi-shopping-cart"
                       iconClass="text-primary" label="Total transactions"
+                      info="Ventes de la période servant de base à l'analyse, et nombre de produits distincts qu'elles contiennent."
                       valueClass="text-primary">
           <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(sum.totalProducts) }}produits
             uniques
@@ -63,16 +64,19 @@
         </app-kpi-item>
         <app-kpi-item [accent]="'success'" [value]="formatDecimal(sum.averageBasketSize)" icon="pi pi-shopping-bag"
                       iconClass="text-success" label="Taille moy. panier"
+                      info="Nombre moyen de lignes différentes par vente. Une ligne vendue en plusieurs unités compte pour une."
                       valueClass="text-success">
           <ng-container ngProjectAs="[kpiSub]">articles / transaction</ng-container>
         </app-kpi-item>
         <app-kpi-item [accent]="'warning'" [value]="formatNumber(sum.totalAssociations)" icon="pi pi-link"
                       iconClass="text-warning" label="Associations trouvées"
+                      info="Paires de produits achetés ensemble assez souvent pour être retenues : au moins 0,5 % des ventes, et au moins 5 % des ventes du premier produit. Le palmarès est plafonné à cent paires."
                       valueClass="text-warning">
           <ng-container ngProjectAs="[kpiSub]">paires de produits</ng-container>
         </app-kpi-item>
         <app-kpi-item [accent]="'danger'" [value]="formatDecimal(sum.maxLift)" icon="pi pi-chart-line"
                       iconClass="text-danger" label="Corrélation max (lift)"
+                      info="Pour la paire la plus liée : la probabilité d'acheter le second produit quand on a pris le premier, divisée par sa probabilité d'achat en général. Au-delà de 1, les deux produits s'attirent ; à 1, ils sont indépendants."
                       valueClass="text-danger">
           <ng-container ngProjectAs="[kpiSub]">{{ getLiftLabel(sum.maxLift) }}</ng-container>
         </app-kpi-item>

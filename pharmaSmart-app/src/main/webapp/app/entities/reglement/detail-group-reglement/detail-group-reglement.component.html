@@ -16,6 +16,7 @@
       icon="pi pi-calendar"
       iconClass="text-primary"
       label="Date règlement"
+      info="Date de saisie du règlement groupé en caisse, non la date des factures qu'il solde."
     />
     <app-kpi-item
       [accent]="'warning'"
@@ -23,6 +24,7 @@
       icon="pi pi-clock"
       iconClass="text-warning"
       label="Montant attendu"
+      info="Ce que réclamait la facture groupée au moment du règlement : la somme des montants nets des factures qu'elle rassemble."
       valueClass="text-warning"
     />
     <app-kpi-item
@@ -31,6 +33,7 @@
       icon="pi pi-check-circle"
       iconClass="text-success"
       label="Montant réglé"
+      info="Ce que ce règlement a imputé sur le groupe. Sa répartition facture par facture est détaillée plus bas."
       valueClass="text-success"
     />
     <app-kpi-item
@@ -39,6 +42,7 @@
       icon="pi pi-exclamation-circle"
       iconClass="text-danger"
       label="Montant restant"
+      info="Attendu moins réglé, ramené à zéro quand le règlement couvre tout."
       valueClass="text-danger"
     />
     <app-kpi-item
@@ -47,6 +51,7 @@
       icon="pi pi-credit-card"
       iconClass="text-info"
       label="Mode règlement"
+      info="Moyen de paiement utilisé par l'organisme pour ce règlement groupé."
     />
   </app-kpi-strip>
 

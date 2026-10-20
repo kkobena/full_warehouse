@@ -30,13 +30,18 @@ public class DashboardCARepository {
      * qu'on y lit est donc exactement le CA affiché divisé par les transactions affichées. Les
      * colonnes {@code panier_moyen} et {@code taux_marge_pct} de la vue restent, elles, assises
      * sur le CA brut ; elles ne sont pas lues ici.
+     *
+     * <p>Le taux de marge se recalcule lui aussi sur le net, {@code ca_net - cout_total}, et
+     * non depuis {@code marge_brute} : cette colonne retranche le coût d'achat du CA
+     * <strong>brut</strong>, si bien que la remise accordée y passait pour de la marge et que
+     * le taux, rapporté au CA net, se trouvait surévalué dès qu'une remise était consentie.
      */
     private static final String PERIOD_AGGREGATION_SQL =
         "SELECT COALESCE(SUM(ca_net), 0) AS ca," +
             "  COALESCE(SUM(nb_transactions), 0) AS nb_trans," +
             "  COALESCE(ROUND(SUM(ca_net)::numeric" +
             "    / NULLIF(SUM(nb_transactions), 0), 2), 0) AS panier_moyen," +
-            "  COALESCE(ROUND(100.0 * SUM(marge_brute)" +
+            "  COALESCE(ROUND(100.0 * (SUM(ca_net) - SUM(cout_total))" +
             "    / NULLIF(SUM(ca_net), 0), 2), 0) AS taux_marge" +
             " FROM mv_dashboard_ca_daily" +
             " WHERE sale_date BETWEEN :startDate AND :endDate";
@@ -120,11 +125,25 @@ public class DashboardCARepository {
     private static final String NB_ECHEANCES_RETARD_SQL =
         "SELECT COUNT(*) FROM commande c JOIN fournisseur f ON c.fournisseur_id = f.id WHERE c.paiment_status != 'PAID' AND c.order_status = 'CLOSED' AND (COALESCE(c.receipt_date, c.order_date) + (COALESCE(f.jours_credit,  30) || ' days')::interval) < CURRENT_DATE";
 
+    /**
+     * Factures tiers payant non soldées dont l'échéance est dépassée — le compteur qui s'affiche
+     * sous le montant des créances tiers payant.
+     *
+     * <p>La requête portait sur {@code sales} : elle comptait les ventes à crédit CLIENTS impayées
+     * depuis plus de trente jours, une population sans rapport avec le montant affiché au-dessus.
+     *
+     * <p>L'échéance suit le délai de règlement de l'organisme, puis celui de son groupe, trente
+     * jours à défaut — la règle du rapport de vieillissement des créances. Les factures filles
+     * d'une facture groupée sont écartées, sans quoi une facture groupée compterait deux fois.
+     */
     private static final String NB_FACTURES_IMPAYEES_SQL =
-        "SELECT COUNT(*) FROM sales s" +
-            " WHERE s.payment_status = 'IMPAYE' AND s.statut = 'CLOSED'" +
-            "   AND s.canceled = false AND s.ca = 'CA'" +
-            "   AND s.sale_date < (CURRENT_DATE - INTERVAL '30 days')";
+        "SELECT COUNT(*) FROM facture_tiers_payant f" +
+            " LEFT JOIN tiers_payant tp ON tp.id = f.tiers_payant_id" +
+            " LEFT JOIN groupe_tiers_payant gtp ON gtp.id = f.groupe_tiers_payant_id" +
+            " WHERE f.statut IN ('NOT_PAID', 'PARTIALLY_PAID')" +
+            "   AND f.groupe_facture_tiers_payant_id IS NULL" +
+            "   AND (f.invoice_date + make_interval(days =>" +
+            "        COALESCE(tp.delai_reglement, gtp.delai_reglement, 30))) < CURRENT_DATE";
 
     private static final String REMISES_KPI_SQL =
         "SELECT" +

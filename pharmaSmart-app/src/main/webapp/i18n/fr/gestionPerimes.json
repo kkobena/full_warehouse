@@ -20,6 +20,16 @@
         "quantiteSaisie": "Quantité",
         "numLot": "Numéro de lot",
         "datePeremption": "Date de péremption"
+      },
+      "infos": {
+        "produitPerimes": "Lots dont la date de péremption est dépassée et qu'il reste du stock, dans le périmètre filtré. Le compte porte sur les lots, non sur les produits : deux lots d'un même produit comptent deux fois.",
+        "valeursAchat": "Quantité restante des lots, valorisée au prix d'achat puis au prix de vente du fournisseur principal. Ce qui a déjà été vendu n'y figure pas.",
+        "prochainesPerimes": "Lots dont la péremption tombe dans les trente prochains jours. La fenêtre est fixe et ne suit pas le seuil d'alerte paramétré.",
+        "retours": "Bons de retour fournisseur encore ouverts. Ce compteur sort du périmètre filtré des lots : il porte sur les bons de retour, pas sur les lots affichés.",
+        "produitDetruits": "Produits distincts figurant parmi les lignes à détruire du périmètre filtré. Un produit porté par plusieurs lignes ne compte qu'une fois.",
+        "quantitesProduitDetruits": "Unités à détruire, toutes lignes confondues. Un même produit peut y figurer plusieurs fois.",
+        "valeursAchatDetruits": "Quantités à détruire valorisées au prix d'achat figé sur la ligne : la perte sèche pour l'officine.",
+        "valeursVenteDetruits": "Les mêmes quantités au prix de vente figé sur la ligne : le chiffre d'affaires que ces unités ne feront pas."
       }
     }
   }

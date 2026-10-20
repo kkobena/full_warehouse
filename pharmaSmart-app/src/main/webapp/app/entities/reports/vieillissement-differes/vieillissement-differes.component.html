@@ -46,17 +46,20 @@
   <app-kpi-strip stripClass="mt-2 mb-3">
     <app-kpi-item [accent]="'danger'" icon="pi pi-users" iconClass="text-danger"
                   label="Solde restant dû" valueClass="text-danger"
+                  info="Reste dû porté par les ventes à crédit encore impayées, tous clients. Une vente entièrement réglée n'y figure plus."
                   [value]="formatCurrency(totalSolde())">
       <span ngProjectAs="[kpiValue]"><small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">{{ differes().length }} clients concernés</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'primary'" icon="pi pi-credit-card" iconClass="text-primary"
                   label="Total accordé" valueClass="text-primary"
+                  info="Montant initial de ces mêmes ventes : le crédit consenti. Montant brut de la vente, avant remise."
                   [value]="formatCurrency(totalAccorde())">
       <ng-container ngProjectAs="[kpiSub]">Crédit consenti</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'success'" icon="pi pi-check-circle" iconClass="text-success"
                   label="Total remboursé" valueClass="text-success"
+                  info="Ce qui a déjà été réglé sur ces ventes. Le taux le rapporte au total accordé ; les deux montants n'ayant pas la même assiette, « accordé moins remboursé » ne redonne pas exactement le solde."
                   [value]="formatCurrency(totalPaye())">
       <ng-container ngProjectAs="[kpiSub]">{{ tauxRemb() }}% du total accordé</ng-container>
     </app-kpi-item>

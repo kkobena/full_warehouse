@@ -57,6 +57,7 @@
           <app-kpi-item [accent]="'primary'" [value]="formatCurrency(sum.ytdCurrentCA)"
                         icon="pi pi-calendar"
                         iconClass="text-primary" label="CA Année en cours (YTD)"
+                        info="Du 1er janvier à aujourd'hui, remises déduites, comparé à la même tranche de l'année précédente — au jour près, pas à l'année entière."
                         valueClass="text-primary">
             <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
             <ng-container ngProjectAs="[kpiSub]"><span
@@ -71,6 +72,7 @@
           <app-kpi-item [accent]="'success'" [value]="formatCurrency(sum.last12MonthsCA)"
                         icon="pi pi-chart-line"
                         iconClass="text-success" label="CA 12 derniers mois"
+                        info="Les douze mois écoulés jusqu'à aujourd'hui, comparés aux douze mois qui les précédaient."
                         valueClass="text-success">
             <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
             <ng-container ngProjectAs="[kpiSub]"><span
@@ -84,6 +86,7 @@
           </app-kpi-item>
           <app-kpi-item [accent]="'warning'" [value]="sum.bestMonthLabel" icon="pi pi-star-fill"
                         iconClass="text-warning" label="Meilleur Mois"
+                        info="Mois de l'année en cours au plus fort chiffre d'affaires. Le mois en cours, encore incomplet, est candidat comme les autres."
                         valueClass="text-warning">
             <ng-container ngProjectAs="[kpiSub]">{{ formatCurrency(sum.bestMonthCA) }} <span
               appDevise></span></ng-container>
@@ -91,6 +94,7 @@
           <app-kpi-item [accent]="'danger'" [value]="formatCurrency(sum.avgMonthlyCA)"
                         icon="pi pi-chart-bar"
                         iconClass="text-danger" label="CA Moyen Mensuel"
+                        info="Moyenne des mois de l'année en cours, le mois courant inclus même partiel — elle tire donc la moyenne vers le bas. L'évolution moyenne est la moyenne des variations mensuelles, non la variation du cumul."
                         valueClass="text-danger">
             <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
             <ng-container ngProjectAs="[kpiSub]">Évolution moy : {{

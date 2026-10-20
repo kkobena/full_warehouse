@@ -65,8 +65,9 @@ public interface LotRepository
     boolean existsBySerialNumberAndProduitId(String serialNumber, Integer produitId);
 
 
+    /** Lots qu'il reste a traiter : {@code quantity} est la quantite recue, elle ne decroit pas a la vente. */
     default Specification<Lot> filterByStock() {
-        return (root, _, cb) -> cb.greaterThan(root.get(Lot_.quantity), 0);
+        return (root, _, cb) -> cb.greaterThan(root.get(Lot_.currentQuantity), 0);
     }
 
     default Specification<Lot> filterProduitStatut() {

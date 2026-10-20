@@ -44,15 +44,18 @@
 
   <!-- KPI Strip -->
   <app-kpi-strip stripClass="mt-2 mb-3">
-    <app-kpi-item [accent]="'primary'" icon="pi pi-undo" iconClass="text-primary" label="Avoirs actifs" [value]="formatCurrency(totalMontant())" valueClass="text-primary">
+    <app-kpi-item [accent]="'primary'" icon="pi pi-undo" iconClass="text-primary" label="Avoirs actifs"
+                  info="Montant des avoirs émis ou déjà imputés : ceux qui engagent l'officine. Les brouillons et les annulés sont exclus du montant, mais comptés dans le total de lignes affiché à côté." [value]="formatCurrency(totalMontant())" valueClass="text-primary">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">Émis + Imputés · {{ avoirs().length }} au total</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'success'" icon="pi pi-check" iconClass="text-success" label="Montant imputé" [value]="formatCurrency(montantImpute())" valueClass="text-success">
+    <app-kpi-item [accent]="'success'" icon="pi pi-check" iconClass="text-success" label="Montant imputé"
+                  info="Part des avoirs actifs déjà rattachée à une facture. Le taux les rapporte au montant actif ci-contre." [value]="formatCurrency(montantImpute())" valueClass="text-success">
       <ng-container ngProjectAs="[kpiSub]">{{ tauxImputation() }}% du total émis</ng-container>
     </app-kpi-item>
     @for (stat of stats(); track stat.statut) {
-    <app-kpi-item [value]="formatNumber(stat.count)">
+    <app-kpi-item [value]="formatNumber(stat.count)"
+                  info="Nombre d'avoirs à ce statut dans le périmètre filtré, et leur montant cumulé.">
       <ng-container ngProjectAs="[kpiLabel]"><span class="badge {{ stat.badgeClass }}">{{ stat.label }}</span></ng-container>
       <ng-container ngProjectAs="[kpiSub]">{{ formatCurrency(stat.montant) }}</ng-container>
     </app-kpi-item>

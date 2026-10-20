@@ -46,17 +46,20 @@
     <app-kpi-strip stripClass="mt-2 mb-3">
       <app-kpi-item [accent]="'primary'" [value]="formatCurrency(totalCA())" icon="pi pi-chart-bar"
                     iconClass="text-primary" label="CA Période"
+                    info="Cumul des mois affichés dans le tableau, et leur nombre. Ce n'est pas le CA d'une année entière mais celui de la fenêtre choisie."
                     valueClass="text-primary">
         <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
         <ng-container ngProjectAs="[kpiSub]">{{ tableRows().length }} mois</ng-container>
       </app-kpi-item>
       <app-kpi-item [value]="formatCurrency(totalPrev())" icon="pi pi-history" iconClass="text-secondary"
-                    label="CA Période préc.">
+                    label="CA Période préc."
+                    info="Les mêmes mois, un an plus tôt : la comparaison porte sur une durée identique, mois par mois.">
         <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
         <ng-container ngProjectAs="[kpiSub]">même durée N-1</ng-container>
       </app-kpi-item>
       <app-kpi-item [icon]="'pi ' + evoIcon(totalEvo()) + ' ' + evoClass(totalEvo())"
-                    [valueClass]="evoClass(totalEvo())" label="Évolution">
+                    [valueClass]="evoClass(totalEvo())" label="Évolution"
+                    info="Variation du cumul de la période face à celui de l'année précédente. Non calculable — affichée à zéro — quand la période précédente n'a rien vendu.">
         <ng-container ngProjectAs="[kpiValue]">{{
             totalEvo() > 0 ? '+' : ''
           }}{{ totalEvo() }} %

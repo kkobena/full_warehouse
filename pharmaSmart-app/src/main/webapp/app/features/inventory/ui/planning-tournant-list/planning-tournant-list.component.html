@@ -7,6 +7,7 @@
       icon="pi pi-calendar"
       iconClass="text-primary"
       label="Plannings actifs"
+      info="Plannings d'inventaire tournant en service, pour l'emplacement filtré. Un planning désactivé reste en base mais n'est plus compté ni exécuté."
       valueClass="text-primary"
     />
     <app-kpi-item
@@ -15,6 +16,7 @@
       icon="pi pi-check-circle"
       iconClass="text-success"
       label="Inventaires ce mois"
+      info="Plannings dont la dernière exécution tombe dans le mois en cours. Un planning exécuté deux fois ce mois-ci n'est compté qu'une fois."
       valueClass="text-success"
     />
     <app-kpi-item
@@ -23,6 +25,7 @@
       icon="pi pi-chart-pie"
       iconClass="text-info"
       label="Taux de couverture"
+      info="Plannings exécutés ce mois rapportés aux plannings actifs, plafonné à 100 %. Il mesure donc la tenue du calendrier, non la part du stock inventoriée."
       suffix=" %"
     />
     <app-kpi-item
@@ -31,6 +34,7 @@
       icon="pi pi-clock"
       iconClass="text-warning"
       label="Prochain tournant"
+      info="Première échéance à venir parmi les plannings actifs. Une échéance déjà dépassée s'affiche telle quelle : c'est un retard d'exécution."
     />
   </app-kpi-strip>
 }

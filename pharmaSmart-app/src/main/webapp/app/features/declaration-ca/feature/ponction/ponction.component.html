@@ -114,6 +114,7 @@
             icon="pi pi-shopping-cart"
             iconClass="text-secondary"
             label="CA réel (Sans ordonnance)"
+            info="Ce que la période a vraiment produit en ventes comptant clôturées : quantités sorties au prix de vente, avant toute exclusion. Les ventes à crédit, les tiers payants et les ventes importées n'y sont pas."
           >
             <ng-container ngProjectAs="[kpiSub]">{{ base.nombreVentesEligibles | number }} vente(s)
               éligible(s)
@@ -125,6 +126,7 @@
             icon="pi pi-money-bill"
             iconClass="text-primary"
             label="CA espèce"
+            info="Part réglée en espèces sur les seules ventes éligibles. Elle borne le prélèvement : on ne peut pas retirer du chiffre d'affaires ce que la caisse a encaissé par un autre moyen."
             valueClass="text-primary"
           >
             <ng-container ngProjectAs="[kpiSub]">réglé en espèces sur ces ventes</ng-container>
@@ -135,6 +137,7 @@
             icon="pi pi-percentage"
             iconClass="text-info"
             label="Assiette TVA 0"
+            info="Part exonérée de TVA des ventes éligibles — la seule qui soit ponctionnable. Une vente dont aucune ligne n'est à taux zéro est écartée d'office."
           >
             <ng-container ngProjectAs="[kpiSub]">espèce de ces ventes seulement</ng-container>
           </app-kpi-item>
@@ -144,6 +147,7 @@
             icon="pi pi-arrow-down"
             iconClass="text-success"
             label="Ponctionnable au maximum"
+            info="Ce que l'assiette permet de retirer au mieux. Chaque vente est plafonnée au plus petit des trois : le pourcentage autorisé de son montant, sa part exonérée, et ce qu'elle a encaissé en espèces."
             valueClass="text-success"
           >
             <ng-container ngProjectAs="[kpiSub]">plafond {{ base.plafondApplique }} % par vente
@@ -177,6 +181,7 @@
           icon="pi pi-flag"
           iconClass="text-secondary"
           label="Objectif"
+          info="Montant visé par la simulation. Demandé en taux, il est appliqué au CA après exclusions ; s'il dépasse le maximum ponctionnable, il est ramené à ce maximum, arrondi au multiple de 5 inférieur."
         />
         <app-kpi-item
           [accent]="'primary'"
@@ -184,6 +189,7 @@
           icon="pi pi-arrow-down"
           iconClass="text-primary"
           label="Ponctionné"
+          info="Ce que la répartition a effectivement pu retirer, vente par vente, en respectant le plafond de chacune. Il peut rester en dessous de l'objectif quand l'assiette ne suit pas."
           valueClass="text-primary"
         />
         <app-kpi-item
@@ -192,6 +198,7 @@
           icon="pi pi-file-edit"
           iconClass="text-success"
           label="CA déclaré"
+          info="CA après exclusions moins le montant ponctionné : le chiffre que la déclaration portera."
           valueClass="text-success"
         />
         <app-kpi-item
@@ -200,6 +207,7 @@
           icon="pi pi-percentage"
           iconClass="text-info"
           label="Taux moyen"
+          info="Montant ponctionné rapporté au CA après exclusions. « Max » est le taux de la vente la plus sollicitée ; « plafond retenu » est la limite par vente que la simulation s'est donnée."
           suffix=" %"
         >
           <ng-container ngProjectAs="[kpiSub]">max {{ sim.tauxMaxApplique }} % · plafond retenu

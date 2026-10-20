@@ -9,13 +9,16 @@
 
   <!-- ===== KPI STRIP ===== -->
   <app-kpi-strip stripClass="mt-2 mb-2">
-    <app-kpi-item [accent]="'primary'" icon="pi pi-building" iconClass="text-primary" label="CA TP total (période)" [value]="formatCurrency(summary()!.totalCaTp)" valueClass="text-primary">
+    <app-kpi-item [accent]="'primary'" icon="pi pi-building" iconClass="text-primary" label="CA TP total (période)"
+                  info="Montant net facturé aux organismes sur la période, toutes factures racines. Ce total porte sur tous les organismes, pas seulement sur ceux du classement affiché." [value]="formatCurrency(summary()!.totalCaTp)" valueClass="text-primary">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
     </app-kpi-item>
-    <app-kpi-item [accent]="'danger'" icon="pi pi-exclamation-circle" iconClass="text-danger" label="Total impayé (période)" [value]="formatCurrency(summary()!.totalImpaye)" valueClass="text-danger">
+    <app-kpi-item [accent]="'danger'" icon="pi pi-exclamation-circle" iconClass="text-danger" label="Total impayé (période)"
+                  info="Facturé moins réglé sur la période : ce qu'il reste à encaisser auprès des organismes." [value]="formatCurrency(summary()!.totalImpaye)" valueClass="text-danger">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
     </app-kpi-item>
-    <app-kpi-item [accent]="'success'" icon="pi pi-check-circle" iconClass="text-success" label="Total règlement (période)" [value]="formatCurrency(summary()!.totalRegle)" valueClass="text-success">
+    <app-kpi-item [accent]="'success'" icon="pi pi-check-circle" iconClass="text-success" label="Total règlement (période)"
+                  info="Ce qui a été encaissé sur les factures de la période. Un règlement tardif est rattaché à la facture, donc à la période de celle-ci." [value]="formatCurrency(summary()!.totalRegle)" valueClass="text-success">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
     </app-kpi-item>
   </app-kpi-strip>

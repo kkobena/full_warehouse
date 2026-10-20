@@ -3,27 +3,33 @@
   <!-- KPI Strip -->
   @if (summary()) {
     <app-kpi-strip stripClass="mt-2 mb-2">
-      <app-kpi-item [accent]="'danger'" [value]="summary()!.nbProduitsAPlus | number" valueClass="text-danger">
+      <app-kpi-item [accent]="'danger'" [value]="summary()!.nbProduitsAPlus | number"
+                    info="Les produits sont triés par chiffre d'affaires décroissant sur les douze derniers mois. A+ regroupe les premiers, ceux dont le cumul atteint 60 % du CA. Dessous : leur part du CA global et le CA qu'ils ont fait." valueClass="text-danger">
         <ng-container ngProjectAs="[kpiLabel]"><span class="pareto-badge pareto-a-plus">A+</span> <small class="text-muted ms-1">≤ 60% CA</small></ng-container>
         <ng-container ngProjectAs="[kpiSub]">{{ summary()!.pctCaClasseAPlus | number:'1.1-1' }}% · {{ formatCurrency(summary()!.caClasseAPlus) }} <span appDevise></span></ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'success'" [value]="summary()!.nbProduitsA | number" valueClass="text-success">
+      <app-kpi-item [accent]="'success'" [value]="summary()!.nbProduitsA | number"
+                    info="Produits suivants dans ce même classement, ceux dont le cumul passe de 60 à 80 % du CA." valueClass="text-success">
         <ng-container ngProjectAs="[kpiLabel]"><span class="pareto-badge pareto-a">A</span> <small class="text-muted ms-1">60–80% CA</small></ng-container>
         <ng-container ngProjectAs="[kpiSub]">{{ summary()!.pctCaClasseA | number:'1.1-1' }}% · {{ formatCurrency(summary()!.caClasseA) }} <span appDevise></span></ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'primary'" [value]="summary()!.nbProduitsB | number" valueClass="text-primary">
+      <app-kpi-item [accent]="'primary'" [value]="summary()!.nbProduitsB | number"
+                    info="Produits dont le cumul va de 80 à 95 % du CA : ils comptent, sans être critiques." valueClass="text-primary">
         <ng-container ngProjectAs="[kpiLabel]"><span class="pareto-badge pareto-b">B</span> <small class="text-muted ms-1">80–95% CA</small></ng-container>
         <ng-container ngProjectAs="[kpiSub]">{{ summary()!.pctCaClasseB | number:'1.1-1' }}% · {{ formatCurrency(summary()!.caClasseB) }} <span appDevise></span></ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'warning'" [value]="summary()!.nbProduitsC | number" valueClass="text-warning">
+      <app-kpi-item [accent]="'warning'" [value]="summary()!.nbProduitsC | number"
+                    info="De 95 à 99 % du CA cumulé : des produits marginaux, mais encore vendus." valueClass="text-warning">
         <ng-container ngProjectAs="[kpiLabel]"><span class="pareto-badge pareto-c">C</span> <small class="text-muted ms-1">95–99% CA</small></ng-container>
         <ng-container ngProjectAs="[kpiSub]">{{ summary()!.pctCaClasseC | number:'1.1-1' }}% · {{ formatCurrency(summary()!.caClasseC) }} <span appDevise></span></ng-container>
       </app-kpi-item>
-      <app-kpi-item [value]="summary()!.nbProduitsD | number" valueClass="text-secondary">
+      <app-kpi-item [value]="summary()!.nbProduitsD | number"
+                    info="La queue du classement, au-delà de 99 % du CA cumulé, et tous les produits actifs qui n'ont rien vendu sur les douze derniers mois." valueClass="text-secondary">
         <ng-container ngProjectAs="[kpiLabel]"><span class="pareto-badge pareto-d">D</span> <small class="text-muted ms-1">&gt;99% / sans ventes</small></ng-container>
         <ng-container ngProjectAs="[kpiSub]">{{ summary()!.pctCaClasseD | number:'1.1-1' }}% · {{ formatCurrency(summary()!.caClasseD) }} <span appDevise></span></ng-container>
       </app-kpi-item>
-      <app-kpi-item [accent]="'primary'" icon="pi pi-box" iconClass="text-primary" label="Total Produits" [value]="summary()!.totalProduits | number" valueClass="text-primary">
+      <app-kpi-item [accent]="'primary'" icon="pi pi-box" iconClass="text-primary" label="Total Produits"
+                    info="Produits actifs retenus par l'analyse — les produits vendus au détail en sont exclus. Le CA est celui des ventes clôturées, non annulées, des douze derniers mois." [value]="summary()!.totalProduits | number" valueClass="text-primary">
         <ng-container ngProjectAs="[kpiSub]">CA {{ formatCurrency(summary()!.caGlobal) }} <span appDevise></span></ng-container>
       </app-kpi-item>
     </app-kpi-strip>

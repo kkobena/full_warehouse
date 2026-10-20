@@ -91,28 +91,32 @@
     -->
     <app-kpi-strip [loading]="loading()" [skeletonCount]="4" stripClass="mt-2 mb-2">
       <app-kpi-item [accent]="'secondary'" [value]="kpi()['DRAFT'].count" icon="pi pi-file-edit"
-                    iconClass="text-secondary" label="Brouillons" valueClass="text-secondary">
+                    iconClass="text-secondary" label="Brouillons"
+                    info="Avoirs saisis mais pas encore émis à l'organisme : ils ne modifient aucune facture. Les quatre compteurs portent sur la liste filtrée ; un filtre de statut en laisse donc trois à zéro." valueClass="text-secondary">
         <ng-container ngProjectAs="[kpiSub]">
           {{ kpi()['DRAFT'].total | number: '1.0-0' }} <span appDevise></span>
         </ng-container>
       </app-kpi-item>
 
       <app-kpi-item [accent]="'info'" [value]="kpi()['EMIS'].count" icon="pi pi-send"
-                    iconClass="text-info" label="Émis" valueClass="text-info">
+                    iconClass="text-info" label="Émis"
+                    info="Avoirs transmis à l'organisme et en attente d'imputation. Un avoir émis peut encore être annulé." valueClass="text-info">
         <ng-container ngProjectAs="[kpiSub]">
           {{ kpi()['EMIS'].total | number: '1.0-0' }} <span appDevise></span>
         </ng-container>
       </app-kpi-item>
 
       <app-kpi-item [accent]="'success'" [value]="kpi()['IMPUTE'].count" icon="pi pi-link"
-                    iconClass="text-success" label="Imputés" valueClass="text-success">
+                    iconClass="text-success" label="Imputés"
+                    info="Avoirs rattachés à une facture : leur montant s'ajoute au réglé de cette facture, qui passe partiellement ou totalement soldée. Un avoir imputé ne peut plus être annulé." valueClass="text-success">
         <ng-container ngProjectAs="[kpiSub]">
           {{ kpi()['IMPUTE'].total | number: '1.0-0' }} <span appDevise></span>
         </ng-container>
       </app-kpi-item>
 
       <app-kpi-item [accent]="'danger'" [value]="kpi()['ANNULE'].count" icon="pi pi-ban"
-                    iconClass="text-danger" label="Annulés" valueClass="text-danger">
+                    iconClass="text-danger" label="Annulés"
+                    info="Avoirs abandonnés avant imputation, avec leur motif. Ils n'ont touché aucune facture." valueClass="text-danger">
         <ng-container ngProjectAs="[kpiSub]">
           {{ kpi()['ANNULE'].total | number: '1.0-0' }} <span appDevise></span>
         </ng-container>

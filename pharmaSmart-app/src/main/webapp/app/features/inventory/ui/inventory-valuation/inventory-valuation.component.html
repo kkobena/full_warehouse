@@ -10,6 +10,7 @@
       icon="pi pi-shopping-cart"
       iconClass="text-muted"
       label="Valeur avant (achat)"
+      info="Stock théorique avant comptage, valorisé au prix d'achat figé à l'ouverture de l'inventaire."
     />
 
     <app-kpi-item
@@ -18,6 +19,7 @@
       icon="pi pi-shopping-cart"
       iconClass="text-primary"
       label="Valeur après (achat)"
+      info="Stock réellement compté, valorisé au même prix d'achat. Seul le comptage change d'une colonne à l'autre, jamais le prix."
       valueClass="text-primary"
     />
 
@@ -28,6 +30,7 @@
       [valueClass]="getGapTextClass(g.gapCost)"
       icon="pi pi-arrow-right-arrow-left"
       label="Écart coût"
+      info="Quantité comptée moins quantité théorique, valorisée au prix d'achat : la perte ou le gain que la clôture passera en stock."
     />
   </app-kpi-strip>
 
@@ -38,6 +41,7 @@
       icon="pi pi-tag"
       iconClass="text-muted"
       label="Valeur avant (vente)"
+      info="Même stock théorique, valorisé au dernier prix de vente du produit."
     />
 
     <app-kpi-item
@@ -46,6 +50,7 @@
       icon="pi pi-tag"
       iconClass="text-primary"
       label="Valeur après (vente)"
+      info="Stock compté, valorisé au dernier prix de vente."
       valueClass="text-primary"
     />
 
@@ -56,6 +61,7 @@
       [valueClass]="getGapTextClass(g.gapAmount)"
       icon="pi pi-arrow-right-arrow-left"
       label="Écart vente"
+      info="Écart de comptage valorisé au prix de vente : ce que l'écart représente en chiffre d'affaires manqué ou retrouvé, marge comprise."
     />
   </app-kpi-strip>
 }

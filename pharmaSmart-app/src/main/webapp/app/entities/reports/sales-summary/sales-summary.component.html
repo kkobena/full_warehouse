@@ -39,31 +39,36 @@
   <app-kpi-strip stripClass="mt-2 mb-2">
     <app-kpi-item [accent]="'primary'" [value]="getTotalCA() | number: '1.0-0'" icon="pi pi-dollar"
                   iconClass="text-primary"
-                  label="CA officine" valueClass="text-primary">
+                  label="CA officine" valueClass="text-primary"
+                  info="Ventes clôturées de la période au prix de vente, avant remise : comptant et tiers payant. Les ventes annulées, les ventes importées et les sorties vers le dépôt en sont écartées.">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">hors ventes au dépôt</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'success'" [value]="getTotalCANet() | number: '1.0-0'"
                   icon="pi pi-money-bill"
                   iconClass="text-success" label="CA Net"
+                  info="Le même chiffre, remises déduites. L'écart avec le CA officine est le total des remises accordées."
                   valueClass="text-success">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">après remises</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'warning'" [value]="getTotalVentes()" icon="pi pi-shopping-cart"
-                  iconClass="text-warning" label="Nombre de ventes" valueClass="text-warning">
+                  iconClass="text-warning" label="Nombre de ventes" valueClass="text-warning"
+                  info="Ventes clôturées de l'officine sur la période, dépôt exclu.">
       <ng-container ngProjectAs="[kpiSub]">transactions</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'danger'" [value]="getAveragePanier() | number: '1.0-0'"
                   icon="pi pi-shopping-bag"
                   iconClass="text-danger" label="Panier moyen"
+                  info="CA officine divisé par le nombre de ventes. Assis sur le CA avant remise, non sur le CA net."
                   valueClass="text-danger">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">par transaction</ng-container>
     </app-kpi-item>
     @if (totalDepot().nbVentes > 0) {
       <app-kpi-item [accent]="'secondary'" [value]="totalDepot().caTotal | number: '1.0-0'" icon="pi pi-truck"
-                    label="Ventes au dépôt">
+                    label="Ventes au dépôt"
+                    info="Transferts vers un dépositaire, de catégorie distincte : ils ne sont comptés dans aucune des tuiles précédentes et ne figurent pas au chiffre d'affaires déclaré.">
         <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
         <ng-container ngProjectAs="[kpiSub]">{{ totalDepot().nbVentes | number }} sortie(s), hors CA</ng-container>
       </app-kpi-item>

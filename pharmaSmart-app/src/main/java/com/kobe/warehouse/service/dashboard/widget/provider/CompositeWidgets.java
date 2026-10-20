@@ -149,7 +149,7 @@ public class CompositeWidgets extends AbstractWidgets {
             DiffereSummary differes = differesService.getDiffereSummary(null, Set.of(PaymentStatus.IMPAYE));
             MargeSummaryDTO marge = margeService.getMargeSummary(null, SEUIL_MARGE_BASSE, SEUIL_MARGE_HAUTE);
             long totalCreances = safe(creancesService.getCreancesSummary()).stream()
-                .mapToLong(c -> zeroIfNull(c.montantTotal())).sum();
+                .mapToLong(c -> zeroIfNull(c.montantEncours())).sum();
             long differesRest = differes == null ? 0L : zeroIfNull(differes.rest());
             double tauxMarge = marge == null || marge.tauxMargeMoyen() == null ? 0
                 : marge.tauxMargeMoyen().doubleValue();

@@ -56,13 +56,15 @@
         @for (seg of segmentData(); track seg.segment; let i = $index) {
           <app-kpi-item [accent]="segmentAccents[i % segmentAccents.length]" icon="pi pi-chart-bar"
                         [iconClass]="segmentIconClasses[i % segmentIconClasses.length]"
-                        [label]="seg.segmentLabel" [value]="formatCurrency(seg.ca)">
+                        [label]="seg.segmentLabel" [value]="formatCurrency(seg.ca)"
+                        info="Chiffre d'affaires de l'année retenue pour ce mode de vente, et son taux de marge : marge brute — CA moins coût d'achat des quantités vendues — rapportée au CA du segment.">
             <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
             <ng-container ngProjectAs="[kpiSub]">{{ formatPercent(seg.tauxMarge) }}% marge</ng-container>
           </app-kpi-item>
         }
         <app-kpi-item [accent]="'danger'" icon="pi pi-calculator" iconClass="text-danger"
-                      label="Total" [value]="formatCurrency(totalSegment().ca)" valueClass="text-danger">
+                      label="Total" [value]="formatCurrency(totalSegment().ca)"
+                        info="Cumul des segments. Le taux est celui de l'ensemble — marge totale sur CA total — non la moyenne des taux de chaque segment." valueClass="text-danger">
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
           <ng-container ngProjectAs="[kpiSub]">{{ formatPercent(totalSegment().tauxMarge) }}% marge · {{ formatNumber(totalSegment().nbTransactions) }} tx</ng-container>
         </app-kpi-item>

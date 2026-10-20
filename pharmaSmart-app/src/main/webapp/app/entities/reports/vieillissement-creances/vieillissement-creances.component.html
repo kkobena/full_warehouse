@@ -11,6 +11,7 @@
   <app-kpi-strip stripClass="mt-2 mb-2">
     <app-kpi-item [accent]="'primary'" icon="pi pi-file-edit" iconClass="text-primary"
                   label="Total en cours" valueClass="text-primary"
+                  info="Reste dû des factures tiers payant non soldées, toutes périodes : montant net moins ce qui a été réglé. Une facture fille d'une facture groupée n'est pas recomptée. « En retard » compte celles dont le délai de règlement de l'organisme est dépassé — 30 jours à défaut."
                   [value]="formatCurrency(global()?.totalEncours)">
       <span ngProjectAs="[kpiValue]"><small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">
@@ -19,21 +20,25 @@
     </app-kpi-item>
     <app-kpi-item [accent]="'success'" icon="pi pi-check-circle" iconClass="text-success"
                   label="0 – 30 jours" valueClass="text-success"
+                  info="Reste dû des factures émises depuis 30 jours ou moins. L'ancienneté se compte depuis la date de facture, non depuis l'échéance."
                   [value]="formatCurrency(global()?.tranche0_30)">
       <ng-container ngProjectAs="[kpiSub]">{{ pctTranche().t030 }} %</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'warning'" icon="pi pi-clock" iconClass="text-warning"
                   label="31 – 60 jours" valueClass="text-warning"
+                  info="Reste dû des factures émises il y a 31 à 60 jours."
                   [value]="formatCurrency(global()?.tranche31_60)">
       <ng-container ngProjectAs="[kpiSub]">{{ pctTranche().t3160 }} %</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'warning'" icon="pi pi-exclamation-circle" iconClass="kpi-orange"
                   label="61 – 90 jours" valueClass="kpi-orange"
+                  info="Reste dû des factures émises il y a 61 à 90 jours : le recouvrement commence à être compromis."
                   [value]="formatCurrency(global()?.tranche61_90)">
       <ng-container ngProjectAs="[kpiSub]">{{ pctTranche().t6190 }} %</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'danger'" icon="pi pi-exclamation-triangle" iconClass="text-danger"
                   label="&gt; 90 jours" valueClass="text-danger"
+                  info="Reste dû des factures émises il y a plus de 90 jours. Le pourcentage affiché est la part de cette tranche dans l'encours total."
                   [value]="formatCurrency(global()?.tranche90Plus)">
       <ng-container ngProjectAs="[kpiSub]">{{ pctTranche().t90p }} %</ng-container>
     </app-kpi-item>

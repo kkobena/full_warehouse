@@ -400,7 +400,7 @@ public class LotServiceImpl implements LotService {
                 LotPerimeDTO orphan = new LotPerimeDTO();
                 orphan.setId(lot.getId());
                 orphan.setNumLot(lot.getNumLot());
-                orphan.setQuantity(lot.getQuantity());
+                orphan.setQuantity(lot.getCurrentQuantity());
                 if (lot.getExpiryDate() != null) {
                     orphan.setDatePeremption(lot.getExpiryDate().format(dateFormatter));
                     orphan.setPeremptionStatut(buildPeremptionStatut(lot.getExpiryDate()));
@@ -411,7 +411,7 @@ public class LotServiceImpl implements LotService {
             lotPerime.setProduitId(produit.getId());
             lotPerime.setId(lot.getId());
             lotPerime.setNumLot(lot.getNumLot());
-            lotPerime.setQuantity(lot.getQuantity());
+            lotPerime.setQuantity(lot.getCurrentQuantity());
             if (lot.getExpiryDate() != null) {
                 lotPerime.setDatePeremption(lot.getExpiryDate().format(dateFormatter));
                 lotPerime.setPeremptionStatut(buildPeremptionStatut(lot.getExpiryDate()));

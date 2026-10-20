@@ -77,7 +77,7 @@ public class FinancesWidgets extends AbstractWidgets {
                     )
                 ),
                 "Encours total : %s · %d facture(s)".formatted(
-                    amount(sum(creances, TiersPayantCreancesSummaryDTO::montantTotal)),
+                    amount(sum(creances, TiersPayantCreancesSummaryDTO::montantEncours)),
                     sum(creances, TiersPayantCreancesSummaryDTO::nombreFactures)
                 )
             );
@@ -103,7 +103,7 @@ public class FinancesWidgets extends AbstractWidgets {
                             "factures",
                             c.nombreFactures(),
                             "encours",
-                            c.montantTotal(),
+                            c.montantEncours(),
                             "plus90",
                             c.montantPlusDe90Jours()
                         )

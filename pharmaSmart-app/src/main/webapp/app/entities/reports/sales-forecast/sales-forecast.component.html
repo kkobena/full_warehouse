@@ -102,6 +102,7 @@
       <app-kpi-strip stripClass="mt-2 mb-2">
         <app-kpi-item [accent]="'primary'" [value]="formatCurrency(sum.totalForecastedCA3M)" icon="pi pi-calendar"
                       iconClass="text-primary" label="Prévision 3 Mois"
+                      info="Projection des trois prochains mois par régression linéaire sur les vingt-quatre derniers. Le taux de croissance mensuel n'est affiché qu'à partir de quatre mois d'historique : en deçà, il serait calculable mais trompeur."
                       valueClass="text-primary">
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
           <ng-container ngProjectAs="[kpiSub]">@if (sum.averageMonthlyGrowthPct != null) {
@@ -112,6 +113,7 @@
         </app-kpi-item>
         <app-kpi-item [accent]="'success'" [value]="formatCurrency(sum.totalForecastedCA6M)" icon="pi pi-chart-bar"
                       iconClass="text-success" label="Prévision 6 Mois"
+                      info="Même modèle prolongé à six mois. Une tendance linéaire ignore la saisonnalité : plus l'horizon s'éloigne, plus la projection est fragile."
                       valueClass="text-success">
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
           <ng-container ngProjectAs="[kpiSub]">{{
@@ -121,6 +123,7 @@
         </app-kpi-item>
         <app-kpi-item [accent]="'warning'" [value]="formatCurrency(sum.totalForecastedCA12M)" icon="pi pi-chart-line"
                       iconClass="text-warning" label="Prévision 12 Mois"
+                      info="Projection à un an. La croissance annoncée est la croissance mensuelle moyenne composée sur douze mois, non une simple multiplication."
                       valueClass="text-warning">
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
           <ng-container ngProjectAs="[kpiSub]">@if (sum.predictedYearlyGrowthPct != null) {
@@ -130,7 +133,8 @@
           }</ng-container>
         </app-kpi-item>
         <app-kpi-item [accent]="'danger'" icon="pi pi-check-circle" iconClass="text-danger"
-                      label="Précision du Modèle" valueClass="text-danger">
+                      label="Précision du Modèle" valueClass="text-danger"
+                      info="Le modèle est réentraîné sur le début de l'historique, puis confronté aux derniers mois réels — six si l'historique atteint deux ans, la moitié sinon. La précision est le complément de l'écart moyen constaté sur ces mois.">
           <ng-container ngProjectAs="[kpiValue]">@if (sum.modelAccuracyPct != null) {
             {{ formatPercent(sum.modelAccuracyPct) }} <small>%</small>
           } @else {

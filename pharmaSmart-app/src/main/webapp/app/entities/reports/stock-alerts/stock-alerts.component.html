@@ -28,19 +28,22 @@
 
 <!-- KPI Strip -->
 <app-kpi-strip stripClass="mt-2 mb-2">
-  <app-kpi-item [accent]="'danger'" [value]="alertCounts()[StockAlertType.RUPTURE] || 0" icon="pi pi-times-circle"
+  <app-kpi-item [accent]="'danger'" [value]="alertCounts()[StockAlertType.RUPTURE] || 0"
+                info="Produits actifs dont le stock disponible est nul ou négatif. Ces trois compteurs portent sur toute l'officine et ne suivent pas les filtres du tableau." icon="pi pi-times-circle"
                 iconClass="text-danger" valueClass="text-danger">
     <ng-container ngProjectAs="[kpiLabel]"><span class="alert-badge alert-rupture">Rupture</span>
     </ng-container>
     <ng-container ngProjectAs="[kpiSub]">produits</ng-container>
   </app-kpi-item>
-  <app-kpi-item [accent]="'warning'" [value]="alertCounts()[StockAlertType.ALERTE] || 0" icon="pi pi-exclamation-circle"
+  <app-kpi-item [accent]="'warning'" [value]="alertCounts()[StockAlertType.ALERTE] || 0"
+                info="Produits dont le stock est positif mais inférieur au seuil mini renseigné sur la fiche. Un produit en rupture est compté dans la tuile précédente, pas ici." icon="pi pi-exclamation-circle"
                 iconClass="text-warning" valueClass="text-warning">
     <ng-container ngProjectAs="[kpiLabel]"><span class="alert-badge alert-alerte">Stock bas</span>
     </ng-container>
     <ng-container ngProjectAs="[kpiSub]">produits</ng-container>
   </app-kpi-item>
-  <app-kpi-item [accent]="'primary'" [value]="alertCounts()[StockAlertType.PEREMPTION] || 0" icon="pi pi-clock"
+  <app-kpi-item [accent]="'primary'" [value]="alertCounts()[StockAlertType.PEREMPTION] || 0"
+                info="Produits dont le premier lot disponible expire dans moins de trois mois. Un produit déjà en rupture ou sous son seuil est classé dans ces alertes-là : chaque produit ne compte qu'une fois, dans la plus grave." icon="pi pi-clock"
                 iconClass="text-primary" valueClass="text-primary">
     <ng-container ngProjectAs="[kpiLabel]"><span
       class="alert-badge alert-peremption">Péremption</span></ng-container>

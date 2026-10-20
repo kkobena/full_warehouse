@@ -47,6 +47,7 @@
     <app-kpi-strip stripClass="mt-2 mb-3">
       <app-kpi-item [accent]="'danger'" [value]="formatCurrency(kpi()?.totalRemise)" icon="pi pi-tag"
                     iconClass="text-danger" label="Montant total remisé"
+                    info="Remises accordées ligne à ligne sur les ventes clôturées de la période. Le taux moyen rapporte ces remises au prix avant remise, non au CA encaissé."
                     valueClass="text-danger">
         <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
         <ng-container ngProjectAs="[kpiSub]">taux moyen : {{ formatDecimal(kpi()?.tauxRemise, 1) }}
@@ -55,18 +56,21 @@
       </app-kpi-item>
       <app-kpi-item [accent]="'primary'" [value]="formatCurrency(kpi()?.caApresRemise)" icon="pi pi-wallet"
                     iconClass="text-primary" label="CA après remises"
+                    info="Montant des lignes de vente, remises déjà déduites. Ajouté aux remises, il redonne le prix au tarif."
                     valueClass="text-primary">
         <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
         <ng-container ngProjectAs="[kpiSub]">encaissé net</ng-container>
       </app-kpi-item>
       <app-kpi-item [accent]="'warning'" [value]="formatNumber(kpi()?.nbVentesAvecRemise)" icon="pi pi-percentage"
                     iconClass="text-warning" label="Ventes avec remise"
+                    info="Ventes dont au moins une ligne a été remisée. Le pourcentage est leur part dans le total des ventes de la période."
                     valueClass="text-warning">
         <ng-container ngProjectAs="[kpiSub]">{{ tauxParticipation() }}% des ventes totales
         </ng-container>
       </app-kpi-item>
       <app-kpi-item [value]="formatNumber(kpi()?.nbVentesTotal)" icon="pi pi-shopping-cart" iconClass="text-secondary"
-                    label="Total ventes">
+                    label="Total ventes"
+                    info="Ventes clôturées non annulées de la période, remisées ou non.">
         <ng-container ngProjectAs="[kpiSub]">transactions</ng-container>
       </app-kpi-item>
     </app-kpi-strip>

@@ -44,32 +44,38 @@
   <!-- KPI Strip — Segments -->
   <app-kpi-strip stripClass="mt-2 mb-2">
     <app-kpi-item [accent]="'success'" [value]="classificationCounts().CHAMPION || 0" icon="pi pi-star" iconClass="text-success"
-                  label="Champions" valueClass="text-success">
+                  label="Champions"
+                  info="Clients dont les trois notes RFM — récence, fréquence et montant dépensé sur l'année — valent au moins 4 sur 5. Ce compteur porte sur toute la clientèle, il ne suit pas les filtres de l'écran." valueClass="text-success">
       <ng-container ngProjectAs="[kpiSub]">meilleurs clients</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'primary'" [value]="(classificationCounts().LOYAL || 0) + (classificationCounts().ACTIVE || 0)" icon="pi pi-heart"
                   iconClass="text-primary"
                   label="Fidèles &amp; Actifs"
+                  info="Clients venus dans les deux derniers mois : fidèles s'ils ont au moins cinq achats sur l'année, actifs sinon. Les gros dépensiers forment une classe à part et ne sont pas comptés ici."
                   valueClass="text-primary">
       <ng-container ngProjectAs="[kpiSub]">clients réguliers</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'warning'" [value]="(classificationCounts().AT_RISK || 0) + (classificationCounts().NEED_ATTENTION || 0)" icon="pi pi-exclamation-triangle"
                   iconClass="text-warning"
                   label="À risque"
+                  info="Clients dont le dernier achat remonte à deux ou trois mois, et ceux partis depuis plus longtemps mais qui achetaient régulièrement."
                   valueClass="text-warning">
       <ng-container ngProjectAs="[kpiSub]">besoin d'attention</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'danger'" [value]="classificationCounts().INACTIVE || 0" icon="pi pi-times-circle"
                   iconClass="text-danger" label="Inactifs"
+                  info="Clients sans achat depuis plus de trois mois et qui achetaient peu — moins de cinq fois dans l'année. Passé un an sans achat, un client disparaît complètement de l'analyse."
                   valueClass="text-danger">
       <ng-container ngProjectAs="[kpiSub]">clients perdus</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'primary'" [value]="getTotalCustomers()" icon="pi pi-users"
-                  iconClass="text-primary" label="Total clients" valueClass="text-primary">
+                  iconClass="text-primary" label="Total clients"
+                  info="Nombre de clients de la liste affichée : contrairement aux quatre compteurs de segments, ce total suit les filtres de l'écran." valueClass="text-primary">
       <ng-container ngProjectAs="[kpiSub]">tous segments</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'success'" [value]="getTotalSpent() | number: '1.0-0'" icon="pi pi-dollar"
                   iconClass="text-success" label="CA total 12m"
+                  info="Achats des douze derniers mois des clients de la liste — ventes clôturées, non annulées. Montant brut, avant remise."
                   valueClass="text-success">
       <span ngProjectAs="[kpiValue]">&ngsp;<small
         appDevise></small></span>
@@ -77,15 +83,17 @@
     </app-kpi-item>
     <app-kpi-item [accent]="'warning'" [value]="getAverageBasket() | number: '1.0-0'" icon="pi pi-shopping-cart"
                   iconClass="text-warning" label="Panier moyen"
+                  info="Moyenne des paniers moyens des clients de la liste, chaque client comptant pour un. Ce n'est pas le CA total divisé par le nombre de ventes."
                   valueClass="text-warning">
       <span ngProjectAs="[kpiValue]">&ngsp;<small
         appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">par client</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'danger'" [value]="getAverageRFMScore() | number: '1.1-2'" icon="pi pi-chart-line"
-                  iconClass="text-danger" label="Score RFM moy."
+                  iconClass="text-danger" label="Code RFM moyen"
+                  info="Moyenne du code RFM des clients de la liste. Ce code n'est pas une note : il juxtapose les trois chiffres — récence aux centaines, fréquence aux dizaines, montant aux unités — et va de 111 à 555."
                   valueClass="text-danger">
-      <ng-container ngProjectAs="[kpiSub]">sur 5</ng-container>
+      <ng-container ngProjectAs="[kpiSub]">de 111 à 555</ng-container>
     </app-kpi-item>
   </app-kpi-strip>
 
@@ -118,7 +126,7 @@
               <th class="text-center">R</th>
               <th class="text-center">F</th>
               <th class="text-center">M</th>
-              <th class="text-center">RFM</th>
+              <th class="text-center">Code RFM</th>
             </tr>
           </ng-template>
           <ng-template #body let-customer>
@@ -189,8 +197,9 @@
               5 = très élevé)
             </li>
           </ul>
-          <p class="mt-2">Le <strong>Score RFM</strong> combine ces trois dimensions pour classer
-            les clients en segments stratégiques.</p>
+          <p class="mt-2">Le <strong>code RFM</strong> juxtapose ces trois notes — récence, fréquence,
+            montant — et se lit de 111 à 555 : ce n'est pas une note sur 5 mais une signature à
+            trois chiffres, dont découle le segment du client.</p>
         </div>
       </div>
     </div>

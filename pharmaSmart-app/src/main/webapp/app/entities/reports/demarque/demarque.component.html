@@ -44,14 +44,17 @@
 
   <!-- KPI Strip -->
   <app-kpi-strip stripClass="mt-2 mb-3">
-    <app-kpi-item [accent]="'danger'" icon="pi pi-minus-circle" iconClass="text-danger" label="Valeur perdue" [value]="formatCurrency(kpi()?.valeurPerdue)" valueClass="text-danger">
+    <app-kpi-item [accent]="'danger'" icon="pi pi-minus-circle" iconClass="text-danger" label="Valeur perdue"
+                  info="Quantités sorties par ajustement négatif, valorisées au coût d'achat courant du produit — non à celui du jour de la sortie." [value]="formatCurrency(kpi()?.valeurPerdue)" valueClass="text-danger">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">au coût d'achat</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'warning'" icon="pi pi-box" iconClass="text-warning" label="Quantité perdue" [value]="formatNumber(kpi()?.totalQtyPerdue)" valueClass="text-warning">
+    <app-kpi-item [accent]="'warning'" icon="pi pi-box" iconClass="text-warning" label="Quantité perdue"
+                  info="Unités retirées du stock par ces ajustements. Seules les sorties sont comptées : une entrée d'ajustement ne vient pas en déduction." [value]="formatNumber(kpi()?.totalQtyPerdue)" valueClass="text-warning">
       <ng-container ngProjectAs="[kpiSub]">unités sorties du stock</ng-container>
     </app-kpi-item>
-    <app-kpi-item icon="pi pi-file-edit" iconClass="text-secondary" label="Ajustements" [value]="formatNumber(kpi()?.nbAjustements)">
+    <app-kpi-item icon="pi pi-file-edit" iconClass="text-secondary" label="Ajustements"
+                  info="Nombre de bons d'ajustement clôturés comportant au moins une sortie sur la période. Un bon en cours de saisie n'y figure pas." [value]="formatNumber(kpi()?.nbAjustements)">
       <ng-container ngProjectAs="[kpiSub]">bons d'ajustement clôturés</ng-container>
     </app-kpi-item>
   </app-kpi-strip>

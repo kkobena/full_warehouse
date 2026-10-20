@@ -36,9 +36,9 @@ public class LotCustomRepositoryImpl implements LotCustomRepository {
         query.select(
             cb.construct(
                 LotPerimeValeurSum.class,
-             cb.coalesce(cb.sumAsLong(cb.prod(root.get(Lot_.quantity), orderLineJoin.get(FournisseurProduit_.prixAchat))), 0L),
-                cb.coalesce(cb.sumAsLong(cb.prod(root.get(Lot_.quantity), orderLineJoin.get(FournisseurProduit_.prixUni))), 0L),
-                cb.coalesce(cb.sum(root.get(Lot_.quantity)), 0),
+             cb.coalesce(cb.sumAsLong(cb.prod(root.get(Lot_.currentQuantity), orderLineJoin.get(FournisseurProduit_.prixAchat))), 0L),
+                cb.coalesce(cb.sumAsLong(cb.prod(root.get(Lot_.currentQuantity), orderLineJoin.get(FournisseurProduit_.prixUni))), 0L),
+                cb.coalesce(cb.sum(root.get(Lot_.currentQuantity)), 0),
                 cb.coalesce(cb.count(root), 0L),
                 // Lots dont la péremption tombe dans les 30 prochains jours, dans le MÊME
                 // périmètre filtré que les autres agrégats. La fenêtre est fixée à 30 jours

@@ -94,6 +94,7 @@
         icon="pi pi-file-edit"
         iconClass="text-primary"
         label="En cours"
+        info="Nombre de commandes fournisseur passées et pas encore réceptionnées. Les bons d'entrée directs n'y figurent pas."
         valueClass="text-primary"
       >
         <ng-container ngProjectAs="[kpiSub]">Commandes</ng-container>
@@ -108,6 +109,7 @@
         icon="pi pi-truck"
         iconClass="text-warning"
         label="À réceptionner"
+        info="Bons de livraison saisis dont la réception n'est pas encore clôturée : tant qu'ils le restent, leurs quantités ne sont pas entrées en stock."
         valueClass="text-warning"
       >
         <ng-container ngProjectAs="[kpiSub]">Bons livraison</ng-container>
@@ -123,6 +125,7 @@
           icon="pi pi-exclamation-triangle"
           iconClass="text-danger"
           label="Ruptures"
+          info="Produits dont le stock est tombé sous la marge de sécurité calculée par SEMOIS — commande urgente. Seuls les produits ayant une vente moyenne mensuelle connue sont classés."
           valueClass="text-danger"
         >
           <ng-container ngProjectAs="[kpiSub]">Stock critique</ng-container>
@@ -137,6 +140,7 @@
           icon="pi pi-shopping-bag"
           iconClass="text-warning"
           label="Sous seuil"
+          info="Produits dont le stock est au-dessus de la marge de sécurité mais sous le stock objectif : à commander prochainement, sans urgence."
           valueClass="text-warning"
         >
           <ng-container ngProjectAs="[kpiSub]">À commander</ng-container>
@@ -149,6 +153,7 @@
           icon="pi pi-check-circle"
           iconClass="text-success"
           label="Stock nominal"
+          info="Produits dont le stock se situe entre l'objectif et une fois et demie cet objectif. Au-delà, le produit est compté en surstock, pas ici."
           valueClass="text-success"
         >
           <ng-container ngProjectAs="[kpiSub]">Optimal</ng-container>
@@ -165,8 +170,7 @@
         class="clickable"
         icon="pi pi-clock"
         label="Péremptions"
-        ngbTooltip="Lots déjà périmés ou expirant très prochainement — cliquer pour gérer"
-        placement="bottom"
+        info="Produits dont le premier lot disponible expire dans moins de trois mois. Un produit déjà en rupture ou sous son seuil mini est compté dans ces alertes-là, pas ici."
       >
         <ng-container ngProjectAs="[kpiSub]">
           @if (peremptionCount() > 0) {

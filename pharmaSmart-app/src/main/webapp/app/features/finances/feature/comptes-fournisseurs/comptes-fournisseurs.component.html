@@ -38,19 +38,23 @@
   <!-- KPI Banner -->
   <app-kpi-strip [loading]="summary() === null" [skeletonCount]="4">
     <app-kpi-item [accent]="'danger'" icon="pi pi-money-bill" iconClass="text-danger"
-                  label="Total dû" [value]="formatCurrency(summary()?.totalDu)" valueClass="text-danger">
+                  label="Total dû"
+                  info="Reste dû sur les commandes réceptionnées non soldées : montant de la commande moins les règlements déjà versés. Une commande trop payée n'est pas déduite du total." [value]="formatCurrency(summary()?.totalDu)" valueClass="text-danger">
       <ng-container ngProjectAs="[kpiSub]"><span appDevise></span></ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'danger'" icon="pi pi-exclamation-circle" iconClass="text-danger"
-                  label="Échéances dépassées" [value]="summary()?.echeancesDepassees" valueClass="text-danger">
+                  label="Échéances dépassées"
+                  info="Nombre de fournisseurs — non de commandes — ayant au moins une commande dont l'échéance est passée. L'échéance est la date de réception, à défaut la date de commande, plus le délai de crédit du fournisseur." [value]="summary()?.echeancesDepassees" valueClass="text-danger">
       <ng-container ngProjectAs="[kpiSub]">fournisseurs en retard</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'warning'" icon="pi pi-clock" iconClass="text-warning"
-                  label="Échéances J+7" [value]="summary()?.echeancesProchaines" valueClass="text-warning">
+                  label="Échéances J+7"
+                  info="Fournisseurs dont une échéance tombe dans les sept prochains jours. Un fournisseur déjà en retard est compté dans la tuile précédente, pas ici." [value]="summary()?.echeancesProchaines" valueClass="text-warning">
       <ng-container ngProjectAs="[kpiSub]">dans 7 jours</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'primary'" icon="pi pi-truck" iconClass="text-primary"
-                  label="Fournisseurs actifs" [value]="summary()?.nbFournisseursActifs" valueClass="text-primary">
+                  label="Fournisseurs actifs"
+                  info="Fournisseurs ayant au moins une commande réceptionnée non soldée, quelle que soit son échéance." [value]="summary()?.nbFournisseursActifs" valueClass="text-primary">
       <ng-container ngProjectAs="[kpiSub]">avec solde ouvert</ng-container>
     </app-kpi-item>
   </app-kpi-strip>

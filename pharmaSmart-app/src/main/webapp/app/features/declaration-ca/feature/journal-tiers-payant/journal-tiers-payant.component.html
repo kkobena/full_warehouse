@@ -72,6 +72,7 @@
     icon="pi pi-shopping-cart"
     iconClass="text-primary"
     label="Ventes exclues"
+    info="Ventes rattachées à un tiers payant exclu, sur la période et les filtres en vigueur. Elles sortent entièrement du CA à déclarer. Compté sur tout l'ensemble filtré, même quand le tableau est tronqué."
     valueClass="text-primary"
   >
     <ng-container ngProjectAs="[kpiSub]">{{ kpi()?.nombreLignes | number }} ligne(s)</ng-container>
@@ -83,6 +84,7 @@
     icon="pi pi-tag"
     iconClass="text-secondary"
     label="Valeur TTC"
+    info="Quantités sorties au prix de vente unitaire, avant remise."
     suffix="F"
   />
 
@@ -92,6 +94,7 @@
     icon="pi pi-minus-circle"
     iconClass="text-danger"
     label="Retiré du CA déclaré"
+    info="Ce que l'exclusion ôte au CA déclaré. La vente sortant en entier, ce montant rejoint sa valeur TTC."
     suffix="F"
     valueClass="text-danger"
   />
@@ -102,6 +105,7 @@
     icon="pi pi-percentage"
     iconClass="text-success"
     label="Marge brute"
+    info="Montant encaissé sur ces ventes moins le coût d'achat des quantités sorties. Le taux rapporte cette marge à la valeur TTC affichée ci-contre."
     suffix="F"
     valueClass="text-success"
   >

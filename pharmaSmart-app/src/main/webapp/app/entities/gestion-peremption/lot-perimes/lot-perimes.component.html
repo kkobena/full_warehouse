@@ -181,6 +181,7 @@
         icon="pi pi-filter"
         iconClass="text-danger"
         label="{{ 'warehouseApp.gestionPerimes.labels.produitPerimes' | translate }}"
+        info="{{ 'warehouseApp.gestionPerimes.infos.produitPerimes' | translate }}"
         ngbTooltip="Cliquez pour filtrer sur les lots déjà périmés"
         placement="top"
         valueClass="text-danger"
@@ -198,6 +199,7 @@
         icon="pi pi-wallet"
         iconClass="text-warning"
         label="{{ 'warehouseApp.gestionPerimes.labels.valeursAchat' | translate }}"
+        info="{{ 'warehouseApp.gestionPerimes.infos.valeursAchat' | translate }}"
         valueClass="text-warning"
       >
         <ng-container ngProjectAs="[kpiSub]">
@@ -215,6 +217,7 @@
         icon="pi pi-filter"
         iconClass="text-primary"
         label="{{ 'warehouseApp.gestionPerimes.labels.prochainesPerimes' | translate: { date: '30j' } }}"
+        info="{{ 'warehouseApp.gestionPerimes.infos.prochainesPerimes' | translate }}"
         ngbTooltip="Cliquez pour filtrer sur les lots expirant dans 30 jours"
         placement="top"
         valueClass="text-primary"
@@ -229,6 +232,7 @@
         icon="pi pi-reply"
         iconClass="text-success"
         label="{{ 'warehouseApp.gestionPerimes.labels.retours' | translate }}"
+        info="{{ 'warehouseApp.gestionPerimes.infos.retours' | translate }}"
         ngbTooltip="Cliquez pour voir les retours fournisseur en cours"
         placement="top"
         valueClass="text-success"

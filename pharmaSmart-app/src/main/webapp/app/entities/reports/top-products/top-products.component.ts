@@ -108,12 +108,14 @@ export default class TopProductsComponent implements OnInit {
     this.loadTopProducts();
   }
 
+  // Les trois totaux décrivent le MÊME palmarès, celui du chiffre d'affaires : la quantité se
+  // lisait sur le palmarès par quantité, donc sur d'autres produits que le CA affiché à côté.
   protected getTotalRevenue(): number {
     return this.topProductsByRevenue().reduce((sum, p) => sum + (p.caGenere || 0), 0);
   }
 
   protected getTotalQuantity(): number {
-    return this.topProductsByQuantity().reduce((sum, p) => sum + (p.qteVendue || 0), 0);
+    return this.topProductsByRevenue().reduce((sum, p) => sum + (p.qteVendue || 0), 0);
   }
 
   protected getTotalSales(): number {

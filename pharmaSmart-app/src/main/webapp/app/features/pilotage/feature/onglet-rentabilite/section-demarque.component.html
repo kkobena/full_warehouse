@@ -8,14 +8,16 @@
 
   @if (demarque.value(); as d) {
     <app-kpi-strip>
-      <app-kpi-item [value]="d.valeur.valeur | valeurIndicateur: 'MONTANT'" label="Valeur perdue">
+      <app-kpi-item [value]="d.valeur.valeur | valeurIndicateur: 'MONTANT'" label="Valeur perdue"
+                    info="Quantités sorties par ajustement clôturé sur la période, valorisées au prix d'achat courant du produit — non à celui du jour de la sortie.">
         <ng-container ngProjectAs="[kpiSub]">
           @if (d.valeur.valeurReference !== null) {
             <app-variation [ecartPct]="d.valeur.ecartPct" [ecart]="d.valeur.ecart" sensFavorable="BAISSE" unite="MONTANT" />
           }
         </ng-container>
       </app-kpi-item>
-      <app-kpi-item [value]="d.partDuCa.valeur | valeurIndicateur: 'POURCENTAGE'" label="En % du CA TTC">
+      <app-kpi-item [value]="d.partDuCa.valeur | valeurIndicateur: 'POURCENTAGE'" label="En % du CA TTC"
+                    info="Valeur perdue rapportée au chiffre d'affaires TTC de la même période. La flèche juge une baisse favorable.">
         <ng-container ngProjectAs="[kpiSub]">
           @if (d.partDuCa.valeurReference !== null) {
             <app-variation [ecart]="d.partDuCa.ecart" sensFavorable="BAISSE" unite="POURCENTAGE" />

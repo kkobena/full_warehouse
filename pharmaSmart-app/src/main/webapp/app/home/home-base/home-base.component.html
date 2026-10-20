@@ -93,7 +93,8 @@
   <!-- ─── KPI Strip ────────────────────────────────────────────────────────── -->
   <app-kpi-strip [loading]="isLoading()" [skeletonCount]="8" stripClass="mb-2">
     <app-kpi-item [accent]="'primary'" icon="pi pi-shopping-cart" iconClass="text-primary"
-                  label="CA Net" [value]="venteRecord()?.netAmount | number" valueClass="text-primary">
+                  label="CA Net" [value]="venteRecord()?.netAmount | number" valueClass="text-primary"
+                  info="Ventes clôturées de la période : total des lignes au prix de vente, moins les remises accordées. Les ventes annulées en sont exclues. L'évolution compare la même durée immédiatement antérieure.">
       <ng-container ngProjectAs="[kpiSub]">
         {{ venteRecord()?.saleCount | number }} ventes
         @if (caEvolutionPct() !== null) {
@@ -107,14 +108,16 @@
     </app-kpi-item>
 
     <app-kpi-item [accent]="'success'" icon="pi pi-percentage" iconClass="text-success"
-                  label="Marge brute" [value]="margePeriode()?.marge | number" valueClass="text-success">
+                  label="Marge brute" [value]="margePeriode()?.marge | number" valueClass="text-success"
+                  info="Net vendu de la période moins le coût d'achat des quantités sorties. Le taux rapporte cette marge au CA net.">
       <ng-container ngProjectAs="[kpiSub]">
         {{ margePeriode()?.taux | number:'1.1-1' }} % · coût {{ margePeriode()?.cout | number }}
       </ng-container>
     </app-kpi-item>
 
     <app-kpi-item icon="pi pi-wallet" iconClass="text-info"
-                  label="Ventes comptant" [value]="vno()?.netAmount | number">
+                  label="Ventes comptant" [value]="vno()?.netAmount | number"
+                  info="Part du CA net encaissée au comptoir, sans tiers payant. Le second montant est celui des ventes annulées de la période, déjà retirées du CA.">
       <ng-container ngProjectAs="[kpiSub]">
         {{ vno()?.saleCount | number }} vente(s) · annulée(s) {{ canceled()?.netAmount | number }}
       </ng-container>
@@ -122,7 +125,8 @@
 
     @if (assurance() && assurance()?.saleCount !== 0) {
       <app-kpi-item icon="pi pi-id-card" iconClass="text-primary"
-                    label="Ventes tiers payant" [value]="assurance()?.netAmount | number">
+                    label="Ventes tiers payant" [value]="assurance()?.netAmount | number"
+                    info="Ventes couvertes par un organisme. Le montant est le net de la vente, part assuré comprise ; la part payeur est celle qui sera facturée à l'organisme.">
         <ng-container ngProjectAs="[kpiSub]">
           {{ assurance()?.saleCount | number }} vente(s) · part payeur {{ assurance()?.partTiersPayant | number }}
         </ng-container>
@@ -131,13 +135,15 @@
 
     @if (venteDepot() && venteDepot()?.saleCount !== 0) {
       <app-kpi-item icon="pi pi-send" iconClass="text-secondary"
-                    label="Ventes dépôt" [value]="venteDepot()?.netAmount | number">
+                    label="Ventes dépôt" [value]="venteDepot()?.netAmount | number"
+                    info="Transferts vers un dépositaire. Suivis hors chiffre d'affaires déclaré : ce montant ne s'ajoute pas au CA net.">
         <ng-container ngProjectAs="[kpiSub]">{{ venteDepot()?.saleCount | number }} vente(s) dépôt</ng-container>
       </app-kpi-item>
     }
 
     <app-kpi-item [accent]="'danger'" icon="pi pi-credit-card" iconClass="text-danger"
-                  label="Créances TP" [value]="totalCreances() | number" valueClass="text-danger">
+                  label="Créances TP" [value]="totalCreances() | number" valueClass="text-danger"
+                  info="Reste dû des factures tiers payant non soldées, toutes périodes confondues : TTC facturé moins ce qui a été réglé. Le détail au-delà de 90 jours est la part de cet encours la plus ancienne ; le taux de recouvrement, lui, rapporte le réglé au facturé sur la période affichée.">
       <ng-container ngProjectAs="[kpiLabel]"><em class="kpi-strip-scope">encours</em></ng-container>
       <ng-container ngProjectAs="[kpiSub]">
         &gt;90j {{ creancesPlusDe90j() | number }} · recouv. {{ facturationKpi()?.tauxRecouvrement | number:'1.0-1' }}%
@@ -145,14 +151,16 @@
     </app-kpi-item>
 
     <app-kpi-item [accent]="'warning'" icon="pi pi-truck" iconClass="text-warning"
-                  label="Achats fournisseurs" [value]="achatRecord()?.receiptAmount | number" valueClass="text-warning">
+                  label="Achats fournisseurs" [value]="achatRecord()?.receiptAmount | number" valueClass="text-warning"
+                  info="Commandes réceptionnées et clôturées sur la période, en montant HT. Le second montant en retire les remises fournisseur.">
       <ng-container ngProjectAs="[kpiSub]">
         {{ achatRecord()?.achatCount | number }} cdes · HT {{ achatRecord()?.netAmount | number }}
       </ng-container>
     </app-kpi-item>
 
     <app-kpi-item [accent]="'success'" icon="pi pi-box" iconClass="text-success"
-                  label="Stock valorisé" [value]="stockValuationSummary()?.totalPurchaseValue | number" valueClass="text-success">
+                  label="Stock valorisé" [value]="stockValuationSummary()?.totalPurchaseValue | number" valueClass="text-success"
+                  info="Stock disponible des produits actifs, gratuités incluses, au prix d'achat du fournisseur principal. La marge potentielle est la moyenne des taux par référence : chaque produit compte pour un, sans pondération par la valeur en stock.">
       <ng-container ngProjectAs="[kpiLabel]"><em class="kpi-strip-scope">au {{ aujourdhui | date:'dd/MM' }}</em></ng-container>
       <ng-container ngProjectAs="[kpiSub]">
         {{ stockValuationSummary()?.totalProducts | number }} réf. · marge pot. {{ stockValuationSummary()?.averageMarginPercentage | number:'1.1-1' }} %
@@ -160,7 +168,8 @@
     </app-kpi-item>
 
     <app-kpi-item [accent]="'warning'" icon="pi pi-users" iconClass="text-warning"
-                  label="Différés clients" [value]="differeSummary()?.rest | number" valueClass="text-warning">
+                  label="Différés clients" [value]="differeSummary()?.rest | number" valueClass="text-warning"
+                  info="Reste dû sur les ventes à crédit encore impayées, tous clients et toutes périodes. « Accordé » est le montant initial de ces ventes, « remb. » ce qui a déjà été réglé.">
       <ng-container ngProjectAs="[kpiLabel]"><em class="kpi-strip-scope">encours</em></ng-container>
       <ng-container ngProjectAs="[kpiSub]">
         accordé {{ differeSummary()?.saleAmount | number }} · remb. {{ differeSummary()?.paidAmount | number }}

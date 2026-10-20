@@ -6,6 +6,7 @@
     icon="pi pi-wallet"
     iconClass="text-warning"
     label="Total encours"
+    info="Montant des avoirs fournisseur encore en attente : ceux que le fournisseur n'a ni réglés ni déduits d'une commande."
     suffix="CFA"
     valueClass="text-warning"
   />
@@ -16,6 +17,7 @@
     icon="pi pi-building"
     iconClass="text-primary"
     label="Fournisseurs en attente"
+    info="Fournisseurs ayant au moins un avoir en attente."
     valueClass="text-primary"
   />
 
@@ -24,6 +26,7 @@
     <app-kpi-item
       [accent]="'info'"
       [label]="selectedFournisseurLibelle()"
+      info="Détail des avoirs en attente du fournisseur sélectionné, et leur montant cumulé."
       [value]="getTotalAvoirsDetail() | number: '1.0-0'"
       icon="pi pi-receipt"
       iconClass="text-info"

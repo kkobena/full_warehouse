@@ -34,6 +34,7 @@
     <app-kpi-item [accent]="'success'" [value]="getTotalRevenue() | number:'1.0-0'"
                   icon="pi pi-money-bill"
                   iconClass="text-success" label="CA Total"
+                  info="CA du mois pour les seuls produits du palmarès par chiffre d'affaires, pas pour toute l'officine. Ventes clôturées, non annulées, remise de ligne déduite. Les trois tuiles décrivent ces mêmes produits."
                   valueClass="text-success">
       <span ngProjectAs="[kpiValue]">&ngsp;<small
         appDevise></small></span>
@@ -41,17 +42,20 @@
     </app-kpi-item>
     <app-kpi-item [accent]="'primary'" [value]="getTotalQuantity() | number" icon="pi pi-box"
                   iconClass="text-primary" label="Quantité vendue"
+                  info="Unités vendues par les produits du palmarès par chiffre d'affaires — les mêmes que ceux du CA affiché à côté. Le palmarès par quantité, lui, porte sur d'autres produits et n'entre pas dans ce total."
                   valueClass="text-primary">
       <ng-container ngProjectAs="[kpiSub]">unités</ng-container>
     </app-kpi-item>
     <app-kpi-item [accent]="'warning'" [value]="getTotalSales() | number" icon="pi pi-shopping-cart"
                   iconClass="text-warning" label="Nombre de ventes"
+                  info="Somme, produit par produit, du nombre de ventes où il apparaît. Une même vente portant trois produits du classement y est donc comptée trois fois : ce n'est pas un nombre de tickets."
                   valueClass="text-warning">
-      <ng-container ngProjectAs="[kpiSub]">transactions</ng-container>
+      <ng-container ngProjectAs="[kpiSub]">cumulées produit par produit</ng-container>
     </app-kpi-item>
     @if (selectedMonth()) {
       <app-kpi-item [accent]="'primary'" [value]="getMonthLabel()" icon="pi pi-calendar"
-                    iconClass="text-primary" label="Période" valueClass="text-primary" />
+                    iconClass="text-primary" label="Période"
+                    info="Mois analysé. Les classements ne remontent que sur six mois : au-delà, le mois n'est plus calculé." valueClass="text-primary" />
     }
   </app-kpi-strip>
 

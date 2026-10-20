@@ -15,6 +15,7 @@
       icon="pi pi-calendar"
       iconClass="text-primary"
       label="Date règlement"
+      info="Date de saisie du règlement en caisse, non la date de la facture qu'il solde."
     />
     <app-kpi-item
       [accent]="'warning'"
@@ -22,6 +23,7 @@
       icon="pi pi-clock"
       iconClass="text-warning"
       label="Montant attendu"
+      info="Ce que la facture réclamait à l'organisme au moment du règlement : son montant net."
       valueClass="text-warning"
     />
     <app-kpi-item
@@ -30,6 +32,7 @@
       icon="pi pi-check-circle"
       iconClass="text-success"
       label="Montant réglé"
+      info="Ce que le règlement a imputé sur la facture. Un versement supérieur à l'attendu ne s'impute pas au-delà : l'excédent ressort en monnaie rendue."
       valueClass="text-success"
     />
     <app-kpi-item
@@ -38,6 +41,7 @@
       icon="pi pi-exclamation-circle"
       iconClass="text-danger"
       label="Montant restant"
+      info="Attendu moins réglé, ramené à zéro quand le règlement couvre tout. La facture reste ouverte tant que ce montant n'est pas nul."
       valueClass="text-danger"
     />
     <app-kpi-item
@@ -46,6 +50,7 @@
       icon="pi pi-credit-card"
       iconClass="text-info"
       label="Mode règlement"
+      info="Moyen de paiement utilisé par l'organisme pour ce règlement."
     />
   </app-kpi-strip>
 

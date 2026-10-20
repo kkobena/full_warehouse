@@ -22,23 +22,28 @@
 
   <!-- ===== KPI STRIP ===== -->
   <app-kpi-strip stripClass="mt-2 mb-2">
-    <app-kpi-item [accent]="'primary'" icon="pi pi-box" iconClass="text-primary" label="Stock (DIO)" [value]="formatCurrency(snapshot()!.stockValue)" valueClass="text-primary">
+    <app-kpi-item [accent]="'primary'" icon="pi pi-box" iconClass="text-primary" label="Stock (DIO)"
+                  info="Stock disponible au prix d'achat. Les jours de stock rapportent cette valeur au coût d'achat moyen écoulé par jour sur les douze derniers mois : c'est le temps qu'il faudrait pour tout vendre au rythme actuel." [value]="formatCurrency(snapshot()!.stockValue)" valueClass="text-primary">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">{{ snapshot()!.dio }} jours de stock</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'warning'" icon="pi pi-users" iconClass="text-warning" label="Créances TP (DSO)" [value]="formatCurrency(snapshot()!.creancesTp)" valueClass="text-warning">
+    <app-kpi-item [accent]="'warning'" icon="pi pi-users" iconClass="text-warning" label="Créances TP (DSO)"
+                  info="Reste dû des bons tiers payant non réglés de l'année écoulée. Les jours de recouvrement rapportent cet encours au montant facturé aux organismes par jour sur douze mois." [value]="formatCurrency(snapshot()!.creancesTp)" valueClass="text-warning">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">{{ snapshot()!.dso }}j recouvrement</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'success'" icon="pi pi-truck" iconClass="text-success" label="Dettes Fournisseurs (DPO)" [value]="formatCurrency(snapshot()!.dettesFournisseurs)" valueClass="text-success">
+    <app-kpi-item [accent]="'success'" icon="pi pi-truck" iconClass="text-success" label="Dettes Fournisseurs (DPO)"
+                  info="Reste dû sur les commandes réceptionnées de l'année écoulée, paiements déduits. Les jours de délai rapportent cette dette aux achats réceptionnés par jour sur douze mois." [value]="formatCurrency(snapshot()!.dettesFournisseurs)" valueClass="text-success">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">{{ snapshot()!.dpo }}j délai fournisseur</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'primary'" icon="pi pi-chart-line" iconClass="text-primary" label="Besoin en Fonds de Roulement (BFR)" [value]="formatCurrency(snapshot()!.bfr)" valueClass="text-primary">
+    <app-kpi-item [accent]="'primary'" icon="pi pi-chart-line" iconClass="text-primary" label="Besoin en Fonds de Roulement (BFR)"
+                  info="Stock plus créances tiers payant moins dettes fournisseurs : la trésorerie que le cycle d'exploitation immobilise en permanence." [value]="formatCurrency(snapshot()!.bfr)" valueClass="text-primary">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">Stock + Créances − Dettes</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'primary'" icon="pi pi-sync" iconClass="text-primary" label="Cycle de trésorerie (CCC)" [value]="snapshot()!.ccc" valueClass="text-primary">
+    <app-kpi-item [accent]="'primary'" icon="pi pi-sync" iconClass="text-primary" label="Cycle de trésorerie (CCC)"
+                  info="Jours de stock plus jours de recouvrement moins jours de crédit fournisseur : le temps pendant lequel l'officine finance son activité sur ses fonds propres. Un cycle négatif signifie que les fournisseurs la financent." [value]="snapshot()!.ccc" valueClass="text-primary">
       <span ngProjectAs="[kpiValue]">&ngsp;<small>jours</small></span>
       <ng-container ngProjectAs="[kpiSub]">DIO + DSO − DPO</ng-container>
     </app-kpi-item>

@@ -45,7 +45,7 @@ export interface ITiersPayantCreancesSummary {
   groupeTiersPayantId?: number;
   groupeTiersPayantLibelle?: string;
   nombreFactures?: number;
-  montantTotal?: number;
+  montantEncours?: number;
   montantMoinsDe30Jours?: number;
   montantEntre30Et60Jours?: number;
   montantEntre60Et90Jours?: number;
@@ -57,7 +57,7 @@ export class TiersPayantCreancesSummary implements ITiersPayantCreancesSummary {
     public groupeTiersPayantId?: number,
     public groupeTiersPayantLibelle?: string,
     public nombreFactures?: number,
-    public montantTotal?: number,
+    public montantEncours?: number,
     public montantMoinsDe30Jours?: number,
     public montantEntre30Et60Jours?: number,
     public montantEntre60Et90Jours?: number,

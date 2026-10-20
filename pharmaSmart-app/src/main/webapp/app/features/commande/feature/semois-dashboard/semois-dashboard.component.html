@@ -53,6 +53,7 @@
       icon="pi pi-exclamation-triangle"
       iconClass="text-danger"
       label="En rupture"
+      info="Produits dont le stock est passé sous la marge de sécurité. Cette marge couvre le délai de livraison du fournisseur, pondéré par le coefficient de la classe de criticité et par le facteur saisonnier du produit."
       valueClass="text-danger"
     >
       <ng-container ngProjectAs="[kpiSub]">Stock &lt; Marge séc.</ng-container>
@@ -66,6 +67,7 @@
       icon="pi pi-shopping-bag"
       iconClass="text-warning"
       label="Sous seuil"
+      info="Stock au-dessus de la marge de sécurité mais sous le stock objectif. L'objectif vaut une vente mensuelle moyenne, plus la marge de sécurité, plus de quoi tenir entre deux commandes."
       valueClass="text-warning"
     >
       <ng-container ngProjectAs="[kpiSub]">À commander</ng-container>
@@ -77,6 +79,7 @@
       icon="pi pi-check-circle"
       iconClass="text-success"
       label="Stock OK"
+      info="Stock situé entre l'objectif et une fois et demie l'objectif : rien à commander, rien à écouler."
       valueClass="text-success"
     >
       <ng-container ngProjectAs="[kpiSub]">Stock optimal</ng-container>
@@ -88,6 +91,7 @@
       icon="pi pi-box"
       iconClass="text-info"
       label="Surstock"
+      info="Stock au-delà d'une fois et demie l'objectif : trésorerie immobilisée et risque de péremption."
       valueClass="text-info"
     >
       <ng-container ngProjectAs="[kpiSub]">Risque péremption</ng-container>
@@ -99,6 +103,7 @@
       icon="pi pi-cog"
       iconClass="text-secondary"
       label="Non configurés"
+      info="Produits sans vente moyenne mensuelle exploitable — aucun historique, ou configuration absente. Faute de repère, ils ne sont classés dans aucune des quatre tuiles précédentes."
       valueClass="text-secondary"
     >
       <ng-container ngProjectAs="[kpiSub]">VMM = 0</ng-container>
@@ -110,6 +115,7 @@
       icon="pi pi-minus-circle"
       iconClass="text-danger"
       label="Unités manquantes"
+      info="Total des quantités à commander pour ramener les produits en rupture à leur stock objectif."
       valueClass="text-danger"
     >
       <ng-container ngProjectAs="[kpiSub]">Total ruptures</ng-container>

@@ -12,19 +12,23 @@
   <div class="modal-body">
     <!-- Sale Info Summary -->
     <app-kpi-strip stripClass="mb-2">
-      <app-kpi-item [value]="sale.cassier?.abbrName" icon="pi pi-user" label="Caissier" />
+      <app-kpi-item [value]="sale.cassier?.abbrName" icon="pi pi-user" label="Caissier"
+      info="Caissier ayant encaissé cette vente." />
       <app-kpi-item
         [accent]="'primary'"
         [value]="sale.salesAmount | number"
         icon="pi pi-wallet"
         iconClass="text-primary"
         label="Montant"
+        info="Montant de la vente au prix de vente, avant remise."
         suffix=" F"
         valueClass="text-primary"
       />
       <app-kpi-item [value]="sale.partTiersPayant | number" icon="pi pi-building" label="Part T.P"
+      info="Part prise en charge par les tiers payants de cette vente : ce qui leur sera facturé."
                     suffix=" F" />
       <app-kpi-item [value]="sale.partAssure | number" icon="pi pi-user-plus" label="Part Assuré"
+      info="Part restant à la charge du client, remises et plafonds déjà appliqués."
                     suffix=" F" />
     </app-kpi-strip>
 

@@ -62,23 +62,27 @@
         <!-- KPI Strip -->
         @if (summary()) {
           <app-kpi-strip stripClass="mt-2 mb-2">
-            <app-kpi-item [accent]="'primary'" [value]="summary()!.quantitySold || 0 | number" icon="pi pi-shopping-cart"
+            <app-kpi-item [accent]="'primary'" [value]="summary()!.quantitySold || 0 | number"
+                          info="Unités sorties sur la période, gratuités comprises, pour les ventes clôturées non annulées du périmètre filtré." icon="pi pi-shopping-cart"
                           iconClass="text-primary" label="Quantité vendue"
                           valueClass="text-primary">
               <ng-container ngProjectAs="[kpiSub]">unités</ng-container>
             </app-kpi-item>
-            <app-kpi-item [accent]="'danger'" [value]="summary()!.quantityAvoir || 0 | number" icon="pi pi-replay"
+            <app-kpi-item [accent]="'danger'" [value]="summary()!.quantityAvoir || 0 | number"
+                          info="Unités reprises au client par avoir sur ces mêmes lignes de vente. Elles ne sont pas retranchées de la quantité vendue affichée à côté." icon="pi pi-replay"
                           iconClass="text-danger" label="Quantité avoir"
                           valueClass="text-danger">
               <ng-container ngProjectAs="[kpiSub]">retours</ng-container>
             </app-kpi-item>
-            <app-kpi-item [accent]="'success'" [value]="formatCurrency(summary()!.totalSalesAmount)" icon="pi pi-money-bill"
+            <app-kpi-item [accent]="'success'" [value]="formatCurrency(summary()!.totalSalesAmount)"
+                          info="Montant des lignes de vente, remise de ligne déduite." icon="pi pi-money-bill"
                           iconClass="text-success" label="CA Total"
                           valueClass="text-success">
               <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
               <ng-container ngProjectAs="[kpiSub]">chiffre d'affaires</ng-container>
             </app-kpi-item>
-            <app-kpi-item [accent]="'warning'" [value]="formatCurrency(summary()!.totalPurchaseAmount)" icon="pi pi-dollar"
+            <app-kpi-item [accent]="'warning'" [value]="formatCurrency(summary()!.totalPurchaseAmount)"
+                          info="Coût d'achat des quantités sorties : prix de revient de la ligne multiplié par la quantité. L'écart avec le CA est la marge brute." icon="pi pi-dollar"
                           iconClass="text-warning"
                           label="Coût d'achat"
                           valueClass="text-warning">
@@ -194,24 +198,28 @@
         <!-- KPI Strip -->
         @if (unsoldSummary()) {
           <app-kpi-strip stripClass="mt-2 mb-2">
-            <app-kpi-item [accent]="'primary'" [value]="unsoldSummary()?.totalProducts | number" icon="pi pi-box"
+            <app-kpi-item [accent]="'primary'" [value]="unsoldSummary()?.totalProducts | number"
+                          info="Produits actifs du périmètre filtré qui n'ont fait aucune vente clôturée sur la période." icon="pi pi-box"
                           iconClass="text-primary" label="Nb produits"
                           valueClass="text-primary">
               <ng-container ngProjectAs="[kpiSub]">références</ng-container>
             </app-kpi-item>
-            <app-kpi-item [accent]="'warning'" [value]="unsoldSummary()?.totalStock | number" icon="pi pi-database"
+            <app-kpi-item [accent]="'warning'" [value]="unsoldSummary()?.totalStock | number"
+                          info="Unités immobilisées par ces invendus, gratuités comprises." icon="pi pi-database"
                           iconClass="text-warning" label="Stock total"
                           valueClass="text-warning">
               <ng-container ngProjectAs="[kpiSub]">unités</ng-container>
             </app-kpi-item>
-            <app-kpi-item [accent]="'success'" [value]="formatCurrency(unsoldSummary()?.totalSalesAmount || 0)" icon="pi pi-money-bill"
+            <app-kpi-item [accent]="'success'" [value]="formatCurrency(unsoldSummary()?.totalSalesAmount || 0)"
+                          info="Ce stock dormant valorisé au prix de vente en vigueur." icon="pi pi-money-bill"
                           iconClass="text-success"
                           label="Valeur vente"
                           valueClass="text-success">
               <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
               <ng-container ngProjectAs="[kpiSub]">prix de vente</ng-container>
             </app-kpi-item>
-            <app-kpi-item [accent]="'danger'" [value]="formatCurrency(unsoldSummary()?.totalPurchaseAmount || 0)" icon="pi pi-dollar"
+            <app-kpi-item [accent]="'danger'" [value]="formatCurrency(unsoldSummary()?.totalPurchaseAmount || 0)"
+                          info="Le même stock valorisé au prix de revient : la trésorerie qu'il retient." icon="pi pi-dollar"
                           iconClass="text-danger"
                           label="Coût d'achat"
                           valueClass="text-danger">

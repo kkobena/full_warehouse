@@ -44,7 +44,8 @@
 
   <!-- KPI Strip principal -->
   <app-kpi-strip stripClass="mt-2 mb-2">
-    <app-kpi-item [accent]="'primary'" [icon]="tauxIcon()" label="Taux de recouvrement">
+    <app-kpi-item [accent]="'primary'" [icon]="tauxIcon()" label="Taux de recouvrement"
+                  info="Montant réglé rapporté au montant facturé sur la période, les factures étant retenues à leur date de facture. L'appréciation suit deux paliers fixes : excellent à partir de 80 %, à surveiller à partir de 50 %.">
       <!--
         La valeur est projetée plutôt que passée par [value] : elle porte une taille
         propre, et un style d'appelant ne franchirait pas l'encapsulation de app-kpi-item.
@@ -66,6 +67,7 @@
     <app-kpi-item [accent]="'success'" [value]="formatCurrency(kpi()?.totalRegle)"
                   icon="pi pi-check-circle"
                   iconClass="text-success" label="Montant réglé"
+                  info="Encaissé sur les factures de la période. Le compteur dessous est le nombre total de factures, pas celui des factures réglées."
                   valueClass="text-success">
       <span ngProjectAs="[kpiValue]"><small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(kpi()?.countFactures) }}factures
@@ -74,6 +76,7 @@
     <app-kpi-item [accent]="'danger'" [value]="formatCurrency(kpi()?.totalRestant)"
                   icon="pi pi-times-circle"
                   iconClass="text-danger" label="Montant restant"
+                  info="Facturé moins réglé. Le compteur dessous est celui des factures non soldées, partiellement réglées comprises."
                   valueClass="text-danger">
       <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(kpi()?.countImpayees) }}impayées
       </ng-container>
@@ -81,6 +84,7 @@
     <app-kpi-item [accent]="'warning'" [value]="formatNumber(kpi()?.countEnRetard)"
                   icon="pi pi-clock"
                   iconClass="text-warning" label="En retard"
+                  info="Factures non soldées dont la date de facture a dépassé le délai de règlement du tiers payant ou de son groupe — à défaut, celui du paramétrage général."
                   valueClass="text-warning">
       <ng-container ngProjectAs="[kpiSub]">factures en retard de paiement</ng-container>
     </app-kpi-item>

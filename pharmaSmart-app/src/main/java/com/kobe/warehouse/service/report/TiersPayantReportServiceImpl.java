@@ -122,12 +122,16 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
         // `montant_regle` est retranché autant de fois qu'elle a de lignes et les tranches
         // d'ancienneté ressortent NÉGATIVES. Le montant de la facture est lu sur la facture
         // elle-même (`montant_ttc`), qui vaut la somme de ses bons.
+        //
+        // Le total rendu est le RESTE DÛ, comme les quatre tranches : il sommait le TTC entier
+        // des factures, règlements partiels compris, si bien qu'il dépassait la somme de ses
+        // propres tranches et que l'écran annonçait un encours supérieur à la réalité.
         String sql =
             "SELECT " +
                 "gtp.id, " +
                 "COALESCE(gtp.name, tp.name) as groupe_tiers_payant_libelle, " +
                 "COUNT(*) as nombre_factures, " +
-                "SUM(f.montant_total) as montant_total, " +
+                "SUM(f.reste_du) as montant_total, " +
                 "SUM(CASE WHEN f.anciennete < 30 THEN f.reste_du ELSE 0 END) as moins_30j, " +
                 "SUM(CASE WHEN f.anciennete BETWEEN 30 AND 60 THEN f.reste_du ELSE 0 END) as entre_30_60j, "
                 +
@@ -158,7 +162,7 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
                 Integer groupeTiersPayantId = (Integer) row[0];
                 String groupeTiersPayantLibelle = (String) row[1];
                 Integer nombreFactures = row[2] != null ? ((Number) row[2]).intValue() : 0;
-                Integer montantTotal = row[3] != null ? ((Number) row[3]).intValue() : 0;
+                Integer montantEncours = row[3] != null ? ((Number) row[3]).intValue() : 0;
                 Integer montantMoinsDe30Jours = row[4] != null ? ((Number) row[4]).intValue() : 0;
                 Integer montantEntre30Et60Jours = row[5] != null ? ((Number) row[5]).intValue() : 0;
                 Integer montantEntre60Et90Jours = row[6] != null ? ((Number) row[6]).intValue() : 0;
@@ -168,7 +172,7 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
                     groupeTiersPayantId,
                     groupeTiersPayantLibelle,
                     nombreFactures,
-                    montantTotal,
+                    montantEncours,
                     montantMoinsDe30Jours,
                     montantEntre30Et60Jours,
                     montantEntre60Et90Jours,

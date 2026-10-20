@@ -20,21 +20,25 @@
     <app-kpi-strip stripClass="mt-2 mb-3">
       <app-kpi-item [accent]="'success'" [value]="formatNumber(kpi()?.clientsActifs)" icon="pi pi-check-circle"
                     iconClass="text-success" label="Clients actifs"
+                    info="Clients dont le dernier achat date de 30 jours ou moins. Cet écran regarde tout l'historique du client, sans limite de période."
                     valueClass="text-success">
         <ng-container ngProjectAs="[kpiSub]">achat ≤ 30 j · {{ tauxActifs() }}%</ng-container>
       </app-kpi-item>
       <app-kpi-item [accent]="'warning'" [value]="formatNumber(kpi()?.clientsARisque)" icon="pi pi-exclamation-triangle"
                     iconClass="text-warning" label="À risque"
+                    info="Clients dont le dernier achat remonte à 31 à 90 jours : ils s'éloignent sans être perdus."
                     valueClass="text-warning">
         <ng-container ngProjectAs="[kpiSub]">31 – 90 j · {{ tauxRisque() }}%</ng-container>
       </app-kpi-item>
       <app-kpi-item [accent]="'danger'" [value]="formatNumber(kpi()?.clientsPerdus)" icon="pi pi-times-circle"
                     iconClass="text-danger" label="Perdus"
+                    info="Clients sans achat depuis plus de 90 jours, quelle que soit leur ancienneté."
                     valueClass="text-danger">
         <ng-container ngProjectAs="[kpiSub]">> 90 j · {{ tauxPerdus() }}%</ng-container>
       </app-kpi-item>
       <app-kpi-item [accent]="'primary'" [value]="formatNumber(kpi()?.totalClients)" icon="pi pi-users"
                     iconClass="text-primary" label="Total clients"
+                    info="Clients identifiés ayant au moins un achat clôturé. Le CA moyen est la moyenne de leur chiffre d'affaires cumulé depuis toujours, non celui d'une période."
                     valueClass="text-primary">
         <ng-container ngProjectAs="[kpiSub]">CA moyen : {{
             formatCurrency(kpi()?.caMoyenParClient)

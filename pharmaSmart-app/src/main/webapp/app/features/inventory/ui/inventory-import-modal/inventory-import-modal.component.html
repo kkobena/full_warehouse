@@ -48,6 +48,7 @@
           icon="pi pi-check-circle"
           iconClass="text-success"
           label="Importées"
+          info="Lignes de l'inventaire effectivement comptées depuis le fichier. La quantité importée remplace le comptage précédent de la ligne."
           valueClass="text-success"
         />
 
@@ -57,6 +58,7 @@
           icon="pi pi-minus-circle"
           iconClass="text-warning"
           label="Ignorées"
+          info="Codes du fichier qui ne correspondent à aucune ligne de cet inventaire : produit hors périmètre, ou fichier d'un autre inventaire. Rien n'est écrit pour eux."
           valueClass="text-warning"
         />
 
@@ -66,6 +68,7 @@
           icon="pi pi-times-circle"
           iconClass="text-danger"
           label="Rejetées"
+          info="Lignes du fichier illisibles — quantité non numérique, colonnes manquantes. Le détail des erreurs est listé dessous."
           valueClass="text-danger"
         />
       </app-kpi-strip>

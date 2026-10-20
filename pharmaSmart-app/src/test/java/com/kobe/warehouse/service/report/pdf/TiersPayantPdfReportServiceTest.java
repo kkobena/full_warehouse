@@ -88,8 +88,8 @@ class TiersPayantPdfReportServiceTest {
         return service.getParameters();
     }
 
-    private static TiersPayantCreancesSummaryDTO creance(String nom, Integer montantTotal) {
-        return new TiersPayantCreancesSummaryDTO(1, nom, 1, montantTotal, 0, 0, 0, 0);
+    private static TiersPayantCreancesSummaryDTO creance(String nom, Integer montantEncours) {
+        return new TiersPayantCreancesSummaryDTO(1, nom, 1, montantEncours, 0, 0, 0, 0);
     }
 
     private static TiersPayantInvoiceDTO facture() {

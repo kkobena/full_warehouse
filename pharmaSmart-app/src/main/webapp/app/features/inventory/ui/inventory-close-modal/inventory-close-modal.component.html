@@ -17,6 +17,7 @@
         icon="pi pi-list-check"
         iconClass="text-primary"
         label="Lignes comptées"
+        info="Comptages saisis sur le total à compter. Sur un inventaire par lots, l'unité comptée est le lot et non le produit : c'est bien ce que l'opérateur voit défiler à l'écran."
         valueClass="text-primary"
       >
         <ng-container ngProjectAs="[kpiValue]"> / {{ progress()?.totalLines ?? 0 | number: '1.0-0' : 'fr' }}</ng-container>
@@ -29,6 +30,7 @@
         [iconClass]="hasRemaining() ? 'text-warning' : 'text-success'"
         icon="pi pi-hourglass"
         label="Lignes restantes"
+        info="Ce qu'il reste à compter. Une ligne jamais ouverte sera clôturée avec sa quantité théorique, donc sans écart — un oubli passe pour un stock juste."
       />
 
       <app-kpi-item
@@ -37,6 +39,7 @@
         icon="pi pi-exclamation-triangle"
         iconClass="text-danger"
         label="Lignes avec écart"
+        info="Comptages dont la quantité trouvée diffère de la théorique, dans un sens ou dans l'autre."
         valueClass="text-danger"
       />
 
@@ -46,6 +49,7 @@
         icon="pi pi-percentage"
         iconClass="text-primary"
         label="Progression"
+        info="Part comptée du total, arrondie à l'entier inférieur. Elle n'affiche 100 % qu'une fois la dernière ligne saisie."
         suffix="%"
         valueClass="text-primary"
       />
@@ -60,6 +64,7 @@
           [valueClass]="val.gapCost < 0 ? 'text-danger' : 'text-success'"
           icon="pi pi-shopping-cart"
           label="Écart valorisé (achat)"
+          info="Somme des écarts de comptage au prix d'achat figé à l'ouverture de l'inventaire : la perte ou le gain que la clôture passera en stock."
         />
 
         <app-kpi-item
@@ -69,6 +74,7 @@
           [valueClass]="val.gapAmount < 0 ? 'text-danger' : 'text-success'"
           icon="pi pi-tag"
           label="Écart valorisé (vente)"
+          info="Les mêmes écarts au prix de vente : ce qu'ils représentent en chiffre d'affaires, marge comprise."
         />
       </app-kpi-strip>
     }

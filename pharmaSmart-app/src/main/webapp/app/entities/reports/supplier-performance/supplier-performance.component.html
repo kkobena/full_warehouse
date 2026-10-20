@@ -42,12 +42,14 @@
     <app-kpi-strip stripClass="mt-2 mb-2">
       <app-kpi-item [accent]="'primary'" [value]="formatNumber(summary()?.totalSuppliers)" icon="pi pi-users"
                     iconClass="text-primary" label="Fournisseurs"
+                    info="Fournisseurs comptés comme actifs : ceux chez qui au moins une commande a été réceptionnée dans les douze derniers mois. Les autres sont absents de toute cette analyse."
                     valueClass="text-primary">
         <ng-container ngProjectAs="[kpiSub]">actifs</ng-container>
       </app-kpi-item>
       <app-kpi-item [accent]="'success'" [value]="formatCurrency(summary()?.totalPurchaseAmountLast30Days)" icon="pi pi-calendar"
                     iconClass="text-success"
                     label="Achats 30 jours"
+                    info="Montant des commandes réceptionnées dont la date de commande tombe dans les trente derniers jours."
                     valueClass="text-success">
         <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
         <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(summary()?.totalOrdersLast30Days) }}
@@ -57,6 +59,7 @@
       <app-kpi-item [accent]="'warning'" [value]="formatCurrency(summary()?.totalPurchaseAmountLast12Months)" icon="pi pi-chart-line"
                     iconClass="text-warning"
                     label="Achats 12 mois"
+                    info="Même calcul sur un an. C'est ce volume qui pèse pour 40 % dans le score de performance."
                     valueClass="text-warning">
         <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
         <ng-container ngProjectAs="[kpiSub]">{{ formatNumber(summary()?.totalOrdersLast12Months) }}
@@ -65,12 +68,14 @@
       </app-kpi-item>
       <app-kpi-item [accent]="'danger'" [value]="formatDecimal(summary()?.avgDeliveryDays, 1)" icon="pi pi-truck"
                     iconClass="text-danger" label="Délai moyen"
+                    info="Jours écoulés entre la date de commande et la date de réception. Le délai est d'abord moyenné par fournisseur, puis entre fournisseurs : un gros et un petit y pèsent pareil."
                     valueClass="text-danger">
         <span ngProjectAs="[kpiValue]">&ngsp;<small>jours</small></span>
         <ng-container ngProjectAs="[kpiSub]">livraison</ng-container>
       </app-kpi-item>
       <app-kpi-item [accent]="'primary'" [value]="formatDecimal(summary()?.avgConformityRate, 1)" icon="pi pi-check-circle"
                     iconClass="text-primary" label="Conformité moy."
+                    info="Quantités reçues rapportées aux quantités commandées sur douze mois, par fournisseur, puis moyennées entre fournisseurs. 100 % signifie que tout le commandé a été livré."
                     valueClass="text-primary">
         <span ngProjectAs="[kpiValue]">&ngsp;<small>%</small></span>
         <ng-container ngProjectAs="[kpiSub]">taux de qualité</ng-container>
@@ -78,6 +83,7 @@
       <app-kpi-item [accent]="'success'" [value]="formatNumber(summary()?.suppliersWithGoodPerformance)" icon="pi pi-star-fill"
                     iconClass="text-success"
                     label="Perf. excellente"
+                    info="Fournisseurs au score d'au moins 70 sur 100. Le score combine le volume d'achat sur douze mois (40 points), la rapidité de livraison face à un repère de 30 jours (30 points) et le taux de conformité (30 points)."
                     valueClass="text-success">
         <ng-container ngProjectAs="[kpiSub]">score ≥ 70</ng-container>
       </app-kpi-item>

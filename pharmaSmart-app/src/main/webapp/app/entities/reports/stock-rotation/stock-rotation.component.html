@@ -2,19 +2,23 @@
 
   <!-- KPI Strip -->
   <app-kpi-strip stripClass="mt-2 mb-2">
-    <app-kpi-item [accent]="'success'" [value]="abcCounts().A || 0 | number" valueClass="text-success">
+    <app-kpi-item [accent]="'success'" [value]="abcCounts().A || 0 | number"
+                  info="Produits dont le CA des douze derniers mois dépasse la moyenne de près de deux écarts-types. Le repère étant statistique, cette classe reste par construction un très petit groupe." valueClass="text-success">
       <ng-container ngProjectAs="[kpiLabel]"><span class="rotation-badge rotation-a">A</span> <small class="text-muted ms-1">z ≥ 1.96</small></ng-container>
       <ng-container ngProjectAs="[kpiSub]">Forte rotation</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'primary'" [value]="abcCounts().B || 0 | number" valueClass="text-primary">
+    <app-kpi-item [accent]="'primary'" [value]="abcCounts().B || 0 | number"
+                  info="Produits situés entre 1,65 et 1,96 écart-type au-dessus de la moyenne. Un produit pour lequel l'écart-type est nul y est rangé par défaut." valueClass="text-primary">
       <ng-container ngProjectAs="[kpiLabel]"><span class="rotation-badge rotation-b">B</span> <small class="text-muted ms-1">z ≥ 1.65</small></ng-container>
       <ng-container ngProjectAs="[kpiSub]">Rotation moyenne</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'warning'" [value]="abcCounts().C || 0 | number" valueClass="text-warning">
+    <app-kpi-item [accent]="'warning'" [value]="abcCounts().C || 0 | number"
+                  info="Tout le reste : les produits sous 1,65 écart-type, et ceux qui n'ont rien vendu sur douze mois." valueClass="text-warning">
       <ng-container ngProjectAs="[kpiLabel]"><span class="rotation-badge rotation-c">C</span> <small class="text-muted ms-1">z &lt; 1.65</small></ng-container>
       <ng-container ngProjectAs="[kpiSub]">Faible rotation</ng-container>
     </app-kpi-item>
-    <app-kpi-item [accent]="'danger'" icon="pi pi-box" iconClass="text-danger" label="Valeur stock" [value]="formatCurrency(getTotalStockValue())" valueClass="text-danger">
+    <app-kpi-item [accent]="'danger'" icon="pi pi-box" iconClass="text-danger" label="Valeur stock"
+                  info="Stock au prix d'achat pour les produits de la liste affichée — ce total suit les filtres, contrairement aux trois compteurs de classes." [value]="formatCurrency(getTotalStockValue())" valueClass="text-danger">
       <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
       <ng-container ngProjectAs="[kpiSub]">{{ rotations().length | number }} produits</ng-container>
     </app-kpi-item>

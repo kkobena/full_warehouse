@@ -61,6 +61,7 @@
         <app-kpi-item [accent]="'primary'" [value]="formatCurrency(sum.caToday)"
                       icon="pi pi-calendar"
                       iconClass="text-primary" label="CA Aujourd'hui"
+                      info="Ventes clôturées du jour, remises déduites, hors ventes annulées et hors dépôt. L'évolution compare la journée en cours à la veille entière. Chiffres issus de la synthèse quotidienne : « Actualiser » la recalcule."
                       valueClass="text-primary">
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
           <ng-container ngProjectAs="[kpiSub]"><span
@@ -75,6 +76,7 @@
         <app-kpi-item [accent]="'success'" [value]="formatCurrency(sum.caWeek)"
                       icon="pi pi-calendar-plus"
                       iconClass="text-success" label="CA Semaine"
+                      info="Du lundi à aujourd'hui, remises déduites. L'évolution se mesure contre la semaine précédente complète : en début de semaine, quelques jours sont comparés à sept."
                       valueClass="text-success">
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
           <ng-container ngProjectAs="[kpiSub]"><span
@@ -89,6 +91,7 @@
         <app-kpi-item [accent]="'warning'" [value]="formatCurrency(sum.caMonth)"
                       icon="pi pi-chart-bar"
                       iconClass="text-warning" label="CA Mois"
+                      info="Du 1er du mois à aujourd'hui, remises déduites, comparé au mois précédent complet. Le panier moyen est ce CA divisé par le nombre de transactions affiché à côté."
                       valueClass="text-warning">
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
           <ng-container ngProjectAs="[kpiSub]"><span
@@ -103,6 +106,7 @@
         <app-kpi-item [accent]="'danger'" [value]="formatCurrency(sum.caYear)"
                       icon="pi pi-chart-line"
                       iconClass="text-danger" label="CA Année"
+                      info="Du 1er janvier à aujourd'hui, comparé à l'année précédente complète. Le taux de marge rapporte au CA net la marge que ce CA net dégage : remises déduites, moins le coût d'achat des quantités vendues."
                       valueClass="text-danger">
           <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
           <ng-container ngProjectAs="[kpiSub]"><span
@@ -117,7 +121,9 @@
         @if (summaryFinances(); as fin) {
           <app-kpi-item [value]="formatCurrency(fin.totalDetteFournisseurs)" icon="pi pi-building"
                         iconClass="kpi-violet"
-                        label="Dettes fournisseurs" style="border-left: 3px solid #6f42c1"
+                        label="Dettes fournisseurs"
+                        info="Reste dû sur les commandes réceptionnées non soldées : montant des commandes moins les paiements déjà versés. Une échéance est en retard passé le délai de crédit du fournisseur — 30 jours à défaut — compté depuis la réception."
+                        style="border-left: 3px solid #6f42c1"
                         valueClass="kpi-violet">
             <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
             <ng-container ngProjectAs="[kpiSub]">{{ fin.nbEcheancesEnRetard ?? 0 }}
@@ -126,7 +132,9 @@
           </app-kpi-item>
           <app-kpi-item [value]="formatCurrency(fin.totalCreancesTP)" icon="pi pi-users"
                         iconClass="kpi-cyan"
-                        label="Créances tiers-payants" style="border-left: 3px solid #0dcaf0"
+                        label="Créances tiers-payants"
+                        info="Reste dû des bons tiers payant non réglés, toutes périodes : montant du bon moins ce qui a été encaissé. Le compte affiché dessous est celui des factures non soldées dont l'échéance est passée — date de facture plus le délai de règlement de l'organisme, 30 jours à défaut."
+                        style="border-left: 3px solid #0dcaf0"
                         valueClass="kpi-cyan">
             <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
             <ng-container ngProjectAs="[kpiSub]">{{ fin.nbFacturesImpayees ?? 0 }}

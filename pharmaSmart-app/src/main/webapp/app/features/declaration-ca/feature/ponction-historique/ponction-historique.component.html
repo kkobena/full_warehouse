@@ -44,6 +44,7 @@
     icon="pi pi-history"
     iconClass="text-primary"
     label="Ponctions"
+    info="Ponctions enregistrées sur la période, tous statuts confondus. Les montants des tuiles suivantes ne retiennent que les validées : une ponction annulée est comptée ici et nulle part ailleurs."
     valueClass="text-primary"
   >
     <ng-container ngProjectAs="[kpiSub]">
@@ -59,6 +60,7 @@
     icon="pi pi-chart-line"
     iconClass="text-secondary"
     label="CA réel cumulé"
+    info="Somme des CA réels des périodes ponctionnées : ce que les ventes ont produit avant tout retraitement."
     suffix="F"
   />
 
@@ -68,6 +70,7 @@
     icon="pi pi-file"
     iconClass="text-info"
     label="CA déclaré cumulé"
+    info="Somme des CA effectivement déclarés : pour chaque ponction, son CA après exclusions diminué du montant prélevé."
     suffix="F"
     valueClass="text-info"
   />
@@ -78,6 +81,7 @@
     icon="pi pi-minus-circle"
     iconClass="text-danger"
     label="Total ponctionné"
+    info="Montant retiré par les ponctions validées, et nombre de ventes touchées."
     suffix="F"
     valueClass="text-danger"
   >
@@ -92,6 +96,7 @@
     icon="pi pi-percentage"
     iconClass="text-warning"
     label="Taux effectif moyen"
+    info="Total ponctionné rapporté au cumul des CA après exclusions. C'est un taux d'ensemble, non la moyenne des taux de chaque ponction."
     suffix="%"
     valueClass="text-warning"
   >

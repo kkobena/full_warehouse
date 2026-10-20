@@ -4,6 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.Sales;
+import com.kobe.warehouse.domain.SalesLine;
+import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
+import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.DashboardCARepository;
@@ -146,6 +150,40 @@ class DashboardCARepositoryIntegrationTest extends AbstractReportIntegrationTest
             Object[] agregat = repository.getPeriodAggregation(avantHier(), LocalDate.now());
 
             assertThat((BigDecimal) agregat[2]).isNotEqualByComparingTo(moyenneDesJournees);
+        }
+
+        /**
+         * Le taux de marge s'affiche à côté du CA net : il doit se lire sur la même assiette.
+         * L'ancienne formule retranchait le coût d'achat du CA BRUT, si bien que la remise
+         * accordée passait pour de la marge et gonflait le taux affiché.
+         */
+        @Test
+        @DisplayName("le taux de marge se lit sur le CA net, la remise n'y passe pas pour de la marge")
+        void tauxDeMargeSurLeNet() {
+            Produit produit = produitAnalysable("DOLIPRANE MARGE", 1_000);
+            SalesLine ligne = vendu(produit, 10, hier());
+            ligne.getSales().setDiscountAmount(2_000);
+            em.flush();
+            rafraichirLesVues();
+
+            List<Object[]> journees = repository.findDailySummary(hier(), LocalDate.now());
+            long caNet = journees.stream().mapToLong(journee -> toLong(journee[3])).sum();
+            long cout = journees.stream().mapToLong(journee -> toLong(journee[5])).sum();
+            long margeSurLeBrut = journees.stream().mapToLong(journee -> toLong(journee[6])).sum();
+
+            Object[] agregat = repository.getPeriodAggregation(hier(), LocalDate.now());
+
+            BigDecimal attendu = BigDecimal
+                .valueOf(caNet - cout)
+                .multiply(BigDecimal.valueOf(100))
+                .divide(BigDecimal.valueOf(caNet), 2, RoundingMode.HALF_UP);
+            assertThat((BigDecimal) agregat[3]).isEqualByComparingTo(attendu);
+
+            BigDecimal ancienneFormule = BigDecimal
+                .valueOf(margeSurLeBrut)
+                .multiply(BigDecimal.valueOf(100))
+                .divide(BigDecimal.valueOf(caNet), 2, RoundingMode.HALF_UP);
+            assertThat((BigDecimal) agregat[3]).isLessThan(ancienneFormule);
         }
 
         /** Une fenêtre sans vente doit rendre des zéros, non des valeurs nulles. */
@@ -386,10 +424,51 @@ class DashboardCARepositoryIntegrationTest extends AbstractReportIntegrationTest
             assertThat(repository.getNbEcheancesEnRetard() - avant).isZero();
         }
 
+        /**
+         * Le compteur s'affiche sous le montant des créances tiers payant : il doit porter sur la
+         * même population. Il comptait les ventes à crédit CLIENTS, sans rapport avec ce montant.
+         */
         @Test
-        @DisplayName("le nombre de ventes impayées s'interroge sans erreur")
-        void ventesImpayees() {
-            assertThat(repository.getNbFacturesImpayees()).isNotNegative();
+        @DisplayName("une facture tiers payant non soldée et échue est comptée")
+        void factureEchueComptee() {
+            long avant = repository.getNbFacturesImpayees();
+
+            facture(tiersPayant("MUGEFCI RETARD", null), jourDeLAnnee(60), 500_000, 0, InvoiceStatut.NOT_PAID);
+
+            assertThat(repository.getNbFacturesImpayees() - avant).isEqualTo(1L);
+        }
+
+        @Test
+        @DisplayName("une facture émise aujourd'hui n'est pas encore échue")
+        void factureDansSonDelai() {
+            long avant = repository.getNbFacturesImpayees();
+
+            facture(tiersPayant("MUGEFCI DELAI", null), LocalDate.now(), 500_000, 0, InvoiceStatut.NOT_PAID);
+
+            assertThat(repository.getNbFacturesImpayees() - avant).isZero();
+        }
+
+        @Test
+        @DisplayName("une facture soldée sort du compteur")
+        void factureSoldee() {
+            long avant = repository.getNbFacturesImpayees();
+
+            facture(tiersPayant("MUGEFCI SOLDEE", null), jourDeLAnnee(60), 500_000, 500_000, InvoiceStatut.PAID);
+
+            assertThat(repository.getNbFacturesImpayees() - avant).isZero();
+        }
+
+        /** La régression : une vente à crédit client ne concerne pas les tiers payants. */
+        @Test
+        @DisplayName("une vente à crédit client impayée n'entre pas dans le compteur")
+        void venteADifferePasComptee() {
+            long avant = repository.getNbFacturesImpayees();
+
+            Sales vente = vendu(produitAnalysable("DOLIPRANE DIFFERE", 1_000), 10, jourDeLAnnee(60)).getSales();
+            vente.setPaymentStatus(PaymentStatus.IMPAYE);
+            em.flush();
+
+            assertThat(repository.getNbFacturesImpayees() - avant).isZero();
         }
     }
 

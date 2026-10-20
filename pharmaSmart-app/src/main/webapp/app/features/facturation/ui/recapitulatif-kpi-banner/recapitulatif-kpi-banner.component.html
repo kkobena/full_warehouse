@@ -8,6 +8,7 @@
       icon="pi pi-file-edit"
       iconClass="text-primary"
       label="Total facturé"
+      info="Montant net des factures du mois affiché, pour tous les organismes du périmètre."
       valueClass="text-primary"
     >
       <ng-container ngProjectAs="[kpiSub]">{{ kpi()!.countFactures | number }}factures
@@ -20,6 +21,7 @@
       icon="pi pi-check-circle"
       iconClass="text-success"
       label="Total réglé"
+      info="Ce qui a été encaissé sur les factures de ce mois. Le taux rapporte ce réglé au facturé du même mois."
       valueClass="text-success"
     >
       <ng-container ngProjectAs="[kpiSub]">Taux {{ kpi()!.tauxRecouvrement | number: '1.1-1' }}%
@@ -32,6 +34,7 @@
       icon="pi pi-exclamation-circle"
       iconClass="text-danger"
       label="Restant dû"
+      info="Facturé du mois moins réglé du mois. Le compteur dessous est celui des factures du mois non soldées, partiellement réglées comprises."
       valueClass="text-danger"
     >
       <ng-container ngProjectAs="[kpiSub]">{{ kpi()!.countImpayees | number }}impayées
@@ -44,16 +47,10 @@
       icon="pi pi-history"
       iconClass="text-warning"
       label="Solde cumulé"
+      info="Reste dû du mois, augmenté du report : tout ce qui restait impayé sur les factures antérieures au 1er du mois affiché, sans limite d'ancienneté."
       valueClass="text-warning"
     >
-      <!-- L'infobulle vit dans le sous-texte : elle impose la projection plutôt qu'une simple chaîne. -->
-      <span
-        [ngbTooltip]="'Report de solde de l\'année précédente (N-1)'"
-        ngProjectAs="[kpiSub]"
-        placement="bottom"
-      >
-        Dont report N-1
-      </span>
+      <ng-container ngProjectAs="[kpiSub]">Dont report antérieur</ng-container>
     </app-kpi-item>
   </app-kpi-strip>
 }

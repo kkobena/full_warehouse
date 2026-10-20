@@ -46,16 +46,19 @@
     <!-- KPI Strip -->
     <app-kpi-strip stripClass="mt-2 mb-3">
       <app-kpi-item [accent]="'primary'" [value]="staff().length" icon="pi pi-users"
-                    iconClass="text-primary" label="Vendeurs actifs" valueClass="text-primary">
+                    iconClass="text-primary" label="Vendeurs actifs" valueClass="text-primary"
+                    info="Vendeurs ayant conclu au moins une vente clôturée sur la période. Un vendeur sans vente n'apparaît pas.">
         <ng-container ngProjectAs="[kpiSub]">sur la période</ng-container>
       </app-kpi-item>
       <app-kpi-item [accent]="'success'" [value]="formatNumber(totalVentes())" icon="pi pi-shopping-cart"
                     iconClass="text-success" label="Total ventes"
+                    info="Ventes clôturées non annulées de la période, tous vendeurs confondus. La vente est attribuée au vendeur enregistré sur le ticket."
                     valueClass="text-success">
         <ng-container ngProjectAs="[kpiSub]">transactions</ng-container>
       </app-kpi-item>
       <app-kpi-item [accent]="'info'" [value]="formatCurrency(totalMontant())" icon="pi pi-wallet" iconClass="text-info"
-                    label="CA Total" valueClass="text-info">
+                    label="CA Total" valueClass="text-info"
+                    info="Montant des lignes de ces ventes, remise de ligne déduite.">
         <span ngProjectAs="[kpiValue]">&ngsp;<small appDevise></small></span>
         <ng-container ngProjectAs="[kpiSub]">tous vendeurs confondus</ng-container>
       </app-kpi-item>

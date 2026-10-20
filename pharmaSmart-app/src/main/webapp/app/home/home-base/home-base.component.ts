@@ -347,7 +347,7 @@ export class HomeBaseComponent implements OnInit {
         this.marge12Mois.set(data.marge12Mois.body);
         this.stockValuationSummary.set(data.stockValuation.body);
         this.creancesSummary = data.creancesSummary.body ?? [];
-        this.totalCreances.set(this.creancesSummary.reduce((s, c) => s + (c.montantTotal ?? 0), 0));
+        this.totalCreances.set(this.creancesSummary.reduce((s, c) => s + (c.montantEncours ?? 0), 0));
         this.creancesPlusDe90j.set(this.creancesSummary.reduce((s, c) => s + (c.montantPlusDe90Jours ?? 0), 0));
         // P3
         this.topFournisseurs.set(data.topFournisseurs.body ?? []);

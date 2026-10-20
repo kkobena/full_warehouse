@@ -1,22 +1,26 @@
 <app-kpi-strip [loading]="loading()" [skeletonCount]="4">
   @if (kpi(); as k) {
     <app-kpi-item [accent]="'primary'" icon="pi pi-file-edit" iconClass="text-primary"
-                  label="Total facturé" [value]="k.totalFacture | number" valueClass="text-primary">
+                  label="Total facturé"
+                  info="Montant net des factures de la période, retenues à leur date de facture. Une facture fille d'une facture groupée n'est pas recomptée à côté de sa parente." [value]="k.totalFacture | number" valueClass="text-primary">
       <ng-container ngProjectAs="[kpiSub]">{{ k.countFactures | number }} factures</ng-container>
     </app-kpi-item>
 
     <app-kpi-item [accent]="'success'" icon="pi pi-check-circle" iconClass="text-success"
-                  label="Montant réglé" [value]="k.totalRegle | number" valueClass="text-success">
+                  label="Montant réglé"
+                  info="Ce qui a déjà été encaissé sur ces factures. Le taux est ce réglé rapporté au total facturé de la même période." [value]="k.totalRegle | number" valueClass="text-success">
       <ng-container ngProjectAs="[kpiSub]">Taux {{ k.tauxRecouvrement | number: '1.1-1' }} %</ng-container>
     </app-kpi-item>
 
     <app-kpi-item [accent]="'danger'" icon="pi pi-exclamation-circle" iconClass="text-danger"
-                  label="Restant dû" [value]="k.totalRestant | number" valueClass="text-danger">
+                  label="Restant dû"
+                  info="Facturé moins réglé. Le compte affiché dessous est celui des factures non soldées, partiellement réglées comprises." [value]="k.totalRestant | number" valueClass="text-danger">
       <ng-container ngProjectAs="[kpiSub]">{{ k.countImpayees | number }} impayées</ng-container>
     </app-kpi-item>
 
     <app-kpi-item [accent]="'warning'" icon="pi pi-clock" iconClass="text-warning"
-                  label="En retard" [value]="k.countEnRetard | number" valueClass="text-warning">
+                  label="En retard"
+                  info="Factures non soldées dont la date de facture a dépassé le délai de règlement du tiers payant ou de son groupe — à défaut, celui du paramétrage général." [value]="k.countEnRetard | number" valueClass="text-warning">
       <ng-container ngProjectAs="[kpiSub]">Délai dépassé</ng-container>
     </app-kpi-item>
   } @else {

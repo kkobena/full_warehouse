@@ -50,19 +50,11 @@ DECLARE
         -- Navigation et tableaux de bord
         'nav_item', 'nav_item_role', 'nav_permission', 'nav_item_user_order',
         'dashboard_layout', 'dashboard_layout_authority',
-        -- Planification et licence
-        --
-        -- Les deux tables de planification sont des REFERENTIELS, pas des donnees
-        -- metier : la migration V1.4.6 y pose une ligne par periodicite et par nature
-        -- de facture, plus celle de la certification FNE, et l'ecran n'offre aucun
-        -- moyen d'en creer. Les vider laissait donc l'onglet « Automatisation »
-        -- definitivement desert — Flyway ne rejoue pas une migration deja appliquee.
+
         'planification_facturation', 'planification_certification_fne',
         'scheduled_report', 'license_state', 'license_audit',
         'dci',
-        -- Référentiel médicament (BDPM), posé par les migrations V2.1.19 et V2.1.28 à V2.1.31 :
-        -- 15 000 spécialités, leurs compositions et leurs RCP. Flyway ne les rejoue pas, et les
-        -- tronquer priverait le rapprochement produit-spécialité de toute matière.
+
         'ref_groupe_generique', 'ref_substance', 'ref_dci', 'ref_specialite',
         'ref_specialite_composition', 'ref_specialite_rcp'
     ];

@@ -110,21 +110,47 @@ public interface CommandeRepository
         @Param("toDate") LocalDate toDate
     );
 
+    /**
+     * Chiffre d'affaires de l'exercice par <b>groupe</b> de fournisseurs, avec le palier et le
+     * taux de remise de fin d'année négociés.
+     *
+     * <p>Le regroupement se fait sur {@code COALESCE(pf.id, f.id)}, c'est-à-dire sur le grossiste
+     * principal, et non sur l'agence qui a reçu la commande. Grouper par agence revenait à
+     * comparer le tiers d'un chiffre d'affaires au palier entier du groupe : les pourcentages
+     * affichés étaient environ trois fois trop bas et l'alerte d'approche ne pouvait
+     * pratiquement jamais se déclencher.
+     *
+     * <p>Le palier se lit lui aussi côté groupe — {@code COALESCE(pf.palierRfa, f.palierRfa)},
+     * l'inverse de l'ordre précédent — parce qu'un palier est négocié avec un grossiste, pas avec
+     * l'une de ses agences. L'expression étant constante à l'intérieur d'un groupe, elle reste
+     * dans le {@code GROUP BY} sans avoir besoin d'agrégat.
+     *
+     * <p>Une seule requête sert l'écran financier et le bandeau de saisie : {@code groupeId} à
+     * {@code null} rend tous les groupes, renseigné il n'en rend qu'un. Deux requêtes jumelles
+     * auraient fini par diverger, et les deux écrans par afficher deux chiffres pour le même
+     * grossiste.
+     *
+     * @param groupeId identifiant du grossiste principal, ou {@code null} pour tous
+     * @return lignes [groupe_id, libelle, ca, palier, taux]
+     */
     @Query(
-        "SELECT f.id, f.libelle, SUM(c.finalAmount), " +
-        "COALESCE(f.palierRfa, pf.palierRfa), " +
-        "COALESCE(f.tauxRfa, pf.tauxRfa) " +
+        "SELECT COALESCE(pf.id, f.id), COALESCE(pf.libelle, f.libelle), SUM(c.finalAmount), " +
+        "COALESCE(pf.palierRfa, f.palierRfa), " +
+        "COALESCE(pf.tauxRfa, f.tauxRfa) " +
         "FROM Commande c " +
         "JOIN c.fournisseur f " +
         "LEFT JOIN f.parent pf " +
         "WHERE c.orderStatus = :statut AND c.receiptDate >= :start AND c.receiptDate < :end " +
-        "GROUP BY f.id, f.libelle, f.palierRfa, pf.palierRfa, f.tauxRfa, pf.tauxRfa " +
+        "AND (:groupeId IS NULL OR COALESCE(pf.id, f.id) = :groupeId) " +
+        "GROUP BY COALESCE(pf.id, f.id), COALESCE(pf.libelle, f.libelle), " +
+        "COALESCE(pf.palierRfa, f.palierRfa), COALESCE(pf.tauxRfa, f.tauxRfa) " +
         "ORDER BY SUM(c.finalAmount) DESC"
     )
     List<Object[]> sumCaByFournisseur(
         @Param("statut") OrderStatut statut,
         @Param("start") LocalDate start,
-        @Param("end") LocalDate end
+        @Param("end") LocalDate end,
+        @Param("groupeId") Integer groupeId
     );
 
     int countByOrderStatusAndType(OrderStatut orderStatut,TypeDeliveryReceipt type);
@@ -203,7 +229,10 @@ public interface CommandeRepository
      * Calcule le taux de service et le délai moyen de livraison pour un fournisseur donné
      * sur une période glissante. Retourne un tableau Object[] à deux colonnes :
      * [0] taux_service DOUBLE (ratio qty_reçue / qty_commandée × 100),
-     * [1] delai_moyen  DOUBLE (nb jours moyen entre order_date et updated_at).
+     * [1] delai_moyen  DOUBLE (nb jours moyen entre l'envoi au grossiste et la réception).
+     *
+     * <p>Le délai se compte depuis {@code date_envoi}, pas depuis la saisie : le temps pendant
+     * lequel le bon est resté chez nous n'est pas imputable au fournisseur.
      */
     @Query(value = """
         SELECT
@@ -212,7 +241,7 @@ public interface CommandeRepository
                 0
             )                                                                           AS taux_service,
             COALESCE(
-                AVG(EXTRACT(EPOCH FROM (c.updated_at - c.order_date::timestamp)) / 86400.0),
+                AVG(EXTRACT(EPOCH FROM (c.receipt_date::timestamp - c.date_envoi)) / 86400.0),
                 0
             )                                                                           AS delai_moyen
         FROM commande c
@@ -221,6 +250,8 @@ public interface CommandeRepository
         WHERE c.fournisseur_id = :fournisseurId
           AND c.order_status   = 'CLOSED'
           AND c.order_date     >= :fromDate
+          AND c.date_envoi     IS NOT NULL
+          AND c.receipt_date   IS NOT NULL
         """, nativeQuery = true)
     Object[] fetchStatsService(
         @Param("fournisseurId") Integer fournisseurId,

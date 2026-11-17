@@ -16,6 +16,8 @@ import { SuggestionComparaisonComponent } from "./ui/suggestion-comparaison/sugg
 import { DispoComparaisonComponent } from "../pharmaml/ui/dispo-comparaison/dispo-comparaison.component";
 import { FournisseurSuggestionSummary, SuggestionLigneEnrichie } from "./data-access/suggestion-enrichie.model";
 import { NotificationService } from "app/shared/services/notification.service";
+import { CommandeService } from "app/entities/commande/commande.service";
+import { IClientsEnAttente } from "app/shared/model/produit-du.model";
 import { NgbConfirmDialogService } from "../../../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";
 import { IFournisseur } from "../../../../shared/model/fournisseur.model";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
@@ -50,7 +52,10 @@ export class SuggestionHomeComponent {
   readonly fournisseurOptions = signal<IFournisseur[]>([]);
   readonly childSelectionCount = signal<number>(0);
   readonly childCanFusionner = signal<boolean>(false);
+  /** Clients en attente des produits suggérés, par identifiant de produit. */
+  readonly clientsEnAttente = signal<Record<number, IClientsEnAttente>>({});
   protected readonly facade = inject(SuggestionFacadeService);
+  private readonly commandeService = inject(CommandeService);
   private readonly modalService = inject(NgbModal);
   private readonly injector = inject(Injector);
   private readonly notificationService = inject(NotificationService);
@@ -74,6 +79,21 @@ export class SuggestionHomeComponent {
       this.listFournisseurIds$
     ]).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([search, ids]) => this.facade.loadAll(["GENEREE", "VALIDEE"], search, ids));
+
+    // Le dû client suit les lignes affichées : il se relit à chaque changement de fournisseur
+    // ou de page, et jamais produit par produit.
+    effect(() => {
+      const produitIds = this.facade
+        .lignesEnrichies()
+        .map(l => l.produitId)
+        .filter((id): id is number => id != null);
+      untracked(() =>
+        this.commandeService.lireClientsEnAttente(produitIds).subscribe({
+          next: parProduit => this.clientsEnAttente.set(parProduit),
+          error: () => this.clientsEnAttente.set({}),
+        }),
+      );
+    });
 
     // After loadAll(), selectedFournisseur is cleared. Re-select if still editing.
     effect(() => {

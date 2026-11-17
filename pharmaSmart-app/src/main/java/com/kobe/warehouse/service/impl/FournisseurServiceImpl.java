@@ -62,6 +62,7 @@ public class FournisseurServiceImpl implements FournisseurService {
             .setJoursCritique(fournisseurDTO.getJoursCritique())
             .setPalierRfa(fournisseurDTO.getPalierRfa())
             .setTauxRfa(fournisseurDTO.getTauxRfa())
+            .setFrancoDePort(fournisseurDTO.getFrancoDePort())
             .setUrlPharmaMl(fournisseurDTO.getUrlPharmaMl())
             .setCodeOfficePharmaMl(fournisseurDTO.getCodeOfficePharmaMl())
             .setCodeRecepteurPharmaMl(fournisseurDTO.getCodeRecepteurPharmaMl())

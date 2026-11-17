@@ -1826,6 +1826,117 @@ $q$);
 
 
 -- ===========================================================================
+-- HIÉRARCHIE DES MAGASINS
+--
+-- Les trois types ne se distinguent pas par leur autonomie d'exploitation mais
+-- par leur existence juridique. Deux colonnes portent cette différence, et le
+-- jeu de démonstration doit les porter justes : un dépôt qui se déclare
+-- commandeur autonome, ou une unité de gestion orpheline, laisse passer pour
+-- vrai l'exact contraire du modèle.
+--
+--     OFFICINE        racine, porte la licence et l'identité FNE
+--     DEPOT           rattaché, NE commande PAS en propre
+--     UNITE_GESTION   rattachée, commande en propre
+--
+-- Les colonnes `parent_id` et `commande_en_propre` sont arrivées avec V2.1.51,
+-- qui ne corrige que les lignes DÉJÀ présentes : un script de démonstration qui
+-- crée un magasin plus tard reprend leurs défauts sans que rien ne le dise.
+-- ===========================================================================
+SELECT pg_temp.verif_vide('magasins', 'Tout magasin non-officine est rattaché', $q$
+    SELECT m.id FROM magasin m
+     WHERE m.type_magasin <> 'OFFICINE' AND m.parent_id IS NULL
+$q$);
+
+SELECT pg_temp.verif_vide('magasins', 'Un magasin ne se rattache pas à lui-même', $q$
+    SELECT m.id FROM magasin m WHERE m.parent_id = m.id
+$q$);
+
+SELECT pg_temp.verif_vide('magasins', 'Le dépôt ne commande pas en propre', $q$
+    SELECT m.id FROM magasin m
+     WHERE m.type_magasin = 'DEPOT' AND m.commande_en_propre
+$q$);
+
+SELECT pg_temp.verif_vide('magasins', 'Tout magasin a son stockage PRINCIPAL', $q$
+    SELECT m.id FROM magasin m
+     WHERE NOT EXISTS (SELECT 1 FROM storage s
+                        WHERE s.magasin_id = m.id AND s.storage_type = 'PRINCIPAL')
+$q$);
+
+-- La réserve du magasin courant est résolue par type, et son absence ne lève pas d'erreur :
+-- elle rend un stockage nul que l'écran suivant déréférence. Un magasin où l'on travaille sans
+-- réserve donne donc une erreur serveur loin de sa cause. Le dépôt est hors du compte : on n'y
+-- saisit rien.
+SELECT pg_temp.verif_vide('magasins', 'Tout magasin de travail a sa réserve', $q$
+    SELECT m.id FROM magasin m
+     WHERE m.type_magasin <> 'DEPOT'
+       AND NOT EXISTS (SELECT 1 FROM storage s
+                        WHERE s.magasin_id = m.id AND s.storage_type = 'SAFETY_STOCK')
+$q$);
+
+-- Le rangement appartient au SITE : `rayon.storage_id` lie un rayon à un seul
+-- stockage, donc à un seul magasin. Une référence détenue ici mais rangée
+-- seulement là-bas n'a pas d'adresse ici — et les lectures qui prenaient le
+-- premier rayon venu annonçaient celle d'un autre établissement. Le dépôt est
+-- hors du compte : il n'a pas de rayon, on n'y range rien.
+SELECT pg_temp.verif_vide('magasins', 'Toute référence détenue est rangée chez elle', $q$
+    SELECT sp.id
+      FROM stock_produit sp
+      JOIN storage s ON s.id = sp.storage_id AND s.storage_type = 'PRINCIPAL'
+      JOIN magasin m ON m.id = s.magasin_id AND m.type_magasin <> 'DEPOT'
+     WHERE NOT EXISTS (
+               SELECT 1 FROM rayon_produit rp
+                 JOIN rayon r ON r.id = rp.rayon_id
+                WHERE rp.produit_id = sp.produit_id AND r.storage_id = s.id)
+$q$);
+
+-- Le réassort est propre au magasin commandeur (V2.1.53) : un magasin qui
+-- commande en propre sans configuration ouvre un tableau de bord stock vide,
+-- quoi qu'il détienne.
+SELECT pg_temp.verif_vide('magasins', 'Tout magasin commandeur a son réassort', $q$
+    SELECT m.id FROM magasin m
+     WHERE m.commande_en_propre
+       AND NOT EXISTS (SELECT 1 FROM semois_configuration sc WHERE sc.magasin_id = m.id)
+$q$);
+
+
+-- ===========================================================================
+-- UNITÉ DE GESTION  (parapharmacie)
+-- ===========================================================================
+SELECT pg_temp.verif_compte('unite_gestion', 'Magasin UNITE_GESTION créé', $q$
+    SELECT 1 FROM magasin WHERE type_magasin = 'UNITE_GESTION'
+$q$, 1);
+
+SELECT pg_temp.verif_vide('unite_gestion', 'L''unité de gestion commande en propre', $q$
+    SELECT m.id FROM magasin m
+     WHERE m.type_magasin = 'UNITE_GESTION' AND NOT m.commande_en_propre
+$q$);
+
+-- Un utilisateur affecté AILLEURS qu'à l'officine : sans lui, rien ne vérifie
+-- qu'une session ouverte dans une unité voit le stock et la caisse de SON
+-- magasin.
+SELECT pg_temp.verif_compte('unite_gestion', 'Du personnel affecté à l''unité', $q$
+    SELECT 1 FROM app_user u
+      JOIN magasin m ON m.id = u.magasin_id
+     WHERE m.type_magasin = 'UNITE_GESTION'
+$q$, 1);
+
+SELECT pg_temp.verif_compte('unite_gestion', 'Stock propre à l''unité', $q$
+    SELECT 1 FROM stock_produit sp
+      JOIN storage s ON s.id = sp.storage_id
+      JOIN magasin m ON m.id = s.magasin_id
+     WHERE m.type_magasin = 'UNITE_GESTION'
+$q$, 90);
+
+-- Aucun utilisateur au DÉPÔT : il n'y entre rien, les ventes dépôt se saisissent
+-- à l'officine.
+SELECT pg_temp.verif_vide('unite_gestion', 'Aucun utilisateur affecté à un dépôt', $q$
+    SELECT u.id FROM app_user u
+      JOIN magasin m ON m.id = u.magasin_id
+     WHERE m.type_magasin = 'DEPOT'
+$q$);
+
+
+-- ===========================================================================
 -- VENTES DÉPÔT  (§4.6)
 -- ===========================================================================
 SELECT pg_temp.verif_compte('depot', 'Magasin dépôt créé', $q$
@@ -2726,14 +2837,11 @@ BEGIN
             ON t.table_schema = c.table_schema AND t.table_name = c.table_name AND t.table_type = 'BASE TABLE'
          WHERE c.table_schema = current_schema()
            AND c.column_name = 'id'
-           -- Trois tables de référence sont ÉCARTÉES : leurs lignes viennent des migrations
-           -- Flyway (`tva` et `categorie` de V1.0.2, `tableau` de V1.0.3), pas des scripts de
-           -- démonstration, et leur séquence est restée intacte sous des identifiants déjà
-           -- posés. Le défaut est réel — la première création d'un taux de TVA depuis l'écran
-           -- violerait la clé — mais sa réparation est une MIGRATION, pas une donnée de démo :
-           -- un script de démonstration n'a pas à recaler ce que Flyway possède. À traiter à
-           -- part ; retirer ces noms d'ici le jour où la migration existe.
-           AND c.table_name NOT IN ('tva', 'categorie', 'tableau')
+           -- PLUS AUCUNE TABLE ÉCARTÉE depuis V2.1.52, qui recale génériquement toute séquence
+           -- restée sous son max(id). Les cinq référentiels livrés par Flyway avec des
+           -- identifiants posés à la main (`tva`, `categorie`, `tableau`, `groupe_fournisseur`,
+           -- `form_produit`) étaient exclus ici faute de cette migration ; le contrôle les
+           -- couvre désormais, et c'est lui qui a révélé les deux derniers le 2026-11-14.
     LOOP
         CONTINUE WHEN r.seq IS NULL;
         EXECUTE format('SELECT max(id) FROM %I', r.table_nom) INTO max_id;

@@ -110,6 +110,26 @@ public class MagasinResource {
     }
 
     /**
+     * {@code GET /magasins/affectables} : magasins où l'utilisateur courant peut affecter
+     * quelqu'un. Un seul élément : l'écran n'offre pas de choix et retient celui-là.
+     */
+    @GetMapping("/magasins/affectables")
+    @NavAccessExempt("lu par le formulaire utilisateur pour proposer l'affectation")
+    public ResponseEntity<List<MagasinDTO>> listerLesMagasinsDAffectation() {
+        return ResponseEntity.ok(magasinService.listerLesMagasinsDAffectation());
+    }
+
+    /**
+     * {@code GET /magasins/portee} : magasins que l'utilisateur courant peut lire. Un seul
+     * élément : l'écran n'affiche ni sélecteur ni colonne magasin.
+     */
+    @GetMapping("/magasins/portee")
+    @NavAccessExempt("portée de lecture de l'utilisateur, lue par les écrans de supervision")
+    public ResponseEntity<List<MagasinDTO>> listerLaPorteeDeSupervision() {
+        return ResponseEntity.ok(magasinService.listerLaPorteeDeSupervision());
+    }
+
+    /**
      * {@code GET /magasins/:id} : get the "id" magasin.
      *
      * @param id the id of the magasin to retrieve.

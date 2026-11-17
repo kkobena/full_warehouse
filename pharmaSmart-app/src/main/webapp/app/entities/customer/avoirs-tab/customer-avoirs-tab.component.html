@@ -61,7 +61,11 @@
             </td>
             <td>
               @if (avoir.id) {
+                <!-- ariaLabel, et pas le seul title : `title` n'est pas une entrée de
+                     app-button, il reste donc sur l'hôte et le <button> interne n'a aucun nom
+                     accessible — muet pour un lecteur d'écran, introuvable par son nom. -->
                 <app-button (clicked)="openAvoirPdf(avoir.id)" [text]="true" icon="pi pi-file-pdf"
+                            ariaLabel="Bon d'avoir PDF"
                             severity="secondary" size="small" title="Bon d'avoir PDF" />
               }
             </td>

@@ -10,5 +10,7 @@ public record FetchCashRegisterParams(
     LocalDate fromDate,
     LocalDate toDate,
     String beginTime,
-    String endTime
+    String endTime,
+    /** Magasin choisi par l'écran de supervision. Null : toute la portée de lecture. */
+    Integer magasinId
 ) {}

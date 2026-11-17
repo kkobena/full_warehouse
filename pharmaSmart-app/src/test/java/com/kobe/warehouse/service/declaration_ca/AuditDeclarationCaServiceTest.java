@@ -104,8 +104,8 @@ class AuditDeclarationCaServiceTest {
         );
         st.executeUpdate(
             """
-                INSERT INTO cash_register (id, begin_time, created, updated, init_amount, statut, user_id)
-                VALUES (960001, now(), now(), now(), 0, 'OPEN', 1)
+                INSERT INTO cash_register (id, begin_time, created, updated, init_amount, statut, user_id, magasin_id)
+                VALUES (960001, now(), now(), now(), 0, 'OPEN', 1, (SELECT magasin_id FROM app_user WHERE id = 1))
                 """
         );
         st.executeUpdate(

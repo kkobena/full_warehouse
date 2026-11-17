@@ -23,6 +23,8 @@ export class CashRegister {
   gap?: number;
   mobileAmount?: number;
   estimateAmount?: number;
+  /** Magasin ou la caisse a ete ouverte. Ne s'affiche qu'en supervision. */
+  magasin?: string;
 }
 
 export class CashRegisterItem {

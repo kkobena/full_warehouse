@@ -44,6 +44,8 @@
     <app-suggestion-home />
   } @else if (activeSource() === 'COMMANDES_A_PASSER') {
     <app-commande-requested-home (countChange)="countCommandesAPasser.set($event)" />
+  } @else if (activeSource() === 'PRODUITS_DUS') {
+    <app-produits-dus (countChange)="countProduitsDus.set($event)" />
   } @else if (activeSource() === 'BONS_DE_LIVRAISON') {
     <app-list-bons />
   } @else {

@@ -61,10 +61,11 @@ public class CashRegisterResource {
         @RequestParam(required = false, name = "toDate") LocalDate toDate,
         @RequestParam(required = false, name = "beginTime") String beginTime,
         @RequestParam(required = false, name = "endTime") String endTime,
+        @RequestParam(required = false, name = "magasinId") Integer magasinId,
         Pageable pageable
     ) {
         Page<CashRegisterDTO> page = cashRegisterService.fetchCashRegisters(
-            new FetchCashRegisterParams(userId, statuts, fromDate, toDate, beginTime, endTime),
+            new FetchCashRegisterParams(userId, statuts, fromDate, toDate, beginTime, endTime, magasinId),
             pageable
         );
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);

@@ -141,6 +141,7 @@ class ReglementDiffereServiceImplTest {
         user.setLastName("KOUAME");
         CashRegister caisse = new CashRegister();
         caisse.setUser(user);
+        caisse.setMagasin(caisse.getUser().getMagasin());
         return caisse;
     }
 

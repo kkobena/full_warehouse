@@ -115,6 +115,15 @@
             </div>
 
             <div class="form-field form-field-full">
+              <label for="field_francoDePort">Franco de port (<span appDevise></span>)
+                <small class="text-muted ms-1">— montant à partir duquel la livraison n'est plus facturée</small>
+              </label>
+              <input autocomplete="off" class="form-control w-full" formControlName="francoDePort" id="field_francoDePort"
+                     [appKeyFilter]="'int'" type="number" min="0"
+                     placeholder="Vide = aucun franco, ou celui du grossiste" />
+            </div>
+
+            <div class="form-field form-field-full">
               <label for="field_palierRfa">Seuil d'achat annuel — RFA (<span appDevise></span>)
                 <small class="text-muted ms-1">— montant à partir duquel la remise s'applique</small>
               </label>

@@ -9,6 +9,7 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Substitut;
 import com.kobe.warehouse.domain.SubstitutionProposee;
 import com.kobe.warehouse.domain.enumeration.AcceptationSubstitutionMode;
+import com.kobe.warehouse.domain.enumeration.CanalEnvoi;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.SubstitutionStatut;
 import com.kobe.warehouse.domain.enumeration.TypeSubstitut;
@@ -17,6 +18,7 @@ import com.kobe.warehouse.repository.PharmaMlEnvoiRepository;
 import com.kobe.warehouse.repository.SubstitutRepository;
 import com.kobe.warehouse.repository.SubstitutionProposeeRepository;
 import com.kobe.warehouse.service.FournisseurProduitService;
+import com.kobe.warehouse.service.EnvoiCommandeService;
 import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
@@ -122,6 +124,7 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
     private final CommandeIdGeneratorService commandeIdGeneratorService;
     private final ReferenceService referenceService;
     private final StorageService storageService;
+    private final EnvoiCommandeService envoiCommandeService;
 
     public PharmaMlHttpClientServiceImpl(
         HttpClient httpClient,
@@ -136,7 +139,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         AppConfigurationService appConfigurationService,
         CommandeIdGeneratorService commandeIdGeneratorService,
         ReferenceService referenceService,
-        StorageService storageService
+        StorageService storageService,
+        EnvoiCommandeService envoiCommandeService
     ) {
         this.httpClient = httpClient;
         this.fileStorageService = fileStorageService;
@@ -151,6 +155,7 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         this.commandeIdGeneratorService = commandeIdGeneratorService;
         this.referenceService = referenceService;
         this.storageService = storageService;
+        this.envoiCommandeService = envoiCommandeService;
     }
 
     @Override
@@ -475,6 +480,9 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
             commande.setOrderAmount(montantVenteOfficine.get());
             commande.setUpdatedAt(LocalDateTime.now());
             commande.setHasBeenSubmittedToPharmaML(true);
+            // Le canal EDI se trace tout seul : c'est le seul envoi dont l'application est
+            // témoin de bout en bout.
+            envoiCommandeService.marquerEnvoyee(commande, CanalEnvoi.EDI);
             commandeRepository.save(commande);
         }
         if (itemSize == ruptureComplet.get()) {
@@ -713,6 +721,8 @@ public class PharmaMlHttpClientServiceImpl implements PharmaMlHttpClientService 
         reliquat.setCreatedAt(now);
         reliquat.setUpdatedAt(now);
         reliquat.setUser(storageService.getUser());
+        // Fige a la creation : non deduit de l'utilisateur courant a la lecture.
+        reliquat.setMagasin(reliquat.getUser().getMagasin());
         reliquat.setOrderReference(referenceService.buildNumCommande());
         reliquat.setFournisseur(parent.getFournisseur());
         reliquat.setReliquatDeCommandeId(Objects.requireNonNull(parent.getId()).getId());

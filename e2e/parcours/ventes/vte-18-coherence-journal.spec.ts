@@ -44,8 +44,20 @@ scenario('VTE-18', async ({ etape, page }) => {
     // N ». Le total du haut couvre les N ventes de la période, pas les quinze de la page —
     // c'est la confusion que ce scénario sert à écarter.
     await expect(contenu).toContainText(/Affichage de \d+ à \d+ sur \d+ ventes/);
-    const entete = (await contenu.innerText()).match(/Nombre de ventes\s*:\s*(\d+)/);
-    const pied = (await contenu.innerText()).match(/sur (\d+) ventes/);
-    expect(entete?.[1], 'compteur de l\'en-tête').toBe(pied?.[1]);
+    // Les deux chiffres sont relus jusqu'à ce qu'ils décrivent la MÊME recherche. Le filtre de
+    // dates est partagé entre les parcours : à l'ouverture, l'écran porte encore la période du
+    // précédent, et l'en-tête s'actualise avant le pied. Lus d'un trait, ils se contredisaient —
+    // en-tête 11, pied 25 — pour un écran parfaitement juste une seconde plus tard.
+    await expect
+      .poll(
+        async () => {
+          const texte = await contenu.innerText();
+          const entete = texte.match(/Nombre de ventes\s*:\s*(\d+)/)?.[1];
+          const pied = texte.match(/sur (\d+) ventes/)?.[1];
+          return entete === pied ? 'identiques' : `en-tête ${entete} / pied ${pied}`;
+        },
+        { timeout: 15_000, message: 'le total de l’en-tête doit porter sur la période, comme le pied' },
+      )
+      .toBe('identiques');
   });
 });

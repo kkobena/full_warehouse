@@ -53,6 +53,7 @@ public enum Feature {
     FNE(false, "Facture normalisée (FNE)"),
     /**
      * Gestion de plusieurs {@code Storage} / magasins.
+     *
      */
     MULTI_DEPOT(false, "Multi-dépôts"),
     /**

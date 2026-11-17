@@ -46,8 +46,9 @@ public class EtatProduitServiceImpl implements EtatProduitService {
 
     @Override
     public boolean canSuggere(Integer idProduit) {
-        return getCommandeCount(idProduit, OrderStatut.REQUESTED) == 0
-            && getCommandeCount(idProduit, OrderStatut.RECEIVED) == 0;
+        // Seule une commande transmise éteint la suggestion. Sinon un brouillon oublié
+        // empêcherait indéfiniment le produit de remonter, sans que rien ne soit commandé.
+        return getCommandeEnvoyeeCount(idProduit) == 0 && getCommandeCount(idProduit, OrderStatut.RECEIVED) == 0;
     }
 
     @Override
@@ -68,7 +69,7 @@ public class EtatProduitServiceImpl implements EtatProduitService {
         boolean stockZero = currentStock == 0;
         int suggestionCount = suggestionLineRepository.countByFournisseurProduitProduitId(
             idProduit);
-        int commandeCount = getCommandeCount(idProduit, OrderStatut.REQUESTED);
+        int commandeCount = getCommandeEnvoyeeCount(idProduit);
         boolean entree = orderLineRepository.existsByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(
             idProduit,
             OrderStatut.RECEIVED,
@@ -89,6 +90,11 @@ public class EtatProduitServiceImpl implements EtatProduitService {
 
     private LocalDate getDateRetentionCommande() {
         return LocalDate.now().minusDays(appConfigurationService.getNombreJourRetentionCommande());
+    }
+
+    /** Commandes en attente de livraison et réellement transmises. */
+    private int getCommandeEnvoyeeCount(Integer idProduit) {
+        return orderLineRepository.countCommandesEnvoyeesEnAttente(idProduit, getDateRetentionCommande());
     }
 
     private int getCommandeCount(Integer idProduit, OrderStatut orderStatut) {

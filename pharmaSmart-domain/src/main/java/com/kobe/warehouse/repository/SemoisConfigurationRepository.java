@@ -22,12 +22,20 @@ import java.util.Optional;
 public interface SemoisConfigurationRepository extends JpaRepository<SemoisConfiguration, Integer> {
 
     /**
-     * Trouve la configuration SEMOIS pour un produit donné
+     * Trouve la configuration SEMOIS d'un produit <b>dans un magasin</b>.
+     *
+     * <p>Le magasin n'est pas optionnel : depuis V2.1.53 un produit a une configuration par
+     * magasin commandeur, et chercher par le seul produit rendrait une ligne au hasard — ou
+     * lèverait une exception là où le code attend un {@code Optional}.
      *
      * @param produitId ID du produit
+     * @param magasinId ID du magasin
      * @return La configuration si elle existe
      */
-    Optional<SemoisConfiguration> findByProduitId(Integer produitId);
+    Optional<SemoisConfiguration> findByProduitIdAndMagasinId(Integer produitId, Integer magasinId);
+
+    /** Toutes les configurations d'un produit, tous magasins confondus — pour la fusion. */
+    List<SemoisConfiguration> findAllByProduitId(Integer produitId);
 
     @Query("SELECT MAX(c.dateDernierCalcul) FROM SemoisConfiguration c")
     java.time.LocalDateTime findMaxDateDernierCalcul();
@@ -39,9 +47,10 @@ public interface SemoisConfigurationRepository extends JpaRepository<SemoisConfi
      * Vérifie si un produit a une configuration SEMOIS
      *
      * @param produitId ID du produit
-     * @return true si le produit a une configuration
+     * @param magasinId ID du magasin
+     * @return true si le produit a une configuration dans ce magasin
      */
-    boolean existsByProduitId(Integer produitId);
+    boolean existsByProduitIdAndMagasinId(Integer produitId, Integer magasinId);
 
 
     /**
@@ -50,7 +59,7 @@ public interface SemoisConfigurationRepository extends JpaRepository<SemoisConfi
      * @param produitIds IDs des produits
      * @return Liste des configurations existantes (les produits sans config sont absents)
      */
-    List<SemoisConfiguration> findByProduitIdIn(java.util.Collection<Integer> produitIds);
+    List<SemoisConfiguration> findByProduitIdInAndMagasinId(java.util.Collection<Integer> produitIds, Integer magasinId);
 
 
     /**

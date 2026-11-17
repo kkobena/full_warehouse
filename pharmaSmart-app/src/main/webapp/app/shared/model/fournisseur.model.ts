@@ -18,6 +18,10 @@ export interface IFournisseur {
   joursCritique?: number;
   palierRfa?: number;
   tauxRfa?: number;
+  /** Franco propre a ce fournisseur, tel qu'il est saisi dans sa fiche. */
+  francoDePort?: number;
+  /** Franco reellement opposable : le sien, a defaut celui de son grossiste. */
+  francoEffectif?: number;
   urlPharmaMl?: string;
   codeOfficePharmaMl?: string;
   codeRecepteurPharmaMl?: string;

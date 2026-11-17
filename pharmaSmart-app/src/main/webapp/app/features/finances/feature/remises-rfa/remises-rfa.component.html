@@ -47,9 +47,13 @@
                 <tr>
                   <td>
                     <strong>{{ r.fournisseurName }}</strong>
-                    @if (r.alerte) {
+                    <!--
+                      Le serveur nomme l'état, la phrase se compose ici : une formulation
+                      destinée au pharmacien n'a pas sa place dans une couche métier.
+                    -->
+                    @if (conseil(r); as message) {
                       <div class="alerte-rfa mt-1">
-                        <i class="pi pi-bell me-1"></i>{{ r.alerte }}
+                        <i class="pi pi-bell me-1"></i>{{ message }}
                       </div>
                     }
                   </td>

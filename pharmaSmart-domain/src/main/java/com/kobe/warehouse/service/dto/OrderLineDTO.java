@@ -59,6 +59,7 @@ public class OrderLineDTO {
     private Integer couvertureStockJours;
     /** Nombre d'unités par colis (conditionnement fournisseur). Null ou 1 = pas de contrainte. */
     private Integer qteColis;
+    private Integer qteMinimaleCommande;
     private Boolean gestionLot;
     private Boolean thermosensible;
 
@@ -107,6 +108,7 @@ public class OrderLineDTO {
         afterStock = orderLine.getFinalStock();
         quantityReceivedTmp = BooleanUtils.isFalse(updated) ? quantityRequested : quantityReceived;
         qteColis = fournisseurProduit.getQteColis();
+        qteMinimaleCommande = fournisseurProduit.getQteMinimaleCommande();
         gestionLot = produit.getGestionLot();
         thermosensible = produit.getThermosensible();
     }
@@ -455,6 +457,15 @@ public class OrderLineDTO {
 
     public OrderLineDTO setCouvertureStockJours(Integer couvertureStockJours) {
         this.couvertureStockJours = couvertureStockJours;
+        return this;
+    }
+
+    public Integer getQteMinimaleCommande() {
+        return qteMinimaleCommande;
+    }
+
+    public OrderLineDTO setQteMinimaleCommande(Integer qteMinimaleCommande) {
+        this.qteMinimaleCommande = qteMinimaleCommande;
         return this;
     }
 

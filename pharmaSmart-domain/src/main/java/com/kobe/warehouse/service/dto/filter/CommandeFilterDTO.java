@@ -18,6 +18,18 @@ public class CommandeFilterDTO {
     private Sort orderBy;
     private LocalDate orderDate;
     private TypeDeliveryReceipt type=TypeDeliveryReceipt.ORDER;
+    /** Portée de lecture. Vide ou nulle : aucune restriction, pour les appels internes et les batchs. */
+    private Set<Integer> magasinIds;
+
+    public Set<Integer> getMagasinIds() {
+        return magasinIds;
+    }
+
+    public CommandeFilterDTO setMagasinIds(Set<Integer> magasinIds) {
+        this.magasinIds = magasinIds;
+        return this;
+    }
+
 
     public Sort getOrderBy() {
         return orderBy;

@@ -15,6 +15,7 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.PharmaMlEnvoi;
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.enumeration.CanalEnvoi;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.PharmaMlStatut;
 import com.kobe.warehouse.repository.CommandeRepository;
@@ -525,6 +526,82 @@ class CommandeDataServiceImplTest {
         @SuppressWarnings("unchecked")
         private void stubFindAll(List<Commande> requested, List<Commande> received) {
             when(commandeRepository.findAll(any(Specification.class))).thenReturn(requested, received);
+        }
+
+        /** Un fournisseur qui annonce son delai, pour que le retard soit calculable. */
+        private static Commande commandeEnvoyee(int id, LocalDate date, LocalDateTime dateEnvoi, int delaiJours) {
+            Commande commande = commandeDashboard(id, date, OrderStatut.REQUESTED);
+            commande.getFournisseur().setDelaiLivraisonJours(delaiJours);
+            commande.setDateEnvoi(dateEnvoi);
+            commande.setCanalEnvoi(CanalEnvoi.MAIL);
+            return commande;
+        }
+
+        @Test
+        @DisplayName("separe les brouillons des commandes reellement envoyees")
+        void separerBrouillonsEtEnvoyees() {
+            Commande brouillon = commandeDashboard(1, ORDER_DATE, OrderStatut.REQUESTED);
+            Commande envoyee = commandeEnvoyee(2, ORDER_DATE, LocalDateTime.now().minusDays(1), 7);
+            stubFindAll(List.of(brouillon, envoyee), List.of());
+            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING)).thenReturn(List.of());
+
+            CommandeDashboardDTO dashboard = service.getDashboard();
+
+            assertThat(dashboard.totalRequested()).isEqualTo(2L);
+            assertThat(dashboard.totalBrouillons()).isEqualTo(1L);
+            assertThat(dashboard.totalEnvoyees()).isEqualTo(1L);
+            assertThat(dashboard.totalEnRetard()).isZero();
+        }
+
+        @Test
+        @DisplayName("signale les commandes dont le delai annonce est depasse")
+        void signalerLesRetards() {
+            // Partie il y a 10 jours pour un delai annonce de 3 : 7 jours de retard.
+            Commande enRetard = commandeEnvoyee(1, ORDER_DATE, LocalDateTime.now().minusDays(10), 3);
+            Commande dansLesTemps = commandeEnvoyee(2, ORDER_DATE, LocalDateTime.now().minusDays(1), 3);
+            stubFindAll(List.of(enRetard, dansLesTemps), List.of());
+            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING)).thenReturn(List.of());
+
+            CommandeDashboardDTO dashboard = service.getDashboard();
+
+            assertThat(dashboard.totalEnRetard()).isEqualTo(1L);
+            assertThat(dashboard.commandesEnRetard()).extracting(r -> r.id()).containsExactly(1);
+            assertThat(dashboard.commandesEnRetard().getFirst().joursDeRetard()).isEqualTo(7L);
+        }
+
+        @Test
+        @DisplayName("un brouillon ne part jamais en retard, si vieux soit-il")
+        void brouillonJamaisEnRetard() {
+            Commande vieuxBrouillon = commandeDashboard(1, ORDER_DATE.minusMonths(6), OrderStatut.REQUESTED);
+            vieuxBrouillon.getFournisseur().setDelaiLivraisonJours(2);
+            stubFindAll(List.of(vieuxBrouillon), List.of());
+            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING)).thenReturn(List.of());
+
+            CommandeDashboardDTO dashboard = service.getDashboard();
+
+            assertThat(dashboard.totalEnRetard()).isZero();
+            assertThat(dashboard.commandesEnRetard()).isEmpty();
+            assertThat(dashboard.commandesRequested().getFirst().dateEnvoi()).isNull();
+        }
+
+        @Test
+        @DisplayName("compte tous les retards meme si la liste n'en montre que vingt")
+        void compterAuDelaDeLaListe() {
+            // Tronquer avant de compter ferait plafonner l'alerte a vingt et masquerait l'ampleur.
+            List<Commande> retards = new ArrayList<>();
+            for (int i = 1; i <= 25; i++) {
+                retards.add(commandeEnvoyee(i, ORDER_DATE, LocalDateTime.now().minusDays(10 + i), 3));
+            }
+            stubFindAll(retards, List.of());
+            when(pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(PharmaMlStatut.PENDING)).thenReturn(List.of());
+
+            CommandeDashboardDTO dashboard = service.getDashboard();
+
+            assertThat(dashboard.totalEnRetard()).isEqualTo(25L);
+            assertThat(dashboard.commandesEnRetard()).hasSize(20);
+            // Les plus en retard d'abord : la relance commence par celles-la.
+            assertThat(dashboard.commandesEnRetard().getFirst().joursDeRetard())
+                .isGreaterThan(dashboard.commandesEnRetard().getLast().joursDeRetard());
         }
 
         @Test

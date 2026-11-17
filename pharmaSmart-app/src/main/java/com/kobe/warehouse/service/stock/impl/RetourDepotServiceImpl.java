@@ -165,7 +165,9 @@ public class RetourDepotServiceImpl implements RetourDepotService {
         stockProduitRepository.save(officineStock);
 
         retourDepotItemRepository.save(item);
+        // Les deux côtés du transfert : le crédit de l'officine, puis le débit du dépôt.
         inventoryTransactionService.save(item);
+        inventoryTransactionService.saveRetourDepotExtensionInventoryTransaction(retourDepot.getDepot(), item);
     }
 
     private RetourDepotDTO toDTO(RetourDepot retourDepot) {

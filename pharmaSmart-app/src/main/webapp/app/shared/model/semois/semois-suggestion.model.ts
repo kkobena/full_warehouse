@@ -13,8 +13,9 @@ export interface ISemoisSuggestion {
   vmm?: number; // Ventes Mensuelles Moyennes (pondérées)
   margeSecurite?: number; // Marge de sécurité calculée
   stockObjectif?: number; // Stock objectif SEMOIS (VMM + marge de sécurité)
-  stockActuel?: number; // Stock actuel total du produit
-  quantiteACommander?: number; // Quantité à commander (Stock Objectif - Stock Actuel, si > 0)
+  stockActuel?: number; // Stock actuel total du produit — stock PHYSIQUE, celui qu'on compte en rayon
+  detteClient?: number; // Unités de ce stock déjà promises à des clients : en rayon, mais réservées
+  quantiteACommander?: number; // Quantité à commander (Stock Objectif - (Stock Actuel - dette client), si > 0)
   delaiLivraisonJours?: number; // Délai de livraison du fournisseur en jours
   coefficientSecurite?: number; // Coefficient de sécurité appliqué
   facteurSaisonnier?: number; // Facteur d'ajustement saisonnier actuel
@@ -33,6 +34,7 @@ export class SemoisSuggestion implements ISemoisSuggestion {
     public margeSecurite?: number,
     public stockObjectif?: number,
     public stockActuel?: number,
+    public detteClient?: number,
     public quantiteACommander?: number,
     public delaiLivraisonJours?: number,
     public coefficientSecurite?: number,

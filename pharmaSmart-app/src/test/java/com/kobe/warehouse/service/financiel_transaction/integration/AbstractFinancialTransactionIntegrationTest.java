@@ -180,6 +180,7 @@ abstract class AbstractFinancialTransactionIntegrationTest {
         CashRegister caisse = new CashRegister();
         caisse.setCashFund(fond);
         caisse.setUser(utilisateur);
+        caisse.setMagasin(caisse.getUser().getMagasin());
         caisse.setInitAmount(0L);
         caisse.setBeginTime(aujourdHui().atTime(8, 0));
         caisse.setCreated(LocalDateTime.now());

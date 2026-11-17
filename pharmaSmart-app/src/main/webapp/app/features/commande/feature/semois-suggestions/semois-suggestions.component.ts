@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, OnInit, signal} from '@angular/core';
 import {HttpResponse} from '@angular/common/http';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
@@ -55,6 +55,15 @@ export class SemoisSuggestionsComponent implements OnInit {
   readonly searchText = signal<string>('');
   readonly selectedFournisseurId = signal<number | null>(null);
   readonly selectedNiveauUrgence = signal<'URGENT' | 'NORMAL' | 'OK' | null>(null);
+
+  /**
+   * Magasins qui commandent en propre. Les dépôts n'y sont pas : ils s'approvisionnent auprès
+   * de l'officine et n'ont pas de réassort.
+   */
+  readonly magasins = signal<Array<{ id: number; name: string }>>([]);
+  readonly selectedMagasinId = signal<number | null>(null);
+  /** Un seul magasin : rien à choisir, le sélecteur reste absent. */
+  readonly plusieursMagasins = computed(() => this.magasins().length > 1);
   // Pagination
   readonly page = signal<number>(0);
   readonly totalItems = signal<number>(0);
@@ -86,10 +95,26 @@ export class SemoisSuggestionsComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.loadMagasins();
     this.loadDashboardStats();
     this.loadFournisseurs();
     this.loadSuggestions();
     this.loadExclusionCount();
+  }
+
+  loadMagasins(): void {
+    this.semoisService.listerLesMagasinsDuReassort().subscribe({
+      next: res => this.magasins.set(res.body ?? []),
+    });
+  }
+
+  /** Le magasin change : tout l'écran parle d'un autre stock, filtres compris. */
+  onMagasinChange(): void {
+    this.page.set(0);
+    this.selectedFournisseurId.set(null);
+    this.loadFournisseurs();
+    this.loadDashboardStats();
+    this.loadSuggestions();
   }
 
   // ── Chargement ────────────────────────────────────────────────────────────
@@ -106,6 +131,7 @@ export class SemoisSuggestionsComponent implements OnInit {
       this.selectedClasse() ?? undefined,
       this.selectedFournisseurId() ?? undefined,
       this.selectedNiveauUrgence() ?? undefined,
+      this.selectedMagasinId() ?? undefined,
     ).subscribe({
       next: (res: HttpResponse<ISemoisSuggestion[]>) => {
         this.suggestions.set(res.body ?? []);
@@ -324,14 +350,14 @@ export class SemoisSuggestionsComponent implements OnInit {
   }
 
   private loadDashboardStats(): void {
-    this.semoisService.getDashboard().subscribe({
+    this.semoisService.getDashboard(this.selectedMagasinId() ?? undefined).subscribe({
       next: (res: HttpResponse<IReapproDashboard>) => this.dashboardStats.set(res.body),
       error: () => this.dashboardStats.set(null),
     });
   }
 
   private loadFournisseurs(): void {
-    this.semoisService.getSemoisFournisseurs().subscribe({
+    this.semoisService.getSemoisFournisseurs(this.selectedMagasinId() ?? undefined).subscribe({
       next: res => {
         const opts = (res.body ?? []).map(f => ({
           label: f.fournisseurLibelle,
@@ -353,7 +379,7 @@ export class SemoisSuggestionsComponent implements OnInit {
   private toModel(s: ISemoisSuggestion): SemoisSuggestion {
     return new SemoisSuggestion(
       s.produitId, s.libelle, s.codeCip, s.fournisseurId, s.fournisseurLibelle,
-      s.classeCriticite, s.vmm, s.margeSecurite, s.stockObjectif, s.stockActuel,
+      s.classeCriticite, s.vmm, s.margeSecurite, s.stockObjectif, s.stockActuel, s.detteClient,
       s.quantiteACommander, s.delaiLivraisonJours, s.coefficientSecurite, s.facteurSaisonnier, s.dateDernierCalcul,
     );
   }

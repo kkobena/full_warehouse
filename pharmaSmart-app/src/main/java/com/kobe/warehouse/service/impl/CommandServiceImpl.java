@@ -22,6 +22,8 @@ import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.csv.ExportationCsvService;
 import com.kobe.warehouse.service.dto.CommandeDTO;
+import com.kobe.warehouse.service.ColisageService;
+import com.kobe.warehouse.service.dto.AjustementColisage;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
 import com.kobe.warehouse.service.dto.CommandeModel;
 import com.kobe.warehouse.service.dto.CommandeRapideDTO;
@@ -110,6 +112,7 @@ public class CommandServiceImpl implements CommandService {
     private final SuggestionRepository suggestionRepository;
     private final SuggestionLineRepository suggestionLineRepository;
     private final FournisseurProduitRepository fournisseurProduitRepository;
+    private final ColisageService colisageService;
 
     public CommandServiceImpl(
         CommandeRepository commandeRepository,
@@ -122,7 +125,8 @@ public class CommandServiceImpl implements CommandService {
         SuggestionReassortService suggestionReassortService,
         SuggestionRepository suggestionRepository,
         SuggestionLineRepository suggestionLineRepository,
-        FournisseurProduitRepository fournisseurProduitRepository
+        FournisseurProduitRepository fournisseurProduitRepository,
+        ColisageService colisageService
     ) {
         this.commandeRepository = commandeRepository;
         this.storageService = storageService;
@@ -135,6 +139,7 @@ public class CommandServiceImpl implements CommandService {
         this.suggestionRepository = suggestionRepository;
         this.suggestionLineRepository = suggestionLineRepository;
         this.fournisseurProduitRepository = fournisseurProduitRepository;
+        this.colisageService = colisageService;
     }
 
     private Commande createNewCommande(Commande commande) {
@@ -143,17 +148,23 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public CommandeLiteDTO createNewCommandeFromCommandeDTO(CommandeDTO commandeDTO) {
-        return new CommandeLiteDTO(createNewCommande(buildCommandeFromCommandeDTO(commandeDTO, orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().getFirst()))));
+        OrderLine orderLine = orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().getFirst());
+        // Avant le calcul des montants, qui part de la quantite demandee.
+        Optional<AjustementColisage> ajustement = colisageService.ajusterLigne(orderLine);
+        return new CommandeLiteDTO(createNewCommande(buildCommandeFromCommandeDTO(commandeDTO, orderLine)))
+            .setAjustementColisage(ajustement.orElse(null));
     }
 
     @Override
     public CommandeLiteDTO createCommandeRapide(CommandeRapideDTO dto) {
 
         OrderLine orderLine = orderLineService.buildOrderLine(dto);
+        Optional<AjustementColisage> ajustement = colisageService.ajusterLigne(orderLine);
         CommandeDTO commandeDTO = new CommandeDTO();
         commandeDTO.setFournisseurId(orderLine.getFournisseurProduit().getFournisseur().getId());
 
-        return new CommandeLiteDTO(createNewCommande(buildCommandeFromCommandeDTO(commandeDTO, orderLine)));
+        return new CommandeLiteDTO(createNewCommande(buildCommandeFromCommandeDTO(commandeDTO, orderLine)))
+            .setAjustementColisage(ajustement.orElse(null));
 
     }
 
@@ -164,6 +175,8 @@ public class CommandServiceImpl implements CommandService {
         commande.setCreatedAt(LocalDateTime.now());
         commande.setUpdatedAt(commande.getCreatedAt());
         commande.setUser(user);
+        // Fige a la creation : non deduit de l'utilisateur courant a la lecture.
+        commande.setMagasin(commande.getUser().getMagasin());
         commande.setOrderReference(referenceService.buildNumCommande());
         //   OrderLine orderLine = orderLineService.buildOrderLineFromOrderLineDTO(commandeDTO.getOrderLines().getFirst());
         commande.addOrderLine(orderLine);
@@ -203,15 +216,19 @@ public class CommandServiceImpl implements CommandService {
             oldOrderAmount = orderLine.getQuantityRequested() * orderLine.getOrderUnitPrice();
             orderLine.setQuantityRequested(orderLine.getQuantityRequested() + orderLineDTO.getQuantityRequested());
         }
+        Optional<AjustementColisage> ajustement = colisageService.ajusterLigne(orderLine);
         updateCommandeAmount(commande, orderLine, oldGrossAmount, oldOrderAmount);
         orderLineService.save(orderLine);
-        return new CommandeLiteDTO(commandeRepository.saveAndFlush(commande));
+        return new CommandeLiteDTO(commandeRepository.saveAndFlush(commande)).setAjustementColisage(ajustement.orElse(null));
     }
 
     @Override
     public CommandeLiteDTO updateQuantityRequested(OrderLineDTO orderLineDTO) {
         Pair<OrderLine, OrderLine> orderLineOrderLinePair = orderLineService.updateOrderLineQuantityRequested(orderLineDTO);
-        return new CommandeLiteDTO(updateCommande(orderLineOrderLinePair));
+        // La ligne est l'instance geree : l'ajuster ici suffit, updateCommande recalcule ensuite
+        // les montants sur la quantite retenue.
+        Optional<AjustementColisage> ajustement = colisageService.ajusterLigne(orderLineOrderLinePair.getSecond());
+        return new CommandeLiteDTO(updateCommande(orderLineOrderLinePair)).setAjustementColisage(ajustement.orElse(null));
     }
 
     @Override
@@ -408,6 +425,8 @@ public class CommandServiceImpl implements CommandService {
         commande.setUpdatedAt(commande.getCreatedAt());
         commande.setOrderStatus(OrderStatut.REQUESTED);
         commande.setUser(user);
+        // Fige a la creation : non deduit de l'utilisateur courant a la lecture.
+        commande.setMagasin(commande.getUser().getMagasin());
         commande.setOrderReference(referenceService.buildNumCommande());
         commande.setGrossAmount(0);
         commande.setOrderAmount(0);
@@ -421,6 +440,7 @@ public class CommandServiceImpl implements CommandService {
             // Toujours utiliser le fournisseurProduit original pour la référence produit
             OrderLine orderLine = orderLineService.buildOrderLine(suggestionLine, suggestion.getFournisseur().getId());
             orderLine.setQuantityRequested(qte);
+            colisageService.ajusterLigne(orderLine);
             orderLine.setCommande(commande);
             commande.getOrderLines().add(orderLine);
             lignesASupprimers.add(suggestionLine);
@@ -444,6 +464,8 @@ public class CommandServiceImpl implements CommandService {
         commande.setUpdatedAt(commande.getCreatedAt());
         commande.setOrderStatus(OrderStatut.REQUESTED);
         commande.setUser(user);
+        // Fige a la creation : non deduit de l'utilisateur courant a la lecture.
+        commande.setMagasin(commande.getUser().getMagasin());
         commande.setOrderReference(referenceService.buildNumCommande());
         commande.setGrossAmount(0);
         commande.setOrderAmount(0);
@@ -465,6 +487,7 @@ public class CommandServiceImpl implements CommandService {
                     dto.setQuantityReceived(0);
                     dto.setTotalQuantity(stockActuel);
                     OrderLine orderLine = orderLineService.buildOrderLine(dto, fp);
+                    colisageService.ajusterLigne(orderLine);
                     orderLine.setCommande(commande);
                     updateCommandeAmount(commande, orderLine);
                     commande.getOrderLines().add(orderLine);
@@ -504,6 +527,8 @@ public class CommandServiceImpl implements CommandService {
         commande.setFournisseur(buildFournisseurFromId(fournisseurId));
         commande.setOrderReference(referenceService.buildNumCommande());
         commande.setUser(storageService.getUser());
+        // Fige a la creation : non deduit de l'utilisateur courant a la lecture.
+        commande.setMagasin(commande.getUser().getMagasin());
         commande.setGrossAmount(0);
         commande.setDiscountAmount(0);
         commande.setCreatedAt(LocalDateTime.now());
@@ -1079,6 +1104,8 @@ public class CommandServiceImpl implements CommandService {
         commande.setUpdatedAt(commande.getCreatedAt());
         commande.setOrderStatus(OrderStatut.REQUESTED);
         commande.setUser(user);
+        // Fige a la creation : non deduit de l'utilisateur courant a la lecture.
+        commande.setMagasin(commande.getUser().getMagasin());
         commande.setOrderReference(referenceService.buildNumCommande());
         commande.setGrossAmount(0);
         commande.setOrderAmount(0);
@@ -1088,6 +1115,7 @@ public class CommandServiceImpl implements CommandService {
             .forEach(suggestionLine -> {
                 // Toujours utiliser le fournisseurProduit original pour la référence produit
                 OrderLine orderLine = orderLineService.buildOrderLine(suggestionLine, suggestion.getFournisseur().getId());
+                colisageService.ajusterLigne(orderLine);
                 orderLine.setCommande(commande);
                 commande.getOrderLines().add(orderLine);
             });
@@ -1134,9 +1162,11 @@ public class CommandServiceImpl implements CommandService {
             if (existing.isPresent()) {
                 OrderLine ol = existing.get();
                 ol.setQuantityRequested(ol.getQuantityRequested() + suggestionLine.getQuantity());
+                colisageService.ajusterLigne(ol);
                 orderLineService.save(ol);
 
             } else {
+                colisageService.ajusterLigne(orderLine);
                 orderLine.setCommande(commande);
                 orderLineService.save(orderLine);
                 commande.getOrderLines().add(orderLine);
@@ -1201,6 +1231,8 @@ public class CommandServiceImpl implements CommandService {
         reliquat.setUpdatedAt(reliquat.getCreatedAt());
         reliquat.setOrderStatus(OrderStatut.REQUESTED);
         reliquat.setUser(user);
+        // Fige a la creation : non deduit de l'utilisateur courant a la lecture.
+        reliquat.setMagasin(reliquat.getUser().getMagasin());
         reliquat.setOrderReference(referenceService.buildNumCommande());
         reliquat.setGrossAmount(0);
         reliquat.setOrderAmount(0);

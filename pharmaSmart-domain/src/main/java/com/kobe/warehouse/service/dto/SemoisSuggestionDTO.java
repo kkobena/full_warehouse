@@ -18,7 +18,9 @@ import java.time.LocalDateTime;
  * @param vmm Ventes Mensuelles Moyennes (pondérées)
  * @param margeSecurite Marge de sécurité calculée
  * @param stockObjectif Stock objectif SEMOIS (VMM + marge de sécurité)
- * @param stockActuel Stock actuel total du produit
+ * @param stockActuel Stock actuel total du produit — stock PHYSIQUE, celui qu'on compte en rayon
+ * @param detteClient Unités de ce stock déjà promises à des clients (avoirs ouverts). Retranchées
+ *        du stock disponible pour obtenir quantiteACommander : elles sont en rayon mais réservées.
  * @param quantiteACommander Quantité à commander (Stock Objectif - Stock Actuel, si > 0)
  * @param delaiLivraisonJours Délai de livraison du fournisseur en jours
  * @param coefficientSecurite Coefficient de sécurité appliqué
@@ -43,6 +45,7 @@ public record SemoisSuggestionDTO(
     Integer margeSecurite,
     Integer stockObjectif,
     Integer stockActuel,
+    Integer detteClient,
     Integer quantiteACommander,
     Integer delaiLivraisonJours,
     BigDecimal coefficientSecurite,

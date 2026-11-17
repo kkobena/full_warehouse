@@ -2,6 +2,7 @@ package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Commande_;
+import com.kobe.warehouse.domain.Magasin_;
 import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Fournisseur_;
 import com.kobe.warehouse.domain.OrderLine;
@@ -105,6 +106,9 @@ public class CustomizedCommandeRepository implements CustomizedCommandeService {
     ) {
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(root.get(OrderLine_.commande).get(Commande_.type).in(commandeFilterDTO.getType() != null ? List.of(commandeFilterDTO.getType()) : List.of(TypeDeliveryReceipt.ORDER)));
+        if (!CollectionUtils.isEmpty(commandeFilterDTO.getMagasinIds())) {
+            predicates.add(root.get(OrderLine_.commande).get(Commande_.magasin).get(Magasin_.id).in(commandeFilterDTO.getMagasinIds()));
+        }
         if (!CollectionUtils.isEmpty(commandeFilterDTO.getOrderStatuts())) {
             predicates.add(root.get(OrderLine_.commande).get(Commande_.orderStatus).in(commandeFilterDTO.getOrderStatuts()));
         }
@@ -142,6 +146,9 @@ public class CustomizedCommandeRepository implements CustomizedCommandeService {
     private List<Predicate> predicatesFetchCommandes(CommandeFilterDTO commandeFilterDTO, CriteriaBuilder cb, Root<Commande> root) {
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(root.get(Commande_.type).in(commandeFilterDTO.getType() != null ? List.of(commandeFilterDTO.getType()) : List.of(TypeDeliveryReceipt.ORDER)));
+        if (!CollectionUtils.isEmpty(commandeFilterDTO.getMagasinIds())) {
+            predicates.add(root.get(Commande_.magasin).get(Magasin_.id).in(commandeFilterDTO.getMagasinIds()));
+        }
         if (!CollectionUtils.isEmpty(commandeFilterDTO.getOrderStatuts())) {
             predicates.add(root.get(Commande_.orderStatus).in(commandeFilterDTO.getOrderStatuts()));
         }

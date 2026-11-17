@@ -1,6 +1,8 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.MotifBed;
+import com.kobe.warehouse.domain.enumeration.CanalEnvoi;
+import java.time.temporal.ChronoUnit;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.PaimentStatut;
 import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
@@ -121,6 +123,15 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     @NotNull
     private AppUser user;
 
+    /**
+     * Magasin qui a passé la commande, figé à la création. Il n'est pas déduit de
+     * {@code user.getMagasin()} à la lecture : cette affectation est mutable, et un utilisateur
+     * déplacé réécrirait l'établissement de toutes ses commandes passées.
+     */
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @NotNull
+    private Magasin magasin;
+
     @ManyToOne
     private Fournisseur fournisseur;
 
@@ -134,6 +145,24 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     @ColumnDefault(value = "false")
     @Column(name = "has_been_submitted_to_pharmaml")
     private boolean hasBeenSubmittedToPharmaML;
+
+    /**
+     * Horodatage de la transmission au grossiste. {@code null} = brouillon, jamais parti.
+     *
+     * <p>C'est cette date, et non le statut, qui dit qu'une commande engage quelque chose :
+     * {@code order_status} vaut {@code REQUESTED} pendant la saisie comme après l'envoi, et sert
+     * en outre de brouillon aux bons d'entrée diverse et aux retours.
+     */
+    @Column(name = "date_envoi")
+    private LocalDateTime dateEnvoi;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "canal_envoi", length = 20)
+    private CanalEnvoi canalEnvoi;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "envoi_user_id")
+    private AppUser envoiUser;
 
     /**
      * ID de la commande originale dont cette commande est le clone. Renseigné uniquement lors d'une
@@ -152,6 +181,56 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
 
     @Transient
     private boolean isNew = true;
+
+    /** Vrai dès que la commande est partie, quel qu'ait été le canal. */
+    public boolean estEnvoyee() {
+        return dateEnvoi != null;
+    }
+
+    /**
+     * Jours écoulés au-delà du délai annoncé par le grossiste, 0 tant qu'on est dans les temps.
+     *
+     * <p>Rend 0 pour une commande non envoyée — on n'attend rien d'un bon qui dort chez nous — et
+     * pour une commande qui n'est plus en attente de livraison : une fois reçue, le retard
+     * appartient à l'historique et non aux alertes du jour.
+     *
+     * <p>Le délai est passé en paramètre plutôt que lu sur le fournisseur : la méthode reste
+     * calculable sans déclencher de chargement différé, donc utilisable hors transaction.
+     */
+    public long joursDeRetard(LocalDate aujourdhui, int delaiLivraisonJours) {
+        if (dateEnvoi == null || orderStatus != OrderStatut.REQUESTED) {
+            return 0L;
+        }
+        LocalDate livraisonAttendue = dateEnvoi.toLocalDate().plusDays(delaiLivraisonJours);
+        return livraisonAttendue.isBefore(aujourdhui) ? ChronoUnit.DAYS.between(livraisonAttendue, aujourdhui) : 0L;
+    }
+
+    public LocalDateTime getDateEnvoi() {
+        return dateEnvoi;
+    }
+
+    public Commande setDateEnvoi(LocalDateTime dateEnvoi) {
+        this.dateEnvoi = dateEnvoi;
+        return this;
+    }
+
+    public CanalEnvoi getCanalEnvoi() {
+        return canalEnvoi;
+    }
+
+    public Commande setCanalEnvoi(CanalEnvoi canalEnvoi) {
+        this.canalEnvoi = canalEnvoi;
+        return this;
+    }
+
+    public AppUser getEnvoiUser() {
+        return envoiUser;
+    }
+
+    public Commande setEnvoiUser(AppUser envoiUser) {
+        this.envoiUser = envoiUser;
+        return this;
+    }
 
     public boolean isHasBeenSubmittedToPharmaML() {
         return hasBeenSubmittedToPharmaML;
@@ -496,5 +575,14 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
         } catch (CloneNotSupportedException _) {
             return null;
         }
+    }
+
+    public Magasin getMagasin() {
+        return magasin;
+    }
+
+    public Commande setMagasin(Magasin magasin) {
+        this.magasin = magasin;
+        return this;
     }
 }

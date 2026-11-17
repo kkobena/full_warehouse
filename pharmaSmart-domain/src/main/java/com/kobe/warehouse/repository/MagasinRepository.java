@@ -4,6 +4,7 @@ import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Magasin_;
 import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,7 +32,19 @@ public interface MagasinRepository extends JpaRepository<Magasin, Integer>,
      */
     Optional<Magasin> findFirstByTypeMagasinOrderByIdAsc(TypeMagasin typeMagasin);
 
+    List<Magasin> findAllByTypeMagasin(TypeMagasin typeMagasin);
+
+    List<Magasin> findAllByParentId(Integer parentId);
+
     default Specification<Magasin> hasTypes(EnumSet<TypeMagasin> typeMagasins) {
         return (root, query, cb) -> root.get(Magasin_.typeMagasin).in(typeMagasins);
     }
+
+    /**
+     * Magasins qui passent leurs propres commandes fournisseur. Un dépôt en est exclu : il
+     * s'approvisionne auprès de son officine, et lui calculer un réassort produirait des bons
+     * qu'aucun fournisseur n'attend.
+     */
+    List<Magasin> findByCommandeEnPropreTrueOrderByIdAsc();
+
 }

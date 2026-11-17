@@ -245,6 +245,7 @@ abstract class AbstractStockIntegrationTest {
         commande.setTaxAmount(0);
         commande.setType(TypeDeliveryReceipt.ORDER);
         commande.setUser(utilisateur);
+        commande.setMagasin(commande.getUser().getMagasin());
         commande.setFournisseur(fournisseur);
         em.persist(commande);
         em.flush();

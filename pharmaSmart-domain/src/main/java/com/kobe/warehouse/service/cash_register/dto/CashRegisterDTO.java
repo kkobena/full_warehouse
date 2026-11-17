@@ -31,6 +31,8 @@ public class CashRegisterDTO {
     private int cashFund;
     private UserDTO updatedUser;
     private long estimateAmount;
+    /** Magasin où la caisse a été ouverte. La colonne n'a de sens qu'en supervision. */
+    private String magasin;
     private long cashAmount;
     private long mobileAmount;
     private Integer gap;
@@ -46,6 +48,7 @@ public class CashRegisterDTO {
         this.created = cashRegister.getCreated();
         this.updated = cashRegister.getUpdated();
         this.statut = cashRegister.getStatut();
+        this.magasin = cashRegister.getMagasin() == null ? null : cashRegister.getMagasin().getName();
         if (Objects.nonNull(cashRegister.getCanceledAmount())) {
             this.canceledAmount = cashRegister.getCanceledAmount();
         }
@@ -277,5 +280,14 @@ public class CashRegisterDTO {
     /** Une dépense retranche, tout le reste ajoute. Un type absent est traité comme une recette. */
     private static long signe(TypeFinancialTransaction type) {
         return type != null && type.getCategorieTransaction() == CategorieTransaction.SORTIE_CAISSE ? -1L : 1L;
+    }
+
+    public String getMagasin() {
+        return magasin;
+    }
+
+    public CashRegisterDTO setMagasin(String magasin) {
+        this.magasin = magasin;
+        return this;
     }
 }

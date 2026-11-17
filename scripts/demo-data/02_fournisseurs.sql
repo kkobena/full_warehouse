@@ -28,25 +28,46 @@
 -- conditions de règlement et RFA. Les agences héritent de ces valeurs quand
 -- les leurs sont nulles (SuggestionProduitServiceImpl).
 -- ---------------------------------------------------------------------------
+--
+-- franco_de_port : montant au-delà duquel la livraison n'est plus facturée. Les valeurs sont
+-- choisies dans l'ordre de grandeur d'un bon de commande courant (50 000 à 200 000 F), sans
+-- quoi l'indicateur de saisie serait toujours vert ou toujours rouge et ne montrerait rien.
+-- DIVERS FOURNISSEURS n'en a pas : le cas « aucun franco négocié » doit être représenté.
 INSERT INTO fournisseur (
     libelle, code, odre, parent_id,
     delai_livraison_jours, frequence_commande_jours,
     jours_credit, jours_critique,
-    palier_rfa, taux_rfa,
+    palier_rfa, taux_rfa, franco_de_port,
     addresse_postal, phone, mobile, email, site
 ) VALUES
-    ('LABOREX-CI',          'LABOREXCI',  1, NULL, 1, 2, 45, 15, 250000000, 2,
+    ('LABOREX-CI',          'LABOREXCI',  1, NULL, 1, 2, 45, 15, 250000000, 2, 150000,
      '01 BP 1237 Abidjan 01',  '27 21 75 90 00', '07 07 12 34 56', 'commandes@laborex-ci.example', 'www.laborex-ci.example'),
-    ('DPCI',                'DPCI',       2, NULL, 1, 2, 30, 10, 180000000, 2,
+    ('DPCI',                'DPCI',       2, NULL, 1, 2, 30, 10, 180000000, 2, 100000,
      '01 BP 3456 Abidjan 01',  '27 21 24 55 00', '05 05 22 33 44', 'commandes@dpci.example', NULL),
-    ('COPHARMED',           'COPHARMED',  3, NULL, 2, 3, 30, 10, 120000000, 1,
+    ('COPHARMED',           'COPHARMED',  3, NULL, 2, 3, 30, 10, 120000000, 1, 75000,
      '18 BP 890 Abidjan 18',   '27 21 35 60 00', NULL, 'commandes@copharmed.example', NULL),
-    ('UBIPHARM CI',         'UBIPHARMCI', 4, NULL, 2, 3, 60, 20, 300000000, 3,
+    ('UBIPHARM CI',         'UBIPHARMCI', 4, NULL, 2, 3, 60, 20, 300000000, 3, 200000,
      '01 BP 4477 Abidjan 01',  '27 21 27 88 00', '01 01 44 55 66', 'commandes@ubipharm-ci.example', 'www.ubipharm-ci.example'),
     -- Sans agence : les commandes lui sont passées directement.
-    ('DIVERS FOURNISSEURS', 'DIVERS',   100, NULL, 5, 7, 15,  5, NULL, NULL,
+    ('DIVERS FOURNISSEURS', 'DIVERS',   100, NULL, 5, 7, 15,  5, NULL, NULL, NULL,
      'Abidjan',                NULL, NULL, NULL, NULL)
-ON CONFLICT (libelle) DO NOTHING;
+-- LES CONDITIONS NÉGOCIÉES SONT RÉÉCRITES, PAS SEULEMENT POSÉES À LA CRÉATION
+-- `fournisseur` fait partie des tables CONSERVÉES par 00_reset.sql. Avec un `DO NOTHING`,
+-- toute colonne ajoutée ici après la première création n'atteignait jamais une base déjà
+-- chargée : les lignes gardaient leurs anciennes valeurs et les nouvelles restaient NULL.
+-- Le franco de port en a fait les frais — déclaré ci-dessus, absent en base, et le bandeau
+-- de saisie n'avait donc rien à afficher (ACH-89, trouvé le 2026-11-14).
+--
+-- On ne réécrit QUE les conditions commerciales. L'identité, le rattachement et les
+-- coordonnées restent à la main de l'utilisateur, qui a pu les corriger dans l'application.
+ON CONFLICT (libelle) DO UPDATE SET
+    delai_livraison_jours    = EXCLUDED.delai_livraison_jours,
+    frequence_commande_jours = EXCLUDED.frequence_commande_jours,
+    jours_credit             = EXCLUDED.jours_credit,
+    jours_critique           = EXCLUDED.jours_critique,
+    palier_rfa               = EXCLUDED.palier_rfa,
+    taux_rfa                 = EXCLUDED.taux_rfa,
+    franco_de_port           = EXCLUDED.franco_de_port;
 
 -- ---------------------------------------------------------------------------
 -- Agences

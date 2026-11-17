@@ -454,6 +454,10 @@ UPDATE sales_line sl
  WHERE av.statut = 'OUVERT' AND av.commentaire LIKE 'Produit réglé%'
    AND sl.id = av.sales_line_id AND sl.sale_date = av.sales_line_date;
 
+--
+-- Un avoir sur trois reste DÉLIBÉRÉMENT non rattaché : c'est la situation que l'écran « Dus aux
+-- clients » doit montrer — ce qu'on a promis et qu'on n'a pas encore commandé. Si la démo
+-- rattachait tout, cet écran serait vide et donnerait à croire que l'officine est à jour.
 UPDATE avoir_client av
    SET commande_id = x.commande_id, commande_order_date = x.order_date
   FROM (
@@ -465,7 +469,47 @@ UPDATE avoir_client av
        ORDER BY ol_p.produit_id, c.order_date DESC
   ) x
  WHERE av.produit_id = x.produit_id
-   AND av.statut = 'OUVERT' AND av.commentaire LIKE 'Produit réglé%';
+   AND av.statut = 'OUVERT' AND av.commentaire LIKE 'Produit réglé%'
+   AND av.id % 3 <> 0;
+
+-- L'APPLICATION NE REGARDE PAS LE RATTACHEMENT DE L'AVOIR, MAIS LE PRODUIT
+-- Laisser un avoir sur trois non rattaché ne suffit pas : la requête de l'écran écarte tout
+-- produit porté par une commande REQUESTED DÉJÀ ENVOYÉE, que l'avoir soit rattaché ou non —
+-- une commande partie ramènera le produit, il n'y a rien à signaler. Les trois produits dus
+-- de la démo étant tous sur une commande envoyée, l'écran restait vide.
+--
+-- On retire donc l'envoi des commandes qui portent ces produits : une commande préparée mais
+-- jamais envoyée est précisément la situation que l'écran doit dénoncer.
+UPDATE commande c
+   SET date_envoi = NULL
+ WHERE c.order_status = 'REQUESTED'
+   AND c.date_envoi IS NOT NULL
+   AND EXISTS (
+     SELECT 1 FROM order_line ol
+       JOIN fournisseur_produit fp ON fp.id = ol.fournisseur_produit_id
+       JOIN avoir_client av ON av.produit_id = fp.produit_id
+      WHERE ol.commande_id = c.id AND ol.commande_order_date = c.order_date
+        AND av.statut = 'OUVERT' AND av.commande_id IS NULL
+        AND av.quantite > av.quantite_remise);
+
+-- Garde-fou : sans produit dû non commandé, l'écran n'a rien à montrer et le parcours ACH-90
+-- échouerait loin d'ici, sur une liste vide dont la cause serait introuvable.
+DO $$
+DECLARE nb integer;
+BEGIN
+    SELECT COUNT(DISTINCT a.produit_id) INTO nb
+      FROM avoir_client a
+     WHERE a.statut = 'OUVERT' AND a.commande_id IS NULL AND a.quantite > a.quantite_remise
+       AND NOT EXISTS (
+         SELECT 1 FROM order_line ol
+           JOIN commande c ON c.id = ol.commande_id AND c.order_date = ol.commande_order_date
+           JOIN fournisseur_produit fp ON fp.id = ol.fournisseur_produit_id
+          WHERE fp.produit_id = a.produit_id AND c.order_status = 'REQUESTED' AND c.date_envoi IS NOT NULL);
+    IF nb = 0 THEN
+        RAISE EXCEPTION 'Aucun produit du non commande : l''ecran « Dus aux clients » serait vide.';
+    END IF;
+    RAISE NOTICE 'Produits dus non commandes : %', nb;
+END $$;
 
 -- Les remboursements en argent sortent de la caisse (AvoirClientDocumentServiceImpl) : espèces
 -- ET carte, en SORTIE_CAISSE, sur la caisse du jour de la clôture. Même écriture que 14d.

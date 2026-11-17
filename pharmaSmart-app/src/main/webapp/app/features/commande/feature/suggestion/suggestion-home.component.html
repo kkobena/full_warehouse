@@ -127,6 +127,7 @@
         (sanitizeRequest)="onSanitize()"
         (selectionChanged)="onSelectionChanged($event)"
         (validerRequest)="onValider()"
+        [clientsEnAttente]="clientsEnAttente()"
         [exportingCsv]="facade.exportingCsv()"
         [exportingPdf]="facade.exportingPdf()"
         [fournisseur]="facade.selectedFournisseur()"

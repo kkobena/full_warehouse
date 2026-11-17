@@ -1,5 +1,8 @@
 package com.kobe.warehouse.service;
 
+import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.enumeration.TypeMagasin;
+import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.domain.enumeration.StockAlertType;
 import com.kobe.warehouse.repository.SemoisSuggestionViewRepository;
 import com.kobe.warehouse.service.ap.AccountsPayableService;
@@ -29,13 +32,16 @@ public class DashboardAlertService {
     private final StockAlertReportService stockAlertReportService;
     private final SemoisSuggestionViewRepository semoisSuggestionViewRepository;
     private final AccountsPayableService accountsPayableService;
+    private final MagasinRepository magasinRepository;
 
     public DashboardAlertService(StockAlertReportService stockAlertReportService,
                                   SemoisSuggestionViewRepository semoisSuggestionViewRepository,
-                                  AccountsPayableService accountsPayableService) {
+                                  AccountsPayableService accountsPayableService,
+                                  MagasinRepository magasinRepository) {
         this.stockAlertReportService = stockAlertReportService;
         this.semoisSuggestionViewRepository = semoisSuggestionViewRepository;
         this.accountsPayableService = accountsPayableService;
+        this.magasinRepository = magasinRepository;
     }
 
     /**
@@ -79,11 +85,29 @@ public class DashboardAlertService {
      */
     private Long getUrgentProductsCount() {
         try {
-            Long count = semoisSuggestionViewRepository.countUrgentProducts();
+            Long count = semoisSuggestionViewRepository.countUrgentProducts(idDeLOfficine());
             return count != null ? count : 0L;
         } catch (Exception e) {
             return 0L;
         }
+    }
+
+    /**
+     * Magasin que cette pastille décrit : l'officine.
+     *
+     * <p>Depuis V2.1.55 la vue tient une ligne par (produit, magasin) ; compter sans magasin
+     * additionnerait l'officine et la parapharmacie en un chiffre qui ne décrit ni l'une ni
+     * l'autre.
+     *
+     * <p>Faire suivre la pastille au magasin de l'utilisateur connecté serait un autre choix —
+     * défendable, mais c'en est un, et il ne change rien tant que tous les comptes sont à
+     * l'officine. Il n'est pas fait ici en passant.
+     */
+    private Integer idDeLOfficine() {
+        return magasinRepository
+            .findFirstByTypeMagasinOrderByIdAsc(TypeMagasin.OFFICINE)
+            .map(Magasin::getId)
+            .orElse(null);
     }
 
     /**

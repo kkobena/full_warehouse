@@ -118,11 +118,13 @@ FROM generate_series(0, pg_temp.horizon()) AS j
 WHERE j = 0 OR extract(dow FROM (CURRENT_DATE - (INTERVAL '1 day' * j))) <> 1;
 
 INSERT INTO cash_register (
-    user_id, init_amount, final_amount, cancele_amount,
+    user_id, magasin_id, init_amount, final_amount, cancele_amount,
     begin_time, end_time, created, updated, statut
 )
 SELECT
     c.user_id,
+    -- Fige a l'ouverture, comme le fait l'application : une caisse ne se reaffecte pas.
+    (SELECT magasin_id FROM app_user WHERE id = c.user_id),
     50000,                              -- fonds de caisse d'ouverture
     50000,                              -- recalé par 09_ventes.sql
     0,

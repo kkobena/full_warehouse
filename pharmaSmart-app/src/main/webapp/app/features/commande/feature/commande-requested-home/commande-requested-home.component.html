@@ -88,7 +88,7 @@
               <th style="width:130px">Référence</th>
               <th appSortableHeader="itemSize" class="text-end" style="width:100px">Lignes</th>
               <th appSortableHeader="grossAmount" class="text-end" style="width:140px">Montant HT</th>
-              <th style="width:90px"></th>
+              <th style="width:150px">État</th>
               <th style="width:60px">Actions</th>
             </tr>
           </ng-template>
@@ -116,6 +116,22 @@
                 @if (c.hasBeenSubmittedToPharmaML) {
                   <span class="pharma-badge pharma-badge-info"
                         ngbTooltip="Transmise au grossiste — modifications désactivées">PHARMAML</span>
+                }
+                <!--
+                  Brouillon ou envoyée : le statut REQUESTED couvrait les deux, et rien ne
+                  distinguait un bon resté sur le bureau d'une commande qu'on attend.
+                -->
+                @if (!c.envoyee) {
+                  <span class="pharma-badge pharma-badge-secondary"
+                        ngbTooltip="Jamais transmise — hors encours du réassort">BROUILLON</span>
+                } @else if (c.joursDeRetard > 0) {
+                  <span class="pharma-badge pharma-badge-danger"
+                        [ngbTooltip]="'Envoyée le ' + (c.dateEnvoi | date:'dd/MM/yy') + ' — délai annoncé dépassé'"
+                  >RETARD {{ c.joursDeRetard }} J</span>
+                } @else {
+                  <span class="pharma-badge pharma-badge-success"
+                        [ngbTooltip]="'Envoyée le ' + (c.dateEnvoi | date:'dd/MM/yy HH:mm') + ' — modifications désactivées.'"
+                  >ENVOYÉE</span>
                 }
               </td>
               <td class="text-end" (click)="$event.stopPropagation()">

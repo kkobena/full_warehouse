@@ -143,6 +143,7 @@ class ReglementDataServiceImplTest {
         user.setLastName("KOUAME");
         CashRegister caisse = new CashRegister();
         caisse.setUser(user);
+        caisse.setMagasin(caisse.getUser().getMagasin());
         InvoicePayment paiement = new InvoicePayment();
         paiement.setId(55L);
         paiement.setTransactionDate(LocalDate.of(2026, 4, 18));

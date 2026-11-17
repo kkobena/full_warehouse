@@ -5,6 +5,7 @@
  * paierait dans chaque parcours — et se redécouvrirait à chaque fois par un échec.
  */
 import { expect, type Locator, type Page } from '@playwright/test';
+import { lire } from './base-de-donnees';
 
 /**
  * Saisit une date dans un `pharma-date-picker`, au format attendu par l'application.
@@ -882,13 +883,122 @@ export async function traverserConfirmations(
  * Les références sont relevées AVANT d'ouvrir quoi que ce soit : revenir à la liste la
  * recharge, et un rang ne désigne plus le même bon d'un passage à l'autre.
  */
+/**
+ * Références des bons de réception ouverts dont la finalisation DÉBORDERA le rayon, du plus
+ * récent au plus ancien.
+ *
+ * La prévisualisation du rangement (modale « Répartition rayon ») n'apparaît que si au moins un
+ * produit du bon a, dans le rayon, un stock supérieur à son `stock_maxi` — et un stock en
+ * réserve, sans quoi il n'y a nulle part où ranger l'excédent. C'est exactement ce que calcule
+ * `StockEntryServiceImpl.getPutawayPreview`, reproduit ici.
+ *
+ * Pourquoi la base, et non le premier bon de la liste : deux parcours réclament ce décor —
+ * ACH-46 prévisualise puis IGNORE, ACH-75 prévisualise puis TRANSFÈRE — et tous deux
+ * finalisaient le premier bon complet venu. Le premier passé clôturait donc celui qui
+ * débordait, et le suivant héritait d'un bon ordinaire : sa modale ne s'ouvrait jamais, pour
+ * une raison invisible dans son propre rapport. En demandant à la base, chacun prend un bon
+ * qui porte le décor, et le bon clôturé par l'un ne peut plus être rendu à l'autre.
+ *
+ * Le TAUX DE SERVICE est reproduit lui aussi, et il ne se déduit pas des seules quantités : un
+ * bon dont les seize lignes sont reçues en entier s'affiche à 6 %. L'écran ne compte une ligne
+ * comme servie que si elle porte `is_updated` — la saisie a été faite — en plus d'une quantité
+ * reçue au moins égale à la quantité commandée, et d'une quantité commandée non nulle
+ * (`commande-received.component.ts`, `get tauxService`). Sans ce drapeau, la liste des candidats
+ * ne contenait que des bons que l'écran refusait, et le helper les parcourait tous pour rien.
+ *
+ * Le helper revérifie malgré tout le taux à l'écran : c'est lui qui fait foi, la base ne sert
+ * qu'à ne pas ouvrir vingt bons pour en trouver un.
+ *
+ * La fenêtre de CINQ MOIS n'est pas un ornement : faute de dates explicites, la liste des bons
+ * s'en impose une (`buildSpecification` : `between(now − 5 mois, now)`). Un bon plus ancien est
+ * donc absent de la liste ET introuvable par sa référence, sans un mot qui l'explique — la
+ * recherche répond simplement « Aucun bon de livraison ».
+ */
+export function referencesBonsAvecExcedent(): string[] {
+  const brut = lire(`
+    WITH deborde AS (
+      SELECT DISTINCT ol.commande_id
+        FROM order_line ol
+        JOIN fournisseur_produit fp ON fp.id = ol.fournisseur_produit_id
+        JOIN stock_produit rayon ON rayon.produit_id = fp.produit_id AND rayon.storage_id =
+             (SELECT id FROM storage WHERE storage_type = 'PRINCIPAL' AND magasin_id = 1 ORDER BY id LIMIT 1)
+        JOIN stock_produit reserve ON reserve.produit_id = fp.produit_id AND reserve.storage_id =
+             (SELECT id FROM storage WHERE storage_type = 'SAFETY_STOCK' AND magasin_id = 1 ORDER BY id LIMIT 1)
+       WHERE rayon.stock_maxi > 0
+         AND (COALESCE(rayon.qty_stock, 0) + COALESCE(rayon.qty_ug, 0)) > rayon.stock_maxi),
+    taux AS (
+      SELECT ol.commande_id,
+             count(*) AS lignes,
+             sum(CASE WHEN ol.is_updated
+                       AND ol.quantity_requested > 0
+                       AND COALESCE(ol.quantity_received, 0) >= ol.quantity_requested
+                      THEN 1 ELSE 0 END) AS servies
+        FROM order_line ol
+       GROUP BY ol.commande_id)
+    SELECT string_agg(r, ',' ORDER BY d DESC) FROM (
+      SELECT c.receipt_reference AS r, c.order_date AS d
+        FROM commande c
+        JOIN deborde dd ON dd.commande_id = c.id
+        JOIN taux t ON t.commande_id = c.id
+       WHERE c.order_status = 'RECEIVED'
+         AND c.receipt_reference IS NOT NULL
+         AND c.order_date >= CURRENT_DATE - INTERVAL '5 months'
+         AND t.servies = t.lignes) AS candidats`);
+  return brut.split(',').map(r => r.trim()).filter(r => /^BL\d+$/.test(r));
+}
+
 export async function ouvrirBonDeReception(
   page: Page,
   attendu: 'aucun' | 'partiel' | 'complet',
+  candidats?: string[],
 ): Promise<string> {
   const liste = page.locator('app-list-bons');
   const ecran = page.locator('app-commande-received');
   await expect(liste.locator('tbody tr').first()).toBeVisible();
+
+  /** Le taux de service annoncé par l'écran, ou −1 s'il ne l'annonce pas. */
+  const tauxAffiche = async (): Promise<number> =>
+    Number((await ecran.innerText()).match(/Taux service\s*:\s*(\d+)/)?.[1] ?? '-1');
+
+  const convientAuTaux = (taux: number): boolean =>
+    attendu === 'aucun' ? taux === 0 : attendu === 'complet' ? taux === 100 : taux > 0 && taux < 100;
+
+  // Des bons DÉSIGNÉS sont cherchés un à un : c'est le cas quand le parcours a besoin d'un
+  // décor que le taux de service ne dit pas, et qu'il est allé le chercher en base.
+  //
+  // Passer par la recherche et non par la liste visible : celle-ci est paginée et triée côté
+  // serveur, et un bon ancien n'est pas sur la première page. Le cliquer à l'aveugle attendait
+  // une ligne qui ne viendrait jamais, et le parcours mourait sur un dépassement de délai
+  // dont rien ne disait qu'il s'agissait d'une question de pagination.
+  if (candidats?.length) {
+    const recherche = liste.getByPlaceholder('Référence, fournisseur…');
+    for (const candidat of candidats) {
+      await recherche.fill(candidat);
+      await recherche.press('Enter');
+      const ligne = liste.locator('tbody tr').filter({ hasText: candidat }).first();
+      // `waitFor` et non `isVisible` : ce dernier ne patiente PAS — il photographie l'état
+      // courant, et le délai qu'on lui passe est sans effet. Interrogé juste après la frappe,
+      // il répondait « absente » sur une ligne qui paraissait un instant plus tard, et tous
+      // les candidats étaient écartés d'affilée.
+      const trouve = await ligne
+        .waitFor({ state: 'visible', timeout: 10_000 })
+        .then(() => true)
+        .catch(() => false);
+      if (!trouve) {
+        continue;
+      }
+      await ligne.click();
+      await expect(ecran).toBeVisible();
+      if (convientAuTaux(await tauxAffiche())) {
+        return candidat;
+      }
+      await page.getByRole('button', { name: 'Retour à la liste' }).click();
+      await expect(liste.locator('tbody tr').first()).toBeVisible();
+    }
+    throw new Error(
+      `Aucun des ${candidats.length} bon(s) désigné(s) n'est « ${attendu} » : ${candidats.join(', ')}.`,
+    );
+  }
 
   const ouverts = await liste.locator('tbody tr').filter({ hasNotText: 'Clôturé' }).allInnerTexts();
   const references = ouverts.map(t => t.match(/BL\d+/)?.[0]).filter((r): r is string => !!r);
@@ -897,10 +1007,7 @@ export async function ouvrirBonDeReception(
   for (const reference of references) {
     await liste.locator('tbody tr').filter({ hasText: reference }).first().click();
     await expect(ecran).toBeVisible();
-    const taux = Number((await ecran.innerText()).match(/Taux service\s*:\s*(\d+)/)?.[1] ?? '-1');
-    const convient =
-      attendu === 'aucun' ? taux === 0 : attendu === 'complet' ? taux === 100 : taux > 0 && taux < 100;
-    if (convient) {
+    if (convientAuTaux(await tauxAffiche())) {
       return reference;
     }
     await page.getByRole('button', { name: 'Retour à la liste' }).click();

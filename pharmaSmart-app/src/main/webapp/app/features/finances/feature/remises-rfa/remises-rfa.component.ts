@@ -31,6 +31,24 @@ export class RemisesRfaComponent implements OnInit {
   activeTab = signal<'rfa' | 'avoirs'>('rfa');
 
   formatCurrency = formatCurrency;
+
+  /**
+   * Compose le conseil d'action à partir de l'état nommé par le serveur.
+   *
+   * Rend `null` quand il n'y a rien à décider — palier franchi, avancement ordinaire, ou aucun
+   * accord négocié : une alerte permanente cesse d'être lue.
+   */
+  protected conseil(r: IRemiseRfaFournisseur): string | null {
+    const pct = Math.round(r.pourcentageAtteint ?? 0);
+    switch (r.etat) {
+      case 'PROCHE_DU_PALIER':
+        return `À ${pct} % du palier — il reste ${formatCurrency(r.resteAvantPalier)} à facturer.`;
+      case 'LOIN_DU_PALIER':
+        return `Seulement ${pct} % du palier atteint.`;
+      default:
+        return null;
+    }
+  }
   Math = Math;
 
   private readonly api = inject(RemiseRfaApiService);

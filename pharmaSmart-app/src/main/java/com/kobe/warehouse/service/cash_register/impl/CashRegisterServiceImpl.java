@@ -15,6 +15,7 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.CashRegisterRepository;
 import com.kobe.warehouse.service.UserService;
+import com.kobe.warehouse.service.portee.PorteeMagasinService;
 import com.kobe.warehouse.service.cash_register.CashFundService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.cash_register.dto.CashRegisterDTO;
@@ -53,12 +54,14 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     private final AppConfigurationService appConfigurationService;
     private final CashFundService cashFundService;
     private final UserService userService;
+    private final PorteeMagasinService porteeMagasinService;
 
-    public CashRegisterServiceImpl(CashRegisterRepository cashRegisterRepository, AppConfigurationService appConfigurationService, CashFundService cashFundService, UserService userService) {
+    public CashRegisterServiceImpl(CashRegisterRepository cashRegisterRepository, AppConfigurationService appConfigurationService, CashFundService cashFundService, UserService userService, PorteeMagasinService porteeMagasinService) {
         this.cashRegisterRepository = cashRegisterRepository;
         this.appConfigurationService = appConfigurationService;
         this.cashFundService = cashFundService;
         this.userService = userService;
+        this.porteeMagasinService = porteeMagasinService;
     }
 
     @Override
@@ -240,8 +243,25 @@ public class CashRegisterServiceImpl implements CashRegisterService {
         return this.cashRegisterRepository.existsByUserIdAndStatut(userService.getUser().getId(), CashRegisterStatut.OPEN);
     }
 
+    /**
+     * Magasin choisi par l'ecran, INTERSECTE avec la portee de lecture. Un magasin demande hors
+     * portee ne restreint pas : il ne doit pas non plus ouvrir. L'intersection donne alors le vide,
+     * et la liste est vide — ce qui est la bonne reponse.
+     */
+    private Set<Integer> restreindreALaPortee(Integer magasinId) {
+        Set<Integer> portee = porteeMagasinService.resoudreLaPorteeDeSupervision();
+        if (magasinId == null) {
+            return portee;
+        }
+        return portee.contains(magasinId) ? Set.of(magasinId) : Set.of();
+    }
+
     private Page<CashRegister> loadCashRegisters(FetchCashRegisterParams fetchCashRegisterParams, Pageable pageable) {
-        Specification<CashRegister> cashRegisterSpecification = this.cashRegisterRepository.specialisation(fetchCashRegisterParams.statuts());
+        // Cloisonnement : on ne voit que les caisses des magasins qu'on a le droit de lire. Sans le
+        // droit de supervision, la portee se limite a son propre magasin.
+        Specification<CashRegister> cashRegisterSpecification = this.cashRegisterRepository
+            .specialisationMagasins(restreindreALaPortee(fetchCashRegisterParams.magasinId()))
+            .and(this.cashRegisterRepository.specialisation(fetchCashRegisterParams.statuts()));
         if (Objects.nonNull(fetchCashRegisterParams.userId())) {
             cashRegisterSpecification = cashRegisterSpecification.and(this.cashRegisterRepository.specialisation(fetchCashRegisterParams.userId()));
         }
@@ -275,6 +295,8 @@ public class CashRegisterServiceImpl implements CashRegisterService {
         cashRegister.setUpdated(cashRegister.getCreated());
         cashRegister.setInitAmount(0L);
         cashRegister.setUser(user);
+        // Fige a l'ouverture : une caisse ne se reaffecte pas.
+        cashRegister.setMagasin(user.getMagasin());
         cashRegister.setStatut(CashRegisterStatut.OPEN);
         return cashRegister;
     }

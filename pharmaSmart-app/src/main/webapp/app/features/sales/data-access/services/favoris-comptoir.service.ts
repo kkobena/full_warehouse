@@ -7,7 +7,8 @@ import { ProduitsFavorisApiService } from '../../../products/data-access/service
 
 /**
  * Favoris du comptoir, partagés par la grille, la recherche produit et le panier : épingler ou retirer depuis n'importe quel
- * endroit met la grille à jour sans rechargement de page. Les favoris sont communs à la pharmacie.
+ * endroit met la grille à jour sans rechargement de page. La grille est propre au MAGASIN de la session — l'unité de gestion
+ * n'épingle pas les mêmes articles que l'officine et n'en détient pas le même stock.
  */
 @Injectable({ providedIn: 'root' })
 export class FavorisComptoirService {

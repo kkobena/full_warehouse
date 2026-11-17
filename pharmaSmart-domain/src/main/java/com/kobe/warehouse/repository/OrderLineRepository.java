@@ -125,8 +125,15 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
     /**
      * Retourne les quantités en attente de livraison par produit (stock virtuel — Axe 1).
      * <p>
-     * Sélectionne les lignes de commandes dont le statut est REQUESTED (envoyée au fournisseur,
-     * non encore réceptionnée). La quantité en attente = quantité commandée - quantité déjà reçue.
+     * Sélectionne les lignes de commandes au statut REQUESTED <b>et réellement transmises</b>
+     * ({@code date_envoi IS NOT NULL}). La quantité en attente = quantité commandée - quantité
+     * déjà reçue.
+     * </p>
+     * <p>
+     * Un bon jamais transmis n'amène aucun stock : le compter ferait croire à une livraison en
+     * route, sous-commander, et la rupture arriverait. Le filtre est dans la requête, pas en
+     * commentaire SQL — une apostrophe à l'intérieur d'une requête native ouvre pour Spring Data
+     * une chaîne qui ne se referme jamais, et le dépôt entier devient inchargeable.
      * </p>
      * <p>
      * Ce résultat est utilisé dans le calcul des suggestions de réapprovisionnement pour éviter
@@ -145,6 +152,7 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
                              AND c.order_date = ol.commande_order_date
         WHERE fp.produit_id IN :produitIds
           AND c.order_status = 'REQUESTED'
+          AND c.date_envoi IS NOT NULL
           AND ol.quantity_requested > COALESCE(ol.quantity_received, 0)
         GROUP BY fp.produit_id
         HAVING SUM(ol.quantity_requested - COALESCE(ol.quantity_received, 0)) > 0
@@ -152,6 +160,24 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
     List<Object[]> findPendingQtyByProduitIds(@Param("produitIds") Collection<Integer> produitIds);
 
     List<OrderLine> findAllByIdInAndOrderDate(Set<Integer> ids,LocalDate orderDate);
+
+    /**
+     * Commandes en attente de livraison et réellement transmises, pour un produit. Un brouillon
+     * en est exclu : tant qu'il n'est pas parti, il ne doit ni éteindre la suggestion du produit
+     * ni passer pour une livraison à venir.
+     */
+    @Query("""
+        SELECT COUNT(ol)
+        FROM OrderLine ol
+        WHERE ol.fournisseurProduit.produit.id = :produitId
+          AND ol.commande.orderStatus = com.kobe.warehouse.domain.enumeration.OrderStatut.REQUESTED
+          AND ol.commande.orderDate > :dateRetention
+          AND ol.commande.dateEnvoi IS NOT NULL
+        """)
+    int countCommandesEnvoyeesEnAttente(
+        @Param("produitId") Integer produitId,
+        @Param("dateRetention") LocalDate dateRetention
+    );
 
     /**
      * Variante batch pour {@code EtatProduitService.canSuggere} : retourne, parmi les produits
@@ -169,6 +195,8 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
         WHERE ol.fournisseurProduit.produit.id IN :produitIds
           AND ol.commande.orderStatus IN :statuts
           AND ol.commande.orderDate > :dateRetention
+          AND (ol.commande.dateEnvoi IS NOT NULL
+               OR ol.commande.orderStatus <> com.kobe.warehouse.domain.enumeration.OrderStatut.REQUESTED)
         """)
     Set<Integer> findProduitIdsWithCommandes(
         @Param("produitIds") Collection<Integer> produitIds,

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.stock.integration;
 
+import com.kobe.warehouse.service.impl.ColisageServiceImpl;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.doAnswer;
@@ -389,7 +390,7 @@ final class StockServicesUnderTest {
             entityManager,
             suggestionPdfReportService,
             produitRepository,
-            orderLineRepository
+            new ColisageServiceImpl()
         );
 
         this.stockEntryDataService = new StockEntryDataServiceImpl(
@@ -404,7 +405,8 @@ final class StockServicesUnderTest {
         FournisseurProduitService fournisseurProduitService = new FournisseurProduitService(
             fournisseurProduitRepository,
             fournisseurRepository,
-            produitService
+            produitService,
+            storageService
         );
 
         this.stockEntryService = new StockEntryServiceImpl(

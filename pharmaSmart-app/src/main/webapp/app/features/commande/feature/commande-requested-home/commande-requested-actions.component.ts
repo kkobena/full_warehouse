@@ -16,6 +16,8 @@ export type CommandeRequestedAction =
   | 'comparerGrossistes'
   | 'exportCsv'
   | 'exportPdf'
+  | 'marquerEnvoyee'
+  | 'annulerEnvoi'
   | 'supprimer';
 
 interface MenuEntry {
@@ -70,6 +72,8 @@ export class CommandeRequestedActionsComponent {
   readonly menuAction = output<CommandeRequestedAction>();
 
   private readonly menuItems: MenuEntry[] = [
+    // « Éditer » ouvre la commande, en lecture seule si elle est partie : on consulte un bon
+    // transmis aussi souvent qu'on le modifie.
     {label: 'Éditer', icon: 'pi pi-pencil', action: 'editer'},
     {label: 'Réceptionner', icon: 'pi pi-inbox', action: 'receptionner'},
 
@@ -89,7 +93,32 @@ export class CommandeRequestedActionsComponent {
     },
     {label: 'Export CSV', icon: 'pi pi-file-excel', action: 'exportCsv', separatorBefore: true},
     {label: 'Imprimer PDF', icon: 'pi pi-print', action: 'exportPdf'},
-    {label: 'Supprimer', icon: 'pi pi-trash', action: 'supprimer', separatorBefore: true},
+
+    // Hors EDI, c'est le seul geste qui date l'envoi. Sans lui, la commande reste un brouillon
+    // aux yeux du réassort, du délai fournisseur et de l'alerte de retard.
+    {
+      label: 'Marquer comme envoyée',
+      icon: 'pi pi-check-circle',
+      action: 'marquerEnvoyee',
+      separatorBefore: true,
+      hidden: c => !!c.envoyee,
+    },
+    {
+      label: "Annuler l'envoi",
+      icon: 'pi pi-undo',
+      action: 'annulerEnvoi',
+      separatorBefore: true,
+      hidden: c => !c.envoyee,
+    },
+    // Supprimer une commande que le grossiste a reçue laisserait arriver une livraison sans
+    // bon en face. Il faut d'abord annuler l'envoi.
+    {
+      label: 'Supprimer',
+      icon: 'pi pi-trash',
+      action: 'supprimer',
+      separatorBefore: true,
+      hidden: c => !!c.envoyee || !!c.hasBeenSubmittedToPharmaML,
+    },
   ];
 
   protected readonly visibleItems = computed(() =>

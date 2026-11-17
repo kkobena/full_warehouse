@@ -3,6 +3,7 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashRegister_;
+import com.kobe.warehouse.domain.Magasin_;
 import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
 import com.kobe.warehouse.service.cash_register.dto.CashRegisterTransactionSpecialisation;
 import com.kobe.warehouse.service.cash_register.dto.CashRegisterVenteSpecialisation;
@@ -108,6 +109,14 @@ public interface CashRegisterRepository extends JpaRepository<CashRegister, Inte
 
     default Specification<CashRegister> specialisation(Integer userId) {
         return (root, _, cb) -> cb.equal(root.get(CashRegister_.user).get(AppUser_.id), userId);
+    }
+
+    /**
+     * Restreint aux magasins de la portée de lecture. Une caisse porte son magasin depuis V2.1.51 ;
+     * le déduire de l'utilisateur aurait suivi ses réaffectations et réécrit l'historique.
+     */
+    default Specification<CashRegister> specialisationMagasins(Set<Integer> magasinIds) {
+        return (root, _, _) -> root.get(CashRegister_.magasin).get(Magasin_.id).in(magasinIds);
     }
 
     default Specification<CashRegister> specialisation(Set<CashRegisterStatut> statuts) {

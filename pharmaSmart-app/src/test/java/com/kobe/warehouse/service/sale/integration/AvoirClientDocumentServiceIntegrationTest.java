@@ -546,6 +546,7 @@ class AvoirClientDocumentServiceIntegrationTest extends AbstractSaleIntegrationT
         commande.setPaimentStatut(PaimentStatut.UNPAID);
         commande.setType(TypeDeliveryReceipt.ORDER);
         commande.setUser(caissier);
+        commande.setMagasin(commande.getUser().getMagasin());
         commande.setFournisseur(reference.getFournisseur());
         em.persist(commande);
 

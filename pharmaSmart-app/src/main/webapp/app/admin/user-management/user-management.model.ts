@@ -14,6 +14,8 @@ export interface IUser {
   lastModifiedBy?: string;
   lastModifiedDate?: Date;
   authority?: IAuthority;
+  /** Magasin d'affectation. Absent : le backend reprend celui du createur. */
+  magasinId?: number | null;
 }
 
 export class User implements IUser {

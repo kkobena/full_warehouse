@@ -80,6 +80,7 @@ class ReglementReportServiceImplTest {
         user.setLastName("KOUAME");
         CashRegister caisse = new CashRegister();
         caisse.setUser(user);
+        caisse.setMagasin(caisse.getUser().getMagasin());
         TiersPayant tiersPayant = new TiersPayant();
         tiersPayant.setId(3);
         tiersPayant.setName("CNAM");

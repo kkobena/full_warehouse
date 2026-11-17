@@ -29,7 +29,7 @@ export const getTypeName = (type: TypeFinancialTransaction): string => {
 export const getTypeVentes = (type: TypeFinancialTransaction): string[] => {
   switch (type) {
     case TypeFinancialTransaction.CREDIT_SALE:
-      return ['CREDIT_SALE', 'VENTES_DEPOT_AGREE'];
+      return ['CREDIT_SALE'];
     case TypeFinancialTransaction.CASH_SALE:
       return ['CASH_SALE'];
     default:

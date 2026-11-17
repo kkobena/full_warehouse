@@ -408,6 +408,21 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             // montrerait l'écran du pharmacien, pas celui du client.
             hidden: true,
           },
+          {
+            id: 'VTE-77',
+            titre: 'Vendre dans une unité de gestion sur le stock de l’unité',
+            besoin:
+              'Encaisser à la parapharmacie sans jamais engager le stock de l’officine, et sans que le vendeur ait à se demander lequel il consulte.',
+            fonctionnement:
+              'Chaque magasin tient son stock. Au comptoir, la recherche montre les quantités du magasin où l’on est connecté : le même article peut afficher trente unités à la parapharmacie et quatre à l’officine. Ce qui est encaissé sort du stock de l’unité.',
+            prerequis: 'Un compte affecté à une unité de gestion, et un article tenu dans les deux magasins.',
+            etapes: [
+              'Ouvrir une session avec un compte de l’unité de gestion',
+              'Ouvrir l’écran de vente',
+              'Rechercher un article de parapharmacie et lire son stock',
+            ],
+            resultatAttendu: 'La quantité affichée est celle de l’unité de gestion, et non celle de l’officine.',
+          },
         ],
       },
       {
@@ -1015,6 +1030,18 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             prerequis: 'La caisse du caissier n’est pas ouverte au moment de l’encaissement.',
             etapes: ['Constituer une vente sans caisse ouverte', 'Lancer l’encaissement', 'Ouvrir la caisse depuis la modale proposée'],
             resultatAttendu: 'La caisse s’ouvre sans quitter l’écran de vente, et la vente en cours se finalise automatiquement une fois la caisse ouverte.',
+          },
+          {
+            id: 'VTE-76',
+            titre: 'Suivre les caisses des magasins rattachés sans s’y connecter',
+            besoin:
+              'Savoir ce qu’a fait la caisse de la parapharmacie sans quitter l’officine ni demander ses chiffres à son vendeur.',
+            fonctionnement:
+              'Le titulaire lit les sessions de caisse de son officine et de ce qui lui est rattaché. Une colonne « Magasin » et un filtre n’apparaissent que s’il y a plus d’un magasin à lire : une officine seule n’en voit ni l’un ni l’autre. Le droit n’élargit que la lecture — une caisse ne s’ouvre et ne se clôture que dans son propre magasin.',
+            prerequis: 'Le privilège « Superviser les autres magasins », et une unité rattachée qui a tenu caisse.',
+            etapes: ['Ouvrir « Gestion de caisse »', 'Lire la colonne « Magasin »', 'Filtrer sur l’unité de gestion'],
+            resultatAttendu:
+              'Les sessions de caisse de l’unité s’affichent avec leur caissier, leur fond de caisse et leur état, sans quitter l’officine.',
           },
         ],
       },
@@ -2170,6 +2197,88 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
               'Le code est retenu pour l’article de la ligne courante — code catalogue si la ligne n’en avait qu’un provisoire, code alternatif sinon — et le scan est rejoué sans quitter la ligne.',
           },
           {
+            id: 'ACH-87',
+            titre: 'Respecter le colisage et la quantité minimale du fournisseur',
+            besoin:
+              'Un grossiste livre certains produits par colis entier et en refuse d’autres sous une quantité plancher. Commander 7 unités d’un produit livré par 10 crée un écart à chaque réception, qu’il faut ensuite justifier au rapprochement de facture.',
+            fonctionnement:
+              'La fiche fournisseur d’un produit peut porter un nombre d’unités par colis et une quantité minimale de commande. À la saisie, une quantité non conforme est portée au multiple supérieur du colis, ou au minimum du fournisseur, et un message indique la nouvelle quantité et la contrainte qui l’a imposée. La colonne des quantités signale les lignes concernées. Une quantité déjà conforme passe sans message.',
+            prerequis:
+              'Un produit dont la fiche fournisseur indique un conditionnement par colis, et un autre dont elle indique une quantité minimale de commande.',
+            etapes: [
+              'Demander une quantité inférieure à un colis pour un produit livré par colis entier',
+              'Corriger la quantité de la ligne par une valeur à cheval sur deux colis',
+              'Ajouter un produit en demandant moins que sa quantité minimale de commande',
+            ],
+            resultatAttendu:
+              'Chaque ligne porte une quantité commandable : arrondie au colis entier supérieur, ou portée au minimum du fournisseur. Le message précise à chaque fois la quantité retenue et la contrainte appliquée, et les montants de la commande suivent cette quantité.',
+          },
+          {
+            id: 'ACH-88',
+            titre: 'Dater l’envoi d’une commande au grossiste',
+            besoin:
+              'Une commande saisie et une commande réellement transmise se ressemblaient à l’écran. Le réassort comptait comme déjà commandé un bon resté sur le bureau et proposait d’autant moins, le délai du grossiste se mesurait depuis la saisie et lui imputait notre propre attente, et aucune relance n’était possible faute de savoir depuis quand on attend.',
+            fonctionnement:
+              'Chaque commande fournisseur porte une date d’envoi et le canal par lequel elle est partie. L’envoi par PharmaML la date automatiquement ; un export CSV ou PDF propose de la dater sans l’imposer ; une action du menu permet de le faire à la main, en choisissant le canal (mail, bon imprimé, téléphone, autre). La liste signale l’état de chaque commande : brouillon tant que rien n’est daté, envoyée ensuite, et en retard dès que le délai de livraison annoncé par le fournisseur est dépassé. Tant qu’une commande reste un brouillon, elle est exclue de l’encours du réassort, du budget du mois et du blocage de resuggestion. Une commande envoyée n’est plus modifiable à la main : ses lignes, les quantités et l’ajout de produits sont désactivés, et elle ne peut plus être supprimée depuis la liste — une livraison arriverait sans bon en face. En revanche la réception et l’import de la réponse du grossiste restent possibles, puisque ce sont les suites normales d’un envoi. Un marquage posé par erreur s’annule, ce qui rouvre la commande ; une commande déjà réceptionnée ne change plus d’état.',
+            prerequis: 'Une commande fournisseur en attente, non encore transmise.',
+            etapes: [
+              'Ouvrir la liste des commandes fournisseurs et constater l’état d’une commande non transmise',
+              'Marquer la commande comme envoyée en précisant le canal',
+              'Ouvrir la commande envoyée et constater qu’elle n’est plus modifiable',
+              'Annuler l’envoi et vérifier que la commande redevient un brouillon',
+            ],
+            resultatAttendu:
+              'Une commande non transmise est signalée comme brouillon ; une fois datée, elle porte son état envoyé et la date du jour, son délai de livraison court à partir de là, et ses lignes ne sont plus modifiables ; l’annulation la rend à son état de brouillon et à sa modifiabilité.',
+          },
+          {
+            id: 'ACH-91',
+            titre: 'Tenir compte des produits promis dans la quantité à commander',
+            besoin:
+              'Le réassort comparait le stock objectif au stock présent en rayon. Mais une partie de ce stock peut être déjà promise : un produit servi partiellement au comptoir laisse un avoir, et les unités correspondantes sont bien là, mais réservées. Le calcul les comptait comme disponibles et croyait donc à une couverture qui n’existait pas, d’exactement le nombre d’unités dues. La commande partait trop tard — pour un client qui avait déjà payé.',
+            fonctionnement:
+              'Les unités promises à des clients sont retranchées du stock avant de le comparer à l’objectif. Le stock affiché reste le stock physique, celui qu’on compte en rayon ; la dette s’affiche dessous, afin que l’écart entre « objectif moins stock » et la quantité proposée s’explique. Seul le solde restant dû compte : un avoir déjà remis en partie ne pèse que pour ce qui reste, et un avoir clôturé ne pèse plus. Retrancher la dette du stock n’équivaut pas à l’ajouter à la quantité : lorsque le stock dépasse déjà l’objectif, aucune commande n’est déclenchée, là où une addition en aurait provoqué une inutile.',
+            prerequis: 'Un produit suivi par le réassort automatique et promis à au moins un client.',
+            etapes: [
+              'Ouvrir Achats & Approvisionnements, puis le tableau de bord du réassort',
+              'Repérer un produit dont des unités sont dues à des clients',
+              'Comparer le stock affiché, la dette et la quantité proposée',
+            ],
+            resultatAttendu:
+              'Le produit affiche son stock physique, les unités promises à des clients, et une quantité à commander calculée sur le stock réellement disponible — soit le stock diminué de ce qui est dû.',
+          },
+          {
+            id: 'ACH-90',
+            titre: 'Voir ce qui est promis aux clients et pas encore commandé',
+            besoin:
+              'Quand un produit manque au comptoir, le client repart avec la promesse qu’il sera là. Cette promesse était bien enregistrée, et l’officine savait prévenir le client dès que la livraison arrivait — mais rien ne disait l’inverse : un produit promis que personne n’avait pensé à commander n’apparaissait nulle part. Le client attendait un appel qui ne pouvait pas venir. La question du matin, « qu’ai-je promis que je n’ai pas encore commandé ? », n’avait aucun écran pour y répondre.',
+            fonctionnement:
+              'Un onglet « Dus aux clients » liste les produits promis qu’aucune commande partie chez le grossiste ne couvre, du plus ancienne promesse à la plus récente. Chaque ligne donne le nombre de personnes en attente, les unités dues, le stock et l’ancienneté de la plus vieille demande. Une commande encore à l’état de brouillon ne compte pas comme couverture : tant qu’elle n’est pas partie, le grossiste ne l’a jamais vue. Les produits dont le stock couvre déjà le dû sont signalés à part : ils appellent un appel au client, pas une commande. Une pastille sur l’onglet annonce le nombre sans qu’il faille l’ouvrir, et le même dû apparaît à côté du produit dans la saisie de commande et dans les propositions d’achat, là où la quantité se décide.',
+            prerequis: 'Au moins un produit promis à un client et non couvert par une commande transmise.',
+            etapes: [
+              'Ouvrir Achats & Approvisionnements, puis Commandes & Réceptions',
+              'Ouvrir l’onglet « Dus aux clients »',
+              'Lire une ligne : personnes en attente, unités dues et ancienneté de la demande',
+            ],
+            resultatAttendu:
+              'La liste montre les produits promis et non commandés, avec pour chacun le nombre de personnes en attente, les unités dues et depuis combien de jours la plus ancienne demande est en souffrance.',
+          },
+          {
+            id: 'ACH-89',
+            titre: 'Voir le franco de port et le palier de remise pendant la saisie',
+            besoin:
+              'Deux conditions négociées avec le grossiste décident du coût réel d’un bon, et aucune n’était visible au moment d’agir. Un bon un peu en dessous du franco de port fait payer une livraison qu’un article de plus aurait rendue gratuite, et l’officine ne l’apprend qu’à la facture. Le palier de remise de fin d’année, lui, ne se consultait que dans un écran financier ouvert après coup — trop tard pour orienter la commande vers un grossiste plutôt qu’un autre.',
+            fonctionnement:
+              'Le bandeau de totaux de la saisie affiche, à côté des montants d’achat et de vente, le franco de port et l’avancement vers le palier de remise. Le franco indique ce qu’il manque pour l’atteindre, puis signale qu’il est atteint. Le palier affiche le pourcentage du GROUPE de fournisseurs — le cumul de toutes les agences d’un même grossiste face au palier négocié avec lui — et son infobulle donne le chiffre d’affaires, le palier et le reste à facturer. Une mention apparaît lorsque le bon en cours suffit à franchir le palier. Le franco se renseigne dans la fiche du grossiste ; une agence qui n’en a pas hérite du sien, comme pour le délai de livraison.',
+            prerequis: 'Une commande fournisseur en cours de saisie, chez un grossiste dont le franco de port et le palier de remise sont renseignés.',
+            etapes: [
+              'Ouvrir une commande fournisseur en saisie et repérer le bandeau de totaux',
+              'Lire l’état du franco de port',
+              'Lire l’avancement vers le palier de remise de fin d’année',
+            ],
+            resultatAttendu:
+              'Le bandeau indique l’état du franco de port — ce qu’il manque, ou qu’il est atteint — et le pourcentage du palier atteint par le groupe du grossiste, sans qu’il soit nécessaire de quitter l’écran de saisie.',
+          },
+          {
             id: 'ACH-46',
             titre: 'Prévisualiser le rangement avant finalisation',
             besoin: 'Savoir à l’avance où seront rangés les produits reçus (rayon, emplacement) avant de valider définitivement la réception.',
@@ -2884,6 +2993,22 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             prerequis: 'Le produit est déjà placé dans un rayon d’un stockage.',
             etapes: ['Depuis la liste produits, sélectionner "Cloner le rayon"', 'Choisir le stockage cible', 'Valider'],
             resultatAttendu: 'Le produit est placé dans le stockage cible, au même rayon que dans le stockage d’origine.',
+          },
+          {
+            id: 'REF-70',
+            titre: 'Lire le rayon et le stock d’un article depuis le magasin où l’on travaille',
+            besoin:
+              'Un article détenu par l’officine et par la parapharmacie n’est pas rangé au même endroit, et n’y est pas détenu en même quantité. Celui qui le cherche, ou qui propose un équivalent au comptoir, doit lire l’adresse et la quantité de SON magasin — pas celles d’un autre établissement.',
+            fonctionnement:
+              'Le rangement appartient au site : un rayon est rattaché à un stockage, donc à un seul magasin, et le même article porte une adresse propre dans chaque établissement. Les écrans du référentiel résolvent donc le rayon et le stock du magasin de la session — le catalogue annonce le rayon d’ici, et l’onglet des génériques les quantités détenues ici. Le catalogue d’un magasin ne liste par ailleurs que ce qu’il détient : une parapharmacie n’y trouve pas les médicaments de l’officine.',
+            prerequis: 'Un article détenu dans deux magasins, et un compte affecté au second.',
+            etapes: [
+              'Ouvrir le catalogue depuis l’officine et relever le rayon d’un article partagé',
+              'Y ouvrir l’onglet « Génériques » d’un article à équivalents et relever leurs stocks',
+              'Se connecter avec un compte de l’unité de gestion et relever le rayon du même article',
+            ],
+            resultatAttendu:
+              'Chaque magasin annonce son propre rayon pour le même article, et les stocks des équivalents sont exactement ceux détenus par l’officine — et non zéro, comme l’onglet l’affichait pour tout le monde.',
           },
         ],
       },
@@ -3756,6 +3881,21 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             // second mécanisme.
             hidden: true,
             resultatAttendu: 'L’opération est refusée avec un message explicite.',
+          },
+          {
+            id: 'STK-47',
+            titre: 'Reprendre de la marchandise laissée en dépôt',
+            besoin: 'Récupérer un produit qui dort chez le dépositaire plutôt que de le racheter au grossiste, ou le reprendre avant qu’il ne se périme.',
+            fonctionnement:
+              'Le retour fait le chemin inverse de la vente dépôt : le dépôt se dessaisit, l’officine reprend, et rien n’est encaissé puisque rien n’avait été payé. Seuls les produits que le dépôt détient réellement sont proposés, chacun avec la quantité dont il dispose. Un seul enregistrement déplace le stock des deux côtés et laisse à chaque entité son propre mouvement, de sorte que l’historique du dépôt suit son stock aussi fidèlement que celui de l’officine.',
+            etapes: [
+              'Ouvrir le stock des dépôts et demander un retour',
+              'Choisir le dépôt concerné : la liste se limite à ce qu’il détient',
+              'Rechercher le produit, saisir la quantité reprise et l’ajouter au retour',
+              'Enregistrer le retour',
+            ],
+            resultatAttendu:
+              'Le stock du dépôt diminue, celui de l’officine augmente, et chaque côté porte son propre mouvement dans l’historique.',
           },
         ],
       },
@@ -5261,6 +5401,39 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
             fonctionnement: 'La liste peut être filtrée par login ou autres critères d’identification.',
             etapes: ['Ouvrir la liste des utilisateurs', 'Filtrer par critère'],
             resultatAttendu: 'Les résultats correspondent exactement au critère de recherche.',
+          },
+          {
+            id: 'ADM-24',
+            titre: 'Affecter un utilisateur à une unité de gestion',
+            besoin:
+              'Faire travailler quelqu’un à la parapharmacie, qui tient sa propre caisse et son propre stock, sans lui ouvrir ceux de l’officine.',
+            fonctionnement:
+              'Le champ « Magasin d’affectation » n’apparaît que si l’officine compte au moins une unité rattachée : ailleurs, il n’y a rien à choisir. La liste propose l’officine et ses unités de gestion, jamais un dépôt — on n’y saisit rien et il n’a pas de caisse. Le compte créé travaille dans son magasin : sa caisse, son stock et ses commandes y restent.',
+            prerequis: 'Une unité de gestion rattachée à l’officine.',
+            etapes: [
+              'Ouvrir la liste des utilisateurs et demander un nouvel utilisateur',
+              'Renseigner le login, le nom et le prénom',
+              'Choisir le rôle, puis l’unité de gestion comme magasin d’affectation',
+              'Enregistrer',
+            ],
+            resultatAttendu:
+              'Le compte apparaît dans la liste, actif, et il est rattaché à l’unité de gestion : ses sessions de caisse et ses mouvements de stock s’y inscriront.',
+          },
+          {
+            id: 'ADM-25',
+            titre: 'Refuser le changement de magasin d’un caissier dont la caisse est ouverte',
+            besoin:
+              'Ne pas laisser une caisse ouverte dans un magasin que son caissier a quitté : personne ne saurait plus qui doit en faire le billetage.',
+            fonctionnement:
+              'Un compte se réaffecte — une personne peut passer de l’officine à la parapharmacie. Mais pas avec une caisse ouverte : l’enregistrement est refusé et le message demande le billetage d’abord. L’affectation reste inchangée tant que la caisse n’est pas close.',
+            prerequis: 'Un caissier dont la caisse est ouverte, et une unité de gestion où l’affecter.',
+            etapes: [
+              'Ouvrir la fiche du caissier dont la caisse est ouverte',
+              'Choisir un autre magasin d’affectation',
+              'Tenter d’enregistrer',
+            ],
+            resultatAttendu:
+              'L’enregistrement est refusé, le message demande le billetage, et le caissier reste affecté à son magasin.',
           },
         ],
       },

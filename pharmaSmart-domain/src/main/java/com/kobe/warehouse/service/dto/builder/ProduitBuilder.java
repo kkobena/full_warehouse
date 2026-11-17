@@ -245,6 +245,11 @@ public final class ProduitBuilder {
                 .toList()
         );
         updateStockQuantity(produitDTO);
+        // Le stock du comptoir est celui du magasin connecté, jamais le premier venu : les lignes
+        // ci-dessus sont déjà filtrées, il ne reste qu'à désigner le stockage de vente.
+        produitDTO.setStockProduit(
+            produitDTO.getStockProduits().stream().filter(s -> s.getType() == StorageType.PRINCIPAL).findFirst().orElse(null)
+        );
         // produitDTO.setTotalQuantity(produitDTO.getStockProduits().stream().mapToInt(StockProduitDTO::getQtyStock).sum());
         return produitDTO;
     }
@@ -271,36 +276,36 @@ public final class ProduitBuilder {
         return produitDTO;
     }
 
-    public static ProduitDTO stockProduits(ProduitDTO produitDTO, Produit produit) {
-        produitDTO.setStockProduits(produit.getStockProduits().stream().map(StockProduitDTO::new).toList());
-        List<StockProduitDTO> stockProduits = produitDTO.getStockProduits();
-        StockProduitDTO stockProduitPointOfSale;
-        if (stockProduits.size() > 1) {
-            stockProduitPointOfSale = stockProduits.stream().filter(s -> s.getType() == StorageType.PRINCIPAL).findFirst().orElse(null);
-        } else {
-            stockProduitPointOfSale = stockProduits.getFirst();
-        }
-        produitDTO.setStockProduit(stockProduitPointOfSale);
-        assert stockProduitPointOfSale != null;
-        produitDTO.setSaleOfPointStock(stockProduitPointOfSale.getQtyStock());
-        return produitDTO;
-    }
-
     public static ProduitDTO rayonProduits(ProduitDTO produitDTO, Produit produit, Integer magasinId) {
         Set<RayonProduit> rayonProduits = produit.getRayonProduits();
         if (!CollectionUtils.isEmpty(rayonProduits)) {
             produitDTO.setRayonProduits(rayonProduits.stream().map(RayonProduitDTO::new).toList());
 
-            Optional<RayonProduitDTO> rayon = produitDTO
-                .getRayonProduits()
-                .stream()
-                .filter(r -> (r.getStorageType().equalsIgnoreCase(StorageType.PRINCIPAL.getValue()) && r.getMagasinId().equals(magasinId)))
-                .findFirst();
-            rayon.ifPresent(rayonProduitDTO ->
-                produitDTO.setRayonId(rayonProduitDTO.getRayonId()).setRayonLibelle(rayonProduitDTO.getLibelleRayon()).setRayonPosition(rayonProduitDTO.getPosition())
+            lireLeRayonDuMagasin(produit, magasinId).ifPresent(rayon ->
+                produitDTO.setRayonId(rayon.getId()).setRayonLibelle(rayon.getLibelle()).setRayonPosition(rayon.getPosition())
             );
         }
         return produitDTO;
+    }
+
+    /**
+     * Le rayon du produit DANS CE MAGASIN. Un rayon appartient à un stockage, donc à un magasin :
+     * le même produit est rangé ailleurs dans un autre établissement, et prendre le premier venu
+     * revient à annoncer l'adresse d'un autre comptoir.
+     */
+    private static Optional<Rayon> lireLeRayonDuMagasin(Produit produit, Integer magasinId) {
+        if (magasinId == null) {
+            return Optional.empty();
+        }
+        return produit
+            .getRayonProduits()
+            .stream()
+            .map(RayonProduit::getRayon)
+            .filter(rayon ->
+                rayon.getStorage().getStorageType() == StorageType.PRINCIPAL &&
+                magasinId.equals(rayon.getStorage().getMagasin().getId())
+            )
+            .findFirst();
     }
 
     private static void setFournisseurPrincipal(ProduitDTO produitDTO, Produit produit) {
@@ -326,7 +331,7 @@ public final class ProduitBuilder {
         stockProduits(produitDTO, produit, magasin.getId());
         stockProduit(produitDTO, stockProduitPointOfSale);
         rayonProduits(produitDTO, produit, magasin.getId());
-        produits(produitDTO, produit);
+        produits(produitDTO, produit, magasin.getId());
         fournisseurProduits(produitDTO, produit);
         produitDTO.setTableau(Optional.ofNullable(produit.getTableau()).map(TableauDTO::new).orElse(null));
         updateCategorieABC(produitDTO, produit);
@@ -334,8 +339,8 @@ public final class ProduitBuilder {
         return produitDTO;
     }
 
-    public static ProduitDTO produits(ProduitDTO produitDTO, Produit produit) {
-        return produitDTO.setProduits(produit.getProduits().stream().map(ProduitBuilder::fromProduit).toList());
+    public static ProduitDTO produits(ProduitDTO produitDTO, Produit produit, Integer magasinId) {
+        return produitDTO.setProduits(produit.getProduits().stream().map(p -> fromProduit(p, magasinId)).toList());
     }
 
     public static ProduitDTO fournisseurProduits(ProduitDTO produitDTO, Produit produit) {
@@ -389,26 +394,7 @@ public final class ProduitBuilder {
         return produitDTO;
     }
 
-    public static ProduitDTO rayonProduits(ProduitDTO produitDTO, Produit produit) {
-        Set<RayonProduit> rayonProduits = produit.getRayonProduits();
-        if (!CollectionUtils.isEmpty(rayonProduits)) {
-            produitDTO.setRayonProduits(rayonProduits.stream().map(RayonProduitDTO::new).toList());
-
-            Optional<RayonProduit> rayon = produit
-                .getRayonProduits()
-                .stream()
-                .filter(r -> r.getRayon().getStorage().getStorageType() == StorageType.PRINCIPAL)
-                .findFirst();
-
-            if (rayon.isPresent()) {
-                Rayon rayonProduitDTO = rayon.get().getRayon();
-                produitDTO.setRayonId(rayonProduitDTO.getId()).setRayonLibelle(rayonProduitDTO.getLibelle()).setRayonPosition(rayonProduitDTO.getPosition());
-            }
-        }
-        return produitDTO;
-    }
-
-    public static ProduitDTO fromProduit(Produit produit) {
+    public static ProduitDTO fromProduit(Produit produit, Integer magasinId) {
         ProduitDTO produitDTO = partialFromProduit(produit);
         setFournisseurPrincipal(produitDTO, produit);
         fournisseurProduits(produitDTO, produit);
@@ -417,9 +403,9 @@ public final class ProduitBuilder {
         familleProduit(produitDTO, produit);
         gammeProduit(produitDTO, produit);
         tva(produitDTO, produit);
-        stockProduits(produitDTO, produit);
-        rayonProduits(produitDTO, produit);
-        produits(produitDTO, produit);
+        stockProduits(produitDTO, produit, magasinId);
+        rayonProduits(produitDTO, produit, magasinId);
+        produits(produitDTO, produit, magasinId);
         produitDTO.setStatus(produit.getStatus());
         produitDTO.setDisplayField(
             String.format("%s %s %d", produitDTO.getCodeCip(), produitDTO.getLibelle(), produitDTO.getRegularUnitPrice())
@@ -428,7 +414,7 @@ public final class ProduitBuilder {
         return produitDTO;
     }
 
-    public static ProduitDTO lite(Produit produit) {
+    public static ProduitDTO lite(Produit produit, Integer magasinId) {
         ProduitDTO dto = new ProduitDTO();
         dto.setId(produit.getId());
         dto.setLibelle(produit.getLibelle());
@@ -441,19 +427,11 @@ public final class ProduitBuilder {
         if (stockProduitPointOfSale != null) {
             dto.setSaleOfPointStock(stockProduitPointOfSale.getQtyStock());
             dto.setSaleOfPointVirtualStock(stockProduitPointOfSale.getQtyVirtual());
-            try {
-                Rayon rayon = produit
-                    .getRayonProduits()
-                    .stream()
-                    .filter(r -> r.getRayon().getStorage().getStorageType() == StorageType.PRINCIPAL)
-                    .findFirst()
-                    .get()
-                    .getRayon();
+            lireLeRayonDuMagasin(produit, magasinId).ifPresent(rayon -> {
                 dto.setRayonId(rayon.getId());
                 dto.setRayonLibelle(rayon.getLibelle());
                 dto.setRayonPosition(rayon.getPosition());
-            } catch (Exception _) {
-            }
+            });
         }
         dto.setCodeEan(produit.getCodeEanLaboratoire());
         FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
@@ -587,10 +565,10 @@ public final class ProduitBuilder {
         return fournisseurProduit;
     }
 
-    public static ProduitDTO fromProduitWithRequiredParentRelation(Produit produit) {
+    public static ProduitDTO fromProduitWithRequiredParentRelation(Produit produit, Integer magasinId) {
         ProduitDTO produitDTO = partialFromProduit(produit);
         tva(produitDTO, produit);
-        rayonProduits(produitDTO, produit);
+        rayonProduits(produitDTO, produit, magasinId);
         produitDTO.setStatus(produit.getStatus());
         produitDTO.setTableau(Optional.ofNullable(produit.getTableau()).map(TableauDTO::new).orElse(null));
         produitDTO.setFournisseurProduit(
@@ -646,11 +624,11 @@ public final class ProduitBuilder {
         }
     }
 
-    public static ProduitDTO fromEntity(Produit produit) {
+    public static ProduitDTO fromEntity(Produit produit, Integer magasinId) {
         ProduitDTO produitDTO = partialFromProduit(produit);
         FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
         tva(produitDTO, produit);
-        rayonProduits(produitDTO, produit);
+        rayonProduits(produitDTO, produit, magasinId);
         produitDTO.setStatus(produit.getStatus());
         produitDTO.setTableau(Optional.ofNullable(produit.getTableau()).map(TableauDTO::new).orElse(null));
         produitDTO.setDisplayField(buildDisplayName(produitDTO, fournisseurProduit));
@@ -701,7 +679,7 @@ public final class ProduitBuilder {
 
     public static ProduitDTO fromProductLiteList(Produit produit, StockProduit stockProduitPointOfSale, Magasin magasin) {
         ProduitDTO produitDTO = partialFromProduit(produit);
-        rayonProduits(produitDTO, produit);
+        rayonProduits(produitDTO, produit, magasin.getId());
         produitDTO.setStatus(produit.getStatus());
         stockProduits(produitDTO, produit, magasin.getId());
         stockProduit(produitDTO, stockProduitPointOfSale);

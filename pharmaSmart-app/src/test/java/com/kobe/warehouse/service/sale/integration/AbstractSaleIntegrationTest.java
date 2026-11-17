@@ -129,6 +129,7 @@ abstract class AbstractSaleIntegrationTest {
         CashRegister cashRegister = new CashRegister();
         cashRegister.setCashFund(fond);
         cashRegister.setUser(caissier);
+        cashRegister.setMagasin(cashRegister.getUser().getMagasin());
         cashRegister.setInitAmount(0L);
         cashRegister.setBeginTime(LocalDateTime.now());
         cashRegister.setCreated(LocalDateTime.now());

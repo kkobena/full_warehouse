@@ -9,6 +9,12 @@ public class CommandeLiteDTO extends CommandeWrapperDTO {
     private UserDTO lastUserEdit;
     private int itemSize;
 
+    /**
+     * Renseigne seulement si une contrainte de conditionnement a modifie la quantite saisie. Reste
+     * nul le reste du temps, et n'est alors pas serialise : le front le lit comme absent.
+     */
+    private AjustementColisage ajustementColisage;
+
     public CommandeLiteDTO() {}
 
     public CommandeLiteDTO(Commande commande) {
@@ -39,6 +45,15 @@ public class CommandeLiteDTO extends CommandeWrapperDTO {
 
     public CommandeLiteDTO setFournisseur(FournisseurDTO fournisseur) {
         this.fournisseur = fournisseur;
+        return this;
+    }
+
+    public AjustementColisage getAjustementColisage() {
+        return ajustementColisage;
+    }
+
+    public CommandeLiteDTO setAjustementColisage(AjustementColisage ajustementColisage) {
+        this.ajustementColisage = ajustementColisage;
         return this;
     }
 

@@ -147,6 +147,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
 
     @Override
     public List<ProduitDTO> lite(ProduitCriteria produitCriteria) {
+        Magasin magasin = storageService.getConnectedUserMagasin();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Produit> cq = cb.createQuery(Produit.class);
         Root<Produit> root = cq.from(Produit.class);
@@ -155,13 +156,15 @@ public class CustomizedProductRepository implements CustomizedProductService {
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Produit> q = em.createQuery(cq);
 
-        return q.getResultList().stream().map(ProduitBuilder::fromProduitWithRequiredParentRelation)
+        return q.getResultList().stream()
+            .map(p -> ProduitBuilder.fromProduitWithRequiredParentRelation(p, magasin.getId()))
             .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ProduitDTO> findAll(ProduitCriteria produitCriteria) throws Exception {
+        Magasin magasin = storageService.getConnectedUserMagasin();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Produit> cq = cb.createQuery(Produit.class);
         Root<Produit> root = cq.from(Produit.class);
@@ -170,7 +173,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
         List<Predicate> predicates = rechercheProduitPredicate(cb, root, produitCriteria);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Produit> q = em.createQuery(cq);
-        return q.getResultList().stream().map(ProduitBuilder::fromProduit).toList();
+        return q.getResultList().stream().map(p -> ProduitBuilder.fromProduit(p, magasin.getId())).toList();
     }
 
     @Override

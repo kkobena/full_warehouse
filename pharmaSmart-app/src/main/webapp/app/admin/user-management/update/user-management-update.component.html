@@ -95,6 +95,23 @@
             }
           </div>
 
+          @if (afficherLeChoixDuMagasin()) {
+            <div class="form-field form-field-full">
+              <label for="field_magasin">Magasin d'affectation</label>
+
+              <app-select
+                [items]="magasins()"
+                appendTo="body"
+                bindLabel="name"
+                bindValue="id"
+                class="w-full"
+                formControlName="magasinId"
+                inputId="field_magasin"
+                placeholder="Sélectionner un magasin"
+              />
+            </div>
+          }
+
           @if (!isAdmin()) {
             <div class="form-field form-field-full">
               <label for="field_authority">Droits<span class="required">*</span></label>

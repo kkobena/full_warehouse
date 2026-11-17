@@ -35,6 +35,13 @@ public class MagasinDTO implements Serializable {
     private String managerLastName;
     private String fnePointOfSale;
     private String fneSecretKey;
+    private Integer parentId;
+    /**
+     * {@code null} signifie « non renseigné » et non « faux » : un écran qui ignore ce champ ne
+     * doit pas écraser la valeur enregistrée. Le service retombe alors sur l'existant, ou sur le
+     * défaut de la nature du magasin à la création.
+     */
+    private Boolean commandeEnPropre;
 
     public MagasinDTO() {}
 
@@ -60,6 +67,28 @@ public class MagasinDTO implements Serializable {
         email = magasin.getEmail();
         fnePointOfSale = magasin.getFnePointOfSale();
         fneSecretKey = magasin.getFneSecretKey();
+        // getId() sur un proxy paresseux ne declenche aucune requete : on ne remonte pas le nom du
+        // parent, que le front resout deja depuis sa liste de magasins.
+        parentId = magasin.getParent() == null ? null : magasin.getParent().getId();
+        commandeEnPropre = magasin.isCommandeEnPropre();
+    }
+
+    public Integer getParentId() {
+        return parentId;
+    }
+
+    public MagasinDTO setParentId(Integer parentId) {
+        this.parentId = parentId;
+        return this;
+    }
+
+    public Boolean getCommandeEnPropre() {
+        return commandeEnPropre;
+    }
+
+    public MagasinDTO setCommandeEnPropre(Boolean commandeEnPropre) {
+        this.commandeEnPropre = commandeEnPropre;
+        return this;
     }
 
     public TypeMagasin getTypeMagasin() {

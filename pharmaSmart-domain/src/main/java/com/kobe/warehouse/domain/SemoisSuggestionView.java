@@ -20,6 +20,7 @@ import java.time.Instant;
 @Entity
 @Table(name = "v_semois_suggestion")
 @Immutable // Hibernate: empêche INSERT/UPDATE/DELETE
+@IdClass(SemoisSuggestionViewId.class)
 public class SemoisSuggestionView implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -27,6 +28,11 @@ public class SemoisSuggestionView implements Serializable {
     @Id
     @Column(name = "produit_id")
     private Integer produitId;
+
+    /** Magasin dont cette ligne décrit le réassort — seconde moitié de l'identité. */
+    @Id
+    @Column(name = "magasin_id")
+    private Integer magasinId;
 
     @Column(name = "libelle", nullable = false)
     private String libelle;
@@ -67,6 +73,10 @@ public class SemoisSuggestionView implements Serializable {
     @Column(name = "quantite_a_commander")
     private Long quantiteACommander;
 
+    /** Unités dues à des clients : déjà retranchées de {@link #quantiteACommander} par la vue. */
+    @Column(name = "dette_client")
+    private Long detteClient;
+
     @Column(name = "date_dernier_calcul")
     private Instant dateDernierCalcul;
 
@@ -83,6 +93,10 @@ public class SemoisSuggestionView implements Serializable {
 
     public String getFournisseurLibelle() {
         return fournisseurLibelle;
+    }
+
+    public Integer getMagasinId() {
+        return magasinId;
     }
 
     public Integer getProduitId() {
@@ -127,6 +141,10 @@ public class SemoisSuggestionView implements Serializable {
 
     public Long getQuantiteACommander() {
         return quantiteACommander;
+    }
+
+    public Long getDetteClient() {
+        return detteClient;
     }
 
     public Instant getDateDernierCalcul() {

@@ -93,6 +93,8 @@ public class BedServiceImpl implements BedService {
         commande.setCreatedAt(LocalDateTime.now());
         commande.setUpdatedAt(commande.getCreatedAt());
         commande.setUser(storageService.getUser());
+        // Fige a la creation : non deduit de l'utilisateur courant a la lecture.
+        commande.setMagasin(commande.getUser().getMagasin());
         commande.setGrossAmount(0);
         commande.setDiscountAmount(0);
         commande.setTaxAmount(0);
@@ -302,6 +304,8 @@ public class BedServiceImpl implements BedService {
         commande.setCreatedAt(LocalDateTime.now());
         commande.setUpdatedAt(commande.getCreatedAt());
         commande.setUser(storageService.getUser());
+        // Fige a la creation : non deduit de l'utilisateur courant a la lecture.
+        commande.setMagasin(commande.getUser().getMagasin());
         if (fournisseurId != null) {
             commande.setFournisseur(fournisseurRepository.getReferenceById(fournisseurId));
         }

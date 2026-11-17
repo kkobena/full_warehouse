@@ -5,6 +5,7 @@
 
     <!-- Actions gauche -->
     <div class="d-flex gap-2 align-items-center flex-wrap">
+      <!-- Ajouter des lignes à la main : interdit dès que la commande est partie. -->
       @if (currentCommande()?.commandeId && !isLocked) {
         <app-button
           (clicked)="onImportSuggestion()"
@@ -15,6 +16,13 @@
           severity="primary"
           size="small"
         />
+      }
+      <!--
+        Importer la réponse du grossiste n'est PAS une modification à la main : c'est l'étape
+        normale après un envoi par mail, et la verrouiller casserait ce circuit. Seul l'EDI s'en
+        passe, PharmaML rapatriant sa réponse par son propre canal.
+      -->
+      @if (currentCommande()?.commandeId && !estSoumisePharmaml) {
         <app-button
           (clicked)="onImporterReponseCommande()"
           [outlined]="true"
@@ -87,10 +95,23 @@
   </div>
 
   <!-- ── BANDEAUX CONTEXTUELS ──────────────────────────────────────────── -->
+  <!--
+    Le verrou vaut pour tout envoi, pas seulement l'EDI : ce que le grossiste a reçu ne doit plus
+    bouger chez nous. Le bandeau nomme le canal, sans quoi l'utilisateur chercherait un envoi
+    PharmaML qui n'a pas eu lieu.
+  -->
   @if (isLocked) {
     <div class="cr-banner cr-banner--locked">
       <i class="pi pi-lock"></i>
-      <span>Soumise via <strong>PharmaML</strong> — modifications désactivées.</span>
+      @if (estSoumisePharmaml) {
+        <span>Soumise via <strong>PharmaML</strong> — modifications désactivées.</span>
+      } @else {
+        <span>
+          Envoyée au grossiste le
+          <strong>{{ currentCommande()?.dateEnvoi | date: 'dd/MM/yy à HH:mm' }}</strong>
+          — modifications désactivées. Pour la rouvrir, annuler l'envoi depuis la liste.
+        </span>
+      }
     </div>
   }
   @if (currentCommande()?.reliquatDeCommandeId != null) {
@@ -192,6 +213,71 @@
               {{ currentCommande().orderAmount | devise }}
             </span>
           </span>
+          <!--
+            Palier RFA. Le calcul existait déjà, mais dans un écran financier qu'on ouvre après
+            coup : il n'a de valeur qu'ici, au moment où l'on peut encore orienter le bon vers
+            ce grossiste. On affiche le reste à facturer plutôt qu'une projection : le chiffre
+            d'affaires compte les réceptions, et ce bon peut être reçu l'an prochain.
+          -->
+          <!--
+            Franco de port : le seul moment utile pour le dire est celui où l'on peut encore
+            ajouter une ligne. À la facture, il est trop tard.
+          -->
+          @if (manqueAuFranco(); as manque) {
+            <span aria-hidden="true" class="grid-caption__sep"></span>
+            <span
+              class="grid-caption__stat"
+              [ngbTooltip]="'Franco à ' + (currentCommande().fournisseur?.francoEffectif | devise) + ' : en dessous, les frais de port sont facturés.'"
+              placement="top"
+            >
+              <span class="grid-caption__stat-label">Franco</span>
+              <span class="grid-caption__stat-value text-warning">
+                il manque {{ manque | devise }}
+              </span>
+            </span>
+          } @else if (francoAtteint()) {
+            <span aria-hidden="true" class="grid-caption__sep"></span>
+            <span
+              class="grid-caption__stat"
+              [ngbTooltip]="'Franco à ' + (currentCommande().fournisseur?.francoEffectif | devise) + ' — atteint : pas de frais de port sur ce bon.'"
+              placement="top"
+            >
+              <span class="grid-caption__stat-label">Franco</span>
+              <span class="grid-caption__stat-value text-success">atteint</span>
+            </span>
+          }
+          @if (palierRfa(); as rfa) {
+            <span aria-hidden="true" class="grid-caption__sep"></span>
+            <span
+              class="grid-caption__stat"
+              [ngbTooltip]="
+                rfa.fournisseurName + ' — ' + (rfa.caCommandeN | devise) + ' sur un palier de ' +
+                (rfa.palierRfa | devise) + '.' +
+                (rfa.resteAvantPalier > 0
+                  ? ' Il reste ' + (rfa.resteAvantPalier | devise) + ' à facturer.'
+                  : ' Palier franchi, la remise est acquise.')
+              "
+              placement="top"
+            >
+              <span class="grid-caption__stat-label">Palier RFA</span>
+              <span
+                class="grid-caption__stat-value"
+                [class.text-success]="rfa.etat === 'ATTEINT'"
+                [class.text-warning]="rfa.etat === 'PROCHE_DU_PALIER'"
+              >
+                {{ rfa.pourcentageAtteint | number: '1.0-0' }}%
+              </span>
+            </span>
+            @if (faitBasculerLePalier()) {
+              <app-badge
+                icon="pi pi-star"
+                label="Ce bon franchit le palier"
+                severity="success"
+                [ngbTooltip]="'Il reste ' + (rfa.resteAvantPalier | devise) + ' à facturer, ce bon en porte ' + (currentCommande().grossAmount | devise) + '.'"
+                placement="top"
+              />
+            }
+          }
         </span>
       </div>
     }
@@ -232,12 +318,12 @@
       </div>
 
 
-      @if (currentCommande() && isLocked) {
+      @if (currentCommande() && estSoumisePharmaml) {
         <div class="pharmaml-col">
           <app-pharmaml-home
             [commandeId]="currentCommande().commandeId"
             [commandeRef]="currentCommande().orderReference ?? ''"
-            [isSubmited]="isLocked"
+            [isSubmited]="estSoumisePharmaml"
             [orderStatus]="currentCommande().orderStatus"
           />
         </div>

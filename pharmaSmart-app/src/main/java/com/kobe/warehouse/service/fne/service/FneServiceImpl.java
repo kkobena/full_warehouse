@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import com.kobe.warehouse.domain.PlanificationCertificationFne;
 import com.kobe.warehouse.domain.RepartitionTiersPayantParTva;
 import com.kobe.warehouse.domain.TiersPayant;
@@ -125,7 +126,14 @@ public class FneServiceImpl implements FneService {
             return new CertificationFneResult(0, 0);
         }
         log.info("Certification FNE planifiée (id={}) : {} facture(s) à certifier", plan.getId(), pending.size());
-        Magasin magasin = magasinRepository.findAll().getFirst();
+        // Seule l'officine certifie : un dépôt ou une unité de gestion n'a pas d'identité FNE.
+        // findAll() n'impose aucun ordre et rendait le premier magasin venu, dépôt compris.
+        Magasin magasin = magasinRepository.findFirstByTypeMagasinOrderByIdAsc(TypeMagasin.OFFICINE).orElse(null);
+        if (magasin == null) {
+            log.error("Certification FNE planifiée (id={}) : aucune officine paramétrée, "
+                + "{} facture(s) laissées en attente", plan.getId(), pending.size());
+            return new CertificationFneResult(0, 0);
+        }
         int nbOk = 0;
         int nbKo = 0;
         for (FactureTiersPayant facture : pending) {

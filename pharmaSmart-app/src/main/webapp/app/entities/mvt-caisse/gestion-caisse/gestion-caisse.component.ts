@@ -1,5 +1,7 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy, input, signal } from "@angular/core";
+import { Component, computed, inject, OnInit, ChangeDetectionStrategy, input, signal } from "@angular/core";
 import { CashRegisterService } from "../../cash-register/cash-register.service";
+import { MagasinService } from "../../magasin/magasin.service";
+import { IMagasin } from "../../../shared/model/magasin.model";
 import { FormsModule } from "@angular/forms";
 import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
 import { IUser } from "../../../core/user/user.model";
@@ -53,6 +55,13 @@ export class GestionCaisseComponent implements OnInit {
   protected readonly toDate = signal<NgbDateStruct | null>(null);
   protected readonly selectedUser = signal<IUser | null>(null);
   protected readonly users = signal<IUser[] | undefined>(undefined);
+  protected readonly magasins = signal<IMagasin[]>([]);
+  protected readonly selectedMagasin = signal<IMagasin | null>(null);
+  /**
+   * Un seul magasin lisible : il n'y a ni selecteur a offrir ni colonne a montrer. Les afficher
+   * ajouterait du bruit a une installation mono-officine, qui est le cas courant.
+   */
+  protected readonly superviseDAutresMagasins = computed(() => this.magasins().length > 1);
   protected readonly datas = signal<CashRegister[] | undefined>(undefined);
   protected readonly OPEN = CashRegisterStatut.OPEN;
   protected readonly VALIDATED = CashRegisterStatut.VALIDATED;
@@ -60,6 +69,7 @@ export class GestionCaisseComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly mvtParamServiceService = inject(MvtParamServiceService);
   private readonly entityService = inject(CashRegisterService);
+  private readonly magasinService = inject(MagasinService);
   private readonly notificationService = inject(NotificationService);
 
   onSearch(): void {
@@ -92,6 +102,7 @@ export class GestionCaisseComponent implements OnInit {
       this.selectedUser.set(this.mvtParamServiceService.mvtCaisseParam().selectedUser);
     }
     this.loadUsers();
+    this.magasinService.listerLaPorteeDeSupervision().subscribe(magasins => this.magasins.set(magasins));
     this.onSearch();
   }
 
@@ -145,7 +156,8 @@ export class GestionCaisseComponent implements OnInit {
       size: this.itemsPerPage,
       fromDate: this.fromDate() ? NGB_DATE_TO_ISO(this.fromDate()) : null,
       toDate: this.toDate() ? NGB_DATE_TO_ISO(this.toDate()) : null,
-      userId: this.selectedUser()?.id
+      userId: this.selectedUser()?.id,
+      magasinId: this.selectedMagasin()?.id
     };
   }
 }

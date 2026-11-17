@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { choisirDansSelect } from '../../src/actions';
+import { choisirDansSelect, ouvrirOnglet } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -12,9 +12,17 @@ scenario('RPT-32', async ({ etape, page }) => {
 
   await etape(1, async () => {
     await page.goto('/reports/partners');
-    // La colonne « RFM » n'appartient qu'à ce rapport ; le titre, lui, se contenterait d'un
-    // écran encore vide.
-    await expect(page.getByRole('columnheader', { name: 'RFM', exact: true })).toBeVisible();
+    // L'écran est à onglets et la segmentation est le premier : on l'ouvre quand même, pour ne
+    // pas dépendre de l'ordre de la barre, qui suit les droits (`showCustomerSegmentation`).
+    await ouvrirOnglet(page, /Segmentation Clients/);
+    // La colonne « Code RFM » n'appartient qu'à ce rapport ; le titre, lui, se contenterait
+    // d'un écran encore vide.
+    //
+    // Son nom a changé : le parcours cherchait « RFM » exactement, or l'en-tête s'appelle
+    // « Code RFM » — les colonnes « R », « F » et « M » portant, elles, les trois notes. Le
+    // libellé exact distingue bien ce rapport, tandis qu'un « RFM » partiel les attraperait
+    // toutes les quatre.
+    await expect(page.getByRole('columnheader', { name: 'Code RFM', exact: true })).toBeVisible();
     await expect(lignes.first()).toBeVisible();
   });
 

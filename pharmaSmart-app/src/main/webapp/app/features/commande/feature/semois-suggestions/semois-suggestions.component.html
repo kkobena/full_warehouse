@@ -5,6 +5,19 @@
 
 <div class="su-action-bar">
   <div class="su-action-bar__filters">
+    <!-- Absent tant qu'il n'y a qu'un magasin commandeur : il n'y aurait rien a choisir. -->
+    @if (plusieursMagasins()) {
+      <app-select
+        (ngModelChange)="selectedMagasinId.set($event)"
+        (selectionChange)="onMagasinChange()"
+        [clearable]="false"
+        [items]="magasins()"
+        [ngModel]="selectedMagasinId()"
+        bindLabel="name"
+        bindValue="id"
+        placeholder="Magasin"
+      />
+    }
     <app-select
       (ngModelChange)="selectedFournisseurId.set($event)"
       (selectionChange)="onFilterChange()"
@@ -171,8 +184,20 @@
                 <td class="text-end pharma-qty-value">{{ suggestion.vmm || 0 }}</td>
                 <td class="text-end">{{ suggestion.margeSecurite || 0 }}</td>
                 <td class="text-end fw-bold">{{ suggestion.stockObjectif || 0 }}</td>
+                <!--
+                  Le stock affiché reste le stock PHYSIQUE, celui qu'on compte en rayon. La dette
+                  s'affiche dessous : sans elle, une quantité à commander plus élevée que
+                  « objectif moins stock » passerait pour une erreur de calcul.
+                -->
                 <td [class]="getStockActuelClass(suggestion)" class="text-end">
                   {{ suggestion.stockActuel || 0 }}
+                  @if (suggestion.detteClient) {
+                    <div class="semois-dette"
+                         [ngbTooltip]="suggestion.detteClient + ' unité(s) promise(s) à des clients : en rayon, mais réservées. Retranchées du stock disponible pour calculer la quantité à commander.'"
+                         placement="left">
+                      <i class="pi pi-user-plus"></i> −{{ suggestion.detteClient }} dû
+                    </div>
+                  }
                 </td>
                 <td class="text-end fw-bold pharma-price">
                   {{ suggestion.quantiteACommander || 0 }}

@@ -11,6 +11,7 @@ import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashRegisterItem;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.CashRegisterRepository;
+import com.kobe.warehouse.service.portee.PorteeMagasinService;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.dto.CashRegisterTransactionSpecialisation;
@@ -42,7 +43,8 @@ class CashRegisterItemsTest {
         repository,
         mock(AppConfigurationService.class),
         mock(CashFundService.class),
-        mock(UserService.class)
+        mock(UserService.class),
+        mock(PorteeMagasinService.class)
     );
 
     @Test

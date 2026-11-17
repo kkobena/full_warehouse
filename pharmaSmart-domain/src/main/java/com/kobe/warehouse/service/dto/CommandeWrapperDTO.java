@@ -2,6 +2,8 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.Fournisseur;
+import com.kobe.warehouse.domain.enumeration.CanalEnvoi;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.ReconciliationFactureFournisseur;
@@ -31,6 +33,12 @@ public abstract class CommandeWrapperDTO {
     private String sequenceBon;
     private FournisseurDTO fournisseur;
     private boolean hasBeenSubmittedToPharmaML;
+    private LocalDateTime dateEnvoi;
+    private CanalEnvoi canalEnvoi;
+    /** Dérivé de {@code dateEnvoi} : l'écran affiche « Brouillon » ou « Envoyée », pas une date nulle. */
+    private boolean envoyee;
+    /** Jours au-delà du délai annoncé par le grossiste ; 0 si dans les temps, non envoyée ou déjà reçue. */
+    private long joursDeRetard;
     private Integer reliquatDeCommandeId;
     private String createdUser;
     private ReconciliationStatut reconciliationStatut;
@@ -52,6 +60,14 @@ public abstract class CommandeWrapperDTO {
         orderStatus = commande.getOrderStatus();
         receiptAmount = commande.getFinalAmount();
         hasBeenSubmittedToPharmaML = commande.isHasBeenSubmittedToPharmaML();
+        dateEnvoi = commande.getDateEnvoi();
+        canalEnvoi = commande.getCanalEnvoi();
+        envoyee = commande.estEnvoyee();
+        Fournisseur fournisseurCommande = commande.getFournisseur();
+        joursDeRetard = commande.joursDeRetard(
+            LocalDate.now(),
+            fournisseurCommande != null ? fournisseurCommande.delaiLivraisonEffectif() : Fournisseur.DELAI_LIVRAISON_PAR_DEFAUT
+        );
         reliquatDeCommandeId = commande.getReliquatDeCommandeId();
         AppUser user1 = commande.getUser();
         createdUser = AppUserNames.shortName(user1);
@@ -59,6 +75,42 @@ public abstract class CommandeWrapperDTO {
         if (recon != null) {
             reconciliationStatut = recon.getStatut();
         }
+    }
+
+    public LocalDateTime getDateEnvoi() {
+        return dateEnvoi;
+    }
+
+    public CommandeWrapperDTO setDateEnvoi(LocalDateTime dateEnvoi) {
+        this.dateEnvoi = dateEnvoi;
+        return this;
+    }
+
+    public CanalEnvoi getCanalEnvoi() {
+        return canalEnvoi;
+    }
+
+    public CommandeWrapperDTO setCanalEnvoi(CanalEnvoi canalEnvoi) {
+        this.canalEnvoi = canalEnvoi;
+        return this;
+    }
+
+    public boolean isEnvoyee() {
+        return envoyee;
+    }
+
+    public CommandeWrapperDTO setEnvoyee(boolean envoyee) {
+        this.envoyee = envoyee;
+        return this;
+    }
+
+    public long getJoursDeRetard() {
+        return joursDeRetard;
+    }
+
+    public CommandeWrapperDTO setJoursDeRetard(long joursDeRetard) {
+        this.joursDeRetard = joursDeRetard;
+        return this;
     }
 
     public Integer getId() {

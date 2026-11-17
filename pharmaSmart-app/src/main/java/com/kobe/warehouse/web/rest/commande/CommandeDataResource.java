@@ -3,6 +3,7 @@ package com.kobe.warehouse.web.rest.commande;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.service.portee.PorteeMagasinService;
 import com.kobe.warehouse.service.dto.CommandeDashboardDTO;
 import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeEntryDTO;
@@ -45,8 +46,10 @@ public class CommandeDataResource {
 
     private final Logger log = LoggerFactory.getLogger(CommandeDataResource.class);
     private final CommandeDataService commandeDataService;
+    private final PorteeMagasinService porteeMagasinService;
 
-    public CommandeDataResource(CommandeDataService commandeDataService) {
+    public CommandeDataResource(CommandeDataService commandeDataService, PorteeMagasinService porteeMagasinService) {
+        this.porteeMagasinService = porteeMagasinService;
         this.commandeDataService = commandeDataService;
     }
 
@@ -60,6 +63,8 @@ public class CommandeDataResource {
     ) {
         Page<CommandeLiteDTO> page = commandeDataService.fetchCommandes(
             new CommandeFilterDTO()
+                // On ne liste que les commandes des magasins qu'on a le droit de lire.
+                .setMagasinIds(porteeMagasinService.resoudreLaPorteeDeSupervision())
                 .setTypeSuggession(typeSuggession)
                 .setOrderStatuts(orderStatuts)
                 .setSearch(search)
@@ -89,6 +94,9 @@ public class CommandeDataResource {
         return ResponseEntity.ok(
             commandeDataService.filterCommandeLines(
                 new CommandeFilterDTO()
+                    // Meme cloisonnement : l'identifiant d'une commande d'un autre magasin ne doit
+                    // pas suffire a en lire les lignes.
+                    .setMagasinIds(porteeMagasinService.resoudreLaPorteeDeSupervision())
                     .setCommandeId(commandeId)
                     .setOrderStatuts(orderStatuts)
                     .setSearchCommande(searchCommande)

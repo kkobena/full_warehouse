@@ -46,6 +46,16 @@ export class MagasinService {
     return this.http.get<IMagasin>(`${this.resourceUrl}/current-user-magasin`, { observe: 'response' });
   }
 
+  /** Magasins ou l'utilisateur courant peut affecter quelqu'un. Un seul : pas de choix a offrir. */
+  listerLesMagasinsDAffectation(): Observable<IMagasin[]> {
+    return this.http.get<IMagasin[]>(`${this.resourceUrl}/affectables`);
+  }
+
+  /** Magasins que l'utilisateur courant peut lire. Un seul : ni selecteur ni colonne a afficher. */
+  listerLaPorteeDeSupervision(): Observable<IMagasin[]> {
+    return this.http.get<IMagasin[]>(`${this.resourceUrl}/portee`);
+  }
+
   hasDepot(): Observable<HttpResponse<boolean>> {
     return this.http.get<boolean>(`${this.resourceUrl}/has-depot`, { observe: 'response' });
   }

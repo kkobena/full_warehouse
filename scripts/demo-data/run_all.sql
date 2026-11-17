@@ -51,6 +51,9 @@
 \i 09b_histo_achats.sql
 \i 10_repartitions.sql
 \i 10b_ventes_depot.sql
+-- Apres 10b : le troisieme type de magasin, l'unite de gestion (parapharmacie). Elle a
+-- besoin du catalogue (03) et du compte admin (15 n'est pas encore passe, mais 08 l'a cree).
+\i 10c_unite_gestion.sql
 \i 11_inventaires.sql
 \i 12_destruction.sql
 \i 12b_retours_fournisseurs.sql

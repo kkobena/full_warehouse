@@ -17,6 +17,10 @@ import { AlertError } from './alert-error.model';
 })
 export class AlertErrorComponent implements OnDestroy {
   alerts = signal<Alert[]>([]);
+  // Les alertes vivent dans un tableau stable, que le service manipule ; le signal n'en est
+  // qu'un reflet, posé par copie. Muter la valeur d'un signal sur place n'en change pas
+  // l'identité, ne notifie rien, et la vue en OnPush n'affichait jamais l'alerte.
+  private readonly liste: Alert[] = [];
   errorListener: Subscription;
   httpErrorListener: Subscription;
 
@@ -50,11 +54,22 @@ export class AlertErrorComponent implements OnDestroy {
   }
 
   close(alert: Alert): void {
-    alert.close(this.alerts());
+    alert.close(this.liste);
+    this.refleterLaListe();
+  }
+
+  private refleterLaListe(): void {
+    this.alerts.set([...this.liste]);
   }
 
   private addErrorAlert(message?: string, translationKey?: string, translationParams?: Record<string, unknown>): void {
-    this.alertService.addAlert({ type: 'danger', message, translationKey, translationParams }, this.alerts());
+    const alerte = this.alertService.addAlert({ type: 'danger', message, translationKey, translationParams }, this.liste);
+    this.refleterLaListe();
+    // Le service retire l'alerte du tableau à l'expiration de son délai, sans rien notifier.
+    const delai = alerte.timeout ?? 0;
+    if (delai > 0) {
+      setTimeout(() => this.refleterLaListe(), delai + 50);
+    }
   }
 
   private handleHttpError(response: EventWithContent<unknown> | string): void {

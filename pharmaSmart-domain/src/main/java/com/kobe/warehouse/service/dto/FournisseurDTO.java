@@ -34,6 +34,10 @@ public class FournisseurDTO implements Serializable {
     private Integer joursCritique;
     private Long palierRfa;
     private Integer tauxRfa;
+    /** Franco propre à ce fournisseur, tel qu'il est saisi dans sa fiche. */
+    private Long francoDePort;
+    /** Franco réellement opposable : le sien, à défaut celui de son grossiste. */
+    private Long francoEffectif;
     private String urlPharmaMl;
     private String codeOfficePharmaMl;
     private String codeRecepteurPharmaMl;
@@ -60,6 +64,8 @@ public class FournisseurDTO implements Serializable {
         joursCritique = fournisseur.getJoursCritique();
         palierRfa = fournisseur.getPalierRfa();
         tauxRfa = fournisseur.getTauxRfa();
+        francoDePort = fournisseur.getFrancoDePort();
+        francoEffectif = fournisseur.francoEffectif();
         urlPharmaMl = fournisseur.getUrlPharmaMl();
         codeOfficePharmaMl = fournisseur.getCodeOfficePharmaMl();
         codeRecepteurPharmaMl = fournisseur.getCodeRecepteurPharmaMl();
@@ -238,5 +244,21 @@ public class FournisseurDTO implements Serializable {
     @Override
     public int hashCode() {
         return 31;
+    }
+
+    public Long getFrancoDePort() {
+        return francoDePort;
+    }
+
+    public void setFrancoDePort(Long francoDePort) {
+        this.francoDePort = francoDePort;
+    }
+
+    public Long getFrancoEffectif() {
+        return francoEffectif;
+    }
+
+    public void setFrancoEffectif(Long francoEffectif) {
+        this.francoEffectif = francoEffectif;
     }
 }

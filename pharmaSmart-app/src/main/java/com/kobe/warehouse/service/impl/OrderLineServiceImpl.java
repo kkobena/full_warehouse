@@ -211,6 +211,8 @@ public class OrderLineServiceImpl implements OrderLineService {
                 .setCodeCip(sourceFp.getCodeCip())
                 .setPrixAchat(sourceFp.getPrixAchat())
                 .setPrixUni(sourceFp.getPrixUni())
+                .setQteColis(sourceFp.getQteColis())
+                .setQteMinimaleCommande(sourceFp.getQteMinimaleCommande())
                 .setProduitId(produitId)
         );
     }
@@ -225,6 +227,8 @@ public class OrderLineServiceImpl implements OrderLineService {
                 .setPrincipal(false)
                 .setPrixAchat(fournisseurProduit.getPrixAchat())
                 .setPrixUni(fournisseurProduit.getPrixUni())
+                .setQteColis(fournisseurProduit.getQteColis())
+                .setQteMinimaleCommande(fournisseurProduit.getQteMinimaleCommande())
                 .setProduitId(produitId)
         );
     }

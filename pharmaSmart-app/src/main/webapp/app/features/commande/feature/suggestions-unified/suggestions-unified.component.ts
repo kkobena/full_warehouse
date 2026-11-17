@@ -10,6 +10,7 @@ import {
   CommandeRequestedHomeComponent
 } from "../commande-requested-home/commande-requested-home.component";
 import {AppListBonsComponent} from "../../ui/list-bons/list-bons.component";
+import {ProduitsDusComponent} from "../produits-dus/produits-dus.component";
 import {
   CommandCommonService,
   SuggestionsSource
@@ -19,6 +20,7 @@ import {
   SuggestionService
 } from "app/entities/commande/suggestion/suggestion.service";
 import {DeliveryService} from "app/entities/commande/delevery/delivery.service";
+import {CommandeService} from "app/entities/commande/commande.service";
 
 @Component({
   selector: "app-suggestions-unified",
@@ -34,7 +36,8 @@ import {DeliveryService} from "app/entities/commande/delevery/delivery.service";
     SuggestionHomeComponent,
     SemoisSuggestionsComponent,
     CommandeRequestedHomeComponent,
-    AppListBonsComponent
+    AppListBonsComponent,
+    ProduitsDusComponent
   ]
 })
 export class SuggestionsUnifiedComponent implements OnInit {
@@ -45,6 +48,8 @@ export class SuggestionsUnifiedComponent implements OnInit {
   readonly countCommandesAPasser = signal<number>(0);
   /** Badge : nb bons RECEIVED en attente de saisie */
   readonly countBonsLivraison = signal<number>(0);
+  /** Badge : nb produits promis à des clients qu'aucune commande envoyée ne couvre */
+  readonly countProduitsDus = signal<number>(0);
   private readonly commandCommonService = inject(CommandCommonService);
   /**
    * Source active — computed dérivé directement du signal service.
@@ -72,6 +77,14 @@ export class SuggestionsUnifiedComponent implements OnInit {
       badgeSeverity: 'success',
     },
     {
+      id: 'PRODUITS_DUS',
+      label: 'Dus aux clients',
+      icon: 'pi pi-user-plus',
+      tooltip: 'Produits promis à des clients, non couverts par une commande partie chez le grossiste',
+      badge: this.countProduitsDus() > 0 ? this.countProduitsDus() : null,
+      badgeSeverity: 'danger',
+    },
+    {
       id: 'BONS_DE_LIVRAISON',
       label: 'Réceptions',
       icon: 'pi pi-truck',
@@ -87,6 +100,7 @@ export class SuggestionsUnifiedComponent implements OnInit {
     },
   ]);
   private readonly suggestionService = inject(SuggestionService);
+  private readonly commandeService = inject(CommandeService);
   private readonly deliveryService = inject(DeliveryService);
   private readonly modalService = inject(NgbModal);
 
@@ -127,12 +141,16 @@ export class SuggestionsUnifiedComponent implements OnInit {
       generee: this.suggestionService.countByStatut("GENEREE"),
       validee: this.suggestionService.countByStatut("VALIDEE"),
       requested: this.deliveryService.countByStatut("REQUESTED"),
-      received: this.deliveryService.countByStatut("RECEIVED")
+      received: this.deliveryService.countByStatut("RECEIVED"),
+      // Chargé ici et pas seulement à l'ouverture de l'onglet : une promesse non commandée doit
+      // se voir sans qu'on soit allé la chercher, c'est tout l'intérêt de la pastille.
+      produitsDus: this.commandeService.lireProduitsDusNonCommandes()
     }).subscribe({
-      next: ({generee, validee, requested, received}) => {
+      next: ({generee, validee, requested, received, produitsDus}) => {
         this.countReappro.set(generee + validee);
         this.countCommandesAPasser.set(requested);
         this.countBonsLivraison.set(received);
+        this.countProduitsDus.set(produitsDus.length);
       },
       error: () => this.countReappro.set(0)
     });

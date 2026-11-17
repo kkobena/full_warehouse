@@ -44,6 +44,8 @@ export interface AbstractOrderItem {
   couvertureStockJours?: number;
   /** Nombre d'unités par colis (conditionnement fournisseur). Null ou 1 = pas de contrainte. */
   qteColis?: number;
+  /** Quantité minimale de commande acceptée par le fournisseur. Null ou 0 = pas de minimum. */
+  qteMinimaleCommande?: number;
   gestionLot?: boolean;
   thermosensible?: boolean;
 }

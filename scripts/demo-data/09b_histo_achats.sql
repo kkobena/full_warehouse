@@ -125,7 +125,7 @@ INSERT INTO commande (
     id, order_date, order_reference, receipt_reference, receipt_date,
     order_status, paiment_status, receipt_type,
     gross_amount, order_amount, final_amount, ht_amount, tax_amount, discount_amount,
-    fournisseur_id, user_id, has_been_submitted_to_pharmaml,
+    fournisseur_id, user_id, magasin_id, has_been_submitted_to_pharmaml,
     created_at, updated_at
 )
 SELECT c.id, c.order_date,
@@ -134,12 +134,12 @@ SELECT c.id, c.order_date,
        c.receipt_date,
        'CLOSED', 'PAID', 'ORDER',
        0, 0, 0, 0, 0, 0,
-       c.fournisseur_id, u.id, false,
+       c.fournisseur_id, u.id, u.magasin_id, false,
        c.order_date + TIME '08:30:00',
        c.receipt_date + TIME '10:30:00'
   FROM tmp_h_cmd c
   JOIN LATERAL (
-      SELECT id FROM app_user
+      SELECT id, magasin_id FROM app_user
        WHERE login = CASE WHEN c.rang % 3 = 0 THEN 'rkouassi' ELSE 'admin' END
        LIMIT 1
   ) u ON true;

@@ -82,8 +82,19 @@ public class Fournisseur implements Serializable {
     /**
      * Délai de livraison en jours. Null = utiliser le délai du groupe fournisseur.
      */
+    /** Repli du délai de livraison quand ni l'agence ni son grossiste ne le renseignent. */
+    public static final int DELAI_LIVRAISON_PAR_DEFAUT = 7;
+
     @Column(name = "delai_livraison_jours")
     private Integer delaiLivraisonJours;
+
+    /**
+     * Montant de commande au-delà duquel le grossiste ne facture plus la livraison.
+     *
+     * <p>{@code null} = aucun franco propre ; une agence hérite alors de celui de son grossiste.
+     */
+    @Column(name = "franco_de_port")
+    private Long francoDePort;
 
     /**
      * Fréquence de commande en jours. Null = utiliser la fréquence du groupe fournisseur.
@@ -295,6 +306,44 @@ public class Fournisseur implements Serializable {
     @Override
     public int hashCode() {
         return 31;
+    }
+
+    /**
+     * Délai de livraison annoncé, en jours. Une agence qui ne renseigne pas le sien hérite de
+     * celui de son grossiste ; à défaut, une semaine, qui est l'ordre de grandeur du
+     * réapprovisionnement officinal et la valeur déjà retenue par le calcul de réassort.
+     */
+    public int delaiLivraisonEffectif() {
+        if (delaiLivraisonJours != null && delaiLivraisonJours > 0) {
+            return delaiLivraisonJours;
+        }
+        if (parent != null && parent.getDelaiLivraisonJours() != null && parent.getDelaiLivraisonJours() > 0) {
+            return parent.getDelaiLivraisonJours();
+        }
+        return DELAI_LIVRAISON_PAR_DEFAUT;
+    }
+
+    /**
+     * Franco de port opposable à cette commande : celui de l'agence, à défaut celui de son
+     * grossiste. {@code null} quand aucun n'est négocié — il n'y a alors rien à viser.
+     */
+    public Long francoEffectif() {
+        if (francoDePort != null && francoDePort > 0) {
+            return francoDePort;
+        }
+        if (parent != null && parent.getFrancoDePort() != null && parent.getFrancoDePort() > 0) {
+            return parent.getFrancoDePort();
+        }
+        return null;
+    }
+
+    public Long getFrancoDePort() {
+        return francoDePort;
+    }
+
+    public Fournisseur setFrancoDePort(Long francoDePort) {
+        this.francoDePort = francoDePort;
+        return this;
     }
 
     public Integer getDelaiLivraisonJours() {

@@ -37,6 +37,14 @@ public class CashRegister implements Serializable {
     @NotNull
     private AppUser user;
 
+    /**
+     * Magasin où la caisse a été ouverte, figé à l'ouverture : une caisse ne se réaffecte pas. Le
+     * déduire de {@code user.getMagasin()} le rendait mutable par effet de bord.
+     */
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @NotNull
+    private Magasin magasin;
+
     @NotNull
     @Column(name = "init_amount")
     private Long initAmount;
@@ -204,6 +212,15 @@ public class CashRegister implements Serializable {
 
     public CashRegister setStatut(CashRegisterStatut statut) {
         this.statut = statut;
+        return this;
+    }
+
+    public Magasin getMagasin() {
+        return magasin;
+    }
+
+    public CashRegister setMagasin(Magasin magasin) {
+        this.magasin = magasin;
         return this;
     }
 }

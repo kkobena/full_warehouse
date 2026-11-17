@@ -44,8 +44,9 @@ export class SemoisService {
     classeCriticite?: ClasseCriticite,
     fournisseurId?: number,
     niveauUrgence?: 'URGENT' | 'NORMAL' | 'OK',
+    magasinId?: number,
   ): Observable<EntityArrayResponseType> {
-    const options = createRequestOptions({ ...req, search, classeCriticite, fournisseurId, niveauUrgence });
+    const options = createRequestOptions({ ...req, search, classeCriticite, fournisseurId, niveauUrgence, magasinId });
     return this.http.get<ISemoisSuggestion[]>(`${this.resourceUrl}/suggestions`, {
       params: options,
       observe: 'response',
@@ -53,14 +54,28 @@ export class SemoisService {
   }
 
   /** Tous les produits en rupture sans pagination — pour "Commander urgents". */
-  getAllUrgentSuggestions(): Observable<HttpResponse<ISemoisSuggestion[]>> {
-    return this.http.get<ISemoisSuggestion[]>(`${this.resourceUrl}/suggestions/urgents`, { observe: 'response' });
+  getAllUrgentSuggestions(magasinId?: number): Observable<HttpResponse<ISemoisSuggestion[]>> {
+    return this.http.get<ISemoisSuggestion[]>(`${this.resourceUrl}/suggestions/urgents`, {
+      params: createRequestOptions({ magasinId }),
+      observe: 'response',
+    });
+  }
+
+  /**
+   * Magasins entre lesquels l'écran peut choisir. Un seul : pas de sélecteur à afficher.
+   * Les dépôts n'y sont pas — ils ne commandent pas.
+   */
+  listerLesMagasinsDuReassort(): Observable<HttpResponse<Array<{ id: number; name: string }>>> {
+    return this.http.get<Array<{ id: number; name: string }>>(`${this.resourceUrl}/magasins`, { observe: 'response' });
   }
 
   /** Fournisseurs distincts ayant des produits SEMOIS configurés. */
-  getSemoisFournisseurs(): Observable<HttpResponse<Array<{ fournisseurId: number; fournisseurLibelle: string }>>> {
+  getSemoisFournisseurs(magasinId?: number): Observable<HttpResponse<Array<{ fournisseurId: number; fournisseurLibelle: string }>>> {
     return this.http.get<Array<{ fournisseurId: number; fournisseurLibelle: string }>>(
-      `${this.resourceUrl}/suggestions/fournisseurs`, { observe: 'response' });
+      `${this.resourceUrl}/suggestions/fournisseurs`, {
+        params: createRequestOptions({ magasinId }),
+        observe: 'response',
+      });
   }
 
   /**
@@ -165,8 +180,11 @@ export class SemoisService {
   /**
    * Récupère le tableau de bord réapprovisionnement SEMOIS temps réel (Axe 6).
    */
-  getDashboard(): Observable<HttpResponse<IReapproDashboard>> {
-    return this.http.get<IReapproDashboard>(`${this.resourceUrl}/dashboard`, { observe: 'response' });
+  getDashboard(magasinId?: number): Observable<HttpResponse<IReapproDashboard>> {
+    return this.http.get<IReapproDashboard>(`${this.resourceUrl}/dashboard`, {
+      params: createRequestOptions({ magasinId }),
+      observe: 'response',
+    });
   }
 
   //Exclusion temporaire ────────────────────────────────────────────

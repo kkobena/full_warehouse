@@ -109,7 +109,7 @@ INSERT INTO commande (
     id, order_date, order_reference, receipt_reference, receipt_date,
     order_status, paiment_status, receipt_type,
     gross_amount, order_amount, final_amount, ht_amount, tax_amount, discount_amount,
-    fournisseur_id, user_id, has_been_submitted_to_pharmaml,
+    fournisseur_id, user_id, magasin_id, has_been_submitted_to_pharmaml,
     created_at, updated_at
 )
 SELECT
@@ -122,11 +122,11 @@ SELECT
     CASE WHEN c.order_status = 'CLOSED' AND c.i % 3 <> 0 THEN 'PAID' ELSE 'UNPAID' END,
     'ORDER',
     0, 0, 0, 0, 0, 0,
-    c.fournisseur_id, u.id, false,
+    c.fournisseur_id, u.id, u.magasin_id, false,
     c.order_date + TIME '08:30:00',
     c.order_date + TIME '08:30:00'
 FROM tmp_cmd c
-CROSS JOIN LATERAL (SELECT id FROM app_user WHERE login = 'admin' LIMIT 1) u;
+CROSS JOIN LATERAL (SELECT id, magasin_id FROM app_user WHERE login = 'admin' LIMIT 1) u;
 
 -- ---------------------------------------------------------------------------
 -- 2. Lignes de commande (10 à 25 par commande)
@@ -313,6 +313,97 @@ UPDATE commande c
        tax_amount   = t.taxe
   FROM totaux t
  WHERE t.commande_id = c.id AND t.commande_order_date = c.order_date;
+
+-- ---------------------------------------------------------------------------
+-- 4. Tracabilite de l'envoi au grossiste (V2.1.48)
+--
+-- `order_status = REQUESTED` ne dit pas si la commande est partie. La date
+-- d'envoi le dit, et c'est elle qui decide de trois choses : si le reassort
+-- compte la commande dans son encours, depuis quand court le delai du
+-- grossiste, et si la livraison est en retard.
+--
+-- Le jeu de demonstration doit donc porter les trois etats, sans quoi l'ecran
+-- n'en montre qu'un et les deux autres ne se recettent pas.
+-- ---------------------------------------------------------------------------
+
+-- Tout ce qui a ete recu ou cloture est forcement parti : sans date d'envoi,
+-- `mv_supplier_performance` n'aurait aucun delai a calculer.
+UPDATE commande
+   SET date_envoi  = order_date + TIME '09:15:00',
+       canal_envoi = CASE (id % 4)
+                       WHEN 0 THEN 'EDI'
+                       WHEN 1 THEN 'MAIL'
+                       WHEN 2 THEN 'PDF'
+                       ELSE 'TELEPHONE' END,
+       envoi_user_id = user_id
+ WHERE order_status IN ('RECEIVED', 'CLOSED');
+
+-- Les commandes en attente se partagent en trois tiers, pour que la liste
+-- montre simultanement un brouillon, une commande qu'on attend normalement et
+-- une commande a relancer.
+--
+--   reste 0 -> BROUILLON : jamais transmise, hors encours du reassort
+--   reste 1 -> ENVOYEE dans les temps (hier)
+--   reste 2 -> ENVOYEE depuis 30 jours, au-dela de tout delai annonce par les
+--              grossistes du jeu (1 a 5 jours) : donc en retard a coup sur
+--
+-- Le decoupage passe par `row_number()` et non par `id % 3` : les identifiants
+-- de commande ne se suivent pas, et un modulo sur eux donne des tiers tres
+-- inegaux -- au point de ne produire qu'une seule commande en retard, ce qui
+-- rend l'alerte indemontrable.
+WITH reparties AS (
+    SELECT id, order_date,
+           (row_number() OVER (ORDER BY id) - 1) % 3 AS reste
+      FROM commande
+     WHERE order_status = 'REQUESTED'
+)
+UPDATE commande c
+   SET date_envoi  = CASE r.reste
+                       WHEN 1 THEN (CURRENT_DATE - 1) + TIME '09:15:00'
+                       WHEN 2 THEN (CURRENT_DATE - 30) + TIME '09:15:00'
+                       ELSE NULL END,
+       canal_envoi = CASE r.reste
+                       WHEN 1 THEN 'MAIL'
+                       WHEN 2 THEN 'TELEPHONE'
+                       ELSE NULL END,
+       envoi_user_id = CASE WHEN r.reste = 0 THEN NULL ELSE c.user_id END
+  FROM reparties r
+ WHERE r.id = c.id AND r.order_date = c.order_date;
+
+DO $$
+DECLARE
+    v_brouillons int;
+    v_envoyees   int;
+    v_retard     int;
+BEGIN
+    SELECT count(*) INTO v_brouillons
+      FROM commande WHERE order_status = 'REQUESTED' AND date_envoi IS NULL;
+    SELECT count(*) INTO v_envoyees
+      FROM commande WHERE order_status = 'REQUESTED' AND date_envoi IS NOT NULL;
+    -- Le retard se mesure contre le delai annonce par le fournisseur, agence
+    -- puis principal, une semaine a defaut -- la meme regle que le Java.
+    SELECT count(*) INTO v_retard
+      FROM commande c
+      JOIN fournisseur f ON f.id = c.fournisseur_id
+      LEFT JOIN fournisseur pf ON pf.id = f.parent_id
+     WHERE c.order_status = 'REQUESTED'
+       AND c.date_envoi IS NOT NULL
+       AND c.date_envoi::date
+           + COALESCE(NULLIF(f.delai_livraison_jours, 0),
+                      NULLIF(pf.delai_livraison_jours, 0), 7) < CURRENT_DATE;
+
+    IF v_brouillons = 0 THEN
+        RAISE EXCEPTION 'Aucun brouillon : l etat non transmis ne se recette pas';
+    END IF;
+    IF v_envoyees = 0 THEN
+        RAISE EXCEPTION 'Aucune commande envoyee : le delai fournisseur ne se mesure pas';
+    END IF;
+    IF v_retard = 0 THEN
+        RAISE EXCEPTION 'Aucune commande en retard : l alerte de relance ne se demontre pas';
+    END IF;
+    RAISE NOTICE 'Envoi : % brouillon(s), % envoyee(s) dont % en retard.',
+        v_brouillons, v_envoyees, v_retard;
+END $$;
 
 DROP TABLE tmp_ol;
 DROP TABLE tmp_cmd;

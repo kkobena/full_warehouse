@@ -22,6 +22,7 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.domain.SuggestionLine;
+import com.kobe.warehouse.domain.enumeration.ContrainteColisage;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
@@ -131,7 +132,8 @@ class CommandServiceImplTest {
             suggestionReassortService,
             suggestionRepository,
             suggestionLineRepository,
-            fournisseurProduitRepository
+            fournisseurProduitRepository,
+            new ColisageServiceImpl()
         );
         AppUser user = new AppUser();
         user.setId(1);
@@ -1401,6 +1403,134 @@ class CommandServiceImplTest {
             ArgumentCaptor<OrderLineDTO> dtoCaptor = ArgumentCaptor.forClass(OrderLineDTO.class);
             verify(orderLineService).buildOrderLine(dtoCaptor.capture(), eq(fp));
             assertThat(dtoCaptor.getValue().getTotalQuantity()).isZero();
+        }
+    }
+
+    /**
+     * Le colisage n'est oppose qu'aux quantites dont l'officine decide elle-meme. Ces tests tiennent
+     * les deux bords de cette frontiere : ce qui doit etre arrondi, et ce qui ne doit surtout pas
+     * l'etre. Le contre-exemple du reliquat compte autant que les cas positifs, parce que c'est lui
+     * qui empeche la regle de se repandre la ou elle ferait commander des unites que personne
+     * n'attend.
+     */
+    @Nested
+    @DisplayName("contraintes de conditionnement")
+    class Conditionnement {
+
+        private FournisseurProduit fournisseurProduitColise(int colis, int minimum) {
+            FournisseurProduit fp = fournisseurProduit(1, "1111111");
+            fp.setQteColis(colis);
+            fp.setQteMinimaleCommande(minimum);
+            return fp;
+        }
+
+        private OrderLineDTO dto(int quantite) {
+            CommandeDTO commandeDTO = new CommandeDTO();
+            commandeDTO.setCommandeId(COMMANDE_ID);
+            commandeDTO.setFournisseurId(FOURNISSEUR_ID);
+            return new OrderLineDTO().setProduitId(10).setQuantityRequested(quantite).setCommande(commandeDTO);
+        }
+
+        private StockProduit stockDe(int quantite) {
+            StockProduit stockProduit = new StockProduit();
+            stockProduit.setQtyStock(quantite);
+            stockProduit.setQtyUG(0);
+            return stockProduit;
+        }
+
+        @Test
+        @DisplayName("une ligne ajoutee a la saisie est arrondie au colis, et le DTO le signale")
+        void arrondirALAjoutDUneLigne() {
+            Commande commande = commande(12);
+            referenceCommande(commande);
+            FournisseurProduit fp = fournisseurProduitColise(12, 0);
+            OrderLine ligne = orderLine(900, fp, 7, 0);
+            OrderLineDTO dto = dto(7);
+            when(orderLineService.findOneFromCommande(10, COMMANDE_ID, FOURNISSEUR_ID)).thenReturn(Optional.empty());
+            when(orderLineService.buildOrderLineFromOrderLineDTO(dto)).thenReturn(ligne);
+
+            CommandeLiteDTO resultat = service.createOrUpdateOrderLine(dto);
+
+            assertThat(ligne.getQuantityRequested()).isEqualTo(12);
+            // Les montants suivent la quantite retenue, pas celle qui a ete tapee : l'ajustement
+            // doit donc intervenir avant leur calcul.
+            assertThat(commande.getGrossAmount()).isEqualTo(4800);
+            assertThat(commande.getOrderAmount()).isEqualTo(9600);
+            assertThat(resultat.getAjustementColisage()).isNotNull();
+            assertThat(resultat.getAjustementColisage().quantiteDemandee()).isEqualTo(7);
+            assertThat(resultat.getAjustementColisage().quantiteRetenue()).isEqualTo(12);
+            assertThat(resultat.getAjustementColisage().contrainte()).isEqualTo(ContrainteColisage.COLISAGE);
+        }
+
+        @Test
+        @DisplayName("le cumul sur une ligne existante est arrondi lui aussi")
+        void arrondirLeCumul() {
+            FournisseurProduit fp = fournisseurProduitColise(12, 0);
+            OrderLine existante = orderLine(900, fp, 6, 0);
+            Commande commande = commande(12, existante);
+            commande.setGrossAmount(2400);
+            commande.setFinalAmount(4800);
+            referenceCommande(commande);
+            when(orderLineService.findOneFromCommande(10, COMMANDE_ID, FOURNISSEUR_ID)).thenReturn(Optional.of(existante));
+
+            CommandeLiteDTO resultat = service.createOrUpdateOrderLine(dto(4));
+
+            // 6 deja commandees + 4 saisies = 10, porte a 12.
+            assertThat(existante.getQuantityRequested()).isEqualTo(12);
+            assertThat(commande.getGrossAmount()).isEqualTo(4800);
+            assertThat(resultat.getAjustementColisage().quantiteDemandee()).isEqualTo(10);
+        }
+
+        @Test
+        @DisplayName("une quantite deja conforme ne declenche aucun message")
+        void resterMuetQuandLaSaisieEstConforme() {
+            Commande commande = commande(12);
+            referenceCommande(commande);
+            OrderLine ligne = orderLine(900, fournisseurProduitColise(12, 0), 24, 0);
+            OrderLineDTO dto = dto(24);
+            when(orderLineService.findOneFromCommande(10, COMMANDE_ID, FOURNISSEUR_ID)).thenReturn(Optional.empty());
+            when(orderLineService.buildOrderLineFromOrderLineDTO(dto)).thenReturn(ligne);
+
+            CommandeLiteDTO resultat = service.createOrUpdateOrderLine(dto);
+
+            assertThat(ligne.getQuantityRequested()).isEqualTo(24);
+            assertThat(resultat.getAjustementColisage()).isNull();
+        }
+
+        @Test
+        @DisplayName("les urgents SEMOIS sont arrondis au colis")
+        void arrondirLesUrgentsSemois() {
+            FournisseurProduit fp = fournisseurProduitColise(12, 0);
+            fp.getProduit().getStockProduits().add(stockDe(15));
+            OrderLine ligne = orderLine(900, fp, 6, 0);
+            when(fournisseurProduitRepository.findOneByProduitIdAndFournisseurId(10, FOURNISSEUR_ID)).thenReturn(Optional.of(fp));
+            when(orderLineService.buildOrderLine(any(OrderLineDTO.class), eq(fp))).thenReturn(ligne);
+
+            service.createCommandeFromSemoisLines(FOURNISSEUR_ID, List.of(new SemoisCommanderDTO.LigneSemois(10, FOURNISSEUR_ID, 6)));
+
+            assertThat(ligne.getQuantityRequested()).isEqualTo(12);
+            ArgumentCaptor<Commande> captor = ArgumentCaptor.forClass(Commande.class);
+            verify(commandeRepository).save(captor.capture());
+            assertThat(captor.getValue().getGrossAmount()).isEqualTo(4800);
+        }
+
+        /**
+         * Le contre-exemple qui fixe le perimetre : un reliquat reprend ce qui manque, six unites,
+         * et doit rester a six. L'arrondir au colis de douze ferait commander six unites que
+         * personne n'attend, sur une commande dont le role est justement de solder un ecart.
+         */
+        @Test
+        @DisplayName("le reliquat n'est pas arrondi : il reprend la quantite manquante telle quelle")
+        void nePasArrondirLeReliquat() {
+            FournisseurProduit fp = fournisseurProduitColise(12, 0);
+            OrderLine partielle = orderLine(900, fp, 10, 4);
+            referenceCommande(commande(12, partielle));
+            OrderLine nouvelle = orderLine(910, fp, 6, 0);
+            when(orderLineService.buildOrderLine(any(OrderLineDTO.class), eq(fp))).thenReturn(nouvelle);
+
+            service.createReliquat(COMMANDE_ID);
+
+            assertThat(nouvelle.getQuantityRequested()).isEqualTo(6);
         }
     }
 

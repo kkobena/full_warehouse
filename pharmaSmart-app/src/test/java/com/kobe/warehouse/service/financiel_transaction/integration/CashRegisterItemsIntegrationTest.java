@@ -9,6 +9,7 @@ import com.kobe.warehouse.domain.PaymentFournisseur;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.CashRegisterRepository;
+import com.kobe.warehouse.service.portee.PorteeMagasinService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashFundService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
@@ -44,7 +45,8 @@ class CashRegisterItemsIntegrationTest extends AbstractFinancialTransactionInteg
             IntegrationPostgresDatabase.bean(CashRegisterRepository.class),
             mock(AppConfigurationService.class),
             mock(CashFundService.class),
-            mock(UserService.class)
+            mock(UserService.class),
+            mock(PorteeMagasinService.class)
         );
     }
 

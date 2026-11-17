@@ -53,6 +53,10 @@ import {
   CommandeRequestedActionsComponent
 } from './commande-requested-actions.component';
 import {DevisePipe} from 'app/shared/utils/devise';
+import {CanalEnvoi} from 'app/shared/model/abstract-commande.model';
+import {
+  MarquerEnvoiModalComponent
+} from '../../ui/envoi/marquer-envoi-modal.component';
 
 @Component({
   selector: 'app-commande-requested-home',
@@ -218,6 +222,12 @@ export class CommandeRequestedHomeComponent implements OnInit {
       case 'exportPdf':
         this.exportPdf(c);
         break;
+      case 'marquerEnvoyee':
+        this.onMarquerEnvoyee(c);
+        break;
+      case 'annulerEnvoi':
+        this.onAnnulerEnvoi(c);
+        break;
       case 'supprimer':
         this.onSupprimerCommande(c);
         break;
@@ -303,6 +313,7 @@ export class CommandeRequestedHomeComponent implements OnInit {
         } else {
           saveAs(blob);
         }
+        this.proposerMarquageApresExport(c);
       },
       error: () => this.notificationService.error('Erreur export CSV', 'Erreur'),
     });
@@ -316,9 +327,74 @@ export class CommandeRequestedHomeComponent implements OnInit {
         } else {
           window.open(URL.createObjectURL(blob));
         }
+        this.proposerMarquageApresExport(c);
       },
       error: () => this.notificationService.error('Erreur export PDF', 'Erreur'),
     });
+  }
+
+  // ── Traçabilité de l'envoi ────────────────────────────────────────────────
+
+  /**
+   * Après un export, propose de dater l'envoi — sans l'imposer.
+   *
+   * On exporte un bon aussi bien pour l'envoyer que pour le relire : marquer d'office ferait
+   * passer pour parties des commandes restées sur le bureau, ce qui est précisément l'erreur que
+   * cette date est censée corriger. La proposition ne s'affiche donc qu'une fois, et seulement
+   * tant que la commande est un brouillon.
+   */
+  private proposerMarquageApresExport(c: ICommande): void {
+    if (c.envoyee) {
+      return;
+    }
+    this.confirmDialog.onConfirm(
+      () => this.onMarquerEnvoyee(c),
+      'Commande envoyée au grossiste ?',
+      `Dater l'envoi de ${c.orderReference ?? 'cette commande'} ? Sans cette date, elle reste un brouillon : ` +
+      `le réassort ne la compte pas et aucun retard de livraison ne sera signalé.`,
+    );
+  }
+
+  onMarquerEnvoyee(c: ICommande): void {
+    if (!c?.commandeId) {
+      return;
+    }
+    const ref = this.modalService.open(MarquerEnvoiModalComponent, {centered: true});
+    const inst = ref.componentInstance as MarquerEnvoiModalComponent;
+    inst.reference = c.orderReference;
+    inst.fournisseur = c.fournisseur?.libelle;
+    ref.result.then(
+      (canal: CanalEnvoi) => {
+        if (!canal) {
+          return;
+        }
+        this.commandeService
+          .marquerEnvoyee(c.commandeId, canal)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => this.loadPage(),
+            error: () => this.notificationService.error("Impossible de marquer l'envoi", 'Erreur'),
+          });
+      },
+      () => {
+      },
+    );
+  }
+
+  onAnnulerEnvoi(c: ICommande): void {
+    this.confirmDialog.onConfirm(
+      () =>
+        this.commandeService
+          .annulerEnvoi(c.commandeId)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => this.loadPage(),
+            error: () => this.notificationService.error("Impossible d'annuler l'envoi", 'Erreur'),
+          }),
+      "Annuler l'envoi",
+      `La commande ${c.orderReference ?? ''} redeviendra un brouillon : elle sortira de l'encours du réassort ` +
+      `et ne sera plus suivie en retard.`,
+    );
   }
 
   // ── Importation (modale existante) ────────────────────────────────────────

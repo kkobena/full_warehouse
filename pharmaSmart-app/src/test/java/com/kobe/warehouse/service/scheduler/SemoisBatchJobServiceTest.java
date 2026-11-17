@@ -11,6 +11,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -91,6 +92,9 @@ class SemoisBatchJobServiceTest {
     @Mock
     private EntityManager em;
 
+    @Mock
+    private MagasinRepository magasinRepository;
+
     private SemoisBatchJobService service;
     private Magasin magasin;
 
@@ -104,12 +108,13 @@ class SemoisBatchJobServiceTest {
             orderLineRepository,
             etatProduitService,
             referenceService,
+            magasinRepository,
             em
         );
 
         magasin = mock(Magasin.class);
         lenient().when(magasin.getId()).thenReturn(MAGASIN_ID);
-        lenient().when(em.find(Magasin.class, EntityConstant.DEFAULT_MAGASIN)).thenReturn(magasin);
+        lenient().when(magasinRepository.findByCommandeEnPropreTrueOrderByIdAsc()).thenReturn(List.of(magasin));
         lenient().when(em.getReference(eq(Fournisseur.class), any())).thenReturn(mock(Fournisseur.class));
         lenient().when(em.getReference(eq(Magasin.class), any())).thenReturn(magasin);
         lenient().when(em.getReference(eq(FournisseurProduit.class), any())).thenReturn(mock(FournisseurProduit.class));
@@ -126,9 +131,9 @@ class SemoisBatchJobServiceTest {
     class SortiesAnticipees {
 
         @Test
-        @DisplayName("Pas de magasin → aucune requête, rien persisté")
+        @DisplayName("Aucun magasin commandeur → aucune requête, rien persisté")
         void sansMagasin_neRienPersiste() {
-            when(em.find(Magasin.class, EntityConstant.DEFAULT_MAGASIN)).thenReturn(null);
+            when(magasinRepository.findByCommandeEnPropreTrueOrderByIdAsc()).thenReturn(List.of());
 
             service.creerSuggestionBatch();
 
@@ -146,6 +151,53 @@ class SemoisBatchJobServiceTest {
             verify(suggestionRepository, never()).saveAll(any());
             verify(suggestionLineRepository, never()).saveAll(any());
             verify(suggestionRepository, never()).deleteEmptyAutoSuggestions();
+        }
+    }
+
+    // ── Un réassort par magasin ───────────────────────────────────────────────
+
+    @Nested
+    @DisplayName("Un réassort par magasin")
+    class UnReassortParMagasin {
+
+        /**
+         * Chaque magasin commandeur est traité pour son compte, avec son propre stock. Les
+         * confondre ferait commander pour l'un ce que l'autre a déjà en rayon.
+         *
+         * <p>Tombe si le batch revient à un magasin unique : le second ne serait jamais interrogé.
+         */
+        @Test
+        @DisplayName("Deux magasins commandeurs → chacun est interrogé pour son propre stock")
+        void deuxMagasins_chacunEstTraite() {
+            Magasin parapharmacie = mock(Magasin.class);
+            lenient().when(parapharmacie.getId()).thenReturn(7);
+            when(magasinRepository.findByCommandeEnPropreTrueOrderByIdAsc())
+                .thenReturn(List.of(magasin, parapharmacie));
+            Slice<SemoisEligibleItem> vide = new SliceImpl<>(List.of(), Pageable.unpaged(), false);
+            when(produitRepository.findSemoisEligibleItemsSlice(any(), any())).thenReturn(vide);
+
+            service.creerSuggestionBatch();
+
+            verify(produitRepository).findSemoisEligibleItemsSlice(eq(MAGASIN_ID), any());
+            verify(produitRepository).findSemoisEligibleItemsSlice(eq(7), any());
+        }
+
+        /**
+         * Un dépôt ne commande pas : il s'approvisionne auprès de son officine par une vente
+         * dépôt. Lui calculer un réassort produirait des bons qu'aucun fournisseur n'attend.
+         *
+         * <p>La règle tient dans la requête — {@code findByCommandeEnPropreTrue…} — et cet essai
+         * vérifie que le batch n'en consulte pas une autre.
+         */
+        @Test
+        @DisplayName("Le batch ne consulte que les magasins qui commandent en propre")
+        void seulsLesCommandeurs_sontConsultes() {
+            pageDe();
+
+            service.creerSuggestionBatch();
+
+            verify(magasinRepository).findByCommandeEnPropreTrueOrderByIdAsc();
+            verify(magasinRepository, never()).findAll();
         }
     }
 

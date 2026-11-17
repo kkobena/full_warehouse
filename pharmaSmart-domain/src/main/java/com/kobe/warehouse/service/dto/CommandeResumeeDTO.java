@@ -10,5 +10,9 @@ public record CommandeResumeeDTO(
     String fournisseurLibelle,
     int grossAmount,
     String orderStatus,
-    Integer reliquatDeCommandeId
+    Integer reliquatDeCommandeId,
+    /** Null tant que la commande n'est pas partie : l'écran affiche alors « Brouillon ». */
+    String dateEnvoi,
+    /** Jours au-delà du délai annoncé par le grossiste ; 0 si dans les temps. */
+    long joursDeRetard
 ) {}

@@ -8,7 +8,28 @@ import { AbstractOrderItem } from './abstract-order-item.model';
 
 export interface ICommande extends AbstractCommande {
   orderReference?: string;
+  /**
+   * Renseigné seulement quand une contrainte de conditionnement a modifié la quantité saisie.
+   * Absent le reste du temps : le backend ne sérialise pas les nuls.
+   */
+  ajustementColisage?: IAjustementColisage;
 }
+
+/** Ce qu'une contrainte fournisseur a changé à une quantité, et laquelle a décidé. */
+export interface IAjustementColisage {
+  produitLibelle?: string;
+  quantiteDemandee: number;
+  quantiteRetenue: number;
+  qteColis: number;
+  qteMinimaleCommande: number;
+  contrainte: ContrainteColisage;
+}
+
+/**
+ * Laquelle des deux contraintes du fournisseur a décidé de la quantité. Le backend la nomme, la
+ * formulation destinée au pharmacien se compose ici.
+ */
+export type ContrainteColisage = 'COLISAGE' | 'QUANTITE_MINIMALE';
 
 export class Commande implements ICommande {
   constructor(

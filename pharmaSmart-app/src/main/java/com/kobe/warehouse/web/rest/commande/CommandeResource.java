@@ -10,6 +10,13 @@ import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.FournisseurStatsServiceDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
+import com.kobe.warehouse.domain.enumeration.CanalEnvoi;
+import com.kobe.warehouse.service.ProduitDuService;
+import com.kobe.warehouse.service.ap.RemiseRfaService;
+import com.kobe.warehouse.service.dto.ClientsEnAttenteDTO;
+import com.kobe.warehouse.service.dto.ProduitDuNonCommandeDTO;
+import com.kobe.warehouse.service.dto.RemiseRfaFournisseurDTO;
+import com.kobe.warehouse.service.EnvoiCommandeService;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.validation.Valid;
@@ -17,6 +24,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -43,12 +53,77 @@ public class CommandeResource {
     private static final String ENTITY_NAME = "commande";
 
     private final CommandService commandService;
+    private final EnvoiCommandeService envoiCommandeService;
+    private final RemiseRfaService remiseRfaService;
+    private final ProduitDuService produitDuService;
 
     @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
-    public CommandeResource(CommandService commandService) {
+    public CommandeResource(
+        CommandService commandService,
+        EnvoiCommandeService envoiCommandeService,
+        RemiseRfaService remiseRfaService,
+        ProduitDuService produitDuService
+    ) {
         this.commandService = commandService;
+        this.envoiCommandeService = envoiCommandeService;
+        this.remiseRfaService = remiseRfaService;
+        this.produitDuService = produitDuService;
+    }
+
+    /**
+     * Produits promis aux clients qu'aucune commande partie chez le grossiste ne couvre.
+     *
+     * <p>Le circuit d'avoir client savait rapprocher les avoirs d'une livraison reçue, mais rien
+     * ne disait l'inverse : ce qui est dû et qui n'a jamais été commandé restait invisible.
+     */
+    @GetMapping("/commandes/produits-dus")
+    public List<ProduitDuNonCommandeDTO> lireProduitsDusNonCommandes() {
+        return produitDuService.lireProduitsDusNonCommandes();
+    }
+
+    /** Clients en attente des produits affichés, pour en porter le nombre à côté de chaque ligne. */
+    @GetMapping("/commandes/clients-en-attente")
+    public Map<Integer, ClientsEnAttenteDTO> lireClientsEnAttente(@RequestParam Set<Integer> produitIds) {
+        return produitDuService.lireClientsEnAttente(produitIds);
+    }
+
+    /**
+     * Marque une commande comme transmise au grossiste.
+     *
+     * <p>Indispensable hors EDI : une officine qui commande par mail ou par téléphone n'a aucun
+     * autre moyen de dater son envoi, et sans cette date l'encours du réassort, le délai de
+     * livraison et l'alerte de retard restent faux pour cette commande.
+     */
+    @PutMapping("/commandes/{id}/{orderDate}/envoi")
+    public ResponseEntity<CommandeLiteDTO> marquerEnvoyee(
+        @PathVariable Integer id,
+        @PathVariable LocalDate orderDate,
+        @RequestParam CanalEnvoi canal
+    ) {
+        return ResponseEntity.ok(envoiCommandeService.marquerEnvoyee(new CommandeId(id, orderDate), canal));
+    }
+
+    /**
+     * Avancement vers le palier de remise de fin d'année du groupe de ce fournisseur.
+     *
+     * <p>Exposé ici et non sur {@code RemiseRfaResource}, qui exige le droit
+     * {@code facturation.remises-rfa} : la personne qui saisit une commande ne l'a pas
+     * forcément, et le bandeau lui renverrait un 403 là où l'information lui est précisément
+     * destinée.
+     *
+     * @return 204 si le groupe n'a aucun accord ni aucune commande close sur l'exercice
+     */
+    @GetMapping("/commandes/fournisseurs/{fournisseurId}/rfa")
+    public ResponseEntity<RemiseRfaFournisseurDTO> lireRfaDuGroupe(@PathVariable Integer fournisseurId) {
+        return ResponseEntity.of(Optional.ofNullable(remiseRfaService.lireRfaDuGroupe(fournisseurId)));
+    }
+
+    /** Rend son état de brouillon à une commande marquée envoyée par erreur. */
+    @DeleteMapping("/commandes/{id}/{orderDate}/envoi")
+    public ResponseEntity<CommandeLiteDTO> annulerEnvoi(@PathVariable Integer id, @PathVariable LocalDate orderDate) {
+        return ResponseEntity.ok(envoiCommandeService.annulerEnvoi(new CommandeId(id, orderDate)));
     }
 
     @PostMapping("/commandes/rapide")

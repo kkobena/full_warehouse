@@ -6,21 +6,18 @@ import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.SemoisClasseConfig;
-import com.kobe.warehouse.domain.SemoisConfiguration;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.domain.SuggestionLine;
-import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
-import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SuggestionLineRepository;
 import com.kobe.warehouse.repository.SuggestionRepository;
+import com.kobe.warehouse.service.ColisageService;
 import com.kobe.warehouse.service.EtatProduitService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
@@ -31,7 +28,6 @@ import com.kobe.warehouse.service.dto.SuggestionDTO;
 import com.kobe.warehouse.service.dto.SuggestionLineDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
 import com.kobe.warehouse.service.dto.enumeration.Mois;
-import com.kobe.warehouse.service.dto.records.QuantitySuggestion;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.report.excel.CsvExportService;
 import com.kobe.warehouse.service.report.pdf.SuggestionPdfReportService;
@@ -41,8 +37,6 @@ import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import com.kobe.warehouse.service.stock.dto.QauntiteProduitVendus;
 import jakarta.persistence.EntityManager;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -50,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +79,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     /**
      * Axe 1 — Stock virtuel : commandes REQUESTED en attente de livraison.
      */
-    private final OrderLineRepository orderLineRepository;
+    private final ColisageService colisageService;
 
 
     public SuggestionProduitServiceImpl(
@@ -102,7 +95,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         EntityManager em,
         SuggestionPdfReportService suggestionPdfReportService,
         ProduitRepository produitRepository,
-        OrderLineRepository orderLineRepository
+        ColisageService colisageService
     ) {
         this.suggestionRepository = suggestionRepository;
         this.suggestionLineRepository = suggestionLineRepository;
@@ -116,7 +109,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         this.em = em;
         this.suggestionPdfReportService = suggestionPdfReportService;
         this.produitRepository = produitRepository;
-        this.orderLineRepository = orderLineRepository;
+        this.colisageService = colisageService;
     }
 
 
@@ -312,12 +305,14 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
             })
             .orElse(0L);
 
-        // Montant déjà commandé ce mois (commandes REQUESTED ou RECEIVED)
+        // Montant déjà engagé ce mois. Un brouillon n'engage rien : il peut être complété,
+        // vidé ou supprimé sans que le grossiste en sache quoi que ce soit.
         Number montantCommandeRaw = (Number) em.createNativeQuery(
             """
                 SELECT COALESCE(SUM(c.gross_amount), 0)
                 FROM commande c
-                WHERE c.order_status IN ('REQUESTED', 'RECEIVED')
+                WHERE (c.order_status = 'RECEIVED'
+                       OR (c.order_status = 'REQUESTED' AND c.date_envoi IS NOT NULL))
                   AND c.order_date >= DATE_TRUNC('month', CURRENT_DATE)
                 """
         ).getSingleResult();
@@ -506,6 +501,9 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                 if (qty <= 0) {
                     continue;
                 }
+                // Proposer d'emblee une quantite commandable : sinon l'ecran affiche 7 et la
+                // commande part a 12, et l'ecart ressemble a un bug.
+                qty = colisageService.ajusterQuantite(fp, qty);
 
                 SuggestionLine existingLine = existingLineByFpId.get(fp.getId());
                 if (existingLine != null) {
@@ -570,183 +568,6 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         suggestion.setLastUserEdit(user);
 
         return suggestion;
-    }
-
-    /**
-     * Résout le délai de livraison (jours) en cascade : SemoisConfiguration (surcharge par produit)
-     * → Fournisseur → GroupeFournisseur → défaut 7 j
-     */
-    private int resolveDelaiLivraisonJours(SemoisConfiguration semoisConfig,
-        Fournisseur fournisseur) {
-        if (semoisConfig != null && semoisConfig.getDelaiLivraisonJours() != null) {
-            return semoisConfig.getDelaiLivraisonJours();
-        }
-        if (fournisseur != null && fournisseur.getDelaiLivraisonJours() != null) {
-            return fournisseur.getDelaiLivraisonJours();
-        }
-        if (fournisseur != null
-            && fournisseur.getParent() != null
-            && fournisseur.getParent().getDelaiLivraisonJours() != null) {
-            return fournisseur.getParent().getDelaiLivraisonJours();
-        }
-        return 7;
-    }
-
-    /**
-     * Calcule le stock objectif SEMOIS à la volée. Utilisé quand {@code stockObjectifCalcule} n'est
-     * pas encore disponible (cache miss).
-     * <p>
-     * Formule : VMM + (VMM × délai × coeff / 30)
-     * </p>
-     */
-    private int computeSemoisStockObjectif(
-        Produit produit,
-        SemoisConfiguration semoisConfig,
-        Fournisseur fournisseur,
-        int vmm,
-        Map<ClasseCriticite, SemoisClasseConfig> classeConfigs
-    ) {
-        ClasseCriticite classe = produit.getEffectiveClasseCriticite();
-        SemoisClasseConfig classeConfig = classeConfigs.get(classe);
-        int delai = resolveDelaiLivraisonJours(semoisConfig, fournisseur);
-        if (classeConfig == null) {
-            // classe config manquante : formule P2 par défaut
-            return (int) Math.round(vmm * (1 + delai / 30.0));
-        }
-        BigDecimal coeff = classeConfig.getCoefficientSecurite();
-        int marge = BigDecimal.valueOf(vmm)
-            .multiply(BigDecimal.valueOf(delai))
-            .multiply(coeff)
-            .divide(BigDecimal.valueOf(30), RoundingMode.HALF_UP)
-            .intValue();
-        return vmm + marge;
-    }
-
-    /**
-     * Seuil de déclenchement du réapprovisionnement.
-     * <ul>
-     *   <li>Cache SEMOIS : {@code stockObjectifCalcule} pré-calculé (nightly batch)</li>
-     *   <li>SEMOIS à la volée : VMM × classe criticité via {@link SemoisClasseConfig}</li>
-     *   <li>P2 : {@code (couvertureMois + délai/30) × VMM}</li>
-     *   <li>Classique : {@code qtySeuilMini}</li>
-     * </ul>
-     */
-    private int seuilReappro(
-        Produit produit,
-        SemoisConfiguration semoisConfig,
-        Fournisseur fournisseur,
-        int vmm,
-        int couvertureMois,
-        boolean isSemois,
-        Map<ClasseCriticite, SemoisClasseConfig> classeConfigs
-    ) {
-        // Cache hit : nightly batch a déjà tout calculé
-        if (semoisConfig != null && semoisConfig.getStockObjectifCalcule() != null) {
-            return semoisConfig.getStockObjectifCalcule();
-        }
-        if (vmm > 0) {
-            if (isSemois) {
-                return computeSemoisStockObjectif(produit, semoisConfig, fournisseur, vmm,
-                    classeConfigs);
-            }
-            // P2
-            int delaiJours = resolveDelaiLivraisonJours(semoisConfig, fournisseur);
-            return (int) Math.round((couvertureMois + delaiJours / 30.0) * vmm);
-        }
-        return produit.getQtySeuilMini();
-    }
-
-    private int computeQtyReappro(
-        Produit produit,
-        int produitTotalStockQuantity,
-        SemoisConfiguration semoisConfig,
-        Fournisseur fournisseur,
-        int vmm,
-        int couvertureMois,
-        boolean isSemois,
-        Map<ClasseCriticite, SemoisClasseConfig> classeConfigs
-    ) {
-        // Cache hit
-        if (semoisConfig != null && semoisConfig.getStockObjectifCalcule() != null) {
-            return Math.max(1, semoisConfig.getStockObjectifCalcule() - produitTotalStockQuantity);
-        }
-        if (vmm > 0) {
-            int stockObjectif = isSemois
-                ? computeSemoisStockObjectif(produit, semoisConfig, fournisseur, vmm, classeConfigs)
-                : (int) Math.round(
-                    (couvertureMois + resolveDelaiLivraisonJours(semoisConfig, fournisseur) / 30.0)
-                        * vmm);
-            return Math.max(1, stockObjectif - produitTotalStockQuantity);
-        }
-        // CLASSIQUE : fallback sur les paramètres statiques du produit
-        int qtyReappro = Objects.requireNonNullElse(produit.getQtyAppro(), 1);
-        return (produit.getQtySeuilMini() - produitTotalStockQuantity) + qtyReappro;
-    }
-
-    /**
-     * Charge le VMM en une requête SQL par groupe de classe SEMOIS. Chaque classe a son propre
-     * {@code nbMoisHistorique} — au plus 5 requêtes SQL.
-     */
-    private Map<Integer, Integer> loadVmmForProduitsBySemoisClass(
-        List<QuantitySuggestion> eligibles,
-        Map<ClasseCriticite, SemoisClasseConfig> classeConfigs
-    ) {
-        Map<ClasseCriticite, List<Integer>> idsByClass = eligibles.stream()
-            .collect(Collectors.groupingBy(
-                q -> q.produit().getEffectiveClasseCriticite(),
-                Collectors.mapping(q -> q.produit().getId(), Collectors.toList())
-            ));
-
-        Map<Integer, Integer> result = new HashMap<>();
-        for (Map.Entry<ClasseCriticite, List<Integer>> entry : idsByClass.entrySet()) {
-            SemoisClasseConfig cc = classeConfigs.get(entry.getKey());
-            int nbMois = cc != null ? cc.getNbMoisHistorique() : 6;
-            result.putAll(loadVmmForProduits(new HashSet<>(entry.getValue()), nbMois));
-        }
-        return result;
-    }
-
-    /**
-     * Axe 1 — Charge en batch les quantités commandées en attente de livraison.
-     * <p>
-     * Une commande est "en attente" si son statut est {@code REQUESTED} (envoyée au fournisseur,
-     * non encore réceptionnée). La quantité en attente = quantité commandée - quantité déjà reçue.
-     * </p>
-     *
-     * @param produitIds IDs des produits à interroger
-     * @return Map produit_id → quantité en attente (seulement les produits avec qté > 0)
-     */
-    private Map<Integer, Integer> loadPendingOrderQty(Set<Integer> produitIds) {
-        if (produitIds.isEmpty()) {
-            return Map.of();
-        }
-        List<Object[]> rows = orderLineRepository.findPendingQtyByProduitIds(produitIds);
-        return rows.stream().collect(Collectors.toMap(
-            row -> ((Number) row[0]).intValue(),
-            row -> ((Number) row[1]).intValue()
-        ));
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<Integer, Integer> loadVmmForProduits(Set<Integer> produitIds, int nthMois) {
-        if (produitIds.isEmpty()) {
-            return Map.of();
-        }
-        String sql = """
-            SELECT produit_id, ROUND(AVG(qte_vendue))::integer AS vmm
-            FROM mv_monthly_top_products
-            WHERE produit_id IN (:produitIds)
-              AND mois::date >= (DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '%d months')::date
-              AND mois::date < DATE_TRUNC('month', CURRENT_DATE)::date
-            GROUP BY produit_id
-            """.formatted(nthMois);
-        List<Object[]> rows = em.createNativeQuery(sql)
-            .setParameter("produitIds", produitIds)
-            .getResultList();
-        return rows.stream().collect(Collectors.toMap(
-            row -> ((Number) row[0]).intValue(),
-            row -> ((Number) row[1]).intValue()
-        ));
     }
 
     private byte[] exportToCsvBytes(Suggestion suggestion) throws IOException {

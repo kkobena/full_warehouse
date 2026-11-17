@@ -95,13 +95,14 @@ public class SemoisResource {
         @RequestParam(required = false) String search,
         @RequestParam(required = false) ClasseCriticite classeCriticite,
         @RequestParam(required = false) Integer fournisseurId,
-        @RequestParam(required = false) String niveauUrgence
+        @RequestParam(required = false) String niveauUrgence,
+        @RequestParam(required = false) Integer magasinId
     ) {
         LOG.debug("REST request to get paged SEMOIS suggestions - page: {}, search: {}, classe: {}, fournisseur: {}, urgence: {}",
             pageable.getPageNumber(), search, classeCriticite, fournisseurId, niveauUrgence);
 
         Page<SemoisSuggestionDTO> page = semoisCalculationService.getAllSuggestions(
-            search, classeCriticite, fournisseurId, niveauUrgence, pageable);
+            search, classeCriticite, fournisseurId, niveauUrgence, pageable, magasinId);
 
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
             ServletUriComponentsBuilder.fromCurrentRequest(), page);
@@ -114,17 +115,21 @@ public class SemoisResource {
      * Utilisé pour "Commander tous les urgents".
      */
     @GetMapping("/suggestions/urgents")
-    public ResponseEntity<List<SemoisSuggestionDTO>> getAllUrgentSuggestions() {
+    public ResponseEntity<List<SemoisSuggestionDTO>> getAllUrgentSuggestions(
+        @RequestParam(required = false) Integer magasinId
+    ) {
         LOG.debug("REST request to get all urgent SEMOIS suggestions");
-        return ResponseEntity.ok(semoisCalculationService.getAllUrgentSuggestions());
+        return ResponseEntity.ok(semoisCalculationService.getAllUrgentSuggestions(magasinId));
     }
 
     /**
      * GET /api/semois/suggestions/fournisseurs : Fournisseurs distincts ayant des produits SEMOIS.
      */
     @GetMapping("/suggestions/fournisseurs")
-    public ResponseEntity<List<java.util.Map<String, Object>>> getSemoisFournisseurs() {
-        return ResponseEntity.ok(semoisCalculationService.getDistinctFournisseurs());
+    public ResponseEntity<List<java.util.Map<String, Object>>> getSemoisFournisseurs(
+        @RequestParam(required = false) Integer magasinId
+    ) {
+        return ResponseEntity.ok(semoisCalculationService.getDistinctFournisseurs(magasinId));
     }
 
     /**
@@ -134,10 +139,13 @@ public class SemoisResource {
      * @return SEMOIS suggestion with calculated VMM, safety margin, and order quantity
      */
     @GetMapping("/suggestions/{produitId}")
-    public ResponseEntity<SemoisSuggestionDTO> getSuggestionForProduct(@PathVariable Integer produitId) {
+    public ResponseEntity<SemoisSuggestionDTO> getSuggestionForProduct(
+        @PathVariable Integer produitId,
+        @RequestParam(required = false) Integer magasinId
+    ) {
         LOG.debug("REST request to get SEMOIS suggestion for product: {}", produitId);
         try {
-            SemoisSuggestionDTO suggestion = semoisCalculationService.getSuggestionForProduct(produitId);
+            SemoisSuggestionDTO suggestion = semoisCalculationService.getSuggestionForProduct(produitId, magasinId);
             return ResponseEntity.ok().body(suggestion);
         } catch (IllegalArgumentException e) {
             LOG.warn("SEMOIS configuration not found for product {}", produitId);
@@ -152,9 +160,12 @@ public class SemoisResource {
      * @return SEMOIS configuration
      */
     @GetMapping("/configuration/{produitId}")
-    public ResponseEntity<SemoisConfiguration> getConfiguration(@PathVariable Integer produitId) {
+    public ResponseEntity<SemoisConfiguration> getConfiguration(
+        @PathVariable Integer produitId,
+        @RequestParam(required = false) Integer magasinId
+    ) {
         LOG.debug("REST request to get SEMOIS configuration for product: {}", produitId);
-        return semoisCalculationService.findConfiguration(produitId)
+        return semoisCalculationService.findConfiguration(produitId, magasinId)
             .map(ResponseEntity::ok)
             .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -173,8 +184,8 @@ public class SemoisResource {
         LOG.debug("REST request to initialize SEMOIS configuration for product: {}", request.produitId);
 
         SemoisConfiguration config = request.classeCriticite != null
-            ? semoisCalculationService.initializeConfiguration(request.produitId, request.classeCriticite)
-            : semoisCalculationService.initializeConfiguration(request.produitId);
+            ? semoisCalculationService.initializeConfiguration(request.produitId, request.classeCriticite, request.magasinId)
+            : semoisCalculationService.initializeConfiguration(request.produitId, request.magasinId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(config);
     }
@@ -189,10 +200,11 @@ public class SemoisResource {
     @PutMapping("/configuration/{produitId}")
     public ResponseEntity<SemoisConfiguration> updateConfiguration(
         @PathVariable Integer produitId,
-        @Valid @RequestBody SemoisConfiguration config
+        @Valid @RequestBody SemoisConfiguration config,
+        @RequestParam(required = false) Integer magasinId
     ) {
         LOG.debug("REST request to update SEMOIS configuration for product: {}", produitId);
-        if (!semoisCalculationService.configurationExists(produitId)) {
+        if (!semoisCalculationService.configurationExists(produitId, magasinId)) {
             return ResponseEntity.notFound().build();
         }
         config.getProduit().setId(produitId);
@@ -201,6 +213,24 @@ public class SemoisResource {
     }
 
 
+
+    /**
+     * GET /api/semois/magasins : les magasins entre lesquels l'écran peut choisir.
+     *
+     * <p>Un seul élément — le cas de toutes les installations à ce jour : l'écran n'affiche pas
+     * de sélecteur. Les dépôts n'y figurent pas : ils ne commandent pas.
+     */
+    @GetMapping("/magasins")
+    public ResponseEntity<List<MagasinDuReassortDTO>> listerLesMagasinsDuReassort() {
+        return ResponseEntity.ok(
+            semoisCalculationService.listerLesMagasinsDuReassort().stream()
+                .map(m -> new MagasinDuReassortDTO(m.getId(), m.getName()))
+                .toList()
+        );
+    }
+
+    /** Un magasin tel que le sélecteur de réassort l'affiche. */
+    public record MagasinDuReassortDTO(Integer id, String name) {}
 
     /**
      * GET /api/semois/freshness : Get SEMOIS calculation freshness status.
@@ -217,9 +247,11 @@ public class SemoisResource {
      * GET /api/semois/dashboard : Tableau de bord réapprovisionnement temps réel (Axe 6).
      */
     @GetMapping("/dashboard")
-    public ResponseEntity<ReapproDashboardDTO> getDashboard() {
+    public ResponseEntity<ReapproDashboardDTO> getDashboard(
+        @RequestParam(required = false) Integer magasinId
+    ) {
         LOG.debug("REST request to get SEMOIS reappro dashboard");
-        ReapproDashboardDTO dashboard = semoisCalculationService.getDashboard();
+        ReapproDashboardDTO dashboard = semoisCalculationService.getDashboard(magasinId);
         return ResponseEntity.ok(dashboard);
     }
 
@@ -318,12 +350,13 @@ public class SemoisResource {
     @PostMapping("/configuration/{produitId}/exclure")
     public ResponseEntity<Void> exclureProduit(
         @PathVariable Integer produitId,
-        @Valid @RequestBody ExclusionRequest request
+        @Valid @RequestBody ExclusionRequest request,
+        @RequestParam(required = false) Integer magasinId
     ) {
         LOG.info("REST request to exclude produit {} from SEMOIS for {} days - motif: {}",
             produitId, request.dureeJours, request.motif);
         try {
-            semoisCalculationService.exclureProduit(produitId, request.dureeJours, request.motif);
+            semoisCalculationService.exclureProduit(produitId, request.dureeJours, request.motif, magasinId);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
@@ -335,9 +368,12 @@ public class SemoisResource {
      * Lève manuellement l'exclusion d'un produit (réintégration immédiate).
      */
     @DeleteMapping("/configuration/{produitId}/exclusion")
-    public ResponseEntity<Void> leverExclusion(@PathVariable Integer produitId) {
+    public ResponseEntity<Void> leverExclusion(
+        @PathVariable Integer produitId,
+        @RequestParam(required = false) Integer magasinId
+    ) {
         LOG.info("REST request to lift exclusion for produit {}", produitId);
-        semoisCalculationService.leverExclusion(produitId);
+        semoisCalculationService.leverExclusion(produitId, magasinId);
         return ResponseEntity.noContent().build();
     }
 
@@ -365,7 +401,9 @@ public class SemoisResource {
      */
     public record InitConfigurationRequest(
         @NotNull Integer produitId,
-        ClasseCriticite classeCriticite
+        ClasseCriticite classeCriticite,
+        /** Magasin dont on initialise le réassort. Null : l'officine. */
+        Integer magasinId
     ) {}
 
     /** Request DTO for temporarily excluding a product from SEMOIS suggestions */

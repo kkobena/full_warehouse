@@ -61,42 +61,52 @@ scenario('CPT-09', async ({ etape, page }) => {
 
     await expect(general).toBeVisible();
 
-    // Ce que chaque caissier a encaissé, mode par mode, tous postes confondus.
-    const parLibelle = new Map<string, number>();
-    for (const ligne of await lignesCaissiers.all()) {
-      const { libelle, montant } = await lire(ligne);
-      parLibelle.set(libelle, (parLibelle.get(libelle) ?? 0) + montant);
-    }
-    expect(parLibelle.size, 'sans aucune ligne de caissier, la consolidation ne prouve rien').toBeGreaterThan(0);
-
-    // Et ce que le récapitulatif général en dit.
-    const lignesGenerales = await general.locator('.recap-item').all();
-    expect(lignesGenerales.length, 'le récapitulatif général doit porter des lignes').toBeGreaterThan(0);
-
-    let comparees = 0;
-    for (const ligne of lignesGenerales) {
-      const { libelle, montant } = await lire(ligne);
-      if (libelle === AGREGAT_REDONDANT) {
-        continue;
+    // Les cartes caissiers se peignent APRÈS la carte générale, et `locator.all()` ne patiente
+    // pas : il photographie le DOM tel qu'il est. Mesuré sur cet écran — générale visible à
+    // +293 ms, deuxième carte à +296 ms, troisième à +351 ms. Lu dans cet intervalle, le
+    // rapprochement ne voit qu'une partie des caissiers et la consolidation paraît fausse d'un
+    // facteur entier, ce qui ressemble à un double compte sans en être un.
+    //
+    // D'où la reprise : on rejoue la confrontation entière jusqu'à ce qu'elle tienne. Un écart
+    // réel, lui, ne se résorbe pas et finit par être signalé avec ses montants.
+    await expect(async () => {
+      // Ce que chaque caissier a encaissé, mode par mode, tous postes confondus.
+      const parLibelle = new Map<string, number>();
+      for (const ligne of await lignesCaissiers.all()) {
+        const { libelle, montant } = await lire(ligne);
+        parLibelle.set(libelle, (parLibelle.get(libelle) ?? 0) + montant);
       }
-      expect(
-        parLibelle.has(libelle),
-        `« ${libelle} » figure au général sans venir d'aucun caissier`,
-      ).toBe(true);
-      expect(montant, `consolidation de « ${libelle} »`).toBe(parLibelle.get(libelle));
-      comparees++;
-    }
-    expect(comparees, 'aucune ligne comparée : la vérification serait vide').toBeGreaterThan(0);
+      expect(parLibelle.size, 'sans aucune ligne de caissier, la consolidation ne prouve rien').toBeGreaterThan(0);
 
-    // Dans l'autre sens : rien d'encaissé ne doit manquer au général.
-    const librellesGeneraux = new Set(
-      await Promise.all(lignesGenerales.map(async ligne => (await lire(ligne)).libelle)),
-    );
-    for (const libelle of parLibelle.keys()) {
-      expect(
-        librellesGeneraux.has(libelle),
-        `« ${libelle} » a été encaissé mais n'apparaît pas au récapitulatif général`,
-      ).toBe(true);
-    }
+      // Et ce que le récapitulatif général en dit.
+      const lignesGenerales = await general.locator('.recap-item').all();
+      expect(lignesGenerales.length, 'le récapitulatif général doit porter des lignes').toBeGreaterThan(0);
+
+      let comparees = 0;
+      for (const ligne of lignesGenerales) {
+        const { libelle, montant } = await lire(ligne);
+        if (libelle === AGREGAT_REDONDANT) {
+          continue;
+        }
+        expect(
+          parLibelle.has(libelle),
+          `« ${libelle} » figure au général sans venir d'aucun caissier`,
+        ).toBe(true);
+        expect(montant, `consolidation de « ${libelle} »`).toBe(parLibelle.get(libelle));
+        comparees++;
+      }
+      expect(comparees, 'aucune ligne comparée : la vérification serait vide').toBeGreaterThan(0);
+
+      // Dans l'autre sens : rien d'encaissé ne doit manquer au général.
+      const librellesGeneraux = new Set(
+        await Promise.all(lignesGenerales.map(async ligne => (await lire(ligne)).libelle)),
+      );
+      for (const libelle of parLibelle.keys()) {
+        expect(
+          librellesGeneraux.has(libelle),
+          `« ${libelle} » a été encaissé mais n'apparaît pas au récapitulatif général`,
+        ).toBe(true);
+      }
+    }).toPass({ timeout: 20_000, intervals: [100, 250, 500, 1000] });
   });
 });

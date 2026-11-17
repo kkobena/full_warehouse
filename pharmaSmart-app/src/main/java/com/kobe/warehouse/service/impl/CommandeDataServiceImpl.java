@@ -2,6 +2,8 @@ package com.kobe.warehouse.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kobe.warehouse.domain.Fournisseur;
+import java.time.LocalDate;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.Commande_;
@@ -279,11 +281,22 @@ public class CommandeDataServiceImpl implements CommandeDataService {
         List<PharmaMlEnvoi> envoisPending = pharmaMlEnvoiRepository.findByStatutOrderByCreatedAtDesc(
             PharmaMlStatut.PENDING);
 
-        List<CommandeResumeeDTO> requestedDTOs = allRequested.stream()
+        // Un seul passage sur les bons en attente : on y lit à la fois leur résumé, leur état
+        // d'envoi et leur retard éventuel.
+        List<CommandeResumeeDTO> resumesRequested = allRequested.stream()
             .sorted(Comparator.comparing(Commande::getOrderDate).reversed())
-            .limit(20)
             .map(this::toResumee)
             .toList();
+        long totalBrouillons = resumesRequested.stream().filter(r -> r.dateEnvoi() == null).count();
+        // Le compteur porte sur TOUS les retards, la liste n'en montre que les vingt premiers :
+        // tronquer avant de compter ferait plafonner l'alerte a vingt et masquerait l'ampleur.
+        List<CommandeResumeeDTO> tousLesRetards = resumesRequested.stream()
+            .filter(r -> r.joursDeRetard() > 0)
+            .sorted(Comparator.comparingLong(CommandeResumeeDTO::joursDeRetard).reversed())
+            .toList();
+        List<CommandeResumeeDTO> enRetard = tousLesRetards.stream().limit(20).toList();
+
+        List<CommandeResumeeDTO> requestedDTOs = resumesRequested.stream().limit(20).toList();
 
         List<CommandeResumeeDTO> receivedDTOs = allReceived.stream()
             .sorted(Comparator.comparing(Commande::getOrderDate).reversed())
@@ -300,9 +313,13 @@ public class CommandeDataServiceImpl implements CommandeDataService {
             allRequested.size(),
             allReceived.size(),
             envoisPending.size(),
+            totalBrouillons,
+            allRequested.size() - totalBrouillons,
+            tousLesRetards.size(),
             requestedDTOs,
             receivedDTOs,
-            envoisDTOs
+            envoisDTOs,
+            enRetard
         );
     }
 
@@ -314,7 +331,18 @@ public class CommandeDataServiceImpl implements CommandeDataService {
             c.getFournisseur().getLibelle(),
             c.getGrossAmount() != null ? c.getGrossAmount() : 0,
             c.getOrderStatus().name(),
-            c.getReliquatDeCommandeId()
+            c.getReliquatDeCommandeId(),
+            c.getDateEnvoi() != null ? c.getDateEnvoi().toString() : null,
+            lireJoursDeRetard(c)
+        );
+    }
+
+    /** Le délai annoncé est celui de l'agence, à défaut celui de son grossiste. */
+    private long lireJoursDeRetard(Commande commande) {
+        Fournisseur fournisseur = commande.getFournisseur();
+        return commande.joursDeRetard(
+            LocalDate.now(),
+            fournisseur != null ? fournisseur.delaiLivraisonEffectif() : Fournisseur.DELAI_LIVRAISON_PAR_DEFAUT
         );
     }
 

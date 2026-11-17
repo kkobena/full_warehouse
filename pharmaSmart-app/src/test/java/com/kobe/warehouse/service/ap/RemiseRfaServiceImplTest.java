@@ -9,13 +9,16 @@ import static org.mockito.Mockito.when;
 import com.kobe.warehouse.domain.AvoirFournisseur;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.enumeration.AvoirFournisseurStatut;
+import com.kobe.warehouse.domain.enumeration.EtatPalierRfa;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.AvoirFournisseurRepository;
+import com.kobe.warehouse.repository.FournisseurRepository;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.service.dto.AvoirFournisseurRfaDTO;
 import com.kobe.warehouse.service.dto.RemiseRfaFournisseurDTO;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,11 +45,15 @@ class RemiseRfaServiceImplTest {
     private final CommandeRepository commandeRepository = mock(CommandeRepository.class);
     private final AvoirFournisseurRepository avoirRepository = mock(AvoirFournisseurRepository.class);
 
-    private final RemiseRfaService service = new RemiseRfaServiceImpl(commandeRepository, avoirRepository);
+    private final FournisseurRepository fournisseurRepository = mock(FournisseurRepository.class);
+
+    private final RemiseRfaService service = new RemiseRfaServiceImpl(
+        commandeRepository, avoirRepository, fournisseurRepository
+    );
 
     @BeforeEach
     void aucunAccord() {
-        when(commandeRepository.sumCaByFournisseur(any(), any(), any())).thenReturn(List.of());
+        when(commandeRepository.sumCaByFournisseur(any(), any(), any(), any())).thenReturn(List.of());
         when(avoirRepository.sumParFournisseur(any())).thenReturn(List.of());
         when(avoirRepository.findAllWithFournisseur()).thenReturn(List.of());
     }
@@ -65,7 +72,7 @@ class RemiseRfaServiceImplTest {
 
             ArgumentCaptor<LocalDate> debut = ArgumentCaptor.forClass(LocalDate.class);
             ArgumentCaptor<LocalDate> fin = ArgumentCaptor.forClass(LocalDate.class);
-            verify(commandeRepository).sumCaByFournisseur(any(), debut.capture(), fin.capture());
+            verify(commandeRepository).sumCaByFournisseur(any(), debut.capture(), fin.capture(), any());
 
             int annee = LocalDate.now().getYear();
             assertThat(debut.getValue()).isEqualTo(LocalDate.of(annee, 1, 1));
@@ -78,7 +85,9 @@ class RemiseRfaServiceImplTest {
         void commandesCloturees() {
             service.getRfaFournisseurs();
 
-            verify(commandeRepository).sumCaByFournisseur(org.mockito.ArgumentMatchers.eq(OrderStatut.CLOSED), any(), any());
+            verify(commandeRepository).sumCaByFournisseur(
+                org.mockito.ArgumentMatchers.eq(OrderStatut.CLOSED), any(), any(), org.mockito.ArgumentMatchers.isNull()
+            );
         }
 
         /** Seuls les avoirs remboursés sont des remises acquises : un avoir en attente ne l'est pas. */
@@ -185,10 +194,81 @@ class RemiseRfaServiceImplTest {
         }
     }
 
-    // ===== alerte =====
+    // ===== lecture pour un seul groupe =====
 
     @Nested
-    @DisplayName("Alerte d'avancement")
+    @DisplayName("Palier du groupe, pour le bandeau de saisie")
+    class PalierDuGroupe {
+
+        @Test
+        @DisplayName("resout le groupe de l'agence avant d'interroger le chiffre d'affaires")
+        void resoudreLeGroupe() {
+            // Une commande part chez une AGENCE, mais le palier se negocie avec le grossiste :
+            // interroger l'agence rendrait un tiers du chiffre face au palier entier.
+            when(fournisseurRepository.lireIdDuGroupe(42)).thenReturn(Optional.of(7));
+            donneChiffres(fournisseur(7, "LABOREX", 85_000_000L, 100_000_000L, 2));
+
+            RemiseRfaFournisseurDTO resultat = service.lireRfaDuGroupe(42);
+
+            assertThat(resultat.fournisseurId()).isEqualTo(7);
+            assertThat(resultat.fournisseurName()).isEqualTo("LABOREX");
+            verify(commandeRepository).sumCaByFournisseur(any(), any(), any(), org.mockito.ArgumentMatchers.eq(7));
+        }
+
+        @Test
+        @DisplayName("un fournisseur inconnu ne rend rien plutot que de lever une erreur")
+        void fournisseurInconnu() {
+            when(fournisseurRepository.lireIdDuGroupe(999)).thenReturn(Optional.empty());
+
+            assertThat(service.lireRfaDuGroupe(999)).isNull();
+        }
+
+        @Test
+        @DisplayName("un groupe sans commande close sur l'exercice ne rend rien")
+        void groupeSansCommande() {
+            when(fournisseurRepository.lireIdDuGroupe(42)).thenReturn(Optional.of(7));
+            donneChiffres();
+
+            assertThat(service.lireRfaDuGroupe(42)).isNull();
+        }
+
+        @Test
+        @DisplayName("dit ce qu'il reste a facturer avant le palier")
+        void resteAvantLePalier() {
+            // Le seul chiffre directement actionnable : compare au montant du bon en cours, il
+            // dit si ce bon fait basculer.
+            when(fournisseurRepository.lireIdDuGroupe(42)).thenReturn(Optional.of(7));
+            donneChiffres(fournisseur(7, "LABOREX", 85_000_000L, 100_000_000L, 2));
+
+            assertThat(service.lireRfaDuGroupe(42).resteAvantPalier()).isEqualTo(15_000_000L);
+        }
+
+        @Test
+        @DisplayName("le palier franchi, il ne reste rien a facturer")
+        void plusRienAFacturer() {
+            when(fournisseurRepository.lireIdDuGroupe(42)).thenReturn(Optional.of(7));
+            donneChiffres(fournisseur(7, "LABOREX", 130_000_000L, 100_000_000L, 2));
+
+            assertThat(service.lireRfaDuGroupe(42).resteAvantPalier()).isZero();
+        }
+
+        @Test
+        @DisplayName("sans palier negocie, il n'y a rien a atteindre")
+        void sansPalier() {
+            when(fournisseurRepository.lireIdDuGroupe(42)).thenReturn(Optional.of(7));
+            donneChiffres(fournisseur(7, "DIVERS", 5_000_000L, null, null));
+
+            RemiseRfaFournisseurDTO resultat = service.lireRfaDuGroupe(42);
+
+            assertThat(resultat.etat()).isEqualTo(EtatPalierRfa.SANS_ACCORD);
+            assertThat(resultat.resteAvantPalier()).isZero();
+        }
+    }
+
+    // ===== etat d'avancement =====
+
+    @Nested
+    @DisplayName("Etat d'avancement")
     class AlerteDAvancement {
 
         /** Au-delà de quatre-vingts pour cent, le palier est à portée : c'est le moment d'accélérer. */
@@ -197,9 +277,7 @@ class RemiseRfaServiceImplTest {
         void palierAPortee() {
             donneChiffres(fournisseur(3, "LABOREX", 85_000_000L, 100_000_000L, 2));
 
-            assertThat(service.getRfaFournisseurs().getFirst().alerte())
-                .contains("85%")
-                .contains("accélérer les commandes");
+            assertThat(service.getRfaFournisseurs().getFirst().etat()).isEqualTo(EtatPalierRfa.PROCHE_DU_PALIER);
         }
 
         /** Le palier franchi, il n'y a plus rien à décider : l'alerte disparaît. */
@@ -208,7 +286,7 @@ class RemiseRfaServiceImplTest {
         void palierFranchi() {
             donneChiffres(fournisseur(3, "LABOREX", 100_000_000L, 100_000_000L, 2));
 
-            assertThat(service.getRfaFournisseurs().getFirst().alerte()).isNull();
+            assertThat(service.getRfaFournisseurs().getFirst().etat()).isEqualTo(EtatPalierRfa.ATTEINT);
         }
 
         @Test
@@ -216,7 +294,7 @@ class RemiseRfaServiceImplTest {
         void palierDepasse() {
             donneChiffres(fournisseur(3, "LABOREX", 250_000_000L, 100_000_000L, 2));
 
-            assertThat(service.getRfaFournisseurs().getFirst().alerte()).isNull();
+            assertThat(service.getRfaFournisseurs().getFirst().etat()).isEqualTo(EtatPalierRfa.ATTEINT);
         }
 
         /** En deçà de la moitié, le constat remplace le conseil : le palier est hors d'atteinte. */
@@ -225,7 +303,7 @@ class RemiseRfaServiceImplTest {
         void palierLoin() {
             donneChiffres(fournisseur(3, "LABOREX", 30_000_000L, 100_000_000L, 2));
 
-            assertThat(service.getRfaFournisseurs().getFirst().alerte()).contains("30%").contains("Seulement");
+            assertThat(service.getRfaFournisseurs().getFirst().etat()).isEqualTo(EtatPalierRfa.LOIN_DU_PALIER);
         }
 
         @Test
@@ -233,20 +311,20 @@ class RemiseRfaServiceImplTest {
         void avancementOrdinaire() {
             donneChiffres(fournisseur(3, "LABOREX", 65_000_000L, 100_000_000L, 2));
 
-            assertThat(service.getRfaFournisseurs().getFirst().alerte()).isNull();
+            assertThat(service.getRfaFournisseurs().getFirst().etat()).isEqualTo(EtatPalierRfa.EN_COURS);
         }
 
         @Test
         @DisplayName("les bornes de l'alerte appartiennent au message le plus pressant")
         void bornesDesSeuils() {
             donneChiffres(fournisseur(3, "LABOREX", 80_000_000L, 100_000_000L, 2));
-            assertThat(service.getRfaFournisseurs().getFirst().alerte()).contains("accélérer");
+            assertThat(service.getRfaFournisseurs().getFirst().etat()).isEqualTo(EtatPalierRfa.PROCHE_DU_PALIER);
 
             donneChiffres(fournisseur(3, "LABOREX", 79_000_000L, 100_000_000L, 2));
-            assertThat(service.getRfaFournisseurs().getFirst().alerte()).isNull();
+            assertThat(service.getRfaFournisseurs().getFirst().etat()).isEqualTo(EtatPalierRfa.EN_COURS);
 
             donneChiffres(fournisseur(3, "LABOREX", 49_000_000L, 100_000_000L, 2));
-            assertThat(service.getRfaFournisseurs().getFirst().alerte()).contains("Seulement");
+            assertThat(service.getRfaFournisseurs().getFirst().etat()).isEqualTo(EtatPalierRfa.LOIN_DU_PALIER);
         }
 
         /** Sans palier, il n'y a rien à atteindre : pas d'alerte, même à chiffre nul. */
@@ -255,7 +333,7 @@ class RemiseRfaServiceImplTest {
         void sansPalierAucuneAlerte() {
             donneChiffres(fournisseur(3, "LABOREX", 0L, null, 2));
 
-            assertThat(service.getRfaFournisseurs().getFirst().alerte()).isNull();
+            assertThat(service.getRfaFournisseurs().getFirst().etat()).isEqualTo(EtatPalierRfa.SANS_ACCORD);
         }
 
         /** Sans taux négocié, le constat de retard n'a pas d'objet : il n'y a rien à gagner. */
@@ -264,7 +342,7 @@ class RemiseRfaServiceImplTest {
         void sansTauxAucunConstat() {
             donneChiffres(fournisseur(3, "LABOREX", 30_000_000L, 100_000_000L, null));
 
-            assertThat(service.getRfaFournisseurs().getFirst().alerte()).isNull();
+            assertThat(service.getRfaFournisseurs().getFirst().etat()).isEqualTo(EtatPalierRfa.EN_COURS);
         }
     }
 
@@ -301,7 +379,7 @@ class RemiseRfaServiceImplTest {
     // ===== utilitaires =====
 
     private void donneChiffres(Object[]... lignes) {
-        when(commandeRepository.sumCaByFournisseur(any(), any(), any())).thenReturn(List.of(lignes));
+        when(commandeRepository.sumCaByFournisseur(any(), any(), any(), any())).thenReturn(List.of(lignes));
     }
 
     private static Object[] fournisseur(Integer id, String nom, Long chiffreAffaires, Long palier, Integer tauxPct) {

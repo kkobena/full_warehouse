@@ -11,6 +11,7 @@ import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.RepartitionStockProduit;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.RetourDepotItem;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
@@ -294,5 +295,24 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
             inventoryTransaction.setId(mvtProduitIdGeneratorService.nextId());
             inventoryTransactionRepository.save(inventoryTransaction);
         });
+    }
+
+    @Override
+    public void saveRetourDepotExtensionInventoryTransaction(Magasin depot, RetourDepotItem retourDepotItem) {
+        // Quantité signée : le dépôt est le côté sortant, comme MOUVEMENT_STOCK_OUT.
+        InventoryTransaction inventoryTransaction = new InventoryTransaction()
+            .setProduit(retourDepotItem.getProduit())
+            .setMouvementType(MouvementProduit.RETOUR_DEPOT)
+            .setQuantity(-retourDepotItem.getQtyMvt())
+            .setQuantityBefor(retourDepotItem.getInitStock())
+            .setQuantityAfter(retourDepotItem.getAfterStock())
+            .setCostAmount(retourDepotItem.getPrixAchat())
+            .setEntityId(Long.valueOf(retourDepotItem.getId()))
+            .setUser(retourDepotItem.getRetourDepot().getUser())
+            .setMagasin(depot)
+            .setStorage(storageService.getStorageByMagasinIdAndType(depot.getId(), StorageType.PRINCIPAL))
+            .setRegularUnitPrice(retourDepotItem.getRegularUnitPrice());
+        inventoryTransaction.setId(mvtProduitIdGeneratorService.nextId());
+        inventoryTransactionRepository.save(inventoryTransaction);
     }
 }

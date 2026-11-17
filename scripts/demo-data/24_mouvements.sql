@@ -10,7 +10,7 @@
 --
 --   ENTREE_STOCK        ligne de commande reçue (+ reçu + UG)          ; ligne de vente dépôt, côté dépôt (+)
 --   SALE                ligne de vente (- servi)
---   RETOUR_DEPOT        retour du dépôt, côté officine (+) — le côté dépôt n'est pas tracé, comme dans l'application
+--   RETOUR_DEPOT        retour du dépôt, côté officine (+) et côté dépôt (-), comme dans l'application
 --   RETRAIT_PERIME      produit périmé détruit (-)
 --   RETOUR_FOURNISSEUR  ligne de retour fournisseur (-)
 --   AJUSTEMENT_IN/OUT   ligne d'un bon d'ajustement CLÔTURÉ (quantité signée)
@@ -127,7 +127,7 @@ SELECT sl.produit_id, st.id, sl.created_at, 'ENTREE_STOCK',
   JOIN storage st ON st.magasin_id = s.depot_id AND st.storage_type = 'PRINCIPAL'
  WHERE sl.quantity_sold > 0;
 
--- Retours du dépôt : réintégrés au rayon de l'officine.
+-- Retours du dépôt, côté officine : réintégrés au rayon.
 INSERT INTO tmp_jr_mvt
 SELECT i.produit_id, x.rayon_id, rd.date_mtv, 'RETOUR_DEPOT',
        i.qty_mvt, i.qty_mvt,
@@ -136,6 +136,18 @@ SELECT i.produit_id, x.rayon_id, rd.date_mtv, 'RETOUR_DEPOT',
   JOIN retour_depot rd ON rd.id = i.retour_depot_id
   JOIN produit p ON p.id = i.produit_id
  CROSS JOIN tmp_jr_ctx x;
+
+-- Retours du dépôt, côté dépôt : la marchandise en sort (saveRetourDepotExtensionInventoryTransaction).
+-- Le dépôt est celui du retour (retour_depot.depot_id), jamais « le » magasin de type DEPOT, pour la
+-- même raison que la vente dépôt ci-dessus.
+INSERT INTO tmp_jr_mvt
+SELECT i.produit_id, st.id, rd.date_mtv, 'RETOUR_DEPOT',
+       -i.qty_mvt, -i.qty_mvt,
+       i.id, 'retour_depot_item', rd.user_id, COALESCE(p.cost_amount, 0), i.regular_unit_price, 3
+  FROM retour_depot_item i
+  JOIN retour_depot rd ON rd.id = i.retour_depot_id
+  JOIN produit p ON p.id = i.produit_id
+  JOIN storage st ON st.magasin_id = rd.depot_id AND st.storage_type = 'PRINCIPAL';
 
 -- Retraits de périmés : datés à la destruction, qui est le vrai mouvement.
 INSERT INTO tmp_jr_mvt
@@ -360,9 +372,18 @@ SELECT (SELECT COALESCE(max(id), 0) FROM store_inventory) + row_number() OVER (O
        CASE WHEN n.nature = 'OUVERTURE' THEN d.jour + TIME '07:30:00' ELSE (CURRENT_DATE - 1) + TIME '07:30:00' END,
        CASE WHEN n.nature = 'OUVERTURE' THEN d.jour + TIME '18:00:00' ELSE n.dernier_comptage + INTERVAL '30 seconds' END
   FROM (
-      SELECT 'OUVERTURE' AS nature, storage_id, NULL::timestamp AS dernier_comptage FROM tmp_jr_cle WHERE ouverture > 0 GROUP BY storage_id
+      -- Les dépôts sont exclus des deux inventaires : personne n'y compte. Leur stock n'a qu'une
+      -- origine, la vente dépôt, et qu'une sortie, le retour — les deux tracées. Un inventaire y
+      -- serait un comptage que l'officine n'a pas fait.
+      SELECT 'OUVERTURE' AS nature, c.storage_id, NULL::timestamp AS dernier_comptage
+        FROM tmp_jr_cle c JOIN storage s ON s.id = c.storage_id JOIN magasin m ON m.id = s.magasin_id
+       WHERE c.ouverture > 0 AND m.type_magasin <> 'DEPOT'
+       GROUP BY c.storage_id
       UNION ALL
-      SELECT 'ANNUEL', storage_id, max(t_cle) FROM tmp_jr_cle GROUP BY storage_id
+      SELECT 'ANNUEL', c.storage_id, max(c.t_cle)
+        FROM tmp_jr_cle c JOIN storage s ON s.id = c.storage_id JOIN magasin m ON m.id = s.magasin_id
+       WHERE m.type_magasin <> 'DEPOT'
+       GROUP BY c.storage_id
   ) n
  CROSS JOIN (SELECT (min(moment)::date - 1) AS jour FROM tmp_jr_mvt) d
  CROSS JOIN tmp_jr_ctx x;
@@ -477,13 +498,15 @@ UPDATE store_inventory si
           FROM store_inventory_line l GROUP BY l.store_inventory_id) v
  WHERE si.id = v.store_inventory_id AND si.statut = 'CLOSED';
 
--- Clé d'unicité du journal (entity_id, produit_id, mouvement_type, date) : une réception et une vente dépôt
--- partagent le type ENTREE_STOCK, leurs identifiants viennent de séquences différentes.
+-- Clé d'unicité du journal (entity_id, produit_id, mouvement_type, storage_id, date) : une réception et une
+-- vente dépôt partagent le type ENTREE_STOCK, leurs identifiants viennent de séquences différentes.
+-- Le stockage en fait partie : les deux côtés d'un retour dépôt sont deux mouvements RETOUR_DEPOT de même
+-- pièce et de même jour, que seul leur stockage distingue — c'est aussi ce que l'application écrit.
 DO $$
 DECLARE v_n int;
 BEGIN
     SELECT count(*) INTO v_n FROM (
-        SELECT 1 FROM tmp_jr_journal GROUP BY entity_id, produit_id, mouvement_type, moment::date HAVING count(*) > 1
+        SELECT 1 FROM tmp_jr_journal GROUP BY entity_id, produit_id, mouvement_type, storage_id, moment::date HAVING count(*) > 1
     ) d;
     IF v_n > 0 THEN RAISE EXCEPTION '% mouvement(s) en double sur la clé d''unicité du journal', v_n; END IF;
 END $$;

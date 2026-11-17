@@ -9,8 +9,8 @@ public class SubstitutDTO {
     private final String typeSubstitut;
     private final String typeSubstitutLibelle;
 
-    public SubstitutDTO(Substitut substitut) {
-        this.produit = ProduitBuilder.fromProduit(substitut.getSubstitut());
+    public SubstitutDTO(Substitut substitut, Integer magasinId) {
+        this.produit = ProduitBuilder.fromProduit(substitut.getSubstitut(), magasinId);
         this.typeSubstitut = substitut.getType().name();
         this.typeSubstitutLibelle = substitut.getType().getLibelle();
     }

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.scheduler;
 
+import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -76,6 +77,7 @@ public class SemoisBatchJobService {
     private final OrderLineRepository orderLineRepository;
     private final EtatProduitService etatProduitService;
     private final ReferenceService referenceService;
+    private final MagasinRepository magasinRepository;
     private final EntityManager em;
 
     public SemoisBatchJobService(
@@ -86,6 +88,7 @@ public class SemoisBatchJobService {
         OrderLineRepository orderLineRepository,
         EtatProduitService etatProduitService,
         ReferenceService referenceService,
+        MagasinRepository magasinRepository,
         EntityManager em
     ) {
         this.produitRepository = produitRepository;
@@ -95,6 +98,7 @@ public class SemoisBatchJobService {
         this.orderLineRepository = orderLineRepository;
         this.etatProduitService = etatProduitService;
         this.referenceService = referenceService;
+        this.magasinRepository = magasinRepository;
         this.em = em;
     }
 
@@ -163,11 +167,43 @@ public class SemoisBatchJobService {
         LOG.info("[SEMOIS-BATCH] Démarrage du batch de création des suggestions");
         long debut = System.currentTimeMillis();
 
-        Magasin magasin = em.find(Magasin.class, EntityConstant.DEFAULT_MAGASIN);
-        if (magasin == null) {
-            LOG.warn("[SEMOIS-BATCH] Aucun magasin par défaut trouvé — batch annulé");
+        List<Magasin> magasins = magasinRepository.findByCommandeEnPropreTrueOrderByIdAsc();
+        if (magasins.isEmpty()) {
+            LOG.warn("[SEMOIS-BATCH] Aucun magasin ne commande en propre — batch annulé");
             return;
         }
+
+        int totalProduits = 0;
+        for (Magasin magasin : magasins) {
+            totalProduits += traiterLeReassortDUnMagasin(magasin);
+        }
+
+        if (totalProduits == 0) {
+            LOG.info("[SEMOIS-BATCH] Aucun produit éligible, aucun magasin — rien à nettoyer");
+            return;
+        }
+
+        // Nettoyage global, une seule fois pour tous les magasins : une suggestion AUTO vidée de
+        // ses lignes et jamais traitée par le pharmacien n'a plus d'objet, où qu'elle soit.
+        //
+        // Conditionné à un passage effectif, comme avant le multi-magasins : un batch qui n'a rien
+        // eu à traiter ne touche à rien. La condition porte désormais sur l'ENSEMBLE des magasins
+        // — un magasin sans produit éligible n'empêche pas de nettoyer ce que les autres ont vidé.
+        int nbVides = suggestionRepository.deleteEmptyAutoSuggestions();
+
+        LOG.info("[SEMOIS-BATCH] Terminé en {}ms — {} magasin(s), {} produits, {} suggestion(s) vide(s) supprimée(s)",
+            System.currentTimeMillis() - debut, magasins.size(), totalProduits, nbVides);
+    }
+
+    /**
+     * Réassort d'un magasin.
+     *
+     * <p>Chaque magasin commandeur a son propre stock et ses propres ventes : les confondre ferait
+     * commander pour l'un ce que l'autre a déjà en rayon. Un dépôt n'est jamais de la partie — il
+     * s'approvisionne auprès de son officine, pas auprès d'un grossiste.
+     */
+    private int traiterLeReassortDUnMagasin(Magasin magasin) {
+        long debut = System.currentTimeMillis();
         Integer magasinId = magasin.getId();
 
         int pageIndex = 0;
@@ -309,18 +345,15 @@ public class SemoisBatchJobService {
         }
 
         if (totalProduits == 0) {
-            LOG.info("[SEMOIS-BATCH] Aucun produit éligible trouvé");
-            return;
+            LOG.info("[SEMOIS-BATCH] {} — aucun produit éligible", magasin.getName());
+            return 0;
         }
-
-        // Nettoyage des suggestions AUTO devenues vides (toutes lignes supprimées) et jamais
-        // traitées par le pharmacien (statut GENEREE).
-        int nbVides = suggestionRepository.deleteEmptyAutoSuggestions();
 
         long duree = System.currentTimeMillis() - debut;
         LOG.info(
-            "[SEMOIS-BATCH] Terminé en {}ms — {} produits, {} créées, {} màj, {} protégées, {} lignes supprimées, {} suggestions vides supprimées",
-            duree, totalProduits, nbCreees, nbMajees, nbProtegees, nbLignesSupp, nbVides);
+            "[SEMOIS-BATCH] {} traité en {}ms — {} produits, {} créées, {} màj, {} protégées, {} lignes supprimées",
+            magasin.getName(), duree, totalProduits, nbCreees, nbMajees, nbProtegees, nbLignesSupp);
+        return totalProduits;
     }
 
     private Suggestion buildNewSemoisSuggestion(Fournisseur fournisseur, Magasin magasin) {

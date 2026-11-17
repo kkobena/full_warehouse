@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { ouvrirBonDeReception, ouvrirOnglet, traverserConfirmations } from '../../src/actions';
+import { ouvrirBonDeReception, ouvrirOnglet, referencesBonsAvecExcedent, traverserConfirmations } from '../../src/actions';
 import { scenario } from '../../src/scenario';
 
 /**
@@ -20,11 +20,19 @@ scenario('ACH-75', async ({ etape, page }) => {
   const ecran = page.locator('app-commande-received');
   const modale = page.locator('.modal-content');
 
+  // Le bon est DÉSIGNÉ par la base : la modale « Répartition rayon » ne s'ouvre que si un
+  // produit du bon déborde déjà son maximum de rayon, ce que le taux de service ne dit pas.
+  // Ce décor est partagé avec l'autre parcours de la paire (ACH-46, qui l'ignore), et
+  // chacun clôture le bon qu'il finalise : demander à la base garantit qu'ils n'en réclament pas
+  // le même.
+  const bons = referencesBonsAvecExcedent();
+  expect(bons.length, 'la démo doit porter un bon complet dont la réception déborde le rayon').toBeGreaterThan(0);
+
   await etape(1, async () => {
     await page.goto('/commande');
     await ouvrirOnglet(page, /Commandes & Réceptions/);
     await page.getByRole('tab', { name: /^Réceptions/ }).click();
-    await ouvrirBonDeReception(page, 'complet');
+    await ouvrirBonDeReception(page, 'complet', bons);
     await ecran.getByRole('button', { name: 'Finaliser' }).click();
     await traverserConfirmations(page, { sarreterAvant: /Répartition rayon/ });
     await expect(modale).toContainText(/Répartition rayon/i);

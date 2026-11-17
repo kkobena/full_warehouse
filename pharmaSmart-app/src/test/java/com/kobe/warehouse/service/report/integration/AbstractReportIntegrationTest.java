@@ -44,6 +44,7 @@ import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
+import com.kobe.warehouse.domain.enumeration.CanalEnvoi;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.OrigineVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
@@ -322,6 +323,7 @@ abstract class AbstractReportIntegrationTest {
         CashRegister caisse = new CashRegister();
         caisse.setCashFund(fond);
         caisse.setUser(utilisateur);
+        caisse.setMagasin(caisse.getUser().getMagasin());
         caisse.setInitAmount(0L);
         caisse.setBeginTime(LocalDateTime.now());
         caisse.setCreated(LocalDateTime.now());
@@ -697,9 +699,14 @@ abstract class AbstractReportIntegrationTest {
     // --- commandes et réceptions ---
 
     /**
-     * Une commande réceptionnée. {@code receipt_date} moins {@code order_date} donne le délai de
+     * Une commande réceptionnée. {@code receipt_date} moins {@code date_envoi} donne le délai de
      * livraison, et le rapport de conformité compare le reçu au demandé — c'est de ces deux écarts
      * que se déduit la note du fournisseur.
+     *
+     * <p>L'envoi est horodaté à la date de commande, ce qui est le cas de toutes les commandes
+     * réceptionnées en base : la reprise de {@code V2.1.48} l'a posé sur l'historique, et une
+     * livraison atteste de toute façon d'un envoi. Sans cette date, {@code delivery_days} reste
+     * nul et le fournisseur n'a plus aucun indicateur de livraison.
      */
     protected Commande reception(
         Fournisseur fournisseur,
@@ -720,7 +727,10 @@ abstract class AbstractReportIntegrationTest {
         commande.setFinalAmount(montant);
         commande.setCreatedAt(dateCommande.atStartOfDay());
         commande.setUpdatedAt(LocalDateTime.now());
+        commande.setDateEnvoi(dateCommande.atStartOfDay());
+        commande.setCanalEnvoi(CanalEnvoi.EDI);
         commande.setUser(utilisateur);
+        commande.setMagasin(commande.getUser().getMagasin());
         commande.setFournisseur(fournisseur);
         em.persist(commande);
         em.flush();

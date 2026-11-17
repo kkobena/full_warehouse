@@ -18,6 +18,19 @@
           bindLabel="abbrName"
           placeholder="Opérateur"
         />
+
+        @if (superviseDAutresMagasins()) {
+          <app-select
+            (selectionChange)="onSearch()"
+            [ngModel]="selectedMagasin()" (ngModelChange)="selectedMagasin.set($event)"
+            [clearable]="true"
+            [items]="magasins()"
+            [style]="{ 'min-width': '200px' }"
+            appendTo="body"
+            bindLabel="name"
+            placeholder="Magasin"
+          />
+        }
       </div>
     </ng-container>
 
@@ -55,6 +68,9 @@
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>Caissier</th>
+                @if (superviseDAutresMagasins()) {
+                  <th>Magasin</th>
+                }
                 <th>Fond de caisse</th>
                 <th>Recette</th>
                 <th>Total caisse</th>
@@ -70,6 +86,9 @@
                 <td>
                   {{ mvtCaisse.user?.abbrName }}
                 </td>
+                @if (superviseDAutresMagasins()) {
+                  <td>{{ mvtCaisse.magasin }}</td>
+                }
                 <td class="text-right amount-column">
                   <span class="pharma-price">{{ mvtCaisse.cashFund | number }}</span>
                 </td>

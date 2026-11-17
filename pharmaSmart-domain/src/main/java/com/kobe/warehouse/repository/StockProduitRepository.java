@@ -1,6 +1,7 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.enumeration.StorageType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,6 +32,27 @@ public interface StockProduitRepository extends JpaRepository<StockProduit, Inte
         value = "SELECT SUM(sp.qtyStock)+SUM(sp.qtyUG)  as totalQuantity FROM StockProduit sp WHERE sp.produit.id =:produitId AND sp.storage.magasin.id =:magasinId "
     )
     Integer findTotalQuantityByMagasinIdIdAndProduitId(@Param("magasinId") Integer magasinId, @Param("produitId") Integer produitId);
+
+    /**
+     * Stock d'un produit qui couvre réellement la demande, pour le calcul de réapprovisionnement :
+     * la quarantaine en est exclue, son stock attendant un retour, une destruction ou un contrôle.
+     *
+     * <p>Distinct de {@link #findTotalQuantityByMagasinIdIdAndProduitId}, qui somme tous les
+     * emplacements et reste la bonne lecture pour l'inventaire et pour la dette client.
+     *
+     * <p>Mêmes emplacements retenus que la vue {@code v_semois_suggestion} : les deux doivent
+     * rendre le même nombre, et un test d'intégration le vérifie.
+     *
+     * @param types issus de {@link com.kobe.warehouse.domain.enumeration.StorageType#listerTypesCouvrantLaDemande()}
+     */
+    @Query(
+        value = "SELECT SUM(sp.qtyStock)+SUM(sp.qtyUG) FROM StockProduit sp WHERE sp.produit.id =:produitId AND sp.storage.magasin.id =:magasinId AND sp.storage.storageType IN :types"
+    )
+    Integer findTotalQuantityCouvrantLaDemande(
+        @Param("magasinId") Integer magasinId,
+        @Param("produitId") Integer produitId,
+        @Param("types") Collection<StorageType> types
+    );
 
 
     @Query(

@@ -6,16 +6,19 @@ import {
   input,
   OnInit,
   output,
+  computed,
   signal,
   viewChild
 } from "@angular/core";
 import {HttpResponse} from "@angular/common/http";
 import {IFournisseur} from "../../../../shared/model/fournisseur.model";
+import {IRemiseRfaFournisseur} from "../../../finances/data-access/models";
 import {Observable} from "rxjs";
-import {Commande, ICommande} from "app/shared/model/commande.model";
+import {Commande, IAjustementColisage, ICommande} from "app/shared/model/commande.model";
 import {CommandeService} from "../../../../entities/commande/commande.service";
 import {NgbModal, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 import {IOrderLine, OrderLine} from "../../../../shared/model/order-line.model";
+import {IClientsEnAttente} from "../../../../shared/model/produit-du.model";
 import {ErrorService} from "../../../../shared/error.service";
 import {IResponseCommande} from "../../../../shared/model/response-commande.model";
 import {
@@ -167,7 +170,23 @@ export class CommandeRequestedComponent implements OnInit {
       field: "produitLibelle",
       headerName: "Description",
       flex: 2,
-      minWidth: 150
+      minWidth: 150,
+      // Le dû client ne figurait nulle part au moment de décider la quantité. Il ne modifie
+      // rien tout seul : il se montre, et le pharmacien tranche.
+      cellRenderer: (p: any) => {
+        const libelle = p.data?.produitLibelle ?? "";
+        const attente = this.clientsEnAttente()[p.data?.produitId];
+        if (!attente) {
+          return libelle;
+        }
+        const personnes = Math.max(attente.nbClients, attente.nbDemandes);
+        const pluriel = personnes > 1 ? "clients attendent" : "client attend";
+        return (
+          `${libelle} <span class="badge rounded-pill bg-danger-subtle text-danger-emphasis ms-1" ` +
+          `title="${personnes} ${pluriel} ce produit — ${attente.quantiteDue} unité(s) due(s)">` +
+          `<i class="pi pi-user-plus"></i> ${personnes}</span>`
+        );
+      }
     },
     {
       field: "initStock",
@@ -252,11 +271,34 @@ export class CommandeRequestedComponent implements OnInit {
     {
       field: "quantityRequested",
       headerName: "Qté",
-      width: 90,
+      width: 115,
       editable: p => !this.isLocked,
       cellEditorParams: {preventStepping: true},
       type: "numericColumn",
-      cellEditor: "agNumberCellEditor"
+      cellEditor: "agNumberCellEditor",
+      cellRenderer: (p: any) => {
+        if (!p.data) {
+          return "";
+        }
+        const qty = p.data.quantityRequested;
+        const val = qty != null ? formatNumber(Number(qty)) : "—";
+        const pcb = p.data.qteColis;
+        const mini = p.data.qteMinimaleCommande;
+        const contraintes: string[] = [];
+        if (pcb != null && pcb > 1) {
+          contraintes.push(`colis de ${pcb}`);
+        }
+        if (mini != null && mini > 0) {
+          contraintes.push(`minimum ${mini}`);
+        }
+        if (!contraintes.length) {
+          return `<span>${val}</span>`;
+        }
+        // Informatif, pas une alerte : la quantité enregistrée est déjà conforme, le badge dit
+        // seulement pourquoi elle ne peut pas prendre n'importe quelle valeur.
+        const badge = `<span title="Contrainte fournisseur : ${contraintes.join(" — ")}. Une quantité non conforme est portée au multiple supérieur." style="display:inline-flex;align-items:center;gap:2px;margin-left:4px;padding:1px 4px;border-radius:6px;background:rgba(13,110,253,.10);color:#0d6efd;font-size:0.65rem;font-weight:700;cursor:help"><i class="pi pi-th-large"></i>${pcb != null && pcb > 1 ? pcb : mini}</span>`;
+        return `<span>${val}</span>${badge}`;
+      }
     },
 
     {
@@ -280,8 +322,125 @@ export class CommandeRequestedComponent implements OnInit {
   // ─────────────────────────────────────────────────────────────────────────────
   private readonly commandCommonService = inject(CommandCommonService);
 
-  protected get isLocked(): boolean {
+  /**
+   * Transmise par EDI. Distinct du verrou : seul ce cas donne au panneau PharmaML une réponse
+   * du grossiste à afficher, et seul lui interdit d'importer un fichier de réponse — PharmaML
+   * ayant son propre canal de retour.
+   */
+  protected get estSoumisePharmaml(): boolean {
     return !!this.currentCommande()?.hasBeenSubmittedToPharmaML;
+  }
+
+  /**
+   * La commande est partie chez le grossiste : elle ne se modifie plus à la main.
+   *
+   * <p>Le verrou ne portait que sur l'envoi EDI, seul envoi que l'application constatait. Depuis
+   * qu'une transmission par mail ou par téléphone se date elle aussi, la même règle s'applique :
+   * ce que le grossiste a reçu ne doit plus bouger chez nous, sans quoi le bon imprimé et la
+   * commande en base cessent de dire la même chose.
+   *
+   * <p>Un marquage posé par erreur se défait par « Annuler l'envoi » depuis la liste, ce qui
+   * rouvre la commande — le verrou n'enferme donc personne.
+   */
+  protected get isLocked(): boolean {
+    return this.estSoumisePharmaml || !!this.currentCommande()?.envoyee;
+  }
+
+  // ── Palier de remise de fin d'année ───────────────────────────────────────
+
+  /**
+   * Avancement du grossiste vers son palier RFA, ou null s'il n'y a aucun accord.
+   *
+   * Le calcul existait déjà, mais dans un écran financier qu'on ouvre après coup. Il n'a de
+   * valeur qu'ici, au seul instant où il peut encore changer une décision : orienter ce bon
+   * vers ce grossiste plutôt qu'un autre.
+   */
+  protected readonly palierRfa = signal<IRemiseRfaFournisseur | null>(null);
+
+  /**
+   * Ce que ce bon représente face à ce qu'il reste à facturer.
+   *
+   * On n'ajoute PAS le bon au pourcentage : le chiffre d'affaires compte les commandes closes à
+   * leur date de RÉCEPTION, et un bon passé aujourd'hui peut être reçu l'an prochain. Afficher
+   * les deux montants côte à côte laisse le pharmacien conclure, sans rien affirmer de faux.
+   */
+  protected readonly faitBasculerLePalier = computed(() => {
+    const rfa = this.palierRfa();
+    const montant = this.currentCommande()?.grossAmount ?? 0;
+    return !!rfa && rfa.resteAvantPalier > 0 && montant >= rfa.resteAvantPalier;
+  });
+
+  // ── Franco de port ────────────────────────────────────────────────────────
+
+  /**
+   * Ce qu'il manque pour atteindre le franco de port, ou null s'il est atteint ou non négocié.
+   *
+   * Un bon à 142 300 F quand le franco est à 150 000 F fait payer des frais de port qu'un
+   * article de plus aurait supprimés — et l'officine ne l'apprend qu'à la facture. Le franco
+   * retenu est celui de l'agence, à défaut celui de son grossiste : c'est le serveur qui
+   * résout la cascade, l'écran ne fait que l'afficher.
+   */
+  protected readonly manqueAuFranco = computed<number | null>(() => {
+    const franco = this.currentCommande()?.fournisseur?.francoEffectif;
+    if (!franco || franco <= 0) {
+      return null;
+    }
+    const montant = this.currentCommande()?.grossAmount ?? 0;
+    return montant >= franco ? null : franco - montant;
+  });
+
+  /** Vrai quand le bon a franchi le franco : la livraison est acquise, on peut valider. */
+  protected readonly francoAtteint = computed(() => {
+    const franco = this.currentCommande()?.fournisseur?.francoEffectif;
+    return !!franco && franco > 0 && (this.currentCommande()?.grossAmount ?? 0) >= franco;
+  });
+
+  /**
+   * Relit le dû client des produits affichés.
+   *
+   * <p>Compte TOUS les avoirs ouverts, y compris ceux qu'une commande déjà partie couvre :
+   * « 3 clients attendent ce produit » reste vrai pendant que le bon est en route, et c'est ce
+   * qui justifie de ne pas diminuer la quantité.
+   */
+  private chargerClientsEnAttente(): void {
+    const produitIds = this.orderLines()
+      .map(l => l.produitId)
+      .filter((id): id is number => id != null);
+    if (produitIds.length === 0) {
+      this.clientsEnAttente.set({});
+      return;
+    }
+    this.commandeService.lireClientsEnAttente(produitIds).subscribe({
+      next: parProduit => this.clientsEnAttente.set(parProduit),
+      error: () => this.clientsEnAttente.set({}),
+    });
+  }
+
+  /** Clients en attente, par identifiant de produit, pour les lignes affichées. */
+  protected readonly clientsEnAttente = signal<Record<number, IClientsEnAttente>>({});
+
+  /** Fournisseur pour lequel le palier affiché a été lu. */
+  private fournisseurDuPalier: number | null = null;
+
+  private chargerPalierRfa(fournisseurId: number | null | undefined): void {
+    if (!fournisseurId) {
+      this.fournisseurDuPalier = null;
+      this.palierRfa.set(null);
+      return;
+    }
+    // Appelé après chaque enregistrement, donc à chaque ligne ajoutée : on ne relit que si le
+    // grossiste a changé. Le chiffre d'affaires de l'exercice, lui, ne bouge pas pendant une
+    // saisie — seules les commandes CLOSES l'alimentent.
+    if (fournisseurId === this.fournisseurDuPalier) {
+      return;
+    }
+    this.fournisseurDuPalier = fournisseurId;
+    this.commandeService.lireRfaDuGroupe(fournisseurId).subscribe({
+      next: rfa => this.palierRfa.set(rfa && rfa.etat !== 'SANS_ACCORD' ? rfa : null),
+      // Le palier est une information d'appoint : son absence ne doit pas alarmer au milieu
+      // d'une saisie.
+      error: () => this.palierRfa.set(null),
+    });
   }
 
   ngOnInit(): void {
@@ -292,6 +451,7 @@ export class CommandeRequestedComponent implements OnInit {
         this.currentCommande.set(res.body);
         this.orderLines.set(this.currentCommande()?.orderLines ?? []);
         this.selectedProvider.set(this.currentCommande()?.fournisseurId);
+        this.chargerPalierRfa(this.currentCommande()?.fournisseurId);
         this.buildPharmamlActions();
         this.focusProduitBox();
       });
@@ -661,7 +821,7 @@ export class CommandeRequestedComponent implements OnInit {
   }
 
   private buildPharmamlActions(): void {
-    if (this.isLocked || this.currentCommande()?.orderStatus === "RECEIVED") {
+    if (this.estSoumisePharmaml || this.currentCommande()?.orderStatus === "RECEIVED") {
       this.pharmamlActions.set([
         {label: "Voir réponse", icon: "pi pi-file", command: () => this.openReponse()},
         ...this.comparaisonAction()
@@ -774,6 +934,9 @@ export class CommandeRequestedComponent implements OnInit {
     this.commandeService.find(commandeId).subscribe(res => {
       this.currentCommande.set(res.body);
       this.orderLines.set(this.currentCommande()?.orderLines ?? []);
+      // Un changement de grossiste en cours de saisie laissait le palier de l'ancien.
+      this.chargerPalierRfa(this.currentCommande()?.fournisseurId);
+      this.chargerClientsEnAttente();
       this.buildPharmamlActions();
       this.resetProductInput();
       this.commandeChange.emit(this.currentCommande());
@@ -817,9 +980,39 @@ export class CommandeRequestedComponent implements OnInit {
 
   private subscribeToSaveOrderLine(result: Observable<HttpResponse<ICommande>>): void {
     result.subscribe({
-      next: res => this.onSaveSuccess(res.body?.commandeId),
+      next: res => {
+        this.signalerAjustementColisage(res.body?.ajustementColisage);
+        this.onSaveSuccess(res.body?.commandeId);
+      },
       error: err => this.notificationService.error(this.errorService.getErrorMessage(err), "Erreur")
     });
+  }
+
+  /**
+   * Le logiciel vient de changer la quantité saisie pour respecter le colisage ou le minimum
+   * fournisseur. Sans ce message, la grille afficherait un autre nombre que celui tapé sans rien
+   * expliquer.
+   */
+  private signalerAjustementColisage(ajustement?: IAjustementColisage): void {
+    if (!ajustement) {
+      return;
+    }
+    const produit = ajustement.produitLibelle ? `${ajustement.produitLibelle} : ` : "";
+    this.notificationService.info(
+      `${produit}quantité portée de ${ajustement.quantiteDemandee} à ${ajustement.quantiteRetenue} (${this.decrireContrainte(ajustement)}).`,
+      "Conditionnement fournisseur"
+    );
+  }
+
+  /** La phrase appartient à l'écran : le backend ne transmet que la contrainte et les nombres. */
+  private decrireContrainte(ajustement: IAjustementColisage): string {
+    if (ajustement.contrainte === "QUANTITE_MINIMALE") {
+      return `minimum fournisseur de ${ajustement.qteMinimaleCommande} unités`;
+    }
+    const nombreDeColis = ajustement.quantiteRetenue / ajustement.qteColis;
+    return nombreDeColis === 1
+      ? `colis de ${ajustement.qteColis} unités`
+      : `${nombreDeColis} colis de ${ajustement.qteColis} unités`;
   }
 
   private subscribeUpdateOrderLine(result: Observable<HttpResponse<{}>>): void {

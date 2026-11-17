@@ -30,7 +30,10 @@ export const IDENTIFIANTS = {
  */
 export const COMPTES_DROITS = (
   process.env.E2E_COMPTES_DROITS ??
-  ['kkone', 'ybrou', 'rkouassi'].map(login => `${login}:${IDENTIFIANTS.motDePasse}`).join(',')
+  // `nsanogo` travaille dans l'UNITÉ DE GESTION, les autres à l'officine : c'est le seul compte
+  // dont les écrans sont servis pour un magasin qui n'est pas l'officine, et donc le seul où un
+  // droit oublié sur le cloisonnement se verrait.
+  ['kkone', 'ybrou', 'rkouassi', 'nsanogo'].map(login => `${login}:${IDENTIFIANTS.motDePasse}`).join(',')
 )
   .split(',')
   .filter(Boolean)

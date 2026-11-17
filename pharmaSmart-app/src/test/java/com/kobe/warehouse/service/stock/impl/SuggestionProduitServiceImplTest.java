@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.stock.impl;
 
+import com.kobe.warehouse.service.impl.ColisageServiceImpl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -25,7 +26,6 @@ import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.StatutSuggession;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
-import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SuggestionLineRepository;
 import com.kobe.warehouse.repository.SuggestionRepository;
@@ -117,9 +117,6 @@ class SuggestionProduitServiceImplTest {
     private ProduitRepository produitRepository;
 
     @Mock
-    private OrderLineRepository orderLineRepository;
-
-    @Mock
     private Query commandeQuery;
 
     @Mock
@@ -147,7 +144,7 @@ class SuggestionProduitServiceImplTest {
             em,
             suggestionPdfReportService,
             produitRepository,
-            orderLineRepository
+            new ColisageServiceImpl()
         );
 
         magasin = new Magasin();

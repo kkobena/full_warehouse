@@ -74,6 +74,7 @@ class CashRegisterEstimationTest {
         // UserDTO déréférence le drapeau d'activation : un AppUser nu le laisserait à null.
         caissier.setActivated(true);
         caisse.setUser(caissier);
+        caisse.setMagasin(caisse.getUser().getMagasin());
         caisse.setCashRegisterItems(List.of(lignes));
         return caisse;
     }

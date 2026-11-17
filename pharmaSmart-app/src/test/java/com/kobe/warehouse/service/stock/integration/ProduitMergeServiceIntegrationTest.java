@@ -684,6 +684,7 @@ class ProduitMergeServiceIntegrationTest extends AbstractStockIntegrationTest {
     private SemoisConfiguration semois(Produit produit) {
         SemoisConfiguration configuration = new SemoisConfiguration();
         configuration.setProduit(produit);
+        configuration.setMagasin(em.find(com.kobe.warehouse.domain.Magasin.class, 1));
         em.persist(configuration);
         em.flush();
         return configuration;

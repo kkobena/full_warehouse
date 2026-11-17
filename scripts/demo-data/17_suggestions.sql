@@ -121,7 +121,10 @@ END $$;
 -- propos d'une classification.
 -- ---------------------------------------------------------------------------
 INSERT INTO semois_configuration (
-    produit_id, classe_criticite, delai_livraison_jours, frequence_commande_jours,
+    -- Le reassort est propre a chaque magasin commandeur (V2.1.53). Ce script pose celui
+    -- de l'OFFICINE ; l'unite de gestion, qui commande aussi en propre, pose le sien dans
+    -- 10c_unite_gestion.sql. Le depot, lui, n'en a pas : il ne commande pas.
+    produit_id, magasin_id, classe_criticite, delai_livraison_jours, frequence_commande_jours,
     facteur_saisonnier_actuel, facteur_saisonnier_manuel, limite_peremption,
     marge_securite, vmm_calcule, stock_objectif_calcule,
     date_dernier_calcul, created_at, updated_at,
@@ -134,6 +137,7 @@ INSERT INTO semois_configuration (
 )
 SELECT
     p.id,
+    (SELECT m.id FROM magasin m WHERE m.type_magasin = 'OFFICINE' ORDER BY m.id LIMIT 1),
     p.classe_criticite,
     2,                                  -- les grossistes livrent en 48 h
     7,                                  -- une commande par semaine
@@ -161,23 +165,35 @@ JOIN (
      GROUP BY sl.produit_id
 ) v ON v.produit_id = p.id
 WHERE p.status = 'ENABLE'
-ON CONFLICT (produit_id) DO NOTHING;
+ON CONFLICT (produit_id, magasin_id) DO NOTHING;
 
 DO $$
 DECLARE v_n INTEGER; v_urgents INTEGER;
 BEGIN
-    SELECT count(*) INTO v_n FROM semois_configuration;
+    -- Compte CADRE SUR L'OFFICINE : depuis qu'un second magasin commandeur pose ses
+    -- propres configurations (10c), un compte global laisserait passer une officine
+    -- quasiment sans reassort, du moment que l'autre magasin en a.
+    SELECT count(*) INTO v_n
+      FROM semois_configuration sc
+     WHERE sc.magasin_id = (SELECT m.id FROM magasin m WHERE m.type_magasin = 'OFFICINE' ORDER BY m.id LIMIT 1);
     IF v_n < 100 THEN
-        RAISE EXCEPTION 'Configurations SEMOIS : % (attendu >= 100)', v_n;
+        RAISE EXCEPTION 'Configurations SEMOIS de l''officine : % (attendu >= 100)', v_n;
     END IF;
 
     -- Le compteur « produits urgents » du tableau de bord compte les produits
     -- dont la VMM est positive et le stock sous l'objectif : sans cas, la
     -- pastille reste muette et ACH-26 n'a rien a montrer.
+    --
+    -- Le stock et la configuration sont rapproches DANS LE MEME MAGASIN. Sans la
+    -- condition sur `st.magasin_id`, la jointure comparait le stock d'un magasin a
+    -- l'objectif d'un autre des qu'un second magasin commandeur est apparu : un produit
+    -- bien tenu a l'officine passait pour urgent parce que la parapharmacie en manque.
     SELECT count(*) INTO v_urgents
       FROM semois_configuration sc
       JOIN stock_produit sp ON sp.produit_id = sc.produit_id
-      JOIN storage st ON st.id = sp.storage_id AND st.storage_type = 'PRINCIPAL'
+      JOIN storage st ON st.id = sp.storage_id
+                     AND st.storage_type = 'PRINCIPAL'
+                     AND st.magasin_id = sc.magasin_id
      WHERE sc.vmm_calcule > 0 AND sp.qty_stock < sc.stock_objectif_calcule;
     IF v_urgents = 0 THEN
         RAISE EXCEPTION 'Aucun produit sous son stock objectif : le calcul SEMOIS ne montre rien';

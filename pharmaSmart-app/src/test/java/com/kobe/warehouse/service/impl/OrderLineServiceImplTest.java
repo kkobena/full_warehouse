@@ -188,6 +188,36 @@ class OrderLineServiceImplTest {
             assertThat(captor.getValue().isPrincipal()).isFalse();
         }
 
+        /**
+         * Aucune agence de grossiste ne porte de tarif dans le référentiel : commander à
+         * « LABOREX ABIDJAN COCODY » crée donc toujours un référencement provisoire, recopié du
+         * tarif principal. Ce référencement reprenait le prix d'achat et le prix de vente mais
+         * laissait le conditionnement à sa valeur par défaut : le colisage ne s'appliquait donc
+         * jamais dans l'usage réel, alors qu'il était bien renseigné au catalogue. Le prix est une
+         * donnée commerciale plus engageante que le conditionnement ; le recopier sans lui n'avait
+         * pas de justification.
+         */
+        @Test
+        @DisplayName("le referencement provisoire herite du colisage et de la quantite minimale")
+        void referencementProvisoireHeriteDuConditionnement() {
+            Produit produit = produit();
+            FournisseurProduit principal = fournisseurProduit(77, 400, 800);
+            principal.setQteColis(12);
+            principal.setQteMinimaleCommande(6);
+            produit.setFournisseurProduitPrincipal(principal);
+            when(produitRepository.getReferenceById(PRODUIT_ID)).thenReturn(produit);
+            when(fournisseurProduitService.findFirstByProduitIdAndFournisseurId(PRODUIT_ID, FOURNISSEUR_ID)).thenReturn(Optional.empty());
+            when(fournisseurService.getParentIdByChildId(FOURNISSEUR_ID)).thenReturn(Optional.empty());
+            when(fournisseurProduitService.createNewFournisseurProduit(any())).thenReturn(fournisseurProduit(78, 400, 800));
+
+            service.buildOrderLineFromOrderLineDTO(dto());
+
+            ArgumentCaptor<FournisseurProduitDTO> captor = ArgumentCaptor.forClass(FournisseurProduitDTO.class);
+            verify(fournisseurProduitService).createNewFournisseurProduit(captor.capture());
+            assertThat(captor.getValue().getQteColis()).isEqualTo(12);
+            assertThat(captor.getValue().getQteMinimaleCommande()).isEqualTo(6);
+        }
+
         @Test
         @DisplayName("rattache le referencement au fournisseur principal du groupe quand il existe")
         void referencementSurLeFournisseurParent() {

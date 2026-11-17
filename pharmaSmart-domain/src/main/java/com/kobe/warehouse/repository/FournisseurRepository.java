@@ -1,5 +1,6 @@
 package com.kobe.warehouse.repository;
 
+import org.springframework.data.repository.query.Param;
 import com.kobe.warehouse.domain.Fournisseur;
 import java.util.List;
 import java.util.Optional;
@@ -27,4 +28,14 @@ public interface FournisseurRepository extends JpaRepository<Fournisseur, Intege
 
     @Query("SELECT o.parent.id FROM Fournisseur o WHERE o.id = ?1")
     Optional<Integer> getParentIdByChildId(Integer childId);
+
+    /**
+     * Identifiant du grossiste principal dont depend ce fournisseur, ou le sien s'il en est un.
+     *
+     * <p>Les paliers de remise, les delais de livraison et les codes produits vivent sur le
+     * principal ; une agence n'en porte generalement aucun. Resoudre le groupe est donc le
+     * prealable a toute lecture de ces donnees a partir d'une commande.
+     */
+    @Query("SELECT COALESCE(p.id, f.id) FROM Fournisseur f LEFT JOIN f.parent p WHERE f.id = :fournisseurId")
+    Optional<Integer> lireIdDuGroupe(@Param("fournisseurId") Integer fournisseurId);
 }

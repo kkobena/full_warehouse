@@ -5,7 +5,6 @@ public final class EntityConstant {
     public static final String AUTRES_FOURNISSEURS = "AUTRES";
     public static final int DEFAULT_STORAGE = 1;
     public static final String DEFAULT_MAIN_STORAGE = "DEFAULT_MAIN_STORAGE";
-    public static final int DEFAULT_MAGASIN = 1;
     public static final String APP_GESTION_STOCK = "APP_GESTION_STOCK";
     public static final String APP_MONO_STOCK = "APP_MONO_STOCK";
     public static final String APP_MODE_PAYMENTS = "APP_MODE_PAYMENTS";

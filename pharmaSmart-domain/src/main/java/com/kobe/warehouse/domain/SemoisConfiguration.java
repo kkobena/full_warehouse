@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -28,11 +29,12 @@ import java.time.LocalDateTime;
 @Table(
     name = "semois_configuration",
     uniqueConstraints = @UniqueConstraint(
-        name = "uq_semois_config_produit",
-        columnNames = {"produit_id"}
+        name = "uq_semois_config_produit_magasin",
+        columnNames = {"produit_id", "magasin_id"}
     ),
     indexes = {
         @Index(name = "idx_semois_config_produit", columnList = "produit_id"),
+        @Index(name = "idx_semois_config_magasin", columnList = "magasin_id"),
         @Index(name = "idx_semois_config_classe", columnList = "classe_criticite"),
         @Index(name = "idx_semois_config_updated", columnList = "updated_at")
     }
@@ -46,10 +48,24 @@ public class SemoisConfiguration implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(optional = false, fetch = FetchType.LAZY)
+    /**
+     * {@code @ManyToOne} et non plus {@code @OneToOne} : un produit a désormais une configuration
+     * <b>par magasin commandeur</b>. Laisser {@code @OneToOne} ferait rendre une ligne au hasard
+     * dès la seconde, sans erreur.
+     */
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "produit_id", nullable = false)
     @NotNull
     private Produit produit;
+
+    /**
+     * Magasin dont ce réassort décrit les paramètres. Un dépôt n'en a pas : il ne commande pas,
+     * il s'approvisionne auprès de son officine.
+     */
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "magasin_id", nullable = false)
+    @NotNull
+    private Magasin magasin;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "classe_criticite", length = 10, nullable = false)
@@ -123,12 +139,26 @@ public class SemoisConfiguration implements Serializable {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    public static SemoisConfiguration createDefault(Produit produit, ClasseCriticite classe) {
+    /**
+     * Le magasin est un paramètre, non un défaut : une configuration sans magasin n'a pas de sens,
+     * et le compilateur doit le rappeler à chaque création.
+     */
+    public static SemoisConfiguration createDefault(Produit produit, Magasin magasin, ClasseCriticite classe) {
         SemoisConfiguration config = new SemoisConfiguration();
         config.setProduit(produit);
+        config.setMagasin(magasin);
         config.setClasseCriticite(classe);
         config.setFacteurSaisonnierActuel(BigDecimal.ONE);
         return config;
+    }
+
+    public Magasin getMagasin() {
+        return magasin;
+    }
+
+    public SemoisConfiguration setMagasin(Magasin magasin) {
+        this.magasin = magasin;
+        return this;
     }
 
     public Integer getId() {

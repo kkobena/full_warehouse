@@ -424,6 +424,7 @@ abstract class AbstractMobileIntegrationTest {
         CashRegister caisse = new CashRegister();
         caisse.setCashFund(fond);
         caisse.setUser(utilisateur);
+        caisse.setMagasin(caisse.getUser().getMagasin());
         caisse.setInitAmount(0L);
         caisse.setBeginTime(jour.atTime(LocalTime.of(8, 0)));
         caisse.setEndTime(jour.atTime(LocalTime.of(19, 0)));

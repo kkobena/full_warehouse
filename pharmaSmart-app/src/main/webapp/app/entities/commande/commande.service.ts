@@ -1,14 +1,16 @@
 import { inject, Injectable } from "@angular/core";
-import { HttpClient, HttpResponse } from "@angular/common/http";
-import { Observable } from "rxjs";
+import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http";
+import { Observable, of } from "rxjs";
 import { SERVER_API_URL } from "app/app.constants";
 import { createRequestOptions } from "app/shared/util/request-util";
 import { ICommande } from "app/shared/model/commande.model";
 import { IOrderLine } from "../../shared/model/order-line.model";
 import { IResponseCommande } from "../../shared/model/response-commande.model";
 import { ICommandeResponse } from "../../shared/model/commande-response.model";
-import { CommandeId } from "../../shared/model/abstract-commande.model";
+import { CommandeId, CanalEnvoi } from "../../shared/model/abstract-commande.model";
+import { IRemiseRfaFournisseur } from "../../features/finances/data-access/models";
 import { OrderLineId } from "../../shared/model/abstract-order-item.model";
+import { IClientsEnAttente, IProduitDuNonCommande } from "../../shared/model/produit-du.model";
 
 export interface IPriceHistory {
   id: number;
@@ -138,6 +140,54 @@ export class CommandeService {
 
   updateCip(orderLine: IOrderLine): Observable<HttpResponse<{}>> {
     return this.http.put<IOrderLine>(this.resourceUrl + "/update-provisional-cip", orderLine, { observe: "response" });
+  }
+
+  /**
+   * Horodate la transmission de la commande au grossiste.
+   *
+   * Hors EDI, c'est le seul moyen de savoir depuis quand on attend une livraison : sans cette
+   * date l'encours du réassort compte un brouillon comme du stock en route, et aucune relance de
+   * retard n'est possible.
+   */
+  marquerEnvoyee(commandeId: CommandeId, canal: CanalEnvoi): Observable<ICommande> {
+    return this.http.put<ICommande>(
+      `${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}/envoi`,
+      null,
+      { params: { canal } },
+    );
+  }
+
+  /** Rend son état de brouillon à une commande marquée envoyée par erreur. */
+  annulerEnvoi(commandeId: CommandeId): Observable<ICommande> {
+    return this.http.delete<ICommande>(`${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}/envoi`);
+  }
+
+  /**
+   * Avancement du groupe de ce fournisseur vers son palier de remise de fin d'année.
+   *
+   * Lu depuis `/api/commandes/...` et non depuis `/api/remises-rfa`, dont le droit financier
+   * manque a qui saisit une commande. Rend `null` (204) si le groupe n'a ni accord ni commande
+   * close sur l'exercice.
+   */
+  /** Produits promis aux clients qu'aucune commande partie chez le grossiste ne couvre. */
+  lireProduitsDusNonCommandes(): Observable<IProduitDuNonCommande[]> {
+    return this.http.get<IProduitDuNonCommande[]>(`${this.resourceUrl}/produits-dus`);
+  }
+
+  /** Clients en attente des produits affichés, indexés par identifiant de produit. */
+  lireClientsEnAttente(produitIds: number[]): Observable<Record<number, IClientsEnAttente>> {
+    if (produitIds.length === 0) {
+      return of({});
+    }
+    return this.http.get<Record<number, IClientsEnAttente>>(`${this.resourceUrl}/clients-en-attente`, {
+      params: new HttpParams().set('produitIds', produitIds.join(',')),
+    });
+  }
+
+  lireRfaDuGroupe(fournisseurId: number): Observable<IRemiseRfaFournisseur | null> {
+    return this.http.get<IRemiseRfaFournisseur | null>(
+      `${this.resourceUrl}/fournisseurs/${fournisseurId}/rfa`,
+    );
   }
 
   exportToCsv(commandeId: CommandeId): Observable<Blob> {

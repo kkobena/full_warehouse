@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { IUser } from '../user-management.model';
@@ -7,6 +7,8 @@ import { ButtonComponent, CardComponent, SelectComponent, ToolbarComponent } fro
 import { CommonModule } from "@angular/common";
 import { AlertErrorComponent } from "../../../shared/alert/alert-error.component";
 import { IAuthority, NavApiService } from "../../../core/data-access/nav-api.service";
+import { MagasinService } from "../../../entities/magasin/magasin.service";
+import { IMagasin } from "../../../shared/model/magasin.model";
 
 const userTemplate = {} as IUser;
 
@@ -46,11 +48,25 @@ export default class UserManagementUpdateComponent implements OnInit {
     activated: new FormControl(userTemplate.activated, { nonNullable: true }),
     langKey: new FormControl(userTemplate.langKey, { nonNullable: true }),
     authorities: new FormControl<string | null>(null, { validators: [Validators.required] }),
+    magasinId: new FormControl<number | null>(null),
   });
   protected readonly isAdmin = signal(false);
+  protected readonly magasins = signal<IMagasin[]>([]);
+  protected readonly creation = signal(false);
+  /**
+   * Un seul magasin : il n'y a rien a choisir, le formulaire le retient sans l'afficher. En
+   * modification non plus : reaffecter un utilisateur n'est pas implemente, et un champ qui ne
+   * ferait rien serait pire qu'absent.
+   */
+  /**
+   * Le choix s'offre à la création comme en modification : un compte se réaffecte. Masqué quand il
+   * n'y a qu'un magasin — l'immense majorité des installations, où il n'y a rien à choisir.
+   */
+  protected readonly afficherLeChoixDuMagasin = computed(() => this.magasins().length > 1);
   private userService = inject(UserManagementService);
   private route = inject(ActivatedRoute);
   private readonly api = inject(NavApiService);
+  private readonly magasinService = inject(MagasinService);
 
   ngOnInit(): void {
     this.route.data.subscribe(({ user }) => {
@@ -65,11 +81,18 @@ export default class UserManagementUpdateComponent implements OnInit {
         // Le login n'est pas modifiable en édition
         this.editForm.get('login')?.disable();
       } else {
+        this.creation.set(true);
         this.editForm.reset({ ...newUser, authorities: null });
         this.editForm.get('login')?.enable();
       }
     });
     this.api.getAllRoles().subscribe(authorities => this.authorities.set(authorities));
+    this.magasinService.listerLesMagasinsDAffectation().subscribe(magasins => {
+      this.magasins.set(magasins);
+      if (magasins.length === 1 && this.creation()) {
+        this.editForm.get('magasinId')?.setValue(magasins[0].id ?? null);
+      }
+    });
   }
 
   previousState(): void {

@@ -9,7 +9,7 @@ import { CommandeId } from '../../shared/model/abstract-commande.model';
  * - BONS_DE_LIVRAISON    → historique des bons de livraison (réception)
  * - ANALYSE              → vue analytique SEMOIS (lecture seule)
  */
-export type SuggestionsSource = 'REAPPRO' | 'COMMANDES_A_PASSER' | 'BONS_DE_LIVRAISON' | 'ANALYSE';
+export type SuggestionsSource = 'REAPPRO' | 'COMMANDES_A_PASSER' | 'PRODUITS_DUS' | 'BONS_DE_LIVRAISON' | 'ANALYSE';
 
 @Injectable({
   providedIn: 'root',

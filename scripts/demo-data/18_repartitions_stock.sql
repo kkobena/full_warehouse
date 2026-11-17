@@ -43,6 +43,10 @@ JOIN stock_produit reserve
   ON reserve.produit_id = p.id
 JOIN storage st_s
   ON st_s.id = reserve.storage_id AND st_s.storage_type = 'SAFETY_STOCK'
+ -- Même magasin exigé : une répartition est interne. Sans cela, le stock d'un dépôt — de type
+ -- PRINCIPAL lui aussi — s'apparie avec la réserve de l'officine, et le jeu fabrique un transfert
+ -- entre deux magasins, ce qui n'existe pas : c'est une vente dépôt ou un retour dépôt.
+ AND st_s.magasin_id = st_r.magasin_id
 WHERE rayon.qty_stock >= 4
   AND reserve.qty_stock >= 4
 LIMIT 40;

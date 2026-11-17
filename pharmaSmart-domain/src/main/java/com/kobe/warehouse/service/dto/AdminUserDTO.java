@@ -69,6 +69,12 @@ public class AdminUserDTO implements Serializable {
 
     private String roleName;
 
+    /**
+     * Magasin d'affectation. {@code null} signifie « non renseigné » et non « l'officine » : à la
+     * création, le service reprend alors le magasin de celui qui crée, comme avant.
+     */
+    private Integer magasinId;
+
     public AdminUserDTO() {
         // Empty constructor needed for Jackson.
     }
@@ -88,6 +94,7 @@ public class AdminUserDTO implements Serializable {
         this.lastModifiedDate = user.getLastModifiedDate();
         this.fullName = AppUserNames.LastNameFirstName(user);
         this.abbrName = AppUserNames.shortName(user);
+        this.magasinId = user.getMagasin() == null ? null : user.getMagasin().getId();
         Set<Authority> auths = user.getAuthorities();
         this.authorities = auths.stream().map(Authority::getName).collect(Collectors.toSet());
         auths.stream().findFirst().ifPresent(
@@ -111,6 +118,7 @@ public class AdminUserDTO implements Serializable {
         this.lastModifiedDate = user.getLastModifiedDate();
         this.fullName = AppUserNames.fullName(user);
         this.abbrName = AppUserNames.shortName(user);
+        this.magasinId = user.getMagasin() == null ? null : user.getMagasin().getId();
 
         authorities0.stream().findFirst().ifPresent(
             first -> this.authority = new AuthorityDTO(first.getName(), first.getLibelle(),
@@ -335,5 +343,13 @@ public class AdminUserDTO implements Serializable {
             + ", authorities="
             + authorities
             + "}";
+    }
+
+    public Integer getMagasinId() {
+        return magasinId;
+    }
+
+    public void setMagasinId(Integer magasinId) {
+        this.magasinId = magasinId;
     }
 }

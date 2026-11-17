@@ -57,7 +57,7 @@ public class FournisseurProduitDTO {
         qteMinimaleCommande = f.getQteMinimaleCommande();
     }
 
-    public static FournisseurProduitDTO fromEntity(FournisseurProduit f) {
+    public static FournisseurProduitDTO fromEntity(FournisseurProduit f, Integer magasinId) {
         Produit p = f.getProduit();
 
         Fournisseur fr = f.getFournisseur();
@@ -70,7 +70,7 @@ public class FournisseurProduitDTO {
             .setProduitLibelle(p.getLibelle())
             .setProduitId(p.getId())
             .setFournisseurId(fr.getId())
-            .setProduit(ProduitBuilder.fromEntity(p))
+            .setProduit(ProduitBuilder.fromEntity(p, magasinId))
             .setDelaiLivraisonJours(fr.getDelaiLivraisonJours() != null
                 ? fr.getDelaiLivraisonJours()
                 : (fr.getParent() != null ? fr.getParent().getDelaiLivraisonJours() : null))

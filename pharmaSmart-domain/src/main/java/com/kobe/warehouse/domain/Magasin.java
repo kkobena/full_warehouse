@@ -9,6 +9,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
@@ -97,6 +98,51 @@ public class Magasin implements Serializable {
 
     @Column(name = "fne_secret_key")
     private String fneSecretKey;
+
+    /**
+     * Magasin principal dont celui-ci dépend. {@code null} pour une officine, qui est racine.
+     *
+     * <p>En {@code LAZY} délibérément : {@code Magasin} est chargé en {@code EAGER} par
+     * {@code AppUser}, et une remontée automatique de la chaîne des parents à chaque
+     * authentification ne servirait personne.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Magasin parent;
+
+    /**
+     * Ce magasin passe-t-il ses propres commandes fournisseur ?
+     *
+     * <p>La question ne se déduit ni du type ni de la nature juridique : une parapharmacie, qui
+     * n'est pas un établissement distinct, commande sa cosmétique elle-même ; un dépôt, qui en est
+     * un, ne commande pas — il s'approvisionne auprès de son officine.
+     */
+    @NotNull
+    @Column(name = "commande_en_propre", nullable = false)
+    private boolean commandeEnPropre = true;
+
+    public Magasin getParent() {
+        return parent;
+    }
+
+    public Magasin setParent(Magasin parent) {
+        this.parent = parent;
+        return this;
+    }
+
+    public boolean isCommandeEnPropre() {
+        return commandeEnPropre;
+    }
+
+    public Magasin setCommandeEnPropre(boolean commandeEnPropre) {
+        this.commandeEnPropre = commandeEnPropre;
+        return this;
+    }
+
+    /** Vrai si ce magasin est une racine : aucune officine ne dépend d'une autre. */
+    public boolean estRacine() {
+        return parent == null;
+    }
 
     public String getManagerFirstName() {
         return managerFirstName;

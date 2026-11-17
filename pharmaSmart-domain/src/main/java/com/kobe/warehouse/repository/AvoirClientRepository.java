@@ -38,6 +38,75 @@ public interface AvoirClientRepository extends JpaRepository<AvoirClient, Intege
         "SELECT COUNT(a) FROM AvoirClient a WHERE a.statut = 'OUVERT' AND a.dateExpiration IS NOT NULL AND a.dateExpiration < :seuil")
     long countAvoirsProchesExpiration(@org.springframework.data.repository.query.Param("seuil") java.time.LocalDate seuil);
 
+    /**
+     * Produits promis a des clients qu'aucune commande partie chez le grossiste ne couvre.
+     *
+     * <p>Le NOT EXISTS definit ce que « deja commande » veut dire : une ligne dans une commande
+     * EN ATTENTE ET DATEE D'UN ENVOI. Un brouillon ne couvre rien — il n'est pas parti, le
+     * grossiste ne l'a jamais vu, et le compter reviendrait a faire disparaitre de cette liste
+     * les produits qu'on a justement oublie d'envoyer. C'est ce que la date d'envoi rend
+     * possible : avant elle, toute commande en attente passait pour transmise.
+     *
+     * <p>quantite - quantiteRemise : un avoir partiellement servi reste du pour le solde.
+     */
+    @org.springframework.data.jpa.repository.Query(
+        """
+        SELECT a.produit.id, a.produit.libelle, a.produit.codeEanLaboratoire,
+               COUNT(DISTINCT a.customer.id), COUNT(a),
+               SUM(a.quantite - a.quantiteRemise), MIN(a.createdAt),
+               (SELECT COALESCE(SUM(sp.qtyStock), 0) FROM StockProduit sp WHERE sp.produit.id = a.produit.id)
+        FROM AvoirClient a
+        WHERE a.statut = com.kobe.warehouse.domain.enumeration.AvoirClientStatut.OUVERT
+          AND a.commande IS NULL
+          AND a.quantite > a.quantiteRemise
+          AND NOT EXISTS (
+            SELECT 1 FROM OrderLine ol
+            WHERE ol.fournisseurProduit.produit.id = a.produit.id
+              AND ol.commande.orderStatus = com.kobe.warehouse.domain.enumeration.OrderStatut.REQUESTED
+              AND ol.commande.dateEnvoi IS NOT NULL
+          )
+        GROUP BY a.produit.id, a.produit.libelle, a.produit.codeEanLaboratoire
+        ORDER BY MIN(a.createdAt)
+        """
+    )
+    List<Object[]> lireProduitsDusNonCommandes();
+
+    /**
+     * Unites dues a des clients sur un produit : les avoirs ouverts, deduction faite de ce qui a
+     * deja ete remis.
+     *
+     * <p>Ce stock est physiquement present mais reserve. Le retrancher du stock disponible est ce
+     * qui empeche le reassort de croire a une couverture qui n'existe pas.
+     */
+    @org.springframework.data.jpa.repository.Query(
+        """
+        SELECT COALESCE(SUM(a.quantite - a.quantiteRemise), 0)
+        FROM AvoirClient a
+        WHERE a.statut = com.kobe.warehouse.domain.enumeration.AvoirClientStatut.OUVERT
+          AND a.quantite > a.quantiteRemise
+          AND a.produit.id = :produitId
+        """
+    )
+    long lireDetteOuverte(@org.springframework.data.repository.query.Param("produitId") Integer produitId);
+
+    /**
+     * Clients en attente, par produit, pour une poignee de produits affiches a l'ecran.
+     *
+     * <p>Contrairement a la requete precedente, celle-ci ne retire PAS les produits deja
+     * commandes : « 3 clients attendent ce produit » reste vrai pendant que le bon est en route.
+     */
+    @org.springframework.data.jpa.repository.Query(
+        """
+        SELECT a.produit.id, COUNT(DISTINCT a.customer.id), COUNT(a), SUM(a.quantite - a.quantiteRemise)
+        FROM AvoirClient a
+        WHERE a.statut = com.kobe.warehouse.domain.enumeration.AvoirClientStatut.OUVERT
+          AND a.quantite > a.quantiteRemise
+          AND a.produit.id IN :produitIds
+        GROUP BY a.produit.id
+        """
+    )
+    List<Object[]> lireClientsEnAttente(@org.springframework.data.repository.query.Param("produitIds") Set<Integer> produitIds);
+
     static Specification<AvoirClient> forCommande(Set<Integer> produitIds) {
         return (root, query, cb) -> cb.and(
             cb.equal(root.get(AvoirClient_.statut), AvoirClientStatut.OUVERT),

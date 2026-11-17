@@ -273,6 +273,25 @@ class RetourDepotServiceImplTest {
         }
 
         @Test
+        @DisplayName("trace aussi le debit du depot, pas seulement le credit de l officine")
+        void traceLeDebitDuDepot() {
+            stubCreationContext();
+            when(produitRepository.findById(PRODUIT_ID)).thenReturn(Optional.of(produit(1200, 800, "1234567")));
+            when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(DEPOT_ID, PRODUIT_ID))
+                .thenReturn(List.of(stock(StorageType.PRINCIPAL, 100)));
+            when(stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(OFFICINE_ID, PRODUIT_ID))
+                .thenReturn(List.of(stock(StorageType.PRINCIPAL, 20)));
+
+            service.create(commande(itemDTO(7)));
+
+            ArgumentCaptor<RetourDepotItem> captor = ArgumentCaptor.forClass(RetourDepotItem.class);
+            verify(retourDepotItemRepository).save(captor.capture());
+            // Le stock du depot baisse en base : sans cette seconde entree, le journal ne le dit pas
+            // et fn_stock_quantites_at_time derive de la quantite retournee.
+            verify(inventoryTransactionService).saveRetourDepotExtensionInventoryTransaction(depot, captor.getValue());
+        }
+
+        @Test
         @DisplayName("valorise la ligne aux prix du fournisseur principal, pas a ceux transmis")
         void valorisationDepuisLeFournisseurPrincipal() {
             stubCreationContext();

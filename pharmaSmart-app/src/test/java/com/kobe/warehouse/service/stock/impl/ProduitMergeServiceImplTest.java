@@ -1099,12 +1099,22 @@ class ProduitMergeServiceImplTest {
 
     // ── 17. Configuration SEMOIS ─────────────────────────────────────────────
 
+    /** Configuration de réassort d'un produit dans un magasin donné. */
+    private com.kobe.warehouse.domain.SemoisConfiguration configuration(int id, int magasinId) {
+        com.kobe.warehouse.domain.Magasin magasin = new com.kobe.warehouse.domain.Magasin();
+        magasin.setId(magasinId);
+        com.kobe.warehouse.domain.SemoisConfiguration cfg = new com.kobe.warehouse.domain.SemoisConfiguration();
+        cfg.setId(id);
+        cfg.setMagasin(magasin);
+        return cfg;
+    }
+
     @Test
     void should_countNoSemoisConfiguration_whenSourceHasNone() {
         Produit target = produit(1, "Target");
         Produit source = produit(2, "Source");
         stubTargetAndSource(target, source);
-        when(semoisConfigurationRepository.findByProduitId(2)).thenReturn(Optional.empty());
+        when(semoisConfigurationRepository.findAllByProduitId(2)).thenReturn(List.of());
 
         ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
 
@@ -1118,10 +1128,9 @@ class ProduitMergeServiceImplTest {
         Produit target = produit(1, "Target");
         Produit source = produit(2, "Source");
         stubTargetAndSource(target, source);
-        com.kobe.warehouse.domain.SemoisConfiguration cfg = new com.kobe.warehouse.domain.SemoisConfiguration();
-        cfg.setId(30);
-        when(semoisConfigurationRepository.findByProduitId(2)).thenReturn(Optional.of(cfg));
-        when(semoisConfigurationRepository.findByProduitId(1)).thenReturn(Optional.empty());
+        com.kobe.warehouse.domain.SemoisConfiguration cfg = configuration(30, 1);
+        when(semoisConfigurationRepository.findAllByProduitId(2)).thenReturn(List.of(cfg));
+        when(semoisConfigurationRepository.findByProduitIdAndMagasinId(1, 1)).thenReturn(Optional.empty());
 
         ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
 
@@ -1135,18 +1144,44 @@ class ProduitMergeServiceImplTest {
         Produit target = produit(1, "Target");
         Produit source = produit(2, "Source");
         stubTargetAndSource(target, source);
-        com.kobe.warehouse.domain.SemoisConfiguration sourceCfg = new com.kobe.warehouse.domain.SemoisConfiguration();
-        sourceCfg.setId(30);
-        com.kobe.warehouse.domain.SemoisConfiguration targetCfg = new com.kobe.warehouse.domain.SemoisConfiguration();
-        targetCfg.setId(31);
-        when(semoisConfigurationRepository.findByProduitId(2)).thenReturn(Optional.of(sourceCfg));
-        when(semoisConfigurationRepository.findByProduitId(1)).thenReturn(Optional.of(targetCfg));
+        com.kobe.warehouse.domain.SemoisConfiguration sourceCfg = configuration(30, 1);
+        com.kobe.warehouse.domain.SemoisConfiguration targetCfg = configuration(31, 1);
+        when(semoisConfigurationRepository.findAllByProduitId(2)).thenReturn(List.of(sourceCfg));
+        when(semoisConfigurationRepository.findByProduitIdAndMagasinId(1, 1)).thenReturn(Optional.of(targetCfg));
 
         ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
 
         verify(semoisConfigurationRepository).delete(sourceCfg);
         verify(semoisConfigurationRepository, never()).save(any());
         assertEquals(1, result.entityCounts().get("semoisConfiguration"));
+    }
+
+    /**
+     * Le doublon a un réassort dans deux magasins, la cible dans un seul. Chaque magasin se règle
+     * pour son compte : la cible garde le sien, et le réassort de l'autre magasin est repris au
+     * lieu d'être perdu.
+     *
+     * <p>Tombe si la fusion reprend la forme « une configuration par produit » : elle ne traiterait
+     * qu'un magasin et abandonnerait l'autre sans rien dire.
+     */
+    @Test
+    void should_mergeSemoisConfigurationPerMagasin_whenSourceHasSeveral() {
+        Produit target = produit(1, "Target");
+        Produit source = produit(2, "Source");
+        stubTargetAndSource(target, source);
+        com.kobe.warehouse.domain.SemoisConfiguration officine = configuration(30, 1);
+        com.kobe.warehouse.domain.SemoisConfiguration para = configuration(31, 7);
+        when(semoisConfigurationRepository.findAllByProduitId(2)).thenReturn(List.of(officine, para));
+        when(semoisConfigurationRepository.findByProduitIdAndMagasinId(1, 1))
+            .thenReturn(Optional.of(configuration(32, 1)));
+        when(semoisConfigurationRepository.findByProduitIdAndMagasinId(1, 7)).thenReturn(Optional.empty());
+
+        ProduitMergeResultDTO result = service.merge(new ProduitMergeRequestDTO(1, List.of(2), List.of()));
+
+        verify(semoisConfigurationRepository).delete(officine);
+        verify(semoisConfigurationRepository).save(para);
+        assertEquals(target, para.getProduit());
+        assertEquals(2, result.entityCounts().get("semoisConfiguration"));
     }
 
     // ── 18. Ventes mensuelles agrégées ───────────────────────────────────────

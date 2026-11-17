@@ -2,6 +2,7 @@ package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
 import com.kobe.warehouse.repository.FournisseurRepository;
@@ -27,15 +28,18 @@ public class FournisseurProduitService {
     private final FournisseurProduitRepository fournisseurProduitRepository;
     private final FournisseurRepository fournisseurRepository;
     private final ProduitService produitService;
+    private final StorageService storageService;
 
     public FournisseurProduitService(
         FournisseurProduitRepository fournisseurProduitRepository,
         FournisseurRepository fournisseurRepository,
-        ProduitService produitService
+        ProduitService produitService,
+        StorageService storageService
     ) {
         this.fournisseurProduitRepository = fournisseurProduitRepository;
         this.fournisseurRepository = fournisseurRepository;
         this.produitService = produitService;
+        this.storageService = storageService;
     }
 
 
@@ -201,14 +205,17 @@ public class FournisseurProduitService {
     }
 
     public Optional<FournisseurProduitDTO> findOneById(Integer id) {
-        return this.fournisseurProduitRepository.findById(id).map(FournisseurProduitDTO::fromEntity);
+        Magasin magasin = storageService.getConnectedUserMagasin();
+        return this.fournisseurProduitRepository.findById(id)
+            .map(f -> FournisseurProduitDTO.fromEntity(f, magasin.getId()));
     }
 
     @Transactional(readOnly = true)
     public List<FournisseurProduitDTO> findAllByProduitId(Integer produitId) {
+        Magasin magasin = storageService.getConnectedUserMagasin();
         return fournisseurProduitRepository.findAllByProduitId(produitId)
             .stream()
-            .map(FournisseurProduitDTO::fromEntity)
+            .map(f -> FournisseurProduitDTO.fromEntity(f, magasin.getId()))
             .toList();
     }
 

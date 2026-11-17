@@ -133,8 +133,8 @@ class PonctionCalculatorTest {
         // Les règlements exigent une caisse ouverte : la ponction vise la part espèces.
         st.executeUpdate(
             """
-            INSERT INTO cash_register (id, begin_time, created, updated, init_amount, statut, user_id)
-            VALUES (950001, now(), now(), now(), 0, 'OPEN', 1)
+            INSERT INTO cash_register (id, begin_time, created, updated, init_amount, statut, user_id, magasin_id)
+            VALUES (950001, now(), now(), now(), 0, 'OPEN', 1, (SELECT magasin_id FROM app_user WHERE id = 1))
             """
         );
 

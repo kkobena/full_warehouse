@@ -166,6 +166,7 @@ public abstract class AbstractDashboardIntegrationTest {
         CashRegister caisse = new CashRegister();
         caisse.setCashFund(fond);
         caisse.setUser(utilisateur);
+        caisse.setMagasin(caisse.getUser().getMagasin());
         caisse.setInitAmount(fondDeCaisse);
         caisse.setBeginTime(ouverture);
         caisse.setEndTime(fermeture);
@@ -398,6 +399,7 @@ public abstract class AbstractDashboardIntegrationTest {
         commande.setCreatedAt(aujourdHui().atTime(9, 0));
         commande.setUpdatedAt(aujourdHui().atTime(12, 0));
         commande.setUser(utilisateur);
+        commande.setMagasin(commande.getUser().getMagasin());
         commande.setFournisseur(fournisseur);
         em.persist(commande);
         em.flush();
@@ -409,8 +411,20 @@ public abstract class AbstractDashboardIntegrationTest {
     }
 
     protected OrderLine ligneDeCommande(Commande commande) {
-        Produit produit = produit(unique("PRODUIT COMMANDE"), 1);
-        referencement(produit, commande.getFournisseur());
+        return ligneDeCommande(commande, produit(unique("PRODUIT COMMANDE"), 1));
+    }
+
+    /**
+     * Ligne portant un produit DONNÉ.
+     *
+     * <p>Nécessaire dès qu'un cas relie la commande à autre chose — un avoir client, par exemple :
+     * il faut alors que les deux désignent le même produit, et la variante qui en fabrique un au
+     * passage ne le permet pas.
+     */
+    protected OrderLine ligneDeCommande(Commande commande, Produit produit) {
+        if (produit.getFournisseurProduitPrincipal() == null) {
+            referencement(produit, commande.getFournisseur());
+        }
 
         OrderLine ligne = new OrderLine();
         ligne.setId(services.orderLineIdGeneratorService.getNextIdAsInt());

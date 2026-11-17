@@ -509,8 +509,20 @@ export class ProduitHomeComponent implements OnInit {
     });
   }
 
+  /**
+   * Numero de la derniere liste demandee.
+   *
+   * Deux chargements peuvent etre en vol — celui de l'ouverture de l'ecran et celui d'une
+   * recherche lancee aussitot — et rien n'ordonne les reponses : la plus lente ecrasait la plus
+   * recente. On lisait alors le catalogue entier en croyant voir le resultat de sa recherche, et
+   * le menu d'actions frappait la ligne d'une AUTRE liste : « Mettre en veille » a ainsi
+   * desactive un article que personne n'avait cherche.
+   */
+  private dernierChargement = 0;
+
   private loadPage(): void {
     this.loading.set(true);
+    const numeroDuChargement = ++this.dernierChargement;
     const req: any = {
       page: this.page(),
       size: this.rows(),
@@ -539,8 +551,18 @@ export class ProduitHomeComponent implements OnInit {
     }
 
     this.api.query(req).subscribe({
-      next: (res) => this.onSuccess(res.body ?? [], res.headers),
-      error: () => this.loading.set(false)
+      next: (res) => {
+        // Une reponse depassee ne doit rien afficher : elle decrit une autre demande.
+        if (numeroDuChargement !== this.dernierChargement) {
+          return;
+        }
+        this.onSuccess(res.body ?? [], res.headers);
+      },
+      error: () => {
+        if (numeroDuChargement === this.dernierChargement) {
+          this.loading.set(false);
+        }
+      }
     });
   }
 

@@ -209,6 +209,7 @@ public class SuggestionLineRepositoryCustomImpl implements SuggestionLineReposit
                    JOIN commande c ON c.id = ol.commande_id AND c.order_date = ol.commande_order_date
                   WHERE fp3.produit_id = p.id
                     AND c.order_status = 'REQUESTED'
+                    AND c.date_envoi IS NOT NULL
                     AND c.order_date > :dateRetention)   AS commande_count,
                 EXISTS(
                     SELECT 1

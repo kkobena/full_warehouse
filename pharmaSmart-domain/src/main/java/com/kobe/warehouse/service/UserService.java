@@ -1,11 +1,15 @@
 package com.kobe.warehouse.service;
 
+import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
+import com.kobe.warehouse.repository.CashRegisterRepository;
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Authority;
 import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import com.kobe.warehouse.repository.AuthorityRepository;
+import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.PersistentTokenRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.RandomUtil;
@@ -39,6 +43,8 @@ import org.springframework.util.StringUtils;
 @Transactional
 public class UserService {
 
+    private static final int PROFONDEUR_MAX = 2;
+
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
@@ -49,16 +55,23 @@ public class UserService {
 
     private final AuthorityRepository authorityRepository;
 
+    private final MagasinRepository magasinRepository;
+    private final CashRegisterRepository cashRegisterRepository;
+
     public UserService(
         UserRepository userRepository,
         PasswordEncoder passwordEncoder,
         PersistentTokenRepository persistentTokenRepository,
-        AuthorityRepository authorityRepository
+        AuthorityRepository authorityRepository,
+        MagasinRepository magasinRepository,
+        CashRegisterRepository cashRegisterRepository
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.persistentTokenRepository = persistentTokenRepository;
         this.authorityRepository = authorityRepository;
+        this.magasinRepository = magasinRepository;
+        this.cashRegisterRepository = cashRegisterRepository;
     }
 
     public Optional<AppUser> activateRegistration(String key) {
@@ -98,6 +111,104 @@ public class UserService {
             });
     }
 
+    /**
+     * Magasin où affecter le nouvel utilisateur.
+     *
+     * <p>Sans magasin demandé, on reprend celui du créateur : c'est le comportement historique, et
+     * il reste juste dans une installation mono-officine. Mais il interdisait de créer quiconque
+     * ailleurs — une parapharmacie pouvait donc exister sans que personne puisse y travailler.
+     *
+     * <p>Un magasin demandé est accepté s'il est <b>dans la portée du créateur</b> : le sien, ou
+     * l'un de ses rattachés. Sans ce contrôle, n'importe qui pourrait affecter un utilisateur à un
+     * magasin qui ne le concerne pas. La remontée est bornée plutôt que supposée acyclique, un
+     * parent mal posé à la main ne devant pas faire tourner le serveur.
+     *
+     * <p><b>Jamais un dépôt.</b> Il n'y a rien à y saisir : les ventes au dépôt se font à
+     * l'officine et ses reventes entrent par import. Un compte affecté là y ouvrirait des sessions
+     * de caisse dans un établissement qui n'a pas de caisse. Le contrôle porte sur le magasin
+     * <i>retenu</i>, quelle que soit son origine — sinon l'héritage serait une faille.
+     */
+    private Magasin resoudreLeMagasinDAffectation(AdminUserDTO userDTO, AppUser createur) {
+        return refuserUnDepot(choisirLeMagasin(userDTO, createur));
+    }
+
+    /** Refus METIER, pas defaut du logiciel : l'exception doit arriver en 400 avec son message. */
+    private Magasin refuserUnDepot(Magasin magasin) {
+        if (magasin.getTypeMagasin() == TypeMagasin.DEPOT) {
+            throw new BadRequestAlertException(
+                "Aucun utilisateur ne s'affecte à un dépôt : " + magasin.getName() + " n'a ni caisse ni saisie",
+                "user",
+                "affectation.depot"
+            );
+        }
+        return magasin;
+    }
+
+    private Magasin choisirLeMagasin(AdminUserDTO userDTO, AppUser createur) {
+        Integer demande = userDTO.getMagasinId();
+        Magasin duCreateur = createur.getMagasin();
+        if (demande == null || demande.equals(duCreateur.getId())) {
+            return duCreateur;
+        }
+        Magasin cible = magasinRepository
+            .findById(demande)
+            .orElseThrow(() -> new BadRequestAlertException("Magasin " + demande + " inconnu", "user", "affectation.magasin.inconnu"));
+        Magasin remontee = cible.getParent();
+        for (int profondeur = 0; remontee != null && profondeur < PROFONDEUR_MAX; profondeur++) {
+            if (remontee.getId().equals(duCreateur.getId())) {
+                return cible;
+            }
+            remontee = remontee.getParent();
+        }
+        throw new BadRequestAlertException(
+            "Le magasin " + cible.getName() + " n'est pas rattaché à " + duCreateur.getName(),
+            "user",
+            "affectation.hors.portee"
+        );
+    }
+
+    private AppUser utilisateurCourant() {
+        return userRepository
+            .findOneByLogin(SecurityUtils.getCurrentUserLogin().orElseThrow())
+            .orElseThrow(() -> new RuntimeException("Current user not found"));
+    }
+
+    /**
+     * Magasin après une demande de réaffectation.
+     *
+     * <p>Le magasin absent ou inchangé ne touche à rien : un écran qui n'envoie pas le champ — la
+     * modification de son propre profil, par exemple — ne doit pas déplacer qui que ce soit.
+     *
+     * <p>Un changement réel passe par les mêmes contrôles qu'à la création : portée du demandeur,
+     * et jamais un dépôt. Il s'y ajoute le refus d'une <b>caisse ouverte</b>, qui découle d'une
+     * règle déjà posée — une caisse ne se réaffecte pas. Déplacer son titulaire laisserait une
+     * caisse ouverte dans le magasin qu'il vient de quitter, encaissant sous une identité qui n'y
+     * travaille plus. Le caissier fait son billetage, puis il change de magasin.
+     *
+     * <p>Ce qu'il a déjà fait ne bouge pas : ses caisses et ses commandes passées portent le
+     * magasin d'alors, et c'est tout l'intérêt de l'estampille figée — l'historique dit où la
+     * recette a été faite, pas où son auteur travaille aujourd'hui.
+     */
+    private Magasin resoudreLaReaffectation(AdminUserDTO userDTO, AppUser utilisateur) {
+        Magasin actuel = utilisateur.getMagasin();
+        Integer demande = userDTO.getMagasinId();
+        if (demande == null || (actuel != null && demande.equals(actuel.getId()))) {
+            return actuel;
+        }
+        refuserUneCaisseOuverte(utilisateur);
+        return resoudreLeMagasinDAffectation(userDTO, utilisateurCourant());
+    }
+
+    private void refuserUneCaisseOuverte(AppUser utilisateur) {
+        if (cashRegisterRepository.existsByUserIdAndStatut(utilisateur.getId(), CashRegisterStatut.OPEN)) {
+            throw new BadRequestAlertException(
+                "Caisse ouverte : " + utilisateur.getLogin() + " doit faire son billetage avant de changer de magasin",
+                "user",
+                "affectation.caisse.ouverte"
+            );
+        }
+    }
+
     public AppUser createUser(AdminUserDTO userDTO) {
         AppUser user = new AppUser();
         user.setLogin(userDTO.getLogin().toLowerCase());
@@ -106,11 +217,7 @@ public class UserService {
         if (StringUtils.hasText(userDTO.getEmail())) {
             user.setEmail(userDTO.getEmail().toLowerCase());
         }
-        AppUser currentUser = userRepository
-            .findOneByLogin(SecurityUtils.getCurrentUserLogin().orElseThrow())
-            .orElseThrow(() -> new RuntimeException("Current user not found"));
-        Magasin magasin = currentUser.getMagasin();
-        user.setMagasin(magasin);
+        user.setMagasin(resoudreLeMagasinDAffectation(userDTO, utilisateurCourant()));
         user.setImageUrl(userDTO.getImageUrl());
         user.setLangKey(Constants.DEFAULT_LANGUAGE);
         String encryptedPassword = passwordEncoder.encode(userDTO.getLogin().toLowerCase());
@@ -154,6 +261,7 @@ public class UserService {
                     user.setEmail(userDTO.getEmail().toLowerCase());
                 }
                 user.setImageUrl(userDTO.getImageUrl());
+                user.setMagasin(resoudreLaReaffectation(userDTO, user));
                 if (userDTO.isActivated() != null) {
                     user.setActivated(userDTO.isActivated());
                 }

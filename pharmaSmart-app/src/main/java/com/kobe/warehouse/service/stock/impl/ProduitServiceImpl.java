@@ -217,7 +217,8 @@ public class ProduitServiceImpl implements ProduitService {
     @Transactional(readOnly = true)
     public Page<ProduitDTO> findAll(Pageable pageable) {
         LOG.debug("Request to get all Produits");
-        return produitRepository.findAll(pageable).map(ProduitBuilder::fromProduit);
+        Magasin magasin = storageService.getConnectedUserMagasin();
+        return produitRepository.findAll(pageable).map(p -> ProduitBuilder.fromProduit(p, magasin.getId()));
     }
 
     /**
@@ -281,8 +282,9 @@ public class ProduitServiceImpl implements ProduitService {
     @Transactional(readOnly = true)
     public ProduitDTO findOne(ProduitCriteria produitCriteria) {
         LOG.debug("Request to get Produit : {}", produitCriteria);
+        Magasin magasin = storageService.getConnectedUserMagasin();
         Optional<ProduitDTO> produit = findProduitById(produitCriteria.getId()).map(
-            ProduitBuilder::fromProduit);
+            p -> ProduitBuilder.fromProduit(p, magasin.getId()));
         ProduitDTO dto = null;
         if (produit.isPresent()) {
             dto = produit.get();
@@ -761,8 +763,9 @@ public class ProduitServiceImpl implements ProduitService {
     @Override
     @Transactional(readOnly = true)
     public List<SubstitutDTO> findGeneriques(Integer produitId) {
+        Magasin magasin = storageService.getConnectedUserMagasin();
         return substitutRepository.findAllByProduitId(produitId).stream()
-            .map(SubstitutDTO::new)
+            .map(s -> new SubstitutDTO(s, magasin.getId()))
             .toList();
     }
 

@@ -1,6 +1,7 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.SemoisSuggestionView;
+import com.kobe.warehouse.domain.SemoisSuggestionViewId;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +20,15 @@ import java.util.List;
  * Ne jamais tenter d'écrire dans cette vue.
  */
 @Repository
-public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSuggestionView, Integer> {
+/**
+ * Chaque requête porte son {@code magasinId}, sans exception et sans valeur par défaut.
+ *
+ * <p>Depuis V2.1.55 la vue tient une ligne par (produit, magasin). Une requête sans magasin
+ * cumulerait les magasins : un tableau de bord compterait deux fois le même produit, et un
+ * total de ruptures additionnerait l'officine et la parapharmacie en un chiffre qui ne décrit
+ * aucune des deux.
+ */
+public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSuggestionView, SemoisSuggestionViewId> {
 
     /**
      * Recherche paginée de suggestions SEMOIS avec filtres.
@@ -32,7 +41,8 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
      */
     @Query("""
         SELECT s FROM SemoisSuggestionView s
-        WHERE (:classeCriticite IS NULL OR s.classeCriticite = :classeCriticite)
+        WHERE s.magasinId = :magasinId
+          AND (:classeCriticite IS NULL OR s.classeCriticite = :classeCriticite)
           AND (:fournisseurId IS NULL
                OR s.fournisseurId = :fournisseurId
                OR s.fournisseurId = (SELECT f.parent.id FROM Fournisseur f WHERE f.id = :fournisseurId AND f.parent IS NOT NULL))
@@ -46,6 +56,7 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
                (:niveauUrgence = 'OK'     AND (s.vmm = 0 OR s.stockActuel >= s.stockObjectif)))
         """)
     Page<SemoisSuggestionView> findAllWithFilters(
+        @Param("magasinId") Integer magasinId,
         @Param("search") String search,
         @Param("classeCriticite") ClasseCriticite classeCriticite,
         @Param("fournisseurId") Integer fournisseurId,
@@ -56,10 +67,10 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
     /** Tous les produits en rupture (stockActuel < margeSecurite, vmm > 0) sans pagination. */
     @Query("""
         SELECT s FROM SemoisSuggestionView s
-        WHERE s.vmm > 0 AND s.stockActuel < s.margeSecurite
+        WHERE s.magasinId = :magasinId AND s.vmm > 0 AND s.stockActuel < s.margeSecurite
         ORDER BY s.stockActuel ASC
         """)
-    List<SemoisSuggestionView> findAllUrgents();
+    List<SemoisSuggestionView> findAllUrgents(@Param("magasinId") Integer magasinId);
 
     /**
      * Compte les produits urgents (rupture + sous seuil) depuis v_semois_suggestion.
@@ -69,17 +80,18 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
     @Query(value = """
         SELECT COUNT(*) FILTER (WHERE vmm > 0 AND stock_actuel < stock_objectif)
         FROM v_semois_suggestion
+        WHERE magasin_id = :magasinId
         """, nativeQuery = true)
-    Long countUrgentProducts();
+    Long countUrgentProducts(@Param("magasinId") Integer magasinId);
 
     /** Fournisseurs distincts ayant au moins un produit SEMOIS configuré. */
     @Query(value = """
         SELECT DISTINCT fournisseur_id, fournisseur_libelle
         FROM v_semois_suggestion
-        WHERE fournisseur_id IS NOT NULL
+        WHERE magasin_id = :magasinId AND fournisseur_id IS NOT NULL
         ORDER BY fournisseur_libelle
         """, nativeQuery = true)
-    List<Object[]> findDistinctFournisseurs();
+    List<Object[]> findDistinctFournisseurs(@Param("magasinId") Integer magasinId);
 
 
     /**
@@ -105,8 +117,9 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
             COALESCE(SUM(quantite_a_commander)
                 FILTER (WHERE vmm > 0 AND stock_actuel < marge_securite), 0)                     AS total_unites_manquantes
         FROM v_semois_suggestion
+        WHERE magasin_id = :magasinId
         """, nativeQuery = true)
-    List<Object[]> getDashboardGlobalStats();
+    List<Object[]> getDashboardGlobalStats(@Param("magasinId") Integer magasinId);
 
     /**
      * Répartition par classe de criticité pour le dashboard réappro.
@@ -126,11 +139,11 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
             COUNT(*) FILTER (WHERE vmm > 0 AND stock_objectif > 0
                                            AND stock_actuel > stock_objectif * 1.5)              AS nb_surstock
         FROM v_semois_suggestion
-        WHERE classe_criticite IS NOT NULL
+        WHERE magasin_id = :magasinId AND classe_criticite IS NOT NULL
         GROUP BY classe_criticite
         ORDER BY classe_criticite
         """, nativeQuery = true)
-    List<Object[]> getDashboardStatsByClasse();
+    List<Object[]> getDashboardStatsByClasse(@Param("magasinId") Integer magasinId);
 
     /**
      * Top N produits les plus urgents (en rupture ou sous seuil, vmm > 0).
@@ -150,10 +163,11 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
             quantite_a_commander,
             CASE WHEN vmm > 0 THEN CAST(stock_actuel AS FLOAT) / vmm ELSE 0 END AS taux_couverture_mois
         FROM v_semois_suggestion
-        WHERE vmm > 0
+        WHERE magasin_id = :magasinId
+          AND vmm > 0
           AND stock_actuel < stock_objectif
         ORDER BY taux_couverture_mois ASC, quantite_a_commander DESC
         LIMIT :limit
         """, nativeQuery = true)
-    List<Object[]> findTopUrgentProducts(@Param("limit") int limit);
+    List<Object[]> findTopUrgentProducts(@Param("magasinId") Integer magasinId, @Param("limit") int limit);
 }

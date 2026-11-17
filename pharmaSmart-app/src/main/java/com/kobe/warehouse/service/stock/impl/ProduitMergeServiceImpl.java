@@ -656,20 +656,31 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
         return count;
     }
 
+    /**
+     * Fusionne les configurations de réassort, <b>magasin par magasin</b>.
+     *
+     * <p>Depuis V2.1.53 le doublon peut en avoir plusieurs. La règle d'origine est conservée telle
+     * quelle, simplement appliquée à chaque magasin : là où la cible en a déjà une, elle prévaut
+     * et celle du doublon disparaît ; là où elle n'en a pas, celle du doublon lui est rattachée.
+     *
+     * <p>Reprendre l'ancienne forme — une configuration par produit — ferait disparaître sans
+     * bruit les configurations des autres magasins, et le compteur rendu mentirait.
+     */
     private int mergeSemoisConfiguration(Produit target, Produit source) {
-        Optional<SemoisConfiguration> sourceConfig = semoisConfigurationRepository.findByProduitId(source.getId());
-        if (sourceConfig.isEmpty()) {
-            return 0;
+        List<SemoisConfiguration> sourceConfigs = semoisConfigurationRepository.findAllByProduitId(source.getId());
+        int count = 0;
+        for (SemoisConfiguration sourceConfig : sourceConfigs) {
+            Integer magasinId = sourceConfig.getMagasin().getId();
+            if (semoisConfigurationRepository.findByProduitIdAndMagasinId(target.getId(), magasinId).isPresent()) {
+                // La cible a déjà une configuration dans ce magasin : elle prévaut sur le doublon.
+                semoisConfigurationRepository.delete(sourceConfig);
+            } else {
+                sourceConfig.setProduit(target);
+                semoisConfigurationRepository.save(sourceConfig);
+            }
+            count++;
         }
-        if (semoisConfigurationRepository.findByProduitId(target.getId()).isPresent()) {
-            // Le produit cible a déjà une configuration SEMOIS : elle prévaut sur celle du doublon.
-            semoisConfigurationRepository.delete(sourceConfig.get());
-        } else {
-            SemoisConfiguration cfg = sourceConfig.get();
-            cfg.setProduit(target);
-            semoisConfigurationRepository.save(cfg);
-        }
-        return 1;
+        return count;
     }
 
     private int mergeVentesMensuellesAgregees(Produit target, Produit source) {

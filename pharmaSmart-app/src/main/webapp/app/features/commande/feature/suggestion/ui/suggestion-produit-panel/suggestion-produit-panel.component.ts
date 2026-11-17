@@ -27,6 +27,7 @@ import {
   themeAlpine,
 } from 'ag-grid-community';
 import {AgGridAngular} from 'ag-grid-angular';
+import {IClientsEnAttente} from 'app/shared/model/produit-du.model';
 import {SuggestionProduitActionsComponent} from './suggestion-produit-actions.component';
 import {
   FournisseurSuggestionSummary,
@@ -74,6 +75,8 @@ export class SuggestionProduitPanelComponent {
   rows = input(0);
   exportingPdf = input(false);
   exportingCsv = input(false);
+  /** Clients en attente, par identifiant de produit. Chargé par le parent. */
+  clientsEnAttente = input<Record<number, IClientsEnAttente>>({});
   // ─── Outputs ─────────────────────────────────────────────────────────────────
   commander = output<void>();
   commanderSelection = output<void>();
@@ -154,6 +157,22 @@ export class SuggestionProduitPanelComponent {
       minWidth: 160,
       headerName: 'Produit',
       sortable: true,
+      // Le dû client n'entrait pas dans la décision de commander, faute d'être affiché au
+      // moment où elle se prend. Il se montre ici ; il ne change aucune quantité tout seul.
+      cellRenderer: (p: any) => {
+        const libelle = p.data?.libelle ?? '';
+        const attente = this.clientsEnAttente()[p.data?.produitId];
+        if (!attente) {
+          return libelle;
+        }
+        const personnes = Math.max(attente.nbClients, attente.nbDemandes);
+        const pluriel = personnes > 1 ? 'clients attendent' : 'client attend';
+        return (
+          `${libelle} <span class="badge rounded-pill bg-danger-subtle text-danger-emphasis ms-1" ` +
+          `title="${personnes} ${pluriel} ce produit — ${attente.quantiteDue} unité(s) due(s)">` +
+          `<i class="pi pi-user-plus"></i> ${personnes}</span>`
+        );
+      },
     },
     {
       field: 'currentStock',
@@ -406,6 +425,12 @@ export class SuggestionProduitPanelComponent {
         this.gridApi.setGridOption('rowData', data);
         this.gridApi.setGridOption('quickFilterText', this.searchText());
       }
+    });
+    // Le dû client arrive après les lignes : sans ce rafraîchissement, les badges ne
+    // s'affichent qu'au prochain redessin de la grille.
+    effect(() => {
+      this.clientsEnAttente();
+      this.gridApi?.refreshCells({columns: ['libelle'], force: true});
     });
   }
 

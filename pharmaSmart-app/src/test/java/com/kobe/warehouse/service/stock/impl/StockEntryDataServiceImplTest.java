@@ -196,6 +196,7 @@ class StockEntryDataServiceImplTest {
         user.setFirstName("Awa");
         user.setLastName("KOUAME");
         commande.setUser(user);
+        commande.setMagasin(commande.getUser().getMagasin());
         commande.setOrderLines(new ArrayList<>());
         Fournisseur fournisseur = new Fournisseur();
         fournisseur.setId(3);

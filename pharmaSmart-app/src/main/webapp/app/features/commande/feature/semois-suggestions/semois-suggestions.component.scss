@@ -76,3 +76,12 @@
 // D'ALERTE — TABLEAUX NATIFS »), chargée une seule fois pour tous les tableaux natifs
 // `app-data-table`. Ne pas les redéfinir ici — cf. docs/PLAN-MIGRATION-SASS-USE.md §10.6.
 
+
+/* Dette client sous le stock physique : elle explique l'écart entre
+   « objectif moins stock » et la quantité réellement proposée. */
+.semois-dette {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--bs-danger-text-emphasis);
+  white-space: nowrap;
+}

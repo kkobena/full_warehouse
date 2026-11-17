@@ -36,11 +36,21 @@
 -- magasin.name et full_name sont UNIQUES : le dépôt ne peut pas réutiliser
 -- ceux de l'officine.
 -- ---------------------------------------------------------------------------
+-- `parent_id` et `commande_en_propre` sont POSÉS, et non laissés à leur défaut.
+--
+-- Ces deux colonnes sont arrivées avec V2.1.51, qui y inscrit la règle : un dépôt
+-- est approvisionné par son officine, donc `commande_en_propre = FALSE`, et il se
+-- rattache à elle par `parent_id`. Ce script leur est antérieur et prenait leurs
+-- défauts — `TRUE` et `NULL` — si bien que le jeu de démonstration portait un
+-- dépôt qui se déclarait commandeur autonome et orphelin, l'exact contraire du
+-- modèle. Rien ne le signalait : la migration ne corrige que les lignes DÉJÀ
+-- présentes, pas celles qu'un script créera plus tard.
 INSERT INTO magasin (
     name, full_name, type_magasin, address, phone, email,
-    note, welcome_message, registre, compte_contribuable
+    note, welcome_message, registre, compte_contribuable,
+    parent_id, commande_en_propre
 )
-VALUES (
+SELECT
     'PHARMA SMART DEPOT',
     'PHARMA SMART — DEPOT DE YOPOUGON',
     'DEPOT',
@@ -49,9 +59,22 @@ VALUES (
     'depot@pharma-smart.example',
     'Dépôt extension approvisionné par l''officine',
     'Bienvenue au dépôt',
-    '', ''
-)
+    '', '',
+    o.id,
+    FALSE
+FROM magasin o
+WHERE o.type_magasin = 'OFFICINE'
+ORDER BY o.id
+LIMIT 1
 ON CONFLICT (name) DO NOTHING;
+
+-- `magasin` survit à la remise à zéro : un dépôt créé par une version antérieure
+-- de ce script garde ses défauts erronés. On les recale.
+UPDATE magasin d
+   SET parent_id = (SELECT o.id FROM magasin o WHERE o.type_magasin = 'OFFICINE' ORDER BY o.id LIMIT 1),
+       commande_en_propre = FALSE
+ WHERE d.name = 'PHARMA SMART DEPOT'
+   AND (d.parent_id IS NULL OR d.commande_en_propre);
 
 INSERT INTO storage (name, storage_type, magasin_id)
 SELECT 'Stock dépôt', 'PRINCIPAL', m.id

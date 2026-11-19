@@ -217,7 +217,7 @@
     <openpdf.version>3.0.5</openpdf.version>
 
     <!-- npm executable: npm (Linux/macOS) ou npm.cmd (Windows, détecté via profil) -->
-    <poi.version>5.5.1</poi.version>
+    <poi.version>6.0.0</poi.version>
     <!-- Passer -Dskip.npm=true pour sauter le build Angular -->
     <profile.api-docs/>
 

@@ -99,7 +99,7 @@
     "bootstrap": "~5.3.8",
     "bootstrap-icons": "^1.13.2",
     "buffer": "6.0.3",
-    "chart.js": "4.5.1",
+    "chart.js": "4.6.1",
     "dayjs": "1.11.23",
     "file-saver": "^2.0.5",
     "gridstack": "^14.0.0",

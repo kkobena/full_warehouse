@@ -182,7 +182,7 @@
     <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx1G</argLine>
 
     <!-- Java & Maven -->
-    <batik.version>1.19</batik.version>
+    <batik.version>1.20</batik.version>
     <jfreechart.version>1.5.6</jfreechart.version>
     <dist.jre.suffix>avec-jre</dist.jre.suffix>
     <!-- Médias du guide embarqués : none | captures | all (profil avec-guide) -->

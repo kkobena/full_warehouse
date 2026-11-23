@@ -462,7 +462,7 @@
     <dependency>
       <artifactId>firebase-admin</artifactId>
       <groupId>com.google.firebase</groupId>
-      <version>9.10.0</version>
+      <version>9.12.0</version>
     </dependency>
 
     <!-- ==================== -->

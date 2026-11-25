@@ -3,6 +3,7 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.SemoisSuggestionView;
 import com.kobe.warehouse.domain.SemoisSuggestionViewId;
 import com.kobe.warehouse.domain.enumeration.ClasseCriticite;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,33 +11,24 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 /**
  * Repository pour la vue ordinaire v_semois_suggestion.
- *
- * LECTURE SEULE: stock_actuel et quantite_a_commander sont calculés en temps réel.
- * vmm, marge_securite, stock_objectif viennent de semois_configuration (batch nocturne).
- * Ne jamais tenter d'écrire dans cette vue.
+ * <p>
+ * LECTURE SEULE: stock_actuel et quantite_a_commander sont calculés en temps réel. vmm,
+ * marge_securite, stock_objectif viennent de semois_configuration (batch nocturne). Ne jamais
+ * tenter d'écrire dans cette vue.
  */
 @Repository
-/**
- * Chaque requête porte son {@code magasinId}, sans exception et sans valeur par défaut.
- *
- * <p>Depuis V2.1.55 la vue tient une ligne par (produit, magasin). Une requête sans magasin
- * cumulerait les magasins : un tableau de bord compterait deux fois le même produit, et un
- * total de ruptures additionnerait l'officine et la parapharmacie en un chiffre qui ne décrit
- * aucune des deux.
- */
-public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSuggestionView, SemoisSuggestionViewId> {
+public interface SemoisSuggestionViewRepository extends
+    JpaRepository<SemoisSuggestionView, SemoisSuggestionViewId> {
 
     /**
-     * Recherche paginée de suggestions SEMOIS avec filtres.
-     * Lit directement depuis la vue matérialisée (très performant).
+     * Recherche paginée de suggestions SEMOIS avec filtres. Lit directement depuis la vue
+     * matérialisée (très performant).
      *
-     * @param search Recherche dans libellé ou code CIP (optionnel)
+     * @param search          Recherche dans libellé ou code CIP (optionnel)
      * @param classeCriticite Filtre par classe de criticité (optionnel)
-     * @param pageable Pagination et tri
+     * @param pageable        Pagination et tri
      * @return Page de suggestions depuis la vue matérialisée
      */
     @Query("""
@@ -64,7 +56,9 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
         Pageable pageable
     );
 
-    /** Tous les produits en rupture (stockActuel < margeSecurite, vmm > 0) sans pagination. */
+    /**
+     * Tous les produits en rupture (stockActuel < margeSecurite, vmm > 0) sans pagination.
+     */
     @Query("""
         SELECT s FROM SemoisSuggestionView s
         WHERE s.magasinId = :magasinId AND s.vmm > 0 AND s.stockActuel < s.margeSecurite
@@ -73,9 +67,9 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
     List<SemoisSuggestionView> findAllUrgents(@Param("magasinId") Integer magasinId);
 
     /**
-     * Compte les produits urgents (rupture + sous seuil) depuis v_semois_suggestion.
-     * Utilisé pour le badge de notification de la navbar et du tableau de bord.
-     * Urgents = rupture (stock_actuel < marge_securite) + sous seuil (marge_securite <= stock_actuel < stock_objectif)
+     * Compte les produits urgents (rupture + sous seuil) depuis v_semois_suggestion. Utilisé pour
+     * le badge de notification de la navbar et du tableau de bord. Urgents = rupture (stock_actuel
+     * < marge_securite) + sous seuil (marge_securite <= stock_actuel < stock_objectif)
      */
     @Query(value = """
         SELECT COUNT(*) FILTER (WHERE vmm > 0 AND stock_actuel < stock_objectif)
@@ -84,7 +78,9 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
         """, nativeQuery = true)
     Long countUrgentProducts(@Param("magasinId") Integer magasinId);
 
-    /** Fournisseurs distincts ayant au moins un produit SEMOIS configuré. */
+    /**
+     * Fournisseurs distincts ayant au moins un produit SEMOIS configuré.
+     */
     @Query(value = """
         SELECT DISTINCT fournisseur_id, fournisseur_libelle
         FROM v_semois_suggestion
@@ -95,10 +91,9 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
 
 
     /**
-     * Retourne les statistiques globales du dashboard réappro en une seule requête.
-     * Résultat : List avec un seul Object[] de 7 colonnes :
-     * [0] total_produits, [1] nb_rupture, [2] nb_sous_seuil, [3] nb_ok,
-     * [4] nb_surstock, [5] nb_sans_config, [6] total_unites_manquantes
+     * Retourne les statistiques globales du dashboard réappro en une seule requête. Résultat : List
+     * avec un seul Object[] de 7 colonnes : [0] total_produits, [1] nb_rupture, [2] nb_sous_seuil,
+     * [3] nb_ok, [4] nb_surstock, [5] nb_sans_config, [6] total_unites_manquantes
      *
      * <p>Retourné en List&lt;Object[]&gt; car Hibernate 7 ne déroule plus
      * automatiquement le résultat scalaire d'une native query en Object[].</p>
@@ -122,10 +117,9 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
     List<Object[]> getDashboardGlobalStats(@Param("magasinId") Integer magasinId);
 
     /**
-     * Répartition par classe de criticité pour le dashboard réappro.
-     * Résultat : lignes de Object[] avec :
-     * [0] classe_criticite, [1] nb_produits, [2] nb_rupture,
-     * [3] nb_sous_seuil, [4] nb_ok, [5] nb_surstock
+     * Répartition par classe de criticité pour le dashboard réappro. Résultat : lignes de Object[]
+     * avec : [0] classe_criticite, [1] nb_produits, [2] nb_rupture, [3] nb_sous_seuil, [4] nb_ok,
+     * [5] nb_surstock
      */
     @Query(value = """
         SELECT
@@ -146,8 +140,8 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
     List<Object[]> getDashboardStatsByClasse(@Param("magasinId") Integer magasinId);
 
     /**
-     * Top N produits les plus urgents (en rupture ou sous seuil, vmm > 0).
-     * Triés par taux de couverture croissant (les plus critiques en premier).
+     * Top N produits les plus urgents (en rupture ou sous seuil, vmm > 0). Triés par taux de
+     * couverture croissant (les plus critiques en premier).
      */
     @Query(value = """
         SELECT
@@ -169,5 +163,6 @@ public interface SemoisSuggestionViewRepository extends JpaRepository<SemoisSugg
         ORDER BY taux_couverture_mois ASC, quantite_a_commander DESC
         LIMIT :limit
         """, nativeQuery = true)
-    List<Object[]> findTopUrgentProducts(@Param("magasinId") Integer magasinId, @Param("limit") int limit);
+    List<Object[]> findTopUrgentProducts(@Param("magasinId") Integer magasinId,
+        @Param("limit") int limit);
 }

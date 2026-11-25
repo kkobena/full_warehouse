@@ -166,6 +166,9 @@ class DashboardCAPExcelCsvExportServiceTest {
         @Test
         @DisplayName("le palmarès demande les cinquante premiers produits")
         void cinquantePremiers() throws Exception {
+            // Si ce test passe le premier, le @BeforeEach vient de produire les fichiers partagés
+            // avec cette même doublure : sans remise à zéro, le décompte dépend de l'ordre des tests.
+            org.mockito.Mockito.clearInvocations(dashboardCAService);
             service.exportTopProductsToCsv(DEBUT, FIN);
 
             org.mockito.Mockito.verify(dashboardCAService).getTopProducts(DEBUT, FIN, 50);

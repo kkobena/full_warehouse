@@ -1,0 +1,47 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-send"></i>
+    Marquer la commande comme envoyée
+  </h5>
+  <button (click)="modal.dismiss()" aria-label="Fermer" class="btn-close" type="button"></button>
+</div>
+
+<div class="modal-body">
+  @if (reference) {
+    <div class="me-commande">
+      <i class="pi pi-file"></i>
+      <span class="pharma-code">{{ reference }}</span>
+      @if (fournisseur) {
+        <span class="me-commande__fournisseur">{{ fournisseur }}</span>
+      }
+    </div>
+  }
+
+  <div class="alert alert-info d-flex gap-2 py-2" role="note">
+    <i class="pi pi-info-circle flex-shrink-0 mt-1"></i>
+    <div>La date d'envoi sert de point de départ au délai de livraison et à l'alerte de retard.</div>
+  </div>
+
+  <label class="form-label">Canal d'envoi <span class="required">*</span></label>
+  <app-pill-selector
+    (selectionChange)="canal.set($any($event))"
+    [items]="canaux"
+    [ngModel]="canal()"
+    ariaLabel="Canal d'envoi"
+  />
+</div>
+
+<div class="modal-footer">
+  <app-button
+    (clicked)="modal.dismiss()"
+    icon="pi pi-times"
+    label="Annuler"
+    severity="secondary"
+  />
+  <app-button
+    (clicked)="modal.close(canal())"
+    icon="pi pi-send"
+    label="Marquer comme envoyée"
+    severity="primary"
+  />
+</div>

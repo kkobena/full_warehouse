@@ -1,23 +1,33 @@
-.pd-resume {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  padding: 0.75rem 1rem;
+@import 'app/shared/scss/pharma-nav';
+@import 'app/shared/scss/table-common';
+@import 'app/features/commande/commande-shared';
+@import 'app/shared/scss/grid-caption';
 
-  &__item {
+// ── OVERRIDE view-panel (même chrome que commande-requested-home et list-bons) ──
+.view-panel {
+  height: calc(100vh - 195px);
+  margin: 0;
+}
+
+// ── GRILLE PRODUITS DUS ─────────────────────────────────────────────────────────
+
+.pd-grid-wrap {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  height: 100%;
+
+  // `app-data-table` remplit ce conteneur et son scroller interne prend le défilement,
+  // sans hauteur figée ; la pagination reste visible en pied.
+  ::ng-deep app-data-table {
+    height: 100%;
     display: flex;
     flex-direction: column;
   }
 
-  &__valeur {
-    font-size: 1.25rem;
-    font-weight: 600;
-    line-height: 1.2;
-  }
-
-  &__libelle {
-    font-size: 0.75rem;
-    color: var(--bs-secondary-color);
+  ::ng-deep .app-table__scroller {
+    flex: 1 1 0;
+    min-height: 0;
   }
 }
 

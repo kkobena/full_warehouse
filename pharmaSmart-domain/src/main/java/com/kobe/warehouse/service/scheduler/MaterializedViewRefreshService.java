@@ -4,18 +4,23 @@ import com.kobe.warehouse.service.dto.MaterializedViewRefreshDTO;
 import com.kobe.warehouse.service.dto.TierRefreshResultDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Service de rafraîchissement des vues matérialisées.
@@ -33,15 +38,28 @@ import org.springframework.transaction.annotation.Transactional;
  * (taille 2) et éviter d'impacter les autres jobs ou le travail des utilisateurs.
  * Le {@code REFRESH MATERIALIZED VIEW CONCURRENTLY} côté PostgreSQL ne bloque pas
  * les lectures non plus.
- *
- * <p>Un {@code refreshAllViews()} est aussi appelé par {@link JobOrchestrationService}
  * en fin de pipeline (démarrage + nocturne) pour garantir des dashboards à jour.
  */
 @Service
 public class MaterializedViewRefreshService {
 
+    /**
+     * Caches de rapport calculés à partir d'une vue : rafraîchir la vue sans les vider laissait
+     * servir l'ancien résultat jusqu'à expiration (60 min). Au premier démarrage, c'était un résumé
+     * VIDE — la vue venait d'être créée par Flyway — qui restait affiché une heure après le
+     * pipeline : « 0 produits, marge 0,00 % » sur la valorisation du stock.
+     */
+    static final Map<String, List<String>> CACHES_PAR_VUE = Map.of(
+        "mv_daily_sales_summary", List.of("dailySalesReport"),
+        "mv_stock_alerts", List.of("stockAlerts"),
+        "mv_monthly_top_products", List.of("topProducts"),
+        "mv_stock_valuation", List.of("stockValuation"),
+        "mv_stock_valuation_by_rayon", List.of("stockValuation"),
+        "mv_customer_rfm", List.of("customerSegmentation"),
+        "mv_supplier_performance", List.of("supplierPerformance"),
+        "mv_marge_produit", List.of("margeReport")
+    );
     private static final Logger LOG = LoggerFactory.getLogger(MaterializedViewRefreshService.class);
-
     // ── TIER 1 : Dashboards temps réel ───────────────────────────────────────────
     private static final List<String> TIER1_VIEWS = List.of(
         "mv_dashboard_ca_daily",
@@ -49,7 +67,6 @@ public class MaterializedViewRefreshService {
         "mv_stock_alerts",
         "mv_daily_sales_summary"
     );
-
     // ── TIER 2 : Données analytiques ─────────────────────────────────────────────
     private static final List<String> TIER2_VIEWS = List.of(
         "mv_dashboard_ca_product_families",
@@ -58,24 +75,29 @@ public class MaterializedViewRefreshService {
         "mv_stock_valuation",
         "mv_stock_valuation_by_rayon"
     );
-
     // ── TIER 3 : Analyses complexes ──────────────────────────────────────────────
     private static final List<String> TIER3_VIEWS = List.of(
         "mv_customer_rfm",
         "mv_supplier_performance",
         "mv_marge_produit"
     );
-
     private static final List<String> NON_CONCURRENT_VIEWS = List.of();
-
+    /**
+     * Absent du module batch, qui ne sert aucun rapport : rien à vider.
+     */
+    private final ObjectProvider<CacheManager> cacheManager;
     @PersistenceContext
     private EntityManager entityManager;
+
+    public MaterializedViewRefreshService(ObjectProvider<CacheManager> cacheManager) {
+        this.cacheManager = cacheManager;
+    }
 
     // ── Méthodes planifiées (async pour ne pas bloquer le pool scheduling) ────────
 
     /**
-     * TIER 1 : toutes les 15 minutes pendant les heures d'ouverture.
-     * Configurable via {@code pharma-smart.views.dashboards-cron}.
+     * TIER 1 : toutes les 15 minutes pendant les heures d'ouverture. Configurable via
+     * {@code pharma-smart.views.dashboards-cron}.
      */
     @Async
     @Transactional
@@ -86,8 +108,8 @@ public class MaterializedViewRefreshService {
     }
 
     /**
-     * TIER 2 : toutes les heures pendant les heures d'ouverture.
-     * Configurable via {@code pharma-smart.views.analytique-cron}.
+     * TIER 2 : toutes les heures pendant les heures d'ouverture. Configurable via
+     * {@code pharma-smart.views.analytique-cron}.
      */
     @Async
     @Transactional
@@ -98,8 +120,8 @@ public class MaterializedViewRefreshService {
     }
 
     /**
-     * TIER 3 : 4 fois par jour (9h, 12h, 15h, 18h).
-     * Configurable via {@code pharma-smart.views.reporting-cron}.
+     * TIER 3 : 4 fois par jour (9h, 12h, 15h, 18h). Configurable via
+     * {@code pharma-smart.views.reporting-cron}.
      */
     @Async
     @Transactional
@@ -114,19 +136,22 @@ public class MaterializedViewRefreshService {
     @Transactional
     public TierRefreshResultDTO refreshTier1Views() {
         LocalDateTime startTime = LocalDateTime.now();
-        return TierRefreshResultDTO.of("TIER1", refreshViews(TIER1_VIEWS, "TIER1"), startTime, LocalDateTime.now());
+        return TierRefreshResultDTO.of("TIER1", refreshViews(TIER1_VIEWS, "TIER1"), startTime,
+            LocalDateTime.now());
     }
 
     @Transactional
     public TierRefreshResultDTO refreshTier2Views() {
         LocalDateTime startTime = LocalDateTime.now();
-        return TierRefreshResultDTO.of("TIER2", refreshViews(TIER2_VIEWS, "TIER2"), startTime, LocalDateTime.now());
+        return TierRefreshResultDTO.of("TIER2", refreshViews(TIER2_VIEWS, "TIER2"), startTime,
+            LocalDateTime.now());
     }
 
     @Transactional
     public TierRefreshResultDTO refreshTier3Views() {
         LocalDateTime startTime = LocalDateTime.now();
-        return TierRefreshResultDTO.of("TIER3", refreshViews(TIER3_VIEWS, "TIER3"), startTime, LocalDateTime.now());
+        return TierRefreshResultDTO.of("TIER3", refreshViews(TIER3_VIEWS, "TIER3"), startTime,
+            LocalDateTime.now());
     }
 
     @Transactional
@@ -140,7 +165,8 @@ public class MaterializedViewRefreshService {
         allResults.addAll(refreshViews(TIER2_VIEWS, "TIER2"));
         allResults.addAll(refreshViews(TIER3_VIEWS, "TIER3"));
 
-        TierRefreshResultDTO result = TierRefreshResultDTO.of("ALL", allResults, startTime, LocalDateTime.now());
+        TierRefreshResultDTO result = TierRefreshResultDTO.of("ALL", allResults, startTime,
+            LocalDateTime.now());
 
         LOG.info("ALL views refreshed: {} OK, {} KO en {}ms",
             result.successCount(), result.failedCount(), result.totalDurationMillis());
@@ -192,6 +218,7 @@ public class MaterializedViewRefreshService {
                 : "REFRESH MATERIALIZED VIEW " + viewName;
 
             entityManager.createNativeQuery(sql).executeUpdate();
+            viderLesCachesApresCommit(viewName);
 
             LocalDateTime endTime = LocalDateTime.now();
             long duration = java.time.Duration.between(startTime, endTime).toMillis();
@@ -202,6 +229,44 @@ public class MaterializedViewRefreshService {
         } catch (Exception e) {
             LOG.error("Failed to refresh {}", viewName, e);
             return MaterializedViewRefreshDTO.failed(viewName, tier, startTime, e.getMessage());
+        }
+    }
+
+    /**
+     * Vide les caches alimentés par la vue, APRÈS le commit : le nouveau contenu d'un
+     * {@code REFRESH} n'est visible des autres sessions qu'une fois la transaction validée. Vider
+     * plus tôt laisserait une lecture concurrente remettre en cache l'ancien contenu.
+     */
+    private void viderLesCachesApresCommit(String viewName) {
+        List<String> caches = CACHES_PAR_VUE.get(viewName);
+        if (caches == null) {
+            return;
+        }
+        Set<String> aVider = new LinkedHashSet<>(caches);
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        viderLesCaches(aVider);
+                    }
+                });
+        } else {
+            viderLesCaches(aVider);
+        }
+    }
+
+    private void viderLesCaches(Set<String> noms) {
+        CacheManager gestionnaire = cacheManager.getIfAvailable();
+        if (gestionnaire == null) {
+            return;
+        }
+        for (String nom : noms) {
+            Cache cache = gestionnaire.getCache(nom);
+            if (cache != null) {
+                cache.clear();
+                LOG.debug("Cache {} vidé après rafraîchissement de sa vue", nom);
+            }
         }
     }
 }

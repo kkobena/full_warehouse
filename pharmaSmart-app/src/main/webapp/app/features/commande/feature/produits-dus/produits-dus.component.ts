@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, computed, inject, OnInit, output, signal} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
-import {BadgeComponent, ButtonComponent, DataTableComponent} from "app/shared/ui";
+import {BadgeComponent, ButtonComponent, CardComponent, DataTableComponent} from "app/shared/ui";
 import {CommandeService} from "app/entities/commande/commande.service";
 import {IProduitDuNonCommande} from "app/shared/model/produit-du.model";
 
@@ -17,7 +17,7 @@ import {IProduitDuNonCommande} from "app/shared/model/produit-du.model";
   templateUrl: "./produits-dus.component.html",
   styleUrls: ["./produits-dus.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DataTableComponent, BadgeComponent, ButtonComponent, NgbTooltip],
+  imports: [CommonModule, CardComponent, DataTableComponent, BadgeComponent, ButtonComponent, NgbTooltip],
 })
 export class ProduitsDusComponent implements OnInit {
   /** Remonte le nombre de produits dus pour la pastille de l'onglet. */

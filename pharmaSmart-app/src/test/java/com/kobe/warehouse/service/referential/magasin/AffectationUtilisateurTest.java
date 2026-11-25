@@ -18,6 +18,7 @@ import com.kobe.warehouse.repository.PersistentTokenRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.AdminUserDTO;
+import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -125,7 +126,7 @@ class AffectationUtilisateurTest {
         when(magasinRepository.findById(9)).thenReturn(Optional.of(autre));
 
         assertThatThrownBy(() -> service.createUser(dto(9)))
-            .isInstanceOf(IllegalArgumentException.class)
+            .isInstanceOf(BadRequestAlertException.class)
             .hasMessageContaining("n'est pas rattaché");
     }
 
@@ -137,7 +138,7 @@ class AffectationUtilisateurTest {
         when(magasinRepository.findById(404)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.createUser(dto(404)))
-            .isInstanceOf(IllegalArgumentException.class)
+            .isInstanceOf(BadRequestAlertException.class)
             .hasMessageContaining("inconnu");
     }
 
@@ -155,7 +156,7 @@ class AffectationUtilisateurTest {
         when(userRepository.findOneByLogin("titulaire")).thenReturn(Optional.of(utilisateur(officine)));
         when(magasinRepository.findById(20)).thenReturn(Optional.of(a));
 
-        assertThatThrownBy(() -> service.createUser(dto(20))).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> service.createUser(dto(20))).isInstanceOf(BadRequestAlertException.class);
     }
 
     @Test
@@ -167,7 +168,7 @@ class AffectationUtilisateurTest {
         when(magasinRepository.findById(5)).thenReturn(Optional.of(depot));
 
         assertThatThrownBy(() -> service.createUser(dto(5)))
-            .isInstanceOf(IllegalArgumentException.class)
+            .isInstanceOf(BadRequestAlertException.class)
             .hasMessageContaining("ni caisse ni saisie");
     }
 
@@ -182,7 +183,7 @@ class AffectationUtilisateurTest {
         when(userRepository.findOneByLogin("titulaire")).thenReturn(Optional.of(utilisateur(depot)));
 
         assertThatThrownBy(() -> service.createUser(dto(null)))
-            .isInstanceOf(IllegalArgumentException.class)
+            .isInstanceOf(BadRequestAlertException.class)
             .hasMessageContaining("ni caisse ni saisie");
     }
 
@@ -228,10 +229,10 @@ class AffectationUtilisateurTest {
         when(magasinRepository.findById(9)).thenReturn(Optional.of(etranger));
 
         assertThatThrownBy(() -> service.updateUser(dtoDeModification(existant, 5)))
-            .isInstanceOf(IllegalArgumentException.class)
+            .isInstanceOf(BadRequestAlertException.class)
             .hasMessageContaining("ni caisse ni saisie");
         assertThatThrownBy(() -> service.updateUser(dtoDeModification(existant, 9)))
-            .isInstanceOf(IllegalArgumentException.class)
+            .isInstanceOf(BadRequestAlertException.class)
             .hasMessageContaining("n'est pas rattaché");
     }
 
@@ -251,7 +252,7 @@ class AffectationUtilisateurTest {
         when(cashRegisterRepository.existsByUserIdAndStatut(42, CashRegisterStatut.OPEN)).thenReturn(true);
 
         assertThatThrownBy(() -> service.updateUser(dtoDeModification(existant, 7)))
-            .isInstanceOf(IllegalArgumentException.class)
+            .isInstanceOf(BadRequestAlertException.class)
             .hasMessageContaining("billetage");
     }
 

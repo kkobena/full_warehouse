@@ -15,51 +15,22 @@ import {CanalEnvoi} from 'app/shared/model/abstract-commande.model';
   selector: 'app-marquer-envoi-modal',
   imports: [FormsModule, PillSelectorComponent, ButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="modal-header">
-      <h5 class="modal-title">Marquer la commande comme envoyée</h5>
-      <button type="button" class="btn-close" aria-label="Fermer" (click)="modal.dismiss()"></button>
-    </div>
-    <div class="modal-body">
-      @if (reference) {
-        <p class="mb-2">
-          Commande <span class="pharma-code">{{ reference }}</span>
-          @if (fournisseur) {
-            — {{ fournisseur }}
-          }
-        </p>
-      }
-      <p class="text-secondary small mb-3">
-        La date d'envoi sert de point de départ au délai de livraison et à l'alerte de retard.
-      </p>
-      <label class="form-label">Canal d'envoi</label>
-      <app-pill-selector
-        [items]="canaux"
-        [ngModel]="canal()"
-        (selectionChange)="canal.set($any($event))"
-        ariaLabel="Canal d'envoi"
-      />
-    </div>
-    <div class="modal-footer">
-      <app-button label="Annuler" severity="secondary" [text]="true" (clicked)="modal.dismiss()" />
-      <app-button label="Marquer comme envoyée" icon="pi pi-send" (clicked)="modal.close(canal())" />
-    </div>
-  `,
+  templateUrl: './marquer-envoi-modal.component.html',
+  styleUrls: ['./marquer-envoi-modal.component.scss'],
 })
 export class MarquerEnvoiModalComponent {
-  protected readonly modal = inject(NgbActiveModal);
-
   reference?: string;
   fournisseur?: string;
+  protected readonly modal = inject(NgbActiveModal);
 
   // EDI n'est pas proposé : ce canal s'horodate tout seul lors de l'envoi PharmaML, et le
   // choisir à la main laisserait croire à une transmission dont l'application n'a aucune trace.
   protected readonly canaux: AppPillOption[] = [
+    {label: 'Téléphone', value: 'TELEPHONE', icon: 'pi pi-phone'},
     {label: 'Mail', value: 'MAIL', icon: 'pi pi-envelope'},
     {label: 'Bon imprimé', value: 'PDF', icon: 'pi pi-print'},
-    {label: 'Téléphone', value: 'TELEPHONE', icon: 'pi pi-phone'},
     {label: 'Autre', value: 'AUTRE', icon: 'pi pi-ellipsis-h'},
   ];
 
-  protected readonly canal = signal<CanalEnvoi>('MAIL');
+  protected readonly canal = signal<CanalEnvoi>('TELEPHONE');
 }

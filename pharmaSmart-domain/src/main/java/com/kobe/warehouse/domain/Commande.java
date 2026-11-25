@@ -1,8 +1,7 @@
 package com.kobe.warehouse.domain;
 
-import com.kobe.warehouse.domain.enumeration.MotifBed;
 import com.kobe.warehouse.domain.enumeration.CanalEnvoi;
-import java.time.temporal.ChronoUnit;
+import com.kobe.warehouse.domain.enumeration.MotifBed;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.PaimentStatut;
 import com.kobe.warehouse.domain.enumeration.TypeDeliveryReceipt;
@@ -29,6 +28,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -150,8 +150,8 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
      * Horodatage de la transmission au grossiste. {@code null} = brouillon, jamais parti.
      *
      * <p>C'est cette date, et non le statut, qui dit qu'une commande engage quelque chose :
-     * {@code order_status} vaut {@code REQUESTED} pendant la saisie comme après l'envoi, et sert
-     * en outre de brouillon aux bons d'entrée diverse et aux retours.
+     * {@code order_status} vaut {@code REQUESTED} pendant la saisie comme après l'envoi, et sert en
+     * outre de brouillon aux bons d'entrée diverse et aux retours.
      */
     @Column(name = "date_envoi")
     private LocalDateTime dateEnvoi;
@@ -182,7 +182,9 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     @Transient
     private boolean isNew = true;
 
-    /** Vrai dès que la commande est partie, quel qu'ait été le canal. */
+    /**
+     * Vrai dès que la commande est partie, quel qu'ait été le canal.
+     */
     public boolean estEnvoyee() {
         return dateEnvoi != null;
     }
@@ -202,7 +204,8 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
             return 0L;
         }
         LocalDate livraisonAttendue = dateEnvoi.toLocalDate().plusDays(delaiLivraisonJours);
-        return livraisonAttendue.isBefore(aujourdhui) ? ChronoUnit.DAYS.between(livraisonAttendue, aujourdhui) : 0L;
+        return livraisonAttendue.isBefore(aujourdhui) ? ChronoUnit.DAYS.between(livraisonAttendue,
+            aujourdhui) : 0L;
     }
 
     public LocalDateTime getDateEnvoi() {

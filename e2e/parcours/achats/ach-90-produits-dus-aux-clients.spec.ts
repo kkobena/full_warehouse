@@ -44,7 +44,9 @@ scenario('ACH-90', async ({ etape, page }) => {
     await expect(premiereLigne.locator('td').nth(2)).toHaveText(/\d+/);
     await expect(premiereLigne.getByText(/\d+ j/)).toBeVisible();
 
-    // Le résumé compte les mêmes produits que la liste.
-    await expect(page.locator('app-produits-dus')).toContainText('unités dues');
+    // Le résumé compte les mêmes produits que la liste. Il vit dans le bandeau `grid-caption`
+    // des écrans voisins, dont les libellés sont capitalisés (« Unités dues ») : la casse n'est
+    // pas ce que l'on vérifie ici.
+    await expect(page.locator('app-produits-dus .grid-caption')).toContainText(/unités dues/i);
   });
 });

@@ -1,0 +1,28 @@
+@use 'app/shared/scss/modal-theme' as *;
+
+:host {
+  @include modal-theme;
+}
+
+// Rappel de la commande visée : la référence et le fournisseur, sur une ligne.
+.me-commande {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+
+  > i {
+    color: var(--bs-secondary-color);
+  }
+
+  &__fournisseur {
+    color: var(--bs-secondary-color);
+    font-weight: 500;
+
+    &::before {
+      content: '—';
+      margin-right: 0.5rem;
+    }
+  }
+}

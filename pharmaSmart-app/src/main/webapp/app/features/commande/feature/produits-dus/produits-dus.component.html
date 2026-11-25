@@ -1,94 +1,109 @@
-<div class="pharma-smart-content">
+<app-card class="mt-2">
+  <div class="view-panel">
 
-  <!--
-    Un dû déjà couvert par le stock n'appelle pas une commande mais un appel au client : le
-    distinguer ici évite de commander ce qu'on a déjà sur l'étagère.
-  -->
-  <div class="pharma-toolbar">
-    <div class="pd-resume">
-      <div class="pd-resume__item">
-        <span class="pd-resume__valeur">{{ produits().length }}</span>
-        <span class="pd-resume__libelle">produits promis, non commandés</span>
-      </div>
-      <div class="pd-resume__item">
-        <span class="pd-resume__valeur">{{ totalDu() }}</span>
-        <span class="pd-resume__libelle">unités dues</span>
-      </div>
-      @if (servablesMaintenant() > 0) {
-        <div class="pd-resume__item">
-          <span class="pd-resume__valeur text-success">{{ servablesMaintenant() }}</span>
-          <span class="pd-resume__libelle">servables sans commander</span>
-        </div>
-      }
-      <div class="ms-auto">
-        <app-button
-          (clicked)="charger()"
-          [loading]="isLoading()"
-          [rounded]="true"
-          [text]="true"
-          icon="pi pi-refresh"
-          ngbTooltip="Recalculer"
-          placement="bottom"
-          severity="secondary"
-        />
-      </div>
+    <!-- HEADER -->
+    <div class="view-panel__header">
+      <span class="view-panel__label">
+        <i class="pi pi-user-minus"></i>&nbsp;Produits promis aux clients, non commandés
+      </span>
+      <app-button
+        (clicked)="charger()"
+        [loading]="isLoading()"
+        class="ms-auto"
+        icon="pi pi-refresh"
+        label="Recalculer"
+        severity="secondary"
+        size="small"
+      />
     </div>
+
+    <!--
+      BANDEAU TOTAUX — un dû déjà couvert par le stock n'appelle pas une commande mais un appel
+      au client : le distinguer ici évite de commander ce qu'on a déjà sur l'étagère.
+    -->
+    <div class="grid-caption">
+      <span class="grid-caption__count">
+        <i aria-hidden="true" class="pi pi-box"></i>
+        <strong>{{ produits().length }}</strong>
+        produit{{ produits().length > 1 ? 's' : '' }}
+      </span>
+      @if (servablesMaintenant() > 0) {
+        <span class="grid-caption__count grid-caption__count--attente">
+          <i aria-hidden="true" class="pi pi-check-circle"></i>
+          <strong>{{ servablesMaintenant() }}</strong> servable{{ servablesMaintenant() > 1 ? 's' : '' }} sans commander
+        </span>
+      }
+      <span class="grid-caption__totals ms-auto">
+        <span class="grid-caption__stat">
+          <span class="grid-caption__stat-label">Unités dues</span>
+          <span class="grid-caption__stat-value grid-caption__stat-value--achat">{{ totalDu() }}</span>
+        </span>
+      </span>
+    </div>
+
+    <!-- GRILLE PRODUITS DUS -->
+    <div class="pd-grid-wrap">
+      <app-data-table
+        [loading]="isLoading()"
+        [paginator]="true"
+        [rowsPerPageOptions]="[10, 15, 25, 50]"
+        [rows]="15"
+        [scrollable]="true"
+        [showCurrentPageReport]="true"
+        [value]="produits()"
+        class="p-datatable-sm"
+        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+      >
+        <ng-template #header>
+          <tr class="pharma-table-head">
+            <th>Produit</th>
+            <th class="text-center" style="width:110px">En attente</th>
+            <th class="text-end" style="width:120px">Unités dues</th>
+            <th class="text-end" style="width:100px">Stock</th>
+            <th class="text-center" style="width:100px">Depuis</th>
+          </tr>
+        </ng-template>
+
+        <ng-template #body let-p>
+          <tr>
+            <td>
+              <span class="fw-semibold">{{ p.produitLibelle }}</span>
+              @if (p.codeEan) {
+                <div><span class="pharma-code">{{ p.codeEan }}</span></div>
+              }
+              @if (servableMaintenant(p)) {
+                <div class="pd-servable">
+                  <i class="pi pi-check-circle me-1"></i>En stock — à servir au comptoir, sans commander
+                </div>
+              }
+            </td>
+            <td class="text-center">{{ enAttente(p) }}</td>
+            <td class="text-end"><span class="pharma-qty-value">{{ p.quantiteDue }}</span></td>
+            <!-- Le stock peut être négatif : une vente forcée sort la quantité demandée même à zéro. -->
+            <td [class.text-danger]="p.stockDisponible < 0" class="text-end">{{ p.stockDisponible }}</td>
+            <td class="text-center">
+              <app-badge
+                [label]="joursDAttente(p) + ' j'"
+                [ngbTooltip]="'Plus ancienne demande : ' + (p.attenteDepuis | date: 'dd/MM/yyyy')"
+                [severity]="severiteAttente(p)"
+                placement="left"
+              />
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template #emptymessage>
+          <tr>
+            <td class="pharma-empty-message" colspan="5">
+              <div class="pharma-empty-content">
+                <i class="pi pi-check-circle"></i>
+                <p>Rien de promis qui ne soit déjà commandé</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </app-data-table>
+    </div>
+
   </div>
-
-  <app-data-table
-    [loading]="isLoading()"
-    [paginator]="true"
-    [rows]="15"
-    [rowsPerPageOptions]="[10, 15, 25, 50]"
-    [showCurrentPageReport]="true"
-    [value]="produits()"
-    class="p-datatable-sm p-datatable-striped"
-    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-  >
-    <ng-template #header>
-      <tr class="pharma-table-head">
-        <th>Produit</th>
-        <th class="text-center">En attente</th>
-        <th class="text-end">Unités dues</th>
-        <th class="text-end">Stock</th>
-        <th class="text-center">Depuis</th>
-      </tr>
-    </ng-template>
-
-    <ng-template #body let-p>
-      <tr>
-        <td>
-          <strong>{{ p.produitLibelle }}</strong>
-          @if (p.codeEan) {
-            <div class="text-muted small">{{ p.codeEan }}</div>
-          }
-          @if (servableMaintenant(p)) {
-            <div class="pd-servable">
-              <i class="pi pi-check-circle me-1"></i>En stock — à servir au comptoir, sans commander
-            </div>
-          }
-        </td>
-        <td class="text-center">{{ enAttente(p) }}</td>
-        <td class="text-end">{{ p.quantiteDue }}</td>
-        <!-- Le stock peut être négatif : une vente forcée sort la quantité demandée même à zéro. -->
-        <td class="text-end" [class.text-danger]="p.stockDisponible < 0">{{ p.stockDisponible }}</td>
-        <td class="text-center">
-          <app-badge
-            [label]="joursDAttente(p) + ' j'"
-            [severity]="severiteAttente(p)"
-            [ngbTooltip]="'Plus ancienne demande : ' + (p.attenteDepuis | date: 'dd/MM/yyyy')"
-            placement="left"
-          />
-        </td>
-      </tr>
-    </ng-template>
-
-    <ng-template #empty>
-      <tr>
-        <td class="text-center text-muted py-4" colspan="5">
-          Rien de promis qui ne soit déjà commandé.
-        </td>
-      </tr>
-    </ng-template>
-  </app-data-table>
-</div>
+</app-card>

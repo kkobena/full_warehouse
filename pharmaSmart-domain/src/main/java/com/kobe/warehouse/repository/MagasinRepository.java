@@ -25,10 +25,8 @@ public interface MagasinRepository extends JpaRepository<Magasin, Integer>,
      * Officine de rattachement de l'installation, utilisée comme pivot de vérification de licence.
      *
      * <p>Le contrôle s'exécute au démarrage, hors de toute session utilisateur : on ne peut donc
-     * pas
-     * passer par le magasin de l'utilisateur courant. C'est l'officine — et non un dépôt
+     * pas passer par le magasin de l'utilisateur courant. C'est l'officine — et non un dépôt
      * d'extension — qui porte la raison sociale imprimée sur les documents, donc celle à laquelle
-     * la licence est délivrée (cf. docs/PLAN-GESTION-LICENCE.md §3.4).
      */
     Optional<Magasin> findFirstByTypeMagasinOrderByIdAsc(TypeMagasin typeMagasin);
 

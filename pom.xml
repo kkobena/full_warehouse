@@ -117,9 +117,8 @@
     <module>pharmaSmart-core</module>
     <module>pharmaSmart-app</module>
     <module>pharmaSmart-batch</module>
-    <!-- Outil éditeur d'émission des licences : aucun autre module n'en dépend,
-         il n'est donc jamais embarqué dans le livrable client. -->
-   <!-- <module>pharmaSmart-license-cli</module>-->
+
+    <module>pharmaSmart-license-cli</module>
   </modules>
   <name>PharmaSmart</name>
   <packaging>pom</packaging>
@@ -183,16 +182,16 @@
 
     <!-- Java & Maven -->
     <batik.version>1.20</batik.version>
-    <jfreechart.version>1.5.6</jfreechart.version>
     <dist.jre.suffix>avec-jre</dist.jre.suffix>
-    <!-- Médias du guide embarqués : none | captures | all (profil avec-guide) -->
-    <guide.media>captures</guide.media>
     <dist.tauri.server>tauri:build:bundled-jre:fast</dist.tauri.server>
+    <!-- Médias du guide embarqués : none | captures | all (profil avec-guide) -->
     <exec-maven-plugin.version>3.7.0</exec-maven-plugin.version>
     <flyway.version>13.13.0</flyway.version>
+    <guide.media>captures</guide.media>
     <hibernate-validator.version>9.1.6.Final</hibernate-validator.version>
     <hibernate.version>7.4.17.Final</hibernate.version>
     <java.version>25</java.version>
+    <jfreechart.version>1.5.6</jfreechart.version>
     <maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
     <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
     <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>

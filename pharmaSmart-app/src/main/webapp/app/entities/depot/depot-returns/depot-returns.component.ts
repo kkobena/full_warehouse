@@ -11,7 +11,7 @@ import { RetourDepotService } from "../retour-depot.service";
 import { debounceTime, Subject, Subscription } from "rxjs";
 import { finalize } from "rxjs/operators";
 import { IMagasin, IProduit } from "../../../shared/model";
-import { MagasinService } from "../../magasin/magasin.service";
+import { MagasinService } from "app/features/magasin/data-access/services/magasin.service";
 import { StockDepotService } from "../stock-depot/stock-depot.service";
 import { NotificationService } from "../../../shared/services/notification.service";
 import { ButtonComponent, DataTableComponent, EditableCellComponent, SelectComponent, SelectSearchComponent } from "../../../shared/ui";

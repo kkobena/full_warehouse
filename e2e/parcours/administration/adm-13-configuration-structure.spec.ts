@@ -13,8 +13,14 @@ import { scenario } from '../../src/scenario';
  */
 scenario('ADM-13', async ({ etape, page }) => {
   const contenu = page.locator('#main-content');
-  const noteOrigine = 'Bienvenue !';
+  // Le champ par son identifiant, et lui seul : l'ancien sélecteur `#field_note, textarea`
+  // retombait sur la première zone de texte du formulaire — l'ADRESSE, placée avant la note —
+  // si bien que le parcours écrivait sa note d'accueil dans l'adresse de l'officine.
+  const champNote = page.locator('#field_note');
+  const notesAffichees = page.locator('app-magasin-detail .magasin-texte', { hasText: 'Notes' }).locator('p');
   const noteParcours = 'Bienvenue — ouverture 8h/20h, dimanche de garde';
+  // Lue avant modification, rétablie à l'identique : aucune valeur supposée.
+  let noteOrigine = '';
 
   await etape(1, async () => {
     await page.goto('/magasin');
@@ -24,13 +30,14 @@ scenario('ADM-13', async ({ etape, page }) => {
     await expect(contenu).toContainText('Informations Administratives');
     await page.getByRole('button', { name: 'Modifier' }).click();
     await expect(page).toHaveURL(/magasin\/\d+\/edit/);
+    await expect(page.locator('#field_fullName')).not.toHaveValue('');
+    noteOrigine = await champNote.inputValue();
   });
 
   await etape(2, async () => {
     // La note d'accueil : elle s'affiche au comptoir et sur les documents qui la reprennent.
-    const note = page.locator('#field_note, textarea').first();
-    await note.fill(noteParcours);
-    await expect(note).toHaveValue(noteParcours);
+    await champNote.fill(noteParcours);
+    await expect(champNote).toHaveValue(noteParcours);
   });
 
   await etape(3, async () => {
@@ -38,12 +45,14 @@ scenario('ADM-13', async ({ etape, page }) => {
     await expect(page).toHaveURL(/magasin$/);
     // La fiche porte la nouvelle note : les écrans et documents qui la lisent la reprendront
     // telle quelle.
-    await expect(contenu).toContainText(noteParcours);
+    await expect(notesAffichees).toHaveText(noteParcours);
   });
 
   // ── Remise en état : la note d'origine est rétablie. ────────────────────────────────────
   await page.getByRole('button', { name: 'Modifier' }).click();
-  await page.locator('#field_note, textarea').first().fill(noteOrigine);
+  await champNote.fill(noteOrigine);
   await page.getByRole('button', { name: /Enregistrer|Sauvegarder/ }).first().click();
-  await expect(contenu).toContainText(noteOrigine);
+  await expect(page).toHaveURL(/magasin$/);
+  // Une note vide s'affiche « — ».
+  await expect(notesAffichees).toHaveText(noteOrigine || '—');
 });

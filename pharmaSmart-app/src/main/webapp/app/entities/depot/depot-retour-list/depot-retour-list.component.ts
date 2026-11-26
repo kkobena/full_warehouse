@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { IRetourDepot } from 'app/shared/model/retour-depot.model';
 import { RetourDepotService } from '../retour-depot.service';
-import { MagasinService } from '../../magasin/magasin.service';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
 import { IMagasin } from '../../../shared/model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import dayjs from 'dayjs/esm';

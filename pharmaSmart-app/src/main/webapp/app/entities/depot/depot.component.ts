@@ -2,7 +2,7 @@ import { Component, inject, OnInit, ChangeDetectionStrategy, input, signal } fro
 import { HttpResponse } from "@angular/common/http";
 import { Router, RouterModule } from "@angular/router";
 import { IMagasin } from "../../shared/model";
-import { MagasinService } from "../magasin/magasin.service";
+import { MagasinService } from "app/features/magasin/data-access/services/magasin.service";
 import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { AbilityService } from "../../core/auth/ability.service";
 import { NgbConfirmDialogService } from "../../shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive";

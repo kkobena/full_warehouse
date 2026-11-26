@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
 import { IMagasin, Magasin, TypeMagasin } from '../../shared/model/magasin.model';
-import { MagasinService } from '../magasin/magasin.service';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
 import { ButtonComponent, CardComponent, SelectComponent, ToolbarComponent } from '../../shared/ui';
 
 @Component({

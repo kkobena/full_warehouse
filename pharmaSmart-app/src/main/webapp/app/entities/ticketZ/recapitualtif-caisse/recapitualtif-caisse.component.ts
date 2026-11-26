@@ -22,7 +22,7 @@ import { NotificationService } from '../../../shared/services/notification.servi
 import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
-import { MagasinService } from '../../magasin/magasin.service';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
 import { IMagasin } from "../../../shared/model";
 import { EMPTY, Subject } from 'rxjs';
 import { catchError, finalize, map, takeUntil, tap } from 'rxjs/operators';

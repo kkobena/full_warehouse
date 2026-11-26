@@ -1,0 +1,15 @@
+<div class="pharma-smart-content p-1">
+  <app-toolbar [title]="titre()" icon="pi pi-building">
+    <ng-container ngProjectAs="[toolbarActions]">
+      <app-button (clicked)="retourALaFiche()" [text]="true" icon="pi pi-arrow-left" label="Retour" severity="secondary" />
+    </ng-container>
+  </app-toolbar>
+
+  <app-magasin-form
+    (annuler)="retourALaFiche()"
+    (enregistrer)="enregistrer($event)"
+    [magasin]="magasin()"
+    [saving]="isSaving()"
+    class="magasin-edit__form"
+  />
+</div>

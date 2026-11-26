@@ -4,7 +4,7 @@ import { firstValueFrom, Observable } from 'rxjs';
 
 import { SERVER_API_URL } from 'app/app.constants';
 import { IMagasin } from 'app/shared/model/magasin.model';
-import { createRequestOptions } from '../../shared/util/request-util';
+import { createRequestOptions } from 'app/shared/util/request-util';
 
 type EntityResponseType = HttpResponse<IMagasin>;
 type EntityArrayResponseType = HttpResponse<IMagasin[]>;

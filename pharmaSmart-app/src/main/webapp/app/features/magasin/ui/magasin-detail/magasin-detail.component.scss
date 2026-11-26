@@ -1,4 +1,4 @@
-// Fiche du magasin : quatre cartes en deux colonnes, champs « libellé … valeur » sur une ligne (`app-detail-field`).
+// Quatre cartes en deux colonnes ; champs « libellé … valeur » sur une ligne (`app-detail-field`).
 
 :host {
   display: block;
@@ -8,7 +8,6 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
-
 
   @media (max-width: 992px) {
     grid-template-columns: minmax(0, 1fr);
@@ -21,14 +20,15 @@
     margin-top: 0.5rem;
   }
 
-  .magasin-texte-label {
+  &__label {
     font-size: 0.72rem;
-    color: #343a40;
+    color: var(--pharma-text-muted);
   }
 
   p {
     margin: 0.15rem 0 0;
     font-size: 0.85rem;
+    color: var(--pharma-text);
     white-space: pre-line;
     word-break: break-word;
   }

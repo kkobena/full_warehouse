@@ -1,10 +1,13 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { IPortConnectionStatus, ISerialPortDetail, IScannerUsbMode, ISystemInfo } from '../model/poste-device.model';
-import { TauriPrinterService } from './tauri-printer.service';
+import { isTauriRuntime } from '../util/tauri-runtime';
 
 /**
  * Service Tauri pour la détection des périphériques série (douchettes, afficheurs, imprimantes).
- * Réutilise TauriPrinterService pour la vérification Tauri (pas de duplication d'initialisation).
+ * Ne dépend d'AUCUN service qui appelle l'API : `tauriHeadersInterceptor` l'injecte pour chaque
+ * requête. Il injectait autrefois TauriPrinterService, dont le constructeur appelle l'API — la
+ * boucle TauriDeviceDetectionService → TauriPrinterService → HttpClient → intercepteur →
+ * TauriDeviceDetectionService levait NG0200 au démarrage sous Tauri.
  * L'invoke est récupéré via window.__TAURI__ initialisé par tauri-init.ts.
  *
  * Utilisation typique :
@@ -17,8 +20,6 @@ import { TauriPrinterService } from './tauri-printer.service';
   providedIn: 'root',
 })
 export class TauriDeviceDetectionService {
-  private readonly tauriPrinterService = inject(TauriPrinterService);
-
   /** System info du poste courant — alimenté par loadSystemInfo(), lu par l'interceptor HTTP. */
   readonly systemInfo = signal<ISystemInfo | null>(null);
 
@@ -32,7 +33,7 @@ export class TauriDeviceDetectionService {
    * Vérifie si Tauri est disponible (on est dans l'app desktop).
    */
   isTauriAvailable(): boolean {
-    return this.tauriPrinterService.isRunningInTauri();
+    return isTauriRuntime();
   }
 
   /**

@@ -17,7 +17,7 @@ import { IAvoirClientDocument } from "app/shared/model/avoir-client-document.mod
 import { IClientTiersPayant } from "app/shared/model/client-tiers-payant.model";
 import { CustomerService } from "./customer.service";
 import { HttpErrorResponse } from "@angular/common/http";
-import { MagasinService } from "../magasin/magasin.service";
+import { MagasinService } from "app/features/magasin/data-access/services/magasin.service";
 import { IMagasin } from "app/shared/model/magasin.model";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";

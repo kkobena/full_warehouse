@@ -1,0 +1,143 @@
+<form (ngSubmit)="soumettre()" [formGroup]="form" class="magasin-form" name="editForm" novalidate role="form">
+  @if (estUniteDeGestion()) {
+    <div class="alert alert-info magasin-form__note" role="note">
+      <i aria-hidden="true" class="pi pi-info-circle"></i>
+      <span>
+        Une unité de gestion tient son stock, sa caisse et ses commandes, mais n'a pas d'existence
+        juridique propre : elle facture sous l'identité FNE de son officine.
+      </span>
+    </div>
+  }
+
+  <div class="card-grid-2col">
+    <app-card [variant]="'form'" [withHeader]="true">
+      <div class="section-header section-header-required" ngProjectAs="[cardHeader]">
+        <i aria-hidden="true" class="pi pi-exclamation-circle"></i>
+        <span>Champs obligatoires</span>
+      </div>
+      <div class="form-grid-compact">
+        <div class="form-field form-field-full">
+          <label for="field_fullName">Raison sociale <span class="required">*</span></label>
+          <input #fullNameInput autocomplete="off" class="form-control" formControlName="fullName" id="field_fullName" type="text" />
+          @if (erreur('fullName', 'required')) {
+            <small class="p-error">Ce champ est obligatoire.</small>
+          }
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="field_name">Nom abrégé <span class="required">*</span></label>
+          <input autocomplete="off" class="form-control" formControlName="name" id="field_name" type="text" />
+          @if (erreur('name', 'required')) {
+            <small class="p-error">Ce champ est obligatoire.</small>
+          }
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="field_phone">Téléphone <span class="required">*</span></label>
+          <input autocomplete="off" class="form-control" formControlName="phone" id="field_phone" type="tel" />
+          @if (erreur('phone', 'required')) {
+            <small class="p-error">Ce champ est obligatoire.</small>
+          }
+        </div>
+      </div>
+    </app-card>
+
+    <app-card [variant]="'form'" [withHeader]="true">
+      <div class="section-header" ngProjectAs="[cardHeader]">
+        <i aria-hidden="true" class="pi pi-info-circle"></i>
+        <span>Informations complémentaires</span>
+      </div>
+      <div class="form-grid-compact">
+        <div class="form-field form-field-full">
+          <label for="email">Email</label>
+          <input autocomplete="off" class="form-control" data-cy="email" formControlName="email" id="email" type="email" />
+          @if (erreur('email', 'email')) {
+            <small class="p-error">L'email n'est pas valide.</small>
+          }
+          @if (erreur('email', 'minlength')) {
+            <small class="p-error">L'email doit comporter au moins 5 caractères.</small>
+          }
+          @if (erreur('email', 'maxlength')) {
+            <small class="p-error">L'email ne doit pas dépasser 254 caractères.</small>
+          }
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="field_address">Adresse</label>
+          <textarea class="form-control" formControlName="address" id="field_address" rows="3"></textarea>
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="field_registre">Registre de commerce</label>
+          <input class="form-control" formControlName="registre" id="field_registre" type="text" />
+        </div>
+      </div>
+    </app-card>
+  </div>
+
+  <div class="card-grid-2col magasin-form__suite">
+    <app-card [variant]="'form'" [withHeader]="true">
+      <div class="section-header" ngProjectAs="[cardHeader]">
+        <i aria-hidden="true" class="pi pi-file-edit"></i>
+        <span>Informations administratives</span>
+      </div>
+      <div class="form-grid-compact">
+        <div class="form-field form-field-full">
+          <label for="compteContribuable">Compte contribuable</label>
+          <input autocomplete="off" class="form-control" formControlName="compteContribuable" id="compteContribuable" type="text" />
+        </div>
+
+        @if (avecIdentiteFne()) {
+          <div class="form-field form-field-full">
+            <label for="fnePointOfSale">FNE point de vente</label>
+            <input class="form-control" formControlName="fnePointOfSale" id="fnePointOfSale" type="text" />
+          </div>
+          <div class="form-field form-field-full">
+            <label for="fneSecretKey">FNE clé secrète</label>
+            <input autocomplete="off" class="form-control" formControlName="fneSecretKey" id="fneSecretKey" type="password" />
+          </div>
+        }
+
+        <div class="form-field form-field-full">
+          <label for="numComptable">Numéro comptable</label>
+          <input autocomplete="off" class="form-control" formControlName="numComptable" id="numComptable" type="text" />
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="registreImposition">Registre d'imposition</label>
+          <input class="form-control" formControlName="registreImposition" id="registreImposition" type="text" />
+        </div>
+      </div>
+    </app-card>
+
+    <app-card [variant]="'form'" [withHeader]="true">
+      <div class="section-header" ngProjectAs="[cardHeader]">
+        <i aria-hidden="true" class="pi pi-comment"></i>
+        <span>Messages et notes</span>
+      </div>
+      <div class="form-grid-compact">
+        <div class="form-field form-field-full">
+          <label for="field_welcomeMessage">Message de bienvenue</label>
+          <input class="form-control" formControlName="welcomeMessage" id="field_welcomeMessage" type="text" />
+        </div>
+
+        <div class="form-field form-field-full">
+          <label for="field_note">Notes</label>
+          <input autocomplete="off" class="form-control" formControlName="note" id="field_note" type="text" />
+        </div>
+      </div>
+    </app-card>
+  </div>
+
+  <div class="form-actions-compact">
+    <app-button (clicked)="annuler.emit()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" />
+    <app-button
+      [disabled]="form.invalid || saving()"
+      [loading]="saving()"
+      icon="pi pi-check"
+      label="Enregistrer"
+      severity="primary"
+      type="submit"
+    />
+  </div>
+</form>

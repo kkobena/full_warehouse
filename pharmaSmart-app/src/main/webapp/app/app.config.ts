@@ -6,10 +6,11 @@ import {
   provideZoneChangeDetection
 } from '@angular/core';
 import {TauriDeviceDetectionService} from './shared/services/tauri-device-detection.service';
-import {provideHttpClient, withInterceptorsFromDi, withXhr} from '@angular/common/http';
+import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {
   NavigationError,
   provideRouter,
+  RedirectCommand,
   Router,
   RouterFeatures,
   TitleStrategy,
@@ -23,7 +24,7 @@ import {provideNgxWebstorage, withLocalStorage, withSessionStorage} from 'ngx-we
 import {environment} from '../environments/environment';
 import routes from './app.routes';
 import {AppPageTitleStrategy} from './app-page-title-strategy';
-import {httpInterceptorProviders} from './core/interceptor';
+import {httpInterceptorFeature, httpInterceptorProviders} from './core/interceptor';
 
 import {
   MissingTranslationHandler,
@@ -32,25 +33,22 @@ import {
 import {provideTranslateHttpLoader} from '@ngx-translate/http-loader';
 import {CustomMissingTranslationHandler} from './config/translation.config';
 import {translationInitializer} from './shared/language/translation.initializer';
-import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
 
 import { deviseInitializer } from 'app/shared/utils/devise.initializer';
 // --- Navigation error handler ---
-function handleNavigationError(e: NavigationError) {
+// Retourner une RedirectCommand laisse le routeur conduire la redirection lui-même, au lieu de
+// lancer une seconde navigation pendant que la première échoue.
+function handleNavigationError(e: NavigationError): RedirectCommand {
   const router = inject(Router);
   switch (e.error?.status) {
     case 401:
-      router.navigate(['/login']);
-      break;
+      return new RedirectCommand(router.parseUrl('/login'));
     case 403:
-      router.navigate(['/accessdenied']);
-      break;
+      return new RedirectCommand(router.parseUrl('/accessdenied'));
     case 404:
-      router.navigate(['/404']);
-      break;
+      return new RedirectCommand(router.parseUrl('/404'));
     default:
-      router.navigate(['/error']);
-      break;
+      return new RedirectCommand(router.parseUrl('/error'));
   }
 }
 
@@ -60,11 +58,12 @@ if (environment.DEBUG_INFO_ENABLED) {
   routerFeatures.push(withDebugTracing());
 }
 
-// --- AppConfig standalone Angular 21 ---
+// --- AppConfig standalone ---
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({eventCoalescing: true}),
-    provideHttpClient(withXhr(), withInterceptorsFromDi()),
+    // Ordre de la chaîne : intercepteurs de classe hérités, puis intercepteurs fonctionnels.
+    provideHttpClient(withInterceptorsFromDi(), httpInterceptorFeature),
 
     // --- Routing ---
     provideRouter(routes, ...routerFeatures),
@@ -78,7 +77,6 @@ export const appConfig: ApplicationConfig = {
     provideTranslateService({
       loader: provideTranslateHttpLoader({
         prefix: 'i18n/',
-        // @ts-ignore
         suffix: `.json?_=${I18N_HASH}`,
       }),
       missingTranslationHandler: {
@@ -100,9 +98,7 @@ export const appConfig: ApplicationConfig = {
     // --- Storage ---
     provideNgxWebstorage(withLocalStorage(), withSessionStorage()),
 
-    // --- Interceptors ---
+    // --- Interceptors (classes héritées, lues par withInterceptorsFromDi) ---
     httpInterceptorProviders,
-    // ---  Animations pour ngx-spinner ---
-    provideAnimationsAsync(),
   ],
 };

@@ -116,7 +116,7 @@ const routes: Routes = [
     path: "magasin",
     data: { pageTitle: "warehouseApp.magasin.home.title", abilitySubject: "magasin" },
     canActivate: [AuthGuard],
-    loadChildren: () => import("./magasin/magasin.route")
+    loadChildren: () => import("../features/magasin/magasin.routes")
   },
   {
     path: "poste",

@@ -1,0 +1,15 @@
+@use 'app/shared/scss/table-common' as *;
+
+:host {
+  display: block;
+}
+
+.unites-actions {
+  width: 6rem;
+  text-align: center;
+}
+
+.pharma-entity-name {
+  font-weight: 500;
+  color: var(--pharma-text);
+}

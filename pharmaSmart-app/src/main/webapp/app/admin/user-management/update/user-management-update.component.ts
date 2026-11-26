@@ -7,7 +7,7 @@ import { ButtonComponent, CardComponent, SelectComponent, ToolbarComponent } fro
 import { CommonModule } from "@angular/common";
 import { AlertErrorComponent } from "../../../shared/alert/alert-error.component";
 import { IAuthority, NavApiService } from "../../../core/data-access/nav-api.service";
-import { MagasinService } from "../../../entities/magasin/magasin.service";
+import { MagasinService } from "app/features/magasin/data-access/services/magasin.service";
 import { IMagasin } from "../../../shared/model/magasin.model";
 
 const userTemplate = {} as IUser;

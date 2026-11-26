@@ -17,7 +17,7 @@ import { FormsModule } from '@angular/forms';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ProduitStatService } from 'app/entities/produit/stat/produit-stat.service';
-import { MagasinService } from 'app/entities/magasin/magasin.service';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
 import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
 import { ProduitAuditingParam, ProduitAuditingState, ProduitAuditingSum } from 'app/shared/model/produit-record.model';
 import { MouvementProduit } from 'app/shared/model/enumerations/mouvement-produit.model';

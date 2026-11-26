@@ -25,7 +25,7 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {NgbDateStruct, NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 import {ConfigurationService} from "../../../shared/configuration.service";
 import {RayonService} from "../../rayon/rayon.service";
-import {MagasinService} from "../../magasin/magasin.service";
+import {MagasinService} from "app/features/magasin/data-access/services/magasin.service";
 import {StorageService} from "../../storage/storage.service";
 import {PeremptionStatut} from "../model/peremption-statut";
 import {PharmaDatePickerComponent} from "../../../shared/date-picker/pharma-date-picker.component";

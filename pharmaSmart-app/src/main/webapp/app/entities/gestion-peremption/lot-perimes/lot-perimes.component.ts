@@ -16,7 +16,7 @@ import {FormsModule} from "@angular/forms";
 import {RayonService} from "../../rayon/rayon.service";
 import {IRayon} from "../../../shared/model/rayon.model";
 import {IFournisseur} from "../../../shared/model/fournisseur.model";
-import {MagasinService} from "../../magasin/magasin.service";
+import {MagasinService} from "app/features/magasin/data-access/services/magasin.service";
 import {IMagasin} from "../../../shared/model";
 import {Storage} from "../../storage/storage.model";
 import {StorageService} from "../../storage/storage.service";

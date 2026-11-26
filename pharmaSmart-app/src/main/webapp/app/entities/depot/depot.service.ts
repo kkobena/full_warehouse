@@ -1,6 +1,6 @@
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { MagasinService } from '../magasin/magasin.service';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
 import { IMagasin } from '../../shared/model/magasin.model';
 import { SalesService } from '../sales/sales.service';
 import { SERVER_API_URL } from '../../app.constants';

@@ -8,7 +8,7 @@ import { RayonApiService } from '../../data-access/services/rayon-api.service';
 import { RayonProduitApiService } from '../../data-access/services/rayon-produit-api.service';
 import { StorageService } from '../../../../entities/storage/storage.service';
 import { Storage } from '../../../../entities/storage/storage.model';
-import { MagasinService } from '../../../../entities/magasin/magasin.service';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { ErrorService } from '../../../../shared/error.service';
 import { IResponseDto } from '../../../../shared/util/response-dto';

@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { MagasinService } from '../../entities/magasin/magasin.service';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
 
 @Injectable({ providedIn: 'root' })
 export class OfficineContextService {

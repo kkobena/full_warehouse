@@ -1,6 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { expectErrorStatuses } from 'app/core/interceptor/expected-error-statuses';
 
 import { DeviceType, IPosteDevice } from '../../../../shared/model/poste-device.model';
 
@@ -35,6 +36,8 @@ export class PosteDeviceService {
     return this.http.get<IPosteDevice>(`${this.resourceUrl(posteId)}/active`, {
       params: { type },
       observe: 'response',
+      // 404 = aucun périphérique actif de ce type : réponse prévue, pas une erreur à afficher.
+      context: expectErrorStatuses(404),
     });
   }
 

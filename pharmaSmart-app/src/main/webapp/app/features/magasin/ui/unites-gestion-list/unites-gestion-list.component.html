@@ -1,0 +1,59 @@
+<app-card header="Unités de gestion" icon="pi pi-sitemap">
+  <!-- Libellé distinct de « Modifier » : ce bouton-là reste celui de la fiche de l'officine. -->
+  <app-button
+    (clicked)="creer.emit()"
+    icon="pi pi-plus"
+    label="Nouvelle unité de gestion"
+    ngProjectAs="[cardActions]"
+    severity="primary"
+    size="small"
+  />
+
+  <app-data-table [loading]="loading()" [value]="unites()" class="p-datatable-sm" dataKey="id">
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th>Nom abrégé</th>
+        <th>Raison sociale</th>
+        <th>Téléphone</th>
+        <th>Commandes</th>
+        <th class="unites-actions">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-unite>
+      <tr>
+        <td><span class="pharma-entity-name">{{ unite.name }}</span></td>
+        <td>{{ unite.fullName }}</td>
+        <td>{{ unite.phone || '—' }}</td>
+        <td>
+          @if (unite.commandeEnPropre) {
+            <app-badge label="Passe ses commandes" severity="success" />
+          } @else {
+            <app-badge label="Approvisionnée par l'officine" severity="secondary" />
+          }
+        </td>
+        <td class="unites-actions">
+          <app-button
+            (clicked)="modifier.emit(unite)"
+            [ariaLabel]="'Éditer l’unité ' + unite.name"
+            [rounded]="true"
+            [text]="true"
+            icon="pi pi-pencil"
+            ngbTooltip="Éditer"
+            severity="info"
+            size="small"
+          />
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td class="pharma-empty-message" colspan="5">
+          Aucune unité de gestion. Créez-en une pour un rayon tenu à part au même endroit —
+          une parapharmacie, par exemple.
+        </td>
+      </tr>
+    </ng-template>
+  </app-data-table>
+</app-card>

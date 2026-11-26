@@ -1,0 +1,21 @@
+<div class="pharma-smart-content">
+  @if (magasin(); as m) {
+    <app-toolbar [compact]="true" [subtitle]="m.typeLibelle || ''" [title]="m.fullName || 'Informations du Magasin'" icon="pi pi-building">
+      <ng-container ngProjectAs="[toolbarActions]">
+        <app-button [routerLink]="['/magasin', m.id, 'edit']" icon="pi pi-pencil" label="Modifier" severity="primary" />
+      </ng-container>
+    </app-toolbar>
+
+    <app-magasin-detail [magasin]="m" />
+
+    @if (estOfficine()) {
+      <app-unites-gestion-list
+        (creer)="creerUnite()"
+        (modifier)="modifierUnite($event)"
+        [loading]="chargementUnites()"
+        [unites]="unites()"
+        class="magasin-home__unites"
+      />
+    }
+  }
+</div>

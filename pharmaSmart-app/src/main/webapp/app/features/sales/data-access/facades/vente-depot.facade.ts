@@ -7,7 +7,7 @@ import { filter, finalize, map, switchMap } from 'rxjs/operators';
 import { VenteDepotStore } from '../store/vente-depot.store';
 import { VenteDepotApiService } from '../services/vente-depot-api.service';
 import { SalesApiService } from '../services/sales-api.service';
-import { MagasinService } from '../../../../entities/magasin/magasin.service';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
 import { ConfigurationService } from '../../../../shared/configuration.service';
 import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
 import { FinalyseSale, ISales, SaleId, Sales, SaveResponse } from '../../../../shared/model/sales.model';

@@ -5,7 +5,10 @@ import {
 } from "../customer-display/customer-display-escpos.service";
 import { PosteDeviceService } from "../../features/settings/feature/poste/poste-device.service";
 import { firstValueFrom } from "rxjs";
+import { HttpErrorResponse } from "@angular/common/http";
 import { PosteService } from "../../features/settings/feature/poste/poste.service";
+import { isTauriRuntime } from "../util/tauri-runtime";
+import { IPosteDevice } from "../model/poste-device.model";
 
 export interface PrinterInfo {
   name: string;
@@ -41,13 +44,7 @@ export class TauriPrinterService {
    * Check if running in Tauri environment
    */
   isRunningInTauri(): boolean {
-    if (typeof window === "undefined") {
-      return false;
-    }
-
-    // Check for Tauri runtime internals (only exists in actual Tauri app, not browser)
-    // @ts-ignore
-    return !!window.__TAURI_INTERNALS__;
+    return isTauriRuntime();
   }
 
   /**
@@ -552,8 +549,7 @@ export class TauriPrinterService {
 
       if (posteData?.id) {
         // Fetch active DISPLAY device for this poste
-        const deviceResponse = await firstValueFrom(this.posteDeviceService.getActiveDevice(posteData.id, "DISPLAY"));
-        const device = deviceResponse.body;
+        const device = await this.fetchActiveDisplay(posteData.id);
 
         if (device?.portName) {
           const connectionType = this.determineConnectionType(device.portName);
@@ -576,7 +572,10 @@ export class TauriPrinterService {
             port: this.displayConfig.port
           });
         } else {
-          this.displayEnabled = false;
+          // Le poste est connu et le serveur dit qu'il n'a pas d'afficheur : cette réponse fait
+          // foi. La désactivation est aussi enregistrée localement — sinon le repli ci-dessous
+          // (serveur injoignable au démarrage suivant) réactiverait un afficheur retiré.
+          this.disableCustomerDisplay();
           this.displayConfig = null;
         }
       } else {
@@ -584,7 +583,10 @@ export class TauriPrinterService {
         this.displayConfig = null;
       }
     } catch (error) {
-      console.error("Failed to fetch poste configuration, falling back to localStorage:", error);
+      // 404 : poste non enregistré — cas prévu, repli silencieux sur la configuration locale.
+      if (!(error instanceof HttpErrorResponse && error.status === 404)) {
+        console.error("Failed to fetch poste configuration, falling back to localStorage:", error);
+      }
 
       // Fallback to localStorage configuration
       const savedConfig = this.loadDisplayConfig();
@@ -602,6 +604,21 @@ export class TauriPrinterService {
         this.displayConfig = null;
         this.displayEnabled = false;
       }
+    }
+  }
+
+  /**
+   * Afficheur actif du poste, ou `null` si le serveur répond qu'il n'y en a pas (404). Les autres
+   * erreurs remontent : le serveur ne s'est pas prononcé, le repli local reste légitime.
+   */
+  private async fetchActiveDisplay(posteId: number): Promise<IPosteDevice | null> {
+    try {
+      return (await firstValueFrom(this.posteDeviceService.getActiveDevice(posteId, "DISPLAY"))).body;
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.status === 404) {
+        return null;
+      }
+      throw error;
     }
   }
 

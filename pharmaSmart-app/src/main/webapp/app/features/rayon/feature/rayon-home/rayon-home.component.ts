@@ -5,7 +5,7 @@ import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs/operators';
-import { MagasinService } from '../../../../entities/magasin/magasin.service';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
 import { StorageService } from '../../../../entities/storage/storage.service';
 import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
 import { Storage } from '../../../../entities/storage/storage.model';

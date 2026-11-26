@@ -39,7 +39,7 @@ import { SalesFacade } from '../../data-access/facades/sales.facade';
 import { UserVendeurService } from '../../../../entities/sales/service/user-vendeur.service';
 import { IUser } from '../../../../core/user/user.model';
 import { CustomerDisplayService } from '../../data-access/services/customer-display.service';
-import { MagasinService } from '../../../../entities/magasin/magasin.service';
+import { MagasinService } from 'app/features/magasin/data-access/services/magasin.service';
 import { AccountService } from '../../../../core/auth/account.service';
 import { CashRegisterService } from '../../../../entities/cash-register/cash-register.service';
 import { RemiseCacheService } from '../../data-access/services/remise-cache.service';

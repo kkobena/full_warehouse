@@ -1,6 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { expectErrorStatuses } from 'app/core/interceptor/expected-error-statuses';
 import { IPoste } from "../../../../shared/model/poste.model";
 
 
@@ -24,7 +25,8 @@ export class PosteService {
   }
 
   getCurrentPoste(): Observable<EntityResponseType> {
-    return this.http.get<IPoste>(`${this.resourceUrl}/current`, { observe: 'response' });
+    // 404 = poste non enregistré : réponse prévue, pas une erreur à afficher.
+    return this.http.get<IPoste>(`${this.resourceUrl}/current`, { observe: 'response', context: expectErrorStatuses(404) });
   }
 
   delete(id: number): Observable<HttpResponse<void>> {

@@ -34,7 +34,7 @@ import {
 import {combineLatest} from 'rxjs';
 import {FormsModule} from '@angular/forms';
 import {StockDepotService} from './stock-depot.service';
-import {MagasinService} from '../../magasin/magasin.service';
+import {MagasinService} from 'app/features/magasin/data-access/services/magasin.service';
 import { CardComponent } from 'app/shared/ui';
 
 @Component({

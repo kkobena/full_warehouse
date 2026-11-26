@@ -10,7 +10,7 @@ import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from "
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {HttpResponse} from "@angular/common/http";
 import {finalize} from "rxjs/operators";
-import {MagasinService} from "../../../../entities/magasin/magasin.service";
+import {MagasinService} from "app/features/magasin/data-access/services/magasin.service";
 import {StorageService} from "../../../../entities/storage/storage.service";
 import {Storage} from "../../../../entities/storage/storage.model";
 import {ErrorService} from "../../../../shared/error.service";

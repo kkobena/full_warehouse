@@ -5,7 +5,7 @@ import {RayonApiService} from '../../data-access/services/rayon-api.service';
 import {IRayon} from '../../models/rayon.model';
 import {IProduit} from '../../../../shared/model';
 import {StorageService} from '../../../../entities/storage/storage.service';
-import {MagasinService} from '../../../../entities/magasin/magasin.service';
+import {MagasinService} from 'app/features/magasin/data-access/services/magasin.service';
 import {
   ButtonComponent,
   CardComponent,

@@ -28,7 +28,7 @@ import {HttpHeaders, HttpResponse} from '@angular/common/http';
 import {handleBlobForTauri} from '../../../shared/util/tauri-util';
 import {IMagasin} from '../../../shared/model';
 import {FormsModule} from '@angular/forms';
-import {MagasinService} from '../../magasin/magasin.service';
+import {MagasinService} from 'app/features/magasin/data-access/services/magasin.service';
 import {RouterLink} from '@angular/router';
 import {StockDepotService} from '../stock-depot/stock-depot.service';
 import {NGB_DATE_TO_ISO} from '../../../shared/util/warehouse-util';

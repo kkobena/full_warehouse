@@ -1,6 +1,6 @@
 import { Component, computed, inject, OnInit, ChangeDetectionStrategy, input, signal } from "@angular/core";
 import { CashRegisterService } from "../../cash-register/cash-register.service";
-import { MagasinService } from "../../magasin/magasin.service";
+import { MagasinService } from "app/features/magasin/data-access/services/magasin.service";
 import { IMagasin } from "../../../shared/model/magasin.model";
 import { FormsModule } from "@angular/forms";
 import { ITEMS_PER_PAGE } from "../../../shared/constants/pagination.constants";
